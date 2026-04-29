@@ -1,14 +1,14 @@
 package org.jmonkeyengine.jme3androidexamples;
 
-import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import com.jme3.system.JmeSystem;
 
-public class TestActivity extends AppCompatActivity {
+public class TestActivity extends FragmentActivity {
     JmeFragment fragment;
 
     @Override
@@ -49,7 +49,7 @@ public class TestActivity extends AppCompatActivity {
         fragment.setArguments(args);
 
 
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
@@ -83,13 +83,11 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.optionToggleKeyboard:
-                toggleKeyboard(true);
-//                Log.d(this.getClass().getSimpleName(), "showing soft keyboard");
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.optionToggleKeyboard) {
+            toggleKeyboard(true);
+//            Log.d(this.getClass().getSimpleName(), "showing soft keyboard");
+        } else {
+            return super.onOptionsItemSelected(item);
         }
 
         return true;

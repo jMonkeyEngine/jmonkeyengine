@@ -44,50 +44,66 @@ import java.util.EnumSet;
 public final class GLImageFormats {
     
     private GLImageFormats() { }
-    
+
     private static void format(GLImageFormat[][] formatToGL, Image.Format format, 
                                int glInternalFormat, 
                                int glFormat, 
-                               int glDataType){
-        formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType);
+                               int glDataType,
+                               boolean colorRenderable,
+                               boolean depthRenderable,
+                               boolean filterable) {
+        formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, colorRenderable, depthRenderable, filterable);
     }
-    
+
     private static void formatSwiz(GLImageFormat[][] formatToGL, Image.Format format, 
                                    int glInternalFormat, 
                                    int glFormat, 
-                                   int glDataType){
-        formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true);
+                                   int glDataType,
+                                   boolean colorRenderable,
+                                   boolean depthRenderable,
+                                   boolean filterable) {
+        formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true, colorRenderable, depthRenderable, filterable);
     }
-    
+
     private static void formatSrgb(GLImageFormat[][] formatToGL, Image.Format format, 
                                    int glInternalFormat, 
                                    int glFormat, 
-                                   int glDataType)
-    {
-        formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType);
+                                   int glDataType,
+                                   boolean colorRenderable,
+                                   boolean depthRenderable,
+                                   boolean filterable
+    ) {
+        formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, false, colorRenderable, depthRenderable, filterable);
     }
-    
+
     private static void formatSrgbSwiz(GLImageFormat[][] formatToGL, Image.Format format, 
                                        int glInternalFormat, 
                                        int glFormat, 
-                                       int glDataType)
-    {
-        formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true);
+                                       int glDataType,
+                                       boolean colorRenderable,
+                                       boolean depthRenderable,
+                                       boolean filterable) {
+        formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true, colorRenderable, depthRenderable, filterable);
     }
-    
+
     private static void formatComp(GLImageFormat[][] formatToGL, Image.Format format, 
                                    int glCompressedFormat,
                                    int glFormat, 
-                                   int glDataType){
-        formatToGL[0][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true);
+                                   int glDataType,
+                                   boolean colorRenderable,
+                                   boolean depthRenderable,
+                                   boolean filterable) {
+        formatToGL[0][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true, colorRenderable, depthRenderable, filterable);
     }
-    
+
     private static void formatCompSrgb(GLImageFormat[][] formatToGL, Image.Format format, 
                                        int glCompressedFormat,
                                        int glFormat, 
-                                       int glDataType)
-    {
-        formatToGL[1][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true);
+                                       int glDataType,
+                                       boolean colorRenderable,
+                                       boolean depthRenderable,
+                                       boolean filterable) {
+        formatToGL[1][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true, colorRenderable, depthRenderable, filterable);
     }
     
     /**
@@ -103,231 +119,277 @@ public final class GLImageFormats {
     public static GLImageFormat[][] getFormatsForCaps(EnumSet<Caps> caps) {
         GLImageFormat[][] formatToGL = new GLImageFormat[2][Image.Format.values().length];
         
+        boolean opengles = caps.contains(Caps.OpenGLES20);
+        boolean opengles3 = opengles && caps.contains(Caps.OpenGLES30);
+        boolean opengles2Only = opengles && !opengles3;
+        boolean webgl = caps.contains(Caps.WebGL);
+        boolean opengl = !opengles;
+        boolean coreProfile = caps.contains(Caps.CoreProfile);
+        boolean colorRenderableHalfFloatR = caps.contains(Caps.HalfFloatColorBufferR);
+        boolean colorRenderableHalfFloatRG = caps.contains(Caps.HalfFloatColorBufferRG);
+        boolean colorRenderableHalfFloatRGB = caps.contains(Caps.HalfFloatColorBufferRGB);
+        boolean colorRenderableHalfFloatRGBA = caps.contains(Caps.HalfFloatColorBufferRGBA);
+        boolean colorRenderableFloatR = caps.contains(Caps.FloatColorBufferR);
+        boolean colorRenderableFloatRG = caps.contains(Caps.FloatColorBufferRG);
+        boolean colorRenderableFloatRGB = caps.contains(Caps.FloatColorBufferRGB);
+        boolean colorRenderableFloatRGBA = caps.contains(Caps.FloatColorBufferRGBA);
+        boolean colorRenderablePackedFloat = caps.contains(Caps.PackedFloatColorBuffer);
+        boolean filterableHalfFloat = caps.contains(Caps.HalfFloatTextureFilter);
+        boolean filterableFloat = caps.contains(Caps.FloatTextureFilter);
+
         int halfFloatFormat = GLExt.GL_HALF_FLOAT_ARB;
-        if (caps.contains(Caps.OpenGLES20)) {
+        if (opengles2Only) {
             halfFloatFormat = GLExt.GL_HALF_FLOAT_OES;
         }
         
         // Core Profile Formats (supported by both OpenGL Core 3.3 and OpenGL ES 3.0+)
-        if (caps.contains(Caps.CoreProfile)) {
-            formatSwiz(formatToGL,     Format.Alpha8,               GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL,     Format.Luminance8,           GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL,     Format.Luminance8Alpha8,     GL3.GL_RG8,                GL3.GL_RG,       GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL,     Format.Luminance16F,         GL3.GL_R16F,               GL.GL_RED,       halfFloatFormat);
-            formatSwiz(formatToGL,     Format.Luminance32F,         GL3.GL_R32F,               GL.GL_RED,       GL.GL_FLOAT);
-            formatSwiz(formatToGL,     Format.Luminance16FAlpha16F, GL3.GL_RG16F,              GL3.GL_RG,       halfFloatFormat);
+        if (coreProfile) {
+            formatSwiz(formatToGL,     Format.Alpha8,               GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE, true, false, true);
+            formatSwiz(formatToGL,     Format.Luminance8,           GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE, true, false, true);
+            formatSwiz(formatToGL,     Format.Luminance8Alpha8,     GL3.GL_RG8,                GL3.GL_RG,       GL.GL_UNSIGNED_BYTE, true, false, true);
+            formatSwiz(formatToGL,     Format.Luminance16F,         GL3.GL_R16F,               GL.GL_RED,       halfFloatFormat, colorRenderableHalfFloatR, false, filterableHalfFloat);
+            formatSwiz(formatToGL,     Format.Luminance32F,         GL3.GL_R32F,               GL.GL_RED,       GL.GL_FLOAT, colorRenderableFloatR, false, filterableFloat);
+            formatSwiz(formatToGL,     Format.Luminance16FAlpha16F, GL3.GL_RG16F,              GL3.GL_RG,       halfFloatFormat, colorRenderableHalfFloatRG, false, filterableHalfFloat);
             
-            formatSrgbSwiz(formatToGL, Format.Luminance8,           GLExt.GL_SRGB8_EXT,        GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
-            formatSrgbSwiz(formatToGL, Format.Luminance8Alpha8,     GLExt.GL_SRGB8_ALPHA8_EXT, GL3.GL_RG,       GL.GL_UNSIGNED_BYTE);
+            formatSrgbSwiz(formatToGL, Format.Luminance8,           GLExt.GL_SRGB8_EXT,        GL.GL_RED,       GL.GL_UNSIGNED_BYTE, opengl, false, true);
+            formatSrgbSwiz(formatToGL, Format.Luminance8Alpha8,     GLExt.GL_SRGB8_ALPHA8_EXT, GL3.GL_RG,       GL.GL_UNSIGNED_BYTE, opengl || opengles3 || webgl, false, true);
         }
         
-        if (caps.contains(Caps.OpenGL20)||caps.contains(Caps.OpenGLES30)) {
-            if (!caps.contains(Caps.CoreProfile)) {
-                format(formatToGL, Format.Alpha8,           GL2.GL_ALPHA8,            GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8,       GL2.GL_LUMINANCE8,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8Alpha8, GL2.GL_LUMINANCE8_ALPHA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+        if (caps.contains(Caps.OpenGL20)||opengles3) {
+            if (!coreProfile) {
+                format(formatToGL, Format.Alpha8,           GL2.GL_ALPHA8,            GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE, opengl, false, true);
+                format(formatToGL, Format.Luminance8,       GL2.GL_LUMINANCE8,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, opengl, false, true);
+                format(formatToGL, Format.Luminance8Alpha8, GL2.GL_LUMINANCE8_ALPHA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, opengl, false, true);
             }
-            format(formatToGL, Format.RGB8,             GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8,           GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGB565,           GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5);
+            format(formatToGL, Format.RGB8,             GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, opengl || opengles3 || webgl, false, true);
+            format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8,           GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
+            if (opengles3 || webgl) {
+                format(formatToGL, Format.RGB565,           GLES_30.GL_RGB565,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, true, false, true);
+            } else {
+                format(formatToGL, Format.RGB565,           GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, opengl || opengles3 || webgl, false, true);
+            }
             
-            // Additional desktop-specific formats:
-            format(formatToGL, Format.BGR8,             GL2.GL_RGB8,     GL2.GL_BGR,  GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.ARGB8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL2.GL_UNSIGNED_INT_8_8_8_8);
-            format(formatToGL, Format.BGRA8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.ABGR8,            GLExt.GL_RGBA8,  GL.GL_RGBA,  GL2.GL_UNSIGNED_INT_8_8_8_8);
+            // Additional desktop-specific formats.
+            if (opengl) {
+                format(formatToGL, Format.BGR8,             GL2.GL_RGB8,     GL2.GL_BGR,  GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.ARGB8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
+                format(formatToGL, Format.BGRA8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.ABGR8,            GLExt.GL_RGBA8,  GL.GL_RGBA,  GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
+            }
             
             // sRGB formats
             if (caps.contains(Caps.Srgb)) {
-                formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
-                formatSrgb(formatToGL, Format.RGB565,           GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5);
-                formatSrgb(formatToGL, Format.RGB5A1,           GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_SHORT_5_5_5_1);
-                formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
-                if (!caps.contains(Caps.CoreProfile)) {
-                    formatSrgb(formatToGL, Format.Luminance8,       GLExt.GL_SLUMINANCE8_EXT,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-                    formatSrgb(formatToGL, Format.Luminance8Alpha8, GLExt.GL_SLUMINANCE8_ALPHA8_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+                formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, opengl, false, true);
+                formatSrgb(formatToGL, Format.RGB565,       GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, opengl, false, true);
+                formatSrgb(formatToGL, Format.RGB5A1,       GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_SHORT_5_5_5_1, opengl, false, true);
+
+                formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
+                if (!coreProfile) {
+                    formatSrgb(formatToGL, Format.Luminance8,       GLExt.GL_SLUMINANCE8_EXT,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, opengl, false, true);
+                    formatSrgb(formatToGL, Format.Luminance8Alpha8, GLExt.GL_SLUMINANCE8_ALPHA8_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, opengl, false, true);
                 }
-                formatSrgb(formatToGL, Format.BGR8,             GLExt.GL_SRGB8_EXT,              GL2.GL_BGR,            GL.GL_UNSIGNED_BYTE);
-                formatSrgb(formatToGL, Format.ABGR8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL2.GL_UNSIGNED_INT_8_8_8_8);
-                formatSrgb(formatToGL, Format.ARGB8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL2.GL_UNSIGNED_INT_8_8_8_8);
-                formatSrgb(formatToGL, Format.BGRA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL.GL_UNSIGNED_BYTE);
+                if (opengl) {
+                    formatSrgb(formatToGL, Format.BGR8,             GLExt.GL_SRGB8_EXT,              GL2.GL_BGR,            GL.GL_UNSIGNED_BYTE, true, false, true);
+                    formatSrgb(formatToGL, Format.ABGR8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
+                    formatSrgb(formatToGL, Format.ARGB8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
+                    formatSrgb(formatToGL, Format.BGRA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL.GL_UNSIGNED_BYTE, true, false, true);
+                }
                 
                 if (caps.contains(Caps.TextureCompressionS3TC)) {
-                    formatCompSrgb(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
-                    formatCompSrgb(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-                    formatCompSrgb(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-                    formatCompSrgb(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+                    formatCompSrgb(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
+                    formatCompSrgb(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+                    formatCompSrgb(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+                    formatCompSrgb(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
                 }
             }
         } else if (caps.contains(Caps.Rgba8)) {
             // A more limited form of 32-bit RGBA. Only GL_RGBA8 is available.
-            if (!caps.contains(Caps.CoreProfile)) {
-                format(formatToGL, Format.Alpha8,           GLExt.GL_RGBA8, GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8,       GLExt.GL_RGBA8, GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8Alpha8, GLExt.GL_RGBA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+            if (!coreProfile) {
+                format(formatToGL, Format.Alpha8,           GLExt.GL_RGBA8, GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.Luminance8,       GLExt.GL_RGBA8, GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.Luminance8Alpha8, GLExt.GL_RGBA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, true, false, true);
             }
-            format(formatToGL, Format.RGB8,             GL2.GL_RGB8,    GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8, GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGB8,             GL2.GL_RGB8,    GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, true, false, true);
+            format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8, GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
             
-            formatSwiz(formatToGL, Format.BGR8, GL2.GL_RGB8, GL2.GL_RGB, GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL, Format.ARGB8, GLExt.GL_RGBA8, GL2.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL, Format.BGRA8, GLExt.GL_RGBA8, GL2.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatSwiz(formatToGL, Format.ABGR8, GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+            if (opengl) {
+                formatSwiz(formatToGL, Format.BGR8, GL2.GL_RGB8, GL2.GL_RGB, GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.ARGB8, GLExt.GL_RGBA8, GL2.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.BGRA8, GLExt.GL_RGBA8, GL2.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.ABGR8, GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+            }
         } else {
             // Actually, the internal format isn't used for OpenGL ES 2! This is the same as the above.
-            if (!caps.contains(Caps.CoreProfile)) {
-                format(formatToGL, Format.Alpha8,           GL.GL_RGBA4,   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8,       GL.GL_RGB565,  GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-                format(formatToGL, Format.Luminance8Alpha8, GL.GL_RGBA4,   GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+            if (!coreProfile) {
+                format(formatToGL, Format.Alpha8,           GL.GL_RGBA4,   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.Luminance8,       GL.GL_RGB565,  GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, true, false, true);
+                format(formatToGL, Format.Luminance8Alpha8, GL.GL_RGBA4,   GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, true, false, true);
             }
-            format(formatToGL, Format.RGB8,             GL.GL_RGB565,  GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGBA8,            GL.GL_RGBA4,   GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGB8,             GL.GL_RGB565,  GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, true, false, true);
+            format(formatToGL, Format.RGBA8,            GL.GL_RGBA4,   GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
         }
         
-        if (caps.contains(Caps.OpenGLES20)) {
-            format(formatToGL, Format.RGB565, GL.GL_RGB565,  GL.GL_RGB, GL.GL_UNSIGNED_SHORT_5_6_5);
+        if (opengles) {
+            format(formatToGL, Format.RGB565, GL.GL_RGB565,  GL.GL_RGB, GL.GL_UNSIGNED_SHORT_5_6_5, true, false, true);
         }
         
-        format(formatToGL, Format.RGB5A1, GL.GL_RGB5_A1, GL.GL_RGBA, GL.GL_UNSIGNED_SHORT_5_5_5_1);
+        format(formatToGL, Format.RGB5A1, GL.GL_RGB5_A1, GL.GL_RGBA, GL.GL_UNSIGNED_SHORT_5_5_5_1, true, false, true);
         
-        if (caps.contains(Caps.FloatTexture)) {
-            if (!caps.contains(Caps.CoreProfile)) {
-                format(formatToGL, Format.Luminance16F,         GLExt.GL_LUMINANCE16F_ARB,       GL.GL_LUMINANCE,       halfFloatFormat);
-                format(formatToGL, Format.Luminance32F,         GLExt.GL_LUMINANCE32F_ARB,       GL.GL_LUMINANCE,       GL.GL_FLOAT);
-                format(formatToGL, Format.Luminance16FAlpha16F, GLExt.GL_LUMINANCE_ALPHA16F_ARB, GL.GL_LUMINANCE_ALPHA, halfFloatFormat);
+        if (caps.contains(Caps.HalfFloatTexture) || caps.contains(Caps.FloatTexture)) {
+            if (!coreProfile) {
+                if (caps.contains(Caps.HalfFloatTexture)) {
+                    format(formatToGL, Format.Luminance16F,         GLExt.GL_LUMINANCE16F_ARB,       GL.GL_LUMINANCE,       halfFloatFormat, false, false, filterableHalfFloat);
+                    format(formatToGL, Format.Luminance16FAlpha16F, GLExt.GL_LUMINANCE_ALPHA16F_ARB, GL.GL_LUMINANCE_ALPHA, halfFloatFormat, false, false, filterableHalfFloat);
+                }
+                if (caps.contains(Caps.FloatTexture)) {
+                    format(formatToGL, Format.Luminance32F,         GLExt.GL_LUMINANCE32F_ARB,       GL.GL_LUMINANCE,       GL.GL_FLOAT, false, false, filterableFloat);
+                }
             }
-            format(formatToGL, Format.R16F,                 GL3.GL_R16F,                     GL3.GL_RED,            halfFloatFormat);
-            format(formatToGL, Format.R32F,                 GL3.GL_R32F,                     GL3.GL_RED,            GL.GL_FLOAT);
-            format(formatToGL, Format.RG16F,                GL3.GL_RG16F,                    GL3.GL_RG,             halfFloatFormat);
-            format(formatToGL, Format.RG32F,                GL3.GL_RG32F,                    GL3.GL_RG,             GL.GL_FLOAT);
-            format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat);
-            format(formatToGL, Format.RGB32F,               GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT);
-            format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat);
-            format(formatToGL, Format.RGBA32F,              GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT);
+            if (caps.contains(Caps.HalfFloatTexture)) {
+                format(formatToGL, Format.R16F,                 GL3.GL_R16F,                     GL3.GL_RED,            halfFloatFormat, colorRenderableHalfFloatR, false, filterableHalfFloat);
+                format(formatToGL, Format.RG16F,                GL3.GL_RG16F,                    GL3.GL_RG,             halfFloatFormat, colorRenderableHalfFloatRG, false, filterableHalfFloat);
+                format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat, colorRenderableHalfFloatRGB, false, filterableHalfFloat);
+                format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat, colorRenderableHalfFloatRGBA, false, filterableHalfFloat);
+            }
+            if (caps.contains(Caps.FloatTexture)) {
+                format(formatToGL, Format.R32F,                 GL3.GL_R32F,                     GL3.GL_RED,            GL.GL_FLOAT, colorRenderableFloatR, false, filterableFloat);
+                format(formatToGL, Format.RG32F,                GL3.GL_RG32F,                    GL3.GL_RG,             GL.GL_FLOAT, colorRenderableFloatRG, false, filterableFloat);
+                format(formatToGL, Format.RGB32F,               GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT, colorRenderableFloatRGB, false, filterableFloat);
+                format(formatToGL, Format.RGBA32F,              GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT, colorRenderableFloatRGBA, false, filterableFloat);
+            }
         }
         if (caps.contains(Caps.PackedFloatTexture)) {
-            format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB, GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT);
-            if (caps.contains(Caps.FloatTexture)) {
-                format(formatToGL, Format.RGB16F_to_RGB111110F, GLExt.GL_R11F_G11F_B10F_EXT, GL.GL_RGB, halfFloatFormat);
+            format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB, GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT, colorRenderablePackedFloat, false, opengl || opengles3);
+            if (caps.contains(Caps.HalfFloatTexture)) {
+                format(formatToGL, Format.RGB16F_to_RGB111110F, GLExt.GL_R11F_G11F_B10F_EXT, GL.GL_RGB, halfFloatFormat, false, false, opengl || opengles3);
             }
         }
         if (caps.contains(Caps.SharedExponentTexture)) {
-            format(formatToGL, Format.RGB9E5, GLExt.GL_RGB9_E5_EXT, GL.GL_RGB, GLExt.GL_UNSIGNED_INT_5_9_9_9_REV_EXT);
-            if (caps.contains(Caps.FloatTexture)) {
-                format(formatToGL, Format.RGB16F_to_RGB9E5,     GLExt.GL_RGB9_E5_EXT,         GL.GL_RGB, halfFloatFormat);
+            format(formatToGL, Format.RGB9E5, GLExt.GL_RGB9_E5_EXT, GL.GL_RGB, GLExt.GL_UNSIGNED_INT_5_9_9_9_REV_EXT, false, false, opengl || opengles3);
+            if (caps.contains(Caps.HalfFloatTexture)) {
+                format(formatToGL, Format.RGB16F_to_RGB9E5,     GLExt.GL_RGB9_E5_EXT,         GL.GL_RGB, halfFloatFormat, false, false, opengl || opengles3);
             }
         }
 
         // Supported in GLES30 core 
         if (caps.contains(Caps.OpenGLES30)) { 
-            format(formatToGL, Format.RGB10A2,              GLES_30.GL_RGB10_A2,             GL.GL_RGBA,            GLES_30.GL_UNSIGNED_INT_2_10_10_10_REV);
-            format(formatToGL, Format.Alpha8,               GL2.GL_ALPHA8,                   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.Luminance8,           GL.GL_LUMINANCE,                 GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.Luminance8Alpha8,     GL.GL_LUMINANCE_ALPHA,           GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGB10A2,              GLES_30.GL_RGB10_A2,             GL.GL_RGBA,            GLES_30.GL_UNSIGNED_INT_2_10_10_10_REV, true, false, true);
+            if (!coreProfile) {
+                format(formatToGL, Format.Alpha8,               GL.GL_ALPHA,                     GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE, false, false, true);
+                format(formatToGL, Format.Luminance8,           GL.GL_LUMINANCE,                 GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, false, false, true);
+                format(formatToGL, Format.Luminance8Alpha8,     GL.GL_LUMINANCE_ALPHA,           GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, false, false, true);
+            }
 
-            formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
-            formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
+            if (caps.contains(Caps.Srgb)) {
+                formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, false, false, true);
+                formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
+            }
 
-            //Depending on the device could be better to use the previously defined extension based float textures instead of gles3.0 texture formats
-//            if (!caps.contains(Caps.FloatTexture)) {
-                format(formatToGL, Format.RGB16F,           GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             GLExt.GL_HALF_FLOAT_ARB);
-                format(formatToGL, Format.RGB32F,           GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT);
-                format(formatToGL, Format.RGBA16F,          GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            GLExt.GL_HALF_FLOAT_ARB);
-                format(formatToGL, Format.RGBA32F,          GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT);
-//            }
-            format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB,             GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT);
+            // Depending on the device, the extension-based definitions above may have already defined these.
+            if (caps.contains(Caps.HalfFloatTexture)) {
+                format(formatToGL, Format.RGB16F,           GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat, colorRenderableHalfFloatRGB, false, filterableHalfFloat);
+                format(formatToGL, Format.RGBA16F,          GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat, colorRenderableHalfFloatRGBA, false, filterableHalfFloat);
+            }
+            if (caps.contains(Caps.FloatTexture)) {
+                format(formatToGL, Format.RGB32F,           GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT, colorRenderableFloatRGB, false, filterableFloat);
+                format(formatToGL, Format.RGBA32F,          GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT, colorRenderableFloatRGBA, false, filterableFloat);
+            }
+            format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB,             GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT, colorRenderablePackedFloat, false, true);
         }
         
         // Need to check whether Caps.DepthTexture is supported before using it for textures.
         // But for render buffers it's OK.
-        format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
+        format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT, false, true, false);
         
         
         if (caps.contains(Caps.WebGL)) {
             // NOTE: fallback to 24-bit depth as workaround for firefox bug in WebGL 2 where DEPTH_COMPONENT16 is not handled properly
-            format(formatToGL, Format.Depth, GL2.GL_DEPTH_COMPONENT24, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT);
+            format(formatToGL, Format.Depth, GL2.GL_DEPTH_COMPONENT24, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         } else if (caps.contains(Caps.OpenGLES20)) {
             // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.
-            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT16, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
+            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT16, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT, false, true, false);
         } else {
-            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE, false, true, false);
         }
         if (caps.contains(Caps.OpenGLES30) || caps.contains(Caps.OpenGL20) || caps.contains(Caps.Depth24)) {
-            format(formatToGL, Format.Depth24, GL2.GL_DEPTH_COMPONENT24,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT);
+            format(formatToGL, Format.Depth24, GL2.GL_DEPTH_COMPONENT24,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
+        }
+        if (caps.contains(Caps.OpenGL20)) {
+            format(formatToGL, Format.Depth32, GL2.GL_DEPTH_COMPONENT32,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         }
         if (caps.contains(Caps.FloatDepthBuffer)) {
-            format(formatToGL, Format.Depth32F, GLExt.GL_DEPTH_COMPONENT32F,  GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT);
+            format(formatToGL, Format.Depth32F, GLExt.GL_DEPTH_COMPONENT32F,  GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT, false, true, false);
         }
         if (caps.contains(Caps.PackedDepthStencilBuffer)) {
-            format(formatToGL, Format.Depth24Stencil8, GLExt.GL_DEPTH24_STENCIL8_EXT, GLExt.GL_DEPTH_STENCIL_EXT, GLExt.GL_UNSIGNED_INT_24_8_EXT);
+            format(formatToGL, Format.Depth24Stencil8, GLExt.GL_DEPTH24_STENCIL8_EXT, GLExt.GL_DEPTH_STENCIL_EXT, GLExt.GL_UNSIGNED_INT_24_8_EXT, false, true, false);
         }
         
         // Compressed formats
         if (caps.contains(Caps.TextureCompressionS3TC)) {
-            formatComp(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_RGB_S3TC_DXT1_EXT,  GL.GL_RGB,  GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_RGB_S3TC_DXT1_EXT,  GL.GL_RGB,  GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
         }
 
-        if(caps.contains(Caps.OpenGL30) || caps.contains(Caps.TextureCompressionRGTC)){
-            formatComp(formatToGL, Format.RGTC2,  GL3.GL_COMPRESSED_RG_RGTC2,  GL3.GL_RG,  GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.SIGNED_RGTC2,  GL3.GL_COMPRESSED_SIGNED_RG_RGTC2,  GL3.GL_RG,  GL.GL_BYTE);
-            formatComp(formatToGL, Format.RGTC1,  GL3.GL_COMPRESSED_RED_RGTC1,  GL3.GL_RED,  GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.SIGNED_RGTC1,  GL3.GL_COMPRESSED_SIGNED_RED_RGTC1,  GL3.GL_RED,  GL.GL_BYTE);
+        if (caps.contains(Caps.OpenGL30) || caps.contains(Caps.TextureCompressionRGTC)) {
+            formatComp(formatToGL, Format.RGTC2,  GL3.GL_COMPRESSED_RG_RGTC2,  GL3.GL_RG,  GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.SIGNED_RGTC2,  GL3.GL_COMPRESSED_SIGNED_RG_RGTC2,  GL3.GL_RG,  GL.GL_BYTE, false, false, true);
+            formatComp(formatToGL, Format.RGTC1,  GL3.GL_COMPRESSED_RED_RGTC1,  GL3.GL_RED,  GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.SIGNED_RGTC1,  GL3.GL_COMPRESSED_SIGNED_RED_RGTC1,  GL3.GL_RED,  GL.GL_BYTE, false, false, true);
         }
         
         if (caps.contains(Caps.TextureCompressionETC2)) {
-            formatComp(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_RGBA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_RGBA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
             if (caps.contains(Caps.Srgb)) {
-                formatCompSrgb(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-                formatCompSrgb(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
-                formatCompSrgb(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_SRGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+                formatCompSrgb(formatToGL, Format.ETC2, GLExt.GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+                formatCompSrgb(formatToGL, Format.ETC2_ALPHA1, GLExt.GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false, false, true);
+                formatCompSrgb(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_SRGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
             }
         } else if (caps.contains(Caps.TextureCompressionETC1)) {
-            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
         }
         
         
         
-        if(caps.contains(Caps.OpenGL42) || caps.contains(Caps.TextureCompressionBPTC)) {
-            formatComp(formatToGL, Format.BC6H_SF16, GLExt.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.BC6H_UF16, GLExt.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
-            formatComp(formatToGL, Format.BC7_UNORM, GLExt.GL_COMPRESSED_RGBA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT);
-            formatComp(formatToGL, Format.BC7_UNORM_SRGB, GLExt.GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT);
+        if (caps.contains(Caps.OpenGL42) || caps.contains(Caps.TextureCompressionBPTC)) {
+            formatComp(formatToGL, Format.BC6H_SF16, GLExt.GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.BC6H_UF16, GLExt.GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false, false, true);
+            formatComp(formatToGL, Format.BC7_UNORM, GLExt.GL_COMPRESSED_RGBA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT, false, false, true);
+            formatComp(formatToGL, Format.BC7_UNORM_SRGB, GLExt.GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM, GL.GL_RGBA, GL.GL_UNSIGNED_INT, false, false, true);
         }
         
         // Integer formats
-        if(caps.contains(Caps.IntegerTexture)) {     
-            format(formatToGL, Format.R8I, GL3.GL_R8I, GL3.GL_RED_INTEGER, GL.GL_BYTE);
-            format(formatToGL, Format.R8UI, GL3.GL_R8UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.R16I, GL3.GL_R16I, GL3.GL_RED_INTEGER, GL.GL_SHORT);
-            format(formatToGL, Format.R16UI, GL3.GL_R16UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_SHORT);
-            format(formatToGL, Format.R32I, GL3.GL_R32I, GL3.GL_RED_INTEGER, GL.GL_INT);
-            format(formatToGL, Format.R32UI, GL3.GL_R32UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_INT);
+        if (caps.contains(Caps.IntegerTexture)) {
+            format(formatToGL, Format.R8I, GL3.GL_R8I, GL3.GL_RED_INTEGER, GL.GL_BYTE, true, false, false);
+            format(formatToGL, Format.R8UI, GL3.GL_R8UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_BYTE, true, false, false);
+            format(formatToGL, Format.R16I, GL3.GL_R16I, GL3.GL_RED_INTEGER, GL.GL_SHORT, true, false, false);
+            format(formatToGL, Format.R16UI, GL3.GL_R16UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_SHORT, true, false, false);
+            format(formatToGL, Format.R32I, GL3.GL_R32I, GL3.GL_RED_INTEGER, GL.GL_INT, true, false, false);
+            format(formatToGL, Format.R32UI, GL3.GL_R32UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_INT, true, false, false);
             
-            format(formatToGL, Format.RG8I, GL3.GL_RG8I, GL3.GL_RG_INTEGER, GL.GL_BYTE);
-            format(formatToGL, Format.RG8UI, GL3.GL_RG8UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RG16I, GL3.GL_RG16I, GL3.GL_RG_INTEGER, GL.GL_SHORT);
-            format(formatToGL, Format.RG16UI, GL3.GL_RG16UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_SHORT);
-            format(formatToGL, Format.RG32I, GL3.GL_RG32I, GL3.GL_RG_INTEGER, GL.GL_INT);
-            format(formatToGL, Format.RG32UI, GL3.GL_RG32UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_INT);
+            format(formatToGL, Format.RG8I, GL3.GL_RG8I, GL3.GL_RG_INTEGER, GL.GL_BYTE, true, false, false);
+            format(formatToGL, Format.RG8UI, GL3.GL_RG8UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_BYTE, true, false, false);
+            format(formatToGL, Format.RG16I, GL3.GL_RG16I, GL3.GL_RG_INTEGER, GL.GL_SHORT, true, false, false);
+            format(formatToGL, Format.RG16UI, GL3.GL_RG16UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_SHORT, true, false, false);
+            format(formatToGL, Format.RG32I, GL3.GL_RG32I, GL3.GL_RG_INTEGER, GL.GL_INT, true, false, false);
+            format(formatToGL, Format.RG32UI, GL3.GL_RG32UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_INT, true, false, false);
             
-            format(formatToGL, Format.RGB8I, GL3.GL_RGB8I, GL3.GL_RGB_INTEGER, GL.GL_BYTE);
-            format(formatToGL, Format.RGB8UI, GL3.GL_RGB8UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGB16I, GL3.GL_RGB16I, GL3.GL_RGB_INTEGER, GL.GL_SHORT);
-            format(formatToGL, Format.RGB16UI, GL3.GL_RGB16UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_SHORT);
-            format(formatToGL, Format.RGB32I, GL3.GL_RGB32I, GL3.GL_RGB_INTEGER, GL.GL_INT);
-            format(formatToGL, Format.RGB32UI, GL3.GL_RGB32UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_INT);
+            format(formatToGL, Format.RGB8I, GL3.GL_RGB8I, GL3.GL_RGB_INTEGER, GL.GL_BYTE, false, false, false);
+            format(formatToGL, Format.RGB8UI, GL3.GL_RGB8UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_BYTE, false, false, false);
+            format(formatToGL, Format.RGB16I, GL3.GL_RGB16I, GL3.GL_RGB_INTEGER, GL.GL_SHORT, false, false, false);
+            format(formatToGL, Format.RGB16UI, GL3.GL_RGB16UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_SHORT, false, false, false);
+            format(formatToGL, Format.RGB32I, GL3.GL_RGB32I, GL3.GL_RGB_INTEGER, GL.GL_INT, false, false, false);
+            format(formatToGL, Format.RGB32UI, GL3.GL_RGB32UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_INT, false, false, false);
             
-            format(formatToGL, Format.RGBA8I, GL3.GL_RGBA8I, GL3.GL_RGBA_INTEGER, GL.GL_BYTE);
-            format(formatToGL, Format.RGBA8UI, GL3.GL_RGBA8UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_BYTE);
-            format(formatToGL, Format.RGBA16I, GL3.GL_RGBA16I, GL3.GL_RGBA_INTEGER, GL.GL_SHORT);
-            format(formatToGL, Format.RGBA16UI, GL3.GL_RGBA16UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_SHORT);
-            format(formatToGL, Format.RGBA32I, GL3.GL_RGBA32I, GL3.GL_RGBA_INTEGER, GL.GL_INT);
-            format(formatToGL, Format.RGBA32UI, GL3.GL_RGBA32UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_INT);
+            format(formatToGL, Format.RGBA8I, GL3.GL_RGBA8I, GL3.GL_RGBA_INTEGER, GL.GL_BYTE, true, false, false);
+            format(formatToGL, Format.RGBA8UI, GL3.GL_RGBA8UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_BYTE, true, false, false);
+            format(formatToGL, Format.RGBA16I, GL3.GL_RGBA16I, GL3.GL_RGBA_INTEGER, GL.GL_SHORT, true, false, false);
+            format(formatToGL, Format.RGBA16UI, GL3.GL_RGBA16UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_SHORT, true, false, false);
+            format(formatToGL, Format.RGBA32I, GL3.GL_RGBA32I, GL3.GL_RGBA_INTEGER, GL.GL_INT, true, false, false);
+            format(formatToGL, Format.RGBA32UI, GL3.GL_RGBA32UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_INT, true, false, false);
         }
         
         return formatToGL;

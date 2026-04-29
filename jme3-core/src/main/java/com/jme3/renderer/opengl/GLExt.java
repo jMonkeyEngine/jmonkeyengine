@@ -293,6 +293,29 @@ public interface GLExt {
         throw new UnsupportedOperationException("Uniform buffer objects are not supported");
     }
 
+    /**
+     * Retrieves the index of a named program resource.
+     *
+     * @param program          the name of a program object
+     * @param programInterface the program interface containing the resource
+     * @param name             the name of the resource
+     * @return the resource index
+     */
+    public default int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        throw new UnsupportedOperationException("Shader storage buffer objects are not supported");
+    }
+
+    /**
+     * Assigns a shader storage block to a binding point.
+     *
+     * @param program             the name of a program object
+     * @param storageBlockIndex   the index of the shader storage block within {@code program}
+     * @param storageBlockBinding the binding point to assign
+     */
+    public default void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        throw new UnsupportedOperationException("Shader storage buffer objects are not supported");
+    }
+
     public default void glPushDebugGroup(int source, int id, String message) {
     }
 

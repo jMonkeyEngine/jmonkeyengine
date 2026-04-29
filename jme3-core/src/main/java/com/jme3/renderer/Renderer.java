@@ -42,6 +42,7 @@ import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
@@ -422,13 +423,15 @@ public interface Renderer {
      * <p>As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
      * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the
-     * {@link Caps#Srgb} is supported by the GPU.
+     * {@link Caps#Srgb} and {@link Caps#SrgbWriteControl} capabilities are
+     * supported by the GPU.
      *
      * @param srgb true for sRGB colorspace, false for linear colorspace
      * @throws RendererException If the GPU hardware does not support sRGB.
      *
      * @see FrameBuffer#setSrgb(boolean)
      * @see Caps#Srgb
+     * @see Caps#SrgbWriteControl
      */
     public void setMainFrameBufferSrgb(boolean srgb);
 
@@ -560,4 +563,49 @@ public interface Renderer {
      * Registers a NativeObject to be cleaned up by this renderer.
      */
     public void registerNativeObject(NativeObject nativeObject);
+
+    public default Format getBestColorTargetFormat(boolean floatingPoint) {
+        return getBestColorTargetFormat(floatingPoint, true, false);
+    }
+
+    public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha) {
+        if (!floatingPoint) {
+            return Format.RGBA8;
+        }
+
+        if (!highPrecision) {
+            if (getCaps().contains(Caps.PackedFloatTexture)
+                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
+                return Format.RGB111110F;
+            }
+        }
+
+        if (withAlpha) {
+            if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGBA)) {
+                return Format.RGBA16F;
+            }
+        } else {
+            if (getCaps().contains(Caps.PackedFloatTexture)
+                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
+                return Format.RGB111110F;
+            } else if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGB)) {
+                return Format.RGB16F;
+            } else if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGBA)) {
+                return Format.RGBA16F;
+            }
+        }
+
+        return Format.RGBA8;
+    }
+
+    public default Format getBestDepthTargetFormat() {
+        if (getCaps().contains(Caps.Depth24)) {
+            return Format.Depth24;
+        }
+
+        return Format.Depth;
+    }
 }

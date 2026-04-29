@@ -61,7 +61,9 @@ reporting {
 
 def jacocoSubprojects = subprojects.findAll { p ->
     (p.file("src/main/java").exists() || p.file("src/main/groovy").exists()) &&
-    (p.file("src/test/java").exists() || p.file("src/test/groovy").exists())
+    (p.file("src/test/java").exists() || p.file("src/test/groovy").exists()) &&
+    p.tasks.findByName('test') &&
+    p.tasks.findByName('jacocoTestReport')
 }
 
 dependencies {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,66 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.texture.image;
+package androidx.fragment.app;
 
-import com.jme3.renderer.Renderer;
-import com.jme3.texture.Texture;
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
- * Stores/caches texture-state parameters so the {@link Renderer} doesn't have to
- * set them each time.
- * 
- * @author Kirill Vainer
+ * Compile-time stub for the AndroidX Fragment API.
+ *
+ * <p>The real AndroidX Fragment dependency must be supplied by the Android
+ * application. This class is excluded from jme3-android artifacts.</p>
  */
-public final class LastTextureState {
-    
-    public Texture.WrapMode sWrap, tWrap, rWrap;
-    public Texture.MagFilter magFilter;
-    public Texture.MinFilter minFilter;
-    public boolean minFilterMipmapsAvailable;
-    public int anisoFilter;
-    public Texture.ShadowCompareMode shadowCompareMode;
-    
-    public LastTextureState() {
-        reset();
+public class Fragment {
+
+    public void onAttach(Context context) {
     }
-    
-    public void reset() {
-        sWrap = null;
-        tWrap = null;
-        rWrap = null;
-        magFilter = null;
-        minFilter = null;
-        minFilterMipmapsAvailable = false;
-        anisoFilter = 1;
-        
-        // The default in OpenGL is OFF, so we avoid setting this per texture
-        // if it's not used.
-        shadowCompareMode = Texture.ShadowCompareMode.Off;
+
+    public void onCreate(Bundle savedInstanceState) {
+    }
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return null;
+    }
+
+    public void onActivityCreated(Bundle savedInstanceState) {
+    }
+
+    public void onStart() {
+    }
+
+    public void onResume() {
+    }
+
+    public void onPause() {
+    }
+
+    public void onStop() {
+    }
+
+    public void onDestroyView() {
+    }
+
+    public void onDestroy() {
+    }
+
+    public void onDetach() {
+    }
+
+    public FragmentActivity requireActivity() {
+        return null;
+    }
+
+    public Context requireContext() {
+        return null;
+    }
+
+    public Resources getResources() {
+        return null;
     }
 }

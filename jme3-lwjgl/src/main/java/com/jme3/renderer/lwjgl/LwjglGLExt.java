@@ -7,6 +7,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBInstancedArrays;
+import org.lwjgl.opengl.ARBProgramInterfaceQuery;
+import org.lwjgl.opengl.ARBShaderStorageBufferObject;
 import org.lwjgl.opengl.ARBSync;
 import org.lwjgl.opengl.ARBTextureMultisample;
 import org.lwjgl.opengl.ARBUniformBufferObject;
@@ -85,6 +87,16 @@ public final class LwjglGLExt implements GLExt {
     @Override
     public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding) {
         ARBUniformBufferObject.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
+
+    @Override
+    public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        return ARBProgramInterfaceQuery.glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        ARBShaderStorageBufferObject.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
     }
 
     @Override

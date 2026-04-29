@@ -85,7 +85,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
     public IBLHybridEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
         super(rm, am, format, depthFormat, env_size);
 
-        specular = new TextureCubeMap(specular_size, specular_size, format);
+        specular = new TextureCubeMap(specular_size, specular_size, getColorFormat());
         specular.setWrap(WrapMode.EdgeClamp);
         specular.setMagFilter(MagFilter.Bilinear);
         specular.setMinFilter(MinFilter.Trilinear);

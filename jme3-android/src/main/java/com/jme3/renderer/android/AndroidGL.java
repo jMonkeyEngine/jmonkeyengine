@@ -611,6 +611,19 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
+    public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        return GLES31.glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        /*
+         * GLES 3.1 exposes shader storage block binding through GLSL layout(binding = N).
+         * Android's GLES31 Java bindings do not expose glShaderStorageBlockBinding.
+         */
+    }
+
+    @Override
     public void glBindFramebufferEXT(int param1, int param2) {
         GLES20.glBindFramebuffer(param1, param2);
     }
