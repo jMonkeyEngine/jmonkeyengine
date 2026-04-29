@@ -16,7 +16,8 @@ uniform int m_FaceId;
 
 void brdfKernel(){
     float NdotV=TexCoords.x;
-    float m_Roughness=TexCoords.y;
+    float roughness=TexCoords.y;
+    float alpha = roughness * roughness;
 
     vec3 V;
     V.x = sqrt(1.0 - NdotV*NdotV);
@@ -28,13 +29,13 @@ void brdfKernel(){
     const uint SAMPLE_COUNT = 1024u;
     for(uint i = 0u; i < SAMPLE_COUNT; i++){
         vec4 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H  = ImportanceSampleGGX(Xi, m_Roughness, N);
+        vec3 H  = ImportanceSampleGGX(Xi, alpha, N);
         vec3 L  = normalize(2.0 * dot(V, H) * H - V);
         float NdotL = max(L.z, 0.0);
         float NdotH = max(H.z, 0.0);
         float VdotH = max(dot(V, H), 0.0);
         if(NdotL > 0.0){
-            float G = GeometrySmith(N, V, L, m_Roughness*m_Roughness);
+            float G = GeometrySmith(N, V, L, alpha);
             float G_Vis = (G * VdotH) / (NdotH * NdotV);
             float Fc = pow(1.0 - VdotH, 5.0);
             A += (1.0 - Fc) * G_Vis;
@@ -75,26 +76,20 @@ void prefilteredEnvKernel(){
     vec3 R = N;
     vec3 V = R;
 
-    float a2 = m_Roughness * m_Roughness; 
+    float roughness = clamp(m_Roughness, 0.0, 1.0);
+    float alpha = roughness * roughness;
 
     const uint SAMPLE_COUNT = 1024u;
     float totalWeight = 0.0;   
     vec3 prefilteredColor = vec3(0.0);     
     for(uint i = 0u; i < SAMPLE_COUNT; ++i) {
         vec4 Xi = Hammersley(i, SAMPLE_COUNT);
-        vec3 H  = ImportanceSampleGGX(Xi, a2, N);
+        vec3 H  = ImportanceSampleGGX(Xi, alpha, N);
         float VoH = max(dot(V, H), 0.0);
         vec3 L  = normalize(2.0 * VoH * H - V);
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0) {
             vec3 sampleColor = texture(m_EnvMap, L).rgb;
-            
-            float luminance = dot(sampleColor, vec3(0.2126, 0.7152, 0.0722));
-            if (luminance > 64.0) { // TODO use average?
-                sampleColor *= 64.0/luminance;
-            }
-            
-            // TODO: use mipmap
             prefilteredColor += sampleColor * NdotL;
             totalWeight      += NdotL;
         }
