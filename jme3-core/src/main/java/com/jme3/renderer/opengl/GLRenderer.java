@@ -106,6 +106,7 @@ public final class GLRenderer implements Renderer {
     private int clipX, clipY, clipW, clipH;
     private int defaultAnisotropicFilter = 1;
     private boolean linearizeSrgbImages;
+    private boolean mainFrameBufferSrgb;
     private HashSet<String> extensions;
     private boolean generateMipmapsForFramebuffers = true;
 
@@ -1829,6 +1830,7 @@ public final class GLRenderer implements Renderer {
             int dstY1;
 
             int prevFBO = context.boundFBO;
+            FrameBuffer prevFB = context.boundFB;
 
             if (mainFbOverride != null) {
                 if (src == null) {
@@ -1870,6 +1872,8 @@ public final class GLRenderer implements Renderer {
                 dstY1 = dst.getHeight();
             }
 
+            toggleFramebufferSrgb(dst);
+
             int mask = 0;
 
             if(copyColor){
@@ -1886,6 +1890,9 @@ public final class GLRenderer implements Renderer {
 
 
             glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, prevFBO);
+            context.boundFBO = prevFBO;
+            context.boundFB = prevFB;
+            toggleFramebufferSrgb(prevFB);
         } else {
             throw new RendererException("Framebuffer blitting not supported by the video hardware");
         }
@@ -2046,6 +2053,21 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    private void toggleFramebufferSrgb(FrameBuffer fb) {
+        boolean isSrgb = fb == null ? mainFrameBufferSrgb : fb.isSrgb();
+
+        if (isSrgb != context.srgbWriteEnabled) {
+            if (caps.contains(Caps.SrgbWriteControl) && caps.contains(Caps.Srgb)) {
+                if (isSrgb) {
+                    gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+                } else {
+                    gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+                }
+            }
+            context.srgbWriteEnabled = isSrgb;
+        }
+    }
+
     public void updateFrameBuffer(FrameBuffer fb) {
         if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
@@ -2179,6 +2201,7 @@ public final class GLRenderer implements Renderer {
 
         if (context.boundFB == fb) {
             if (fb == null || !fb.isUpdateNeeded()) {
+                toggleFramebufferSrgb(fb);
                 return;
             }
         }
@@ -2230,6 +2253,7 @@ public final class GLRenderer implements Renderer {
                 if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
             }
         }
+        toggleFramebufferSrgb(fb);
     }
 
     @Override
@@ -3487,17 +3511,13 @@ public final class GLRenderer implements Renderer {
             logger.warning("sRGB framebuffer is not supported " +
                     "by video hardware, but was requested.");
 
+            mainFrameBufferSrgb = false;
             return;
         }
 
-        setFrameBuffer(null);
-
-        if (enableSrgb) {
-            gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
-            logger.log(Level.FINER, "sRGB FrameBuffer enabled (Gamma Correction)");
-        } else {
-            gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
-			logger.log(Level.FINER, "sRGB FrameBuffer disabled (Gamma Correction)");
+        mainFrameBufferSrgb = enableSrgb;
+        if (context.boundFB == null) {
+            toggleFramebufferSrgb(null);
         }
     }
 
@@ -3595,7 +3615,7 @@ public final class GLRenderer implements Renderer {
         if (!caps.contains(Caps.Srgb)) {
             return false;
         } else {
-            return gl.glIsEnabled(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+            return mainFrameBufferSrgb;
         }
     }
 

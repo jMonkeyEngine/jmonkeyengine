@@ -216,6 +216,11 @@ public class RenderContext {
     public FrameBuffer boundFB;
 
     /**
+     * Convert writes to srgb target from linear space to srgb
+     */
+    public boolean srgbWriteEnabled;
+
+    /**
      * Currently bound Renderbuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
