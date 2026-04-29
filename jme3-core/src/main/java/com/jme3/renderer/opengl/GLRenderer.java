@@ -217,7 +217,24 @@ public final class GLRenderer implements Renderer {
     }
 
     private boolean hasExtension(String extensionName) {
-        return extensions.contains(extensionName);
+        if (extensions.contains(extensionName)) {
+            return true;
+        }
+
+        if (extensionName.startsWith("GL_")) {
+            return extensions.contains(extensionName.substring(3));
+        }
+
+        return extensions.contains("GL_" + extensionName);
+    }
+
+    private boolean hasAnyExtension(String... extensionNames) {
+        for (String extensionName : extensionNames) {
+            if (hasExtension(extensionName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void loadCapabilitiesES() {
@@ -407,11 +424,11 @@ public final class GLRenderer implements Renderer {
         if(hasExtension("GL_EXT_texture_integer") || caps.contains(Caps.OpenGL30))
             caps.add(Caps.IntegerTexture);
 
-        if (hasExtension("GL_OES_depth_texture") || gl2 != null) {
+        if (hasExtension("GL_OES_depth_texture") || hasExtension("WEBGL_depth_texture") || gl2 != null) {
             caps.add(Caps.DepthTexture);
         }
 
-        if (hasExtension("GL_OES_depth24")) {
+        if (caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) || hasExtension("GL_OES_depth24")) {
             caps.add(Caps.Depth24);
         }
 
@@ -451,11 +468,16 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.SharedExponentTexture);
         }
 
-        if (hasExtension("GL_EXT_texture_compression_s3tc")) {
+        if (hasAnyExtension("GL_EXT_texture_compression_s3tc",
+                "WEBGL_compressed_texture_s3tc",
+                "WEBKIT_WEBGL_compressed_texture_s3tc",
+                "MOZ_WEBGL_compressed_texture_s3tc")) {
             caps.add(Caps.TextureCompressionS3TC);
         }
 
-        if (hasExtension("GL_ARB_texture_compression_bptc")) {
+        if (hasAnyExtension("GL_ARB_texture_compression_bptc",
+                "GL_EXT_texture_compression_bptc",
+                "EXT_texture_compression_bptc")) {
             caps.add(Caps.TextureCompressionBPTC);
         }
 
@@ -463,16 +485,21 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.TextureCompressionRGTC);
         }
 
-        if (hasExtension("GL_ARB_ES3_compatibility")) {
+        if (hasExtension("GL_ARB_ES3_compatibility")
+                || caps.contains(Caps.OpenGLES30)
+                || hasExtension("WEBGL_compressed_texture_etc")) {
             caps.add(Caps.TextureCompressionETC2);
             caps.add(Caps.TextureCompressionETC1);
-        } else if (hasExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
+        } else if (hasAnyExtension("GL_OES_compressed_ETC1_RGB8_texture",
+                "WEBGL_compressed_texture_etc1")) {
             caps.add(Caps.TextureCompressionETC1);
         }
 
         // == end texture format extensions ==
 
-        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) ) {
+        if (hasExtension("GL_ARB_vertex_array_object")
+                || caps.contains(Caps.OpenGL30)
+                || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.VertexBufferArray);
         }
 
@@ -529,7 +556,10 @@ public final class GLRenderer implements Renderer {
                 }
             }
 
-            if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
+            if (hasExtension("GL_ARB_draw_buffers")
+                    || hasExtension("WEBGL_draw_buffers")
+                    || caps.contains(Caps.OpenGL30)
+                    || caps.contains(Caps.OpenGLES30)) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);
@@ -553,7 +583,8 @@ public final class GLRenderer implements Renderer {
         }
 
         // Supports sRGB pipeline.
-        if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
+        if ((hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
+                || hasExtension("GL_EXT_sRGB")
                 || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.Srgb);
         }
