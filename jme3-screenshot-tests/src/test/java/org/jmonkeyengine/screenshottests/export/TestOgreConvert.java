@@ -73,7 +73,7 @@ public class TestOgreConvert extends ScreenshotTestBase{
                         AssetManager assetManager = app.getAssetManager();
                         Node rootNode = ((SimpleApplication)app).getRootNode();
                         Camera cam = app.getCamera();
-                        Spatial ogreModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+                        Spatial ogreModel = assetManager.loadModel("Models/Oto/Oto.j3o");
 
                         DirectionalLight dl = new DirectionalLight();
                         dl.setColor(ColorRGBA.White);
