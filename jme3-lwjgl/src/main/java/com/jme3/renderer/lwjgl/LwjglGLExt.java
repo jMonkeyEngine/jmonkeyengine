@@ -9,6 +9,7 @@ import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBInstancedArrays;
 import org.lwjgl.opengl.ARBSync;
 import org.lwjgl.opengl.ARBTextureMultisample;
+import org.lwjgl.opengl.ARBUniformBufferObject;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLSync;
@@ -69,6 +70,21 @@ public final class LwjglGLExt implements GLExt {
     @Override
     public void glVertexAttribDivisorARB(int index, int divisor) {
         ARBInstancedArrays.glVertexAttribDivisorARB(index, divisor);
+    }
+
+    @Override
+    public int glGetUniformBlockIndex(int program, String uniformBlockName) {
+        return ARBUniformBufferObject.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(int target, int index, int buffer) {
+        ARBUniformBufferObject.glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding) {
+        ARBUniformBufferObject.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
     }
 
     @Override
