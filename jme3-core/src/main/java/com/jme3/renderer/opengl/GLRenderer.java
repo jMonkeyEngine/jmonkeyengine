@@ -566,7 +566,7 @@ public final class GLRenderer implements Renderer {
                 caps.add(Caps.FrameBufferBlit);
             }
 
-            if (hasExtension("GL_EXT_framebuffer_multisample") || caps.contains(Caps.OpenGL30)
+            if (hasExtension("GL_EXT_framebuffer_multisample") 
                     || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL)) {
                 caps.add(Caps.FrameBufferMultisample);
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
