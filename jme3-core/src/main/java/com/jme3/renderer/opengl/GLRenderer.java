@@ -2810,61 +2810,78 @@ public final class GLRenderer implements Renderer {
         bindTextureAndUnit(target, img, unit);
 
         int imageSamples = img.getMultiSamples();
-        boolean needsMipmaps = !img.hasMipmaps() && img.isGeneratedMipmapsRequired();
+        boolean sourceMipmapsUsable = img.hasMipmaps() && !scaleToPot;
+        boolean needsMipmaps = !sourceMipmapsUsable && img.isGeneratedMipmapsRequired();
         boolean hwMipmapSupported = needsMipmaps && isMipmapGenerationSupported(img.getFormat(),
                 linearizeSrgbImages ? img.getColorSpace() : ColorSpace.Linear);
-        Image cpuMipmapImage = null;
+        Image imageForUpload = img;
+        boolean cpuMipmapsGenerated = false;
         if (imageSamples <= 1) {
             boolean cpuMipmapFallbackFailed = false;
-            if (needsMipmaps && !hwMipmapSupported
-                    && allowCpuMipmapFallback
-                    && textureWasUnuploaded
-                    && !scaleToPot
-                    && MipMapGenerator.canGenerateMipmaps(img)) {
-                try {
-                    cpuMipmapImage = createCpuMipmapImage(img);
-                    MipMapGenerator.generateMipMaps(cpuMipmapImage, linearizeSrgbImages,
-                            img.getColorSpace() == ColorSpace.sRGB);
-                    img.setMipmapsGenerated(true);
-                } catch (RuntimeException exception) {
-                    cpuMipmapImage = null;
-                    cpuMipmapFallbackFailed = true;
-                    logger.log(Level.WARNING,
-                            "Texture " + img + " requires mipmaps, but hardware mipmap generation is not supported"
-                                    + " and CPU mipmap generation failed. Mipmaps will not be generated.",
-                            exception);
+            if (needsMipmaps) {
+                /*
+                 * Some formats cannot use glGenerateMipmap because they are not both
+                 * renderable and filterable. On a first upload, fall back to a CPU-built
+                 * mip chain when the image data is suitable. If NPOT scaling is also
+                 * required, build the CPU mips from the resized upload image.
+                 */
+                boolean needsCpuMipmapFallback = !hwMipmapSupported
+                        && allowCpuMipmapFallback
+                        && textureWasUnuploaded
+                        && MipMapGenerator.canGenerateMipmaps(img);
+                if (needsCpuMipmapFallback) {
+                    try {
+                        Image cpuMipmapUploadImage = cloneImageForUpload(img, scaleToPot);
+                        if (cpuMipmapUploadImage != null) {
+                            MipMapGenerator.generateMipMaps(cpuMipmapUploadImage, linearizeSrgbImages,
+                                    img.getColorSpace() == ColorSpace.sRGB);
+                            imageForUpload = cpuMipmapUploadImage;
+                            cpuMipmapsGenerated = true;
+                            scaleToPot = false;
+                            img.setMipmapsGenerated(true);
+                        }
+                    } catch (RuntimeException exception) {
+                        cpuMipmapFallbackFailed = true;
+                        logger.log(Level.WARNING,
+                                "Texture " + img + " requires mipmaps, but hardware mipmap generation is not supported"
+                                        + " and CPU mipmap generation failed. Mipmaps will not be generated.",
+                                exception);
+                    }
                 }
-            }
 
-            if (needsMipmaps && hwMipmapSupported) {
-                // Image does not have mipmaps, but they are required.
-                // Generate from base level.
-
-                if (!caps.contains(Caps.FrameBuffer) && gl2 != null) {
+                /*
+                 * Old desktop GL without FBO support can auto-generate mipmaps during
+                 * texture upload. Newer paths generate explicitly after upload below.
+                 */
+                if (hwMipmapSupported && !caps.contains(Caps.FrameBuffer) && gl2 != null) {
                     gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
                     img.setMipmapsGenerated(true);
-                } else {
-                    // For OpenGL3 and up.
-                    // We'll generate mipmaps via glGenerateMipmapEXT (see below)
                 }
-            } else if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30)) {
-                if (img.hasMipmaps() || cpuMipmapImage != null) {
-                    int mipCount = cpuMipmapImage != null
-                            ? cpuMipmapImage.getMipMapSizes().length
-                            : img.getMipMapSizes().length;
-                    // Image already has mipmaps, set the max level based on the
-                    // number of mipmaps we have.
-                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, mipCount - 1);
-                } else {
-                    // Image does not have mipmaps, and they are not required.
-                    // Specify that the texture has no mipmaps.
-                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
-                }
-            }
-            if (needsMipmaps && !hwMipmapSupported) {
-                if (!img.hasMipmaps() && cpuMipmapImage == null && !cpuMipmapFallbackFailed) {
+
+                if (!hwMipmapSupported
+                        && !sourceMipmapsUsable
+                        && !cpuMipmapsGenerated
+                        && !cpuMipmapFallbackFailed) {
                     logger.log(Level.WARNING, "Texture " + img + " requires mipmaps, but hardware mipmaps generation is not supported. Mipmaps will not be generated.");
                 }
+            }
+
+            /*
+             * Clamp the mip range to the levels actually uploaded. This is still
+             * needed when mipmaps are not requested, otherwise GL may sample
+             * missing levels left from a previous texture state. When hardware
+             * mipmap generation is pending, reopen the full generated range in
+             * case an earlier upload clamped this texture to the base level.
+             */
+            boolean canSetTextureMaxLevel = caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30);
+            boolean hasUploadMipmaps = sourceMipmapsUsable || cpuMipmapsGenerated;
+            int uploadWidth = scaleToPot ? FastMath.nearestPowerOfTwo(img.getWidth()) : imageForUpload.getWidth();
+            int uploadHeight = scaleToPot ? FastMath.nearestPowerOfTwo(img.getHeight()) : imageForUpload.getHeight();
+            int maxLevel = textureMaxLevelForUpload(canSetTextureMaxLevel, needsMipmaps, hwMipmapSupported,
+                    hasUploadMipmaps, cpuMipmapsGenerated ? imageForUpload.getMipMapSizes() : img.getMipMapSizes(),
+                    generatedMipMaxLevel(uploadWidth, uploadHeight, imageForUpload.getDepth()));
+            if (maxLevel >= 0) {
+                gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, maxLevel);
             }
         } else {
             // Check if graphics card doesn't support multisample textures
@@ -2906,13 +2923,8 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        Image imageForUpload;
-        if (cpuMipmapImage != null) {
-            imageForUpload = cpuMipmapImage;
-        } else if (scaleToPot) {
+        if (scaleToPot) {
             imageForUpload = MipMapGenerator.resizeToPowerOf2(img);
-        } else {
-            imageForUpload = img;
         }
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
             List<ByteBuffer> data = imageForUpload.getData();
@@ -2947,14 +2959,12 @@ public final class GLRenderer implements Renderer {
             img.setMultiSamples(imageSamples);
         }
 
-        if (caps.contains(Caps.FrameBuffer) || gl2 == null) {
-            if (needsMipmaps && img.getData(0) != null
-                    && !img.isMipmapsGenerated()) {
-                if (hwMipmapSupported) {
-                    glfbo.glGenerateMipmapEXT(target);
-                    img.setMipmapsGenerated(true);
-                }
-            }
+        if (needsMipmaps && hwMipmapSupported
+                && (caps.contains(Caps.FrameBuffer) || gl2 == null)
+                && img.getData(0) != null
+                && !img.isMipmapsGenerated()) {
+            glfbo.glGenerateMipmapEXT(target);
+            img.setMipmapsGenerated(true);
         }
 
         img.clearUpdateNeeded();
@@ -2965,9 +2975,44 @@ public final class GLRenderer implements Renderer {
         return gf != null && gf.colorRenderable && gf.filterable;
     }
 
-    private Image createCpuMipmapImage(Image image) {
+    static int textureMaxLevelForUpload(boolean canSetTextureMaxLevel,
+                                        boolean needsMipmaps,
+                                        boolean hwMipmapSupported,
+                                        boolean hasUploadMipmaps,
+                                        int[] uploadMipMapSizes,
+                                        int generatedMipMaxLevel) {
+        if (!canSetTextureMaxLevel) {
+            return -1;
+        }
+        if (needsMipmaps && hwMipmapSupported) {
+            return generatedMipMaxLevel;
+        }
+        if (!hasUploadMipmaps) {
+            return 0;
+        }
+        return uploadMipMapSizes.length - 1;
+    }
+
+    static int generatedMipMaxLevel(int width, int height, int depth) {
+        int maxDimension = Math.max(Math.max(width, height), Math.max(1, depth));
+        int maxLevel = 0;
+        while (maxDimension > 1) {
+            maxDimension >>= 1;
+            maxLevel++;
+        }
+        return maxLevel;
+    }
+
+    private Image cloneImageForUpload(Image image, boolean scaleToPot) {
+        if (scaleToPot) {
+            return MipMapGenerator.resizeToPowerOf2(image);
+        }
+
         ArrayList<ByteBuffer> data = new ArrayList<>(image.getData().size());
         for (ByteBuffer buffer : image.getData()) {
+            if (buffer == null) {
+                return null;
+            }
             data.add(buffer.duplicate());
         }
         return new Image(image.getFormat(), image.getWidth(), image.getHeight(), image.getDepth(),

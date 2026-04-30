@@ -452,6 +452,22 @@ public final class MipMapGenerator {
                             + " bits per pixel"
             );
         }
+
+        int baseLevelSize = levelSize(image.getFormat(), image.getWidth(), image.getHeight());
+        for (int dataIndex = 0; dataIndex < image.getData().size(); dataIndex++) {
+            ByteBuffer data = image.getData(dataIndex);
+            if (data == null) {
+                throw new IllegalArgumentException("Image data buffer " + dataIndex + " is null");
+            }
+            if (data.capacity() < baseLevelSize) {
+                throw new IllegalArgumentException(
+                        "Image data buffer " + dataIndex + " is smaller than expected base level size. Data capacity="
+                                + data.capacity()
+                                + ", expected="
+                                + baseLevelSize
+                );
+            }
+        }
     }
 
     private static int levelSize(Image.Format format, int width, int height) {
@@ -491,6 +507,9 @@ public final class MipMapGenerator {
      * For rebuilding mipmaps, we only want the base level.
      */
     private static ByteBuffer copyBaseLevel(ByteBuffer source, int baseLevelSize) {
+        if (source == null) {
+            throw new IllegalArgumentException("Image data buffer is null");
+        }
         if (source.capacity() < baseLevelSize) {
             throw new IllegalArgumentException(
                     "Image data is smaller than expected base level size. Data capacity="
