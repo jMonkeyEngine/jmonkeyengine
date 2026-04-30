@@ -90,7 +90,7 @@ public class GLImageFormatsTest {
                 Caps.CoreProfile, Caps.Srgb, Caps.FloatTexture,
                 Caps.IntegerTexture, Caps.PackedFloatTexture,
                 Caps.SharedExponentTexture, Caps.TextureCompressionETC2,
-                Caps.FloatDepthBuffer, Caps.PackedDepthStencilBuffer);
+                Caps.Depth24, Caps.FloatDepthBuffer, Caps.PackedDepthStencilBuffer);
 
         GLImageFormat[][] formats = GLImageFormats.getFormatsForCaps(caps);
 
@@ -101,5 +101,33 @@ public class GLImageFormatsTest {
         assertNotNull(formats[0][Image.Format.ETC2.ordinal()]);
         assertNotNull(formats[0][Image.Format.Depth32F.ordinal()]);
         assertNotNull(formats[0][Image.Format.Depth24Stencil8.ordinal()]);
+    }
+
+    @Test
+    public void testDepthFormatsFollowExplicitCaps() {
+        EnumSet<Caps> caps = EnumSet.of(Caps.OpenGLES20, Caps.OpenGLES30,
+                Caps.CoreProfile);
+
+        GLImageFormat[][] formats = GLImageFormats.getFormatsForCaps(caps);
+
+        assertNull(formats[0][Image.Format.Depth24.ordinal()]);
+        assertNull(formats[0][Image.Format.Depth32.ordinal()]);
+        assertNull(formats[0][Image.Format.Depth32F.ordinal()]);
+        assertNull(formats[0][Image.Format.Depth24Stencil8.ordinal()]);
+
+        caps.add(Caps.Depth24);
+        caps.add(Caps.FloatDepthBuffer);
+        caps.add(Caps.PackedDepthStencilBuffer);
+        formats = GLImageFormats.getFormatsForCaps(caps);
+
+        assertNotNull(formats[0][Image.Format.Depth24.ordinal()]);
+        assertNull(formats[0][Image.Format.Depth32.ordinal()]);
+        assertNotNull(formats[0][Image.Format.Depth32F.ordinal()]);
+        assertNotNull(formats[0][Image.Format.Depth24Stencil8.ordinal()]);
+
+        caps.add(Caps.Depth32);
+        formats = GLImageFormats.getFormatsForCaps(caps);
+
+        assertNotNull(formats[0][Image.Format.Depth32.ordinal()]);
     }
 }

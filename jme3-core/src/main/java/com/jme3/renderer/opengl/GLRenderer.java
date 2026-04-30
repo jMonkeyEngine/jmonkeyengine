@@ -451,6 +451,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.Depth24);
         }
 
+        if (caps.contains(Caps.OpenGL20) || hasExtension("GL_OES_depth32")) {
+            caps.add(Caps.Depth32);
+        }
+
         if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL) ||
                 hasExtension("GL_OES_rgb8_rgba8") ||
                 hasExtension("GL_ARM_rgba8") ||
@@ -459,7 +463,7 @@ public final class GLRenderer implements Renderer {
         }
 
         if (caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL)
-                || hasExtension("GL_OES_packed_depth_stencil")) {
+                || hasAnyExtension("GL_OES_packed_depth_stencil", "GL_EXT_packed_depth_stencil")) {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
 

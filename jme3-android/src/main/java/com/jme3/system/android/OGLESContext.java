@@ -590,7 +590,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
             frameBuffer.setDepthTarget(FrameBufferTarget
-                    .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
+                    .newTarget(renderer.getBestDepthTargetFormat(false, false, settings.getStencilBits() > 0)));
         }
 
         linearFrameBufferColorTexture = colorTexture;

@@ -303,6 +303,11 @@ public enum Caps {
     FloatDepthBuffer,
 
     /**
+     * Supports FBO with Depth32 image format.
+     */
+    Depth32,
+
+    /**
      * Supports Format.RGB111110F for textures.
      */
     PackedFloatTexture,
@@ -546,6 +551,10 @@ public enum Caps {
                 return caps.contains(Caps.PackedDepthStencilBuffer);
             case Depth32F:
                 return caps.contains(Caps.FloatDepthBuffer);
+            case Depth32:
+                return caps.contains(Caps.Depth32);
+            case Depth24:
+                return caps.contains(Caps.Depth24);
             case RGB16F_to_RGB111110F:
                 return caps.contains(Caps.HalfFloatTexture) && caps.contains(Caps.PackedFloatTexture);
             case RGB111110F:
@@ -652,6 +661,16 @@ public enum Caps {
 
                 if (depthFmt == Format.Depth24Stencil8
                         && !caps.contains(Caps.PackedDepthStencilBuffer)) {
+                    return false;
+                }
+
+                if (depthFmt == Format.Depth32
+                        && !caps.contains(Caps.Depth32)) {
+                    return false;
+                }
+
+                if (depthFmt == Format.Depth24
+                        && !caps.contains(Caps.Depth24)) {
                     return false;
                 }
             }

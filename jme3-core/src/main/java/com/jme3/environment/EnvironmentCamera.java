@@ -336,7 +336,7 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     protected Image.Format getDepthFormat(Renderer renderer) {
-        return renderer.getBestDepthTargetFormat();
+        return renderer.getBestDepthTargetFormat(false, false, false);
     }
 
     /**

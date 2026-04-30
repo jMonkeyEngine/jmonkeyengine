@@ -131,7 +131,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     protected Format getDepthFormat() {
         if (depthFormat == null) {
-            this.depthFormat = renderManager.getRenderer().getBestDepthTargetFormat();
+            this.depthFormat = renderManager.getRenderer().getBestDepthTargetFormat(false, false, false);
         }
         return depthFormat;
     }

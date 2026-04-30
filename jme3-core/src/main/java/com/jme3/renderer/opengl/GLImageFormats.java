@@ -311,10 +311,10 @@ public final class GLImageFormats {
         } else {
             format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE, false, true, false);
         }
-        if (caps.contains(Caps.OpenGLES30) || caps.contains(Caps.OpenGL20) || caps.contains(Caps.Depth24)) {
+        if (caps.contains(Caps.Depth24)) {
             format(formatToGL, Format.Depth24, GL2.GL_DEPTH_COMPONENT24,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         }
-        if (caps.contains(Caps.OpenGL20)) {
+        if (caps.contains(Caps.Depth32)) {
             format(formatToGL, Format.Depth32, GL2.GL_DEPTH_COMPONENT32,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         }
         if (caps.contains(Caps.FloatDepthBuffer)) {

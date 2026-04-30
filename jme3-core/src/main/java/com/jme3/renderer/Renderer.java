@@ -602,8 +602,29 @@ public interface Renderer {
     }
 
     public default Format getBestDepthTargetFormat() {
-        if (getCaps().contains(Caps.Depth24)) {
-            return Format.Depth24;
+        return getBestDepthTargetFormat(false, false, false);
+    }
+
+    public default Format getBestDepthTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withStencil) {
+        if (withStencil) {
+            if (getCaps().contains(Caps.PackedDepthStencilBuffer)) {
+                return Format.Depth24Stencil8;
+            }
+        } else {
+            if (floatingPoint && getCaps().contains(Caps.FloatDepthBuffer)) {
+                return Format.Depth32F;
+            }
+            if (highPrecision) {
+                if (getCaps().contains(Caps.Depth32)) {
+                    return Format.Depth32;
+                }
+                if (getCaps().contains(Caps.FloatDepthBuffer)) {
+                    return Format.Depth32F;
+                }
+            }
+            if (getCaps().contains(Caps.Depth24)) {
+                return Format.Depth24;
+            }
         }
 
         return Format.Depth;
