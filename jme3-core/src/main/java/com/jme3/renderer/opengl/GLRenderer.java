@@ -2063,8 +2063,8 @@ public final class GLRenderer implements Renderer {
                 } else {
                     gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
                 }
+                context.srgbWriteEnabled = isSrgb;
             }
-            context.srgbWriteEnabled = isSrgb;
         }
     }
 
