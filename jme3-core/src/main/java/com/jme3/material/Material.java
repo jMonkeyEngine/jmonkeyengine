@@ -881,14 +881,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             ShaderBufferBlock.BufferType btype;
             if (type == VarType.ShaderStorageBufferObject) {
                 btype = ShaderBufferBlock.BufferType.ShaderStorageBufferObject;
-                bufferBlock.setBufferObject(btype, bufferObject);
-                renderer.setShaderStorageBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
             } else {
                 btype = ShaderBufferBlock.BufferType.UniformBufferObject;
-                bufferBlock.setBufferObject(btype, bufferObject);
-                renderer.setUniformBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
             }
-            unit.bufferUnit++;
+            bufferBlock.setBufferObject(btype, bufferObject);
         } else {
             Uniform uniform = shader.getUniform(param.getPrefixedName());
             if (!override && uniform.isSetByCurrentMaterial())
