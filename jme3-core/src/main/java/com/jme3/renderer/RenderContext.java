@@ -417,6 +417,8 @@ public class RenderContext {
         alphaFunc = RenderState.TestFunction.Greater;
         cullMode = RenderState.FaceCullMode.Off;
 
+        srgbWriteEnabled = false;
+
         clearColor.set(0, 0, 0, 0);
     }
 
