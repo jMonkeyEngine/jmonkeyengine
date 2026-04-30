@@ -250,7 +250,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     private static boolean hasExtension(EGL10 egl, EGLDisplay display, String extension) {
         String extensions = egl.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-        return extensions != null && extensions.contains(extension);
+        if (extensions == null) {
+            return false;
+        }
+        // EGL extension list is space separated. Ensure we only match full
+        // extension names to avoid false positives when one name is a
+        // substring of another.
+        String padded = " " + extensions + " ";
+        return padded.contains(" " + extension + " ");
     }
 
     // renderer:initialize

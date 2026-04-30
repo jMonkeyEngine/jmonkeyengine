@@ -208,6 +208,16 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
                 AlertDialog dialog = new AlertDialog.Builder(requireActivity())
                         .setTitle(finalTitle)
                         .setMessage(finalMessage)
+                        .setCancelable(true)
+                        .setPositiveButton(android.R.string.ok, (d, w) -> {
+                            if (app != null) {
+                                app.stop(true);
+                            }
+                            requireActivity().finish();
+                        })
+                        .setNegativeButton("Kill", (d, w) -> {
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                        })
                         .create();
                 dialog.show();
             }
