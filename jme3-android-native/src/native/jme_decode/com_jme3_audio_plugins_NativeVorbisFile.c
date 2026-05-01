@@ -41,12 +41,11 @@ static size_t FileDesc_read(void *ptr, size_t size, size_t nmemb, void *datasour
 
     size_t req_size = size * nmemb;
     ogg_int64_t remaining = wrapper->end - wrapper->current;
-    size_t to_read = (remaining < (ogg_int64_t) req_size) ? (size_t) remaining : req_size;
-    
-    if (to_read <= 0) 
+    if (remaining <= 0 || req_size == 0)
     {
         return 0;
     }
+    size_t to_read = ((uint64_t) remaining < (uint64_t) req_size) ? (size_t) remaining : req_size;
     
     ssize_t total_read = read(wrapper->fd, ptr, to_read);
     if (total_read < 0)
@@ -140,18 +139,18 @@ static int FileDesc_clear(void *datasource)
 static long FileDesc_tell(void *datasource)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
-    long result = lseek64(wrapper->fd, 0, SEEK_CUR);
+    off64_t result = lseek64(wrapper->fd, 0, SEEK_CUR);
     
-    LOGI("FD tell = %ld", result);
+    LOGI("FD tell = %lld", (long long) result);
     
     if (wrapper->current != result)
     {
         // Not sure how to deal with this.
-        LOGI("PROBLEM: stored offset does not match actual: %lld != %ld",
-             (long long) wrapper->current, result);
+        LOGI("PROBLEM: stored offset does not match actual: %lld != %lld",
+             (long long) wrapper->current, (long long) result);
     }
     
-    return result;
+    return (long) result;
 }
 
 static ov_callbacks FileDescCallbacks = {
