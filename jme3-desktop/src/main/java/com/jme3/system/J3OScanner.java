@@ -34,6 +34,9 @@
  * It validates jME3 binary asset headers without instantiating Savables.
  * This is intentional: using BinaryImporter would execute class loading,
  * constructors and Savable.read() for data supplied by the asset.
+ * 
+ * Note: the default baseline used by this scanner is not intended to be comprehensive. 
+ *       It is mostly what we may use in our tests and examples and intended to be used as part of jme CI.
  *
  * Usage:
  *   ./gradlew :jme3-desktop:scanJ3O
@@ -138,10 +141,10 @@ public final class J3OScanner {
         printFinalReport(files.size(), results, errors);
 
         if (!errors.isEmpty()) {
-            System.err.println();
-            System.err.println("Unsafe J3O report:");
+            System.out.println();
+            System.out.println("Unsafe J3O report:");
             for (String error : errors) {
-                System.err.println("  - " + error);
+                System.out.println("  - " + error);
             }
             System.exit(1);
         }
