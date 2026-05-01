@@ -86,7 +86,7 @@ public class SavableClassUtil {
     private SavableClassUtil() {
     }
 
-    private static String remapClass(String className) throws ClassNotFoundException {
+    public static String remapClass(String className) {
         String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
             return className;
@@ -182,7 +182,32 @@ public class SavableClassUtil {
     public static Savable fromName(String className)
             throws ClassNotFoundException, IllegalAccessException,
             InstantiationException, InvocationTargetException {
+        return fromName(className, SavableClassFilter.ACCEPT_ALL);
+    }
+
+    /**
+     * Creates a new Savable after checking the remapped class name against the
+     * supplied filter.
+     *
+     * @param className the class name to create.
+     * @param classFilter policy controlling whether the class may be loaded.
+     * @return the Savable instance of the class.
+     * @throws InstantiationException thrown if the class does not have an empty constructor.
+     * @throws IllegalAccessException thrown if the class is not accessible.
+     * @throws InvocationTargetException if the underlying constructor throws an exception
+     * @throws ClassNotFoundException thrown if the class name is not in the classpath.
+     * @throws SecurityException thrown if the filter rejects the class name.
+     */
+    public static Savable fromName(String className, SavableClassFilter classFilter)
+            throws ClassNotFoundException, IllegalAccessException,
+            InstantiationException, InvocationTargetException {
         className = remapClass(className);
+        if (classFilter == null) {
+            throw new NullPointerException("classFilter");
+        }
+        if (!classFilter.isAllowed(className)) {
+            throw new SecurityException("Savable class rejected by filter: " + className);
+        }
 
         Constructor noArgConstructor = findNoArgConstructor(className);
         noArgConstructor.setAccessible(true);
@@ -241,6 +266,9 @@ public class SavableClassUtil {
     private static Constructor findNoArgConstructor(String className)
             throws ClassNotFoundException, InstantiationException {
         Class clazz = Class.forName(className);
+        if (!SavableClassUtil.isImplementingSavable(clazz)) {
+            throw new InstantiationException("Class " + className + " does not implement Savable.");
+        }
         Constructor result;
         try {
             result = clazz.getDeclaredConstructor();

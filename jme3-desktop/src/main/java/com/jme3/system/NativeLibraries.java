@@ -54,11 +54,8 @@ public enum NativeLibraries {
             // Delegate loading to lwjgl.
             System.setProperty("org.lwjgl.librarypath",
                     Paths.get(libPath).getParent().toAbsolutePath().toString()))
-            .addNativeVariant(Platform.Windows32, "lwjgl.dll")
             .addNativeVariant(Platform.Windows64, "lwjgl64.dll")
-            .addNativeVariant(Platform.Linux32, "liblwjgl.so")
             .addNativeVariant(Platform.Linux64, "liblwjgl64.so")
-            .addNativeVariant(Platform.MacOSX32, "liblwjgl.dylib")
             .addNativeVariant(Platform.MacOSX64, "liblwjgl.dylib")
     ),
 
@@ -68,11 +65,8 @@ public enum NativeLibraries {
      * Native OpenAL audio libraries for LWJGL 2 required by jme3-lwjgl backend.
      */
     OpenAL(new LibraryInfo("openal")
-            .addNativeVariant(Platform.Windows32, "OpenAL32.dll")
             .addNativeVariant(Platform.Windows64, "OpenAL64.dll")
-            .addNativeVariant(Platform.Linux32,   "libopenal.so")
             .addNativeVariant(Platform.Linux64,   "libopenal64.so")
-            .addNativeVariant(Platform.MacOSX32,  "openal.dylib", "libopenal.dylib")
             .addNativeVariant(Platform.MacOSX64,  "openal.dylib", "libopenal.dylib")
     ),
 
@@ -80,14 +74,10 @@ public enum NativeLibraries {
      * Native bullet physics libraries required by Minie library.
      */
     BulletJme(new LibraryInfo("bulletjme")
-            .addNativeVariant(Platform.Windows32, "native/windows/x86/bulletjme.dll", "bulletjme-x86.dll")
             .addNativeVariant(Platform.Windows64, "native/windows/x86_64/bulletjme.dll", "bulletjme-x86_64.dll")
             .addNativeVariant(Platform.Windows_ARM64, "native/windows/arm64/bulletjme.dll", "bulletjme-arm64.dll")
-            .addNativeVariant(Platform.Linux32, "native/linux/x86/libbulletjme.so", "libbulletjme-x86.so")
             .addNativeVariant(Platform.Linux64, "native/linux/x86_64/libbulletjme.so", "libbulletjme-x86_64.so")
-            .addNativeVariant(Platform.Linux_ARM32, "native/linux/arm32/libbulletjme.so", "libbulletjme-arm32.so")
             .addNativeVariant(Platform.Linux_ARM64, "native/linux/arm64/libbulletjme.so", "libbulletjme-arm64.so")
-            .addNativeVariant(Platform.MacOSX32, "native/osx/x86/libbulletjme.dylib", "libbulletjme-x86.dylib")
             .addNativeVariant(Platform.MacOSX64, "native/osx/x86_64/libbulletjme.dylib", "libbulletjme-x86_64.dylib")
             .addNativeVariant(Platform.MacOSX_ARM64, "native/osx/arm64/libbulletjme.dylib", "libbulletjme-arm64.dylib")
     ),
@@ -100,11 +90,8 @@ public enum NativeLibraries {
             // Delegate loading to jinput.
             System.setProperty("net.java.games.input.librarypath",
                     Paths.get(libPath).getParent().toAbsolutePath().toString()))
-            .addNativeVariant(Platform.Windows32, "jinput-raw.dll")
             .addNativeVariant(Platform.Windows64, "jinput-raw_64.dll")
-            .addNativeVariant(Platform.Linux32, "libjinput-linux.so")
             .addNativeVariant(Platform.Linux64, "libjinput-linux64.so")
-            .addNativeVariant(Platform.MacOSX32, "libjinput-osx.jnilib", "libjinput-osx.dylib")
             .addNativeVariant(Platform.MacOSX64, "libjinput-osx.jnilib", "libjinput-osx.dylib")
     ),
 
@@ -113,11 +100,8 @@ public enum NativeLibraries {
      * (only required on Windows)
      */
     JInputDX8(new LibraryInfo("jinput-dx8")
-            .addNativeVariant(Platform.Windows32, "jinput-dx8.dll", null)
             .addNativeVariant(Platform.Windows64, "jinput-dx8_64.dll", null)
-            .addNativeVariant(Platform.Linux32, null)
             .addNativeVariant(Platform.Linux64, null)
-            .addNativeVariant(Platform.MacOSX32, null)
             .addNativeVariant(Platform.MacOSX64, null)
     );
 

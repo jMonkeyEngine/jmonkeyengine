@@ -110,6 +110,22 @@ You can restore the project to a pristine state:
 + using Bash or Fish or PowerShell or Zsh: `./gradlew clean`
 + using Windows Command Prompt: `.\gradlew clean`
 
+
+## Running examples
+
+The engine comes with some examples that you can run with:
+
+```bash
+./gradlew runExamples
+```
+
+You can optionally use the `-Pexample` property to specify an example to start without the need to navigate the test chooser, e.g.:
+
+```bash
+./gradlew runExamples -Pexample=jme3test.light.pbr.TestPBRSimple
+```
+
+
 ## Running Tests 
 
 To run all tests and generate a JaCoCo code coverage report, run the `testCodeCoverageReport` Gradle task. To avoid the generation of the report, use the `test` task instead.

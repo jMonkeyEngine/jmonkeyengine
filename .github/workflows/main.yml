@@ -71,7 +71,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Run Checkstyle
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
@@ -98,7 +98,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Run SpotBugs
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
@@ -135,7 +135,7 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Test with Gradle Wrapper
         run: |
           ./gradlew :jme3-screenshot-test:screenshotTest
@@ -176,7 +176,7 @@ jobs:
           fetch-depth: 1
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
 
       - name: Build
         run: |
@@ -218,7 +218,7 @@ jobs:
           cmake --version
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
 
       - name: Build
         run: |
@@ -282,7 +282,7 @@ jobs:
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5.0.2
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Build Engine
         shell: bash
         run: |

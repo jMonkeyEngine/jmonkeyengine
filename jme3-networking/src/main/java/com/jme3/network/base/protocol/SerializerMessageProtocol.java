@@ -50,6 +50,8 @@ import com.jme3.network.serializing.Serializer;
  *  @author    Paul Speed
  */ 
 public class SerializerMessageProtocol implements MessageProtocol {
+
+    public static final int MAX_MESSAGE_SIZE = Short.MAX_VALUE;
  
     public SerializerMessageProtocol() {
     }
@@ -63,14 +65,17 @@ public class SerializerMessageProtocol implements MessageProtocol {
     public ByteBuffer toByteBuffer( Message message, ByteBuffer target ) {
     
         // Could let the caller pass their own in       
-        ByteBuffer buffer = target == null ? ByteBuffer.allocate(32767 + 2) : target;
+        ByteBuffer buffer = target == null ? ByteBuffer.allocate(MAX_MESSAGE_SIZE + 2) : target;
         
         try {
             buffer.position(2);
             Serializer.writeClassAndObject(buffer, message);
             buffer.flip();
-            short dataLength = (short)(buffer.remaining() - 2);
-            buffer.putShort(dataLength);
+            int dataLength = buffer.remaining() - 2;
+            if (dataLength < 0 || dataLength > MAX_MESSAGE_SIZE) {
+                throw new IllegalArgumentException("Serialized message exceeds maximum size: " + dataLength);
+            }
+            buffer.putShort((short) dataLength);
             buffer.position(0);
             
             return buffer;

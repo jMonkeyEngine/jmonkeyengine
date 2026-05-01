@@ -102,6 +102,7 @@ public class LazyMessageBuffer implements MessageBuffer {
                     
                     size = (high & 0xff) << 8 | (low & 0xff);
                     carry = null;
+                    validateSize(size);
                 }
                 else if( buffer.remaining() < 2 ) {
                     // It's possible that the supplied buffer only has one
@@ -117,7 +118,8 @@ public class LazyMessageBuffer implements MessageBuffer {
                     // grab the size.
                     // Note: this is somewhat limiting. int would
                     // be better.
-                    size = buffer.getShort();
+                    size = buffer.getShort() & 0xffff;
+                    validateSize(size);
                 }               
  
                 // Allocate the buffer into which we'll feed the
@@ -171,6 +173,12 @@ public class LazyMessageBuffer implements MessageBuffer {
         }            
         
         return hasMessages();        
+    }
+
+    private void validateSize(int size) {
+        if (size <= 0 || size > SerializerMessageProtocol.MAX_MESSAGE_SIZE) {
+            throw new IllegalArgumentException("Invalid message frame size: " + size);
+        }
     }
 }
 

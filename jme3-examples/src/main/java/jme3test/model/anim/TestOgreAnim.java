@@ -56,8 +56,8 @@ import com.jme3.scene.shape.Box;
 /**
  * Example demonstrating Ogre model animation.
  * 
- * @deprecated as of jMonkeyEngine 3.6, for removal in a future version.
- * The Ogre model format is deprecated. Consider using glTF (.glb/.gltf) or other modern formats instead.
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * The Ogre model format is deprecated. Consider using glTF (.glb/.gltf/.j3o) or other modern formats instead.
  */
 @Deprecated
 public class TestOgreAnim extends SimpleApplication implements ActionListener {

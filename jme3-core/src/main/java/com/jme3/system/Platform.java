@@ -37,19 +37,9 @@ package com.jme3.system;
 public enum Platform {
 
     /**
-     * Microsoft Windows 32-bit AMD/Intel
-     */
-    Windows32(Os.Windows),
-
-    /**
      * Microsoft Windows 64-bit AMD/Intel
      */
     Windows64(Os.Windows, true),
-
-    /**
-     * Microsoft Windows 32-bit ARM
-     */
-    Windows_ARM32(Os.Windows),
 
     /**
      * Microsoft Windows 64-bit ARM
@@ -57,29 +47,14 @@ public enum Platform {
     Windows_ARM64(Os.Windows, true),
 
     /**
-     * Linux 32-bit Intel
-     */
-    Linux32(Os.Linux),
-
-    /**
      * Linux 64-bit Intel
      */
     Linux64(Os.Linux, true),
 
     /**
-     * Linux 32-bit ARM
-     */
-    Linux_ARM32(Os.Linux),
-
-    /**
      * Linux 64-bit ARM
      */
     Linux_ARM64(Os.Linux, true),
-
-    /**
-     * Apple Mac OS X 32-bit Intel
-     */
-    MacOSX32(Os.MacOS),
 
     /**
      * Apple Mac OS X 64-bit Intel
@@ -90,57 +65,26 @@ public enum Platform {
      * Apple Mac OS X 64-bit ARM
      */
     MacOSX_ARM64(Os.MacOS, true),
-
-    /**
-     * Apple Mac OS X 32 bit PowerPC
-     */
-    MacOSX_PPC32(Os.MacOS),
-
-    /**
-     * Apple Mac OS X 64 bit PowerPC
-     */
-    MacOSX_PPC64(Os.MacOS, true),
-
-    /**
-     * Android ARM5
-     */
-    Android_ARM5(Os.Android),
-
-    /**
-     * Android ARM6
-     */
-    Android_ARM6(Os.Android),
-
-    /**
-     * Android ARM7
-     */
-    Android_ARM7(Os.Android),
-
+ 
     /**
      * Android ARM8
      */
-    Android_ARM8(Os.Android),
+    Android_ARM8(Os.Android, true),
 
     /**
-     * Android x86
+     * Android x86_64
      */
-    Android_X86(Os.Android),
-
-    /**
-     * iOS on x86
-     */
-    iOS_X86(Os.iOS),
+    Android_X86_64(Os.Android, true),
 
     /**
      * iOS on ARM
      */
-    iOS_ARM(Os.iOS),
+    iOS_ARM(Os.iOS, true),
 
     /**
-     * Android running on unknown platform (could be x86 or mips for example).
+     * iOS on x86_64 (simulator)
      */
-    Android_Other(Os.Android),
-    
+    iOS_X86(Os.iOS, true),
     /**
     * Generic web platform on unknown architecture
     */

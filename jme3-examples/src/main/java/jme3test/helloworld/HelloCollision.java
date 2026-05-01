@@ -87,7 +87,7 @@ public class HelloCollision extends SimpleApplication
     assetManager.registerLocator(
                     "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip",
                     HttpZipLocator.class);
-    Spatial sceneModel = assetManager.loadModel("main.j3o");
+    Spatial sceneModel = assetManager.loadModel("main.scene");
     sceneModel.setLocalScale(2f);
 
     // We set up collision detection for the scene by creating a
