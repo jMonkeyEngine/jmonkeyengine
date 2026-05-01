@@ -110,7 +110,7 @@ tasks.register('installAndroidExamples', Exec) {
 
 tasks.register('runAndroidExamples', Exec) {
     group = 'application'
-    description = 'Install and launch the Android examples selector on a connected emulator or device.'
+    description = 'Install and launch Android examples on a connected emulator or device. Use -Pexample=<class> to run a specific test directly.'
 
     dependsOn tasks.named('installAndroidExamples')
 
@@ -120,10 +120,21 @@ tasks.register('runAndroidExamples', Exec) {
             throw new GradleException("ADB not found. Set -Pandroid.sdk.path, ANDROID_HOME, or ANDROID_SDK_ROOT.")
         }
         executable adbExecutable.absolutePath
-    }
 
-    args 'shell', 'am', 'start',
-            '-n', 'org.jmonkeyengine.jme3androidexamples/.MainActivity'
+        def exampleClass = project.findProperty('example')?.toString()?.trim()
+        if (exampleClass) {
+            args 'shell', 'am', 'start',
+                    '-n', 'org.jmonkeyengine.jme3androidexamples/.TestActivity',
+                    '--es', 'Selected_App_Class', exampleClass,
+                    '--ez', 'Enable_Mouse_Events', 'true',
+                    '--ez', 'Enable_Joystick_Events', 'false',
+                    '--ez', 'Enable_Key_Events', 'true',
+                    '--ez', 'Verbose_Logging', 'false'
+        } else {
+            args 'shell', 'am', 'start',
+                    '-n', 'org.jmonkeyengine.jme3androidexamples/.MainActivity'
+        }
+    }
 }
 
 def findAdbExecutable() {
