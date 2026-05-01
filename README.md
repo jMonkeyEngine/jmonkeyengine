@@ -119,7 +119,7 @@ The engine comes with some examples that you can run with:
 ./gradlew runExamples
 ```
 
-you can optionally use the `-Pexample` property to specify an example to start without the need to navigate the test chooser, eg.
+You can optionally use the `-Pexample` property to specify an example to start without the need to navigate the test chooser, e.g.:
 
 ```bash
 ./gradlew runExamples -Pexample=jme3test.light.pbr.TestPBRSimple
