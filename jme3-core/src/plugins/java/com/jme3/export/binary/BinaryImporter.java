@@ -52,6 +52,7 @@ public final class BinaryImporter implements JmeImporter {
             .getName());
 
     private AssetManager assetManager;
+    private SavableClassFilter classFilter = SavableClassFilter.ACCEPT_ALL;
 
     //Key - alias, object - bco
     private final HashMap<String, BinaryClassObject> classes
@@ -97,6 +98,27 @@ public final class BinaryImporter implements JmeImporter {
     @Override
     public AssetManager getAssetManager(){
         return assetManager;
+    }
+
+    /**
+     * Sets the policy used before this importer instantiates classes named by
+     * a J3O file. The default accepts all classes for backward compatibility.
+     * Use a restrictive filter when loading assets from untrusted sources.
+     *
+     * @param classFilter the filter to apply
+     */
+    public void setClassFilter(SavableClassFilter classFilter) {
+        if (classFilter == null) {
+            throw new NullPointerException("classFilter");
+        }
+        this.classFilter = classFilter;
+    }
+
+    /**
+     * @return the current class filter
+     */
+    public SavableClassFilter getClassFilter() {
+        return classFilter;
     }
 
     @Override
@@ -145,6 +167,9 @@ public final class BinaryImporter implements JmeImporter {
             formatVersion = ByteUtils.readInt(bis);
             numClasses = ByteUtils.readInt(bis);
             
+            if (formatVersion < 0) {
+                throw new IOException("Invalid J3O format version: " + formatVersion);
+            }
             // check if this binary is from the future
             if (formatVersion > FormatVersion.VERSION){
                 throw new IOException("The binary file is of newer version than expected! " + 
@@ -161,6 +186,9 @@ public final class BinaryImporter implements JmeImporter {
         }
         
         int bytes = 4;
+        if (numClasses <= 0) {
+            throw new IOException("Invalid J3O class count: " + numClasses);
+        }
         aliasWidth = ((int)FastMath.log(numClasses, 256) + 1);
 
         classes.clear();
@@ -170,7 +198,7 @@ public final class BinaryImporter implements JmeImporter {
             // jME3 NEW: Read class version number
             int[] classHierarchyVersions;
             if (formatVersion >= 1){
-                int classHierarchySize = bis.read();
+                int classHierarchySize = readUnsignedByte(bis, "class hierarchy size");
                 classHierarchyVersions = new int[classHierarchySize];
                 for (int j = 0; j < classHierarchySize; j++){
                     classHierarchyVersions[j] = ByteUtils.readInt(bis);
@@ -181,7 +209,11 @@ public final class BinaryImporter implements JmeImporter {
             
             // read classname and classname size
             int classLength = ByteUtils.readInt(bis);
+            checkLength(classLength);
             String className = readString(bis, classLength);
+            if (!classFilter.isAllowed(SavableClassUtil.remapClass(className))) {
+                throw new IOException("J3O class rejected by filter: " + className);
+            }
             
             BinaryClassObject bco = new BinaryClassObject();
             bco.alias = alias.getBytes();
@@ -189,15 +221,17 @@ public final class BinaryImporter implements JmeImporter {
             bco.classHierarchyVersions = classHierarchyVersions;
             
             int fields = ByteUtils.readInt(bis);
+            checkLength(fields);
             bytes += (8 + aliasWidth + classLength);
 
             bco.nameFields = new HashMap<String, BinaryClassField>(fields);
             bco.aliasFields = new HashMap<Byte, BinaryClassField>(fields);
             for (int x = 0; x < fields; x++) {
-                byte fieldAlias = (byte)bis.read();
-                byte fieldType = (byte)bis.read();
+                byte fieldAlias = (byte) readUnsignedByte(bis, "field alias");
+                byte fieldType = (byte) readUnsignedByte(bis, "field type");
 
                 int fieldNameLength = ByteUtils.readInt(bis);
+                checkLength(fieldNameLength);
                 String fieldName = readString(bis, fieldNameLength);
                 BinaryClassField bcf = new BinaryClassField(fieldName, fieldAlias, fieldType);
                 bco.nameFields.put(fieldName, bcf);
@@ -209,6 +243,7 @@ public final class BinaryImporter implements JmeImporter {
         if (listener != null) listener.readBytes(bytes);
 
         int numLocs = ByteUtils.readInt(bis);
+        checkLength(numLocs);
         bytes = 4;
 
         capsuleTable.clear();
@@ -216,6 +251,9 @@ public final class BinaryImporter implements JmeImporter {
         for(int i = 0; i < numLocs; i++) {
             int id = ByteUtils.readInt(bis);
             int loc = ByteUtils.readInt(bis);
+            if (loc < 0) {
+                throw new IOException("Invalid negative J3O object location: " + loc);
+            }
             locationTable.put(id, loc);
             bytes += 8;
         }
@@ -290,21 +328,40 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     protected String readString(InputStream f, int length) throws IOException {
+        checkLength(length);
         byte[] data = new byte[length];
         for(int j = 0; j < length; j++) {
-            data[j] = (byte)f.read();
+            data[j] = (byte) readUnsignedByte(f, "string");
         }
 
         return new String(data);
     }
 
     protected String readString(int length, int offset) throws IOException {
+        checkLength(length);
+        if (offset < 0 || offset + length < offset || offset + length > dataArray.length) {
+            throw new IOException("String outside J3O payload: offset=" + offset + ", length=" + length);
+        }
         byte[] data = new byte[length];
         for(int j = 0; j < length; j++) {
             data[j] = dataArray[j+offset];
         }
 
         return new String(data);
+    }
+
+    private void checkLength(int length) throws IOException {
+        if (length < 0) {
+            throw new IOException("Invalid negative J3O length/count: " + length);
+        }
+    }
+
+    private int readUnsignedByte(InputStream input, String label) throws IOException {
+        int value = input.read();
+        if (value < 0) {
+            throw new EOFException("Unexpected end of J3O while reading " + label);
+        }
+        return value;
     }
 
     public Savable readObject(int id) {
@@ -314,7 +371,14 @@ public final class BinaryImporter implements JmeImporter {
         }
 
         try {
-            int loc = locationTable.get(id);
+            Integer objectLocation = locationTable.get(id);
+            if (objectLocation == null) {
+                throw new IOException("Missing J3O object location for id: " + id);
+            }
+            int loc = objectLocation;
+            if (loc < 0 || loc >= dataArray.length) {
+                throw new IOException("J3O object location outside payload: " + loc);
+            }
 
             String alias = readString(aliasWidth, loc);
             loc+=aliasWidth;
@@ -326,10 +390,16 @@ public final class BinaryImporter implements JmeImporter {
                 return null;
             }
 
+            if (loc + 4 > dataArray.length) {
+                throw new IOException("Truncated J3O object length at payload offset: " + loc);
+            }
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
             loc+=4;
+            if (dataLength < 0 || loc + dataLength < loc || loc + dataLength > dataArray.length) {
+                throw new IOException("Invalid J3O object data length: " + dataLength);
+            }
 
-            Savable  out = SavableClassUtil.fromName(bco.className);
+            Savable  out = SavableClassUtil.fromName(bco.className, classFilter);
 
             BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
             cap.setContent(dataArray, loc, loc+dataLength);

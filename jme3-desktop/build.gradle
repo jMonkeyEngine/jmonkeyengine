@@ -2,3 +2,12 @@ dependencies {
     api project(':jme3-core')
     api project(':jme3-plugins')
 }
+
+tasks.register('scanJ3O', JavaExec) {
+    group = 'verification'
+    description = 'Scans all J3O assets in the repository against the jme3-desktop baseline.'
+    dependsOn tasks.named('classes')
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.jme3.system.J3OScanner'
+    args rootProject.rootDir.absolutePath
+}
