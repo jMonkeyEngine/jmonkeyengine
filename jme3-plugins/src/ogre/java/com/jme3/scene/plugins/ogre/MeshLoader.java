@@ -43,6 +43,7 @@ import com.jme3.scene.VertexBuffer.*;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.xml.SecureXmlFactory;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -869,8 +870,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // Kirill 30.06.2011
             // Now, hack is applied for both desktop and android to avoid
             // checking with JmeSystem.
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
+            SAXParserFactory factory = SecureXmlFactory.createSaxParserFactory();
 
             XMLReader xr = factory.newSAXParser().getXMLReader();
             xr.setContentHandler(this);

@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.material.MaterialList;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
+import com.jme3.util.xml.SecureXmlFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,9 +127,8 @@ class SceneMaterialLoader extends DefaultHandler {
             
             reset();
             
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);  
-            XMLReader xr = factory.newSAXParser().getXMLReader();  
+            SAXParserFactory factory = SecureXmlFactory.createSaxParserFactory();
+            XMLReader xr = factory.newSAXParser().getXMLReader();
 
             xr.setContentHandler(this);
             xr.setErrorHandler(this);

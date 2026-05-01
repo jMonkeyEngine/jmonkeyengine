@@ -38,6 +38,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.xml.SAXUtil;
+import com.jme3.util.xml.SecureXmlFactory;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -261,9 +262,8 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             // Kirill 30.06.2011
             // Now, hack is applied for both desktop and android to avoid
             // checking with JmeSystem.
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            XMLReader xr = factory.newSAXParser().getXMLReader();  
+            SAXParserFactory factory = SecureXmlFactory.createSaxParserFactory();
+            XMLReader xr = factory.newSAXParser().getXMLReader();
                          
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
