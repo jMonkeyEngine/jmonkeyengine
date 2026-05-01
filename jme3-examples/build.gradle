@@ -16,6 +16,27 @@ task run(dependsOn: 'build', type:JavaExec) {
     }
 }
 
+
+task runExamples(dependsOn: 'build', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    if (System.properties['java.util.logging.config.file'] != null) {
+        systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']
+    }
+
+    if( assertions  == "true" ){
+        enableAssertions = true;
+    }
+
+    doFirst {
+        def exampleClass = project.findProperty('example')
+        if (!exampleClass) {
+            exampleClass = mainClassName
+        }
+        mainClass = exampleClass
+    }
+}
+
 dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-desktop')

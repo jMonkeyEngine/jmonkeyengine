@@ -596,6 +596,21 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
+    public int glGetUniformBlockIndex(int program, String uniformBlockName) {
+        return GLES30.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(int target, int index, int buffer) {
+        GLES30.glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding) {
+        GLES30.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
+
+    @Override
     public void glBindFramebufferEXT(int param1, int param2) {
         GLES20.glBindFramebuffer(param1, param2);
     }
@@ -759,4 +774,3 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
 }
-

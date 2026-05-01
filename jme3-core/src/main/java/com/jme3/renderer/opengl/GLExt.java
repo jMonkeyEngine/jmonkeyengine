@@ -260,6 +260,39 @@ public interface GLExt {
      */
     public void glVertexAttribDivisorARB(int index, int divisor);
 
+    /**
+     * Retrieves the index of a named uniform block.
+     *
+     * @param program          the name of a program containing the uniform block
+     * @param uniformBlockName the name of the uniform block whose index to retrieve
+     * @return the block index
+     */
+    public default int glGetUniformBlockIndex(int program, String uniformBlockName) {
+        throw new UnsupportedOperationException("Uniform buffer objects are not supported");
+    }
+
+    /**
+     * Binds a buffer object to an indexed buffer target.
+     *
+     * @param target the target of the bind operation
+     * @param index  the index of the binding point within the array specified by {@code target}
+     * @param buffer a buffer object to bind to the specified binding point
+     */
+    public default void glBindBufferBase(int target, int index, int buffer) {
+        throw new UnsupportedOperationException("Uniform buffer objects are not supported");
+    }
+
+    /**
+     * Assigns a uniform block to a binding point.
+     *
+     * @param program             the name of a program object
+     * @param uniformBlockIndex   the index of the active uniform block within {@code program}
+     * @param uniformBlockBinding the binding point to assign
+     */
+    public default void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding) {
+        throw new UnsupportedOperationException("Uniform buffer objects are not supported");
+    }
+
     public default void glPushDebugGroup(int source, int id, String message) {
     }
 

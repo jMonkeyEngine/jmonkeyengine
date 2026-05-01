@@ -1,0 +1,40 @@
+name: J3O Scan
+
+on:
+  pull_request:
+    paths:
+      - '**/*.j3o'
+      - 'jme3-desktop/src/main/resources/com/jme3/system/j3o-baseline.txt'
+      - 'jme3-desktop/src/main/java/com/jme3/system/J3OScanner.java'
+      - 'jme3-desktop/build.gradle'
+      - '.github/workflows/j3o-scan.yml'
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '**/*.j3o'
+      - 'jme3-desktop/src/main/resources/com/jme3/system/j3o-baseline.txt'
+      - 'jme3-desktop/src/main/java/com/jme3/system/J3OScanner.java'
+      - 'jme3-desktop/build.gradle'
+      - '.github/workflows/j3o-scan.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scan-j3o:
+    name: Validate J3O assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Scan J3O assets
+        run: ./gradlew :jme3-desktop:scanJ3O --console=plain

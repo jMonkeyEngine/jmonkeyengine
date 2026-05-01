@@ -3,6 +3,7 @@ package com.jme3.system.android;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Environment;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,6 +25,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class JmeAndroidSystem extends JmeSystemDelegate {
@@ -115,24 +118,28 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public Platform getPlatform() {
-        String arch = System.getProperty("os.arch").toLowerCase();
-        if (arch.contains("arm")) {
-            if (arch.contains("v5")) {
-                return Platform.Android_ARM5;
-            } else if (arch.contains("v6")) {
-                return Platform.Android_ARM6;
-            } else if (arch.contains("v7")) {
-                return Platform.Android_ARM7;
-            } else if (arch.contains("v8")) {
+        String arch = System.getProperty("os.arch", "").toLowerCase(Locale.ROOT);
+        switch (arch) {
+            case "aarch64":
+            case "arm64":
                 return Platform.Android_ARM8;
-            } else {
-                return Platform.Android_ARM5; // unknown ARM
-            }
-        } else if (arch.contains("aarch")) {
-            return Platform.Android_ARM8;
-        } else {
-            return Platform.Android_Other;
+            case "x86_64":
+            case "amd64":
+                return Platform.Android_X86_64;
+            case "arm":
+            case "armv7l":
+            case "x86":
+            case "i386":
+            case "i686":
+                throw new UnsupportedOperationException("Unsupported 32-bit Android architecture: " + arch);
+            default:
+                if (arch.startsWith("arm") || arch.contains("armeabi")) {
+                    throw new UnsupportedOperationException("Unsupported 32-bit Android architecture: " + arch);
+                }
+                throw new UnsupportedOperationException("Unsupported Android architecture: " + arch
+                        + ", supported ABIs: " + (Build.VERSION.SDK_INT >= 21 ? Arrays.toString(Build.SUPPORTED_ABIS) : "unknown"));
         }
+
     }
 
     @Override
