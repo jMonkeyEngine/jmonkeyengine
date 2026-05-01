@@ -1,6 +1,10 @@
 /**
  * This is the global settings file used by all subprojects.
  **/
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 rootProject.name = 'jmonkeyengine'
 
 // Core classes, should work on all java platforms
