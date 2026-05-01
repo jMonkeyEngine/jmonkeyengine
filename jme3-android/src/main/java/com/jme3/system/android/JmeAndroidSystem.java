@@ -137,7 +137,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                     throw new UnsupportedOperationException("Unsupported 32-bit Android architecture: " + arch);
                 }
                 throw new UnsupportedOperationException("Unsupported Android architecture: " + arch
-                        + ", supported ABIs: " + Arrays.toString(Build.SUPPORTED_ABIS));
+                        + ", supported ABIs: " + (Build.VERSION.SDK_INT >= 21 ? Arrays.toString(Build.SUPPORTED_ABIS) : "unknown"));
         }
 
     }
