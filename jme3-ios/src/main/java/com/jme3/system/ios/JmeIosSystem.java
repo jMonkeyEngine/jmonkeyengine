@@ -114,6 +114,8 @@ public class JmeIosSystem extends JmeSystemDelegate {
         String arch = System.getProperty("os.arch").toLowerCase();
         if (arch.contains("arm") || arch.contains("aarch")) {
             return Platform.iOS_ARM;
+        } else if (arch.contains("x86_64") || arch.contains("amd64")) {
+            return Platform.iOS_X86;
         } else {
             throw new UnsupportedOperationException("Unsupported iOS architecture: " + arch);
         }

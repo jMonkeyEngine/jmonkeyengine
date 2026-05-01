@@ -216,22 +216,25 @@ public abstract class JmeSystemDelegate {
 
 
     private boolean is64Bit(String arch) {
-        if (arch.equals("x86")) {
-            return false;
-        } else if (arch.equals("amd64")) {
-            return true;
-        } else if (arch.equals("x86_64")) {
-            return true;
-        } else if (arch.equals("ppc64")) {
-            return true;
-        } else if (arch.equals("aarch64")) {
-            return true;
-        } else if (arch.equals("arm64")) {
-            return true;
-        } else if (arch.equals("universal")) {
-            return true;
+        switch (arch) {
+            case "amd64":
+            case "x86_64":
+            case "aarch64":
+            case "arm64":
+            case "ppc64":
+            case "universal":
+                return true;
+            case "x86":
+            case "i386":
+            case "i686":
+            case "aarch32":
+            case "arm":
+            case "armv7":
+            case "armv7l":
+                return false;
+            default:
+                throw new UnsupportedOperationException("Unsupported architecture: " + arch);
         }
-        return false;
     }
 
     private boolean isArmArchitecture(String arch) {

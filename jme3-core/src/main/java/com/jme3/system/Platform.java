@@ -80,6 +80,11 @@ public enum Platform {
      * iOS on ARM
      */
     iOS_ARM(Os.iOS, true),
+
+    /**
+     * iOS on x86_64 (simulator)
+     */
+    iOS_X86(Os.iOS, true),
     /**
     * Generic web platform on unknown architecture
     */
