@@ -52,11 +52,6 @@ public enum Platform {
     Linux64(Os.Linux, true),
 
     /**
-     * Linux 32-bit ARM
-     */
-    Linux_ARM32(Os.Linux),
-
-    /**
      * Linux 64-bit ARM
      */
     Linux_ARM64(Os.Linux, true),
@@ -70,47 +65,21 @@ public enum Platform {
      * Apple Mac OS X 64-bit ARM
      */
     MacOSX_ARM64(Os.MacOS, true),
-
-    /**
-     * Android ARM5
-     */
-    Android_ARM5(Os.Android),
-
-    /**
-     * Android ARM6
-     */
-    Android_ARM6(Os.Android),
-
-    /**
-     * Android ARM7
-     */
-    Android_ARM7(Os.Android),
-
+ 
     /**
      * Android ARM8
      */
-    Android_ARM8(Os.Android),
+    Android_ARM8(Os.Android, true),
 
     /**
-     * Android x86
+     * Android x86_64
      */
-    Android_X86(Os.Android),
-
-    /**
-     * iOS on x86
-     */
-    iOS_X86(Os.iOS),
+    Android_X86_64(Os.Android, true),
 
     /**
      * iOS on ARM
      */
-    iOS_ARM(Os.iOS),
-
-    /**
-     * Android running on unknown platform (could be x86 or mips for example).
-     */
-    Android_Other(Os.Android),
-    
+    iOS_ARM(Os.iOS, true),
     /**
     * Generic web platform on unknown architecture
     */

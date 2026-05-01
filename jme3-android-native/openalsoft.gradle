@@ -87,9 +87,7 @@ def cmakeToolchain = "${ndkPath}/build/cmake/android.toolchain.cmake"
 
 // 1) list your ABIs here
 def openalAbis = [
-    "armeabi-v7a",
     "arm64-v8a",
-    "x86",
     "x86_64"
 ]
 
@@ -170,7 +168,7 @@ task buildOpenAlSoftNativeLib(type: Exec) {
     // the cmake-build-<ABI> folders.
     args(
         // let ndk-build know which ABIs to build for
-        "APP_ABI=armeabi-v7a,arm64-v8a,x86,x86_64",
+        "APP_ABI=arm64-v8a,x86_64",
 
         // pass in the path to the CMake output root
         "OPENALSOFT_BUILD_ROOT=${openalsoftBuildDir}/${openALSoftFolder}",

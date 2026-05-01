@@ -77,7 +77,6 @@ public enum NativeLibraries {
             .addNativeVariant(Platform.Windows64, "native/windows/x86_64/bulletjme.dll", "bulletjme-x86_64.dll")
             .addNativeVariant(Platform.Windows_ARM64, "native/windows/arm64/bulletjme.dll", "bulletjme-arm64.dll")
             .addNativeVariant(Platform.Linux64, "native/linux/x86_64/libbulletjme.so", "libbulletjme-x86_64.so")
-            .addNativeVariant(Platform.Linux_ARM32, "native/linux/arm32/libbulletjme.so", "libbulletjme-arm32.so")
             .addNativeVariant(Platform.Linux_ARM64, "native/linux/arm64/libbulletjme.so", "libbulletjme-arm64.so")
             .addNativeVariant(Platform.MacOSX64, "native/osx/x86_64/libbulletjme.dylib", "libbulletjme-x86_64.dylib")
             .addNativeVariant(Platform.MacOSX_ARM64, "native/osx/arm64/libbulletjme.dylib", "libbulletjme-arm64.dylib")

@@ -222,25 +222,16 @@ public abstract class JmeSystemDelegate {
             return true;
         } else if (arch.equals("x86_64")) {
             return true;
-        } else if (arch.equals("ppc") || arch.equals("PowerPC")) {
-            return false;
         } else if (arch.equals("ppc64")) {
             return true;
-        } else if (arch.equals("i386") || arch.equals("i686")) {
-            return false;
-        } else if (arch.equals("universal")) {
-            return false;
-        } else if (arch.equals("aarch32")) {
-            return false;
         } else if (arch.equals("aarch64")) {
             return true;
-        } else if (arch.equals("armv7") || arch.equals("armv7l")) {
-            return false;
-        } else if (arch.equals("arm")) {
-            return false;
-        } else {
-            throw new UnsupportedOperationException("Unsupported architecture: " + arch);
+        } else if (arch.equals("arm64")) {
+            return true;
+        } else if (arch.equals("universal")) {
+            return true;
         }
+        return false;
     }
 
     private boolean isArmArchitecture(String arch) {
@@ -261,44 +252,32 @@ public abstract class JmeSystemDelegate {
     }
 
     private Platform getWindowsPlatform(String arch, boolean is64) {
-        if (isArmArchitecture(arch)) {
-            if (!is64) {
-                throw unsupported32Bit("Windows");
-            }
-            return Platform.Windows_ARM64;
+        if (!is64) {
+            // no 32-bit version
+            throw unsupported32Bit("Windows");
         }
-        if (isX86Architecture(arch)) {
-            if (!is64) {
-                throw unsupported32Bit("Windows");
-            }
-            return Platform.Windows64;
-        }
+        if (isArmArchitecture(arch)) return Platform.Windows_ARM64;
+        if (isX86Architecture(arch)) return Platform.Windows64;
         throw new UnsupportedOperationException("Unsupported architecture: " + arch);
     }
 
     private Platform getLinuxPlatform(String arch, boolean is64) {
-        if (isArmArchitecture(arch)) {
-            return is64 ? Platform.Linux_ARM64 : Platform.Linux_ARM32;
+        if (!is64) {
+            // no 32-bit version
+            throw unsupported32Bit("Linux");
         }
-        if (isX86Architecture(arch)) {
-            if (!is64) {
-                throw unsupported32Bit("Linux");
-            }
-            return Platform.Linux64;
-        }
+        if (isArmArchitecture(arch)) return Platform.Linux_ARM64;
+        if (isX86Architecture(arch)) return Platform.Linux64;
         throw new UnsupportedOperationException("Unsupported architecture: " + arch);
     }
 
     private Platform getMacPlatform(String arch, boolean is64) {
-        if (arch.startsWith("aarch")) {
-            return Platform.MacOSX_ARM64; // no 32-bit version
+        if (!is64) {
+            // no 32-bit version
+            throw unsupported32Bit("macOS");
         }
-        if (isX86Architecture(arch)) {
-            if (!is64) {
-                throw unsupported32Bit("macOS");
-            }
-            return Platform.MacOSX64;
-        }
+        if (isArmArchitecture(arch)) return Platform.MacOSX_ARM64;
+        if (isX86Architecture(arch)) return Platform.MacOSX64;
         throw new UnsupportedOperationException("Unsupported architecture: " + arch);
     }
 
