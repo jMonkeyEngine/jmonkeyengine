@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "Tremor/ivorbisfile.h"
 
@@ -21,9 +22,9 @@ typedef struct
 {
     JNIEnv* env;
     int fd;
-    int start;
-    int end;
-    int current;
+    ogg_int64_t start;
+    ogg_int64_t end;
+    ogg_int64_t current;
 }
 FileDescWrapper;
 
@@ -32,25 +33,35 @@ static size_t FileDesc_read(void *ptr, size_t size, size_t nmemb, void *datasour
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     
-    int req_size = size * nmemb;
-    int remaining = wrapper->end - wrapper->current;
-    int to_read = remaining < req_size ? remaining : req_size;
+    if (size != 0 && nmemb > SIZE_MAX / size)
+    {
+        errno = EOVERFLOW;
+        return 0;
+    }
+
+    size_t req_size = size * nmemb;
+    ogg_int64_t remaining = wrapper->end - wrapper->current;
+    size_t to_read = (remaining < (ogg_int64_t) req_size) ? (size_t) remaining : req_size;
     
     if (to_read <= 0) 
     {
         return 0;
     }
     
-    size_t total_read = read(wrapper->fd, ptr, to_read);
+    ssize_t total_read = read(wrapper->fd, ptr, to_read);
+    if (total_read < 0)
+    {
+        return 0;
+    }
     
     if (total_read > 0)
     {
         wrapper->current += total_read;
     }
     
-    LOGI("FD read(%d) = %zu", to_read, total_read);
+    LOGI("FD read(%zu) = %zd", to_read, total_read);
     
-    return total_read;
+    return (size_t) total_read;
 }
 
 // off64_t lseek64(int fd, off64_t offset, int whence); 
@@ -58,7 +69,7 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     
-    int actual_offset;
+    ogg_int64_t actual_offset;
     
     switch (whence)
     {
@@ -89,9 +100,9 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
         return (off_t)-1;
     }
     
-    int result = lseek64(wrapper->fd, actual_offset, SEEK_SET);
+    off64_t result = lseek64(wrapper->fd, (off64_t) actual_offset, SEEK_SET);
     
-    LOGI("FD seek(%d) = %d", actual_offset, result);
+    LOGI("FD seek(%lld) = %lld", (long long) actual_offset, (long long) result);
     
     if (result < 0)
     {
@@ -109,6 +120,7 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
     // seek succeeded.
     // update current position
     wrapper->current = actual_offset;
+    return 0;
 }
 
 static int FileDesc_clear(void *datasource)
@@ -135,8 +147,8 @@ static long FileDesc_tell(void *datasource)
     if (wrapper->current != result)
     {
         // Not sure how to deal with this.
-        LOGI("PROBLEM: stored offset does not match actual: %d != %ld", 
-             wrapper->current, result);
+        LOGI("PROBLEM: stored offset does not match actual: %lld != %ld",
+             (long long) wrapper->current, result);
     }
     
     return result;
@@ -153,6 +165,18 @@ static void throwIOException(JNIEnv* env, const char* message)
 {
     jclass ioExClazz = (*env)->FindClass(env, "java/io/IOException");
     (*env)->ThrowNew(env, ioExClazz, message);
+}
+
+static void throwIndexOutOfBoundsException(JNIEnv* env, const char* message)
+{
+    jclass exClazz = (*env)->FindClass(env, "java/lang/IndexOutOfBoundsException");
+    (*env)->ThrowNew(env, exClazz, message);
+}
+
+static void throwNullPointerException(JNIEnv* env, const char* message)
+{
+    jclass exClazz = (*env)->FindClass(env, "java/lang/NullPointerException");
+    (*env)->ThrowNew(env, exClazz, message);
 }
 
 static jfieldID nvf_field_ovf;
@@ -181,10 +205,27 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_init
   (JNIEnv *env, jobject nvf, jint fd, jlong off, jlong len)
 {
     LOGI("init: fd = %d, off = %lld, len = %lld", fd, off, len);
+
+    if (off < 0 || len < 0 || off + len < off)
+    {
+        throwIOException(env, "Invalid file descriptor range");
+        return;
+    }
     
     OggVorbis_File* ovf = (OggVorbis_File*) malloc(sizeof(OggVorbis_File));
+    if (ovf == NULL)
+    {
+        throwIOException(env, "Failed to allocate OggVorbis_File");
+        return;
+    }
     
     FileDescWrapper* wrapper = (FileDescWrapper*) malloc(sizeof(FileDescWrapper));
+    if (wrapper == NULL)
+    {
+        free(ovf);
+        throwIOException(env, "Failed to allocate file descriptor wrapper");
+        return;
+    }
     wrapper->fd = fd;
     wrapper->env = env; // NOTE: every java call has to update this
     wrapper->start = off;
@@ -256,16 +297,39 @@ JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoArra
   (JNIEnv *env, jobject nvf, jbyteArray buf, jint off, jint len)
 {
     int bitstream = -1;
+    if (buf == NULL)
+    {
+        throwNullPointerException(env, "buffer");
+        return 0;
+    }
+
+    jsize arrayLen = (*env)->GetArrayLength(env, buf);
+    if (off < 0 || len < 0 || off > arrayLen || len > arrayLen - off)
+    {
+        throwIndexOutOfBoundsException(env, "Invalid offset/length for output buffer");
+        return 0;
+    }
+    if (len == 0)
+    {
+        return 0;
+    }
+
     jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
+    if (ovf == NULL)
+    {
+        throwIOException(env, "Vorbis file is closed or uninitialized");
+        return 0;
+    }
     FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
     wrapper->env = env;
     
-    char nativeBuf[len];
+    char nativeBuf[8192];
+    jint toRead = len < (jint) sizeof(nativeBuf) ? len : (jint) sizeof(nativeBuf);
     
-    long result = ov_read(ovf, (void*) nativeBuf, sizeof(nativeBuf), &bitstream);
+    long result = ov_read(ovf, (void*) nativeBuf, toRead, &bitstream);
     
-    LOGI("ov_read(%d) = %ld", len, result);
+    LOGI("ov_read(%d) = %ld", toRead, result);
     
     if (result == 0)
     {
@@ -279,19 +343,13 @@ JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoArra
         return 0;
     }
     
-    jbyte* javaBuf = (*env)->GetPrimitiveArrayCritical(env, buf, 0);
-    
-    if (javaBuf == NULL)
+    (*env)->SetByteArrayRegion(env, buf, off, (jsize) result, (const jbyte*) nativeBuf);
+    if ((*env)->ExceptionCheck(env))
     {
-        throwIOException(env, "Failed to acquire array elements");
         return 0;
     }
     
-    memcpy(&javaBuf[off], nativeBuf, result);
-    
-    (*env)->ReleasePrimitiveArrayCritical(env, buf, javaBuf, 0);
-    
-    return result;
+    return (jint) result;
 }
 
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoBuffer
@@ -300,15 +358,25 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readIntoBuff
     int bitstream = -1;
     jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
+    if (ovf == NULL)
+    {
+        throwIOException(env, "Vorbis file is closed or uninitialized");
+        return;
+    }
     FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
     wrapper->env = env;
     
     char err[512];
     unsigned char* byteBufferPtr = (unsigned char*)(*env)->GetDirectBufferAddress(env, buf);
     jlong byteBufferCap = (*env)->GetDirectBufferCapacity(env, buf);
+    if (byteBufferPtr == NULL || byteBufferCap < 0 || byteBufferCap > INT32_MAX)
+    {
+        throwIOException(env, "Output buffer must be a direct ByteBuffer with valid capacity");
+        return;
+    }
     
     int offset     = 0;
-    int remaining  = byteBufferCap;
+    int remaining  = (int) byteBufferCap;
     
     while (remaining > 0)
     {
@@ -342,7 +410,16 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_clearResourc
     LOGI("clearResources");
     
     jobject ovfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
+    if (ovfBuf == NULL)
+    {
+        return;
+    }
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, ovfBuf);
+    if (ovf == NULL)
+    {
+        (*env)->SetObjectField(env, nvf, nvf_field_ovf, NULL);
+        return;
+    }
     
     /* release the ovf resources */
     ov_clear(ovf);
