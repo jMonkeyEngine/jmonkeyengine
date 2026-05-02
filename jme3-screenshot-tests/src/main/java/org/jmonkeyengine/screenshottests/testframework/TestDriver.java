@@ -39,6 +39,10 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture2D;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -55,17 +59,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -102,14 +102,22 @@ public class TestDriver extends BaseAppState{
 
     Collection<Integer> framesToTakeScreenshotsOn;
 
-    ScreenshotNoInputAppState screenshotAppState;
+    private FrameBuffer offBuffer;
+
+    private Texture2D renderTexture;
 
     private CountDownLatch waitLatch;
 
     private final int tickToTerminateApp;
 
-    public TestDriver(ScreenshotNoInputAppState screenshotAppState, Collection<Integer> framesToTakeScreenshotsOn){
-        this.screenshotAppState = screenshotAppState;
+    OffScreenshotAppState offScreenshotAppState;
+
+    ScenarioScreenshotRecorder screenshotsAtFrames = new ScenarioScreenshotRecorder();
+
+    private final String scenarioName;
+
+    public TestDriver(String scenarioName, Collection<Integer> framesToTakeScreenshotsOn){
+        this.scenarioName = scenarioName;
         this.framesToTakeScreenshotsOn = framesToTakeScreenshotsOn;
         this.tickToTerminateApp = framesToTakeScreenshotsOn.stream().mapToInt(i -> i).max().orElse(0) + 1;
     }
@@ -119,7 +127,15 @@ public class TestDriver extends BaseAppState{
         super.update(tpf);
 
         if(framesToTakeScreenshotsOn.contains(tick)){
-            screenshotAppState.takeScreenshot();
+            Path screenshotPath;
+            try {
+                screenshotPath = Files.createTempFile("screenshot_" + scenarioName + "_" + tick + "_", ".tmp");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            screenshotPath.toFile().deleteOnExit();
+            screenshotsAtFrames.recordScreenshot(scenarioName, tick, screenshotPath);
+            offScreenshotAppState.takeScreenshot(screenshotPath);
         }
         if(tick >= tickToTerminateApp){
             getApplication().stop(true);
@@ -135,6 +151,23 @@ public class TestDriver extends BaseAppState{
             waitLatch.countDown();
         };
 
+        AppSettings settings = app.getContext().getSettings();
+        int width = settings.getWidth();
+        int height = settings.getHeight();
+        renderTexture = new Texture2D(width, height, Image.Format.RGBA8);
+        renderTexture.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
+        renderTexture.setMagFilter(Texture.MagFilter.Bilinear);
+
+        offBuffer = new FrameBuffer(width, height, 1);
+        offBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.Depth));
+        offBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(renderTexture));
+
+        offScreenshotAppState = new OffScreenshotAppState(renderTexture, offBuffer);
+
+        app.getRenderer().setMainFrameBufferOverride(offBuffer);
+
+
+        getStateManager().attach(offScreenshotAppState);
     }
 
     @Override protected void cleanup(Application app){}
@@ -152,28 +185,14 @@ public class TestDriver extends BaseAppState{
     public static void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios){
 
         Collections.sort(framesToTakeScreenshotsOn);
-
-        List<Path> tempFolders = new ArrayList<>();
-        Map<Scenario, List<Path>> imageFilesPerScenario = new HashMap<>();
-
+        ScenarioScreenshotRecorder overallScreenshots = new ScenarioScreenshotRecorder();
         // usually there is a single scenario, but the framework can be set up to expect multiple scenarios that give identical results
         for(Scenario scenario : scenarios) {
             FastMath.rand.setSeed(0); //try to make things deterministic by setting the random seed
-            Path imageTempDir;
-            try {
-                imageTempDir = Files.createTempDirectory("jmeSnapshotTest");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            tempFolders.add(imageTempDir);
 
-            ScreenshotNoInputAppState screenshotAppState = new ScreenshotNoInputAppState(imageTempDir.toString() + "/");
-            String screenshotAppFileNamePrefix = "Screenshot-";
-            screenshotAppState.setFileName(screenshotAppFileNamePrefix);
 
             List<AppState> states = new ArrayList<>(Arrays.asList(scenario.states));
-            TestDriver testDriver = new TestDriver(screenshotAppState, framesToTakeScreenshotsOn);
-            states.add(screenshotAppState);
+            TestDriver testDriver = new TestDriver(scenario.scenarioName, framesToTakeScreenshotsOn);
             states.add(testDriver);
 
             SimpleApplication app = new App(states.toArray(new AppState[0]));
@@ -198,64 +217,34 @@ public class TestDriver extends BaseAppState{
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
-
-            //search the imageTempDir
-            List<Path> imageFiles = new ArrayList<>();
-            try (Stream<Path> paths = Files.list(imageTempDir)) {
-                paths.forEach(imageFiles::add);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            //this resorts with natural numeric ordering (so App10.png comes after App9.png)
-            imageFiles.sort(new Comparator<Path>() {
-                @Override
-                public int compare(Path p1, Path p2) {
-                    return extractNumber(p1).compareTo(extractNumber(p2));
-                }
-
-                private Integer extractNumber(Path path) {
-                    String name = path.getFileName().toString();
-                    int numStart = screenshotAppFileNamePrefix.length();
-                    int numEnd = name.lastIndexOf(".png");
-                    return Integer.parseInt(name.substring(numStart, numEnd));
-                }
-            });
-            if (imageFiles.isEmpty()) {
-                fail("No screenshot found in the temporary directory. Did the application crash?");
-            }
-            if (imageFiles.size() != framesToTakeScreenshotsOn.size()) {
-                fail("Not all screenshots were taken, expected " + framesToTakeScreenshotsOn.size() + " but got " + imageFiles.size());
-            }
-
-            imageFilesPerScenario.put(scenario, imageFiles);
+            overallScreenshots.addAll(testDriver.screenshotsAtFrames);
         }
         String failureMessage = null;
 
         try {
-            List<Path> primeScenarioScreenshots = imageFilesPerScenario.get(scenarios.get(0));
-
-            if(imageFilesPerScenario.size()>1){
-                String primeScenarioName = scenarios.get(0).scenarioName;
+            String primeScenarioName = scenarios.get(0).scenarioName;
+            if(scenarios.size()>1){
 
                 // check each scenario gave the same results (before checking a single scenario against the reference images
-                for(int i=1;i<imageFilesPerScenario.size();i++){
+                for(int i=1;i<scenarios.size();i++){
                     String thisScenarioName = scenarios.get(i).scenarioName;
-                    List<Path> otherScenarioScreenshots = imageFilesPerScenario.get(scenarios.get(i));
-                    for(int screenshotIndex=0;screenshotIndex<framesToTakeScreenshotsOn.size();screenshotIndex++) {
-                        Path primeImage = primeScenarioScreenshots.get(screenshotIndex);
-                        Path otherImage = otherScenarioScreenshots.get(screenshotIndex);
+
+                    for(int frame : framesToTakeScreenshotsOn) {
+                        Path primeImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                                "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
+                        ));
+                        Path otherImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                                "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
+                        ));
 
                         BufferedImage img1 = ImageIO.read(primeImage.toFile());
                         BufferedImage img2 = ImageIO.read(otherImage.toFile());
 
-                        int frame = framesToTakeScreenshotsOn.get(screenshotIndex);
-
                         String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
                         if (!imagesAreTheSame(img1, img2)) {
-                            attachImage("Scenario " + primeScenarioName + " " + screenshotIndex, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", img1);
-                            attachImage("Scenario " + thisScenarioName + " " + screenshotIndex, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", img2);
+                            attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", img1);
+                            attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", img2);
                             attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(img1, img2));
 
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
@@ -268,9 +257,10 @@ public class TestDriver extends BaseAppState{
             }
 
 
-            for(int screenshotIndex=0;screenshotIndex<framesToTakeScreenshotsOn.size();screenshotIndex++){
-                Path generatedImage = primeScenarioScreenshots.get(screenshotIndex);
-                int frame = framesToTakeScreenshotsOn.get(screenshotIndex);
+            for(int frame : framesToTakeScreenshotsOn) {
+                Path generatedImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                        "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
+                ));
 
                 String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
@@ -325,10 +315,6 @@ public class TestDriver extends BaseAppState{
             }
         } catch (IOException e) {
             throw new RuntimeException("Error reading images", e);
-        } finally{
-            for(Path imageTempDir : tempFolders){
-                clearTemporaryFolder(imageTempDir);
-            }
         }
 
         if(failureMessage!=null){
@@ -336,20 +322,6 @@ public class TestDriver extends BaseAppState{
         }
     }
 
-    private static void clearTemporaryFolder(Path temporaryFolder){
-        try (Stream<Path> paths = Files.walk(temporaryFolder)) {
-            paths.sorted((a, b) -> b.getNameCount() - a.getNameCount())
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
