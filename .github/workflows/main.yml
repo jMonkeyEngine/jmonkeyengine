@@ -240,8 +240,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,windows-latest,macOS-latest]
-        jdk: [17, 21, 25]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        jdk: [25]
         include:
           - os: ubuntu-latest
             osName: linux
@@ -252,22 +252,12 @@ jobs:
           - os: macOS-latest
             osName: mac
             deploy: false
-          - jdk: 17
-            deploy: false
-          - jdk: 21
-            deploy: false
 
     steps:
       - name: Clone the repo
         uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
-
-      - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.jdk }}
 
       - name: Download natives for android
         uses: actions/download-artifact@v8.0.1
