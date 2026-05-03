@@ -80,7 +80,7 @@ public class TestPostWaterLake extends SimpleApplication {
         } else {
             assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }
-        Spatial scene = assetManager.loadModel("main.j3o");
+        Spatial scene = assetManager.loadModel("main.scene");
         rootNode.attachChild(scene);
 
         DirectionalLight sun = new DirectionalLight();
