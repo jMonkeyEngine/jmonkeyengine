@@ -106,7 +106,7 @@ public class TestCartoonEdge extends ScreenshotTestBase {
             }
 
             private void setupModel(SimpleApplication app, Node rootNode) {
-                Spatial model = app.getAssetManager().loadModel("Models/MonkeyHead/MonkeyHead.mesh.xml");
+                Spatial model = app.getAssetManager().loadModel("Models/MonkeyHead/MonkeyHead.j3o");
                 makeToonish(app, model);
                 model.rotate(0, FastMath.PI, 0);
                 rootNode.attachChild(model);

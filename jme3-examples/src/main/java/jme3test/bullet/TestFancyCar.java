@@ -121,7 +121,7 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         final float mass = 400;
 
         // Load model and get chassis Geometry
-        carNode = (Node) assetManager.loadModel("Models/Ferrari/Car.scene");
+        carNode = (Node) assetManager.loadModel("Models/Ferrari/Car_Scene.j3o");
         carNode.setShadowMode(ShadowMode.Cast);
         Geometry chassis = findGeom(carNode, "Car");
 

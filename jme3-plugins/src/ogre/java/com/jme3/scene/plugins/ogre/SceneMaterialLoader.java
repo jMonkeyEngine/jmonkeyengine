@@ -57,8 +57,11 @@ import org.xml.sax.helpers.DefaultHandler;
  * used by the SceneLoader doesn't support reading bottom XML nodes
  * before reading the top nodes.
  * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
  * @author Kirill Vainer
  */
+@Deprecated
 class SceneMaterialLoader extends DefaultHandler {
     
     private static final Logger logger = Logger.getLogger(SceneMaterialLoader.class.getName());

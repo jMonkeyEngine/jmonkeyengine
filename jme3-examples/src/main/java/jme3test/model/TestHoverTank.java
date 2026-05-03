@@ -57,7 +57,7 @@ public class TestHoverTank extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
+        Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.j3o");
 
         flyCam.setEnabled(false);
         ChaseCamera chaseCam = new ChaseCamera(cam, tank, inputManager);

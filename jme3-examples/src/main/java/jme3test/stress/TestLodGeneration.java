@@ -85,7 +85,7 @@ public class TestLodGeneration extends SimpleApplication implements ActionListen
         rootNode.addLight(al);
 
         // --- Model Loading and Setup ---
-        // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.j3o");
         Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));

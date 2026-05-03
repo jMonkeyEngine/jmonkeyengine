@@ -77,10 +77,10 @@ public class TestManyLightsSingle extends SimpleApplication {
 
         flyCam.setMoveSpeed(10);
 
-        Node scene = (Node) assetManager.loadModel("Scenes/ManyLights/Main.scene");
+        Node scene = (Node) assetManager.loadModel("Scenes/ManyLights/Main.j3o");
         rootNode.attachChild(scene);
         Node n = (Node) rootNode.getChild(0);
-        final LightList lightList = n.getWorldLightList();
+        final LightList lightList = n.getLocalLightList(); 
         final Geometry g = (Geometry) n.getChild("Grid-geom-1");
 
         g.getMaterial().setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));

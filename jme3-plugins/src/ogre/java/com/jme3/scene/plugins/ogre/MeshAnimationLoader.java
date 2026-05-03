@@ -46,7 +46,11 @@ package com.jme3.scene.plugins.ogre;
 
 /**
  * Utility class used by OgreLoader to load poses and mesh animations.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
  */
+@Deprecated
 public class MeshAnimationLoader {
 
 //    public static void loadMeshAnimations(Node animationsNode, List<Pose> poseList, OgreMesh sharedgeom, List<OgreMesh> submeshes, Map<String, Animation> animations){

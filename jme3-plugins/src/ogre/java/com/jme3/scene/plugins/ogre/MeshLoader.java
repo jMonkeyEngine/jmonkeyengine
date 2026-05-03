@@ -60,7 +60,11 @@ import static com.jme3.util.xml.SAXUtil.*;
 
 /**
  * Loads Ogre3D mesh.xml files.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
  */
+@Deprecated
 public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MeshLoader.class.getName());

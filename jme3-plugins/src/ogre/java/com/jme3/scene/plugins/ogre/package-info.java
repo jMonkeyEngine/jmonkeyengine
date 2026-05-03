@@ -30,6 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * import 3-D models in formats defined by the OGRE 3-D engine
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
  */
+@Deprecated
 package com.jme3.scene.plugins.ogre;

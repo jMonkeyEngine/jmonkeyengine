@@ -41,6 +41,14 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 
+/**
+ * Example demonstrating Ogre model loading.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
+ * 
+ */
+@Deprecated
 public class TestOgreLoading extends SimpleApplication {
 
     private float angle1;

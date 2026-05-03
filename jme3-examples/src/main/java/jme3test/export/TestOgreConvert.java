@@ -51,8 +51,12 @@ import com.jme3.scene.Spatial;
  * plays an animation, and displays debugging information about its skinning
  * and material parameters.
  *
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
+ *
  * @author capdevon
  */
+@Deprecated
 public class TestOgreConvert extends SimpleApplication {
 
     public static void main(String[] args) {

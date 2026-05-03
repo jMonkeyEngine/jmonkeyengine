@@ -8,6 +8,13 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.scene.Spatial;
 
+/**
+ * Caching mesh loader for Ogre scene files.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
+ */
+@Deprecated
 public class SceneMeshLoader extends MeshLoader{
     private Map<AssetKey,Spatial> cache=new HashMap<>();
     @Override
