@@ -34,7 +34,7 @@
  * 
  * <h2>Deprecation Notice</h2>
  * <p>
- * <strong>The Ogre model format support is deprecated as of jMonkeyEngine 3.6 and will be removed in a future version.</strong>
+ * <strong>The Ogre model format support is deprecated as of jMonkeyEngine 3.10 and will be removed in a future version.</strong>
  * </p>
  * <p>
  * Users are strongly encouraged to migrate to modern, open-source model formats such as:
