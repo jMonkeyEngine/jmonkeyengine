@@ -84,7 +84,7 @@ public class TestSceneWater extends SimpleApplication {
         } else {
             assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }
-        Spatial scene = assetManager.loadModel("main.j3o");
+        Spatial scene = assetManager.loadModel("main.scene");
 
         DirectionalLight sun = new DirectionalLight();
         Vector3f lightDir=new Vector3f(-0.37352666f, -0.50444174f, -0.7784704f);
