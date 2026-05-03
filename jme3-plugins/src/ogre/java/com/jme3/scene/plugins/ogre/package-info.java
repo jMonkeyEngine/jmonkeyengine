@@ -53,12 +53,8 @@
  *   <li>Future-proof for continued jMonkeyEngine development</li>
  *   <li>Better animation and material support</li>
  * </ul>
- * <p>
- * For migration guidance, see the 
- * <a href="https://jmonkeyengine.org/docs/3.6/manual/upgrading_to_glTF/">glTF Migration Guide</a>.
- * </p>
  * 
- * @deprecated as of jMonkeyEngine 3.6, for removal in a future version.
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
  */
 @Deprecated
 package com.jme3.scene.plugins.ogre;

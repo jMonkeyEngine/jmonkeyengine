@@ -78,11 +78,8 @@ public class TestOgreConvert extends SimpleApplication {
         setupLights();
 
         bmp = createLabelText(10, 20, "<placeholder>");
-
-        // Load the Ogre model (Oto.mesh.xml) from the assets
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        // Save the loaded model to jME3's binary format and then reload it.
-        // This tests the binary serialization/deserialization process.
+
         spCopy = BinaryExporter.saveAndLoad(assetManager, model);
         spCopy.setName("Oto-Copy");
         rootNode.attachChild(spCopy);

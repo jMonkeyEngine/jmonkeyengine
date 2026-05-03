@@ -40,8 +40,13 @@ import com.jme3.material.MaterialList;
  * are retrieved, instead of loading the material file as the same
  * name as the model (the default).
  * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * The Ogre model format is deprecated. Consider migrating to (.glb/.gltf/.j3o) etc
+ * or other modern model formats for better performance, broader tool support, and future compatibility.
+ * 
  * @author Kirill Vainer
  */
+@Deprecated
 public class OgreMeshKey extends ModelKey {
 
     private MaterialList materialList;

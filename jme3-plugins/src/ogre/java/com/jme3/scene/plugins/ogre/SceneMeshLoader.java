@@ -12,9 +12,8 @@ import com.jme3.scene.Spatial;
  * Caching mesh loader for Ogre scene files.
  * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
- * The Ogre model format is deprecated. Consider migrating to glTF (.glb/.gltf) 
+ * The Ogre model format is deprecated. Consider migrating to (.glb/.gltf/.j3o) etc
  * or other modern model formats for better performance, broader tool support, and future compatibility.
- * See <a href="https://jmonkeyengine.org/docs/3.6/manual/upgrading_to_glTF/">glTF migration guide</a>.
  */
 @Deprecated
 public class SceneMeshLoader extends MeshLoader{

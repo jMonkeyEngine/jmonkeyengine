@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2009-2020 jMonkeyEngine
  * All rights reserved.
@@ -113,7 +114,7 @@ public class TestRemoteCall {
 
         ObjectStore store = new ObjectStore(client);
         ServerAccess access = store.getExposedObject("access", ServerAccess.class, true);
-        boolean result = access.attachChild("Models/Oto/Oto.mesh.xml");
+        boolean result = access.attachChild("Models/Oto/Oto.j3o");
         System.out.println(result);
     }
 }
