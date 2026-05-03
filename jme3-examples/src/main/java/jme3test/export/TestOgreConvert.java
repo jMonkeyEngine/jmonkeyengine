@@ -76,7 +76,9 @@ public class TestOgreConvert extends SimpleApplication {
     public void simpleInitApp() {
         configureCamera();
         setupLights();
-
+        
+        // Save the loaded model to jME3's binary format and then reload it.
+        // This tests the binary serialization/deserialization process.
         bmp = createLabelText(10, 20, "<placeholder>");
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
 

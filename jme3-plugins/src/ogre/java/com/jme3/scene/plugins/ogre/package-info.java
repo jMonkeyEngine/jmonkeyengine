@@ -39,20 +39,6 @@
  * <p>
  * Users are strongly encouraged to migrate to modern, open-source model formats such as:
  * </p>
- * <ul>
- *   <li><strong>glTF 2.0</strong> (.glb, .gltf) - Recommended and widely supported</li>
- *   <li>USD/USDZ</li>
- *   <li>FBX (via community-contributed loaders)</li>
- * </ul>
- * <p>
- * Benefits of migrating to glTF:
- * </p>
- * <ul>
- *   <li>Better performance and smaller file sizes</li>
- *   <li>Broader tool support (Blender, Unreal, Unity, Three.js, Babylon.js, etc.)</li>
- *   <li>Future-proof for continued jMonkeyEngine development</li>
- *   <li>Better animation and material support</li>
- * </ul>
  * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
  */
