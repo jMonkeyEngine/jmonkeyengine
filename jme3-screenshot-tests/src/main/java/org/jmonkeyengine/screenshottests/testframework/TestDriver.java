@@ -160,6 +160,7 @@ public class TestDriver extends BaseAppState{
         FrameBuffer offBuffer = new FrameBuffer(width, height, 1);
         offBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.Depth));
         offBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(renderTexture));
+        offBuffer.setSrgb(true);
 
         offScreenshotAppState = new OffScreenshotAppState(renderTexture, offBuffer);
 
