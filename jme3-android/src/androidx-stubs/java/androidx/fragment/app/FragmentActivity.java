@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.util.functional;
+package androidx.fragment.app;
 
-public interface VoidFunction<T> {
-    void eval(T t);
+import android.app.Activity;
+
+/**
+ * Compile-time stub for the AndroidX FragmentActivity API.
+ *
+ * <p>The real AndroidX Fragment dependency must be supplied by the Android
+ * application. This class is excluded from jme3-android artifacts.</p>
+ */
+public class FragmentActivity extends Activity {
 }

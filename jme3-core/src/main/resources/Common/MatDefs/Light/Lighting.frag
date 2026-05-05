@@ -10,6 +10,11 @@
     #import "Common/ShaderLib/MaterialFog.glsllib"
 #endif 
 
+#ifdef HSV_OFFSET
+    #import "Common/ShaderLib/HSVUtils.glsllib"
+    uniform vec3 m_HSVOffset;
+#endif
+
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -111,6 +116,10 @@ void main(){
       vec4 diffuseColor = texture2D(m_DiffuseMap, newTexCoord);
     #else
       vec4 diffuseColor = vec4(1.0);
+    #endif
+
+    #ifdef HSV_OFFSET
+        diffuseColor.rgb = alterColorWithHsvOffset(diffuseColor.rgb, m_HSVOffset);
     #endif
 
     float alpha = DiffuseSum.a * diffuseColor.a;

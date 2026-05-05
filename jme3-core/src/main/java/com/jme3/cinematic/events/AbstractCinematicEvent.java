@@ -292,7 +292,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(playState, "playState", PlayState.Stopped);
         oc.write(speed, "speed", 1);
-        oc.write(initialDuration, "initalDuration", 10);
+        oc.write(initialDuration, "initialDuration", 10);
         oc.write(loopMode, "loopMode", LoopMode.DontLoop);
     }
 
@@ -306,7 +306,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         InputCapsule ic = im.getCapsule(this);
         playState = ic.readEnum("playState", PlayState.class, PlayState.Stopped);
         speed = ic.readFloat("speed", 1);
-        initialDuration = ic.readFloat("initalDuration", 10);
+        // Maintain backward compatibility for a typo in the serialization key "initalDuration".
+        initialDuration = ic.readFloat("initialDuration", ic.readFloat("initalDuration", 10));
         loopMode = ic.readEnum("loopMode", LoopMode.class, LoopMode.DontLoop);
     }
 

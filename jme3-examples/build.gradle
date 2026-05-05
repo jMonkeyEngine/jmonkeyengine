@@ -1,5 +1,8 @@
 ext.mainClassName = 'jme3test.TestChooser'
 
+def androidProject = project(':jme3-android')
+def androidNativeProject = project(':jme3-android-native')
+
 task run(dependsOn: 'build', type:JavaExec) {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
@@ -13,6 +16,27 @@ task run(dependsOn: 'build', type:JavaExec) {
     }
 }
 
+
+task runExamples(dependsOn: 'build', type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    if (System.properties['java.util.logging.config.file'] != null) {
+        systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']
+    }
+
+    if( assertions  == "true" ){
+        enableAssertions = true;
+    }
+
+    doFirst {
+        def exampleClass = project.findProperty('example')
+        if (!exampleClass) {
+            exampleClass = mainClassName
+        }
+        mainClass = exampleClass
+    }
+}
+
 dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-desktop')
@@ -21,6 +45,7 @@ dependencies {
     implementation project(':jme3-jogg')
     // implementation project(':jme3-lwjgl')
     implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-saferallocator')
     implementation project(':jme3-networking')
     implementation project(':jme3-niftygui')
     implementation project(':jme3-plugins')
@@ -68,21 +93,21 @@ task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']
             }
         }
         copy {
-            from jar.archivePath
+            from tasks.named('jar').flatMap { it.archiveFile }
             into '../dist'
             rename { "jMonkeyEngine3.jar" }
         }
 
         // Copy android packages, remove version
         copy {
-            from project(':jme3-android').jar.archivePath
+            from androidProject.tasks.named('jar').flatMap { it.archiveFile }
             into '../dist/opt/android'
-            rename {project(':jme3-android').name+".jar"}
+            rename { androidProject.name + ".jar" }
         }
         copy {
-            from project(':jme3-android-native').jar.archivePath
+            from androidNativeProject.tasks.named('jar').flatMap { it.archiveFile }
             into '../dist/opt/android'
-            rename {project(':jme3-android-native').name+".jar"}
+            rename { androidNativeProject.name + ".jar" }
         }
     }
 }

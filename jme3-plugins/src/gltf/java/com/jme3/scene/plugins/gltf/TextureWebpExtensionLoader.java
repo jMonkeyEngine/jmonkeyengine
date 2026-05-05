@@ -29,8 +29,25 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.util.functional;
+package com.jme3.scene.plugins.gltf;
 
-public interface Function<R,T> {
-    R eval(T t);
+import static com.jme3.scene.plugins.gltf.GltfUtils.assertNotNull;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
+
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
+import java.io.IOException;
+
+/**
+ * Handles EXT_texture_webp texture source selection.
+ */
+public class TextureWebpExtensionLoader implements ExtensionLoader {
+    @Override
+    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement webpExtension,
+            Object input) throws IOException {
+        if(!parentName.equals("texture_source"))return input;
+        Integer webpSourceIndex = getAsInteger((JsonObject)webpExtension, "source");
+        assertNotNull(webpSourceIndex, "EXT_texture_webp extension has no source");
+        return webpSourceIndex;
+    }
 }

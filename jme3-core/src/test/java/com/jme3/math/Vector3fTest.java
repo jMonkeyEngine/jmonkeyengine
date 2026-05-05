@@ -31,15 +31,11 @@
  */
 package com.jme3.math;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Vector3fTest {
-
-    @Rule public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testAdd() {
@@ -81,11 +77,10 @@ public class Vector3fTest {
 
     @Test
     public void testAdd4() {
-        thrown.expect(NullPointerException.class);
         final Vector3f target = new Vector3f(0.0f, -7.52f, 3.1f);
         final Vector3f other = new Vector3f(1.42f, 7.52f, 1.1f);
         final Vector3f result = null;
-        target.add(other, result);
+        assertThrows(NullPointerException.class, () -> target.add(other, result));
     }
 
 
@@ -448,8 +443,8 @@ public class Vector3fTest {
 
     @Test
     public void testGet_illegalArgumentException() {
-        thrown.expect(IllegalArgumentException.class);
-        new Vector3f(0.0f, 0.0f, 0.0f).get(536_870_914);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Vector3f(0.0f, 0.0f, 0.0f).get(536_870_914));
     }
 
     @Test
@@ -957,8 +952,8 @@ public class Vector3fTest {
 
     @Test
     public void testSet_OutputIllegalArgumentException() {
-        thrown.expect(IllegalArgumentException.class);
-        new Vector3f(1.5f, 2.3f, 4.7f).set(5, 1.5f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Vector3f(1.5f, 2.3f, 4.7f).set(5, 1.5f));
     }
 
     @Test

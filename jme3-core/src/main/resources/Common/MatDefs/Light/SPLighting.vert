@@ -21,6 +21,7 @@ uniform float m_Shininess;
 
 #if defined(VERTEX_LIGHTING)
     uniform vec4 g_LightData[NB_LIGHTS];
+    uniform int g_LightCount;
 #endif
 uniform vec4 g_AmbientLightColor;
 varying vec2 texCoord;
@@ -148,6 +149,11 @@ void main(){
         vec4 diffuseColor;
         vec3 specularColor;
         for (int i =0;i < NB_LIGHTS; i+=3){
+            #if (defined(GL_ES) && __VERSION__ >= 300) || (!defined(GL_ES) && __VERSION__ >= 150)
+            if(i >= g_LightCount * 3){
+                break;
+            }
+            #endif
             vec4 lightColor = g_LightData[i];            
             vec4 lightData1 = g_LightData[i+1];            
             #ifdef MATERIAL_COLORS

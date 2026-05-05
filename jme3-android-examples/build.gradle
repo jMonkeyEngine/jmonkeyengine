@@ -1,10 +1,12 @@
 apply plugin: 'com.android.application'
 
-android {
-    compileSdkVersion 28
-    buildToolsVersion "30.0.2"
+def examplesJar = project(':jme3-examples').tasks.named('jar')
 
-    lintOptions {
+android {
+    namespace "org.jmonkeyengine.jme3androidexamples"
+    compileSdk 34
+
+    lint {
         // Fix nifty gui referencing "java.awt" package.
         disable 'InvalidPackage'
         abortOnError false
@@ -12,17 +14,23 @@ android {
 
     defaultConfig {
         applicationId "org.jmonkeyengine.jme3androidexamples"
-        minSdkVersion 15       // Android 4.0.3 ICE CREAM SANDWICH
-        targetSdkVersion 28    // Android 9 PIE
+        minSdk 30              // Android 11 R
+        targetSdk 34           // Android 14
         versionCode 1
         versionName "1.0" // TODO: from settings.gradle
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     sourceSets {
@@ -35,23 +43,117 @@ android {
                 srcDir '../jme3-testdata/src/main/resources'
                 srcDir '../jme3-examples/src/main/resources'
             }
+            jniLibs {
+                srcDir '../build/native/openalsoft'
+                srcDir '../build/native/decode'
+                srcDir '../build/native/allocator'
+            }
         }
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation libs.junit4
-    implementation libs.android.support.appcompat
-
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
+    androidTestImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.runner
+    implementation libs.androidx.fragment
     implementation project(':jme3-core')
     implementation project(':jme3-android')
     implementation project(':jme3-android-native')
     implementation project(':jme3-effects')
     implementation project(':jme3-jbullet')
+    implementation project(':jme3-jogg')
     implementation project(':jme3-networking')
     implementation project(':jme3-niftygui')
     implementation project(':jme3-plugins')
+    implementation project(':jme3-plugins-json')
+    implementation project(':jme3-plugins-json-gson')
     implementation project(':jme3-terrain')
-    implementation fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
+    implementation files(examplesJar.flatMap { it.archiveFile })
+}
+
+tasks.named('preBuild') {
+    dependsOn examplesJar
+    if (buildNativeProjects == "true") {
+        dependsOn ':jme3-android-native:updatePreCompiledOpenAlSoftLibs'
+        dependsOn ':jme3-android-native:updatePreCompiledLibs'
+        dependsOn ':jme3-android-native:updatePreCompiledLibsBufferAllocator'
+    } else if (skipPrebuildLibraries != "true") {
+        dependsOn ':jme3-android-native:copyPreCompiledOpenAlSoftLibs'
+        dependsOn ':jme3-android-native:copyPreCompiledLibs'
+        dependsOn ':jme3-android-native:copyPreCompiledLibsBufferAllocator'
+    }
+}
+
+tasks.register('installAndroidExamples', Exec) {
+    group = 'application'
+    description = 'Install the Android examples selector on a connected emulator or device.'
+
+    dependsOn tasks.named('assembleDebug')
+
+    doFirst {
+        def adbExecutable = findAdbExecutable()
+        if (adbExecutable == null) {
+            throw new GradleException("ADB not found. Set -Pandroid.sdk.path, ANDROID_HOME, or ANDROID_SDK_ROOT.")
+        }
+        def apkFile = layout.buildDirectory.file('outputs/apk/debug/jme3-android-examples-debug.apk').get().asFile
+        if (!apkFile.isFile()) {
+            throw new GradleException("Debug APK not found at ${apkFile}.")
+        }
+        executable adbExecutable.absolutePath
+        args 'install', '-r', apkFile.absolutePath
+    }
+}
+
+tasks.register('runAndroidExamples', Exec) {
+    group = 'application'
+    description = 'Install and launch Android examples on a connected emulator or device. Use -Pexample=<class> to run a specific test directly.'
+
+    dependsOn tasks.named('installAndroidExamples')
+
+    doFirst {
+        def adbExecutable = findAdbExecutable()
+        if (adbExecutable == null) {
+            throw new GradleException("ADB not found. Set -Pandroid.sdk.path, ANDROID_HOME, or ANDROID_SDK_ROOT.")
+        }
+        executable adbExecutable.absolutePath
+
+        def exampleClass = project.findProperty('example')?.toString()?.trim()
+        if (exampleClass) {
+            args 'shell', 'am', 'start',
+                    '-n', 'org.jmonkeyengine.jme3androidexamples/.TestActivity',
+                    '--es', 'Selected_App_Class', exampleClass,
+                    '--ez', 'Enable_Mouse_Events', 'true',
+                    '--ez', 'Enable_Joystick_Events', 'false',
+                    '--ez', 'Enable_Key_Events', 'true',
+                    '--ez', 'Verbose_Logging', 'false'
+        } else {
+            args 'shell', 'am', 'start',
+                    '-n', 'org.jmonkeyengine.jme3androidexamples/.MainActivity'
+        }
+    }
+}
+
+def findAdbExecutable() {
+    def adbName = System.properties['os.name'].toLowerCase().contains('windows') ? 'adb.exe' : 'adb'
+    def sdkDirs = []
+    if (project.findProperty('android.sdk.path')) {
+        sdkDirs << file(project.findProperty('android.sdk.path'))
+    }
+    if (System.env.ANDROID_HOME) {
+        sdkDirs << file(System.env.ANDROID_HOME)
+    }
+    if (System.env.ANDROID_SDK_ROOT) {
+        sdkDirs << file(System.env.ANDROID_SDK_ROOT)
+    }
+    sdkDirs << file("${System.properties['user.home']}/Android/Sdk")
+
+    def expandedSdkDirs = sdkDirs.collectMany { sdkDir ->
+        [sdkDir, new File(sdkDir, 'Sdk')]
+    }.unique { it.absolutePath }
+
+    return expandedSdkDirs.collect { new File(new File(it, 'platform-tools'), adbName) }.find { it.isFile() }
 }

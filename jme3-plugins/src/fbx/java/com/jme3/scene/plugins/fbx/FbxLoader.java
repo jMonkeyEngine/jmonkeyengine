@@ -70,6 +70,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Loads FBX scene assets.
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
+ */
+@Deprecated
 public class FbxLoader implements AssetLoader {
     
     private static final Logger logger = Logger.getLogger(FbxLoader.class.getName());
@@ -87,6 +94,7 @@ public class FbxLoader implements AssetLoader {
     
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
+        FbxDeprecationWarnings.log(logger);
         this.assetManager = assetInfo.getManager();
         AssetKey<?> assetKey = assetInfo.getKey();
         if (!(assetKey instanceof ModelKey)) {
@@ -138,7 +146,7 @@ public class FbxLoader implements AssetLoader {
     private void reset() {
         globalSettings = new FbxGlobalSettings();
     }
-    
+
     private void releaseObjects() {
         globalSettings = null;
         objectMap.clear();

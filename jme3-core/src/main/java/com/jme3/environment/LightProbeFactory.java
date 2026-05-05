@@ -36,6 +36,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.environment.generation.*;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
@@ -123,7 +124,8 @@ public class LightProbeFactory {
     public static LightProbe makeProbe(final EnvironmentCamera envCam, Spatial scene, final EnvMapUtils.GenerationType genType, final JobProgressListener<LightProbe> listener) {
         final LightProbe probe = new LightProbe();
         probe.setPosition(envCam.getPosition());
-        probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat()));
+        Renderer renderer = envCam.getApplication().getRenderManager().getRenderer();
+        probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat(renderer)));
         envCam.snapshot(scene, new JobProgressAdapter<TextureCubeMap>() {
 
             @Override
@@ -168,7 +170,8 @@ public class LightProbeFactory {
             probe.getPrefilteredEnvMap().getImage().dispose();
         }
 
-        probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat()));
+        Renderer renderer = envCam.getApplication().getRenderManager().getRenderer();
+        probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat(renderer)));
 
         envCam.snapshot(scene, new JobProgressAdapter<TextureCubeMap>() {
 

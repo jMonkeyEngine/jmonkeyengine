@@ -1344,10 +1344,14 @@ public class Camera implements Savable, Cloneable {
             coeffTop[0] = -frustumNear * inverseLength;
             coeffTop[1] = frustumTop * inverseLength;
         } else {
-            coeffLeft[0] = 1;
+            // getLeft() returns up×direction, but the view matrix (fromFrame)
+            // uses direction×up = -getLeft() as its X axis. Negate the left/right
+            // coefficients so the frustum plane normals match the view matrix,
+            // giving correct culling for any camera orientation.
+            coeffLeft[0] = -1;
             coeffLeft[1] = 0;
 
-            coeffRight[0] = -1;
+            coeffRight[0] = 1;
             coeffRight[1] = 0;
 
             coeffBottom[0] = 1;

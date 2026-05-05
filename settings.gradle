@@ -1,6 +1,10 @@
 /**
  * This is the global settings file used by all subprojects.
  **/
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 rootProject.name = 'jmonkeyengine'
 
 // Core classes, should work on all java platforms
@@ -18,6 +22,7 @@ include 'jme3-desktop'
 include 'jme3-lwjgl'
 if (JavaVersion.current().isJava8Compatible()) {
     include 'jme3-lwjgl3'
+    include 'jme3-saferallocator'
 }
 
 // Other external dependencies

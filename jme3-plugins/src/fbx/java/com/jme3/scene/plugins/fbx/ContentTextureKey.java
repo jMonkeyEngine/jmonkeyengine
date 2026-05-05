@@ -41,9 +41,13 @@ import com.jme3.export.OutputCapsule;
 import java.io.IOException;
 
 /**
- * Used to load textures from image binary content.
+ * Texture key used by the FBX loader for embedded textures.
  * <p>Filename is required to acquire proper type asset loader according to extension.</p>
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
  */
+@Deprecated
 public class ContentTextureKey extends TextureKey {
 
     private byte[] content;

@@ -57,6 +57,60 @@ on:
     types: [published]
 
 jobs:
+  Checkstyle:
+    name: Run Checkstyle
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Setup the java environment
+        uses: actions/setup-java@v5.2.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.0.1
+      - name: Run Checkstyle
+        run: |
+          ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
+      - name: Upload Checkstyle Reports
+        uses: actions/upload-artifact@v7.0.0
+        if: always()
+        with:
+          name: checkstyle-report
+          retention-days: 30
+          path: |
+            **/build/reports/checkstyle/**
+
+  SpotBugs:
+    name: Run SpotBugs
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Setup the java environment
+        uses: actions/setup-java@v5.2.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.0.1
+      - name: Run SpotBugs
+        run: |
+          ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
+      - name: Upload SpotBugs Reports
+        uses: actions/upload-artifact@v7.0.0
+        if: always()
+        with:
+          name: spotbugs-report
+          retention-days: 30
+          path: |
+            **/build/reports/spotbugs/**
+
   ScreenshotTests:
     name: Run Screenshot Tests
     runs-on: ubuntu-latest
@@ -65,7 +119,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - name: Start xvfb
         run: |
           Xvfb :99 -ac -screen 0 1024x768x16 &
@@ -81,12 +135,12 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Test with Gradle Wrapper
         run: |
           ./gradlew :jme3-screenshot-test:screenshotTest
       - name: Upload Test Reports
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         if: always()
         with:
           name: screenshot-test-report
@@ -106,23 +160,23 @@ jobs:
         run: echo $JAVA_HOME --- $JAVA_HOME_8_X64 --- $JAVA_HOME_11_X64 --- $JAVA_HOME_17_X64 --- $JAVA_HOME_21_X64 ---
 
       - name: Setup the java environment
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5.2.0
         with:
           distribution: 'temurin'
-          java-version: '11.0.26+4'
+          java-version: '17'
 
       - name: Setup the XCode version to 15.1.0 
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: '15.1.0'
 
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v6.0.1
 
       - name: Build
         run: |
@@ -130,7 +184,7 @@ jobs:
           :jme3-ios-native:build
 
       - name: Upload natives
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
@@ -144,15 +198,15 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
-      - name: Setup Java 11
-        uses: actions/setup-java@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v5.2.0
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
 
       - name: Check java version
         run: java -version
@@ -164,7 +218,7 @@ jobs:
           cmake --version
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v6.0.1
 
       - name: Build
         run: |
@@ -173,12 +227,12 @@ jobs:
           :jme3-android-native:assemble
 
       - name: Upload natives
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: android-natives
           path: build/native
 
-  # Build the engine, we only deploy from ubuntu-latest jdk21
+  # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
     needs: [BuildAndroidNatives, BuildIosNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -186,8 +240,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,windows-latest,macOS-latest]
-        jdk: [11, 17, 21]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        jdk: [25]
         include:
           - os: ubuntu-latest
             osName: linux
@@ -198,42 +252,33 @@ jobs:
           - os: macOS-latest
             osName: mac
             deploy: false
-          - jdk: 11
-            deploy: false
-          - jdk: 17
-            deploy: false
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
-      - name: Setup the java environment
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.jdk }}
-
       - name: Download natives for android
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: android-natives
           path: build/native
 
       - name: Download natives for iOS
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v6.0.1
       - name: Build Engine
         shell: bash
         run: |
           # Normal build plus ZIP distribution and merged javadoc
           ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true \
+          -x checkstyleMain -x checkstyleTest \
           build createZipDistribution mergedJavadoc
 
           if [ "${{ matrix.deploy }}" = "true" ];
@@ -275,7 +320,7 @@ jobs:
       # Used later by DeploySnapshot
       - name: Upload merged natives
         if: matrix.deploy==true
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: natives
           path: dist/jme3-natives.zip
@@ -283,14 +328,14 @@ jobs:
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: maven
           path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: javadoc
           path: dist/javadoc
@@ -298,7 +343,7 @@ jobs:
       # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: release
           path: dist/release
@@ -324,7 +369,7 @@ jobs:
           fi
 
       - name: Download merged natives
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: natives
           path: dist/
@@ -402,25 +447,25 @@ jobs:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
       # Setup jdk 21 used for building Maven-style artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5.2.0
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Download natives for android
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: android-natives
           path: build/native
 
       - name: Download natives for iOS
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
@@ -452,38 +497,38 @@ jobs:
 
       # We need to clone everything again for uploadToCentral.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
       # Setup jdk 21 used for building Sonatype artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5.2.0
         with:
           distribution: 'temurin'
           java-version: '21'
 
       # Download all the stuff...
       - name: Download maven artifacts
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: maven
           path: dist/maven
 
       - name: Download release
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: release
           path: dist/release
 
       - name: Download natives for android
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: android-natives
           path: build/native
 
       - name: Download natives for iOS
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
@@ -557,7 +602,7 @@ jobs:
 
       # Download the javadoc in the new directory "newdoc"
       - name: Download javadoc
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v8.0.1
         with:
           name: javadoc
           path: newdoc

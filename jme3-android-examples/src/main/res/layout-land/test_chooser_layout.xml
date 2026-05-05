@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layoutTestChooser"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#FFFFFF"
+              android:baselineAligned="false"
+              android:orientation="horizontal"
+              android:padding="12dp">
+
+    <LinearLayout
+            android:layout_width="260dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="12dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="top"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/lblTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/strLblTitle"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:id="@+id/lblFindTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/strLblFindTitle"
+                android:textColor="#000000"
+                android:textSize="14sp"/>
+
+        <EditText
+                android:id="@+id/txtFilter"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="4dp"
+                android:ems="10"
+                android:hint="@string/strTxtFilterHint"
+                android:inputType="text"
+                android:singleLine="true"
+                android:textColor="#000000"
+                android:textSize="16sp"/>
+
+        <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+        <Button
+                android:id="@+id/btnOK"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/strBtnOK"
+                android:textColor="#000000"
+                android:textSize="16sp"/>
+
+        <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/strBtnCancel"
+                android:textColor="#000000"
+                android:textSize="16sp"/>
+
+        <requestFocus/>
+
+    </LinearLayout>
+
+    <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/selected"
+            android:padding="4dp">
+
+        <ListView
+                android:id="@+id/listClasses"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:choiceMode="singleChoice"
+                android:clipToPadding="false"
+                android:dividerHeight="1dp"
+                android:fadeScrollbars="false"
+                android:listSelector="@drawable/selected"
+                android:scrollbars="vertical"
+                android:textFilterEnabled="true"/>
+
+    </FrameLayout>
+
+</LinearLayout>

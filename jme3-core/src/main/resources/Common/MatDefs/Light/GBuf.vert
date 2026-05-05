@@ -43,7 +43,8 @@ void main(){
 
      wvNormal.xyz   = normalize( (g_WorldMatrix * wvNormal).xyz   );
      wvTangent.xyz  = normalize( (g_WorldMatrix * wvTangent).xyz  );
-     wvBinormal.xyz = cross(wvNormal.xyz, wvTangent.xyz);
+     wvTangent.xyz  = normalize(wvTangent.xyz - wvNormal.xyz * dot(wvTangent.xyz, wvNormal.xyz));
+     wvBinormal.xyz = normalize(cross(wvNormal.xyz, wvTangent.xyz));
      tbnMat = mat3(wvTangent.xyz, wvBinormal.xyz, wvNormal.xyz);
 
      vNormal = wvNormal.xyz;

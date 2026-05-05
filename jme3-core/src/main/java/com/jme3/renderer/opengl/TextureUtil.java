@@ -394,10 +394,10 @@ public final class TextureUtil {
             }
         } else {
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
+                gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
             gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight, oglFormat.format, oglFormat.dataType, data);
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+                gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
         }
         data.position(cpos);
 

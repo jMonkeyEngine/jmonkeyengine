@@ -347,14 +347,15 @@ public abstract class Serializer {
         if (reg != null) return reg;
 
         for (Map.Entry<Class, SerializerRegistration> entry : classRegistrations.entrySet()) {
-            if (entry.getKey().isAssignableFrom(Serializable.class)) continue;
+            if (entry.getKey().equals(java.io.Serializable.class)) continue;
             if (entry.getKey().isAssignableFrom(cls)) return entry.getValue();
         }
 
         if (cls.isArray()) return registerClass(cls, arraySerializer);
 
-        if (Serializable.class.isAssignableFrom(cls)) { 
-            return getExactSerializerRegistration(java.io.Serializable.class);
+        if (java.io.Serializable.class.isAssignableFrom(cls)) { 
+            reg = getExactSerializerRegistration(java.io.Serializable.class);
+            if (reg != null) return reg;
         }
 
         // See if the class could be safely auto-registered

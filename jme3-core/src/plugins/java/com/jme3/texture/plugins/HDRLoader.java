@@ -46,6 +46,11 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated use {@link StbImageLoader} instead, which supports HDR images and more formats. This loader is
+ *             kept for backward compatibility but may be removed in future versions.
+ */
+@Deprecated
 public class HDRLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(HDRLoader.class.getName());

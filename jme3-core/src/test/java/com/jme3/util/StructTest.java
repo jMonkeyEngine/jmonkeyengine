@@ -1,8 +1,8 @@
 package com.jme3.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.ByteBuffer;
 
@@ -15,7 +15,7 @@ import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructUtils;
 import com.jme3.util.struct.fields.*;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StructTest {
     static class SubStruct implements Struct {
@@ -119,7 +119,7 @@ public class StructTest {
             BufferRegion region = dirtyI.next();
             if (region == null) break;
 
-            assertFalse("Update not expected", true);
+            assertFalse(true, "Update not expected");
             nUpdated++;
         }
         bo.clearUpdateNeeded();

@@ -148,9 +148,12 @@ public class MikktspaceTangentGenerator {
             case Triangles:
             case TriangleFan:
             case TriangleStrip:
-            case Patch:
                 hasTriangles = true;
                 break;
+
+            case Patch:
+                logger.log(Level.SEVERE, "Tangent generation does not support mesh mode={0}", mode);
+                return false;
 
             default:
                 logger.log(Level.SEVERE, "Tangent generation isn't implemented for mode={0}", mode);
@@ -614,6 +617,7 @@ public class MikktspaceTangentGenerator {
 
                         if (vP.equals(vP2) && vN.equals(vN2) && vT.equals(vT2)) {
                             bFound = true;
+                            index2rec = index2;
                         } else {
                             ++j;
                         }
@@ -662,6 +666,7 @@ public class MikktspaceTangentGenerator {
                 //Note, Nehon: we should never get there with JME, because we don't support quads... 
                 //but I'm going to let it there in case someone needs it... Just know this code is not tested.
                 {//TODO remove those useless brackets...
+                    pTriInfos[iDstTriIndex + 1] = new TriInfo();
                     pTriInfos[iDstTriIndex + 1].orgFaceNumber = f;
                     pTriInfos[iDstTriIndex + 1].tSpacesOffs = iTSpacesOffs;
                 }
@@ -1368,6 +1373,9 @@ public class MikktspaceTangentGenerator {
                 quickSortEdges(pEdges, iL, iR, 1, uSeed);  // sort channel 1 which is i1
             }
         }
+        if (iEntries > 0) {
+            quickSortEdges(pEdges, iCurStartIndex, iEntries - 1, 1, uSeed);
+        }
 
         // sub sort over f, which should be fast.
         // this step is to remain compliant with BuildNeighborsSlow() when
@@ -1381,6 +1389,9 @@ public class MikktspaceTangentGenerator {
                 iCurStartIndex = i;
                 quickSortEdges(pEdges, iL, iR, 2, uSeed);  // sort channel 2 which is f
             }
+        }
+        if (iEntries > 0) {
+            quickSortEdges(pEdges, iCurStartIndex, iEntries - 1, 2, uSeed);
         }
 
         // pair up, adjacent triangles

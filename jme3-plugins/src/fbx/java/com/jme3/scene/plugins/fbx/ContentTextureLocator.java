@@ -43,7 +43,11 @@ import java.util.logging.Logger;
 
 /**
  * Used to locate a resource based on a {@link ContentTextureKey}.
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
  */
+@Deprecated
 public class ContentTextureLocator implements AssetLocator {
 
     private static final Logger logger = Logger.getLogger(ContentTextureLocator.class.getName());

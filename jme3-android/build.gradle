@@ -1,14 +1,32 @@
-apply plugin: 'java'
+sourceSets {
+    main {
+        java {
+            srcDir 'src/androidx-stubs/java'
+        }
+    }
+}
 
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly libs.androidx.annotation
     compileOnly libs.androidx.lifecycle.common
     api project(':jme3-core')
-    compileOnly 'android:android'
+    compileOnly files(rootProject.file('lib/android.jar'))
 }
 
 compileJava {
     // The Android-Native Project requires the jni headers to be generated, so we do that here
     options.compilerArgs += ["-h", "${project.rootDir}/jme3-android-native/src/native/headers"]
+}
+
+tasks.withType(Jar).configureEach {
+    exclude('androidx/**')
+}
+
+tasks.named('sourcesJar') {
+    exclude('androidx/**')
+}
+
+javadoc {
+    exclude('androidx/**')
 }

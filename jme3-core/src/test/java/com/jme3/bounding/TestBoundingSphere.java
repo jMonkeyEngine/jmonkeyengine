@@ -32,8 +32,8 @@
 package com.jme3.bounding;
 
 import com.jme3.math.Vector3f;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the BoundingSphere class.
@@ -57,16 +57,16 @@ public class TestBoundingSphere {
         bs6.setCheckPlane(1);
 
         // Clones are equal to their base instances:
-        Assert.assertEquals(bs1, bs1.clone());
-        Assert.assertEquals(bs2, bs2.clone());
-        Assert.assertEquals(bs3, bs3.clone());
-        Assert.assertEquals(bs4, bs4.clone());
-        Assert.assertEquals(bs5, bs5.clone());
-        Assert.assertEquals(bs6, bs6.clone());
+        Assertions.assertEquals(bs1, bs1.clone());
+        Assertions.assertEquals(bs2, bs2.clone());
+        Assertions.assertEquals(bs3, bs3.clone());
+        Assertions.assertEquals(bs4, bs4.clone());
+        Assertions.assertEquals(bs5, bs5.clone());
+        Assertions.assertEquals(bs6, bs6.clone());
 
-        Assert.assertNotEquals(bs1, bs2); // because their radii differ
-        Assert.assertNotEquals(bs3, bs4); // because their centers differ
-        Assert.assertEquals(bs5, bs6); // because check planes are ignored
+        Assertions.assertNotEquals(bs1, bs2); // because their radii differ
+        Assertions.assertNotEquals(bs3, bs4); // because their centers differ
+        Assertions.assertEquals(bs5, bs6); // because check planes are ignored
     }
 
     /**
@@ -84,13 +84,13 @@ public class TestBoundingSphere {
         BoundingSphere bs6 = (BoundingSphere) bs5.clone();
         bs6.setCheckPlane(1);
 
-        Assert.assertFalse(bs1.isSimilar(bs2, 0.09999f));
-        Assert.assertTrue(bs1.isSimilar(bs2, 0.10001f));
+        Assertions.assertFalse(bs1.isSimilar(bs2, 0.09999f));
+        Assertions.assertTrue(bs1.isSimilar(bs2, 0.10001f));
 
-        Assert.assertFalse(bs3.isSimilar(bs4, 0.09999f));
-        Assert.assertTrue(bs3.isSimilar(bs4, 0.10001f));
+        Assertions.assertFalse(bs3.isSimilar(bs4, 0.09999f));
+        Assertions.assertTrue(bs3.isSimilar(bs4, 0.10001f));
 
-        Assert.assertTrue(bs5.isSimilar(bs6, 0f)); // check planes are ignored
+        Assertions.assertTrue(bs5.isSimilar(bs6, 0f)); // check planes are ignored
     }
 
     /**
@@ -112,6 +112,6 @@ public class TestBoundingSphere {
 
         Vector3f copyCenter = new Vector3f();
         boundingSphere.getCenter(copyCenter);
-        Assert.assertTrue(Vector3f.isValidVector(copyCenter));
+        Assertions.assertTrue(Vector3f.isValidVector(copyCenter));
     }
 }

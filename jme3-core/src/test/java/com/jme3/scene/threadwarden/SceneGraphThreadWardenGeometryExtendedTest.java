@@ -5,40 +5,34 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Parameterized tests for SceneGraphThreadWarden class with Geometry objects.
  * These tests verify that various scene graph mutations are properly checked for thread safety.
  */
-@RunWith(Parameterized.class)
 public class SceneGraphThreadWardenGeometryExtendedTest {
 
     private static ExecutorService executorService;
 
-    private final String testName;
-    private final Consumer<Geometry> action;
-
     @SuppressWarnings({"ReassignedVariable", "AssertWithSideEffects"})
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() {
         // Make sure assertions are enabled
         boolean assertsEnabled = false;
@@ -48,70 +42,46 @@ public class SceneGraphThreadWardenGeometryExtendedTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         executorService = newSingleThreadDaemonExecutor();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         executorService.shutdown();
         SceneGraphThreadWarden.reset();
     }
 
     /**
-     * Constructor for the parameterized test.
-     * 
-     * @param testName A descriptive name for the test
-     * @param action The action to perform on the spatial
-     */
-    public SceneGraphThreadWardenGeometryExtendedTest(String testName, Consumer<Geometry> action) {
-        this.testName = testName;
-        this.action = action;
-    }
-
-    /**
      * Define the parameters for the test.
      * Each parameter is a pair of (test name, action to perform on spatial).
      */
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    static Stream<Arguments> data() {
         Material mockMaterial = Mockito.mock(Material.class);
         Box box = new Box(1, 1, 1);
 
-        return Arrays.asList(new Object[][] {
-            { 
-                "setMaterial", 
-                (Consumer<Geometry>) spatial -> spatial.setMaterial(mockMaterial)
-            },
-            { 
-                "setMesh", 
-                (Consumer<Geometry>) spatial -> spatial.setMesh(box)
-            },
-            { 
-                "setLodLevel", 
-                (Consumer<Geometry>) spatial -> {
-                    // Need to set a mesh with LOD levels first
+        return Stream.of(
+                Arguments.of("setMaterial", (Consumer<Geometry>) spatial -> spatial.setMaterial(mockMaterial)),
+                Arguments.of("setMesh", (Consumer<Geometry>) spatial -> spatial.setMesh(box)),
+                Arguments.of("setLodLevel", (Consumer<Geometry>) spatial -> {
                     Mesh mesh = new Box(1, 1, 1);
                     mesh.setLodLevels(new com.jme3.scene.VertexBuffer[]{
-                        mesh.getBuffer(com.jme3.scene.VertexBuffer.Type.Index)
+                            mesh.getBuffer(com.jme3.scene.VertexBuffer.Type.Index)
                     });
                     spatial.setMesh(mesh);
                     spatial.setLodLevel(0);
-                }
-            },
-            { 
-                "removeFromParent", 
-                (Consumer<Geometry>) Geometry::removeFromParent
-            }
-        });
+                }),
+                Arguments.of("removeFromParent", (Consumer<Geometry>) Geometry::removeFromParent)
+        );
     }
 
     /**
      * Test that scene graph mutation is fine on the main thread when the object is attached to the root.
      */
-    @Test
-    public void testMutationOnMainThreadOnAttachedObject() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnMainThreadOnAttachedObject(String testName, Consumer<Geometry> action) {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -126,8 +96,9 @@ public class SceneGraphThreadWardenGeometryExtendedTest {
     /**
      * Test that scene graph mutation is fine on the main thread when the object is not attached to the root.
      */
-    @Test
-    public void testMutationOnMainThreadOnDetachedObject() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnMainThreadOnDetachedObject(String testName, Consumer<Geometry> action) {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -141,8 +112,10 @@ public class SceneGraphThreadWardenGeometryExtendedTest {
     /**
      * Test that scene graph mutation is fine on a non-main thread when the object is not attached to the root.
      */
-    @Test
-    public void testMutationOnNonMainThreadOnDetachedObject() throws ExecutionException, InterruptedException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnNonMainThreadOnDetachedObject(String testName, Consumer<Geometry> action)
+            throws ExecutionException, InterruptedException {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -162,8 +135,10 @@ public class SceneGraphThreadWardenGeometryExtendedTest {
     /**
      * Test that scene graph mutation is not allowed on a non-main thread when the object is attached to the root.
      */
-    @Test
-    public void testMutationOnNonMainThreadOnAttachedObject() throws InterruptedException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnNonMainThreadOnAttachedObject(String testName, Consumer<Geometry> action)
+            throws InterruptedException {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -182,8 +157,8 @@ public class SceneGraphThreadWardenGeometryExtendedTest {
             fail("Expected an IllegalThreadSceneGraphMutation exception");
         } catch (ExecutionException e) {
             // This is expected - verify it's the right exception type
-            assertTrue("Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName(),
-                    e.getCause() instanceof IllegalThreadSceneGraphMutation);
+            assertTrue(e.getCause() instanceof IllegalThreadSceneGraphMutation,
+                    "Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName());
         }
     }
 

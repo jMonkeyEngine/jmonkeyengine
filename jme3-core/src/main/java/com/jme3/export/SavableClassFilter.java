@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,25 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.util.functional;
+package com.jme3.export;
 
-public interface NoArgVoidFunction {
-    void eval();
+/**
+ * Policy hook used before an importer instantiates classes named by a
+ * serialized asset.
+ */
+public interface SavableClassFilter {
+
+    /** Compatibility policy that allows every class name. */
+    SavableClassFilter ACCEPT_ALL = new SavableClassFilter() {
+        @Override
+        public boolean isAllowed(String className) {
+            return true;
+        }
+    };
+
+    /**
+     * @param className fully-qualified binary class name after legacy remapping
+     * @return true if the class may be instantiated
+     */
+    boolean isAllowed(String className);
 }

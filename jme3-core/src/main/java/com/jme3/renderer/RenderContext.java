@@ -216,6 +216,11 @@ public class RenderContext {
     public FrameBuffer boundFB;
 
     /**
+     * Convert writes to srgb target from linear space to srgb
+     */
+    public boolean srgbWriteEnabled;
+
+    /**
      * Currently bound Renderbuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
@@ -411,6 +416,8 @@ public class RenderContext {
         depthFunc = RenderState.TestFunction.Less;
         alphaFunc = RenderState.TestFunction.Greater;
         cullMode = RenderState.FaceCullMode.Off;
+
+        srgbWriteEnabled = false;
 
         clearColor.set(0, 0, 0, 0);
     }

@@ -324,8 +324,8 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
-					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.26-4/arm64/Contents/Home/include/**",
+					"$(JAVA_HOME)/include",
+					"$(JAVA_HOME)/include/darwin",
 				);
 				INFOPLIST_FILE = src/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -345,8 +345,8 @@
 				SUPPORTS_MACCATALYST = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
-					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.26-4/arm64/Contents/Home/include/**",
+					"$(JAVA_HOME)/include",
+					"$(JAVA_HOME)/include/darwin",
 				);
 			};
 			name = Debug;
@@ -362,8 +362,8 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
-					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.26-4/arm64/Contents/Home/include/**",
+					"$(JAVA_HOME)/include",
+					"$(JAVA_HOME)/include/darwin",
 				);
 				INFOPLIST_FILE = src/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -383,8 +383,8 @@
 				SUPPORTS_MACCATALYST = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
-					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.26-4/arm64/Contents/Home/include/**",
+					"$(JAVA_HOME)/include",
+					"$(JAVA_HOME)/include/darwin",
 				);
 			};
 			name = Release;

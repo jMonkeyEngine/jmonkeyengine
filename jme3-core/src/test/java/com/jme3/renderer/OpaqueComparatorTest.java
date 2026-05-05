@@ -50,8 +50,10 @@ import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OpaqueComparatorTest {
     
@@ -61,7 +63,7 @@ public class OpaqueComparatorTest {
     private AssetManager assetManager;
     final private OpaqueComparator comparator = new OpaqueComparator();
     
-    @Before
+    @BeforeEach
     public void setUp() {
         assetManager = TestUtil.createAssetManager();
         renderManager = TestUtil.createRenderManager();
@@ -174,7 +176,7 @@ public class OpaqueComparatorTest {
                 lightingMatDefault, lightingPostShadow);
     }
     
-    @Test(expected = AssertionError.class)
+    @Test
     public void testNoSortByParam() {
         Material sameMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         Material sameMat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -185,7 +187,7 @@ public class OpaqueComparatorTest {
         sameMat2.setName("MatBlue");
         sameMat2.setColor("Color", ColorRGBA.Blue);
         
-        testSort(sameMat1, sameMat2);
+        assertThrows(AssertionError.class, () -> testSort(sameMat1, sameMat2));
     }
     
     private Texture createTexture(String name) {

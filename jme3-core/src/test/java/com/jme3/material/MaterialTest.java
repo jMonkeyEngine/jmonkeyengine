@@ -47,12 +47,12 @@ import com.jme3.util.BufferUtils;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import static org.junit.Assert.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class MaterialTest {
 
     private Material material;
@@ -65,16 +65,18 @@ public class MaterialTest {
         }
     });
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSelectNonExistentTechnique() {
         material("Common/MatDefs/Gui/Gui.j3md");
-        material.selectTechnique("Doesn't Exist", renderManager);
+        assertThrows(IllegalArgumentException.class,
+                () -> material.selectTechnique("Doesn't Exist", renderManager));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testSelectDefaultTechnique_NoCaps() {
         material("Common/MatDefs/Gui/Gui.j3md");
-        material.selectTechnique("Default", renderManager);
+        assertThrows(UnsupportedOperationException.class,
+                () -> material.selectTechnique("Default", renderManager));
     }
 
     @Test

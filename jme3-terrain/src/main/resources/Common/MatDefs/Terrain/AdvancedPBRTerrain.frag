@@ -18,6 +18,7 @@
 
 //declare PBR Lighting vars
 uniform vec4 g_LightData[NB_LIGHTS];
+uniform int g_LightCount;
 uniform vec3 g_CameraPosition;
 
 #ifdef DEBUG_VALUES_MODE
@@ -133,6 +134,11 @@ void main(){
     
     // Calculate direct lights
     for(int i = 0;i < NB_LIGHTS; i+=3){
+        #if (defined(GL_ES) && __VERSION__ >= 300) || (!defined(GL_ES) && __VERSION__ >= 150)
+        if(i >= g_LightCount * 3){
+            break;
+        }
+        #endif
         vec4 lightData0 = g_LightData[i];
         vec4 lightData1 = g_LightData[i+1];
         vec4 lightData2 = g_LightData[i+2];    

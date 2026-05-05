@@ -9,6 +9,9 @@ MaterialDef Unshaded {
         Float PointSize : 1.0
         Boolean SeparateTexCoord
 
+        //Optional vec3 for adjusting the final Color in HSV color space
+        Vector3 HSVOffset
+
         // Texture of the glowing parts of the material
         Texture2D GlowMap
         // The glow color of the object
@@ -89,6 +92,7 @@ MaterialDef Unshaded {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers            
             DESATURATION : DesaturationValue
+            HSV_OFFSET : HSVOffset
         }
     }
 

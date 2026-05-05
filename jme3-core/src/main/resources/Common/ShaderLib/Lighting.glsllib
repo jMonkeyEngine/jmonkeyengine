@@ -11,6 +11,10 @@ void lightComputeDir(in vec3 worldPos, in float lightType, in vec4 position, out
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
     lightVec = tempVec;          
     float dist = length(tempVec);
+    if (dist <= 0.0) {
+        lightDir = vec4(0.0);
+        return;
+    }
 #ifdef SRGB
     lightDir.w = (1.0 - position.w * dist) / (1.0 + position.w * dist * dist);
     lightDir.w = clamp(lightDir.w, 1.0 - posLight, 1.0);

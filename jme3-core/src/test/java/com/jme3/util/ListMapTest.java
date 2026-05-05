@@ -32,7 +32,7 @@
 package com.jme3.util;
 
 import java.util.Map.Entry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Check if the {@link ListMap} class is working correctly.

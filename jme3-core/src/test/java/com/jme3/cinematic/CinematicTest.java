@@ -35,7 +35,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.cinematic.events.AnimationEvent;
 import com.jme3.scene.Node;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *

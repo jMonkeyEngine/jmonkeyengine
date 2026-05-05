@@ -14,5 +14,8 @@ dependencies {
     implementation "org.jmonkeyengine:drako:1.4.5-jme"
     implementation project(':jme3-plugins-json')
     implementation project(':jme3-plugins-json-gson')
+    implementation libs.stb.image
+    implementation libs.imagewebp
+
     testRuntimeOnly project(':jme3-desktop')
 }

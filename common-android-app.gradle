@@ -3,11 +3,9 @@ apply plugin: 'com.android.application'
 group   = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = '1.6'
-
 repositories {
     mavenCentral()
     maven {
-        url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
+        url "https://nifty-gui.sourceforge.net/nifty-maven-repo"
     }
 }

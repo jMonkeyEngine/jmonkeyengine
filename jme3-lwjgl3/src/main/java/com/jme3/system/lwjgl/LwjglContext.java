@@ -54,6 +54,8 @@ import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LWJGLBufferAllocator;
 import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
+import com.jme3.util.LWJGLSaferAllocMemoryAllocator;
+
 import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
 import java.nio.IntBuffer;
 import java.util.*;
@@ -74,6 +76,10 @@ import org.lwjgl.opengles.GLES;
 import org.lwjgl.opengles.GLES30;
 import org.lwjgl.opengles.GLESCapabilities;
 import static org.lwjgl.sdl.SDLVideo.*;
+import org.lwjgl.system.Configuration;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.Platform;
+
 /**
  * A LWJGL implementation of a graphics context.
  */
@@ -83,10 +89,16 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     static {
-
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
+        final String configuredImplementation = System.getProperty(implementation);
 
-        if (System.getProperty(implementation) == null) {
+        if (LWJGLSaferAllocMemoryAllocator.isAvailable()) {
+            Configuration.MEMORY_ALLOCATOR.set(new LWJGLSaferAllocMemoryAllocator());
+            if (configuredImplementation == null) {
+                System.setProperty(implementation,
+                        LWJGLSaferAllocMemoryAllocator.SAFER_BUFFER_ALLOCATOR_CLASS);
+            }
+        } else if (configuredImplementation == null) {
             if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "true"))) {
                 System.setProperty(implementation, ConcurrentLWJGLBufferAllocator.class.getName());
             } else {

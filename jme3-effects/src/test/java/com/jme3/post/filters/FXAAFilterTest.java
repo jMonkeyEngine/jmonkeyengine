@@ -34,8 +34,8 @@ package com.jme3.post.filters;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code FXAAFilter} class.
@@ -66,12 +66,12 @@ public class FXAAFilterTest {
         FXAAFilter copy = BinaryExporter.saveAndLoad(assetManager, filter);
 
         // Verify the parameter values of the copy:
-        Assert.assertEquals("FXAAFilter", copy.getName());
-        Assert.assertEquals(0.22f, copy.getReduceMul(), 0f);
-        Assert.assertEquals(7f, copy.getSpanMax(), 0f);
-        Assert.assertEquals(0.33f, copy.getSubPixelShift(), 0f);
-        Assert.assertEquals(0.03f, copy.getVxOffset(), 0f);
-        Assert.assertFalse(copy.isEnabled());
+        Assertions.assertEquals("FXAAFilter", copy.getName());
+        Assertions.assertEquals(0.22f, copy.getReduceMul(), 0f);
+        Assertions.assertEquals(7f, copy.getSpanMax(), 0f);
+        Assertions.assertEquals(0.33f, copy.getSubPixelShift(), 0f);
+        Assertions.assertEquals(0.03f, copy.getVxOffset(), 0f);
+        Assertions.assertFalse(copy.isEnabled());
     }
 
     /**
@@ -80,11 +80,11 @@ public class FXAAFilterTest {
      * @param filter (not null, unaffected)
      */
     private void verifyDefaults(FXAAFilter filter) {
-        Assert.assertEquals("FXAAFilter", filter.getName());
-        Assert.assertEquals(0.125f, filter.getReduceMul(), 0f);
-        Assert.assertEquals(8f, filter.getSpanMax(), 0f);
-        Assert.assertEquals(0.25f, filter.getSubPixelShift(), 0f);
-        Assert.assertEquals(0f, filter.getVxOffset(), 0f);
-        Assert.assertTrue(filter.isEnabled());
+        Assertions.assertEquals("FXAAFilter", filter.getName());
+        Assertions.assertEquals(0.125f, filter.getReduceMul(), 0f);
+        Assertions.assertEquals(8f, filter.getSpanMax(), 0f);
+        Assertions.assertEquals(0.25f, filter.getSubPixelShift(), 0f);
+        Assertions.assertEquals(0f, filter.getVxOffset(), 0f);
+        Assertions.assertTrue(filter.isEnabled());
     }
 }

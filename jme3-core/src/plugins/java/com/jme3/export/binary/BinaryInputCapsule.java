@@ -46,16 +46,11 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Joshua Slack
  */
 final class BinaryInputCapsule implements InputCapsule {
-
-    private static final Logger logger = Logger
-            .getLogger(BinaryInputCapsule.class.getName());
 
     protected BinaryImporter importer;
     protected BinaryClassObject cObj;
@@ -70,190 +65,185 @@ final class BinaryInputCapsule implements InputCapsule {
         this.savable = savable;
     }
 
-    public void setContent(byte[] content, int start, int limit) {
+    public void setContent(byte[] content, int start, int limit) throws IOException {
         fieldData = new HashMap<Byte, Object>();
         for (index = start; index < limit;) {
             byte alias = content[index];
 
             index++;
 
-            try {
-                byte type = cObj.aliasFields.get(alias).type;
-                Object value = null;
-
-                switch (type) {
-                    case BinaryClassField.BITSET: {
-                        value = readBitSet(content);
-                        break;
-                    }
-                    case BinaryClassField.BOOLEAN: {
-                        value = readBoolean(content);
-                        break;
-                    }
-                    case BinaryClassField.BOOLEAN_1D: {
-                        value = readBooleanArray(content);
-                        break;
-                    }
-                    case BinaryClassField.BOOLEAN_2D: {
-                        value = readBooleanArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.BYTE: {
-                        value = readByte(content);
-                        break;
-                    }
-                    case BinaryClassField.BYTE_1D: {
-                        value = readByteArray(content);
-                        break;
-                    }
-                    case BinaryClassField.BYTE_2D: {
-                        value = readByteArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.BYTEBUFFER: {
-                        value = readByteBuffer(content);
-                        break;
-                    }
-                    case BinaryClassField.DOUBLE: {
-                        value = readDouble(content);
-                        break;
-                    }
-                    case BinaryClassField.DOUBLE_1D: {
-                        value = readDoubleArray(content);
-                        break;
-                    }
-                    case BinaryClassField.DOUBLE_2D: {
-                        value = readDoubleArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.FLOAT: {
-                        value = readFloat(content);
-                        break;
-                    }
-                    case BinaryClassField.FLOAT_1D: {
-                        value = readFloatArray(content);
-                        break;
-                    }
-                    case BinaryClassField.FLOAT_2D: {
-                        value = readFloatArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.FLOATBUFFER: {
-                        value = readFloatBuffer(content);
-                        break;
-                    }
-                    case BinaryClassField.FLOATBUFFER_ARRAYLIST: {
-                        value = readFloatBufferArrayList(content);
-                        break;
-                    }
-                    case BinaryClassField.BYTEBUFFER_ARRAYLIST: {
-                        value = readByteBufferArrayList(content);
-                        break;
-                    }
-                    case BinaryClassField.INT: {
-                        value = readInt(content);
-                        break;
-                    }
-                    case BinaryClassField.INT_1D: {
-                        value = readIntArray(content);
-                        break;
-                    }
-                    case BinaryClassField.INT_2D: {
-                        value = readIntArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.INTBUFFER: {
-                        value = readIntBuffer(content);
-                        break;
-                    }
-                    case BinaryClassField.LONG: {
-                        value = readLong(content);
-                        break;
-                    }
-                    case BinaryClassField.LONG_1D: {
-                        value = readLongArray(content);
-                        break;
-                    }
-                    case BinaryClassField.LONG_2D: {
-                        value = readLongArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE: {
-                        value = readSavable(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_1D: {
-                        value = readSavableArray(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_2D: {
-                        value = readSavableArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_ARRAYLIST: {
-                        value = readSavableArray(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_ARRAYLIST_1D: {
-                        value = readSavableArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_ARRAYLIST_2D: {
-                        value = readSavableArray3D(content);
-                        break;
-                    }
-                    case BinaryClassField.SAVABLE_MAP: {
-                        value = readSavableMap(content);
-                        break;
-                    }
-                    case BinaryClassField.STRING_SAVABLE_MAP: {
-                        value = readStringSavableMap(content);
-                        break;
-                    }
-                    case BinaryClassField.INT_SAVABLE_MAP: {
-                        value = readIntSavableMap(content);
-                        break;
-                    }
-                    case BinaryClassField.SHORT: {
-                        value = readShort(content);
-                        break;
-                    }
-                    case BinaryClassField.SHORT_1D: {
-                        value = readShortArray(content);
-                        break;
-                    }
-                    case BinaryClassField.SHORT_2D: {
-                        value = readShortArray2D(content);
-                        break;
-                    }
-                    case BinaryClassField.SHORTBUFFER: {
-                        value = readShortBuffer(content);
-                        break;
-                    }
-                    case BinaryClassField.STRING: {
-                        value = readString(content);
-                        break;
-                    }
-                    case BinaryClassField.STRING_1D: {
-                        value = readStringArray(content);
-                        break;
-                    }
-                    case BinaryClassField.STRING_2D: {
-                        value = readStringArray2D(content);
-                        break;
-                    }
-
-                    default:
-                        // skip put statement
-                        continue;
-                }
-
-                fieldData.put(alias, value);
-
-            } catch (IOException e) {
-                logger.logp(Level.SEVERE, this.getClass().toString(),
-                        "setContent(byte[] content)", "Exception", e);
+            BinaryClassField field = cObj.aliasFields.get(alias);
+            if (field == null) {
+                throw new IOException("Unknown J3O field alias: " + (alias & 0xff));
             }
+
+            Object value = null;
+            switch (field.type) {
+                case BinaryClassField.BITSET: {
+                    value = readBitSet(content);
+                    break;
+                }
+                case BinaryClassField.BOOLEAN: {
+                    value = readBoolean(content);
+                    break;
+                }
+                case BinaryClassField.BOOLEAN_1D: {
+                    value = readBooleanArray(content);
+                    break;
+                }
+                case BinaryClassField.BOOLEAN_2D: {
+                    value = readBooleanArray2D(content);
+                    break;
+                }
+                case BinaryClassField.BYTE: {
+                    value = readByte(content);
+                    break;
+                }
+                case BinaryClassField.BYTE_1D: {
+                    value = readByteArray(content);
+                    break;
+                }
+                case BinaryClassField.BYTE_2D: {
+                    value = readByteArray2D(content);
+                    break;
+                }
+                case BinaryClassField.BYTEBUFFER: {
+                    value = readByteBuffer(content);
+                    break;
+                }
+                case BinaryClassField.DOUBLE: {
+                    value = readDouble(content);
+                    break;
+                }
+                case BinaryClassField.DOUBLE_1D: {
+                    value = readDoubleArray(content);
+                    break;
+                }
+                case BinaryClassField.DOUBLE_2D: {
+                    value = readDoubleArray2D(content);
+                    break;
+                }
+                case BinaryClassField.FLOAT: {
+                    value = readFloat(content);
+                    break;
+                }
+                case BinaryClassField.FLOAT_1D: {
+                    value = readFloatArray(content);
+                    break;
+                }
+                case BinaryClassField.FLOAT_2D: {
+                    value = readFloatArray2D(content);
+                    break;
+                }
+                case BinaryClassField.FLOATBUFFER: {
+                    value = readFloatBuffer(content);
+                    break;
+                }
+                case BinaryClassField.FLOATBUFFER_ARRAYLIST: {
+                    value = readFloatBufferArrayList(content);
+                    break;
+                }
+                case BinaryClassField.BYTEBUFFER_ARRAYLIST: {
+                    value = readByteBufferArrayList(content);
+                    break;
+                }
+                case BinaryClassField.INT: {
+                    value = readInt(content);
+                    break;
+                }
+                case BinaryClassField.INT_1D: {
+                    value = readIntArray(content);
+                    break;
+                }
+                case BinaryClassField.INT_2D: {
+                    value = readIntArray2D(content);
+                    break;
+                }
+                case BinaryClassField.INTBUFFER: {
+                    value = readIntBuffer(content);
+                    break;
+                }
+                case BinaryClassField.LONG: {
+                    value = readLong(content);
+                    break;
+                }
+                case BinaryClassField.LONG_1D: {
+                    value = readLongArray(content);
+                    break;
+                }
+                case BinaryClassField.LONG_2D: {
+                    value = readLongArray2D(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE: {
+                    value = readSavable(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_1D: {
+                    value = readSavableArray(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_2D: {
+                    value = readSavableArray2D(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_ARRAYLIST: {
+                    value = readSavableArray(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_ARRAYLIST_1D: {
+                    value = readSavableArray2D(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_ARRAYLIST_2D: {
+                    value = readSavableArray3D(content);
+                    break;
+                }
+                case BinaryClassField.SAVABLE_MAP: {
+                    value = readSavableMap(content);
+                    break;
+                }
+                case BinaryClassField.STRING_SAVABLE_MAP: {
+                    value = readStringSavableMap(content);
+                    break;
+                }
+                case BinaryClassField.INT_SAVABLE_MAP: {
+                    value = readIntSavableMap(content);
+                    break;
+                }
+                case BinaryClassField.SHORT: {
+                    value = readShort(content);
+                    break;
+                }
+                case BinaryClassField.SHORT_1D: {
+                    value = readShortArray(content);
+                    break;
+                }
+                case BinaryClassField.SHORT_2D: {
+                    value = readShortArray2D(content);
+                    break;
+                }
+                case BinaryClassField.SHORTBUFFER: {
+                    value = readShortBuffer(content);
+                    break;
+                }
+                case BinaryClassField.STRING: {
+                    value = readString(content);
+                    break;
+                }
+                case BinaryClassField.STRING_1D: {
+                    value = readStringArray(content);
+                    break;
+                }
+                case BinaryClassField.STRING_2D: {
+                    value = readStringArray2D(content);
+                    break;
+                }
+                default:
+                    throw new IOException("Unknown J3O field type: " + field.type);
+            }
+
+            fieldData.put(alias, value);
         }
     }
     
@@ -783,24 +773,54 @@ final class BinaryInputCapsule implements InputCapsule {
         return (String[][]) fieldData.get(field.alias);
     }
 
+
+    private int checkedLength(int length) throws IOException {
+        if (length == BinaryOutputCapsule.NULL_OBJECT) {
+            return length;
+        }
+        if (length < 0) {
+            throw new IOException("Invalid negative J3O length/count: " + length);
+        }
+        return length;
+    }
+
+    private void requireRemaining(byte[] content, int bytes) throws IOException {
+        if (bytes < 0 || index + bytes < index || index + bytes > content.length) {
+            throw new IOException("Truncated J3O payload at offset " + index);
+        }
+    }
+
+    private int checkedByteCount(int length, int elementSize, byte[] content) throws IOException {
+        checkedLength(length);
+        long bytes = (long) length * (long) elementSize;
+        if (bytes > Integer.MAX_VALUE) {
+            throw new IOException("J3O byte size too large: " + bytes);
+        }
+        requireRemaining(content, (int) bytes);
+        return (int) bytes;
+    }
+
     // byte primitive
 
     protected byte readByte(byte[] content) throws IOException {
+        requireRemaining(content, 1);
         byte value = content[index];
         index++;
         return value;
     }
 
     protected byte readByteForBuffer(byte[] content) throws IOException {
+        requireRemaining(content, 1);
         byte value = content[index];
         index++;
         return value;
     }
 
     protected byte[] readByteArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, length);
         byte[] value = new byte[length];
         for (int x = 0; x < length; x++)
             value[x] = readByte(content);
@@ -808,7 +828,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected byte[][] readByteArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         byte[][] value = new byte[length][];
@@ -819,7 +839,8 @@ final class BinaryInputCapsule implements InputCapsule {
 
     // int primitive
 
-    protected int readIntForBuffer(byte[] content){
+    protected int readIntForBuffer(byte[] content) throws IOException {
+        requireRemaining(content, 4);
         int number = ((content[index+3] & 0xFF) << 24)
                    + ((content[index+2] & 0xFF) << 16)
                    + ((content[index+1] & 0xFF) << 8)
@@ -831,6 +852,9 @@ final class BinaryInputCapsule implements InputCapsule {
     protected int readInt(byte[] content) throws IOException {
         byte[] bytes = inflateFrom(content, index);
         index += 1 + bytes.length;
+        if (bytes.length > 4) {
+            throw new IOException("Invalid J3O int byte length: " + bytes.length);
+        }
         bytes = ByteUtils.rightAlignBytes(bytes, 4);
         int value = ByteUtils.convertIntFromBytes(bytes);
         if (value == BinaryOutputCapsule.NULL_OBJECT
@@ -840,9 +864,10 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected int[] readIntArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, length);
         int[] value = new int[length];
         for (int x = 0; x < length; x++)
             value[x] = readInt(content);
@@ -850,7 +875,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected int[][] readIntArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         int[][] value = new int[length][];
@@ -862,6 +887,7 @@ final class BinaryInputCapsule implements InputCapsule {
     // float primitive
 
     protected float readFloat(byte[] content) throws IOException {
+        requireRemaining(content, 4);
         float value = ByteUtils.convertFloatFromBytes(content, index);
         index += 4;
         return value;
@@ -873,9 +899,10 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected float[] readFloatArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        checkedByteCount(length, 4, content);
         float[] value = new float[length];
         for (int x = 0; x < length; x++)
             value[x] = readFloat(content);
@@ -883,7 +910,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected float[][] readFloatArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         float[][] value = new float[length][];
@@ -895,15 +922,17 @@ final class BinaryInputCapsule implements InputCapsule {
     // double primitive
 
     protected double readDouble(byte[] content) throws IOException {
+        requireRemaining(content, 8);
         double value = ByteUtils.convertDoubleFromBytes(content, index);
         index += 8;
         return value;
     }
 
     protected double[] readDoubleArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        checkedByteCount(length, 8, content);
         double[] value = new double[length];
         for (int x = 0; x < length; x++)
             value[x] = readDouble(content);
@@ -911,7 +940,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected double[][] readDoubleArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         double[][] value = new double[length][];
@@ -925,15 +954,19 @@ final class BinaryInputCapsule implements InputCapsule {
     protected long readLong(byte[] content) throws IOException {
         byte[] bytes = inflateFrom(content, index);
         index += 1 + bytes.length;
+        if (bytes.length > 8) {
+            throw new IOException("Invalid J3O long byte length: " + bytes.length);
+        }
         bytes = ByteUtils.rightAlignBytes(bytes, 8);
         long value = ByteUtils.convertLongFromBytes(bytes);
         return value;
     }
 
     protected long[] readLongArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, length);
         long[] value = new long[length];
         for (int x = 0; x < length; x++)
             value[x] = readLong(content);
@@ -941,7 +974,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected long[][] readLongArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         long[][] value = new long[length][];
@@ -953,12 +986,14 @@ final class BinaryInputCapsule implements InputCapsule {
     // short primitive
 
     protected short readShort(byte[] content) throws IOException {
+        requireRemaining(content, 2);
         short value = ByteUtils.convertShortFromBytes(content, index);
         index += 2;
         return value;
     }
 
     protected short readShortForBuffer(byte[] content) throws IOException {
+        requireRemaining(content, 2);
         short number = (short) ((content[index+0] & 0xFF)
                              + ((content[index+1] & 0xFF) << 8));
         index += 2;
@@ -966,9 +1001,10 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected short[] readShortArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        checkedByteCount(length, 2, content);
         short[] value = new short[length];
         for (int x = 0; x < length; x++)
             value[x] = readShort(content);
@@ -976,7 +1012,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected short[][] readShortArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         short[][] value = new short[length][];
@@ -988,15 +1024,17 @@ final class BinaryInputCapsule implements InputCapsule {
     // boolean primitive
 
     protected boolean readBoolean(byte[] content) throws IOException {
+        requireRemaining(content, 1);
         boolean value = ByteUtils.convertBooleanFromBytes(content, index);
         index += 1;
         return value;
     }
 
     protected boolean[] readBooleanArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        checkedByteCount(length, 1, content);
         boolean[] value = new boolean[length];
         for (int x = 0; x < length; x++)
             value[x] = readBoolean(content);
@@ -1004,7 +1042,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected boolean[][] readBooleanArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         boolean[][] value = new boolean[length][];
@@ -1014,10 +1052,11 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected String readString(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
+        requireRemaining(content, length);
         byte[] bytes = new byte[length];
         for (int x = 0; x < length; x++) {
             bytes[x] =  content[index++];
@@ -1027,9 +1066,10 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected String[] readStringArray(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, length);
         String[] value = new String[length];
         for (int x = 0; x < length; x++)
             value[x] = readString(content);
@@ -1037,7 +1077,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected String[][] readStringArray2D(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         String[][] value = new String[length][];
@@ -1049,9 +1089,10 @@ final class BinaryInputCapsule implements InputCapsule {
     // BitSet
 
     protected BitSet readBitSet(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, length);
         BitSet value = new BitSet(length);
         for (int x = 0; x < length; x++)
             value.set(x, readBoolean(content));
@@ -1060,7 +1101,10 @@ final class BinaryInputCapsule implements InputCapsule {
 
     // INFLATOR for int and long
 
-    protected static byte[] inflateFrom(byte[] contents, int index) {
+    protected static byte[] inflateFrom(byte[] contents, int index) throws IOException {
+        if (index < 0 || index >= contents.length) {
+            throw new IOException("Truncated J3O compressed number at payload offset " + index);
+        }
         byte firstByte = contents[index];
         if (firstByte == BinaryOutputCapsule.NULL_OBJECT)
             return ByteUtils.convertToBytes(BinaryOutputCapsule.NULL_OBJECT);
@@ -1069,7 +1113,11 @@ final class BinaryInputCapsule implements InputCapsule {
         else if (firstByte == 0)
             return new byte[0];
         else {
-            byte[] rVal = new byte[firstByte];
+            int length = firstByte & 0xff;
+            if (index + 1 + length < index || index + 1 + length > contents.length) {
+                throw new IOException("Truncated J3O compressed number at payload offset " + index);
+            }
+            byte[] rVal = new byte[length];
             for (int x = 0; x < rVal.length; x++)
                 rVal[x] = contents[x + 1 + index];
             return rVal;
@@ -1090,9 +1138,10 @@ final class BinaryInputCapsule implements InputCapsule {
     // BinarySavable array
 
     protected ID[] readSavableArray(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
+        requireRemaining(content, elements);
         ID[] rVal = new ID[elements];
         for (int x = 0; x < elements; x++) {
             rVal[x] = readSavable(content);
@@ -1101,7 +1150,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected ID[][] readSavableArray2D(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         ID[][] rVal = new ID[elements][];
@@ -1112,7 +1161,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected ID[][][] readSavableArray3D(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         ID[][][] rVal = new ID[elements][][];
@@ -1125,7 +1174,7 @@ final class BinaryInputCapsule implements InputCapsule {
     // BinarySavable map
 
     protected ID[][] readSavableMap(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         ID[][] rVal = new ID[elements][];
@@ -1136,7 +1185,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected StringIDMap readStringSavableMap(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         String[] keys = readStringArray(content);
@@ -1148,7 +1197,7 @@ final class BinaryInputCapsule implements InputCapsule {
     }
 
     protected IntIDMap readIntSavableMap(byte[] content) throws IOException {
-        int elements = readInt(content);
+        int elements = checkedLength(readInt(content));
         if (elements == BinaryOutputCapsule.NULL_OBJECT)
             return null;
         int[] keys = readIntArray(content);
@@ -1164,7 +1213,7 @@ final class BinaryInputCapsule implements InputCapsule {
 
     protected ArrayList<FloatBuffer> readFloatBufferArrayList(byte[] content)
             throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
@@ -1179,7 +1228,7 @@ final class BinaryInputCapsule implements InputCapsule {
 
     protected ArrayList<ByteBuffer> readByteBufferArrayList(byte[] content)
             throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT) {
             return null;
         }
@@ -1194,14 +1243,15 @@ final class BinaryInputCapsule implements InputCapsule {
     // float buffer
 
     protected FloatBuffer readFloatBuffer(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
         if (BinaryImporter.canUseFastBuffers()){
-            ByteBuffer value = BufferUtils.createByteBuffer(length * 4);
-            value.put(content, index, length * 4).rewind();
-            index += length * 4;
+            int byteCount = checkedByteCount(length, 4, content);
+            ByteBuffer value = BufferUtils.createByteBuffer(byteCount);
+            value.put(content, index, byteCount).rewind();
+            index += byteCount;
             return value.asFloatBuffer();
         }else{
             FloatBuffer value = BufferUtils.createFloatBuffer(length);
@@ -1216,14 +1266,15 @@ final class BinaryInputCapsule implements InputCapsule {
     // int buffer
 
     protected IntBuffer readIntBuffer(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
         if (BinaryImporter.canUseFastBuffers()){
-            ByteBuffer value = BufferUtils.createByteBuffer(length * 4);
-            value.put(content, index, length * 4).rewind();
-            index += length * 4;
+            int byteCount = checkedByteCount(length, 4, content);
+            ByteBuffer value = BufferUtils.createByteBuffer(byteCount);
+            value.put(content, index, byteCount).rewind();
+            index += byteCount;
             return value.asIntBuffer();
         }else{
             IntBuffer value = BufferUtils.createIntBuffer(length);
@@ -1238,11 +1289,12 @@ final class BinaryInputCapsule implements InputCapsule {
     // byte buffer
 
     protected ByteBuffer readByteBuffer(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
         if (BinaryImporter.canUseFastBuffers()){
+            requireRemaining(content, length);
             ByteBuffer value = BufferUtils.createByteBuffer(length);
             value.put(content, index, length).rewind();
             index += length;
@@ -1260,14 +1312,15 @@ final class BinaryInputCapsule implements InputCapsule {
     // short buffer
 
     protected ShortBuffer readShortBuffer(byte[] content) throws IOException {
-        int length = readInt(content);
+        int length = checkedLength(readInt(content));
         if (length == BinaryOutputCapsule.NULL_OBJECT)
             return null;
 
         if (BinaryImporter.canUseFastBuffers()){
-            ByteBuffer value = BufferUtils.createByteBuffer(length * 2);
-            value.put(content, index, length * 2).rewind();
-            index += length * 2;
+            int byteCount = checkedByteCount(length, 2, content);
+            ByteBuffer value = BufferUtils.createByteBuffer(byteCount);
+            value.put(content, index, byteCount).rewind();
+            index += byteCount;
             return value.asShortBuffer();
         }else{
             ShortBuffer value = BufferUtils.createShortBuffer(length);

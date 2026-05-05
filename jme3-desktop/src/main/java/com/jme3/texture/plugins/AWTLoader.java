@@ -47,6 +47,12 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
+/**
+ * @deprecated use {@link StbImageLoader} instead, which supports more formats and is more efficient and
+ *             platform agnostic. This loader is kept for backward compatibility but may be removed in future
+ *             versions.
+ */
+@Deprecated
 public class AWTLoader implements AssetLoader {
 
     public static final ColorModel AWT_RGBA4444 = new DirectColorModel(16,
