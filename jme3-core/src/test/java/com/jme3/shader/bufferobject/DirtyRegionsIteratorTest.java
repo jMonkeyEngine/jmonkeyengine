@@ -3,6 +3,7 @@ package com.jme3.shader.bufferobject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.ByteBuffer;
@@ -87,5 +88,27 @@ public class DirtyRegionsIteratorTest {
         assertEquals((byte) 0x22, result.get());
         assertEquals((byte) 0x33, result.get());
         assertEquals((byte) 0x44, result.get());
+    }
+
+    @Test
+    public void testSetDataNullClearsBuffer() {
+        BufferObject bo = new BufferObject();
+        ByteBuffer source = ByteBuffer.allocateDirect(4);
+        source.put(new byte[]{1, 2, 3, 4});
+        source.flip();
+        bo.setData(source);
+        assertEquals(4, bo.getData().remaining());
+
+        bo.setData(null);
+        // getData() auto-allocates an empty buffer when internal data is null
+        assertEquals(0, bo.getData().remaining());
+    }
+
+    @Test
+    public void testSetDataNullOnEmptyBufferObject() {
+        BufferObject bo = new BufferObject();
+        // Should not throw when internal buffer is already null
+        bo.setData(null);
+        assertEquals(0, bo.getData().remaining());
     }
 }
