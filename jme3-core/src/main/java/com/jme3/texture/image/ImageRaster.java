@@ -65,6 +65,17 @@ import com.jme3.texture.Image;
 public abstract class ImageRaster {
 
     /**
+     * Tests whether {@link ImageRaster} can read and write pixels for the
+     * specified image format.
+     *
+     * @param format the image format to test
+     * @return true if ImageRaster supports the format
+     */
+    public static boolean isSupported(Image.Format format) {
+        return ImageCodec.isSupported(format);
+    }
+
+    /**
      * Create new image reader / writer.
      *
      * @param image The image to read / write to.

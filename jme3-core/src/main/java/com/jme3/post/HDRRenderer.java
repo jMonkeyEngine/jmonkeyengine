@@ -106,9 +106,9 @@ public class HDRRenderer implements SceneProcessor {
         Collection<Caps> caps = renderer.getCaps();
         if (caps.contains(Caps.PackedFloatColorBuffer))
             bufFormat = Format.RGB111110F;
-        else if (caps.contains(Caps.FloatColorBufferRGB))
+        else if (caps.contains(Caps.HalfFloatColorBufferRGB))
             bufFormat = Format.RGB16F;
-        else if (caps.contains(Caps.FloatColorBufferRGBA))
+        else if (caps.contains(Caps.HalfFloatColorBufferRGBA))
             bufFormat = Format.RGBA16F;
         else {
             enabled = false;

@@ -11,9 +11,11 @@ spotbugs = "4.9.8"
 [libraries]
 
 androidx-annotation = "androidx.annotation:annotation:1.7.1"
+androidx-fragment = "androidx.fragment:fragment:1.8.9"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
+androidx-test-runner = "androidx.test:runner:1.7.0"
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 groovy-test = "org.apache.groovy:groovy-test:4.0.31"
 gson = "com.google.code.gson:gson:2.13.2"
@@ -23,6 +25,7 @@ jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.18.1"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
 junit-bom = "org.junit:junit-bom:5.13.4"
+junit4 = "junit:junit:4.13.2"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"

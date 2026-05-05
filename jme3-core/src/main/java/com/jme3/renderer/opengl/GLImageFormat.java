@@ -42,6 +42,9 @@ public final class GLImageFormat {
     public final int format;
     public final int dataType;
     public final boolean compressed;
+    public final boolean colorRenderable;
+    public final boolean depthRenderable;
+    public final boolean filterable;
     public final boolean swizzleRequired;
 
     /**
@@ -51,11 +54,14 @@ public final class GLImageFormat {
      * @param format OpenGL format
      * @param dataType OpenGL datatype
      */
-    public GLImageFormat(int internalFormat, int format, int dataType) {
+    public GLImageFormat(int internalFormat, int format, int dataType, boolean colorRenderable, boolean depthRenderable, boolean filterable) {
         this.internalFormat = internalFormat;
         this.format = format;
         this.dataType = dataType;
         this.compressed = false;
+        this.colorRenderable = colorRenderable;
+        this.depthRenderable = depthRenderable;
+        this.filterable = filterable;
         this.swizzleRequired = false;
     }
     
@@ -66,12 +72,18 @@ public final class GLImageFormat {
      * @param format OpenGL format
      * @param dataType OpenGL datatype
      * @param compressed Format is compressed
+     * @param colorRenderable Format can be used as a color render target
+     * @param depthRenderable Format can be used as a depth render target
+     * @param filterable Format can be filtered
      */
-    public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed) {
+    public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed, boolean colorRenderable, boolean depthRenderable, boolean filterable) {
         this.internalFormat = internalFormat;
         this.format = format;
         this.dataType = dataType;
         this.compressed = compressed;
+        this.colorRenderable = colorRenderable;
+        this.depthRenderable = depthRenderable;
+        this.filterable = filterable;
         this.swizzleRequired = false;
     }
     
@@ -84,11 +96,47 @@ public final class GLImageFormat {
      * @param compressed Format is compressed
      * @param swizzleRequired Need to use texture swizzle to upload texture
      */
-    public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed, boolean swizzleRequired) {
+    public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed, boolean swizzleRequired, boolean colorRenderable, boolean depthRenderable, boolean filterable) {
         this.internalFormat = internalFormat;
         this.format = format;
         this.dataType = dataType;
         this.compressed = compressed;
+        this.colorRenderable = colorRenderable;
+        this.depthRenderable = depthRenderable;
+        this.filterable = filterable;
         this.swizzleRequired = swizzleRequired;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        GLImageFormat other = (GLImageFormat) obj;
+        return internalFormat == other.internalFormat
+                && format == other.format
+                && dataType == other.dataType
+                && compressed == other.compressed
+                && colorRenderable == other.colorRenderable
+                && depthRenderable == other.depthRenderable
+                && filterable == other.filterable
+                && swizzleRequired == other.swizzleRequired;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.internalFormat;
+        hash = 97 * hash + this.format;
+        hash = 97 * hash + this.dataType;
+        hash = 97 * hash + (this.compressed ? 1 : 0);
+        hash = 97 * hash + (this.colorRenderable ? 1 : 0);
+        hash = 97 * hash + (this.depthRenderable ? 1 : 0);
+        hash = 97 * hash + (this.filterable ? 1 : 0);
+        hash = 97 * hash + (this.swizzleRequired ? 1 : 0);
+        return hash;
     }
 }
