@@ -3,10 +3,10 @@ package com.jme3.shader.bufferobject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
@@ -51,6 +51,28 @@ public class DirtyRegionsIteratorTest {
         assertEquals(0, region.getStart());
         assertEquals(7, region.getEnd());
         assertEquals(8, region.getData().remaining());
+    }
+
+    @Test
+    public void testMergedDirtyRegionGetDataUsesZeroBasedSliceAndPreservesOrder() {
+        BufferObject bo = new BufferObject();
+        bo.setRegions(Arrays.asList(
+                new BufferRegion(0, 3),
+                new BufferRegion(4, 7),
+                new BufferRegion(8, 11)));
+
+        bo.getData().order(ByteOrder.LITTLE_ENDIAN);
+        bo.getRegion(0).markDirty();
+        bo.getRegion(1).markDirty();
+        bo.getRegion(2).clearDirty();
+        bo.setUpdateNeeded(false);
+
+        BufferRegion region = bo.getDirtyRegions().next();
+        ByteBuffer data = region.getData();
+
+        assertEquals(0, data.position());
+        assertEquals(8, data.remaining());
+        assertEquals(ByteOrder.LITTLE_ENDIAN, data.order());
     }
 
     @Test
