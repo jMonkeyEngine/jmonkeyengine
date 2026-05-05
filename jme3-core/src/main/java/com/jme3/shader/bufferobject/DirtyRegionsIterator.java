@@ -59,7 +59,7 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
                 source.limit(currentLimit);
                 source.position(currentPos);
             }
-            slice.limit(end);
+            slice.limit(end + 1);
             slice.position(start);
             return slice;
         }
@@ -84,6 +84,9 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
     }
 
     public boolean hasNext() {
+        if (bufferObject.regions.size() == 0) {
+            return pos == 0 && bufferObject.isUpdateNeeded();
+        }
         return pos < bufferObject.regions.size();
     }
 
@@ -95,8 +98,9 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
         if (bufferObject.regions.size() == 0) {
             if (!bufferObject.isUpdateNeeded()) return null;
             dirtyRegion.fullBufferRegion = true;
-            dirtyRegion.end = bufferObject.getData().limit();
+            dirtyRegion.end = bufferObject.getData().limit() - 1;
             dirtyRegion.start = 0;
+            pos = 1;
             return dirtyRegion;
         }
 
