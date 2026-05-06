@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,37 +31,53 @@
  */
 package com.jme3.system.lwjgl;
 
+import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
+import com.jme3.input.lwjgl.SdlJoystickInput;
+import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
+import com.jme3.system.Displays;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.lwjglx.LwjglxGLPlatform;
 
 import java.awt.AWTException;
 import java.awt.Canvas;
+import java.awt.Component;
+import java.awt.DisplayMode;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
-import java.text.MessageFormat;
+
+import javax.swing.SwingUtilities;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.lwjgl.Version;
 import org.lwjgl.awthacks.NonClearGraphics;
 import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
+
+import org.lwjgl.system.Configuration;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.KHRGLSharing;
+import org.lwjgl.opengl.CGL;
+import org.lwjgl.opengl.WGL;
 import org.lwjgl.system.Platform;
 
 import static org.lwjgl.system.MemoryUtil.*;
@@ -102,9 +118,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     /** GL versions map. */
     private static final Map<String, Consumer<GLData>> RENDER_CONFIGS = new HashMap<>();
-    
-    /** Type of operating system where this context is running. */
-    private static final Platform OS = Platform.get();
     
     /*
         Register the different versions.
@@ -211,6 +224,46 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
         
         /**
+         * This is where the OpenGL rendering context is generated.
+         */
+        public void createContext() {
+            try {
+                context = platformCanvas.create(this, data, effective);
+            } catch (AWTException e) {
+                listener.handleError("Exception while creating the OpenGL context", e);
+            }
+        }
+        /** (non-Javadoc) */
+        public boolean hasContext() {
+            synchronized (lock) {
+                return context != NULL;
+            }
+        }
+        
+        /**
+         * Make the canvas' context current. It is highly recommended that the
+         * context is only made current inside the AWT thread (for example in an
+         * overridden paintGL()).
+         */
+        public void makeCurrent() {
+            synchronized (lock) {
+                if (context == NULL) {
+                    throw new IllegalStateException("Canvas not yet displayable");
+                }
+                platformCanvas.makeCurrent(context);
+            }
+        }
+        
+        /**
+         * Release the rendering context
+         */
+        public void releaseContext() {            
+            synchronized (lock) {
+                platformCanvas.makeCurrent(NULL);
+            }
+        }
+
+        /**
          * Returns the effective data (recommended or ideal) to initialize the 
          * LWJGL3-AWT context.
          * 
@@ -221,61 +274,37 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
         
         /**
-         * Called after <code>beforeRender()</code> to release the threads (unlock); 
-         * so that AWT can update its threads normally.
-         * <p>
-         * <b>NOTE:</b> It is very important to call this method and not leave AWT 
-         * hanging (breaking it) regardless of whether an error occurs during OpenGL
-         * rendering.
+         * To start drawing on the AWT surface, the AWT threads must be locked to
+         * avoid conflicts when drawing on the canvas.
          */
-        public void afterRender() {
-            // release the rendering context
-            platformCanvas.makeCurrent(NULL);
-            try {
-                platformCanvas.unlock(); // <- MUST unlock on Linux
-            } catch (AWTException e) {
-                listener.handleError("Failed to unlock Canvas", e);
-            }
-        }
-        
-        /**
-         * Called before <code>afterRender()</code> to prepare the AWT drawing surface.
-         */
-        public void beforeRender() {
-            // this is where the OpenGL rendering context is generated.
-            if (context == NULL) {
+        public void lock() {
+            synchronized (lock) {
                 try {
-                    context = platformCanvas.create(this, data, effective);
+                    platformCanvas.lock();// <- MUST lock on Linux
                 } catch (AWTException e) {
-                    listener.handleError("Exception while creating the OpenGL context", e);
-                    return;
+                    listener.handleError("Failed to lock Canvas", e);
                 }
             }
-            
-            /*
-             * To start drawing on the AWT surface, the AWT threads must be locked to
-             * avoid conflicts when drawing on the canvas.
-             */
-            try {
-                platformCanvas.lock(); // <- MUST lock on Linux
-            } catch (AWTException e) {
-                listener.handleError("Failed to lock Canvas", e);
-            }
-            
-            /*
-             * The 'makeCurrent(long)' method converts the specified OpenGL rendering 
-             * context to the current rendering context.
-             */
-            platformCanvas.makeCurrent(context);
         }
         
         /**
-         * Frees up the drawing surface (only on Windows and MacOSX).
+         * Unlock the current AWT thread to continue updating the user interface.
+         */
+        public void unlock() {
+            synchronized (lock) {
+                try {
+                    platformCanvas.unlock();// <- MUST unlock on Linux
+                } catch (AWTException e) {
+                    listener.handleError("Failed to unlock Canvas", e);
+                }
+            }
+        }
+        
+        /**
+         * Frees up the drawing surface
          */
         public void doDisposeCanvas() {
-            if (OS != Platform.LINUX) {
-                platformCanvas.dispose();
-            }
+            platformCanvas.dispose();
         }
         
         /**
@@ -305,18 +334,32 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
          */
         @Override
         public void removeNotify() {
+            if (needClose.get()) {
+                LOGGER.log(Level.FINE, "EDT: Application is stopped. Not restoring canvas.");
+                super.removeNotify();
+                return;
+            }
+            
             synchronized (lock) {
                 // prepare for a possible re-adding
-                if ((OS != Platform.LINUX) && (context != NULL)) {
-                    platformCanvas.deleteContext(context);
-                    context = NULL;
-                }
                 hasNativePeer.set(false);
-            }            
-            super.removeNotify();
-            if (OS == Platform.WINDOWS) {
-                LOGGER.log(Level.WARNING, "Windows does not support this functionality: remove(__canvas__)");
+                reinitcontext.set(true);
+                
+                 while (reinitcontext.get()) {
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException ex) {
+                        super.removeNotify();
+                        return;
+                    }
+                }
+                 
+                 reinitcontext.set(false);
             }
+            
+            // GL context is dead at this point
+            LOGGER.log(Level.FINE, "EDT: Acknowledged receipt of canvas death");
+            super.removeNotify();
         }
         
         /**
@@ -325,6 +368,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
          */
         public void destroy() {
             platformCanvas.destroy();
+        }
+        /** (non-Javadoc) */
+        public void deleteContext() {
+            platformCanvas.deleteContext(context);
         }
         
         /**
@@ -354,35 +401,39 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      * Configuration data to start the AWT context, this is used by the
      * {@code lwjgl-awt} library.
      */
-    private GLData glData;
-    
-    /** Used to display the effective data for the {@code AWT-Swing} drawing surface per console. */
-    private final AtomicBoolean showGLDataEffective = new AtomicBoolean(false);
+    private final GLData glData;
     
     /** Used to notify the canvas status ({@code remove()/add()}). */
     private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
-    
-    /** Notify if the canvas is visible and has a parent.*/
-    private final AtomicBoolean showing = new AtomicBoolean(false);
+    /**
+     * It is used to create the initial context and all the resources that will
+     * be activated only once.
+     */
+    private final AtomicBoolean initialize = new AtomicBoolean(false);
+    /** Notify the context reintegration, invalidating the current renderer. */
+    private final AtomicBoolean reinitcontext = new AtomicBoolean(false);
     
     /** Notify if there is a change in canvas dimensions. */
-    private AtomicBoolean needResize = new AtomicBoolean(false);
+    private final AtomicBoolean needResize = new AtomicBoolean(false);
+    /** Notify if there are changes to the canvas scales. */
+    private final AtomicBoolean needRescale = new AtomicBoolean(false);
     
     /**
      * Flag that uses the context to check if it is initialized or not, this prevents
      * it from being initialized multiple times and potentially breaking the JVM.
      */
-    private AtomicBoolean contextFlag = new AtomicBoolean(false);
-
-    /** Semaphort used to check the "terminate" signal. */
-    private final Semaphore signalTerminate = new Semaphore(0);
-
+    private final AtomicBoolean contextFlag = new AtomicBoolean(false);
+    
     /** lock-object. */
     private final Object lock = new Object();
     
-    /** Framebuffer width. */
-    private int framebufferWidth = 1;
+    /** Scale of the component in {@code x}  */
+    private float xScale = 1;
+    /** Scale of the component in {@code y} */
+    private float yScale = 1;
     
+    /** Framebuffer width. */
+    private int framebufferWidth = 1;    
     /** Framebuffer height. */
     private int framebufferHeight = 1;
 
@@ -408,26 +459,164 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             @Override
             public void componentResized(ComponentEvent e) {                
                 synchronized (lock) {
-                    GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
-                    if (gc == null) {
-                        return;
-                    }
-                    
-                    AffineTransform at = gc.getDefaultTransform();
-                    float sx = (float) at.getScaleX(),
-                          sy = (float) at.getScaleY();
-
-                    int fw = (int) (canvas.getWidth() * sx);
-                    int fh = (int) (canvas.getHeight() * sy);
-
-                    if (fw != framebufferWidth || fh != framebufferHeight) {
-                        framebufferWidth = Math.max(fw, 1);
-                        framebufferHeight = Math.max(fh, 1);
-                        needResize.set(true);
-                    }
+                    updateSizes();
                 }
             }            
         });
+    }
+    
+    /**
+     * Check if the canvas is displayed, that is, if it has a parent that has set it up.
+     * <p>
+     * It is very important that this verification be done so that LWJGL3-AWT works correctly.
+     * 
+     * @return returns <code>true</code> if the canvas is ready to draw; otherwise 
+     * returns <code>false</code>
+     */
+    public boolean checkVisibilityState() {
+        if (!hasNativePeer.get()) {
+            return false;
+        }
+        return canvas.isDisplayable() && canvas.isShowing();
+    }
+    
+    /**
+     * Here the entire GL context is rendered and initialized.
+     */
+    @Override
+    public void run() {
+        if (listener == null) {
+            throw new IllegalStateException(
+                    "SystemListener is not set on context! Must set with JmeContext.setSystemListener()."
+            );
+        }
+
+        LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
+
+        while (true) {
+            if (needResize.getAndSet(false)) {
+                settings.setResolution(framebufferWidth, framebufferHeight);
+                listener.reshape(framebufferWidth, framebufferHeight);
+            }
+
+            if (needRescale.getAndSet(false)) {
+                listener.rescale(xScale, yScale);
+            }
+
+            synchronized (lock) {
+                if (reinitcontext.getAndSet(false)) {
+                    LOGGER.log(Level.FINE, "LWJGX: Destroying display ..");
+
+                    try {
+                        if (renderer != null) {
+                            renderer.invalidateState();
+                            renderer.cleanup();
+                        }
+
+                        canvas.releaseContext();
+                        canvas.deleteContext();
+                        canvas.doDisposeCanvas();
+                        canvas.context = NULL;
+                    } finally {
+                        renderable.set(false);
+                        lock.notifyAll();
+                    }
+                }
+            }
+
+            if (checkVisibilityState()) {
+                // HACK: All components of the thread hosted in initInt() must be
+                //       called after the context is created, but this is only valid
+                //       if the canvas is validated by AWT, so it is created at "runtime".
+                if (!initialize.getAndSet(true)) {
+                    if (!initInThread()) {
+                        LOGGER.log(Level.SEVERE, "Display initialization failed. Cannot continue.");
+                        break;
+                    }
+                } else {
+                    if (!canvas.hasContext()) {
+                        LOGGER.log(Level.FINE, "AWT: Creating display ..");
+                        createContext(settings);
+                        reinitContext();
+
+                        listener.gainFocus();
+                    }
+                }
+
+                // HACK: In this thread, let OpenGL handle the heavy lifting,
+                //       blocking the AWT/Swing EDT only to draw the corresponding
+                //       buffer, thus preventing the user interface from freezing 
+                //       with demanding scenes.
+                runLoop();
+
+                // All this does is call swapBuffers().
+                // If the canvas is not active, there's no need to waste time
+                // doing that.
+                if (renderable.get() && canvas.hasContext()) {
+                    try {
+                        if (allowSwapBuffers && autoFlush) {
+                            // calls swap buffers | lock, etc.
+                            try {
+                                canvas.lock();
+                                canvas.swapBuffers();
+                            } finally {
+                                canvas.unlock();
+                            }
+
+                            // Sync the display on some systems.
+                            Toolkit.getDefaultToolkit().sync();
+                        }
+                    } catch (Throwable ex) {
+                        listener.handleError("Error while swapping buffers", ex);
+                    }
+                }
+            } else {
+                // HACK: If the GL context is not rendering, the thread will
+                //       enter a waiting state, thus avoiding CPU overload.
+                try {
+                    Thread.sleep(16);
+                } catch (InterruptedException ignore) { }
+            }
+
+            if (needClose.get()) {
+                break;
+            }
+        }
+
+        deinitInThread();
+    }
+
+    /**
+     * execute one iteration of the render loop in the OpenGL thread
+     */
+    @Override
+    protected void runLoop() {
+        // If a restart is required, lets recreate the context.
+        if (needRestart.getAndSet(false)) {
+            restartContext();
+        }
+
+        if (!created.get()) {
+            throw new IllegalStateException();
+        }
+
+        listener.update();
+
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
+        if (renderer != null) {
+            renderer.postFrame();
+        }
+
+        if (autoFlush) {
+            if (frameRateLimit != getSettings().getFrameRate()) {
+                setFrameRateLimit(getSettings().getFrameRate());
+            }
+        } else if (frameRateLimit != 20) {
+            setFrameRateLimit(20);
+        }
+
+        Sync.sync(frameRateLimit);
     }
 
     /**
@@ -439,6 +628,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     public void destroy(boolean waitFor) {
         super.destroy(waitFor);
         this.contextFlag.set(false);
+        this.initialize.set(false);
     }
 
     /**
@@ -458,80 +648,112 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     /**
      * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#destroyContext() 
+     */
+    @Override
+    protected void destroyContext() {
+        synchronized (lock) {
+            canvas.destroy();
+        }
+        super.destroyContext();
+    }
+    
+    /**
+     * (non-Javadoc)
      * @see com.jme3.system.lwjgl.LwjglWindow#createContext(com.jme3.system.AppSettings) 
      * @param settings A {@link com.jme3.system.AppSettings} object
      */
     @Override
-    protected void createContext(AppSettings settings)  {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, "LWJGL3-AWT: Interrupted!", ex);
+    protected void createContext(AppSettings settings) {
+        if (!settings.isX11PlatformPreferred() && isWayland()) {
+            LOGGER.log(Level.WARNING, "LWJGLX and AWT/Swing only work with X11, so XWayland will be used for GLX.");
         }
-        
-        super.createContext(settings);
+
+        // HACK: For LWJGLX to work in Wyland, it is necessary to use GLX via
+        //       XWayland, so LWJGL must be forced to load GLX as a native API.
+        //       This is because LWJGLX does not provide an EGL context.
+        if (isWayland()) {
+            Configuration.OPENGL_CONTEXT_API.set("native");
+        }
+
         RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
             return (data) -> {
                 data.majorVersion = 2;
                 data.minorVersion = 0;
             };
         }).accept(glData);
-        
+
         if (settings.getBitsPerPixel() == 24) {
             glData.redSize = 8;
             glData.greenSize = 8;
-            glData.blueSize = 8;            
+            glData.blueSize = 8;
         } else if (settings.getBitsPerPixel() == 16) {
             glData.redSize = 5;
             glData.greenSize = 6;
-            glData.blueSize = 5;            
+            glData.blueSize = 5;
         }
-        
+
         // Enable vsync for LWJGL3-AWT
         if (settings.isVSync()) {
             glData.swapInterval = 1;
         } else {
             glData.swapInterval = 0;
         }
-        
-        // This will activate the "effective data" scrubber.
-        showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
-        
+
         glData.alphaSize = settings.getAlphaBits();
         glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
-        
+
         glData.depthSize = settings.getDepthBits();
         glData.stencilSize = settings.getStencilBits();
         glData.samples = settings.getSamples();
-        glData.stereo = settings.useStereo3D();  
-       
+        glData.stereo = settings.useStereo3D();
+
         glData.debug = settings.isGraphicsDebug();
         glData.api = GLData.API.GL;
-    }
-    
-    /**
-     * Returns the AWT component where it is drawn (canvas).
-     * @return Canvas
-     */
-    @Override
-    public Canvas getCanvas() {
-        return canvas;
-    }
 
-    /** (non-Javadoc) */
-    @Override
-    protected void showWindow() { }
-    /** (non-Javadoc) */
-    @Override 
-    protected void setWindowIcon(final AppSettings settings) { }
-    /** (non-Javadoc) */
-    @Override
-    public void setTitle(String title) { }
+        allowSwapBuffers = settings.isSwapBuffers();
+
+        canvas.createContext();
+        canvas.makeCurrent();
+
+        // This will activate the "effective data" scrubber.
+        if (settings.getBoolean("GLDataEffectiveDebug")) {
+            LOGGER.log(Level.INFO, "[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}",
+                    getPrintContextInitInfo(canvas.getGLDataEffective()));
+        }
+        // Create OpenCL
+        if (settings.isOpenCLSupport()) {
+            initOpenCL(canvas.context, (properties, context) -> {
+                switch (Platform.get()) {
+                    case WINDOWS:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(context)
+                                .put(KHRGLSharing.CL_WGL_HDC_KHR)
+                                .put(WGL.wglGetCurrentDC());
+                        break;
+                    case FREEBSD:
+                    case LINUX:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(context)
+                                .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
+                                .put(getX11Display(canvas.platformCanvas));
+                        break;
+                    case MACOSX:
+                        properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
+                                .put(CGL.CGLGetShareGroup(CGL.CGLGetCurrentContext()));
+                        break;
+                    default:
+                        break; // Unknown Platform, do nothing.
+                }
+                return null;
+            });
+        }
+    }
 
     /**
      * (non-Javadoc)
      * @see com.jme3.system.lwjgl.LwjglWindow#getKeyInput() 
-     * @return returns a {@link com.jme3.input.awt.AwtKeyInput} object
+     * @return KeyInput
      */
     @Override
     public KeyInput getKeyInput() {
@@ -545,7 +767,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     /**
      * (non-Javadoc)
      * @see com.jme3.system.lwjgl.LwjglWindow#getMouseInput() 
-     * @return returns a {@link com.jme3.input.awt.AwtMouseInput} object
+     * @return MouseInput
      */
     @Override
     public MouseInput getMouseInput() {
@@ -557,101 +779,70 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     }
 
     /**
-     * Check if the canvas is displayed, that is, if it has a parent that has set it up.
-     * <p>
-     * It is very important that this verification be done so that LWJGL3-AWT works correctly.
-     * 
-     * @return returns <code>true</code> if the canvas is ready to draw; otherwise 
-     * returns <code>false</code>
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjgl.LwjglWindow#getJoyInput() 
+     * @return JoyInput
      */
-    public boolean checkVisibilityState() {
-        if (!hasNativePeer.get()) {
-            synchronized (lock) {
-                canvas.doDisposeCanvas();
-            }
-            return false;
+    @Override
+    public JoyInput getJoyInput() {
+        if (joyInput == null) {
+            String mapper = settings.getJoysticksMapper();
+            if (AppSettings.JOYSTICKS_LEGACY_MAPPER.equals(mapper)
+                    || AppSettings.JOYSTICKS_XBOX_LEGACY_MAPPER.equals(mapper)) {
+                
+                LOGGER.log(Level.WARNING, () -> "LWJGX does not support this configuration: " + mapper);
+            }            
+            joyInput = new SdlJoystickInput(settings);
         }
+        return joyInput;
+    }
 
-        boolean currentShowing = canvas.isShowing();
-        showing.set(currentShowing);
-        return currentShowing;
+    /** (non-Javadoc) */
+    @Override public TouchInput getTouchInput() { return null; }
+    /** (non-Javadoc) */
+    @Override public void setTitle(String title) { }
+
+    /** (non-Javadoc) */
+    @Override protected void showWindow() { }
+    /** (non-Javadoc) */
+    @Override  protected void setWindowIcon(final AppSettings settings) { }
+    /**(non-Javadoc) */
+    @Override public Vector2f getWindowContentScale(Vector2f store) {
+        return store == null ? new Vector2f() : store;
     }
 
     /**
-     * (non-Javadoc)
-     * @see com.jme3.system.lwjgl.LwjglWindow#destroyContext() 
+     * {@inheritDoc }
      */
     @Override
-    protected void destroyContext() {
+    protected void updateSizes() {
         synchronized (lock) {
-            canvas.destroy();
-        }
+            GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
+            if (gc == null) {
+                return;
+            }
 
-        // request the cleanup
-        signalTerminate.release();
-        super.destroyContext();
+            AffineTransform at = gc.getDefaultTransform();
+            float sx = (float) at.getScaleX(),
+                  sy = (float) at.getScaleY();
+
+            int fw = (int) (canvas.getWidth() * sx);
+            int fh = (int) (canvas.getHeight() * sy);
+
+            if (fw != framebufferWidth || fh != framebufferHeight) {
+                framebufferWidth  = Math.max(fw, 1);
+                framebufferHeight = Math.max(fh, 1);
+                needResize.set(true);
+            }
+
+            if (xScale != sx || yScale != sy) {
+                xScale = sx;
+                yScale = sy;
+                needRescale.set(true);
+            }
+        }
     }
 
-    /**
-     * (non-Javadoc)
-     * @see com.jme3.system.lwjgl.LwjglWindow#runLoop() 
-     */
-    @Override
-    protected void runLoop() {
-        if (needResize.get()) {
-            needResize.set(false);
-            settings.setResolution(framebufferWidth, framebufferHeight);
-            listener.reshape(framebufferWidth, framebufferHeight);
-        }
-        
-        // check component status
-        if (!checkVisibilityState()) {
-            return;
-        }
-
-        //----------------------------------------------------------------------
-        //                          AWT - RENDERER
-        //----------------------------------------------------------------------
-        /*
-         * The same logic as AWTGLCanvas is used to draw on the awt drawing surface:
-         * 
-         * 1. Lock any thread to avoid any conflict.
-         * 2. Buffer swap (this is where the framebuffer is actually drawn): swapBuffers()
-         * 3. Unlock so that the AWT thread can work normally. IF NOT DONE, IT WILL 
-         *    BE WAITING AND BREAK ANY AWT/Swing APP.
-         */
-        canvas.beforeRender();
-        try {
-            super.runLoop();
-            if (allowSwapBuffers && autoFlush) {
-                canvas.swapBuffers();
-            }
-        } finally {
-            canvas.afterRender();
-        }
-        
-        // Sync the display on some systems.
-        Toolkit.getDefaultToolkit().sync();
-        
-        //----------------------------------------------------------------------
-        /*
-         * Whether it is necessary to know the effective attributes to 
-         * initialize the LWJGL3-AWT context
-         */
-        //----------------------------------------------------------------------
-        if (showGLDataEffective.get()) {
-            showGLDataEffective.set(false);
-            System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
-                                                getPrintContextInitInfo(canvas.getGLDataEffective())));
-        }
-
-        try {
-            if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                canvas.doDisposeCanvas();
-            }
-        } catch (InterruptedException ignored) { }
-    }
-    
     /**
      * (non-Javadoc)
      * @see com.jme3.system.lwjgl.LwjglContext#printContextInitInfo() 
@@ -751,5 +942,106 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override
     public int getFramebufferWidth() {
         return this.framebufferWidth;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public long getWindowHandle() {
+        return canvas.context;
+    }
+
+    /** (non-Javadoc) */
+    @Override
+    public int getWindowXPosition() {
+        Component component = SwingUtilities.getRoot(canvas);
+        if (component == null) {
+            return 0;
+        }
+        return component.getX();
+    }
+
+    /** (non-Javadoc) */
+    @Override
+    public int getWindowYPosition() {
+        Component component = SwingUtilities.getRoot(canvas);
+        if (component == null) {
+            return 0;
+        }
+        return component.getY();
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public Displays getDisplays() {
+        Displays displays = new Displays();
+        GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        if (environment == null) {
+            return displays;
+        }
+
+        GraphicsDevice[] devices = environment.getScreenDevices();
+        GraphicsDevice defaultgd = environment.getDefaultScreenDevice();
+        if (devices == null || defaultgd == null) {
+            return displays;
+        }
+
+        for (int i = 0; i < devices.length; i++) {
+            GraphicsDevice gd = devices[i];
+            DisplayMode mode  = gd.getDisplayMode();
+
+            int width  = mode.getWidth();
+            int height = mode.getHeight();
+            int rate   = mode.getRefreshRate();
+
+            displays.addNewMonitor(i + 1);
+            displays.setInfo(i, gd.getIDstring(), width, height, rate);
+
+            if (defaultgd.equals(gd)) {
+                displays.setPrimaryDisplay(i);
+            }
+
+            LOGGER.log(Level.INFO, "Display id: {0} Resolution: {1} x {2} @ {3}",
+                    new Object[]{gd.getIDstring(), width, height, rate});
+        }
+
+        return displays;
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public int getPrimaryDisplay() {
+        GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        if (environment == null) {
+            return 0;
+        }
+
+        GraphicsDevice[] devices = environment.getScreenDevices();
+        GraphicsDevice defaultgd = environment.getDefaultScreenDevice();
+        if (devices == null || defaultgd == null) {
+            return 0;
+        }
+
+        for (int i = 0; i < devices.length; i++) {
+            GraphicsDevice gd = devices[i];
+            if (defaultgd.equals(gd)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the AWT component where it is drawn (canvas).
+     * @return Canvas
+     */
+    @Override
+    public Canvas getCanvas() {
+        return canvas;
     }
 }
