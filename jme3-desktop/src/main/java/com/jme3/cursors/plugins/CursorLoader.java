@@ -51,9 +51,16 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
+ * Support loads of .ico, .ani and .cur cursor file formats.
+ * 
  * Created Jun 5, 2012 9:45:58 AM
  * @author MadJack
+ * 
+ * @deprecated This class is not crossplatform and the
+ * supported file formats are not commonly used anymore.
+ * Which leads to it deprecation.
  */
+@Deprecated
 public class CursorLoader implements AssetLoader {
     final private static int FDE_OFFSET = 6; // first directory entry offset
 
