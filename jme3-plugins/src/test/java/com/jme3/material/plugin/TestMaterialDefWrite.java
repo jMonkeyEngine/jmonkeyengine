@@ -54,9 +54,7 @@ public class TestMaterialDefWrite {
     @BeforeEach
     public void init() {
         assetManager = JmeSystem.newAssetManager(
-                TestMaterialDefWrite.class.getResource("/com/jme3/asset/Desktop.cfg"));
-
-
+                TestMaterialDefWrite.class.getResource("/com/jme3/asset/General.cfg"));
     }
 
 

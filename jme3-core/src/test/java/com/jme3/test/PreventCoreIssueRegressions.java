@@ -111,7 +111,7 @@ public class PreventCoreIssueRegressions {
      */
     @Test
     public void testIssue1138() {
-        AssetManager am = JmeSystem.newAssetManager(PreventCoreIssueRegressions.class.getResource("/com/jme3/asset/Desktop.cfg"));
+        AssetManager am = JmeSystem.newAssetManager(PreventCoreIssueRegressions.class.getResource("/com/jme3/asset/General.cfg"));
         Node cgModel = (Node)am.loadModel("Models/Elephant/Elephant.mesh.xml");
         cgModel.rotate(0f, -1f, 0f);
         cgModel.scale(0.04f);

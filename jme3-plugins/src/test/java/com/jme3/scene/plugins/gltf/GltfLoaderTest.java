@@ -63,7 +63,7 @@ public class GltfLoaderTest {
     @BeforeEach
     public void init() {
         assetManager = JmeSystem.newAssetManager(
-                TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg"));
+                TestMaterialWrite.class.getResource("/com/jme3/asset/General.cfg"));
 
     }
 

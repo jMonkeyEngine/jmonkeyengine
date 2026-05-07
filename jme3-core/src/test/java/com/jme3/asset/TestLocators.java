@@ -16,7 +16,7 @@ public class TestLocators {
 
     @Test
     public void testAbsoluteLocators() {
-        AssetManager am = JmeSystem.newAssetManager(TestLocators.class.getResource("/com/jme3/asset/Desktop.cfg"));
+        AssetManager am = JmeSystem.newAssetManager(TestLocators.class.getResource("/com/jme3/asset/General.cfg"));
         am.registerLocator("/",  ClasspathLocator.class);
         am.registerLoader(WAVLoader.class, "wav");
         am.registerLoader(AWTLoader.class, "jpg");

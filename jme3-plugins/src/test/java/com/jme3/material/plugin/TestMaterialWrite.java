@@ -59,7 +59,7 @@ public class TestMaterialWrite {
 
     @BeforeEach
     public void init() {
-        URL configFile = TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg");
+        URL configFile = TestMaterialWrite.class.getResource("/com/jme3/asset/General.cfg");
         assetManager = JmeSystem.newAssetManager(configFile);
     }
 

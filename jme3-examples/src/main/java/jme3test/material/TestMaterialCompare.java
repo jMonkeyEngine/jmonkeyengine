@@ -43,7 +43,7 @@ public class TestMaterialCompare {
 
     public static void main(String[] args) {
         AssetManager assetManager = JmeSystem.newAssetManager(
-                TestMaterialCompare.class.getResource("/com/jme3/asset/Desktop.cfg"));
+                TestMaterialCompare.class.getResource("/com/jme3/asset/General.cfg"));
         
         // Cloned materials
         Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

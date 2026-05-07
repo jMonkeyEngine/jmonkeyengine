@@ -152,7 +152,7 @@ public class AppletHarness extends Applet {
             assetCfg = new URL(getParameter("AssetConfigURL"));
         } catch (MalformedURLException ex){
             System.out.println(ex.getMessage());
-            assetCfg = Resources.getResource("/com/jme3/asset/Desktop.cfg",this.getClass());
+            assetCfg = Resources.getResource("/com/jme3/asset/General.cfg", this.getClass());
         }
 
         createCanvas();
