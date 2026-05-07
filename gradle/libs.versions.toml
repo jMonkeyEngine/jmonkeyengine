@@ -5,6 +5,7 @@
 checkstyle = "13.3.0"
 jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
+angle = "20260506.4852ee722f17-SNAPSHOT"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 
@@ -55,6 +56,7 @@ vecmath = "javax.vecmath:vecmath:1.5.2"
 
 stb-image = "org.ngengine:stb-image:2.30.4"
 imagewebp = "org.ngengine:image-webp-decoder:1.3.0"
+angle = { module = "org.ngengine:angle-natives", version.ref = "angle" }
 
 [bundles]
 
