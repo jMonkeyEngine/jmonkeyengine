@@ -362,29 +362,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        boolean isWayland = !settings.isX11PlatformPreferred()
-                && "wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"));
-
         String angleEGLPath = null;
         String angleGLESv2Path = null;
-        
-        // angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGLWayland", true);
-            // angleGLESv2Path =  NativeLibraryLoader.loadNativeLibrary("angleGLESv2Wayland", true);
 
-            // force debug paths
-
-            // } else {
-            angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
-            angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
-
-            // force debug paths
-            // angleEGLPath =
-            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libEGL.so";
-            // angleGLESv2Path =
-            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libGLESv2.so";
-            // }
-            angleEGLPath = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
-            angleGLESv2Path = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
+        angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
+        angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
 
         NativeLibraryLoader.loadNativeLibrary("d3dcompiler_47", false); // windows only
 
