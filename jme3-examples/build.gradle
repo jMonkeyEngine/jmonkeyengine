@@ -37,6 +37,154 @@ task runExamples(dependsOn: 'build', type: JavaExec) {
     }
 }
 
+def umuLauncherDownloadUrl = 'https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.0/umu-launcher-1.4.0-zipapp.tar'
+def umuLauncherArchive = layout.buildDirectory.file('tmp/umu-launcher-1.4.0-zipapp.tar')
+def umuLauncherExtractDir = layout.buildDirectory.dir('tools/umu-launcher')
+def protonToolchainVersion = java.toolchain.languageVersion.get().asInt()
+def protonJdkDownloadUrl = "https://api.adoptium.net/v3/binary/latest/${protonToolchainVersion}/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
+def protonJdkArchive = layout.buildDirectory.file("tmp/proton-jdk-${protonToolchainVersion}-windows.zip")
+def protonJdkExtractDir = layout.buildDirectory.dir('tools/proton-jdk')
+
+task downloadProtonRuntime {
+    description = 'Download and extract Proton runtime launcher into jme3-examples/build/tools/umu-launcher.'
+    outputs.dir(umuLauncherExtractDir)
+
+    doLast {
+        def archiveFile = umuLauncherArchive.get().asFile
+        archiveFile.parentFile.mkdirs()
+
+        logger.lifecycle("Downloading umu-launcher from ${umuLauncherDownloadUrl}")
+
+        new URL(umuLauncherDownloadUrl).withInputStream { input ->
+            archiveFile.withOutputStream { output ->
+                output << input
+            }
+        }
+
+        def extractRoot = umuLauncherExtractDir.get().asFile
+        extractRoot.deleteDir()
+        extractRoot.mkdirs()
+
+        copy {
+            from tarTree(archiveFile)
+            into extractRoot
+        }
+
+        def extractedEntries = extractRoot.listFiles()
+        if (extractedEntries == null || extractedEntries.length == 0) {
+            throw new GradleException('umu-launcher archive extraction failed: build/tools/umu-launcher is empty')
+        }
+
+        logger.lifecycle("umu-launcher extracted to ${extractRoot.absolutePath}")
+    }
+}
+
+task downloadProtonJdk {
+    description = "Download and extract the Adoptium Java ${protonToolchainVersion} Windows JDK used to bootstrap Gradle inside Proton."
+    outputs.dir(protonJdkExtractDir)
+
+    doLast {
+        def archiveFile = protonJdkArchive.get().asFile
+        archiveFile.parentFile.mkdirs()
+
+        logger.lifecycle("Downloading Windows JDK from ${protonJdkDownloadUrl}")
+
+        new URL(protonJdkDownloadUrl).withInputStream { input ->
+            archiveFile.withOutputStream { output ->
+                output << input
+            }
+        }
+
+        def extractRoot = protonJdkExtractDir.get().asFile
+        extractRoot.deleteDir()
+        extractRoot.mkdirs()
+
+        copy {
+            from zipTree(archiveFile)
+            into extractRoot
+        }
+
+        def extractedEntries = extractRoot.listFiles()
+        if (extractedEntries == null || extractedEntries.length == 0) {
+            throw new GradleException('Windows JDK extraction failed: build/tools/proton-jdk is empty')
+        }
+
+        logger.lifecycle("Windows JDK extracted to ${extractRoot.absolutePath}")
+    }
+}
+
+task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downloadProtonJdk'], type: Exec) {
+    description = 'Run jme3 examples under Proton using the downloaded runtime launcher and Windows JDK.'
+    workingDir = rootProject.projectDir
+
+    doFirst {
+        def extractRoot = umuLauncherExtractDir.get().asFile
+        def umuRunScript = new File(extractRoot, 'umu-run')
+        if (!umuRunScript.exists()) {
+            def nestedUmuRun = extractRoot.listFiles()?.find { it.isDirectory() }?.toPath()?.resolve('umu-run')?.toFile()
+            if (nestedUmuRun != null && nestedUmuRun.exists()) {
+                umuRunScript = nestedUmuRun
+            }
+        }
+        if (!umuRunScript.exists()) {
+            throw new GradleException("Could not find umu-run script at ${umuRunScript.absolutePath}")
+        }
+
+        def protonJdkRoot = protonJdkExtractDir.get().asFile
+        def protonJdkDir = protonJdkRoot.listFiles()?.find { candidate ->
+            candidate.isDirectory() && new File(candidate, 'bin/java.exe').exists()
+        }
+        if (protonJdkDir == null) {
+            throw new GradleException("Could not find Windows JDK with bin/java.exe under ${protonJdkRoot.absolutePath}")
+        }
+
+        def winePrefix = "${buildDir}/umu/wineprefix"
+        def gameId = 'jme3-examples'
+        def store = 'none'
+        def protonJavaHome = "Z:${protonJdkDir.absolutePath.replace('/', '\\\\')}"
+        def protonJavaExe = "${protonJavaHome}\\\\bin\\\\java.exe"
+        def exampleClass = project.findProperty('example')?.toString() ?: mainClassName
+        def resolvedRuntimeFiles = configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect { it.file }
+        def angleNativeArtifacts = resolvedRuntimeFiles.findAll { file ->
+            file.name.toLowerCase().contains('angle-natives')
+        }
+        def runtimeClasspathFiles = (sourceSets.main.runtimeClasspath.files + resolvedRuntimeFiles + angleNativeArtifacts) as LinkedHashSet
+        def relevantRuntimeEntries = runtimeClasspathFiles.findAll { file ->
+            def name = file.name.toLowerCase()
+            name.contains('angle') || name.contains('saferalloc')
+        }
+        logger.lifecycle("Proton runtime entries: ${relevantRuntimeEntries*.name}")
+
+        def runtimeClasspath = runtimeClasspathFiles.collect { file ->
+            "Z:${file.absolutePath.replace('/', '\\\\')}"
+        }.join(';')
+        def jvmArgs = []
+
+        if (assertions == 'true') {
+            jvmArgs << '-ea'
+        }
+
+        if (System.properties['java.util.logging.config.file'] != null) {
+            def loggingConfig = System.properties['java.util.logging.config.file'].replace('/', '\\\\')
+            jvmArgs << "-Djava.util.logging.config.file=Z:${loggingConfig}"
+        }
+
+        executable = umuRunScript.absolutePath
+        args protonJavaExe
+        args jvmArgs
+        args '-cp', runtimeClasspath, exampleClass
+
+        environment 'WINEPREFIX', winePrefix
+        environment 'GAMEID', gameId
+        environment 'STORE', store
+        environment 'JAVA_HOME', protonJavaHome
+        environment 'JDK_HOME', protonJavaHome
+        environment 'PROTON_VERB', 'waitforexitandrun'
+
+        logger.lifecycle("Running ${exampleClass} with Proton via ${protonJavaExe}")
+    }
+}
+
 dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-desktop')
