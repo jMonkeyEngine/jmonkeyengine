@@ -15,7 +15,7 @@ public class AudioNodeTest {
 
     @Test
     public void testAudioNodeClone() {
-        AssetManager assetManager = JmeSystem.newAssetManager(AudioNodeTest.class.getResource("/com/jme3/asset/General.cfg"));
+        AssetManager assetManager = JmeSystem.newAssetManager(AudioNodeTest.class.getResource("/com/jme3/asset/Desktop.cfg"));
 
         AudioNode audio = new AudioNode(assetManager,
                 "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);

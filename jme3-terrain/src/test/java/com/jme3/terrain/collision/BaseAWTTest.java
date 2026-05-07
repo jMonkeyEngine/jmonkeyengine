@@ -27,7 +27,11 @@ public abstract class BaseAWTTest {
     }
 
     private AssetManager createAssetManager() {
-        return JmeSystem.newAssetManager(BaseTest.class.getResource("/com/jme3/asset/General.cfg"));
+        /* Desktop.cfg supports the following additional file formats at the time of writing:
+            LOADER com.jme3.texture.plugins.AWTLoader : jpg, bmp, gif, png, jpeg
+            LOADER com.jme3.audio.plugins.OGGLoader : ogg
+         */
+        return JmeSystem.newAssetManager(BaseTest.class.getResource("/com/jme3/asset/Desktop.cfg"));
     }
 
 }

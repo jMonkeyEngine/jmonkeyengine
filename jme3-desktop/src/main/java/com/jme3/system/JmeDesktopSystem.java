@@ -72,7 +72,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Resources.getResource("com/jme3/asset/General.cfg");
+        return Resources.getResource("com/jme3/asset/Desktop.cfg");
     }
     
     private static BufferedImage verticalFlip(BufferedImage original) {
