@@ -64,14 +64,14 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6
       - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run Checkstyle
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
@@ -91,14 +91,14 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6
       - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run SpotBugs
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
@@ -119,7 +119,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6
       - name: Start xvfb
         run: |
           Xvfb :99 -ac -screen 0 1024x768x16 &
@@ -135,7 +135,7 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
           ./gradlew :jme3-screenshot-test:screenshotTest
@@ -160,7 +160,7 @@ jobs:
         run: echo $JAVA_HOME --- $JAVA_HOME_8_X64 --- $JAVA_HOME_11_X64 --- $JAVA_HOME_17_X64 --- $JAVA_HOME_21_X64 ---
 
       - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -171,12 +171,12 @@ jobs:
           xcode-version: '15.1.0'
 
       - name: Clone the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
 
       - name: Build
         run: |
@@ -198,12 +198,12 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -218,7 +218,7 @@ jobs:
           cmake --version
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
 
       - name: Build
         run: |
@@ -255,7 +255,7 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -272,7 +272,7 @@ jobs:
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.0.1
+        uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Build Engine
         shell: bash
         run: |
@@ -447,13 +447,13 @@ jobs:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       # Setup jdk 21 used for building Maven-style artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -497,13 +497,13 @@ jobs:
 
       # We need to clone everything again for uploadToCentral.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       # Setup jdk 21 used for building Sonatype artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v5.2.0
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'

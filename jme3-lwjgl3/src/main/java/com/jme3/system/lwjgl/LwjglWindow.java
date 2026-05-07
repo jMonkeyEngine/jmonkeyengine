@@ -199,7 +199,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private long window = NULL;
     private long glContext = NULL;
     private int windowId;
-    private int frameRateLimit = -1;
+    protected int frameRateLimit = -1;
 
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
@@ -433,7 +433,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    private void updateSizes() {
+    protected void updateSizes() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer winW = stack.mallocInt(1);
             IntBuffer winH = stack.mallocInt(1);
@@ -863,7 +863,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    private void restartContext() {
+    protected void restartContext() {
         try {
             destroyContext();
             createContext(settings);
@@ -883,7 +883,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         LOGGER.fine("Display restarted.");
     }
 
-    private void setFrameRateLimit(int frameRateLimit) {
+    protected final void setFrameRateLimit(int frameRateLimit) {
         this.frameRateLimit = frameRateLimit;
     }
 

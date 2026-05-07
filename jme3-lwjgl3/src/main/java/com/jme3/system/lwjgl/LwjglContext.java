@@ -78,7 +78,6 @@ import org.lwjgl.opengles.GLESCapabilities;
 import static org.lwjgl.sdl.SDLVideo.*;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.Platform;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -133,7 +132,7 @@ public abstract class LwjglContext implements JmeContext {
 
     protected Renderer renderer;
     protected SystemListener listener;
-    
+
     /**
      * Accesses the listener that receives events related to this context.
      *
