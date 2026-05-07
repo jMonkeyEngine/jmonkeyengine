@@ -37,7 +37,10 @@ repositories {
         dirs rootProject.file('lib')
     }
     maven {
-        url "https://maven.rblb.it/riccardobl/angle-natives"
+        url "https://maven.rblb.it/NostrGameEngine/angle-natives"
+    }
+    maven { 
+       url = uri("https://central.sonatype.com/repository/maven-snapshots")
     }
 }
 
