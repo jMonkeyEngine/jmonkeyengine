@@ -3,6 +3,7 @@ package org.jmonkeyengine.screenshottests.android.android;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,5 +94,10 @@ public class ScreenshotTest {
         if (!completed) {
             throw new RuntimeException("PixelCopy did not complete within 10 seconds");
         }
+        InstrumentationRegistry.getInstrumentation()
+                .getUiAutomation()
+                .executeShellCommand(
+                        "adb pull /storage/emulated/0/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png ."
+                );
     }
 }

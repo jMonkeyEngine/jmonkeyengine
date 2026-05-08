@@ -49,7 +49,6 @@ jobs:
             timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=org.jmonkeyengine.screenshottests.android.android.ScreenshotTest
             adb logcat -d > logcat.txt
-            adb pull /storage/emulated/0/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png .
       - name: Upload logcat
         uses: actions/upload-artifact@v4
         if: always()
