@@ -50,9 +50,9 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -port 5554 -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
-          script: echo "Generated AVD snapshot for caching."
+          script: echo "AVD created, no snapshot saved."
 
       - name: Wait for emulator to boot
         run: |
@@ -66,9 +66,6 @@ jobs:
           adb shell input keyevent 4
           adb shell input keyevent 4
           adb shell input keyevent 66
-          until adb shell getprop init.svc.bootanim | grep -m 1 stopped; do
-            sleep 5
-          done
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
