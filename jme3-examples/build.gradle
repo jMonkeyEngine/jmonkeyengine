@@ -217,7 +217,7 @@ jar.doFirst{
 //                'Implementation-Vendor'  : vendor,
                 'Main-Class'             : getProperty('mainClassName'),
                 // Add dependencies to manifest, remove version
-                'Class-Path'             : configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.collect {
+                'Class-Path'             : configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
                                                         it.name +
                                                         (it.classifier != null ? '-' + it.classifier : '') +
@@ -229,7 +229,7 @@ jar.doFirst{
 task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
-        configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.file
                 into '../dist/lib'
