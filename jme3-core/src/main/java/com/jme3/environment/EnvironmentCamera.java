@@ -330,7 +330,7 @@ public class EnvironmentCamera extends BaseAppState {
 
     protected Image.Format getImageFormat(Renderer renderer) {
         if (this.imageFormat == null) {
-            this.imageFormat = renderer.getBestColorTargetFormat(true, false, false);
+            this.imageFormat = renderer.getBestColorTargetFormat(true, false, false, false);
         }
         return this.imageFormat;
     }
