@@ -5,7 +5,7 @@
 checkstyle = "13.3.0"
 jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
-angle = "20260507.272c2ae3264a-SNAPSHOT"
+angle = "20260507.46e42d40740c-SNAPSHOT"
 saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"

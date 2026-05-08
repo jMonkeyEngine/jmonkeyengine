@@ -31,6 +31,8 @@
  */
 package com.jme3.system.lwjgl;
 
+import static org.lwjgl.egl.EXTPlatformWayland.EGL_PLATFORM_WAYLAND_EXT;
+import static org.lwjgl.egl.EXTPlatformX11.EGL_PLATFORM_X11_EXT;
 import static org.lwjgl.sdl.SDLError.*;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLHints.*;
@@ -375,7 +377,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         SDL_SetHint(SDL_HINT_EGL_LIBRARY, angleEGLPath);
         SDL_SetHint(SDL_HINT_OPENGL_LIBRARY, angleGLESv2Path);
-        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, angleGLESv2Path);
+        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
         SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
     }
 
@@ -383,6 +385,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final String renderer = settings.getRenderer();
         final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
         RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
+
+        if (glesContext && org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+            if (settings.isX11PlatformPreferred()) {
+                SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_X11_EXT);
+            } else if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"))) {
+                SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_WAYLAND_EXT);
+            }
+        }
 
         int contextFlags = 0;
         if (settings.getBoolean("RendererDebug")) {
