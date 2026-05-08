@@ -26,6 +26,8 @@ public class ScreenshotTest {
 
     @Test
     public void takeScreenshot() {
+        System.out.println("Starting test");
+
         // Wait a bit for the app to initialize and render the blue box
         try {
             Thread.sleep(5000);
@@ -36,6 +38,7 @@ public class ScreenshotTest {
         activityRule.getScenario().onActivity(new ActivityScenario.ActivityAction<AndroidLauncher>() {
             @Override
             public void perform(AndroidLauncher activity) {
+                System.out.println("Within activity");
                 View view = activity.getWindow().getDecorView().getRootView();
                 view.setDrawingCacheEnabled(true);
                 Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
@@ -50,6 +53,9 @@ public class ScreenshotTest {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                System.out.println("Storage dir: " + storageDir.getAbsolutePath());
+                System.out.println("Screenshot file: " + screenshotFile.getAbsolutePath());
             }
         });
     }
