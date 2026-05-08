@@ -46,3 +46,4 @@ javadoc_deploy.pub
 !.vscode/JME_style.xml
 !.vscode/extensions.json
 joysticks-*.txt
+/jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/
