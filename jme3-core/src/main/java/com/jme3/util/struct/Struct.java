@@ -181,7 +181,7 @@ public abstract class Struct <T extends StructField> implements Savable {
      * @return aligned size in bytes
      */
     public int getAlignedSize() {
-        return FastMath.toMultipleOf(size, alignment);
+        return FastMath.toMultipleOf(getSize(), getAlignment());
     }
 
     /**

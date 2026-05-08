@@ -5,14 +5,26 @@ import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.pipeline.Topology;
+import com.jme3.vulkan.shaderc.ShaderType;
 
 import static org.lwjgl.vulkan.VK14.*;
 
 public class VulkanEnums implements EnumInterpreter {
 
-    public static final VulkanEnums instance = new VulkanEnums();
+    public static VulkanEnums instance = new VulkanEnums();
 
-    private VulkanEnums() {}
+    @Override
+    public int getShaderTypeEnum(ShaderType type) {
+        switch (type) {
+            case Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+            case Geometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
+            case TessellationEval: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+            case TessellationControl: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+            case Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+            case Compute: return VK_SHADER_STAGE_COMPUTE_BIT;
+            default: throw new UnsupportedOperationException(type.name());
+        }
+    }
 
     @Override
     public int getFormatEnum(Format fmt) {
@@ -64,7 +76,7 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
-    public int getLoadEnum(VulkanImage.Load load) {
+    public int getImageLoadEnum(VulkanImage.Load load) {
         switch (load) {
             case Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
             case Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -74,7 +86,7 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
-    public int getStoreEnum(VulkanImage.Store store) {
+    public int getImageStoreEnum(VulkanImage.Store store) {
         switch (store) {
             case Store: return VK_ATTACHMENT_STORE_OP_STORE;
             case DontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;

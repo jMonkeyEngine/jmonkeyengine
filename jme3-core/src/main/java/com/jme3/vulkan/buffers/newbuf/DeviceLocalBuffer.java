@@ -3,17 +3,14 @@ package com.jme3.vulkan.buffers.newbuf;
 import com.jme3.export.*;
 import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.SharingMode;
 import com.jme3.vulkan.buffers.alloc.BufferAllocRequest;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.tmp.Final;
 import com.jme3.vulkan.tmp.FinalWriter;
 import com.jme3.vulkan.tmp.SerializationOnly;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkBufferCopy;
 
@@ -105,7 +102,7 @@ public class DeviceLocalBuffer extends AbstractVulkanBuffer {
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
             Alloc that = (Alloc)o;
-            return Flag.is(usage, that.usage);
+            return Flag.equals(usage, that.usage);
         }
 
         @Override

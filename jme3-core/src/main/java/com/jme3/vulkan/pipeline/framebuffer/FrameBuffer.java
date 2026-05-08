@@ -1,35 +1,44 @@
 package com.jme3.vulkan.pipeline.framebuffer;
 
 import com.jme3.texture.ImageView;
+import com.jme3.vulkan.images.VulkanImage;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
-public interface FrameBuffer <T extends RenderTarget> {
+public class FrameBuffer <T extends ImageView> {
 
-    T createColorTarget(ImageView view);
+    private final List<RenderTarget<T>> colorTargets = new ArrayList<>();
+    private RenderTarget<T> depthStencilTarget;
 
-    T createDepthTarget(ImageView view);
+    public void setDepthStencilTarget(RenderTarget<T> depthStencilTarget) {
+        this.depthStencilTarget = depthStencilTarget;
+    }
 
-    void addColorTarget(T target);
+    public List<RenderTarget<T>> getColorTargets() {
+        return colorTargets;
+    }
 
-    void addColorTarget(int i, T target);
+    public RenderTarget<T> getDepthStencilTarget() {
+        return depthStencilTarget;
+    }
 
-    void setColorTarget(int i, T target);
+    public boolean isUsingStencil() {
+        return depthStencilTarget != null && depthStencilTarget.getAspects().containsAny(VulkanImage.Aspect.Stencil);
+    }
 
-    boolean removeColorTarget(T target);
-
-    void clearColorTargets();
-
-    void setDepthTarget(T target);
-
-    List<T> getColorTargets();
-
-    T getDepthTarget();
-
-    boolean isUsingStencil();
-
-    float getWidth();
-
-    float getHeight();
+    public Point getArea() {
+        Point p = new Point(0, 0);
+        for (RenderTarget<T> t : colorTargets) {
+            p.x = Math.max(p.x, t.getWidth());
+            p.y = Math.max(p.y, t.getHeight());
+        }
+        if (depthStencilTarget != null) {
+            p.x = Math.max(p.x, depthStencilTarget.getWidth());
+            p.y = Math.max(p.y, depthStencilTarget.getHeight());
+        }
+        return p;
+    }
 
 }

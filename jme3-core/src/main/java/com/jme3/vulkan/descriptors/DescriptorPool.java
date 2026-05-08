@@ -82,8 +82,10 @@ public class DescriptorPool extends AbstractNative<Long> {
      * @return allocated DescriptorSets, in the same order as {@code layouts}
      */
     public DescriptorSet[] allocateSets(List<DescriptorSetLayout> layouts) {
-        assert !layouts.isEmpty() : "Must specify at least one set layout.";
         DescriptorSet[] sets = new DescriptorSet[layouts.size()];
+        if (layouts.isEmpty()) {
+            return sets;
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer layoutBuf = stack.mallocLong(layouts.size());
             for (DescriptorSetLayout l : layouts) {

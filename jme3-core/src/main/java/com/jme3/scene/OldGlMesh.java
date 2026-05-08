@@ -138,7 +138,7 @@ public class OldGlMesh implements Mesh, Savable {
          */
         Hybrid(false),
         /**
-         * Used for Tessellation only. Requires to set the number of vertices
+         * Used for TessellationEval only. Requires to set the number of vertices
          * for each patch (default is 3 for triangle tessellation)
          */
         Patch(true);

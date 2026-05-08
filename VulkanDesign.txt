@@ -1,5 +1,9 @@
 
-Material should be split into two different classes:
+Here is my plan for the material system:
 
-1. Associate values with uniform names. This is what NewMaterial is doing.
-2. Associate uniform names with descriptor bindings. Previously, this role would've been filled by MaterialDef.
+Unlike jme3, where all uniform bindings were localized to a material, jme4 will allow anything to bind anything to any set/binding. Processes are expected to handle their own descriptor sets for this. This assumes that the relevant processes know exactly what protocol any given shader is following, so there are opportunities for uncoordination here. Luckily, there are a few things going in our favor:
+
+1. Renderers are more or less expected to be handcrafted. If you want to use a shader with a different protocol, you must also design the infrastructure to properly interface with your shader.
+2. If a shader doesn't use a particular binding that is supplied, it just doesn't use it. We don't have to check if the shader is actually using it. This is big for general global stuff that gets bound maybe once per frame.
+
+For api, I'm planning on having a ShaderBinding interface, which specifies one or more bindings and exposes UniformBindings that parameters are submitted to. ShaderBinding objects will be created by the Engine, as vulkan and opengl engines will very likely use different implementations. The UniformBinding objects are a bit stickier though, as for vulkan they spawn the writers that interface directly with vulkan. For OpenGL, same thing but with OpenGL.

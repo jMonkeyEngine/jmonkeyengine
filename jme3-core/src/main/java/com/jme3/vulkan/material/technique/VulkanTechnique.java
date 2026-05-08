@@ -9,7 +9,7 @@ import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.uniforms.ShaderParam;
 import com.jme3.vulkan.pipeline.PipelineLayout;
 import com.jme3.vulkan.pipeline.cache.Cache;
-import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.VulkanShaderModule;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 
@@ -86,11 +86,11 @@ public class VulkanTechnique implements NewTechnique {
         pushConstants.add(range);
     }
 
-    public Collection<ShaderModule> getShaders(LogicalDevice<?> device, AssetManager assetManager,
-                                               Cache<ShaderModule> cache, VulkanMaterial material) {
-        Collection<ShaderModule> modules = new ArrayList<>(shaders.size());
+    public Collection<VulkanShaderModule> getShaders(LogicalDevice<?> device, AssetManager assetManager,
+                                                     Cache<VulkanShaderModule> cache, VulkanMaterial material) {
+        Collection<VulkanShaderModule> modules = new ArrayList<>(shaders.size());
         for (Map.Entry<ShaderStage, String> shaderInfo : shaders.entrySet()) {
-            modules.add(ShaderModule.build(device, assetManager, s -> {
+            modules.add(VulkanShaderModule.build(device, assetManager, s -> {
                 s.setCache(cache);
                 s.setAssetName(shaderInfo.getValue());
                 s.setStage(shaderInfo.getKey());

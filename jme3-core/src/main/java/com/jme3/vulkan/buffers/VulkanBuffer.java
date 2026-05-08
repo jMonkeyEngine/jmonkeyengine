@@ -9,6 +9,7 @@ import com.jme3.vulkan.util.IntEnum;
 
 public interface VulkanBuffer extends MappableBuffer {
 
+    @Deprecated
     void upload(CommandBuffer cmd, BufferStream stream);
 
     long getBufferId(LogicalDevice<?> device);

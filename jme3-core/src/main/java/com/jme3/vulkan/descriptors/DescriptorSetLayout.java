@@ -4,6 +4,7 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.material.experimental.ShaderSetBuilder;
 import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;
@@ -18,15 +19,10 @@ import static org.lwjgl.vulkan.VK10.*;
 public class DescriptorSetLayout extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private final Map<String, UniformBinding> bindings = new HashMap<>();
+    private final Map<Integer, UniformBinding> bindings = new HashMap<>();
 
     protected DescriptorSetLayout(LogicalDevice<?> device) {
         this.device = device;
-    }
-
-    protected DescriptorSetLayout(LogicalDevice<?> device, Map<String, UniformBinding> bindings) {
-        this(device);
-        this.bindings.putAll(bindings);
     }
 
     @Override
@@ -46,7 +42,7 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
         return Objects.hash(bindings);
     }
 
-    public Map<String, UniformBinding> getBindings() {
+    public Map<Integer, UniformBinding> getBindings() {
         return Collections.unmodifiableMap(bindings);
     }
 
@@ -56,21 +52,13 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
         return b.build();
     }
 
-    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, UniformBinding> bindings) {
-        return new DescriptorSetLayout(device, bindings).new Builder().build();
+    public static DescriptorSetLayout nullLayout(LogicalDevice<?> device, Cache<DescriptorSetLayout> cache) {
+        return build(device, l -> l.setCache(cache));
     }
 
-    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, UniformBinding> bindings, Cache<DescriptorSetLayout> cache) {
-        return new DescriptorSetLayout(device, bindings).new Builder(cache).build();
-    }
+    public class Builder extends CacheableNativeBuilder<DescriptorSetLayout, DescriptorSetLayout> implements ShaderSetBuilder {
 
-    public class Builder extends CacheableNativeBuilder<DescriptorSetLayout, DescriptorSetLayout> {
-
-        private Builder() {}
-
-        private Builder(Cache<DescriptorSetLayout> cache) {
-            setCache(cache);
-        }
+        protected Builder() {}
 
         @Override
         protected void construct() {
@@ -95,8 +83,9 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
             return DescriptorSetLayout.this;
         }
 
-        public void addBinding(String name, UniformBinding binding) {
-            bindings.put(name, binding);
+        @Override
+        public void addBinding(int location, UniformBinding binding) {
+            bindings.put(location, binding);
         }
 
     }

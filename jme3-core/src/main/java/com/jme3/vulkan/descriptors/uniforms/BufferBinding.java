@@ -15,47 +15,47 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.Objects;
 
-public class BufferUniformBinding extends UniformBinding<VulkanBuffer> {
+public class BufferBinding extends UniformBinding<VulkanBuffer> {
 
-    public BufferUniformBinding(IntEnum<Descriptor> descriptor, int binding, Flag<ShaderStage> stages) {
-        super(descriptor, binding, 1, stages);
+    public BufferBinding(Descriptor descriptor, Flag<ShaderStage> stages) {
+        super(descriptor, 1, stages);
     }
 
     @Override
     public DescriptorSetWriter createWriter(VulkanBuffer value) {
-        return new Writer(cmd.getPool().getDevice(), value);
+        return new Writer(value);
     }
 
-    private static class Writer implements DescriptorSetWriter {
+    private class Writer implements DescriptorSetWriter {
 
-        private final LogicalDevice<?> device;
         private final VulkanBuffer buffer;
         private final MemorySize size;
 
-        public Writer(LogicalDevice<?> device, VulkanBuffer buffer) {
+        public Writer(VulkanBuffer buffer) {
             this.buffer = buffer;
-            this.device = device;
             this.size = buffer.size();
         }
 
         @Override
-        public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
+        public void populateWrite(MemoryStack stack, LogicalDevice<?> device, VkWriteDescriptorSet write) {
             write.pBufferInfo(VkDescriptorBufferInfo.calloc(1, stack)
                 .buffer(buffer.getBufferId(device))
-                .offset(size.getOffset())
-                .range(size.getBytes()));
+                .offset(size.getOffset()).range(size.getBytes()));
+            write.descriptorType(getType().getEnum())
+                .descriptorCount(1)
+                .dstArrayElement(0);
         }
 
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
-            Writer writer = (Writer) o;
-            return buffer.getBufferId(device) == writer.buffer.getBufferId(device) && Objects.equals(size, writer.size);
+            Writer writer = (Writer)o;
+            return buffer == writer.buffer && Objects.equals(size, writer.size);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(buffer.getBufferId(device), size);
+            return Objects.hash(System.identityHashCode(buffer), size);
         }
 
     }

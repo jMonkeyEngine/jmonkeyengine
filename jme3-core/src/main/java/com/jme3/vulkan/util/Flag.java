@@ -1,7 +1,5 @@
 package com.jme3.vulkan.util;
 
-import com.jme3.backend.GraphicsAPI;
-
 import java.util.Iterator;
 
 public interface Flag <T extends Flag> extends Iterable<Integer> {
@@ -162,7 +160,7 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return result;
     }
 
-    static boolean is(Flag f1, Flag f2) {
+    static boolean equals(Flag f1, Flag f2) {
         return f1 == f2 || (f1 != null && f2 != null && f1.is(f2));
     }
 

@@ -97,4 +97,18 @@ public interface MappableBuffer extends Mappable, Savable {
         return new StructMapping<>(struct, this, offset);
     }
 
+    default void resize(int bytes) {
+        resize((long)bytes);
+    }
+
+    default void resizeUp(long bytes) {
+        if (size().getBytes() < bytes) {
+            resize(bytes);
+        }
+    }
+
+    default void resizeUp(int bytes) {
+        resizeUp((long)bytes);
+    }
+
 }

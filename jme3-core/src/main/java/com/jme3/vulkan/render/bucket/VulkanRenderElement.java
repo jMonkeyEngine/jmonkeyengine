@@ -4,27 +4,24 @@ import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.vulkan.material.VulkanMaterial;
-import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 
-public abstract class VulkanBucketElement implements BucketElement {
+public abstract class VulkanRenderElement implements RenderElement {
 
     private final Camera camera;
     private final Geometry geometry;
     private final VulkanMesh mesh;
     private final VulkanMaterial material;
-    private final VulkanTechnique technique;
     private final VertexPipeline pipeline;
     private float distance = Float.NaN;
     private float distanceSq = Float.NaN;
 
-    public VulkanBucketElement(Camera camera, Geometry geometry, String technique) {
+    public VulkanRenderElement(Camera camera, Geometry geometry) {
         this.camera = camera;
         this.geometry = geometry;
         this.mesh = (VulkanMesh)geometry.getMesh();
         this.material = (VulkanMaterial)geometry.getMaterial();
-        this.technique = (VulkanTechnique)material.getTechnique(technique);
         this.pipeline = createPipeline();
     }
 
@@ -55,11 +52,6 @@ public abstract class VulkanBucketElement implements BucketElement {
     @Override
     public VulkanMaterial getMaterial() {
         return material;
-    }
-
-    @Override
-    public VulkanTechnique getTechnique() {
-        return technique;
     }
 
     @Override

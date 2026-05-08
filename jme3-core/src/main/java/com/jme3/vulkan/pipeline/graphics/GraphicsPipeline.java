@@ -6,6 +6,7 @@ import com.jme3.renderer.ScissorArea;
 import com.jme3.renderer.ViewPortArea;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.Mesh;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.VulkanEnums;
@@ -14,6 +15,7 @@ import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.mesh.VertexBuffer;
@@ -23,6 +25,7 @@ import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
+import com.jme3.vulkan.shaderc.ShaderType;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import com.jme3.vulkan.util.LegacyEnumConverter;
@@ -115,8 +118,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                 && blendLogicEnabled == that.blendLogicEnabled
                 && depthFormat == that.depthFormat
                 && usingStencilAtt == that.usingStencilAtt
-                && Flag.is(createFlags, that.createFlags)
-                && Flag.is(cullMode, that.cullMode)
+                && Flag.equals(createFlags, that.createFlags)
+                && Flag.equals(cullMode, that.cullMode)
                 && IntEnum.is(depthCompare, that.depthCompare)
                 && IntEnum.is(polygonMode, that.polygonMode)
                 && IntEnum.is(faceWinding, that.faceWinding)
@@ -310,7 +313,7 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return b.build();
     }
 
-    public class Builder extends CacheableNativeBuilder<Pipeline, GraphicsPipeline> {
+    public class Builder extends CacheableNativeBuilder<Pipeline, GraphicsPipeline> implements PipelineBuilder {
 
         private Cache<PipelineLayout> layoutCache;
         private Cache<ShaderModule> shaderCache;
@@ -524,6 +527,22 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             attributeLocations.putAll(tech.getAttributeLocations());
         }
 
+        @Override
+        public void applyMesh(Mesh mesh) {
+
+        }
+
+        @Override
+        public void addShader(ShaderType type, String shader) {
+
+        }
+
+        @Override
+        public void addDefine(String name, String value, Flag<ShaderStage> scope) {
+
+        }
+
+        @Override
         public void applyRenderState(RenderState state) {
             addBlendAttachment(new ColorBlendAttachment(state));
             setPolygonMode(state.isWireframe() ? PolygonMode.Line : PolygonMode.Fill);

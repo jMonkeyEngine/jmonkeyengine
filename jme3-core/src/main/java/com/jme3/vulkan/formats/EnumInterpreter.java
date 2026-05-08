@@ -3,17 +3,32 @@ package com.jme3.vulkan.formats;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.pipeline.Topology;
+import com.jme3.vulkan.shaderc.ShaderType;
 
 public interface EnumInterpreter {
 
-    int getFormatEnum(Format fmt);
+    default int getShaderTypeEnum(ShaderType type) {
+        throw new UnsupportedOperationException(type.name());
+    }
 
-    int getTopologyEnum(Topology topology);
+    default int getFormatEnum(Format fmt) {
+        throw new UnsupportedOperationException(fmt.name());
+    }
 
-    int getIndexTypeEnum(IndexType type);
+    default int getTopologyEnum(Topology topology) {
+        throw new UnsupportedOperationException(topology.name());
+    }
 
-    int getLoadEnum(VulkanImage.Load load);
+    default int getIndexTypeEnum(IndexType type) {
+        throw new UnsupportedOperationException(type.name());
+    }
 
-    int getStoreEnum(VulkanImage.Store store);
+    default int getImageLoadEnum(VulkanImage.Load load) {
+        throw new UnsupportedOperationException(load.name());
+    }
+
+    default int getImageStoreEnum(VulkanImage.Store store) {
+        throw new UnsupportedOperationException(store.name());
+    }
 
 }

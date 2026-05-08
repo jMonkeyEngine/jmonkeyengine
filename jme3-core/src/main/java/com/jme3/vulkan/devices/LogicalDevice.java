@@ -79,6 +79,14 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         return physical;
     }
 
+    public VkPhysicalDeviceProperties getPhysicalProperties() {
+        return physical.getProperties();
+    }
+
+    public VkPhysicalDeviceLimits getPhysicalLimits() {
+        return physical.getProperties().limits();
+    }
+
     public Set<String> getEnabledExtensions() {
         return Collections.unmodifiableSet(enabledExtensions);
     }

@@ -117,7 +117,7 @@ public interface VulkanImage extends GpuImage {
         Clear, Load, DontCare;
 
         public int getEnum(EnumInterpreter interpreter) {
-            return interpreter.getLoadEnum(this);
+            return interpreter.getImageLoadEnum(this);
         }
 
     }
@@ -127,7 +127,7 @@ public interface VulkanImage extends GpuImage {
         Store, DontCare;
 
         public int getEnum(EnumInterpreter interpreter) {
-            return interpreter.getStoreEnum(this);
+            return interpreter.getImageStoreEnum(this);
         }
 
     }

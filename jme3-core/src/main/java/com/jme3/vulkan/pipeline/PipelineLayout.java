@@ -6,6 +6,7 @@ import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.technique.PushConstantRange;
+import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
 import org.lwjgl.vulkan.VkPushConstantRange;
 
@@ -19,12 +20,11 @@ import static org.lwjgl.vulkan.VK10.*;
 public class PipelineLayout extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private final List<DescriptorSetLayout> layouts = new ArrayList<>();
-    private final List<PushConstantRange> pushConstants = new ArrayList<>();
-    private int pushConstantBytes;
+    private final DescriptorSetLayout[] layouts;
 
     protected PipelineLayout(LogicalDevice<?> device) {
         this.device = device;
+        this.layouts = new DescriptorSetLayout[device.getPhysicalLimits().maxBoundDescriptorSets()];
     }
 
     @Override
@@ -36,64 +36,16 @@ public class PipelineLayout extends AbstractNative<Long> {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PipelineLayout that = (PipelineLayout)o;
-        return Objects.equals(device, that.device) && Objects.equals(layouts, that.layouts);
+        return device == that.device && Arrays.equals(layouts, that.layouts);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(layouts);
+        return Objects.hash(System.identityHashCode(device), Arrays.hashCode(layouts));
     }
 
-    public <T extends UniformBinding> T getBinding(String name) {
-        for (DescriptorSetLayout l : layouts) {
-            UniformBinding b = l.getBindings().get(name);
-            if (b != null) return (T)b;
-        }
-        return null;
-    }
-
-    public void allocate(DescriptorPool pool, Map<DescriptorSetLayout, CachedDescriptorSet> sets) {
-        List<DescriptorSetLayout> toAlloc = new LinkedList<>();
-        for (DescriptorSetLayout l : layouts) {
-            if (!sets.containsKey(l)) {
-                toAlloc.add(l);
-            }
-        }
-        if (!toAlloc.isEmpty()) {
-            DescriptorSet[] allocated = pool.allocateSets(toAlloc);
-            for (ListIterator<DescriptorSetLayout> it = toAlloc.listIterator(); it.hasNext();) {
-                sets.put(it.next(), new CachedDescriptorSet(allocated[it.previousIndex()]));
-            }
-        }
-    }
-
-    public void write(Map<DescriptorSetLayout, CachedDescriptorSet> sets, String name, Object value) {
-        for (DescriptorSetLayout l : layouts) {
-            UniformBinding b = l.getBindings().get(name);
-            if (b != null) {
-                DescriptorSetWriter writer = b.createWriter(value);
-                if (writer == null) {
-                    continue;
-                }
-                CachedDescriptorSet set = sets.get(l);
-                if (set == null) {
-                    continue;
-                }
-                set.stageWriter(name, writer);
-            }
-        }
-    }
-
-    public List<DescriptorSetLayout> getSetLayouts() {
-        return Collections.unmodifiableList(layouts);
-    }
-
-    public List<PushConstantRange> getPushConstants() {
-        return Collections.unmodifiableList(pushConstants);
-    }
-
-    public int getPushConstantBytes() {
-        return pushConstantBytes;
+    public DescriptorSetLayout getSetLayout(int location) {
+        return layouts[location];
     }
 
     public LogicalDevice<?> getDevice() {
@@ -112,32 +64,21 @@ public class PipelineLayout extends AbstractNative<Long> {
 
     public class Builder extends CacheableNativeBuilder<PipelineLayout, PipelineLayout> {
 
+        private Cache<DescriptorSetLayout> setLayoutCache;
+        private int maxLayoutIndex = -1;
+
         @Override
         protected void construct() {
-            LongBuffer layoutBuf = stack.mallocLong(layouts.size());
-            for (DescriptorSetLayout l : layouts) {
-                layoutBuf.put(l.getNativeObject());
+            LongBuffer layoutBuf = stack.mallocLong(maxLayoutIndex - 1);
+            DescriptorSetLayout dummy = DescriptorSetLayout.nullLayout(device, setLayoutCache);
+            for (int i = 0; i <= maxLayoutIndex; i++) {
+                layoutBuf.put((layouts[i] != null ? layouts[i] : dummy).getNativeObject());
             }
             layoutBuf.flip();
             VkPipelineLayoutCreateInfo create = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO)
                     .setLayoutCount(layoutBuf.limit())
                     .pSetLayouts(layoutBuf);
-            if (!pushConstants.isEmpty()) {
-                pushConstantBytes = 0;
-                VkPushConstantRange.Buffer ranges = VkPushConstantRange.malloc(pushConstants.size(), stack);
-                for (PushConstantRange p : pushConstants) {
-                    ranges.get().stageFlags(p.getScope().bits())
-                            .offset((int)p.getSize().getOffset())
-                            .size((int)p.getSize().getBytes());
-                    pushConstantBytes += p.getSize();
-                }
-                int limit = device.getPhysicalDevice().getProperties().limits().maxPushConstantsSize();
-                if (pushConstantBytes > limit) {
-                    throw new IllegalStateException("Only up to " + limit + " bytes can be used by push constants.");
-                }
-                create.pPushConstantRanges(ranges.flip());
-            }
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreatePipelineLayout(device.getNativeObject(), create, null, idBuf),
                     "Failed to create pipeline.");
@@ -151,20 +92,13 @@ public class PipelineLayout extends AbstractNative<Long> {
             return PipelineLayout.this;
         }
 
-        public void addUniformSet(DescriptorSetLayout layout) {
-            layouts.add(layout);
+        public void setSetLayoutCache(Cache<DescriptorSetLayout> setLayoutCache) {
+            this.setLayoutCache = setLayoutCache;
         }
 
-        public void addUniformSet(Consumer<DescriptorSetLayout.Builder> config) {
-            layouts.add(DescriptorSetLayout.build(device, config));
-        }
-
-        public void addPushConstants(PushConstantRange range) {
-            pushConstants.add(range);
-        }
-
-        public void addPushConstants(Collection<PushConstantRange> constants) {
-            pushConstants.addAll(constants);
+        public void addSetLayout(int location, DescriptorSetLayout layout) {
+            layouts[location] = layout;
+            maxLayoutIndex = Math.max(maxLayoutIndex, location);
         }
 
     }

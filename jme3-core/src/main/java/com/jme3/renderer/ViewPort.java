@@ -37,6 +37,7 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
+import com.jme3.vulkan.material.experimental.ShadingTechnique;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 
@@ -85,7 +86,6 @@ public class ViewPort {
 
     private final ViewPortArea area;
     private final LinkedHashMap<String, GeometryBucket> buckets = new LinkedHashMap<>();
-    private String defaultBucket;
     private Predicate<Geometry> geometryFilter;
 
     /**
@@ -116,10 +116,9 @@ public class ViewPort {
         Deque<String> batchHint = new ArrayDeque<>();
         Deque<Spatial.CullHint> cullHint = new ArrayDeque<>();
         Deque<Camera.FrustumIntersect> intersect = new ArrayDeque<>();
-        String defBucketName = defaultBucket != null ? defaultBucket : buckets.firstEntry().getKey();
         for (Spatial scene : sceneList) for (Spatial child : scene.iterator(cullHint, batchHint, intersect)) {
             if (child.getLocalQueueBucket() == null) {
-                batchHint.push(batchHint.isEmpty() ? defBucketName : batchHint.peek());
+                batchHint.push(batchHint.isEmpty() ? buckets.firstEntry().getKey() : batchHint.peek());
             } else {
                 batchHint.push(child.getLocalQueueBucket());
             }
@@ -136,12 +135,15 @@ public class ViewPort {
             intersect.push(result);
             if (cullHint.peek() != Spatial.CullHint.Always && (result != Camera.FrustumIntersect.Outside
                     || cullHint.peek() == Spatial.CullHint.Never)) {
-                if (onVisible != null) {
-                    onVisible.accept(child);
-                }
+                if (onVisible != null) onVisible.accept(child);
                 if (child instanceof Geometry) {
                     GeometryBucket bucket = buckets.get(batchHint.peek());
-                    if (bucket != null) bucket.add((Geometry)child);
+                    if (bucket != null) {
+                        Geometry g = (Geometry)child;
+                        if (g.getMaterial() != null) {
+                            bucket.add((Geometry) child);
+                        }
+                    }
                 }
             }
         }

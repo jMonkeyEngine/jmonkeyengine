@@ -9,13 +9,12 @@ import java.util.Objects;
 
 public abstract class UniformBinding <T> {
 
-    private final IntEnum<Descriptor> type;
-    private final int binding, descriptors;
+    private final Descriptor type;
+    private final int descriptors;
     private final Flag<ShaderStage> stages;
 
-    public UniformBinding(IntEnum<Descriptor> type, int binding, int descriptors, Flag<ShaderStage> stages) {
+    public UniformBinding(Descriptor type, int descriptors, Flag<ShaderStage> stages) {
         this.type = type;
-        this.binding = binding;
         this.descriptors = descriptors;
         this.stages = stages;
     }
@@ -24,18 +23,13 @@ public abstract class UniformBinding <T> {
 
     public void fillLayoutBinding(VkDescriptorSetLayoutBinding layoutBinding) {
         layoutBinding.descriptorType(type.getEnum())
-                .binding(binding)
-                .descriptorCount(descriptors)
-                .stageFlags(stages.bits())
-                .pImmutableSamplers(null);
+            .descriptorCount(descriptors)
+            .stageFlags(stages.bits())
+            .pImmutableSamplers(null);
     }
 
-    public IntEnum<Descriptor> getType() {
+    public Descriptor getType() {
         return type;
-    }
-
-    public int getBinding() {
-        return binding;
     }
 
     public int getDescriptors() {
@@ -49,16 +43,13 @@ public abstract class UniformBinding <T> {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        UniformBinding that = (UniformBinding) o;
-        return binding == that.binding
-                && descriptors == that.descriptors
-                && Objects.equals(type, that.type)
-                && Objects.equals(stages, that.stages);
+        UniformBinding<?> that = (UniformBinding<?>) o;
+        return descriptors == that.descriptors && type == that.type && Objects.equals(stages, that.stages);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, binding, descriptors, stages);
+        return Objects.hash(type, descriptors, stages);
     }
 
 }

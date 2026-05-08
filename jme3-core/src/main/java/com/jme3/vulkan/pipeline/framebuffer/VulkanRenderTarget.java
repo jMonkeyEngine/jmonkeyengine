@@ -5,15 +5,18 @@ import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkRenderingAttachmentInfo;
 
-public class VulkanRenderTarget implements RenderTarget<VulkanImageView> {
+@Deprecated
+public class VulkanRenderTarget {
 
     private final Flag<VulkanImage.Aspect> aspects;
     private VulkanImageView view;
     private VulkanImage.Layout layout;
+    private ColorBlendAttachment colorBlend;
     private ColorRGBA clearColor = ColorRGBA.BlackNoAlpha;
     private float clearDepth = 1f;
     private int clearStencil = 0;
@@ -37,7 +40,6 @@ public class VulkanRenderTarget implements RenderTarget<VulkanImageView> {
         setView(view);
     }
 
-    @Override
     public VulkanRenderTarget setView(VulkanImageView view) {
         assert view.getAspect().contains(aspects) : "Image does not have the required aspects for this target.";
         if (this.view != view) {
@@ -47,9 +49,16 @@ public class VulkanRenderTarget implements RenderTarget<VulkanImageView> {
         return this;
     }
 
-    @Override
     public VulkanImageView getView() {
         return view;
+    }
+
+    public RenderTarget<VulkanImageView> setColorBlend(ColorBlendAttachment colorBlend) {
+        return null;
+    }
+
+    public ColorBlendAttachment getColorBlend() {
+        return null;
     }
 
     public VkRenderingAttachmentInfo fill(VkRenderingAttachmentInfo attachment, VulkanImage.Load load, VulkanImage.Store store) {

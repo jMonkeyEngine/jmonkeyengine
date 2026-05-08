@@ -209,7 +209,7 @@ public enum Caps {
      */
     GeometryShader,
     /**
-     * Supports Tessellation shader.
+     * Supports TessellationEval shader.
      */
     TesselationShader,
     /**

@@ -17,6 +17,7 @@ import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.pipeline.framebuffer.GeneralFrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
+import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.util.Extent2;
@@ -63,6 +64,7 @@ public class Swapchain extends AbstractNative<Long> {
     private final Surface surface;
     private final List<PresentImage> images = new ArrayList<>();
     private final Consumer<Builder> config;
+    private final RenderTarget<VulkanImageView> outputTarget = RenderTarget.createColorTarget(null);
     private Extent2 extent;
     private Format format;
     private int imageLayers = 1;
@@ -85,13 +87,7 @@ public class Swapchain extends AbstractNative<Long> {
         return () -> KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), object, null);
     }
 
-    public void createFrameBuffers(RenderPass compat) {
-        for (PresentImage img : images) {
-            img.createFrameBuffer(compat);
-        }
-    }
-
-    public PresentImage acquireNextImage(MemoryStack stack, Semaphore signal, Fence fence, long timeoutMillis) {
+    public RenderTarget<VulkanImageView> acquireNextImage(MemoryStack stack, Semaphore signal, Fence fence, long timeoutMillis) {
         IntBuffer imageIndex = stack.mallocInt(1);
         int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
                 TimeUnit.MILLISECONDS.toNanos(timeoutMillis), signal != null ? signal.getSemaphoreObject() : VK_NULL_HANDLE,
@@ -107,10 +103,11 @@ public class Swapchain extends AbstractNative<Long> {
         if (code != VK_SUCCESS) {
             throw new RuntimeException("Failed to acquire next swapchain image (exit code " + code + ")");
         }
-        return images.get(imageIndex.get(0));
+        outputTarget.setImage(images.get(imageIndex.get(0)).getColorView());
+        return outputTarget;
     }
 
-    public PresentImage acquireNextImage(Semaphore signal, Fence fence, long timeoutMillis) {
+    public RenderTarget<VulkanImageView> acquireNextImage(Semaphore signal, Fence fence, long timeoutMillis) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             return acquireNextImage(stack, signal, fence, timeoutMillis);
         }
@@ -177,6 +174,10 @@ public class Swapchain extends AbstractNative<Long> {
 
     public Format getFormat() {
         return format;
+    }
+
+    public RenderTarget<VulkanImageView> getOutputTarget() {
+        return outputTarget;
     }
 
     public int getImageLayers() {
@@ -277,7 +278,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public void transitionLayout(CommandBuffer commands, Layout layout) {
+        public void transitionLayout(MemoryStack stack, CommandBuffer commands, Layout layout) {
             throw new UnsupportedOperationException("Cannot transition swapchain image.");
         }
 

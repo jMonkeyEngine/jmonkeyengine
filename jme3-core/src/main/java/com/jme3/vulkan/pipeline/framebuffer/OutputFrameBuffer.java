@@ -14,6 +14,7 @@ import com.jme3.vulkan.util.IntEnum;
 
 import java.util.*;
 
+@Deprecated
 public class OutputFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget> {
 
     private final Swapchain swapchain;

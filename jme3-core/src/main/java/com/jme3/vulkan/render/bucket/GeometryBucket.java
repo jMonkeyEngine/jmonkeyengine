@@ -4,19 +4,14 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.vulkan.commands.StandardRenderSettings;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.function.Predicate;
 
-public class GeometryBucket {
+public class GeometryBucket extends LinkedList<Geometry> {
 
-    private final Comparator<BucketElement> comparator;
-    private final Collection<Geometry> bucket = new ArrayList<>();
+    private final Comparator<RenderElement> comparator;
 
-    public GeometryBucket(Comparator<BucketElement> comparator) {
+    public GeometryBucket(Comparator<RenderElement> comparator) {
         this.comparator = comparator;
     }
 
@@ -24,16 +19,20 @@ public class GeometryBucket {
 
     public void cleanupRender(ViewPort vp, StandardRenderSettings settings) {}
 
-    public void add(Geometry geometry) {
-        bucket.add(geometry);
+    public Collection<Geometry> selectGeometries(Predicate<Geometry> selector) {
+        Collection<Geometry> result = new ArrayList<>(size());
+        for (Iterator<Geometry> it = iterator(); it.hasNext();) {
+            Geometry g = it.next();
+            if (selector.test(g)) {
+                result.add(g);
+                it.remove();
+            }
+        }
+        return result;
     }
 
-    public <T extends BucketElement> List<T> sort(Function<Geometry, T> elementFactory) {
-        return bucket.stream().map(elementFactory).sorted(comparator).collect(Collectors.toList());
-    }
-
-    public void clear() {
-        bucket.clear();
+    public Comparator<RenderElement> getComparator() {
+        return comparator;
     }
 
 }

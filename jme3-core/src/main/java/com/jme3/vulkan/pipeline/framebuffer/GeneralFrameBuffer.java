@@ -176,7 +176,7 @@ public class GeneralFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget>
     }
 
     public void setFlags(Flag<Create> flags) {
-        if (!Flag.is(this.flags, Objects.requireNonNull(flags))) {
+        if (!Flag.equals(this.flags, Objects.requireNonNull(flags))) {
             this.flags = flags;
             handle = null;
         }

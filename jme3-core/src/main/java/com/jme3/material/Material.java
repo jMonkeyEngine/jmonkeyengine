@@ -31,17 +31,11 @@
  */
 package com.jme3.material;
 
-import com.jme3.scene.Geometry;
 import com.jme3.vulkan.material.experimental.ShaderInterface;
 
+import java.util.function.Function;
+
 /**
- * <code>Material</code> describes the rendering style for a given
- * {@link Geometry}.
- *
- * <p>A material is essentially a list of {@link MatParam parameters},
- * those parameters map to uniforms which are defined in a shader.
- * Setting the parameters can modify the behavior of a
- * shader.</p>
  *
  * @author codex
  */
@@ -51,9 +45,11 @@ public interface Material {
 
     <P> P getParameter(String name);
 
-    void enableInterface(Class<? extends ShaderInterface> interfaceType, boolean enable);
+    <T extends ShaderInterface> void setInterface(Class<T> type, Function<Material, T> factory);
 
-    boolean isInterfaceEnabled(Class<? extends ShaderInterface> interfaceType);
+    <T extends ShaderInterface> T getInterface(Class<T> type);
+
+    boolean containsInterface(Class<? extends ShaderInterface> type);
 
     RenderState getAdditionalRenderState();
 

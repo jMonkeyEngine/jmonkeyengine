@@ -3,7 +3,7 @@ package com.jme3.vulkan.pipeline.cache;
 import com.jme3.asset.AssetManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.VulkanShaderModule;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -15,7 +15,7 @@ public class PipelineCache {
     private final LogicalDevice<?> device;
     private final AssetManager assetManager;
     private final Map<BasePipelineState<?, ?>, CacheElement<Pipeline>> pipelines = new HashMap<>();
-    private final Map<IShaderState, CacheElement<ShaderModule>> shaders = new HashMap<>();
+    private final Map<IShaderState, CacheElement<VulkanShaderModule>> shaders = new HashMap<>();
     private long timeout = DEFAULT_TIMEOUT;
 
     public PipelineCache(LogicalDevice<?> device, AssetManager assetManager) {
@@ -27,9 +27,9 @@ public class PipelineCache {
         CacheElement<Pipeline> pipeline = pipelines.get(state);
         if (pipeline == null) {
             pipeline = new CacheElement<>();
-            Collection<ShaderModule> shaders = new ArrayList<>(state.getPipelineShaderStates().size());
+            Collection<VulkanShaderModule> shaders = new ArrayList<>(state.getPipelineShaderStates().size());
             for (IShaderState s : state.getPipelineShaderStates()) {
-                CacheElement<ShaderModule> e = acquireShader(s);
+                CacheElement<VulkanShaderModule> e = acquireShader(s);
                 shaders.add(e.get());
                 e.addDependent(pipeline);
             }
@@ -39,10 +39,10 @@ public class PipelineCache {
         return pipeline;
     }
 
-    protected CacheElement<ShaderModule> acquireShader(IShaderState state) {
-        CacheElement<ShaderModule> shader = shaders.get(state);
+    protected CacheElement<VulkanShaderModule> acquireShader(IShaderState state) {
+        CacheElement<VulkanShaderModule> shader = shaders.get(state);
         if (shader == null) {
-            shader = new CacheElement<>(new ShaderModule(device, assetManager, state));
+            shader = new CacheElement<>(new VulkanShaderModule(device, assetManager, state));
             shaders.put(state, shader);
         }
         return shader;
