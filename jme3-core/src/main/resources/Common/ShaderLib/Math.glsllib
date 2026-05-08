@@ -18,5 +18,7 @@ void Math_lengthAndNormalize(in vec3 vec,out float outLength,out vec3 outNormal)
     outLength=invl*dotv;
 }
 
-
+float Math_saturate(float value) {
+    return clamp(value, 0.0, 1.0);
+}
 #endif

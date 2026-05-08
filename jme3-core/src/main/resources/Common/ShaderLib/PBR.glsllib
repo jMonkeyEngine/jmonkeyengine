@@ -6,11 +6,28 @@
     #define NB_PROBES 0
 #endif
 
+#import "Common/ShaderLib/Math.glsllib"
 // Internal GGX stability floor. This does not change the user-facing
 // roughness convention or probe LOD mapping; it only prevents extremely sharp
 // microfacet lobes from reaching pathological peaks that can destabilize some
 // drivers and screenshot-test software renderers.
 const float MIN_GGX_ALPHA = 0.0064;
+const float PBR_EPSILON = 1e-6;
+
+float pbrNonZero(float value) {
+    if (abs(value) < PBR_EPSILON) {
+        return value < 0.0 ? -PBR_EPSILON : PBR_EPSILON;
+    }
+    return value;
+}
+
+vec3 pbrSafeReciprocal(vec3 value) {
+    return vec3(
+        1.0 / pbrNonZero(value.x),
+        1.0 / pbrNonZero(value.y),
+        1.0 / pbrNonZero(value.z)
+    );
+}
 
 // BEGIN-@jhonkkk,Specular AA --------------------------------------------------------------
 // see:http://www.jp.square-enix.com/tech/library/pdf/ImprovedGeometricSpecularAA(slides).pdf
@@ -165,16 +182,18 @@ vec3 ApproximateSpecularIBL(samplerCube envMap,sampler2D integrateBRDF, vec3 Spe
     // The specular bake stores roughness quadratically across mip levels:
     // mipNorm = mip / (nbMipMaps - 1), roughness = mipNorm * mipNorm.
     // Runtime therefore samples with sqrt(roughness) to recover mipNorm.
-    float Lod = sqrt( Roughness ) * (nbMipMaps - 1.0);
+    float roughness = Math_saturate(Roughness);
+    float Lod = sqrt(roughness) * max(nbMipMaps - 1.0, 0.0);
     vec3 PrefilteredColor =  textureCubeLod(envMap, refVec.xyz,Lod).rgb;
-    vec2 EnvBRDF = texture2D(integrateBRDF,vec2(ndotv, Roughness)).rg;
+    vec2 EnvBRDF = texture2D(integrateBRDF,vec2(Math_saturate(ndotv), roughness)).rg;
     return PrefilteredColor * ( SpecularColor * EnvBRDF.x+ EnvBRDF.y );    
 }
 
 vec3 ApproximateSpecularIBLPolynomial(samplerCube envMap, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec, float nbMipMaps){
-    float Lod = sqrt( Roughness ) * (nbMipMaps - 1.0);
+    float roughness = Math_saturate(Roughness);
+    float Lod = sqrt(roughness) * max(nbMipMaps - 1.0, 0.0);
     vec3 PrefilteredColor =  textureCubeLod(envMap, refVec.xyz, Lod).rgb;
-    return PrefilteredColor * integrateBRDFApprox(SpecularColor, Roughness, ndotv);
+    return PrefilteredColor * integrateBRDFApprox(SpecularColor, roughness, clamp(ndotv, 0.0, 1.0));
 }
 
 
@@ -203,7 +222,7 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
         // mat3_sub our compat wrapper for mat3(mat4)
         mat3 wToLocalRot = inverse(mat3_sub(lightProbeData));
 
-        vec3 scale = vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3]);
+        vec3 scale = max(abs(vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3])), vec3(PBR_EPSILON));
         #if NB_PROBES >= 2
             // probe blending
             // compute fragment position in probe local space
@@ -223,8 +242,9 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
         positionLs /= scale;
 
         vec3 unit = vec3(1.0);
-        vec3 firstPlaneIntersect = (unit - positionLs) / rayLs;
-        vec3 secondPlaneIntersect = (-unit - positionLs) / rayLs;
+        vec3 invRayLs = pbrSafeReciprocal(rayLs);
+        vec3 firstPlaneIntersect = (unit - positionLs) * invRayLs;
+        vec3 secondPlaneIntersect = (-unit - positionLs) * invRayLs;
         vec3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
         float distance = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
 
