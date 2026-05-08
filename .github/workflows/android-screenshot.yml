@@ -54,6 +54,21 @@ jobs:
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
 
+      - name: Wait for emulator to boot
+        run: |
+          adb wait-for-device
+          adb shell input keyevent 82 &
+          adb shell input tap 300 300
+          adb shell input tap 300 300
+          adb shell input keyevent 4
+          adb shell input keyevent 4
+          adb shell input keyevent 4
+          adb shell input keyevent 4
+          adb shell input keyevent 4
+          adb shell input keyevent 66
+          until adb shell getprop init.svc.bootanim | grep -m 1 stopped; do
+            sleep 5
+          done
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -71,3 +86,12 @@ jobs:
           name: android-screenshot
           path: screenshot.png
           if-no-files-found: error
+      - name: Dump emulator logs
+        if: always()
+        run: adb logcat -d > emulator.log
+      - name: Upload Emulator Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-logs
+          path: emulator.log
