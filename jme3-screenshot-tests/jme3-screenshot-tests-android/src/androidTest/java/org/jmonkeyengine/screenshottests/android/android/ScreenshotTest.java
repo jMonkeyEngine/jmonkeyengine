@@ -16,6 +16,7 @@ import java.io.IOException;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -55,10 +56,11 @@ public class ScreenshotTest {
                     @Override
                     public void onPixelCopyFinished(int copyResult) {
                         if (copyResult == PixelCopy.SUCCESS) {
-                            File storageDir = activity.getExternalFilesDir(null);
-                            File screenshotFile = new File(storageDir, "screenshot.png");
 
-                            Log.i("SCREENSHOT_TEST", "Storage dir: " + storageDir.getAbsolutePath());
+                            File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                            File screenshotFile = new File(publicDir, "screenshot.png");
+
+                            Log.i("SCREENSHOT_TEST", "Storage dir: " + publicDir.getAbsolutePath());
                             Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
 
                             try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
