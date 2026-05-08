@@ -48,6 +48,7 @@ def protonJdkExtractDir = layout.buildDirectory.dir('tools/proton-jdk')
 task downloadProtonRuntime {
     description = 'Download and extract Proton runtime launcher into jme3-examples/build/tools/umu-launcher.'
     outputs.dir(umuLauncherExtractDir)
+    inputs.property("url", umuLauncherDownloadUrl)
 
     doLast {
         def archiveFile = umuLauncherArchive.get().asFile
