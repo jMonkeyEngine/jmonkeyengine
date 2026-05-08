@@ -7,5 +7,6 @@ repositories {
     mavenCentral()
     maven {
         url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
+        allowInsecureProtocol = true
     }
 }

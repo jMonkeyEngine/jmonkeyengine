@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "org.jmonkeyengine.jme3androidexamples"
+    compileSdk 34
+
+    lint {
+        // Fix nifty gui referencing "java.awt" package.
+        disable 'InvalidPackage'
+        abortOnError false
+    }
+
+    defaultConfig {
+        applicationId "org.jmonkeyengine.jme3androidexamples"
+        minSdk 30              // Android 11 R
+        targetSdk 34           // Android 14
+        versionCode 1
+        versionName "1.0" // TODO: from settings.gradle
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation libs.androidxAppcompat
+
+    implementation project(':jme3-core')
+    implementation project(':jme3-android')
+    implementation project(':jme3-android-native')
+    implementation project(':jme3-effects')
+    implementation project(':jme3-jbullet')
+    implementation project(':jme3-networking')
+    implementation project(':jme3-niftygui')
+    implementation project(':jme3-plugins')
+    implementation project(':jme3-terrain')
+    implementation libs.googleMaterial
+    implementation fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
+}

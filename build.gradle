@@ -32,10 +32,10 @@ allprojects {
 
 // This is applied to all sub projects
 subprojects {
-    if(!project.name.equals('jme3-android-examples')) {
-        apply from: rootProject.file('common.gradle')
-    } else {
+    if(project.name.equals('jme3-android-examples') || project.name.equals('jme3-screenshot-tests-android')) {
         apply from: rootProject.file('common-android-app.gradle')
+    } else {
+        apply from: rootProject.file('common.gradle')
     }
 
     if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {

@@ -49,3 +49,4 @@ if (buildAndroidExamples == "true") {
 include 'jme3-screenshot-tests'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-desktop'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-android'
+

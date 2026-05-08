@@ -7,6 +7,7 @@ jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
+googleMaterial = "1.4.0"
 
 [libraries]
 
@@ -14,9 +15,11 @@ androidx-annotation = "androidx.annotation:annotation:1.7.1"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
+androidxAppcompat = { module = "androidx.appcompat:appcompat", version = "1.4.0" }
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 groovy-test = "org.apache.groovy:groovy-test:4.0.31"
 gson = "com.google.code.gson:gson:2.13.2"
+googleMaterial = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
