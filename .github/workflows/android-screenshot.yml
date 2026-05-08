@@ -60,6 +60,16 @@ jobs:
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=org.jmonkeyengine.screenshottests.android.android.ScreenshotTest
             adb pull /sdcard/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png .
 
+      - name: Capture logcat
+        if: always()
+        run: |
+          adb logcat -d > logcat.txt
+      - name: Upload logcat
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-logcat
+          path: logcat.txt
       - name: Upload Screenshot
         uses: actions/upload-artifact@v4
         if: always()
