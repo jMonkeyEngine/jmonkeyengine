@@ -467,6 +467,12 @@ public enum Caps {
      * GPU support for binary shaders.
      */
     BinaryShader,
+
+    /**
+     * Supports GPU timer queries with full 64-bit elapsed-time results.
+     */
+    GpuTimerQuery,
+
     /**
      * Supporting working with UniformBufferObject.
      */

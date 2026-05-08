@@ -14,9 +14,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import org.lwjgl.opengles.GLES;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.opengles.GLES30;
 import org.lwjgl.opengles.GLES31;
+import org.lwjgl.opengles.EXTDisjointTimerQuery;
 
 
 /**
@@ -32,7 +34,6 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
     @Override
     public void resetStats() {
     }
-
 
     public static void checkLimit(Buffer buffer) {
         if (buffer == null) return;
@@ -538,11 +539,25 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glBeginQuery(int target, int query) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+                throw new UnsupportedOperationException("GL_TIME_ELAPSED requires GL_EXT_disjoint_timer_query");
+            }
+            EXTDisjointTimerQuery.glBeginQueryEXT(target, query);
+            return;
+        }
         GLES30.glBeginQuery(target, query);
     }
 
     @Override
     public void glEndQuery(int target) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+                throw new UnsupportedOperationException("GL_TIME_ELAPSED requires GL_EXT_disjoint_timer_query");
+            }
+            EXTDisjointTimerQuery.glEndQueryEXT(target);
+            return;
+        }
         GLES30.glEndQuery(target);
     }
 
@@ -552,12 +567,19 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
         int oldLimit = buff.limit();
         int pos = buff.position();
         buff.limit(pos + num);
-        GLES30.glGenQueries(buff);
+        if (GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+            EXTDisjointTimerQuery.glGenQueriesEXT(buff);
+        } else {
+            GLES30.glGenQueries(buff);
+        }
         buff.limit(oldLimit);
     }
 
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
+        if (GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+            return EXTDisjointTimerQuery.glGetQueryObjectiEXT(query, pname);
+        }
         IntBuffer b = (IntBuffer) tmpBuff.clear();
         GLES30.glGetQueryObjectuiv(query, pname, b); 
         return b.get(0);
@@ -565,9 +587,10 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        IntBuffer b = (IntBuffer) tmpBuff.clear();
-        GLES30.glGetQueryObjectuiv(query, pname, b);
-        return b.get(0) & 0xFFFFFFFFL;
+        if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+            throw new UnsupportedOperationException("64-bit query results require GL_EXT_disjoint_timer_query");
+        }
+        return EXTDisjointTimerQuery.glGetQueryObjectui64EXT(query, pname);
     }
 
     @Override
