@@ -32,7 +32,6 @@
 package com.jme3.app;
 
 import com.jme3.profile.*;
-import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -87,16 +86,14 @@ public class DetailedProfiler implements AppProfiler {
             frameTime.setNewFrameValueCpu(System.nanoTime());
 
             frameEnded = false;
-            if (renderer != null) {
-                for (StatLine statLine : data.values()) {
-                    for (Iterator<Integer> i = statLine.taskIds.iterator(); i.hasNext(); ) {
-                        int id = i.next();
-                        if (renderer.isTaskResultAvailable(id)) {
-                            long val = renderer.getProfilingTime(id);
-                            statLine.setValueGpu(val);
-                            i.remove();
-                            idsPool.push(id);
-                        }
+            for (StatLine statLine : data.values()) {
+                for (Iterator<Integer> i = statLine.taskIds.iterator(); i.hasNext(); ) {
+                    int id = i.next();
+                    if (renderer.isTaskResultAvailable(id)) {
+                        long val = renderer.getProfilingTime(id);
+                        statLine.setValueGpu(val);
+                        i.remove();
+                        idsPool.push(id);
                     }
                 }
             }
@@ -225,8 +222,8 @@ public class DetailedProfiler implements AppProfiler {
             int id = getUnusedTaskId();
             line.taskIds.add(id);
             renderer.startProfiling(id);
-            ongoingGpuProfiling = true;
         }
+        ongoingGpuProfiling = true;
         prevPath = path;
 
     }
@@ -242,13 +239,8 @@ public class DetailedProfiler implements AppProfiler {
     }
 
     public void setRenderer(Renderer renderer) {
-        idsPool.clear();
-        if (renderer != null && renderer.getCaps().contains(Caps.GpuTimerQuery)) {
-            this.renderer = renderer;
-            poolTaskIds(renderer);
-        } else {
-            this.renderer = null;
-        }
+        this.renderer = renderer;
+        poolTaskIds(renderer);
     }
 
     private void poolTaskIds(Renderer renderer) {
