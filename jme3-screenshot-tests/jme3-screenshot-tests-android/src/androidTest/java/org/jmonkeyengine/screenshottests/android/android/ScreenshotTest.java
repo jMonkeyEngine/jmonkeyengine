@@ -52,40 +52,39 @@ public class ScreenshotTest {
                 final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
                 handlerThread.start();
 
-                PixelCopy.request(activity.getWindow(), bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
-                    @Override
-                    public void onPixelCopyFinished(int copyResult) {
-                        try {
-                            if (copyResult == PixelCopy.SUCCESS) {
+                PixelCopy.request(activity.getWindow(), bitmap, copyResult -> {
+                    try {
+                        if (copyResult == PixelCopy.SUCCESS) {
 
-                                File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                                File screenshotFile = new File(publicDir, "screenshot.png");
+                            File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                            File screenshotFile = new File(publicDir, "screenshot.png");
 
-                                Log.i("SCREENSHOT_TEST", "Storage dir: " + publicDir.getAbsolutePath());
-                                Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
+                            Log.i("SCREENSHOT_TEST", "Storage dir: " + publicDir.getAbsolutePath());
+                            Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
 
-                                try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                                    System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                                    Log.i("SCREENSHOT_TEST", "Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                System.err.println("PixelCopy failed with result: " + copyResult);
-                                Log.i("SCREENSHOT_TEST", "PixelCopy failed with result: " + copyResult);
+                            try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                                System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
+                                Log.i("SCREENSHOT_TEST", "Screenshot saved to: " + screenshotFile.getAbsolutePath());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
-                        }finally {
-                            handlerThread.quitSafely();
-                            latch.countDown();
+                        } else {
+                            System.err.println("PixelCopy failed with result: " + copyResult);
+                            Log.i("SCREENSHOT_TEST", "PixelCopy failed with result: " + copyResult);
                         }
+                    }catch (RuntimeException e){
+                        Log.e("SCREENSHOT_TEST", "fail", e);
+                    }finally {
+                        handlerThread.quitSafely();
+                        latch.countDown();
                     }
                 }, new Handler(handlerThread.getLooper()));
             }
         });
 
         // Wait a bit for PixelCopy to finish since it's asynchronous
-        boolean completed = false; // <-- Wait here
+        boolean completed; // <-- Wait here
         try {
             completed = latch.await(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
