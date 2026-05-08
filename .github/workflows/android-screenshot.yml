@@ -63,7 +63,7 @@ jobs:
       - name: Capture logcat
         if: always()
         run: |
-          adb logcat -d > logcat.txt
+          adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat.txt || true
       - name: Upload logcat
         uses: actions/upload-artifact@v4
         if: always()
