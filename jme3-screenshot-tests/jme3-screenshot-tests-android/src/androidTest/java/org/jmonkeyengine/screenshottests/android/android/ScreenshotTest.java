@@ -15,7 +15,13 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.util.Log;
+import android.view.PixelCopy;
 import android.view.View;
+import android.view.Window;
 
 @RunWith(AndroidJUnit4.class)
 public class ScreenshotTest {
@@ -27,7 +33,7 @@ public class ScreenshotTest {
     @Test
     public void takeScreenshot() {
         System.out.println("Starting test");
-
+        Log.i("SCREENSHOT_TEST", "Starting test");
         // Wait a bit for the app to initialize and render the blue box
         try {
             Thread.sleep(5000);
@@ -38,25 +44,43 @@ public class ScreenshotTest {
         activityRule.getScenario().onActivity(new ActivityScenario.ActivityAction<AndroidLauncher>() {
             @Override
             public void perform(AndroidLauncher activity) {
-                System.out.println("Within activity");
                 View view = activity.getWindow().getDecorView().getRootView();
-                view.setDrawingCacheEnabled(true);
-                Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
-                view.setDrawingCacheEnabled(false);
+                // Bitmap.createBitmap(view.getDrawingCache()) was deprecated
+                Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
 
-                File storageDir = activity.getExternalFilesDir(null);
-                File screenshotFile = new File(storageDir, "screenshot.png");
+                final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
+                handlerThread.start();
 
-                try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                PixelCopy.request(activity.getWindow(), bitmap, new PixelCopy.OnPixelCopyFinishedListener() {
+                    @Override
+                    public void onPixelCopyFinished(int copyResult) {
+                        if (copyResult == PixelCopy.SUCCESS) {
+                            File storageDir = activity.getExternalFilesDir(null);
+                            File screenshotFile = new File(storageDir, "screenshot.png");
 
-                System.out.println("Storage dir: " + storageDir.getAbsolutePath());
-                System.out.println("Screenshot file: " + screenshotFile.getAbsolutePath());
+                            Log.i("SCREENSHOT_TEST", "Storage dir: " + storageDir.getAbsolutePath());
+                            Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
+
+                            try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
+                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                                System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.err.println("PixelCopy failed with result: " + copyResult);
+                        }
+                        handlerThread.quitSafely();
+                    }
+                }, new Handler(handlerThread.getLooper()));
             }
         });
+
+        // Wait a bit for PixelCopy to finish since it's asynchronous
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
