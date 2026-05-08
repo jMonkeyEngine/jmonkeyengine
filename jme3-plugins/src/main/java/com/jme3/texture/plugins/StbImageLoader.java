@@ -55,11 +55,11 @@ public class StbImageLoader implements AssetLoader {
             if (is16bit || isFloat) {
                 switch (channels) {
                     case 1:
-                        jmeFormat = Image.Format.R16F;
+                        jmeFormat = Image.Format.Luminance16F;
                         desiredChannels = 1;
                         break;
                     case 2:
-                        jmeFormat = Image.Format.RG16F;
+                        jmeFormat = Image.Format.Luminance16FAlpha16F;
                         desiredChannels = 2;
                         break;
                     case 3:
