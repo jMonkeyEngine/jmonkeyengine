@@ -44,4 +44,9 @@ dependencies {
     //implementation project(":jme3-android-native")
     implementation("org.jmonkeyengine:jme3-android:3.9.0-stable");
     implementation("org.jmonkeyengine:jme3-android-native:3.9.0-stable"); // todo, should be local
+
+    androidTestImplementation libs.androidx.test.core
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.rules
+    androidTestImplementation libs.androidx.test.espresso.core
 }
