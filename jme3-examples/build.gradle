@@ -133,12 +133,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         }
 
         def protonJdkRoot = protonJdkExtractDir.get().asFile
-        def protonJdkDir = protonJdkRoot.listFiles()?.find { candidate ->
-            candidate.isDirectory() && new File(candidate, 'bin/java.exe').exists()
-        }
-        if (protonJdkDir == null) {
-            throw new GradleException("Could not find Windows JDK with bin/java.exe under ${protonJdkRoot.absolutePath}")
-        }
+        def protonJdkDir = fileTree(protonJdkRoot).find { it.name == 'java.exe' }?.parentFile?.parentFile
 
         def winePrefix = "${buildDir}/umu/wineprefix"
         def gameId = 'jme3-examples'
