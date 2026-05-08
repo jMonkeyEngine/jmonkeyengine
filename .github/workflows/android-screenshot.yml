@@ -17,17 +17,7 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v4
-
-      - name: set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        uses: actions/checkout@v6
 
       - name: Enable KVM
         run: |
@@ -35,8 +25,11 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v5
+
       - name: AVD cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: avd-cache
         with:
           path: |
@@ -50,50 +43,27 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
-          emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -port 5554 -no-snapshot -no-snapshot-save -no-snapshot-load
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
-          script: echo "AVD created, no snapshot saved."
-
-      - name: Wait for emulator to boot
-        run: |
-          adb wait-for-device
-          adb shell input keyevent 82 &
-          adb shell input tap 300 300
-          adb shell input tap 300 300
-          adb shell input keyevent 4
-          adb shell input keyevent 4
-          adb shell input keyevent 4
-          adb shell input keyevent 4
-          adb shell input keyevent 4
-          adb shell input keyevent 66
+          script: echo "Generated AVD snapshot for caching."
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
+          avd-name: test_avd
+          force-avd-creation: false  # Do NOT recreate the AVD
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
           script: |
+            adb wait-for-device
+            timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=org.jmonkeyengine.screenshottests.android.android.ScreenshotTest
             adb pull /sdcard/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png .
 
       - name: Upload Screenshot
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: android-screenshot
           path: screenshot.png
           if-no-files-found: error
-      - name: Dump emulator logs
-        if: always()
-        run: |
-          if adb devices | grep -q "emulator"; then
-            timeout 10 adb logcat -d > emulator.log 2>&1 || echo "Logcat timed out"
-          else
-            echo "No emulator connected, skipping logcat"
-          fi
-      - name: Upload Emulator Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: emulator-logs
-          path: emulator.log
