@@ -569,12 +569,17 @@ public interface Renderer {
     }
 
     public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha) {
+        return getBestColorTargetFormat(floatingPoint, highPrecision, withAlpha, true);
+    }
+
+
+    public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha, boolean supportPackedFloat) {
         if (!floatingPoint) {
             return Format.RGBA8;
         }
 
         if (!highPrecision) {
-            if (getCaps().contains(Caps.PackedFloatTexture)
+            if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
                     && getCaps().contains(Caps.PackedFloatColorBuffer)) {
                 return Format.RGB111110F;
             }
@@ -586,16 +591,16 @@ public interface Renderer {
                 return Format.RGBA16F;
             }
         } else {
-            if (getCaps().contains(Caps.PackedFloatTexture)
-                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
-                return Format.RGB111110F;
-            } else if (getCaps().contains(Caps.HalfFloatTexture)
+            if (getCaps().contains(Caps.HalfFloatTexture)
                     && getCaps().contains(Caps.HalfFloatColorBufferRGB)) {
                 return Format.RGB16F;
             } else if (getCaps().contains(Caps.HalfFloatTexture)
                     && getCaps().contains(Caps.HalfFloatColorBufferRGBA)) {
                 return Format.RGBA16F;
-            }
+            } else if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
+                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
+                return Format.RGB111110F;
+            } 
         }
 
         return Format.RGBA8;
