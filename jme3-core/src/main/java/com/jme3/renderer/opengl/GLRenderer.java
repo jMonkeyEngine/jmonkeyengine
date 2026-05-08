@@ -681,6 +681,13 @@ public final class GLRenderer implements Renderer {
             }
         }
 
+        if (gl.supportsGpuTimerQuery()
+                && (caps.contains(Caps.OpenGL33)
+                || hasExtension("GL_ARB_timer_query")
+                || (caps.contains(Caps.OpenGLES20) && hasExtension("GL_EXT_disjoint_timer_query")))) {
+            caps.add(Caps.GpuTimerQuery);
+        }
+
         if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
             caps.add(Caps.GeometryShader);
         }
@@ -3828,6 +3835,9 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public int[] generateProfilingTasks(int numTasks) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         IntBuffer ids = BufferUtils.createIntBuffer(numTasks);
         gl.glGenQueries(numTasks, ids);
         return BufferUtils.getIntArray(ids);
@@ -3835,21 +3845,33 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void startProfiling(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glBeginQuery(GL.GL_TIME_ELAPSED, taskId);
     }
 
     @Override
     public void stopProfiling() {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glEndQuery(GL.GL_TIME_ELAPSED);
     }
 
     @Override
     public long getProfilingTime(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectui64(taskId, GL.GL_QUERY_RESULT);
     }
 
     @Override
     public boolean isTaskResultAvailable(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
     }
 

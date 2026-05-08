@@ -51,6 +51,11 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     public void resetStats() {
     }
 
+    @Override
+    public boolean supportsGpuTimerQuery() {
+        return false;
+    }
+
     private static int getLimitBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit();
@@ -100,6 +105,9 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glBeginQuery(int target, int query) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            throw new UnsupportedOperationException("64-bit GPU timer queries are not exposed by the Android GLES bindings");
+        }
         GLES30.glBeginQuery(target, query);
     }
 
@@ -287,6 +295,9 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glEndQuery(int target) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            throw new UnsupportedOperationException("64-bit GPU timer queries are not exposed by the Android GLES bindings");
+        }
         GLES30.glEndQuery(target);
     }
 
@@ -348,10 +359,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        IntBuffer buff = (IntBuffer)tmpBuff.clear();
-        //FIXME This is wrong IMO should be glGetQueryObjectui64v with a LongBuffer but it seems the API doesn't provide it.
-        GLES30.glGetQueryObjectuiv(query, pname, buff);
-        return buff.get(0);
+        throw new UnsupportedOperationException("64-bit query results are not exposed by the Android GLES bindings");
     }
 
     @Override
