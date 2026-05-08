@@ -36,16 +36,6 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
-
-      - name: create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "Generated AVD snapshot for caching."
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -58,7 +48,7 @@ jobs:
             adb wait-for-device
             timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=org.jmonkeyengine.screenshottests.android.android.ScreenshotTest
-            adb logcat -d | tee logcat.txt
+            adb logcat -d > logcat.txt
             adb pull /storage/emulated/0/Download/screenshot.png .
       - name: Upload logcat
         uses: actions/upload-artifact@v4
