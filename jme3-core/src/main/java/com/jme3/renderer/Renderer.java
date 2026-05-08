@@ -578,7 +578,7 @@ public interface Renderer {
             return Format.RGBA8;
         }
 
-        if (!highPrecision) {
+        if (!highPrecision && !withAlpha) {
             if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
                     && getCaps().contains(Caps.PackedFloatColorBuffer)) {
                 return Format.RGB111110F;
