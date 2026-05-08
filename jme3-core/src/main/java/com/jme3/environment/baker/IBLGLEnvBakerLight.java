@@ -105,7 +105,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         Format format = Format.RGBA32F;
         if (!renderManager.getRenderer().getCaps().contains(Caps.FloatColorBufferRGBA)) {
             LOG.warning("Float textures not supported, using RGB8 instead. This may cause accuracy issues.");
-            format = Format.RGBA8;
+            format = renderManager.getRenderer().getBestColorTargetFormat(true, true, false, false);
             remapMaxValue = 0.05f;
         }
 
