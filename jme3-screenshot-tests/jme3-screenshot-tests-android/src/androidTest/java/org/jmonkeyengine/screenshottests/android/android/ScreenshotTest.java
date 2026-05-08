@@ -56,10 +56,10 @@ public class ScreenshotTest {
                     try {
                         if (copyResult == PixelCopy.SUCCESS) {
 
-                            File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                            File screenshotFile = new File(publicDir, "screenshot.png");
+                            File saveDir = activity.getExternalFilesDir(null);
+                            File screenshotFile = new File(saveDir, "screenshot.png");
 
-                            Log.i("SCREENSHOT_TEST", "Storage dir: " + publicDir.getAbsolutePath());
+                            Log.i("SCREENSHOT_TEST", "Storage dir: " + saveDir.getAbsolutePath());
                             Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
 
                             try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
@@ -84,7 +84,7 @@ public class ScreenshotTest {
         });
 
         // Wait a bit for PixelCopy to finish since it's asynchronous
-        boolean completed; // <-- Wait here
+        boolean completed;
         try {
             completed = latch.await(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
