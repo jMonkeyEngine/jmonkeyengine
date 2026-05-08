@@ -52,7 +52,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           avd-name: test_avd
           force-avd-creation: false  # Do NOT recreate the AVD
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
             adb wait-for-device
