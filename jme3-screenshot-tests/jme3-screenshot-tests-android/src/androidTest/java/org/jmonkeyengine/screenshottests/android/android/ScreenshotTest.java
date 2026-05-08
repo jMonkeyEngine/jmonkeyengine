@@ -12,6 +12,9 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +46,8 @@ public class ScreenshotTest {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
+        List<File> screenshotFilePath = new ArrayList<>();
+
         activityRule.getScenario().onActivity(new ActivityScenario.ActivityAction<AndroidLauncher>() {
             @Override
             public void perform(AndroidLauncher activity) {
@@ -62,7 +67,7 @@ public class ScreenshotTest {
 
                             Log.i("SCREENSHOT_TEST", "Storage dir: " + saveDir.getAbsolutePath());
                             Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
-
+                            screenshotFilePath.add(screenshotFile);
                             try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
                                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                                 System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
@@ -97,7 +102,7 @@ public class ScreenshotTest {
         InstrumentationRegistry.getInstrumentation()
                 .getUiAutomation()
                 .executeShellCommand(
-                        "adb pull /storage/emulated/0/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png ."
+                        "adb pull " + screenshotFilePath.get(0) + " ."
                 );
     }
 }
