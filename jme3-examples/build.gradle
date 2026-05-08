@@ -83,6 +83,7 @@ task downloadProtonRuntime {
 task downloadProtonJdk {
     description = "Download and extract the Adoptium Java ${protonToolchainVersion} Windows JDK used to bootstrap Gradle inside Proton."
     outputs.dir(protonJdkExtractDir)
+    inputs.property("url", protonJdkDownloadUrl)
 
     doLast {
         def archiveFile = protonJdkArchive.get().asFile
