@@ -146,11 +146,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         def protonJavaHome = "Z:${protonJdkDir.absolutePath.replace('/', '\\\\')}"
         def protonJavaExe = "${protonJavaHome}\\\\bin\\\\java.exe"
         def exampleClass = project.findProperty('example')?.toString() ?: mainClassName
-        def resolvedRuntimeFiles = configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect { it.file }
-        def angleNativeArtifacts = resolvedRuntimeFiles.findAll { file ->
-            file.name.toLowerCase().contains('angle-natives')
-        }
-        def runtimeClasspathFiles = (sourceSets.main.runtimeClasspath.files + resolvedRuntimeFiles + angleNativeArtifacts) as LinkedHashSet
+        def runtimeClasspathFiles = sourceSets.main.runtimeClasspath.files as LinkedHashSet
         def relevantRuntimeEntries = runtimeClasspathFiles.findAll { file ->
             def name = file.name.toLowerCase()
             name.contains('angle') || name.contains('saferalloc')
