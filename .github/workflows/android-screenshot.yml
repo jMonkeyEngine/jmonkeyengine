@@ -85,7 +85,12 @@ jobs:
           if-no-files-found: error
       - name: Dump emulator logs
         if: always()
-        run: adb logcat -d > emulator.log
+        run: |
+          if adb devices | grep -q "emulator"; then
+            timeout 10 adb logcat -d > emulator.log 2>&1 || echo "Logcat timed out"
+          else
+            echo "No emulator connected, skipping logcat"
+          fi
       - name: Upload Emulator Logs
         if: always()
         uses: actions/upload-artifact@v4
