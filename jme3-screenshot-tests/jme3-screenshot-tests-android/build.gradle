@@ -40,6 +40,8 @@ dependencies {
     implementation libs.googleMaterial
     implementation libs.androidxConstraintlayout
 
-    implementation project(":jme3-android")
-    implementation project(":jme3-android-native")
+    //implementation project(":jme3-android")
+    //implementation project(":jme3-android-native")
+    implementation("org.jmonkeyengine:jme3-android:3.9.0-stable");
+    implementation("org.jmonkeyengine:jme3-android-native:3.9.0-stable"); // todo, should be local
 }
