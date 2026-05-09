@@ -48,6 +48,7 @@ def protonJdkExtractDir = layout.buildDirectory.dir('tools/proton-jdk')
 task downloadProtonRuntime {
     description = 'Download and extract Proton runtime launcher into jme3-examples/build/tools/umu-launcher.'
     outputs.dir(umuLauncherExtractDir)
+    inputs.property("url", umuLauncherDownloadUrl)
 
     doLast {
         def archiveFile = umuLauncherArchive.get().asFile
@@ -82,6 +83,7 @@ task downloadProtonRuntime {
 task downloadProtonJdk {
     description = "Download and extract the Adoptium Java ${protonToolchainVersion} Windows JDK used to bootstrap Gradle inside Proton."
     outputs.dir(protonJdkExtractDir)
+    inputs.property("url", protonJdkDownloadUrl)
 
     doLast {
         def archiveFile = protonJdkArchive.get().asFile
@@ -131,12 +133,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         }
 
         def protonJdkRoot = protonJdkExtractDir.get().asFile
-        def protonJdkDir = protonJdkRoot.listFiles()?.find { candidate ->
-            candidate.isDirectory() && new File(candidate, 'bin/java.exe').exists()
-        }
-        if (protonJdkDir == null) {
-            throw new GradleException("Could not find Windows JDK with bin/java.exe under ${protonJdkRoot.absolutePath}")
-        }
+        def protonJdkDir = fileTree(protonJdkRoot).find { it.name == 'java.exe' }?.parentFile?.parentFile
 
         def winePrefix = "${buildDir}/umu/wineprefix"
         def gameId = 'jme3-examples'
@@ -144,11 +141,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         def protonJavaHome = "Z:${protonJdkDir.absolutePath.replace('/', '\\\\')}"
         def protonJavaExe = "${protonJavaHome}\\\\bin\\\\java.exe"
         def exampleClass = project.findProperty('example')?.toString() ?: mainClassName
-        def resolvedRuntimeFiles = configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect { it.file }
-        def angleNativeArtifacts = resolvedRuntimeFiles.findAll { file ->
-            file.name.toLowerCase().contains('angle-natives')
-        }
-        def runtimeClasspathFiles = (sourceSets.main.runtimeClasspath.files + resolvedRuntimeFiles + angleNativeArtifacts) as LinkedHashSet
+        def runtimeClasspathFiles = sourceSets.main.runtimeClasspath.files as LinkedHashSet
         def relevantRuntimeEntries = runtimeClasspathFiles.findAll { file ->
             def name = file.name.toLowerCase()
             name.contains('angle') || name.contains('saferalloc')
