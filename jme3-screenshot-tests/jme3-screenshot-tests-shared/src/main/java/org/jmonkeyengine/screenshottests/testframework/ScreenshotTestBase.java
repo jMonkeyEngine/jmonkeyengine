@@ -50,7 +50,7 @@ public abstract class ScreenshotTestBase{
      * @param initialStates the states that will create the JME environment
      * @return
      */
-    public ScreenshotTest screenshotTest(AppState... initialStates){
+    public static ScreenshotTest screenshotTest(AppState... initialStates){
         return new ScreenshotTest(initialStates);
     }
 
