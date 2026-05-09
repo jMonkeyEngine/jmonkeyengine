@@ -120,17 +120,6 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
-      - name: Use software Vulkan for ANGLE
-        run: |
-          apt-get update
-          apt-get install -y mesa-vulkan-drivers vulkan-tools
-          LVP_ICD="$(find /usr/share/vulkan/icd.d -name 'lvp_icd*.json' | head -n 1)"
-          if [ -z "$LVP_ICD" ]; then
-            echo "Mesa lavapipe Vulkan ICD not found" >&2
-            exit 1
-          fi
-          echo "ANGLE_DEFAULT_PLATFORM=vulkan" >> $GITHUB_ENV
-          echo "VK_ICD_FILENAMES=$LVP_ICD" >> $GITHUB_ENV
       - name: Start xvfb
         run: |
           Xvfb :99 -ac -screen 0 1024x768x24 &
@@ -142,7 +131,6 @@ jobs:
           echo "DISPLAY=$DISPLAY"
           glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
           vulkaninfo --summary || true
-          echo "ANGLE_DEFAULT_PLATFORM=$ANGLE_DEFAULT_PLATFORM"
           echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
@@ -150,7 +138,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-tests:screenshotTest
+          ./gradlew :jme3-screenshot-test:screenshotTest
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7.0.0
         if: always()
