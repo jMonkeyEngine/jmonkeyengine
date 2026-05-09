@@ -46,8 +46,8 @@ public class OffScreenshotAppState extends AbstractAppState{
         if (capture.isPresent()) {
 
             renderer.readFrameBuffer(frameBuffer, outBuf);
-            try {
-                FileOutputStream fileOutBuf = new FileOutputStream(capture.get().toFile());
+            try (FileOutputStream fileOutBuf = new FileOutputStream(capture.get().toFile())){
+
                 JmeSystem.writeImageFile(fileOutBuf, "png",outBuf, renderTexture.getImage().getWidth(), renderTexture.getImage().getHeight());
             }catch (IOException e) {
                 throw new RuntimeException(e);
