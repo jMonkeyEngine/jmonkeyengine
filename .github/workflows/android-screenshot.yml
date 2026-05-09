@@ -41,11 +41,12 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           avd-name: test_avd
-          force-avd-creation: false  # Do NOT recreate the AVD
+          force-avd-creation: true  # Do NOT recreate the AVD
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
             timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
+            adb uninstall org.jmonkeyengine.screenshottests.android || true
             # Install APKs manually (don't use connectedDebugAndroidTest as that auto unistalls at the end)
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebug
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebugAndroidTest
