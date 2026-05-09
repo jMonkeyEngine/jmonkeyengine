@@ -59,12 +59,7 @@ public class TestPBRSimple extends SimpleApplication {
     private float roughness = 1.0f;
 
     public static void main(String[] args) {
-        AppSettings settings = new AppSettings(true);
-
-
-        TestPBRSimple app = new TestPBRSimple();
-        app.setSettings(settings);
-        app.start();
+        new TestPBRSimple().start();
     }
     
     @Override
