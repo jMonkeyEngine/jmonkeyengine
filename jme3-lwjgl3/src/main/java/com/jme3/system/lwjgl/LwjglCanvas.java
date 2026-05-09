@@ -492,13 +492,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
-        
-        // HACK: If you use waitFor(), unlock it beforehand to initialize the
-        //       context on the fly.
-        synchronized (createdLock) {
-            created.set(true);
-            createdLock.notifyAll();
-        }
 
         while (true) {
             if (needResize.getAndSet(false)) {
@@ -651,6 +644,18 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         // create context
         super.create(waitFor);
         this.contextFlag.set(true);
+    }
+    
+    /**(non-Javadoc)
+     * @param createdVal boolean
+     */
+    @Override
+    protected void waitFor(boolean createdVal) {
+        // AWT together with LWJGLX cannot handle waitFor() in the best way,
+        // since the context is created on the fly.
+        if (createdVal) {
+            LOGGER.log(Level.WARNING, "create(true) is not supported for AWT!");
+        }
     }
     
     /**
