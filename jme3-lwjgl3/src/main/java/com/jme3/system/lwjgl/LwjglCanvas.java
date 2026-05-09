@@ -492,6 +492,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
+        
+        // HACK: If you use waitFor(), unlock it beforehand to initialize the
+        //       context on the fly.
+        synchronized (createdLock) {
+            created.set(true);
+            createdLock.notifyAll();
+        }
 
         while (true) {
             if (needResize.getAndSet(false)) {
@@ -552,7 +559,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 // All this does is call swapBuffers().
                 // If the canvas is not active, there's no need to waste time
                 // doing that.
-                if (renderable.get() && canvas.hasContext()) {
+                if (renderable.get() && canvas.hasContext() && canvas.isValid()) {
                     try {
                         if (allowSwapBuffers && autoFlush) {
                             // calls swap buffers | lock, etc.
@@ -715,6 +722,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
         canvas.createContext();
         canvas.makeCurrent();
+        canvas.validate();
 
         // This will activate the "effective data" scrubber.
         if (settings.getBoolean("GLDataEffectiveDebug")) {
