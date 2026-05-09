@@ -255,6 +255,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     protected void createContext(final AppSettings settings) {
+        useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         configureVideoDriverHints(settings);
         configureAngleHints(settings);
 
@@ -360,7 +361,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     private void configureAngleHints(AppSettings settings) {
-        if (!useAngle) {
+        final boolean angleGles = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
+        if (!angleGles) {
+            resetAngleHints();
             return;
         }
 
@@ -379,6 +382,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_SetHint(SDL_HINT_OPENGL_LIBRARY, angleGLESv2Path);
         SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, "1");
         SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
+    }
+
+    private void resetAngleHints() {
+        SDL_ResetHint(SDL_HINT_EGL_LIBRARY);
+        SDL_ResetHint(SDL_HINT_OPENGL_LIBRARY);
+        SDL_ResetHint(SDL_HINT_OPENGL_ES_DRIVER);
+        SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
+        Configuration.OPENGLES_LIBRARY_NAME.set(null);
+        Configuration.EGL_LIBRARY_NAME.set(null);
     }
 
     private void configureGLAttributes(AppSettings settings) {
@@ -411,7 +423,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
 
         if (settings.isGammaCorrection() && !useAuxFramebufferSrgb()) {
-            SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+            if (!SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1)) {
+                throw new IllegalStateException("SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1) failed: "
+                        + SDL_GetError());
+            }
         }
 
         if (settings.getBitsPerPixel() == 24) {
@@ -632,6 +647,18 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean useAuxFramebufferSrgb() {
         return settings.isGammaCorrection() && (type == Type.Display || type == Type.Canvas)
                 && listener instanceof Application;
+    }
+
+    @Override
+    protected boolean isDefaultFramebufferSrgb() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer value = stack.mallocInt(1);
+            if (SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, value)) {
+                return value.get(0) != 0;
+            }
+            LOGGER.log(Level.WARNING, "Unable to query SDL sRGB framebuffer capability: {0}", SDL_GetError());
+        }
+        return super.isDefaultFramebufferSrgb();
     }
 
     private Application getApplicationListener() {

@@ -287,19 +287,9 @@ public abstract class LwjglContext implements JmeContext {
         }
         this.renderer.initialize();
 
-        boolean isSrgbFb = settings.isGammaCorrection();
-        if (!auxFramebufferSrgb) {
-            if (this.renderer.getCaps().contains(Caps.OpenGL30)) {
-                int[] value = new int[1];
-                GL30.glGetFramebufferAttachmentParameteriv(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
-                        GL30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
-                isSrgbFb = (value[0] == GL30.GL_SRGB);
-            } else if (this.renderer.getCaps().contains(Caps.OpenGLES30)) {
-                IntBuffer value = BufferUtils.createIntBuffer(1);
-                GLES30.glGetFramebufferAttachmentParameteriv(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0,
-                        GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
-                isSrgbFb = (value.get(0) == GLES30.GL_SRGB);
-            }
+        boolean isSrgbFb = false;
+        if (settings.isGammaCorrection() && !auxFramebufferSrgb) {
+            isSrgbFb = isDefaultFramebufferSrgb();
 
             if (!isSrgbFb && settings.isGammaCorrection()) {
                 logger.warning(
@@ -326,6 +316,21 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         renderable.set(true);
+    }
+
+    protected boolean isDefaultFramebufferSrgb() {
+        if (this.renderer.getCaps().contains(Caps.OpenGL30)) {
+            int[] value = new int[1];
+            GL30.glGetFramebufferAttachmentParameteriv(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
+            return value[0] == GL30.GL_SRGB;
+        } else if (this.renderer.getCaps().contains(Caps.OpenGLES30)) {
+            IntBuffer value = BufferUtils.createIntBuffer(1);
+            GLES30.glGetFramebufferAttachmentParameteriv(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0,
+                    GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
+            return value.get(0) == GLES30.GL_SRGB;
+        }
+        return false;
     }
 
     protected boolean useAuxFramebufferSrgb() {
