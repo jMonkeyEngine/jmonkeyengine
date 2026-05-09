@@ -4,6 +4,7 @@
 *               https://learnopengl.com/PBR/IBL/Specular-IBL
 *   - Riccardo Balbo
 */
+#import "Common/ShaderLib/Math.glsllib"
 const float PI = 3.14159265359;
 
 float RadicalInverse_VdC(uint bits) {
@@ -58,6 +59,9 @@ vec4 Hammersley(uint i, uint N){
 //
 // ImportanceSampleGGX() and GeometrySmith() both expect alpha.
 const float MIN_GGX_ALPHA = 0.0064;
+const float IBL_EPSILON = 1e-6;
+
+
 
 float SafeGGXAlpha(float alpha) {
     return max(alpha, MIN_GGX_ALPHA);
@@ -66,8 +70,8 @@ float SafeGGXAlpha(float alpha) {
 vec3 ImportanceSampleGGX(vec4 Xi, float alpha, vec3 N){
     alpha = SafeGGXAlpha(alpha);
     float alpha2 = alpha * alpha;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha2 - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+    float cosTheta = sqrt(Math_saturate((1.0 - Xi.y) / (1.0 + (alpha2 - 1.0) * Xi.y)));
+    float sinTheta = sqrt(Math_saturate(1.0 - cosTheta * cosTheta));
 
     // from spherical coordinates to cartesian coordinates
     vec3 H;

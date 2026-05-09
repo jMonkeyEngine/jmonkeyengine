@@ -568,17 +568,33 @@ public interface Renderer {
         return getBestColorTargetFormat(floatingPoint, true, false);
     }
 
+    /**
+     * Returns the best color target format based on the requested properties and renderer capabilities.
+     *
+     * @param floatingPoint true if a floating point format is required.
+     * @param highPrecision true if high precision (e.g. 16-bit or 32-bit) is preferred over packed formats.
+     * @param withAlpha true if an alpha channel is required.
+     * @return the best matching Image.Format.
+     */
     public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha) {
         return getBestColorTargetFormat(floatingPoint, highPrecision, withAlpha, true);
     }
 
-
+    /**
+     * Returns the best color target format based on the requested properties and renderer capabilities.
+     *
+     * @param floatingPoint true if a floating point format is required.
+     * @param highPrecision true if high precision (e.g. 16-bit or 32-bit) is preferred over packed formats.
+     * @param withAlpha true if an alpha channel is required.
+     * @param supportPackedFloat true if packed float formats (e.g. RGB111110F) are allowed.
+     * @return the best matching Image.Format.
+     */
     public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha, boolean supportPackedFloat) {
         if (!floatingPoint) {
             return Format.RGBA8;
         }
 
-        if (!highPrecision) {
+        if (!highPrecision && !withAlpha) {
             if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
                     && getCaps().contains(Caps.PackedFloatColorBuffer)) {
                 return Format.RGB111110F;

@@ -6,7 +6,7 @@
 */
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/IBL/Math.glsl"
-
+#import "Common/ShaderLib/Math.glsllib"
 in vec2 TexCoords;
 in vec3 LocalPos;
 
@@ -15,12 +15,12 @@ uniform float m_Roughness;
 uniform int m_FaceId;
 
 void brdfKernel(){
-    float NdotV=TexCoords.x;
-    float roughness=TexCoords.y;
+    float NdotV = Math_saturate(TexCoords.x);
+    float roughness = Math_saturate(TexCoords.y);
     float alpha = roughness * roughness;
 
     vec3 V;
-    V.x = sqrt(1.0 - NdotV*NdotV);
+    V.x = sqrt(Math_saturate(1.0 - NdotV * NdotV));
     V.y = 0.0;
     V.z = NdotV;
     float A = 0.0;
@@ -36,8 +36,9 @@ void brdfKernel(){
         float VdotH = max(dot(V, H), 0.0);
         if(NdotL > 0.0){
             float G = GeometrySmith(N, V, L, alpha);
-            float G_Vis = (G * VdotH) / (NdotH * NdotV);
-            float Fc = pow(1.0 - VdotH, 5.0);
+            float G_Vis = (G * VdotH) / max(NdotH * NdotV, IBL_EPSILON);
+            float oneMinusVdotH = 1.0 - Math_saturate(VdotH);
+            float Fc = oneMinusVdotH * oneMinusVdotH * oneMinusVdotH * oneMinusVdotH * oneMinusVdotH;
             A += (1.0 - Fc) * G_Vis;
             B += Fc * G_Vis;
         }
@@ -52,8 +53,8 @@ void irradianceKernel(){
     // the sample direction equals the hemisphere's orientation 
     vec3 N = normalize(LocalPos);
     vec3 irradiance = vec3(0.0); 
-    vec3 up = vec3(0.0, 1.0, 0.0);
-    vec3 right = cross(up, N);
+    vec3 up = abs(N.y) < 0.999 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+    vec3 right = normalize(cross(up, N));
     up = cross(N, right);
     float sampleDelta = 0.025;
     float nrSamples = 0.0; 
@@ -72,7 +73,7 @@ void irradianceKernel(){
 }
 
 void prefilteredEnvKernel(){		
-    vec3 N = normalize(LocalPos);    
+    vec3 N = normalize(LocalPos);
     vec3 R = N;
     vec3 V = R;
 
