@@ -42,32 +42,6 @@ public interface Joystick extends HapticDevice {
 
 
     /**
-     * Assign the mapping name to receive events from the given button index
-     * on the joystick.
-     *
-     * @param mappingName The mapping to receive joystick button events.
-     * @param buttonId The button index.
-     *
-     * @see Joystick#getButtonCount()
-     * @deprecated Use JoystickButton.assignButton() instead.
-     */
-    @Deprecated
-    public void assignButton(String mappingName, int buttonId);
-
-    /**
-     * Assign the mappings to receive events from the given joystick axis.
-     *
-     * @param positiveMapping The mapping to receive events when the axis is negative
-     * @param negativeMapping The mapping to receive events when the axis is positive
-     * @param axisId The axis index.
-     *
-     * @see Joystick#getAxisCount()
-     * @deprecated Use JoystickAxis.assignAxis() instead.
-     */
-    @Deprecated
-    public void assignAxis(String positiveMapping, String negativeMapping, int axisId); 
-
-    /**
      * Returns the JoystickAxis with the specified logical ID.
      *
      * @param logicalId The id of the axis to search for as returned by JoystickAxis.getLogicalId().

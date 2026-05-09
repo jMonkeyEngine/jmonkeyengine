@@ -100,43 +100,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     protected Vector3f temp = new Vector3f(0, 0, 0);
     protected boolean invertYaxis = false;
     protected boolean invertXaxis = false;
-
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_DOWN}
-     */
-    @Deprecated
-    public static final String ChaseCamDown = "ChaseCamDown";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_UP}
-     */
-    @Deprecated
-    public static final String ChaseCamUp = "ChaseCamUp";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_ZOOMIN}
-     */
-    @Deprecated
-    public static final String ChaseCamZoomIn = "ChaseCamZoomIn";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_ZOOMOUT}
-     */
-    @Deprecated
-    public static final String ChaseCamZoomOut = "ChaseCamZoomOut";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_MOVELEFT}
-     */
-    @Deprecated
-    public static final String ChaseCamMoveLeft = "ChaseCamMoveLeft";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_MOVERIGHT}
-     */
-    @Deprecated
-    public static final String ChaseCamMoveRight = "ChaseCamMoveRight";
-    /**
-     * @deprecated use {@link CameraInput#CHASECAM_TOGGLEROTATE}
-     */
-    @Deprecated
-    public static final String ChaseCamToggleRotate = "ChaseCamToggleRotate";
-
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;
 

@@ -92,50 +92,6 @@ public abstract class AbstractJoystick implements Joystick {
         joyInput.stopJoyRumble(joyId);
     }
 
-    /**
-     * Assign the mapping name to receive events from the given button index
-     * on the joystick.
-     *
-     * @param mappingName The mapping to receive joystick button events.
-     * @param buttonId The button index.
-     *
-     * @see Joystick#getButtonCount()
-     * @deprecated Use JoystickButton.assignButton() instead.
-     */
-    @Override
-    @Deprecated
-    public void assignButton(String mappingName, int buttonId) {
-        if (buttonId < 0 || buttonId >= getButtonCount())
-            throw new IllegalArgumentException();
-
-        inputManager.addMapping(mappingName, new JoyButtonTrigger(joyId, buttonId));
-    }
-
-    /**
-     * Assign the mappings to receive events from the given joystick axis.
-     *
-     * @param positiveMapping The mapping to receive events when the axis is negative
-     * @param negativeMapping The mapping to receive events when the axis is positive
-     * @param axisId The axis index.
-     *
-     * @see Joystick#getAxisCount()
-     * @deprecated Use JoystickAxis.assignAxis() instead.
-     */
-    @Override
-    @Deprecated
-    public void assignAxis(String positiveMapping, String negativeMapping, int axisId) {
-
-        // For backwards compatibility
-        if (axisId == JoyInput.AXIS_POV_X) {
-            axisId = getPovXAxis().getAxisId();
-        } else if (axisId == JoyInput.AXIS_POV_Y) {
-            axisId = getPovYAxis().getAxisId();
-        }
-
-        inputManager.addMapping(positiveMapping, new JoyAxisTrigger(joyId, axisId, false));
-        inputManager.addMapping(negativeMapping, new JoyAxisTrigger(joyId, axisId, true));
-    }
-
     @Override
     public JoystickAxis getAxis(String logicalId) {
         for (JoystickAxis axis : axes) {
