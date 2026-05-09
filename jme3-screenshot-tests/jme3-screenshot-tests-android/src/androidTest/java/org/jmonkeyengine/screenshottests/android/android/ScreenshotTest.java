@@ -88,7 +88,6 @@ public class ScreenshotTest {
                         try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
                             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                             Log.i("SCREENSHOT_TEST", "Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                            int a =0;
                         } catch (IOException e) {
                             Log.e("SCREENSHOT_TEST", "Failed to save screenshot", e);
                         }

@@ -48,3 +48,4 @@ javadoc_deploy.pub
 joysticks-*.txt
 /jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/
 /jme3-screenshot-tests/jme3-screenshot-tests-android/build/
+/jme3-screenshot-tests/jme3-screenshot-tests-shared/build/

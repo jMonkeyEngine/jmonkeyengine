@@ -43,10 +43,13 @@ include 'jme3-testdata'
 include 'jme3-examples'
 include 'jme3-awt-dialogs'
 
+include 'jme3-screenshot-tests'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-shared'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-desktop'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-android'
+
 if (buildAndroidExamples == "true") {
     include 'jme3-android-examples'
 }
-include 'jme3-screenshot-tests'
-include 'jme3-screenshot-tests:jme3-screenshot-tests-desktop'
-include 'jme3-screenshot-tests:jme3-screenshot-tests-android'
+
 
