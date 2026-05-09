@@ -339,7 +339,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         allowSwapBuffers = settings.isSwapBuffers();
 
-        updateSizes(false);
+        updateSizes();
     }
 
     private void configureVideoDriverHints(AppSettings settings) {
@@ -426,10 +426,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     protected void updateSizes() {
-        updateSizes(true);
-    }
-
-    private void updateSizes(boolean notifyListener) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer winW = stack.mallocInt(1);
             IntBuffer winH = stack.mallocInt(1);
@@ -441,10 +437,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             int windowHeight = Math.max(winH.get(0), 16);
             if (settings.getWindowWidth() != windowWidth || settings.getWindowHeight() != windowHeight) {
                 settings.setWindowSize(windowWidth, windowHeight);
-                if (notifyListener) {
-                    for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
-                        wsListener.onWindowSizeChanged(windowWidth, windowHeight);
-                    }
+                for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
+                    wsListener.onWindowSizeChanged(windowWidth, windowHeight);
                 }
             }
 
@@ -456,11 +450,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             int framebufferWidth = Math.max(fbW.get(0), 16);
             int framebufferHeight = Math.max(fbH.get(0), 16);
-            if (!notifyListener) {
-                settings.setResolution(framebufferWidth, framebufferHeight);
-                return;
-            }
-
             if (framebufferWidth != oldFramebufferWidth || framebufferHeight != oldFramebufferHeight) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight);
@@ -530,17 +519,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     protected void destroyContext() {
-        Exception failure = null;
         try {
             destroyAuxFramebufferResources();
             if (renderer != null) {
                 renderer.cleanup();
             }
-        } catch (Exception ex) {
-            failure = ex;
-        }
 
-        try {
             if (glContext != NULL) {
                 SDL_GL_DestroyContext(glContext);
                 glContext = NULL;
@@ -551,19 +535,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 window = NULL;
                 windowId = 0;
             }
-            oldFramebufferWidth = 0;
-            oldFramebufferHeight = 0;
-            oldScale.set(1, 1);
         } catch (Exception ex) {
-            if (failure == null) {
-                failure = ex;
-            } else {
-                failure.addSuppressed(ex);
-            }
-        }
-
-        if (failure != null) {
-            listener.handleError("Failed to destroy context", failure);
+            listener.handleError("Failed to destroy context", ex);
         }
     }
 
@@ -609,17 +582,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             super.internalCreate();
         } catch (Exception ex) {
             try {
-                destroyContext();
-                if ((SDL_WasInit(SDL_WINDOW_SUBSYSTEM_FLAGS) & SDL_WINDOW_SUBSYSTEM_FLAGS) != 0) {
-                    SDL_QuitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS);
+                if (window != NULL) {
+                    SDL_DestroyWindow(window);
+                    window = NULL;
                 }
             } catch (Exception ex2) {
                 LOGGER.log(Level.WARNING, null, ex2);
             }
             listener.handleError("Failed to create display", ex);
-            synchronized (createdLock) {
-                createdLock.notifyAll();
-            }
             return false;
         }
 
@@ -848,9 +818,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         switch (type) {
             case SDL_EVENT_WINDOW_FOCUS_GAINED:
-                if (!created.get()) {
-                    break;
-                }
                 if (!wasActive) {
                     listener.gainFocus();
                     timer.reset();
@@ -858,9 +825,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 }
                 break;
             case SDL_EVENT_WINDOW_FOCUS_LOST:
-                if (!created.get()) {
-                    break;
-                }
                 if (wasActive) {
                     listener.loseFocus();
                     wasActive = false;
@@ -873,11 +837,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             case SDL_EVENT_WINDOW_RESIZED:
             case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
             case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
-                if (created.get()) {
-                    updateSizes();
-                } else {
-                    updateSizes(false);
-                }
+                updateSizes();
                 break;
             default:
                 break;
@@ -905,7 +865,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         reinitContext();
-        updateSizes();
 
         if (keyInput != null && keyInput.isInitialized() && keyInput instanceof SdlKeyInput) {
             ((SdlKeyInput) keyInput).resetContext();

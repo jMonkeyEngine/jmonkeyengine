@@ -89,16 +89,15 @@ public class SdlJoystickInput implements JoyInput {
         initialized = true;
     }
 
-    private void onDeviceConnected(InputManager inputManager, int deviceIndex, boolean isGamepad) {
+    private void onDeviceConnected(int deviceIndex, boolean isGamepad) {
         if (loadGamepads && !isGamepad && SDL_IsGamepad(deviceIndex)) {
             // SDL will fire both GAMEPAD and JOYSTICK events for recognized
             // gamepads, so here we check if the joystick is expected to be
             // a gamepad, and skip it if so to avoid duplicates.
             return;
         }
-        if (joysticks.containsKey(deviceIndex)) {
-            return;
-        }
+
+        InputManager inputManager = (InputManager) listener;
 
         SdlJoystick joystick;
         if (isGamepad) {
@@ -165,7 +164,6 @@ public class SdlJoystickInput implements JoyInput {
                 JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex,
                         buttonName, logicalId);
                 joystick.addButton(button);
-                joyButtonPressed.put(button, false);
             }
         }
 
@@ -178,7 +176,7 @@ public class SdlJoystickInput implements JoyInput {
                 JoystickAxis.POV_Y, true, false, 0.0f);
         joystick.addAxis(POV_Y_AXIS_ID, povY);
 
-        inputManager.fireJoystickConnectedEvent(joystick);
+        ((InputManager) listener).fireJoystickConnectedEvent(joystick);
 
     }
 
@@ -206,9 +204,7 @@ public class SdlJoystickInput implements JoyInput {
         // free resources
         destroyJoystick(joystick);
 
-        if (listener instanceof InputManager) {
-            ((InputManager) listener).fireJoystickDisconnectedEvent(joystick);
-        }
+        ((InputManager) listener).fireJoystickDisconnectedEvent(joystick);
     }
 
     @Override
@@ -224,13 +220,9 @@ public class SdlJoystickInput implements JoyInput {
             // load managed gamepads
             IntBuffer gamepads = SDL_GetGamepads();
             if (gamepads != null) {
-                try {
-                    while (gamepads.hasRemaining()) {
-                        int deviceId = gamepads.get();
-                        onDeviceConnected(inputManager, deviceId, true);
-                    }
-                } finally {
-                    SDLStdinc.SDL_free(gamepads);
+                while (gamepads.hasRemaining()) {
+                    int deviceId = gamepads.get();
+                    onDeviceConnected(deviceId, true);
                 }
             }
         }
@@ -239,13 +231,9 @@ public class SdlJoystickInput implements JoyInput {
             // load raw gamepads
             IntBuffer joys = SDL_GetJoysticks();
             if (joys != null) {
-                try {
-                    while (joys.hasRemaining()) {
-                        int deviceId = joys.get();
-                        onDeviceConnected(inputManager, deviceId, false);
-                    }
-                } finally {
-                    SDLStdinc.SDL_free(joys);
+                while (joys.hasRemaining()) {
+                    int deviceId = joys.get();
+                    onDeviceConnected(deviceId, false);
                 }
             }
         }
@@ -260,15 +248,10 @@ public class SdlJoystickInput implements JoyInput {
 
     public void onSDLEvent(SDL_Event evt) {
         int type = evt.type();
-        if (!(listener instanceof InputManager)) {
-            return;
-        }
-
-        InputManager inputManager = (InputManager) listener;
         if (type == SDL_EVENT_GAMEPAD_ADDED) {
             if (loadGamepads) {
                 int which = evt.gdevice().which();
-                onDeviceConnected(inputManager, which, true);
+                onDeviceConnected(which, true);
             }
         } else if (type == SDL_EVENT_GAMEPAD_REMOVED) {
             int which = evt.gdevice().which();
@@ -276,7 +259,7 @@ public class SdlJoystickInput implements JoyInput {
         } else if (type == SDL_EVENT_JOYSTICK_ADDED) {
             if (loadRaw) {
                 int which = evt.jdevice().which();
-                onDeviceConnected(inputManager, which, false);
+                onDeviceConnected(which, false);
             }
         } else if (type == SDL_EVENT_JOYSTICK_REMOVED) {
             int which = evt.jdevice().which();
@@ -285,21 +268,14 @@ public class SdlJoystickInput implements JoyInput {
     }
 
     private void handleInputEvents() {
-        if (listener == null) {
-            return;
-        }
-
         float rawValue, value;
         for (SdlJoystick js : joysticks.values()) {
             if (js.isGamepad()) {
                 long gp = js.gamepad;
 
+                // for(int axisIndex=0; axisIndex<SDL_GAMEPAD_AXIS_COUNT; axisIndex++){
                 for (JoystickAxis axis : js.getAxes()) {
                     int axisIndex = axis.getAxisId();
-                    if (isVirtualPovAxis(axisIndex)) {
-                        continue;
-                    }
-
                     String jmeAxisId = axis.getLogicalId();
 
                     short v = SDL_GetGamepadAxis(gp, axisIndex);
@@ -310,57 +286,57 @@ public class SdlJoystickInput implements JoyInput {
 
                     // Virtual trigger buttons.
                     if (virtualTriggerThreshold > 0f) {
-                        if (JoystickAxis.AXIS_XBOX_LEFT_TRIGGER.equals(jmeAxisId)) {
+                        if (jmeAxisId == JoystickAxis.AXIS_XBOX_LEFT_TRIGGER) {
                             updateButton(js.getButton(JoystickButton.BUTTON_XBOX_LT),
                                     value > virtualTriggerThreshold);
-                        } else if (JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER.equals(jmeAxisId)) {
+                        } else if (jmeAxisId == JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER) {
                             updateButton(js.getButton(JoystickButton.BUTTON_XBOX_RT),
                                     value > virtualTriggerThreshold);
                         }
                     }
-                }
 
-                float povXValue = 0f;
-                float povYValue = 0f;
+                    // Dpad -> virtual POV axes
+                    float povXValue = 0f;
+                    float povYValue = 0f;
 
-                for (JoystickButton button : js.getButtons()) {
-                    int buttonId = button.getButtonId();
-                    String jmeButtonId = button.getLogicalId();
+                    // button handling
+                    // for (int b = 0; b <= SDL_GAMEPAD_BUTTON_COUNT; b++) {
+                    for (JoystickButton button : js.getButtons()) {
+                        int b = button.getButtonId();
+                        String jmeButtonId = button.getLogicalId();
 
-                    boolean pressed = SDL_GetGamepadButton(gp, buttonId);
-                    updateButton(button, pressed);
+                        boolean pressed = SDL_GetGamepadButton(gp, b);
+                        updateButton(button, pressed);
 
-                    if (JoystickButton.BUTTON_XBOX_DPAD_UP.equals(jmeButtonId)) {
-                        povYValue += pressed ? 1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(jmeButtonId)) {
-                        povYValue += pressed ? -1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(jmeButtonId)) {
-                        povXValue += pressed ? -1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(jmeButtonId)) {
-                        povXValue += pressed ? 1f : 0f;
+                        // Dpad -> virtual POV axes
+                        if (jmeButtonId == JoystickButton.BUTTON_XBOX_DPAD_UP) {
+                            povYValue += pressed ? 1f : 0f;
+                        } else if (jmeButtonId == JoystickButton.BUTTON_XBOX_DPAD_DOWN) {
+                            povYValue += pressed ? -1f : 0f;
+                        } else if (jmeButtonId == JoystickButton.BUTTON_XBOX_DPAD_LEFT) {
+                            povXValue += pressed ? -1f : 0f;
+                        } else if (jmeButtonId == JoystickButton.BUTTON_XBOX_DPAD_RIGHT) {
+                            povXValue += pressed ? 1f : 0f;
+                        }
                     }
-                }
 
-                JoystickAxis povXAxis = js.getPovXAxis();
-                if (povXAxis != null) {
-                    updateAxis(povXAxis, povXValue, povXValue);
-                }
+                    JoystickAxis povXAxis = js.getPovXAxis();
+                    if (povXAxis != null) {
+                        updateAxis(povXAxis, povXValue, povXValue);
+                    }
 
-                JoystickAxis povYAxis = js.getPovYAxis();
-                if (povYAxis != null) {
-                    updateAxis(povYAxis, povYValue, povYValue);
+                    JoystickAxis povYAxis = js.getPovYAxis();
+                    if (povYAxis != null) {
+                        updateAxis(povYAxis, povYValue, povYValue);
+                    }
                 }
             } else {
                 long joy = js.joystick;
 
                 for (JoystickAxis axis : js.getAxes()) {
-                    if (isVirtualPovAxis(axis.getAxisId())) {
-                        continue;
-                    }
-
                     short v = SDL_GetJoystickAxis(joy, axis.getAxisId());
-                    rawValue = remapJoystickAxisValue(v);
-                    value = rawValue;
+                    rawValue = v;
+                    value = v;
                     updateAxis(axis, value, rawValue);
                 }
 
@@ -370,10 +346,6 @@ public class SdlJoystickInput implements JoyInput {
                 }
             }
         }
-    }
-
-    private boolean isVirtualPovAxis(int axisId) {
-        return axisId == POV_X_AXIS_ID || axisId == POV_Y_AXIS_ID;
     }
 
     @Override
@@ -508,13 +480,6 @@ public class SdlJoystickInput implements JoyInput {
         }
     }
 
-    private float remapJoystickAxisValue(short value) {
-        if (value == Short.MIN_VALUE) {
-            return -1f;
-        }
-        return value / 32767f;
-    }
-
     private void updateButton(JoystickButton button, boolean pressed) {
         if (button == null) return;
         Boolean old = joyButtonPressed.get(button);
@@ -526,7 +491,6 @@ public class SdlJoystickInput implements JoyInput {
 
     private void updateAxis(JoystickAxis axis, float value, float rawValue) {
         if (axis == null) return;
-        value = JoystickCompatibilityMappings.remapAxisRange(axis, value);
         Float old = joyAxisValues.get(axis);
         float jitter = FastMath.clamp(Math.max(axis.getJitterThreshold(), globalJitterThreshold), 0f, 1f);
         if (old == null || FastMath.abs(old - value) > jitter) {
