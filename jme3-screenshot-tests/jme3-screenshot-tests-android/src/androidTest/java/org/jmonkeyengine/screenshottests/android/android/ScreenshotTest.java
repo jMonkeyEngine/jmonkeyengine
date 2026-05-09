@@ -11,10 +11,14 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import android.graphics.Bitmap;
+import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -33,7 +37,8 @@ public class ScreenshotTest {
     public void takeScreenshot() {
         System.out.println("Starting test");
         Log.i("SCREENSHOT_TEST", "Starting test");
-        // Wait a bit for the app to initialize and render the blue box
+
+        // Wait for the app to initialize
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -45,45 +50,58 @@ public class ScreenshotTest {
         activityRule.getScenario().onActivity(new ActivityScenario.ActivityAction<AndroidLauncher>() {
             @Override
             public void perform(AndroidLauncher activity) {
-                View view = activity.getWindow().getDecorView().getRootView();
-                // Bitmap.createBitmap(view.getDrawingCache()) was deprecated
-                Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+                // Get the GLSurfaceView
+                GLSurfaceView glSurfaceView = activity.getGLSurfaceView();
+                if (glSurfaceView == null) {
+                    Log.e("SCREENSHOT_TEST", "GLSurfaceView is null!");
+                    latch.countDown();
+                    return;
+                }
 
-                final HandlerThread handlerThread = new HandlerThread("PixelCopyThread");
-                handlerThread.start();
 
-                PixelCopy.request(activity.getWindow(), bitmap, copyResult -> {
+                final int width = glSurfaceView.getWidth();
+                final int height = glSurfaceView.getHeight();
+                final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+                // Queue the screenshot capture on the GL thread
+                glSurfaceView.queueEvent(() -> {
                     try {
-                        if (copyResult == PixelCopy.SUCCESS) {
+                        // Ensure a frame is rendered
+                        //glSurfaceView.requestRender();
+                        //Thread.sleep(16); // Wait for a frame (~60fps)
 
-                            File saveDir = activity.getExternalFilesDir(null);
-                            File screenshotFile = new File(saveDir, "screenshot.png");
+                        // Allocate a buffer for the pixels
+                        ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+                        buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-                            Log.i("SCREENSHOT_TEST", "Storage dir: " + saveDir.getAbsolutePath());
-                            Log.i("SCREENSHOT_TEST", "Screenshot file: " + screenshotFile.getAbsolutePath());
+                        // Read pixels from the framebuffer
+                        GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer);
+                        buffer.rewind();
 
-                            try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                                System.out.println("Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                                Log.i("SCREENSHOT_TEST", "Screenshot saved to: " + screenshotFile.getAbsolutePath());
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        } else {
-                            System.err.println("PixelCopy failed with result: " + copyResult);
-                            Log.i("SCREENSHOT_TEST", "PixelCopy failed with result: " + copyResult);
+                        // Copy the buffer to the bitmap
+                        bitmap.copyPixelsFromBuffer(buffer);
+
+                        // Save the bitmap
+                        File saveDir = activity.getExternalFilesDir(null);
+                        File screenshotFile = new File(saveDir, "screenshot.png");
+
+                        try (FileOutputStream out = new FileOutputStream(screenshotFile)) {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                            Log.i("SCREENSHOT_TEST", "Screenshot saved to: " + screenshotFile.getAbsolutePath());
+                            int a =0;
+                        } catch (IOException e) {
+                            Log.e("SCREENSHOT_TEST", "Failed to save screenshot", e);
                         }
-                    }catch (RuntimeException e){
-                        Log.e("SCREENSHOT_TEST", "fail", e);
-                    }finally {
-                        handlerThread.quitSafely();
+                    } catch (Exception e) {
+                        Log.e("SCREENSHOT_TEST", "Failed to capture GL content", e);
+                    } finally {
                         latch.countDown();
                     }
-                }, new Handler(handlerThread.getLooper()));
+                });
             }
         });
 
-        // Wait a bit for PixelCopy to finish since it's asynchronous
+        // Wait for the snapshot to complete
         boolean completed;
         try {
             completed = latch.await(10, TimeUnit.SECONDS);
@@ -91,7 +109,7 @@ public class ScreenshotTest {
             throw new RuntimeException(e);
         }
         if (!completed) {
-            throw new RuntimeException("PixelCopy did not complete within 10 seconds");
+            throw new RuntimeException("Screenshot capture did not complete within 10 seconds");
         }
     }
 }
