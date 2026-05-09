@@ -482,7 +482,6 @@ jobs:
             -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
 
