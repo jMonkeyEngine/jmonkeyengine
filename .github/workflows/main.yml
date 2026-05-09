@@ -122,7 +122,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Start xvfb
         run: |
-          Xvfb :99 -ac -screen 0 1024x768x24 &
+          Xvfb :99 -ac -screen 0 1024x768x16 &
           export DISPLAY=:99
           echo "DISPLAY=:99" >> $GITHUB_ENV
       - name: Report GL/Vulkan
