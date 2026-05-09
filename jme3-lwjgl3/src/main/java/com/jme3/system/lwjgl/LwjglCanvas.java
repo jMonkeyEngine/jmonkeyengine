@@ -722,7 +722,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
         canvas.createContext();
         canvas.makeCurrent();
-        canvas.validate();
+
+        SwingUtilities.invokeLater(() -> {
+            canvas.validate();
+        });
 
         // This will activate the "effective data" scrubber.
         if (settings.getBoolean("GLDataEffectiveDebug")) {
