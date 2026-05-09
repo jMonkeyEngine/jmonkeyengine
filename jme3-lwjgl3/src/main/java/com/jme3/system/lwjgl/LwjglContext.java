@@ -207,7 +207,7 @@ public abstract class LwjglContext implements JmeContext {
     private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
-        final boolean auxFramebufferSrgb = useAuxFramebufferSrgb();
+        boolean auxFramebufferSrgb = useAuxFramebufferSrgb();
 
         if (first) {
             GL gl;
@@ -292,8 +292,17 @@ public abstract class LwjglContext implements JmeContext {
             isSrgbFb = isDefaultFramebufferSrgb();
 
             if (!isSrgbFb && settings.isGammaCorrection()) {
-                logger.warning(
-                        "sRGB framebuffer not supported by the backend platform, disabling gamma correction");
+                if (enableAuxFramebufferSrgbFallback()) {
+                    auxFramebufferSrgb = useAuxFramebufferSrgb();
+                    if (auxFramebufferSrgb) {
+                        logger.warning(
+                                "sRGB framebuffer not supported by the backend platform, using auxiliary sRGB framebuffer");
+                    }
+                }
+                if (!auxFramebufferSrgb) {
+                    logger.warning(
+                            "sRGB framebuffer not supported by the backend platform, disabling gamma correction");
+                }
             }
         }
 
@@ -334,6 +343,10 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected boolean useAuxFramebufferSrgb() {
+        return false;
+    }
+
+    protected boolean enableAuxFramebufferSrgbFallback() {
         return false;
     }
 
