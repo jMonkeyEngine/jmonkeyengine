@@ -41,6 +41,7 @@ import static org.lwjgl.sdl.SDLKeyboard.*;
 import static org.lwjgl.sdl.SDLMouse.*;
 import static org.lwjgl.sdl.SDLPixels.*;
 import static org.lwjgl.sdl.SDLSurface.*;
+import static org.lwjgl.sdl.SDLStdinc.SDL_setenv_unsafe;
 import static org.lwjgl.sdl.SDLVideo.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -124,6 +125,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             .addNativeVariant(Platform.Windows_ARM64, "native/d3dcompiler/windows/arm64/d3dcompiler_47.dll");
 
     static {
+        disableNvidiaThreadedOptimizations();
         NativeLibraryLoader.registerNativeLibrary(angleEGL);
         NativeLibraryLoader.registerNativeLibrary(angleGLESv2);
         NativeLibraryLoader.registerNativeLibrary(d3dcompiler_47);
@@ -233,6 +235,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         windowSizeListeners.remove(listener);
     }
 
+    private static void disableNvidiaThreadedOptimizations() {
+        if (SDL_setenv_unsafe("__GL_THREADED_OPTIMIZATIONS", "0", 1) != 0) {
+            throw new IllegalStateException("Unable to disable NVIDIA OpenGL threaded optimizations: "
+                    + SDL_GetError());
+        }
+    }
+
     @Override
     public JmeContext.Type getType() {
         return type;
@@ -255,6 +264,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     protected void createContext(final AppSettings settings) {
+        disableNvidiaThreadedOptimizations();
         useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         configureVideoDriverHints(settings);
         configureAngleHints(settings);
