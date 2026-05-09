@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
-#extension GL_EXT_gpu_shader4 : enable
+#extension GL_EXT_gpu_shader4 : warn
 
 uniform sampler2D m_Texture;
 uniform vec2 g_ResolutionInverse;

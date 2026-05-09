@@ -1,5 +1,5 @@
-#extension GL_ARB_shader_texture_lod : enable
-#extension GL_EXT_shader_texture_lod : enable
+#extension GL_ARB_shader_texture_lod : warn
+#extension GL_EXT_shader_texture_lod : warn
 void main(){
         //@input vec3 refVec the reflection vector
     //@input samplerCube cubeMap the cube map
