@@ -36,7 +36,6 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.lwjgl3.utils.APIUtil;
-import com.jme3.opencl.Context;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
@@ -418,8 +417,4 @@ public abstract class LwjglContext implements JmeContext {
         return timer;
     }
 
-    @Override
-    public Context getOpenCLContext() {
-        return null;
-    }
 }

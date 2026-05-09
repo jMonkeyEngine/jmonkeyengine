@@ -35,7 +35,6 @@ import com.jme3.input.AWTKeyInput;
 import com.jme3.input.AWTMouseInput;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
-import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 
 /**
@@ -166,11 +165,6 @@ public class AWTContext implements JmeContext {
     @Override
     public Renderer getRenderer() {
         return backgroundContext.getRenderer();
-    }
-
-    @Override
-    public Context getOpenCLContext() {
-        return null;
     }
 
     @Override
