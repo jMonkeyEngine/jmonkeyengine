@@ -100,7 +100,7 @@ import com.jme3.renderer.opengl.GLRenderer;
  * @author Riccardo Balbo
  */
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
-    private static final String AUX_FRAMEBUFFER_BLIT_MATERIAL = "Common/MatDefs/Post/AuxFramebuffer.j3md";
+    private static final String BLIT_MATERIAL = "Common/MatDefs/Blit/Blit.j3md";
     private static final LibraryInfo angleEGL = new LibraryInfo("angleEGL")
             .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libEGL.dll", "libEGL.dll")
             .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libEGL.dll", "libEGL.dll")
@@ -709,7 +709,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         if (auxFramebufferBlitMaterial == null) {
-            auxFramebufferBlitMaterial = new Material(assetManager, AUX_FRAMEBUFFER_BLIT_MATERIAL);
+            auxFramebufferBlitMaterial = new Material(assetManager, BLIT_MATERIAL);
+            auxFramebufferBlitMaterial.setBoolean("Srgb", true);
             auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthTest(false);
             auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthWrite(false);
         }
