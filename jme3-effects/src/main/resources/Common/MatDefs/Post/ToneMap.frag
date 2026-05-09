@@ -1,5 +1,5 @@
-#extension GL_ARB_texture_multisample : enable
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
 
 vec3 FilmicCurve(in vec3 x) {
     const float A = 0.22;

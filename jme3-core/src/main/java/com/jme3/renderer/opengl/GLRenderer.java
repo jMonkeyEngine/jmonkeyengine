@@ -188,7 +188,15 @@ public final class GLRenderer implements Renderer {
             gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
             int extensionCount = intBuf16.get(0);
             for (int i = 0; i < extensionCount; i++) {
-                String extension = gl3.glGetString(GL.GL_EXTENSIONS, i);
+                String extension = gl3.glGetString(GL3.GL_EXTENSIONS, i);
+                extensionSet.add(extension);
+            }
+        } else if (caps.contains(Caps.OpenGLES30)) {
+            GLES_30 gles = (GLES_30) gl;
+            gles.glGetInteger(GLES_30.GL_NUM_EXTENSIONS, intBuf16);
+            int extensionCount = intBuf16.get(0);
+            for (int i = 0; i < extensionCount; i++) {
+                String extension = gles.glGetString(GLES_30.GL_EXTENSIONS, i);
                 extensionSet.add(extension);
             }
         } else {
@@ -601,6 +609,7 @@ public final class GLRenderer implements Renderer {
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
+
             if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGL32)
                     || caps.contains(Caps.OpenGLES31)) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);
@@ -670,6 +679,13 @@ public final class GLRenderer implements Renderer {
             if (binaryFormats > 0) {
                 caps.add(Caps.BinaryShader);
             }
+        }
+
+        if (gl.supportsGpuTimerQuery()
+                && (caps.contains(Caps.OpenGL33)
+                || hasExtension("GL_ARB_timer_query")
+                || (caps.contains(Caps.OpenGLES20) && hasExtension("GL_EXT_disjoint_timer_query")))) {
+            caps.add(Caps.GpuTimerQuery);
         }
 
         if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
@@ -3819,6 +3835,9 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public int[] generateProfilingTasks(int numTasks) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         IntBuffer ids = BufferUtils.createIntBuffer(numTasks);
         gl.glGenQueries(numTasks, ids);
         return BufferUtils.getIntArray(ids);
@@ -3826,21 +3845,33 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void startProfiling(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glBeginQuery(GL.GL_TIME_ELAPSED, taskId);
     }
 
     @Override
     public void stopProfiling() {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glEndQuery(GL.GL_TIME_ELAPSED);
     }
 
     @Override
     public long getProfilingTime(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectui64(taskId, GL.GL_QUERY_RESULT);
     }
 
     @Override
     public boolean isTaskResultAvailable(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
     }
 

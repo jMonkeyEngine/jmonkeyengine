@@ -5,6 +5,8 @@
 checkstyle = "13.3.0"
 jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
+angle = "2026-05-09"
+saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 
@@ -35,9 +37,10 @@ lwjgl3-glfw     = { module = "org.lwjgl:lwjgl-glfw",     version.ref = "lwjgl3" 
 lwjgl3-jawt     = { module = "org.lwjgl:lwjgl-jawt",     version.ref = "lwjgl3" }
 lwjgl3-jemalloc = { module = "org.lwjgl:lwjgl-jemalloc", version.ref = "lwjgl3" }
 lwjgl3-openal   = { module = "org.lwjgl:lwjgl-openal",   version.ref = "lwjgl3" }
-lwjgl3-opencl   = { module = "org.lwjgl:lwjgl-opencl",   version.ref = "lwjgl3" }
 lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" }
 lwjgl3-sdl      = { module = "org.lwjgl:lwjgl-sdl",      version.ref = "lwjgl3" }
+lwjgl3-opengles = { module = "org.lwjgl:lwjgl-opengles", version.ref = "lwjgl3" }
+lwjgl3-egl   = { module = "org.lwjgl:lwjgl-egl", version.ref = "lwjgl3" }
 
 mokito-core = "org.mockito:mockito-core:5.23.0"
 mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:5.23.0"
@@ -52,8 +55,18 @@ vecmath = "javax.vecmath:vecmath:1.5.2"
 
 stb-image = "org.ngengine:stb-image:2.30.4"
 imagewebp = "org.ngengine:image-webp-decoder:1.3.0"
+angle = { module = "org.ngengine:angle-natives", version.ref = "angle" }
+saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
+saferalloc-natives-linux-x8664 = { module = "org.ngengine:saferalloc-natives-linux-x86_64", version.ref = "saferalloc" }
+saferalloc-natives-linux-aarch64 = { module = "org.ngengine:saferalloc-natives-linux-aarch64", version.ref = "saferalloc" }
+saferalloc-natives-windows-x8664 = { module = "org.ngengine:saferalloc-natives-windows-x86_64", version.ref = "saferalloc" }
+saferalloc-natives-windows-aarch64 = { module = "org.ngengine:saferalloc-natives-windows-aarch64", version.ref = "saferalloc" }
+saferalloc-natives-macos-x8664 = { module = "org.ngengine:saferalloc-natives-macos-x86_64", version.ref = "saferalloc" }
+saferalloc-natives-macos-aarch64 = { module = "org.ngengine:saferalloc-natives-macos-aarch64", version.ref = "saferalloc" }
+saferalloc-natives-android = { module = "org.ngengine:saferalloc-natives-android", version.ref = "saferalloc" }
 
 [bundles]
+saferalloc = ["saferalloc", "saferalloc-natives-linux-x8664", "saferalloc-natives-linux-aarch64", "saferalloc-natives-windows-x8664", "saferalloc-natives-windows-aarch64", "saferalloc-natives-macos-x8664", "saferalloc-natives-macos-aarch64", "saferalloc-natives-android"]
 
 [plugins]
 jacoco = { id = "jacoco", version.ref = "jacoco" }

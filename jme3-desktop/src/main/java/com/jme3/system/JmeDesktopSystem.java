@@ -216,7 +216,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
                 || contextType == JmeContext.Type.Headless) {
             ctx = new NullContext();
             ctx.setSettings(settings);
-        } else if (settings.getRenderer().startsWith("LWJGL")) {
+        } else if (settings.getRenderer().startsWith("LWJGL") || settings.getRenderer().startsWith("ANGLE")) {
             ctx = newContextLwjgl(settings, contextType);
             ctx.setSettings(settings);
         } else if (settings.getRenderer().startsWith("JOGL")) {

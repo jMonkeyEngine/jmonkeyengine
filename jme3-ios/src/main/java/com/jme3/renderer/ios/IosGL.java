@@ -59,7 +59,12 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public void resetStats() {
     }
-    
+
+    @Override
+    public boolean supportsGpuTimerQuery() {
+        return false;
+    }
+
     private static int getLimitBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit();
@@ -143,6 +148,9 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glBeginQuery(int target, int query) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            throw new UnsupportedOperationException("64-bit GPU timer queries are not implemented by the iOS GLES binding");
+        }
         JmeIosGLES.glBeginQuery(target, query);
     }
 
@@ -333,6 +341,9 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glEndQuery(int target) {
+        if (target == GL.GL_TIME_ELAPSED) {
+            throw new UnsupportedOperationException("64-bit GPU timer queries are not implemented by the iOS GLES binding");
+        }
         JmeIosGLES.glEndQuery(target);
     }
 
@@ -398,8 +409,7 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        JmeIosGLES.glGetQueryObjectuiv(query, pname, temp_array);
-        return temp_array[0];
+        throw new UnsupportedOperationException("64-bit query results are not implemented by the iOS GLES binding");
     }
 
     @Override
@@ -809,5 +819,9 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         throw new UnsupportedOperationException("Unimplemented method 'glGenVertexArrays'");
     }
 
+    @Override
+    public String glGetString(int name, int index) {
+        return JmeIosGLES.glGetStringi(name, index);
+    }
 
 }
