@@ -45,9 +45,12 @@ jobs:
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
-            adb wait-for-device
             timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=org.jmonkeyengine.screenshottests.android.android.ScreenshotTest
+            # Install APKs manually (don't use connectedDebugAndroidTest as that auto unistalls at the end)
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebug
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebugAndroidTest
+            # Run tests without auto-uninstall
+            adb shell am instrument -w -r -e class org.jmonkeyengine.screenshottests.android.android.ScreenshotTest org.jmonkeyengine.screenshottests.android.test/androidx.test.runner.AndroidJUnitRunner
             adb logcat -d > logcat.txt
             adb pull /storage/emulated/0/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png .
       - name: Upload logcat
