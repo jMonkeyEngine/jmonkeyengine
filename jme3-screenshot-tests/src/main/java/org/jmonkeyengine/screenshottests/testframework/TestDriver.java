@@ -233,7 +233,7 @@ public class TestDriver extends BaseAppState{
                         Path primeImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
                                 "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                         ));
-                        Path otherImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                        Path otherImage = overallScreenshots.getScreenshotsAtFrame(thisScenarioName, frame).orElseGet(() -> fail(
                                 "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
                         ));
 
