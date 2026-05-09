@@ -1,4 +1,4 @@
-#extension GL_EXT_texture_array : enable
+#extension GL_EXT_texture_array : warn
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 
 #define ENABLE_PBRLightingUtils_getWorldPosition 1
