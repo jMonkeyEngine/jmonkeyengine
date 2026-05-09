@@ -34,17 +34,13 @@ package jme3tools.converters;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.plugins.StbImageLoader;
+import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.util.BufferUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
 
 public class MipMapGenerator {
 
@@ -76,15 +72,8 @@ public class MipMapGenerator {
 
         BufferedImage scaled = scaleDown(original, potSize, potSize);
 
-        StbImageLoader loader = new StbImageLoader();
-        Image output;
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(scaled, "png", baos);
-            output = loader.load(new ByteArrayInputStream(baos.toByteArray()), false);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to convert image", e);
-        }
+        AWTLoader loader = new AWTLoader();
+        Image output = loader.load(scaled, false);
 
         image.setWidth(potSize);
         image.setHeight(potSize);
@@ -101,20 +90,13 @@ public class MipMapGenerator {
         int level = 0;
 
         BufferedImage current = original;
-        StbImageLoader loader = new StbImageLoader();
+        AWTLoader loader = new AWTLoader();
         ArrayList<ByteBuffer> output = new ArrayList<>();
         int totalSize = 0;
         Format format = null;
         
         while (height >= 1 || width >= 1){
-            Image converted;
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(current, "png", baos);
-                converted = loader.load(new ByteArrayInputStream(baos.toByteArray()), false);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to convert image for mipmap level " + level, e);
-            }
+            Image converted = loader.load(current, false);
             format = converted.getFormat();
             output.add(converted.getData(0));
             totalSize += converted.getData(0).capacity();
