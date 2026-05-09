@@ -655,7 +655,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     @Override
     protected boolean useAuxFramebufferSrgb() {
-        return settings.isGammaCorrection() && (type == Type.Display || type == Type.Canvas)
+        return useAngle && settings.isGammaCorrection() && (type == Type.Display || type == Type.Canvas)
                 && listener instanceof Application;
     }
 
@@ -664,7 +664,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer value = stack.mallocInt(1);
             if (SDL_GL_GetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, value)) {
-                return value.get(0) != 0;
+                if (value.get(0) != 0) {
+                    return true;
+                }
+                return super.isDefaultFramebufferSrgb();
             }
             LOGGER.log(Level.WARNING, "Unable to query SDL sRGB framebuffer capability: {0}", SDL_GetError());
         }
