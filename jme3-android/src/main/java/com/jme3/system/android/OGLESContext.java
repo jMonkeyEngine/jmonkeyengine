@@ -669,21 +669,37 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             return false;
         }
 
+        FrameBuffer previousMainFramebuffer = renderer.getCurrentFrameBuffer();
+        if (previousMainFramebuffer != null) {
+            return false;
+        }
+
         rebuildLinearFrameBufferIfNeeded();
         if (linearFrameBuffer == null || !ensureBlitResources()) {
             return false;
         }
 
+        FrameBuffer restoreMainFramebuffer = previousMainFramebuffer;
+
         renderer.setMainFrameBufferOverride(linearFrameBuffer);
         try {
             listener.update();
+            FrameBuffer currentMainFramebuffer = renderer.getCurrentFrameBuffer();
+            if (currentMainFramebuffer != linearFrameBuffer) {
+                restoreMainFramebuffer = currentMainFramebuffer;
+            }
         } finally {
-            renderer.setMainFrameBufferOverride(null);
+            renderer.setMainFrameBufferOverride(restoreMainFramebuffer);
         }
 
-        renderer.setFrameBuffer(null);
-        blitGeometry.updateGeometricState();
-        application.getRenderManager().renderGeometry(blitGeometry);
+        renderer.setMainFrameBufferOverride(null);
+        try {
+            renderer.setFrameBuffer(null);
+            blitGeometry.updateGeometricState();
+            application.getRenderManager().renderGeometry(blitGeometry);
+        } finally {
+            renderer.setMainFrameBufferOverride(restoreMainFramebuffer);
+        }
         return true;
     }
 

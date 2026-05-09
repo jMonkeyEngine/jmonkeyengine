@@ -846,6 +846,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return false;
         }
 
+        FrameBuffer previousMainFramebuffer = renderer.getCurrentFrameBuffer();
+        if (previousMainFramebuffer != null) {
+            return false;
+        }
+
         rebuildAuxFramebufferIfNeeded();
         if (auxFramebuffer == null || !ensureAuxFramebufferBlitResources()) {
             return false;
@@ -853,18 +858,27 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         GLRenderer glRenderer = (GLRenderer) renderer;
         RenderManager renderManager = getApplicationListener().getRenderManager();
-        FrameBuffer previousMainFramebuffer = renderer.getCurrentFrameBuffer();
+        FrameBuffer restoreMainFramebuffer = previousMainFramebuffer;
 
         glRenderer.setMainFrameBufferOverride(auxFramebuffer);
         try {
             listener.update();
+            FrameBuffer currentMainFramebuffer = renderer.getCurrentFrameBuffer();
+            if (currentMainFramebuffer != auxFramebuffer) {
+                restoreMainFramebuffer = currentMainFramebuffer;
+            }
         } finally {
-            glRenderer.setMainFrameBufferOverride(previousMainFramebuffer);
+            glRenderer.setMainFrameBufferOverride(restoreMainFramebuffer);
         }
 
-        glRenderer.setFrameBuffer(null);
-        auxFramebufferBlitGeometry.updateGeometricState();
-        renderManager.renderGeometry(auxFramebufferBlitGeometry);
+        glRenderer.setMainFrameBufferOverride(null);
+        try {
+            glRenderer.setFrameBuffer(null);
+            auxFramebufferBlitGeometry.updateGeometricState();
+            renderManager.renderGeometry(auxFramebufferBlitGeometry);
+        } finally {
+            glRenderer.setMainFrameBufferOverride(restoreMainFramebuffer);
+        }
         return true;
     }
 
