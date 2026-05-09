@@ -58,10 +58,3 @@ dependencies {
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-macos-arm64') })
  
 }
-
-javadoc {
-    // Disable doclint for JDK8+.
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}

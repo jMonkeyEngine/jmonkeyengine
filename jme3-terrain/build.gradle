@@ -5,10 +5,3 @@ dependencies {
     testRuntimeOnly project(':jme3-desktop')
     testRuntimeOnly project(':jme3-testdata')
 }
-
-javadoc {
-    // Disable doclint for JDK8+.
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}
