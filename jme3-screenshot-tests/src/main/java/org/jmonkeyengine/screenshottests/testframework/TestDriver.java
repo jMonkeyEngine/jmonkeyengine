@@ -394,13 +394,21 @@ public class TestDriver extends BaseAppState{
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                if (img1.getRGB(x, y)  != img2.getRGB(x, y)){
-                    Color color1 = new Color(img1.getRGB(x, y));
-                    Color color2 = new Color(img2.getRGB(x, y));
+                int rgb1 = img1.getRGB(x, y);
+                int rgb2 = img2.getRGB(x, y);
 
-                    double dr = Math.abs(color1.getRed()-color2.getRed());
-                    double dg = Math.abs(color1.getGreen()-color2.getGreen());
-                    double db = Math.abs(color1.getBlue()-color2.getBlue());
+                if (rgb1  != rgb2){
+                    int r1 = (rgb1 >> 16) & 0xFF;
+                    int g1 = (rgb1 >> 8) & 0xFF;
+                    int b1 = rgb1 & 0xFF;
+
+                    int r2 = (rgb2 >> 16) & 0xFF;
+                    int g2 = (rgb2 >> 8) & 0xFF;
+                    int b2 = rgb2 & 0xFF;
+
+                    int dr = Math.abs(r1 - r2);
+                    int dg = Math.abs(g1 - g2);
+                    int db = Math.abs(b1 - b2);
 
                     double largestPixelValueDifference = Math.max(dr, Math.max(dg, db));
                     if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
