@@ -796,10 +796,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (renderable.get()) {
             try {
                 if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
-                    SDL_GL_SwapWindow(window);
+                    if (!SDL_GL_SwapWindow(window)) {
+                        throw new IllegalStateException("SDL_GL_SwapWindow failed: " + SDL_GetError());
+                    }
                 }
             } catch (Throwable ex) {
+                renderable.set(false);
+                needClose.set(true);
                 listener.handleError("Error while swapping buffers", ex);
+                return;
             }
         }
 
