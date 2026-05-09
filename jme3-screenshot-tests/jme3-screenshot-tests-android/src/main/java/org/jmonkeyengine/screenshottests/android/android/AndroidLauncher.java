@@ -7,5 +7,7 @@ public class AndroidLauncher extends AndroidHarness {
 
     public AndroidLauncher() {
         appClass = JmeAndroidApp.class.getCanonicalName();
+        // Enable alpha bits to force the GLSurfaceView into the main view hierarchy
+        eglAlphaBits = 8;
     }
 }
