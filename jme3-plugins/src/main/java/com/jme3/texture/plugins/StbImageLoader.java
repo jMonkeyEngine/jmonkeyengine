@@ -110,9 +110,9 @@ public class StbImageLoader implements AssetLoader {
         }
 
         StbImageResult imgData;
-        if(isFloat){
+        if (isFloat){
             imgData = decoder.loadf(desiredChannels);
-        } else if(is16bit){
+        } else if (is16bit){
             imgData = decoder.load16(desiredChannels);
         } else {
             imgData = decoder.load(desiredChannels);
