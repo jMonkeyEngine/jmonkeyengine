@@ -272,7 +272,7 @@ public abstract class LwjglContext implements JmeContext {
                             GLFbo.class, GLExt.class);
                 }
 
-                if (settings.getBoolean("GraphicsTrace")) {
+                if (settings.isGraphicsTrace()) {
                     gles = (LwjglGLES) GLTracer.createGlesTracer(gles, GL.class, GLES_30.class, GLFbo.class,
                             GLExt.class);
                 }

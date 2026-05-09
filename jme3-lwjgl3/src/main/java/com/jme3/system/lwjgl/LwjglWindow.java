@@ -417,7 +417,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         int contextFlags = 0;
-        if (settings.getBoolean("RendererDebug")) {
+        if (settings.isGraphicsDebug()) {
             contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
         }
         if (!glesContext) {
