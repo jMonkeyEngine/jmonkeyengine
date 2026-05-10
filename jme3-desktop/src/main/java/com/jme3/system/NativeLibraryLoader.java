@@ -36,8 +36,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -174,8 +177,8 @@ public final class NativeLibraryLoader {
      * <ul>
      * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
      * extraction folder} has been specified, it is returned.
-     * <li>If the user can write to "java.io.tmpdir" folder, then it
-     * is used.</li>
+     * <li>If the user can write to "java.io.tmpdir" folder, then a private,
+     * newly-created subfolder is used.</li>
      * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
      * is used, to prevent collisions, a special subfolder is used
      * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
@@ -195,20 +198,8 @@ public final class NativeLibraryLoader {
                 setExtractionFolderToUserCache();
             } else {
                 try {
-                    File jmeTempDir = new File(userTempDir, "jme3");
-                    if (!jmeTempDir.exists()) {
-                        jmeTempDir.mkdir();
-                    }
-                    if(!jmeTempDir.canWrite()) {
-                        setExtractionFolderToUserCache();
-                    } else {
-                        extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
-
-                        if (!extractionFolder.exists()) {
-                            extractionFolder.mkdir();
-                        }
-                    }
-                } catch (Exception e) {
+                    extractionFolder = createPrivateTempNativesDirectory(userTempDir).toFile();
+                } catch (IOException | UnsupportedOperationException | SecurityException e) {
                     setExtractionFolderToUserCache();
                 }
             }
@@ -216,6 +207,31 @@ public final class NativeLibraryLoader {
         return extractionFolder;
     }
     
+
+    /**
+     * Creates a fresh native-library extraction directory under the supplied
+     * temporary directory. The directory name includes a random suffix generated
+     * by {@link Files#createTempDirectory(Path, String, FileAttribute[])} so
+     * local users cannot pre-create the cache and plant a native library that
+     * will be loaded by this process.
+     *
+     * @param userTempDir the system temporary directory
+     * @return a newly-created private directory for extracted natives
+     * @throws IOException if the directory cannot be created
+     */
+    private static Path createPrivateTempNativesDirectory(File userTempDir) throws IOException {
+        String prefix = "jme3-natives_" + Integer.toHexString(computeNativesHash()) + "_";
+        Path userTempPath = userTempDir.toPath();
+
+        try {
+            FileAttribute<?> permissions = PosixFilePermissions.asFileAttribute(
+                    PosixFilePermissions.fromString("rwx------"));
+            return Files.createTempDirectory(userTempPath, prefix, permissions);
+        } catch (UnsupportedOperationException ex) {
+            return Files.createTempDirectory(userTempPath, prefix);
+        }
+    }
+
     /**
      * Determine jME3's cache folder for the user account based on the OS.
      * 
