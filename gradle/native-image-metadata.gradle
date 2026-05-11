@@ -463,6 +463,7 @@ project.afterEvaluate {
     def graalVmLauncherProvider = project.javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(graalToolchainLanguageVersion)
         vendor = JvmVendorSpec.GRAAL_VM
+        nativeImageCapable = true
     }
 
         def generateTaskProvider = project.tasks.register('generateNativeImageMetadata') {
