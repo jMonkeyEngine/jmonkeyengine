@@ -946,6 +946,7 @@ project.afterEvaluate {
 
     def nativeImageDefaultsFeatureClassName = 'org.jmonkeyengine.gradle.nativemetadata.internal.JmeNativeRuntimeDefaultsFeature'
     def nativeImageDefaultsFeatureArg = "--features=${nativeImageDefaultsFeatureClassName}".toString()
+    def nativeImageRuntimeSupportExportArg = '--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED'
     File nativeMetadataPluginJar = project.ext.has('jmeNativeMetadataPluginJarPath')
             ? project.file(project.ext.jmeNativeMetadataPluginJarPath.toString())
             : null
@@ -963,6 +964,10 @@ project.afterEvaluate {
                 List<String> currentBuildArgs = nativeBinary.buildArgs.getOrElse([])
                 if (!currentBuildArgs.contains(nativeImageDefaultsFeatureArg)) {
                     nativeBinary.buildArgs.add(nativeImageDefaultsFeatureArg)
+                }
+                List<String> currentJvmArgs = nativeBinary.jvmArgs.getOrElse([])
+                if (!currentJvmArgs.contains(nativeImageRuntimeSupportExportArg)) {
+                    nativeBinary.jvmArgs.add(nativeImageRuntimeSupportExportArg)
                 }
             }
         }
