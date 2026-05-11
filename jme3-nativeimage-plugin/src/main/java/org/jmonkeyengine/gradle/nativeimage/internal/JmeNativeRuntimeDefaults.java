@@ -1,4 +1,4 @@
-package org.jmonkeyengine.gradle.nativemetadata.internal;
+package org.jmonkeyengine.gradle.nativeimage.internal;
 
 import org.graalvm.nativeimage.ProcessProperties;
 

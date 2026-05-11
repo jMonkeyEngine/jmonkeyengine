@@ -4,10 +4,10 @@ import org.gradle.api.tasks.PathSensitivity
 
 def extraProperties = project.extensions.extraProperties
 [
-        'jmeNativeMetadataAdditionalTargetTypes',
-        'jmeNativeMetadataAdditionalTargetAnnotations',
-        'jmeNativeMetadataAdditionalProxyInterfaceSets',
-        'jmeNativeMetadataAdditionalResourceGlobs',
+        'jmeNativeImageAdditionalTargetTypes',
+        'jmeNativeImageAdditionalTargetAnnotations',
+        'jmeNativeImageAdditionalProxyInterfaceSets',
+        'jmeNativeImageAdditionalResourceGlobs',
         'jmeNativeImageIncludeResourcesPattern',
         'jmeNativeImageExcludeResourcesPattern'
 ].each { propertyName ->
@@ -332,27 +332,27 @@ def isJdkClassName = { String className ->
 }
 
 def normalizedTargetTypes = {
-    return (defaultTargetTypes + asStringList(project.ext.jmeNativeMetadataAdditionalTargetTypes))
+    return (defaultTargetTypes + asStringList(project.ext.jmeNativeImageAdditionalTargetTypes))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedTargetAnnotations = {
-    return (defaultTargetAnnotations + asStringList(project.ext.jmeNativeMetadataAdditionalTargetAnnotations))
+    return (defaultTargetAnnotations + asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedProxyInterfaceSets = {
-    return (defaultProxyInterfaceSets + asStringMatrix(project.ext.jmeNativeMetadataAdditionalProxyInterfaceSets)).collect { interfaceSet ->
+    return (defaultProxyInterfaceSets + asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets)).collect { interfaceSet ->
         new ArrayList<>(new LinkedHashSet<>(interfaceSet))
     }.findAll { !it.isEmpty() }
 }
 
 def normalizedResourceGlobs = {
-    return asStringList(project.ext.jmeNativeMetadataAdditionalResourceGlobs)
+    return asStringList(project.ext.jmeNativeImageAdditionalResourceGlobs)
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
@@ -461,8 +461,8 @@ project.afterEvaluate {
             .withType(org.gradle.api.artifacts.ProjectDependency)
             .collect { "${it.path}:jar" }
             .toSet()
-    String metadataGeneratorScriptHash = project.ext.has('jmeNativeMetadataGeneratorScriptHash')
-            ? project.ext.jmeNativeMetadataGeneratorScriptHash.toString()
+    String metadataGeneratorScriptHash = project.ext.has('jmeNativeImageGeneratorScriptHash')
+            ? project.ext.jmeNativeImageGeneratorScriptHash.toString()
             : 'unknown'
 
         def generateTaskProvider = project.tasks.register('generateNativeImageMetadata') {
@@ -481,11 +481,11 @@ project.afterEvaluate {
         inputs.files(project.files(metadataResourceDirs))
                 .withPropertyName('mainResources')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
-        inputs.property('jmeNativeMetadataTargetTypes', normalizedTargetTypes())
-        inputs.property('jmeNativeMetadataTargetAnnotations', normalizedTargetAnnotations())
-        inputs.property('jmeNativeMetadataProxyInterfaceSets', normalizedProxyInterfaceSets())
-        inputs.property('jmeNativeMetadataAdditionalResourceGlobs', normalizedResourceGlobs())
-        inputs.property('jmeNativeMetadataGeneratorVersion', 3)
+        inputs.property('jmeNativeImageTargetTypes', normalizedTargetTypes())
+        inputs.property('jmeNativeImageTargetAnnotations', normalizedTargetAnnotations())
+        inputs.property('jmeNativeImageProxyInterfaceSets', normalizedProxyInterfaceSets())
+        inputs.property('jmeNativeImageAdditionalResourceGlobs', normalizedResourceGlobs())
+        inputs.property('jmeNativeImageGeneratorVersion', 3)
         outputs.file(metadataFile)
         outputs.file(reflectConfigFile)
 
@@ -535,9 +535,9 @@ project.afterEvaluate {
                     }
                 }
 
-                def additionalTargetTypes = asStringList(project.ext.jmeNativeMetadataAdditionalTargetTypes).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalTargetAnnotations = asStringList(project.ext.jmeNativeMetadataAdditionalTargetAnnotations).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalProxyInterfaceSets = asStringMatrix(project.ext.jmeNativeMetadataAdditionalProxyInterfaceSets).collect { interfaceSet ->
+                def additionalTargetTypes = asStringList(project.ext.jmeNativeImageAdditionalTargetTypes).findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalTargetAnnotations = asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations).findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalProxyInterfaceSets = asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets).collect { interfaceSet ->
                     new ArrayList<>(new LinkedHashSet<>(interfaceSet))
                 }.findAll { !it.isEmpty() }
                 def targetTypes = normalizedTargetTypes()
@@ -944,17 +944,17 @@ project.afterEvaluate {
         processResourcesTask.dependsOn(generateTaskProvider)
     }
 
-    def nativeImageDefaultsFeatureClassName = 'org.jmonkeyengine.gradle.nativemetadata.internal.JmeNativeRuntimeDefaultsFeature'
+    def nativeImageDefaultsFeatureClassName = 'org.jmonkeyengine.gradle.nativeimage.internal.JmeNativeRuntimeDefaultsFeature'
     def nativeImageDefaultsFeatureArg = "--features=${nativeImageDefaultsFeatureClassName}".toString()
     def nativeImageRuntimeSupportExportArg = '--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED'
-    File nativeMetadataPluginJar = project.ext.has('jmeNativeMetadataPluginJarPath')
-            ? project.file(project.ext.jmeNativeMetadataPluginJarPath.toString())
+    File nativeImagePluginJar = project.ext.has('jmeNativeImagePluginJarPath')
+            ? project.file(project.ext.jmeNativeImagePluginJarPath.toString())
             : null
 
     project.pluginManager.withPlugin('org.graalvm.buildtools.native') {
         ['nativeImageCompileOnly', 'nativeImageTestCompileOnly'].each { configurationName ->
-            if (nativeMetadataPluginJar != null && nativeMetadataPluginJar.exists() && project.configurations.findByName(configurationName) != null) {
-                project.dependencies.add(configurationName, project.files(nativeMetadataPluginJar))
+            if (nativeImagePluginJar != null && nativeImagePluginJar.exists() && project.configurations.findByName(configurationName) != null) {
+                project.dependencies.add(configurationName, project.files(nativeImagePluginJar))
             }
         }
 

@@ -1,4 +1,4 @@
-package org.jmonkeyengine.gradle.nativemetadata
+package org.jmonkeyengine.gradle.nativeimage
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -7,24 +7,24 @@ import java.security.MessageDigest
 import java.nio.file.Paths
 
 /**
- * Applies jMonkeyEngine's GraalVM native metadata conventions.
+ * Applies jMonkeyEngine's GraalVM native image conventions.
  */
-class JmeNativeMetadataPlugin implements Plugin<Project> {
+class JmeNativeImagePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        URL metadataScript = getClass().getResource('/org/jmonkeyengine/gradle/nativemetadata/native-image-metadata.gradle')
+        URL metadataScript = getClass().getResource('/org/jmonkeyengine/gradle/nativeimage/native-image-metadata.gradle')
         if (metadataScript == null) {
-            throw new IllegalStateException('Unable to locate bundled native metadata Gradle script.')
+            throw new IllegalStateException('Unable to locate bundled native image Gradle script.')
         }
         URL codeSourceLocation = getClass().protectionDomain?.codeSource?.location
         if (codeSourceLocation != null) {
             project.extensions.extraProperties.set(
-                    'jmeNativeMetadataPluginJarPath',
+                    'jmeNativeImagePluginJarPath',
                     Paths.get(codeSourceLocation.toURI()).toFile().absolutePath
             )
         }
-        project.extensions.extraProperties.set('jmeNativeMetadataGeneratorScriptHash', sha256(metadataScript))
+        project.extensions.extraProperties.set('jmeNativeImageGeneratorScriptHash', sha256(metadataScript))
         project.apply(from: metadataScript)
     }
 

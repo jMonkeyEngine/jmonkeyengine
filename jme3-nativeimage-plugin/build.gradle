@@ -53,7 +53,7 @@ gradlePlugin {
             id = 'org.jmonkeyengine.nativeimage'
             displayName = 'jMonkeyEngine Native Image'
             description = 'Generates GraalVM Native Image reachability metadata and runtime native library layouts for jMonkeyEngine projects.'
-            implementationClass = 'org.jmonkeyengine.gradle.nativemetadata.JmeNativeMetadataPlugin'
+            implementationClass = 'org.jmonkeyengine.gradle.nativeimage.JmeNativeImagePlugin'
             tags.set(['jmonkeyengine', 'graalvm', 'native-image'])
         }
     }

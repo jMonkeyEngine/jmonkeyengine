@@ -11,7 +11,7 @@ plugins {
 
 ext.mainClassName = 'jme3test.TestChooser'
 ext.nativeMainClassName = 'jme3test.TestChooserCli'
-ext.jmeNativeMetadataAdditionalResourceGlobs = []
+ext.jmeNativeImageAdditionalResourceGlobs = []
 
 def generatedTestChooserResourcesDir = layout.buildDirectory.dir('generated/testchooser/resources')
 def testChooserClassListFile = generatedTestChooserResourcesDir.map { it.file('jme3test/test-classes.txt') }
