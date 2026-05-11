@@ -17,6 +17,13 @@ dependencies {
     compileOnly files(rootProject.file('lib/android.jar'))
 }
 
+compileJava {
+    // The Android-Native Project requires the jni headers to be generated, so we do that here
+    options.compilerArgs += ["-h", "${project.rootDir}/jme3-android-native/src/native/headers"]
+    options.sourcepath = files("src/androidx-stubs/java")
+    options.compilerArgs += ["-implicit:none"]
+}
+
 tasks.withType(Jar).configureEach {
     exclude('androidx/**')
 }
@@ -26,5 +33,6 @@ tasks.named('sourcesJar') {
 }
 
 javadoc {
+    source += fileTree("src/androidx-stubs/java")
     exclude('androidx/**')
 }
