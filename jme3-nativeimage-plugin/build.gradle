@@ -30,10 +30,13 @@ repositories {
 java {
     withSourcesJar()
     withJavadocJar()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
 
 dependencies {
     implementation gradleApi()
@@ -67,10 +70,10 @@ tasks.withType(GroovyCompile).configureEach {
 publishing {
     publications.withType(MavenPublication).configureEach {
         pom {
-            name = 'jMonkeyEngine Native Metadata Gradle Plugin'
-            description = 'Gradle plugin for generating GraalVM Native Image metadata for jMonkeyEngine projects.'
+            name = 'jMonkeyEngine Native Image Gradle Plugin'
+            description = 'Generates GraalVM Native Image reachability metadata and runtime native library layouts for jMonkeyEngine projects.'
             url = 'https://jmonkeyengine.org'
-            inceptionYear = '2009'
+            inceptionYear = '2026'
             scm {
                 url = 'https://github.com/jMonkeyEngine/jmonkeyengine'
                 connection = 'scm:git:git://github.com/jMonkeyEngine/jmonkeyengine.git'

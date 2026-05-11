@@ -60,8 +60,8 @@ subprojects {
     }
 }
 
-def nativeMetadataPluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
-def nativeMetadataPluginPublishTasks = [
+def nativeImagePluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
+def nativeImagePluginPublishTasks = [
         publish                                      : ':publish',
         publishToMavenLocal                         : ':publishToMavenLocal',
         install                                      : ':install',
@@ -72,9 +72,9 @@ def nativeMetadataPluginPublishTasks = [
 
 subprojects {
     tasks.configureEach { task ->
-        String includedTaskPath = nativeMetadataPluginPublishTasks[task.name]
+        String includedTaskPath = nativeImagePluginPublishTasks[task.name]
         if (includedTaskPath != null) {
-            task.dependsOn nativeMetadataPluginBuild.task(includedTaskPath)
+            task.dependsOn nativeImagePluginBuild.task(includedTaskPath)
         }
     }
 }
