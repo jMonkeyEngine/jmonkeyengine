@@ -24,6 +24,8 @@ java {
     }
 }
 
+apply from: rootProject.file('gradle/native-image-metadata.gradle')
+
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
     options.compilerArgs << '-Xlint:unchecked'
