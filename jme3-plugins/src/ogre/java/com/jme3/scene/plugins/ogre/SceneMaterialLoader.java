@@ -58,8 +58,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * before reading the top nodes.
  * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
- * The Ogre model format is deprecated. Consider migrating to (.glb/.gltf/.j3o) etc
- * or other modern model formats for better performance, broader tool support, and future compatibility.
+ * Consider using glTF.
  * @author Kirill Vainer
  */
 @Deprecated

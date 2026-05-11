@@ -30,16 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Import 3-D models in formats defined by the OGRE 3-D engine.
- * 
- * <h2>Deprecation Notice</h2>
- * <p>
- * <strong>The Ogre model format support is deprecated as of jMonkeyEngine 3.10 and will be removed in a future version.</strong>
- * </p>
- * <p>
- * Users are strongly encouraged to migrate to modern, open-source model formats such as:
- * </p>
- * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
  */
 @Deprecated

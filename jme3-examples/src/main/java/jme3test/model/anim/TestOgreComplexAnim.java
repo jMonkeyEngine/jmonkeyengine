@@ -51,7 +51,7 @@ import com.jme3.scene.debug.custom.ArmatureDebugger;
  * Example demonstrating complex Ogre model animations with armature masks and advanced blending.
  * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
- * The Ogre model format is deprecated. Consider using glTF (.glb/.gltf/.j3o) or other modern formats instead.
+ * Consider using glTF.
  */
 @Deprecated
 public class TestOgreComplexAnim extends SimpleApplication {

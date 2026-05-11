@@ -52,8 +52,7 @@ import java.util.logging.Logger;
  * Loads Ogre3D skeleton.xml files.
  * 
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
- * The Ogre model format is deprecated. Consider migrating to (.glb/.gltf/.j3o) etc
- * or other modern model formats for better performance, broader tool support, and future compatibility.
+ * Consider using glTF.
  */
 @Deprecated
 public class SkeletonLoader extends DefaultHandler implements AssetLoader {

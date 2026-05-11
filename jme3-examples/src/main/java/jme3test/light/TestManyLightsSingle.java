@@ -80,7 +80,6 @@ public class TestManyLightsSingle extends SimpleApplication {
         Node scene = (Node) assetManager.loadModel("Scenes/ManyLights/Main.j3o");
         rootNode.attachChild(scene);
         Node n = (Node) rootNode.getChild(0);
-
         final LightList lightList = n.getLocalLightList(); 
         final Geometry g = (Geometry) n.getChild("Grid-geom-1");
 
@@ -99,8 +98,7 @@ public class TestManyLightsSingle extends SimpleApplication {
         final Node cubeNodes = new Node();
         n.attachChild(cubeNodes);
         int nb = 0;
-        for (Light light : lightList)
-        {
+        for (Light light : lightList) {
             nb++;
             PointLight p = (PointLight) light;
             if (nb > 60) {

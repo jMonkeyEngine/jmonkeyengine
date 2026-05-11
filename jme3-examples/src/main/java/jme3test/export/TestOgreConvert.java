@@ -52,8 +52,7 @@ import com.jme3.scene.Spatial;
  * and material parameters.
  *
  * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
- * The Ogre model format is deprecated. Consider using glTF (.glb/.gltf/.j3o) or other modern formats instead.
- * This test is maintained for backward compatibility during the transition period.
+ * Consider using glTF.
  *
  * @author capdevon
  */
@@ -76,12 +75,13 @@ public class TestOgreConvert extends SimpleApplication {
     public void simpleInitApp() {
         configureCamera();
         setupLights();
-        
+
+        bmp = createLabelText(10, 20, "<placeholder>");
+
+        // Load the Ogre model (Oto.mesh.xml) from the assets
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         // Save the loaded model to jME3's binary format and then reload it.
         // This tests the binary serialization/deserialization process.
-        bmp = createLabelText(10, 20, "<placeholder>");
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-
         spCopy = BinaryExporter.saveAndLoad(assetManager, model);
         spCopy.setName("Oto-Copy");
         rootNode.attachChild(spCopy);
