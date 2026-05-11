@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 import java.security.MessageDigest
+import java.nio.file.Paths
 
 /**
  * Applies jMonkeyEngine's GraalVM native metadata conventions.
@@ -15,6 +16,13 @@ class JmeNativeMetadataPlugin implements Plugin<Project> {
         URL metadataScript = getClass().getResource('/org/jmonkeyengine/gradle/nativemetadata/native-image-metadata.gradle')
         if (metadataScript == null) {
             throw new IllegalStateException('Unable to locate bundled native metadata Gradle script.')
+        }
+        URL codeSourceLocation = getClass().protectionDomain?.codeSource?.location
+        if (codeSourceLocation != null) {
+            project.extensions.extraProperties.set(
+                    'jmeNativeMetadataPluginJarPath',
+                    Paths.get(codeSourceLocation.toURI()).toFile().absolutePath
+            )
         }
         project.extensions.extraProperties.set('jmeNativeMetadataGeneratorScriptHash', sha256(metadataScript))
         project.apply(from: metadataScript)

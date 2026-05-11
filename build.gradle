@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jmonkeyengine.nativemetadata' apply false
+    id 'org.jmonkeyengine.nativeimage' apply false
 }
 
 import org.gradle.api.file.RelativePath

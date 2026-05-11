@@ -352,50 +352,6 @@ tasks.named('nativeCompile') {
     }
 }
 
-def nativeImageOutputDir = layout.buildDirectory.dir('native/nativeCompile')
-def nativeImageExecutableBaseName = 'jme3-testchooser'
-
-tasks.register('createNativeImageLaunchers') {
-    group = 'build'
-    description = 'Creates launcher scripts that configure native library paths for the native-image executable.'
-    dependsOn 'nativeCompile', 'prepareNativeRuntimeLibraries'
-
-    def unixLauncherFile = nativeImageOutputDir.map { it.file("${nativeImageExecutableBaseName}.sh") }
-    def windowsLauncherFile = nativeImageOutputDir.map { it.file("${nativeImageExecutableBaseName}.bat") }
-    outputs.files(unixLauncherFile, windowsLauncherFile)
-
-    doLast {
-        File outputDir = nativeImageOutputDir.get().asFile
-        outputDir.mkdirs()
-
-        File unixLauncher = unixLauncherFile.get().asFile
-        unixLauncher.text = """#!/bin/sh
-set -e
-APP_DIR=\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)
-exec "\$APP_DIR/${nativeImageExecutableBaseName}" \\
-  "-Dsaferalloc.native.override=\$APP_DIR/lib" \\
-  "-Dcom.jme3.NativeLibraryExtractionFolder=\$APP_DIR/lib" \\
-  "-Dcom.jme3.ExtractNativeLibraries=false" \\
-  "-Dorg.lwjgl.librarypath=\$APP_DIR/lib" \\
-  "\$@"
-"""
-        unixLauncher.setExecutable(true, false)
-
-        File windowsLauncher = windowsLauncherFile.get().asFile
-        windowsLauncher.text = """@echo off
-setlocal
-set "APP_DIR=%~dp0"
-set "APP_DIR=%APP_DIR:~0,-1%"
-"%APP_DIR%\\${nativeImageExecutableBaseName}.exe" "-Dsaferalloc.native.override=%APP_DIR%\\lib" "-Dcom.jme3.NativeLibraryExtractionFolder=%APP_DIR%\\lib" "-Dcom.jme3.ExtractNativeLibraries=false" "-Dorg.lwjgl.librarypath=%APP_DIR%\\lib" %*
-exit /b %ERRORLEVEL%
-"""
-    }
-}
-
-tasks.named('nativeCompile') {
-    finalizedBy 'createNativeImageLaunchers'
-}
-
 dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-desktop')

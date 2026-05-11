@@ -944,6 +944,30 @@ project.afterEvaluate {
         processResourcesTask.dependsOn(generateTaskProvider)
     }
 
+    def nativeImageDefaultsFeatureClassName = 'org.jmonkeyengine.gradle.nativemetadata.internal.JmeNativeRuntimeDefaultsFeature'
+    def nativeImageDefaultsFeatureArg = "--features=${nativeImageDefaultsFeatureClassName}".toString()
+    File nativeMetadataPluginJar = project.ext.has('jmeNativeMetadataPluginJarPath')
+            ? project.file(project.ext.jmeNativeMetadataPluginJarPath.toString())
+            : null
+
+    project.pluginManager.withPlugin('org.graalvm.buildtools.native') {
+        ['nativeImageCompileOnly', 'nativeImageTestCompileOnly'].each { configurationName ->
+            if (nativeMetadataPluginJar != null && nativeMetadataPluginJar.exists() && project.configurations.findByName(configurationName) != null) {
+                project.dependencies.add(configurationName, project.files(nativeMetadataPluginJar))
+            }
+        }
+
+        def graalvmNativeExtension = project.extensions.findByName('graalvmNative')
+        if (graalvmNativeExtension != null) {
+            graalvmNativeExtension.binaries.configureEach { nativeBinary ->
+                List<String> currentBuildArgs = nativeBinary.buildArgs.getOrElse([])
+                if (!currentBuildArgs.contains(nativeImageDefaultsFeatureArg)) {
+                    nativeBinary.buildArgs.add(nativeImageDefaultsFeatureArg)
+                }
+            }
+        }
+    }
+
     def nativeCompileTask = project.tasks.findByName('nativeCompile')
     if (nativeCompileTask != null) {
         nativeCompileTask.finalizedBy(prepareNativeRuntimeLibrariesProvider)

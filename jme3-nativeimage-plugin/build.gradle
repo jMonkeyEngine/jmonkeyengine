@@ -38,18 +38,19 @@ java {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
+    compileOnly 'org.graalvm.sdk:graal-sdk:24.2.2'
 }
 
 gradlePlugin {
     website = 'https://jmonkeyengine.org'
     vcsUrl = 'https://github.com/jMonkeyEngine/jmonkeyengine'
     plugins {
-        nativeMetadata {
-            id = 'org.jmonkeyengine.nativemetadata'
-            displayName = 'jMonkeyEngine Native Metadata'
+        nativeImage {
+            id = 'org.jmonkeyengine.nativeimage'
+            displayName = 'jMonkeyEngine Native Image'
             description = 'Generates GraalVM Native Image reachability metadata and runtime native library layouts for jMonkeyEngine projects.'
             implementationClass = 'org.jmonkeyengine.gradle.nativemetadata.JmeNativeMetadataPlugin'
-            tags.set(['jmonkeyengine', 'graalvm', 'native-metadata'])
+            tags.set(['jmonkeyengine', 'graalvm', 'native-image'])
         }
     }
 }
