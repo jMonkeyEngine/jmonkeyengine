@@ -1,10 +1,26 @@
-ext.mainClassName = 'jme3test.TestChooser'
+def examplesMainClassName = 'jme3test.TestChooser'
+ext.mainClassName = examplesMainClassName
 
 def androidProject = project(':jme3-android')
 def androidNativeProject = project(':jme3-android-native')
+def androidProjectName = androidProject.name
+def androidNativeProjectName = androidNativeProject.name
+def fileSystemOperations = services.get(FileSystemOperations)
+def compileClasspath = configurations.compileClasspath
+def compileClasspathArtifacts = providers.provider {
+    compileClasspath.resolvedConfiguration.resolvedArtifacts.collect { artifact ->
+        [
+                file: artifact.file,
+                fileName: artifact.classifier != null ?
+                        "${artifact.name}-${artifact.classifier}.${artifact.extension}" :
+                        "${artifact.name}.${artifact.extension}",
+        ]
+    }
+}
 
-task run(dependsOn: 'build', type:JavaExec) {
-    mainClass = mainClassName
+tasks.register('run', JavaExec) {
+    dependsOn sourceSets.main.runtimeClasspath
+    mainClass = examplesMainClassName
     classpath = sourceSets.main.runtimeClasspath
 
     if (System.properties['java.util.logging.config.file'] != null) {
@@ -211,47 +227,50 @@ jar.doFirst{
 //                'Implementation-Title'   : appName,
 //                'Implementation-Version' : version,
 //                'Implementation-Vendor'  : vendor,
-                'Main-Class'             : getProperty('mainClassName'),
+                'Main-Class'             : examplesMainClassName,
                 // Add dependencies to manifest, remove version
-                'Class-Path'             : configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect {
-                                                        'lib/' +
-                                                        it.name +
-                                                        (it.classifier != null ? '-' + it.classifier : '') +
-                                                        '.' + it.extension }.join(' ')
+                'Class-Path'             : compileClasspathArtifacts.get().collect { 'lib/' + it.fileName }.join(' ')
         )
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
+tasks.register('dist') {
+    dependsOn 'build', ':jme3-android:jar', ':jme3-android-native:jar'
+    def examplesJar = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    def androidJar = androidProject.tasks.named('jar', Jar).flatMap { it.archiveFile }
+    def androidNativeJar = androidNativeProject.tasks.named('jar', Jar).flatMap { it.archiveFile }
+    def distDir = rootProject.layout.projectDirectory.dir('dist')
+
+    inputs.files(compileClasspathArtifacts.map { artifacts -> artifacts.collect { it.file } })
+    inputs.files(examplesJar, androidJar, androidNativeJar)
+    outputs.dir(distDir)
+
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
-        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            copy {
+        compileClasspathArtifacts.get().each { artifact ->
+            fileSystemOperations.copy {
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
                 from artifact.file
-                into '../dist/lib'
-                if(artifact.classifier != null){
-                    rename { "${artifact.name}-${artifact.classifier}.${artifact.extension}" }
-                } else{
-                    rename { "${artifact.name}.${artifact.extension}" }
-                }
+                into distDir.dir('lib')
+                rename { artifact.fileName }
             }
         }
-        copy {
-            from tasks.named('jar').flatMap { it.archiveFile }
-            into '../dist'
+        fileSystemOperations.copy {
+            from examplesJar
+            into distDir
             rename { "jMonkeyEngine3.jar" }
         }
 
         // Copy android packages, remove version
-        copy {
-            from androidProject.tasks.named('jar').flatMap { it.archiveFile }
-            into '../dist/opt/android'
-            rename { androidProject.name + ".jar" }
+        fileSystemOperations.copy {
+            from androidJar
+            into distDir.dir('opt/android')
+            rename { androidProjectName + ".jar" }
         }
-        copy {
-            from androidNativeProject.tasks.named('jar').flatMap { it.archiveFile }
-            into '../dist/opt/android'
-            rename { androidNativeProject.name + ".jar" }
+        fileSystemOperations.copy {
+            from androidNativeJar
+            into distDir.dir('opt/android')
+            rename { androidNativeProjectName + ".jar" }
         }
     }
 }

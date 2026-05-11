@@ -3,7 +3,15 @@
 //
 
 apply plugin: 'java-library'
-apply plugin: 'groovy'
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+def groovySourcePresent = project.file('src/main/groovy').exists() || project.file('src/test/groovy').exists()
+
+if (groovySourcePresent) {
+    apply plugin: 'groovy'
+}
+
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
@@ -12,8 +20,6 @@ apply plugin: 'checkstyle'
 eclipse.jdt.file.withProperties { props ->
     props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
 }
-group = 'org.jmonkeyengine'
-version = jmeFullVersion
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -24,7 +30,7 @@ java {
     }
 }
 
-tasks.withType(JavaCompile) { // compile-time options:
+tasks.withType(JavaCompile).configureEach { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
     options.compilerArgs << '-Xlint:unchecked'
     options.encoding = 'UTF-8'
@@ -44,8 +50,10 @@ dependencies {
     testImplementation libs.junit.jupiter
     testImplementation libs.mokito.core
     testImplementation libs.mokito.junit.jupiter
-    testImplementation libs.groovy.test
     testRuntimeOnly libs.junit.platform.launcher
+    if (groovySourcePresent) {
+        testImplementation libs.groovy.test
+    }
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -67,7 +75,7 @@ jar {
     }
 }
 
-javadoc {
+tasks.named('javadoc', Javadoc) {
     failOnError = false
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     options.docTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
@@ -90,14 +98,18 @@ test {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
+def sourcesJar = tasks.register('sourcesJar', Jar) {
+    dependsOn classes
+    description = 'Creates a jar from the source files.'
     archiveClassifier = 'sources'
     from sourceSets*.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from the javadoc files.') {
+def javadocJar = tasks.register('javadocJar', Jar) {
+    dependsOn javadoc
+    description = 'Creates a jar from the javadoc files.'
     archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
+    from tasks.named('javadoc', Javadoc).map { it.destinationDir }
 }
 
 ext.pomConfig = {
@@ -125,18 +137,16 @@ ext.pomConfig = {
     }
 }
 
-tasks.named('assemble') {
-    dependsOn sourcesJar
-    if (buildJavaDoc == "true") {
-        dependsOn javadocJar
-    }
-}
+def hasSigningKey = providers.gradleProperty('signingKey').isPresent()
+def publishedModuleName = "${project.name}-${jmeFullVersion}"
 
 publishing {
     publications {
         maven(MavenPublication) {
-            artifact javadocJar
             artifact sourcesJar
+            if (buildJavaDoc == "true") {
+                artifact javadocJar
+            }
             from components.java
             pom {
                 description = POM_DESCRIPTION
@@ -197,10 +207,12 @@ publishing {
     }
 }
 
-publishToMavenLocal.doLast {
-    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"
+tasks.named('publishToMavenLocal') {
+    doLast {
+        println "published ${publishedModuleName} to mavenLocal"
+    }
 }
-task('install') {
+tasks.register('install') {
     dependsOn 'publishToMavenLocal'
 }
 
@@ -211,8 +223,8 @@ signing {
 
     sign publishing.publications.maven
 }
-tasks.withType(Sign) {
-    onlyIf { gradle.rootProject.hasProperty('signingKey') }
+tasks.withType(Sign).configureEach {
+    onlyIf { hasSigningKey }
 }
 
 def checkstyleSupported = JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)
@@ -230,7 +242,7 @@ checkstyleTest {
     source ='src/test/java'
 }
 
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
     enabled = checkstyleSupported
     reports {
         xml.required.set(false)
