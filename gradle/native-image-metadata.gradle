@@ -287,6 +287,7 @@ def collectClassReferencesFromStream = { InputStream input ->
                     case 10:
                     case 11:
                     case 12:
+                    case 17:
                     case 18:
                         stream.readUnsignedShort()
                         stream.readUnsignedShort()
@@ -317,7 +318,9 @@ def collectClassReferencesFromStream = { InputStream input ->
 
 def collectClassReferences = { File classFile ->
     try {
-        return collectClassReferencesFromStream(new FileInputStream(classFile))
+        return classFile.withInputStream { input ->
+            collectClassReferencesFromStream(input)
+        }
     } catch (Throwable ignored) {
         return new TreeSet<String>()
     }

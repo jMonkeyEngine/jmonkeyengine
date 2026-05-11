@@ -47,6 +47,7 @@ import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -308,6 +309,7 @@ public class TestChooserCli {
         packageName = packageName + ".";
         URI uri;
         FileSystem fileSystem = null;
+        boolean closeFileSystem = false;
         try {
             URL packageUrl = this.getClass().getResource(name);
             if (packageUrl == null) {
@@ -320,9 +322,14 @@ public class TestChooserCli {
 
         if ("jar".equalsIgnoreCase(uri.getScheme())) {
             try {
-                fileSystem = FileSystems.newFileSystem(uri, Collections.<String, String>emptyMap());
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load demo classes from JAR.", e);
+                fileSystem = FileSystems.getFileSystem(uri);
+            } catch (FileSystemNotFoundException e) {
+                try {
+                    fileSystem = FileSystems.newFileSystem(uri, Collections.<String, String>emptyMap());
+                    closeFileSystem = true;
+                } catch (IOException ex) {
+                    throw new RuntimeException("Failed to load demo classes from JAR.", ex);
+                }
             }
         }
 
@@ -332,7 +339,7 @@ public class TestChooserCli {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to find classes", e);
         } finally {
-            if (fileSystem != null) {
+            if (fileSystem != null && closeFileSystem) {
                 try {
                     fileSystem.close();
                 } catch (IOException e) {
