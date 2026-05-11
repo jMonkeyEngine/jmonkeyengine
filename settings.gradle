@@ -2,7 +2,7 @@
  * This is the global settings file used by all subprojects.
  **/
 pluginManagement {
-    includeBuild 'jme3-nativemetadata-plugin'
+    includeBuild 'jme3-nativeimage-plugin'
     repositories {
         gradlePluginPortal()
         mavenCentral()

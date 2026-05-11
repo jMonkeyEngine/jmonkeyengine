@@ -60,7 +60,7 @@ subprojects {
     }
 }
 
-def nativeMetadataPluginBuild = gradle.includedBuild('jme3-nativemetadata-plugin')
+def nativeMetadataPluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
 def nativeMetadataPluginPublishTasks = [
         publish                                      : ':publish',
         publishToMavenLocal                         : ':publishToMavenLocal',

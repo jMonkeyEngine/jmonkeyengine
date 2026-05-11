@@ -1,8 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JvmVendorSpec
 
 def extraProperties = project.extensions.extraProperties
 [
@@ -10,14 +8,11 @@ def extraProperties = project.extensions.extraProperties
         'jmeNativeMetadataAdditionalTargetAnnotations',
         'jmeNativeMetadataAdditionalProxyInterfaceSets',
         'jmeNativeMetadataAdditionalResourceGlobs',
-        'jmeNativeMetadataGraalToolchainLanguageVersion',
         'jmeNativeImageIncludeResourcesPattern',
         'jmeNativeImageExcludeResourcesPattern'
 ].each { propertyName ->
     if (!extraProperties.has(propertyName)) {
-        if (propertyName == 'jmeNativeMetadataGraalToolchainLanguageVersion') {
-            extraProperties.set(propertyName, 21)
-        } else if (propertyName == 'jmeNativeImageIncludeResourcesPattern') {
+        if (propertyName == 'jmeNativeImageIncludeResourcesPattern') {
             extraProperties.set(propertyName, '.*')
         } else if (propertyName == 'jmeNativeImageExcludeResourcesPattern') {
             extraProperties.set(propertyName, '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$')
@@ -459,15 +454,16 @@ project.afterEvaluate {
             }
         }
     }
-    int graalToolchainLanguageVersion = (project.ext.jmeNativeMetadataGraalToolchainLanguageVersion as Integer)
+    def runtimeClasspathConfiguration = project.configurations.findByName(mainSourceSet.runtimeClasspathConfigurationName)
+    def runtimeProjectDependencyPaths = runtimeClasspathConfiguration == null
+            ? []
+            : runtimeClasspathConfiguration.allDependencies
+            .withType(org.gradle.api.artifacts.ProjectDependency)
+            .collect { "${it.path}:jar" }
+            .toSet()
     String metadataGeneratorScriptHash = project.ext.has('jmeNativeMetadataGeneratorScriptHash')
             ? project.ext.jmeNativeMetadataGeneratorScriptHash.toString()
             : 'unknown'
-    def graalVmLauncherProvider = project.javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(graalToolchainLanguageVersion)
-        vendor = JvmVendorSpec.GRAAL_VM
-        nativeImageCapable = true
-    }
 
         def generateTaskProvider = project.tasks.register('generateNativeImageMetadata') {
             group = 'build'
@@ -499,6 +495,9 @@ project.afterEvaluate {
                 dependsOn(compileTask)
             }
         }
+        runtimeProjectDependencyPaths.each { dependencyJarTaskPath ->
+            dependsOn(dependencyJarTaskPath)
+        }
 
         doLast {
             metadataFile.parentFile.mkdirs()
@@ -510,7 +509,7 @@ project.afterEvaluate {
             } catch (Throwable ignored) {
             }
             try {
-                scanPathFiles.addAll(mainSourceSet.runtimeClasspath.files.findAll { it.exists() })
+                scanPathFiles.addAll(runtimeDependencyFiles())
             } catch (Throwable ignored) {
             }
 
@@ -940,26 +939,9 @@ project.afterEvaluate {
         }
     }
 
-    def resolveGraalVmToolchainForNativeMetadataProvider = project.tasks.register('resolveGraalVmToolchainForNativeMetadata', Exec) {
-        group = 'build'
-        description = 'Resolves GraalVM toolchain via Foojay for native-image metadata generation.'
-        executable = graalVmLauncherProvider.get().executablePath.asFile.absolutePath
-        args '-version'
-        doFirst {
-            logger.lifecycle("${project.path}: using GraalVM toolchain ${graalVmLauncherProvider.get().metadata.installationPath.asFile}")
-        }
-    }
-
-    def generateWithGraalVmToolchainTaskProvider = project.tasks.register('generateNativeImageMetadataWithGraalVmToolchain') {
-        group = 'build'
-        description = 'Generates reachability metadata after resolving GraalVM toolchain via Foojay.'
-        dependsOn(resolveGraalVmToolchainForNativeMetadataProvider)
-        dependsOn(generateTaskProvider)
-    }
-
     def processResourcesTask = project.tasks.findByName('processResources')
     if (processResourcesTask != null) {
-        processResourcesTask.dependsOn(generateWithGraalVmToolchainTaskProvider)
+        processResourcesTask.dependsOn(generateTaskProvider)
     }
 
     def nativeCompileTask = project.tasks.findByName('nativeCompile')
