@@ -24,7 +24,7 @@ java {
     }
 }
 
-apply from: rootProject.file('gradle/native-image-metadata.gradle')
+apply plugin: 'org.jmonkeyengine.nativemetadata'
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings

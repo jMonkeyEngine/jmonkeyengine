@@ -460,6 +460,9 @@ project.afterEvaluate {
         }
     }
     int graalToolchainLanguageVersion = (project.ext.jmeNativeMetadataGraalToolchainLanguageVersion as Integer)
+    String metadataGeneratorScriptHash = project.ext.has('jmeNativeMetadataGeneratorScriptHash')
+            ? project.ext.jmeNativeMetadataGeneratorScriptHash.toString()
+            : 'unknown'
     def graalVmLauncherProvider = project.javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(graalToolchainLanguageVersion)
         vendor = JvmVendorSpec.GRAAL_VM
@@ -469,9 +472,7 @@ project.afterEvaluate {
         def generateTaskProvider = project.tasks.register('generateNativeImageMetadata') {
             group = 'build'
             description = 'Generates GraalVM Native Image reachability metadata for the main source set.'
-            inputs.file(project.rootProject.file('gradle/native-image-metadata.gradle'))
-                    .withPropertyName('metadataGeneratorScript')
-                    .withPathSensitivity(PathSensitivity.RELATIVE)
+            inputs.property('metadataGeneratorScriptHash', metadataGeneratorScriptHash)
             inputs.files(mainSourceSet.output.classesDirs)
                     .withPropertyName('mainClasses')
                     .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -876,9 +877,7 @@ project.afterEvaluate {
         def prepareNativeRuntimeLibrariesProvider = project.tasks.register('prepareNativeRuntimeLibraries') {
             group = 'build'
             description = 'Extracts platform native libraries needed by native-image executables.'
-            inputs.file(project.rootProject.file('gradle/native-image-metadata.gradle'))
-                    .withPropertyName('metadataGeneratorScript')
-                    .withPathSensitivity(PathSensitivity.RELATIVE)
+            inputs.property('metadataGeneratorScriptHash', metadataGeneratorScriptHash)
         inputs.files(mainSourceSet.runtimeClasspath)
                 .withPropertyName('runtimeClasspath')
                 .withPathSensitivity(PathSensitivity.RELATIVE)

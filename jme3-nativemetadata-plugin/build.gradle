@@ -1,0 +1,134 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'signing'
+}
+
+def rootProperties = new Properties()
+file('../gradle.properties').withInputStream {
+    rootProperties.load(it)
+}
+
+ext {
+    jmeVersion = findProperty('jmeVersion') ?: rootProperties.getProperty('jmeVersion')
+    jmeVersionName = findProperty('jmeVersionName') ?: rootProperties.getProperty('jmeVersionName', '')
+    useCommitHashAsVersionName = findProperty('useCommitHashAsVersionName') ?: rootProperties.getProperty('useCommitHashAsVersionName', 'false')
+    includeBranchInVersion = findProperty('includeBranchInVersion') ?: rootProperties.getProperty('includeBranchInVersion', 'false')
+}
+
+apply from: file('../version.gradle')
+
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+}
+
+gradlePlugin {
+    website = 'https://jmonkeyengine.org'
+    vcsUrl = 'https://github.com/jMonkeyEngine/jmonkeyengine'
+    plugins {
+        nativeMetadata {
+            id = 'org.jmonkeyengine.nativemetadata'
+            displayName = 'jMonkeyEngine Native Metadata'
+            description = 'Generates GraalVM Native Image reachability metadata and runtime native library layouts for jMonkeyEngine projects.'
+            implementationClass = 'org.jmonkeyengine.gradle.nativemetadata.JmeNativeMetadataPlugin'
+            tags.set(['jmonkeyengine', 'graalvm', 'native-metadata'])
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.encoding = 'UTF-8'
+}
+
+publishing {
+    publications.withType(MavenPublication).configureEach {
+        pom {
+            name = 'jMonkeyEngine Native Metadata Gradle Plugin'
+            description = 'Gradle plugin for generating GraalVM Native Image metadata for jMonkeyEngine projects.'
+            url = 'https://jmonkeyengine.org'
+            inceptionYear = '2009'
+            scm {
+                url = 'https://github.com/jMonkeyEngine/jmonkeyengine'
+                connection = 'scm:git:git://github.com/jMonkeyEngine/jmonkeyengine.git'
+                developerConnection = 'scm:git:git@github.com:jMonkeyEngine/jmonkeyengine.git'
+            }
+            licenses {
+                license {
+                    name = 'New BSD (3-clause) License'
+                    url = 'http://opensource.org/licenses/BSD-3-Clause'
+                    distribution = 'repo'
+                }
+            }
+            developers {
+                developer {
+                    id = 'jMonkeyEngine'
+                    name = 'jMonkeyEngine Team'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'Dist'
+            url = file('../dist/maven')
+        }
+        maven {
+            credentials {
+                username = hasProperty('centralUsername') ? centralUsername : 'Unknown user'
+                password = hasProperty('centralPassword') ? centralPassword : 'Unknown password'
+            }
+            name = 'Central'
+            url = 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
+        }
+        maven {
+            credentials {
+                username = hasProperty('centralUsername') ? centralUsername : 'Unknown user'
+                password = hasProperty('centralPassword') ? centralPassword : 'Unknown password'
+            }
+            name = 'SNAPSHOT'
+            url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        }
+    }
+}
+
+publishToMavenLocal.doLast {
+    println "published ${project.name}-${jmeFullVersion} to mavenLocal"
+}
+
+tasks.register('install') {
+    dependsOn 'publishToMavenLocal'
+}
+
+signing {
+    def signingKey = findProperty('signingKey')
+    def signingPassword = findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications
+}
+
+tasks.withType(Sign).configureEach {
+    onlyIf { hasProperty('signingKey') }
+}
