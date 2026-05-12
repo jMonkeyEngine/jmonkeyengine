@@ -188,7 +188,7 @@ public enum Platform {
     Web(Os.Web, true) // assume always 64-bit, it shouldn't matter for web
     ;
 
-
+    
     /**
      * Enumerate generic names of operating systems
      */

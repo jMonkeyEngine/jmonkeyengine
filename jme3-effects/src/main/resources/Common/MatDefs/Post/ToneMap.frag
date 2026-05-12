@@ -20,7 +20,7 @@ vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint) {
 
 uniform vec3 m_WhitePoint;
 varying vec2 texCoord;
-
+ 
 #ifdef NUM_SAMPLES
 
 uniform sampler2DMS m_Texture;
@@ -38,14 +38,14 @@ vec4 ToneMap_TextureFilmic() {
 }
 
 #else
-
+ 
 uniform sampler2D m_Texture;
-
+ 
 vec4 ToneMap_TextureFilmic() {
     vec4 texVal = texture2D(m_Texture, texCoord);
     return vec4(ToneMap_Filmic(texVal.rgb, m_WhitePoint), texVal.a);
 }
-
+ 
 #endif
 
 void main() {

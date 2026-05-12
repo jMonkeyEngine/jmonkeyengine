@@ -1,4 +1,4 @@
-
+ 
 package com.jme3.renderer.lwjgl;
 
 import com.jme3.renderer.RendererException;
@@ -23,7 +23,7 @@ import org.lwjgl.opengles.EXTDisjointTimerQuery;
 
 /**
  * GLES wrapper for lwjgl+angle backend
- *
+ * 
  * @author Riccardo Balbo
  */
 public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, GLFbo {
@@ -581,7 +581,7 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
             return EXTDisjointTimerQuery.glGetQueryObjectiEXT(query, pname);
         }
         IntBuffer b = (IntBuffer) tmpBuff.clear();
-        GLES30.glGetQueryObjectuiv(query, pname, b);
+        GLES30.glGetQueryObjectuiv(query, pname, b); 
         return b.get(0);
     }
 

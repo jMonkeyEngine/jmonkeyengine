@@ -276,10 +276,10 @@ public interface Renderer {
      */
     public void setTexture(int unit, Texture tex)
             throws TextureUnitException;
-
+    
     /**
      * Assigns a TextureImage to the specified texture unit.
-     *
+     * 
      * @param unit the index of the texture unit (&ge;0)
      * @param tex the texture image to assign
      * @throws TextureUnitException if the texture unit does not exist
@@ -326,7 +326,7 @@ public interface Renderer {
      * @param bo the buffer object to upload.
      */
     public void updateUniformBufferObjectData(BufferObject bo);
-
+    
     /**
      * Deletes a vertex buffer from the GPU.
      *
@@ -541,13 +541,13 @@ public interface Renderer {
     public boolean isMainFrameBufferSrgb();
 
     public default void popDebugGroup() {
-
+     
     }
 
     public default void pushDebugGroup(String name) {
-
+ 
     }
-
+    
     /**
      * Returns the current FrameBuffer that is being rendered to.
      * @return the FrameBuffer or null if rendering to the screen.
@@ -616,7 +616,7 @@ public interface Renderer {
             } else if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
                     && getCaps().contains(Caps.PackedFloatColorBuffer)) {
                 return Format.RGB111110F;
-            }
+            } 
         }
 
         return Format.RGBA8;

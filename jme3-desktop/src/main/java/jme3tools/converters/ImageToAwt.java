@@ -78,7 +78,7 @@ public class ImageToAwt {
                 this.am = 0;
                 this.as = 0;
             }
-
+            
             this.gm = 0;
             this.bm = 0;
             this.gs = 0;
@@ -137,7 +137,7 @@ public class ImageToAwt {
         final int s__xx  = 0;
 
         // Note: compressed, depth, and floating-point formats are not included here.
-
+        
         params.put(Format.ABGR8,    new DecodeParams(4, mx___, m___x, m__x_, m_x__,
                                                         sx___, s___x, s__x_, s_x__,
                                                         mxxxx, sxxxx));
@@ -146,7 +146,7 @@ public class ImageToAwt {
         params.put(Format.BGR8,     new DecodeParams(3, 0,     m___x, m__x_, m_x__,
                                                         0,     s___x, s__x_, s_x__,
                                                         mxxxx, sxxxx));
-
+        
         params.put(Format.Luminance8,  new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
 
         params.put(Format.Luminance16F, new DecodeParams(2, mxxxx, sxxxx, mxxxx, sxxxx, false));
@@ -174,7 +174,7 @@ public class ImageToAwt {
         params.put(Format.ARGB8,        new DecodeParams(4, mx___, m_x__, m__x_, m___x,
                                                             sx___, s_x__, s__x_, s___x,
                                                             mxxxx, sxxxx));
-
+        
     }
 
     /**
@@ -275,7 +275,7 @@ public class ImageToAwt {
                 r = r >> reductionR;
                 g = g >> reductionG;
                 b = b >> reductionB;
-
+                
                 // Put components into appropriate positions
                 a = (a << p.as) & p.am;
                 r = (r << p.rs) & p.rm;
@@ -359,7 +359,7 @@ public class ImageToAwt {
             for (int x = 0; x < width; x++){
                 int i = Ix(x, y, width) * inParams.bpp;
                 inputPixel = (readPixel(inData, i, inParams.bpp) & inParams.im) >> inParams.is;
-
+                
                 int a = (inputPixel & inParams.am) >> inParams.as;
                 int r = (inputPixel & inParams.rm) >> inParams.rs;
                 int g = (inputPixel & inParams.gm) >> inParams.gs;
@@ -456,11 +456,11 @@ public class ImageToAwt {
         int expansionR = 8 - Integer.bitCount(p.rm);
         int expansionG = 8 - Integer.bitCount(p.gm);
         int expansionB = 8 - Integer.bitCount(p.bm);
-
+        
         if (expansionR < 0){
             expansionR = 0;
         }
-
+        
         int mipPos = 0;
         for (int i = 0; i < mipLevel; i++){
             mipPos += image.getMipMapSizes()[i];
@@ -484,7 +484,7 @@ public class ImageToAwt {
                 r = r << expansionR;
                 g = g << expansionG;
                 b = b << expansionB;
-
+                
                 if (luminance)
                     b = g = r;
 
