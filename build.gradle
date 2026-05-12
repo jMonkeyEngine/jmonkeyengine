@@ -303,10 +303,8 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
             }) {
                 eachFile { details ->
                     def segments = details.relativePath.segments
-                    if (segments.length <= 1) {
-                        details.exclude()
-                    } else {
-                        details.relativePath = new RelativePath(details.isDirectory(), segments[1..-1] as String[])
+                    if (segments.length > 1) {
+                        details.path = segments[1..-1].join('/')
                     }
                 }
                 includeEmptyDirs = false
