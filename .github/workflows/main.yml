@@ -76,7 +76,7 @@ jobs:
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
       - name: Upload Checkstyle Reports
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
           name: checkstyle-report
@@ -103,7 +103,7 @@ jobs:
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
       - name: Upload SpotBugs Reports
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
           name: spotbugs-report
@@ -140,7 +140,7 @@ jobs:
         run: |
           ./gradlew :jme3-screenshot-test:screenshotTest
       - name: Upload Test Reports
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
           name: screenshot-test-report
@@ -184,7 +184,7 @@ jobs:
           :jme3-ios-native:build
 
       - name: Upload natives
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
@@ -227,7 +227,7 @@ jobs:
           :jme3-android-native:assemble
 
       - name: Upload natives
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: android-natives
           path: build/native
@@ -320,7 +320,7 @@ jobs:
       # Used later by DeploySnapshot
       - name: Upload merged natives
         if: matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: natives
           path: dist/jme3-natives.zip
@@ -328,14 +328,14 @@ jobs:
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: maven
           path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: javadoc
           path: dist/javadoc
@@ -343,7 +343,7 @@ jobs:
       # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: release
           path: dist/release
