@@ -1,4 +1,97 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
+
+import groovy.json.JsonOutput
+import java.nio.file.FileSystems
+import java.nio.file.Files
+
+plugins {
+    id 'org.graalvm.buildtools.native' version '0.10.6'
+}
+
 ext.mainClassName = 'jme3test.TestChooser'
+ext.nativeMainClassName = 'jme3test.TestChooserCli'
+ext.jmeNativeImageAdditionalResourceGlobs = []
+
+def generatedTestChooserResourcesDir = layout.buildDirectory.dir('generated/testchooser/resources')
+def testChooserClassListFile = generatedTestChooserResourcesDir.map { it.file('jme3test/test-classes.txt') }
+def testChooserReflectionConfigFile = layout.buildDirectory.file('generated/testchooser/reflect-config.json')
+def nativeImageBuildOutputJsonFile = layout.buildDirectory.file('reports/native-image/jme3-testchooser-build-output.json')
+def testChooserReachabilityMetadataFile = generatedTestChooserResourcesDir.map {
+    it.file('META-INF/native-image/org.jmonkeyengine/jme3-examples-testchooser/reachability-metadata.json')
+}
+
+tasks.register('generateTestChooserClassList') {
+    group = 'build'
+    description = 'Generates a resource list of jme3test classes for TestChooserCli fallback discovery.'
+    dependsOn 'compileJava'
+    outputs.files(testChooserClassListFile, testChooserReachabilityMetadataFile, testChooserReflectionConfigFile)
+
+    doLast {
+        Set<String> allJme3TestClassNames = new TreeSet<String>()
+        Set<String> launcherClassNames = new TreeSet<String>()
+        sourceSets.main.output.classesDirs.files.findAll { it.exists() }.each { classesDir ->
+            fileTree(classesDir).matching {
+                include 'jme3test/**/*.class'
+                exclude '**/*$*'
+                exclude '**/module-info.class'
+                exclude '**/package-info.class'
+                exclude '**/TestChooser.class'
+                exclude '**/TestChooserCli.class'
+            }.files.each { classFile ->
+                String relativePath = classesDir.toPath().relativize(classFile.toPath()).toString().replace(File.separatorChar, (char) '/')
+                if (relativePath.endsWith('.class')) {
+                    String className = relativePath.substring(0, relativePath.length() - '.class'.length()).replace('/', '.')
+                    allJme3TestClassNames.add(className)
+                    if (relativePath.contains('Test')) {
+                        launcherClassNames.add(className)
+                    }
+                }
+            }
+        }
+
+        File classListFile = testChooserClassListFile.get().asFile
+        classListFile.parentFile.mkdirs()
+        classListFile.text = launcherClassNames.isEmpty()
+                ? ''
+                : launcherClassNames.join(System.lineSeparator()) + System.lineSeparator()
+
+        List<Map<String, Object>> reflectionEntries = allJme3TestClassNames.collect { className ->
+            [
+                    type                   : className,
+                    allDeclaredConstructors: true,
+                    allDeclaredMethods     : true,
+                    allPublicMethods       : true
+            ]
+        }
+        Map<String, Object> metadata = [
+                reflection: reflectionEntries,
+                resources : []
+        ]
+
+        File reachabilityFile = testChooserReachabilityMetadataFile.get().asFile
+        reachabilityFile.parentFile.mkdirs()
+        reachabilityFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(metadata)) + System.lineSeparator()
+
+        List<Map<String, Object>> reflectionConfigEntries = allJme3TestClassNames.collect { className ->
+            [
+                    name                   : className,
+                    allDeclaredConstructors: true,
+                    allDeclaredMethods     : true,
+                    allPublicMethods       : true
+            ]
+        }
+        File reflectionConfigFile = testChooserReflectionConfigFile.get().asFile
+        reflectionConfigFile.parentFile.mkdirs()
+        reflectionConfigFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(reflectionConfigEntries)) + System.lineSeparator()
+    }
+}
+
+sourceSets.main.resources.srcDir(generatedTestChooserResourcesDir)
+
+tasks.named('processResources') {
+    dependsOn 'generateTestChooserClassList'
+}
 
 def androidProject = project(':jme3-android')
 def androidNativeProject = project(':jme3-android-native')
@@ -178,6 +271,84 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         environment 'PROTON_VERB', 'waitforexitandrun'
 
         logger.lifecycle("Running ${exampleClass} with Proton via ${protonJavaExe}")
+    }
+}
+
+def graalLauncher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(21)
+    vendor = JvmVendorSpec.GRAAL_VM
+    nativeImageCapable = true
+}
+
+graalvmNative {
+    testSupport = false
+    binaries {
+        named('main') {
+            imageName = 'jme3-testchooser'
+            mainClass = nativeMainClassName
+            sharedLibrary = false
+            javaLauncher = graalLauncher
+            project.ext.jmeApplyDefaultNativeImageResourceSettings(delegate)
+            buildArgs.add("-H:ReflectionConfigurationFiles=${testChooserReflectionConfigFile.get().asFile.absolutePath}")
+            buildArgs.add('-H:+BuildOutputBreakdowns')
+            buildArgs.add("-H:BuildOutputJSONFile=${nativeImageBuildOutputJsonFile.get().asFile.absolutePath}")
+        }
+    }
+}
+
+tasks.named('nativeCompile') {
+    dependsOn 'processResources'
+
+    doFirst {
+        // Gradle's Copy task cannot preserve symlinks in some provisioned toolchains.
+        // Recreate likely broken links in the GraalVM toolchain before native-image runs.
+        if (!FileSystems.getDefault().supportedFileAttributeViews().contains('posix')) {
+            logger.info("Skipping GraalVM toolchain symlink fixup on non-POSIX file system.")
+            return
+        }
+
+        File graalvmHomeDir = System.getenv('GRAALVM_HOME') ? file(System.getenv('GRAALVM_HOME')) : null
+        def nativeImageLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+            vendor = JvmVendorSpec.GRAAL_VM
+            nativeImageCapable = true
+        }
+
+        if (delegate.hasProperty('options') && delegate.options.hasProperty('javaLauncher')) {
+            delegate.options.javaLauncher.set(nativeImageLauncher)
+        }
+
+        File toolchainDir = graalvmHomeDir
+        if (toolchainDir == null) {
+            File executableParent = nativeImageLauncher.get().executablePath.asFile.parentFile
+            toolchainDir = executableParent.name == 'bin' ? executableParent.parentFile : executableParent
+        }
+
+        def toolchainFiles = project.fileTree(toolchainDir).files.findAll { it.isFile() }
+        def emptyFiles = toolchainFiles.findAll { it.length() == 0L }
+        Set<File> emptyFileSet = emptyFiles as Set<File>
+
+        toolchainFiles.groupBy { it.name }.each { ignoredName, sameNamedFiles ->
+            List<File> nonEmptyCandidates = sameNamedFiles.findAll { it.length() > 0L }
+            List<File> emptyCandidates = sameNamedFiles.findAll { emptyFileSet.contains(it) }
+            if (!nonEmptyCandidates.isEmpty() && !emptyCandidates.isEmpty()) {
+                File target = nonEmptyCandidates.first()
+                emptyCandidates.each { File link ->
+                    if (link != target) {
+                        logger.quiet("Fixing up '${link}' to link to '${target}'.")
+                        if (link.delete()) {
+                            try {
+                                Files.createSymbolicLink(link.toPath(), target.toPath())
+                            } catch (Exception ex) {
+                                logger.warn("Unable to create symlink '${link}' to '${target}'.", ex)
+                            }
+                        } else {
+                            logger.warn("Unable to delete '${link}'.")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

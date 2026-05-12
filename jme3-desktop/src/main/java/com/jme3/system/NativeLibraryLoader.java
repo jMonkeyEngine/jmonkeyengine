@@ -71,11 +71,23 @@ import com.jme3.util.res.Resources;
  * @author Kirill Vainer
  */
 public final class NativeLibraryLoader {
-    
+    /**
+     * System property containing the filesystem directory where native libraries
+     * should be extracted to or loaded from.
+     */
+    public static final String CUSTOM_EXTRACTION_FOLDER_PROPERTY = "com.jme3.NativeLibraryExtractionFolder";
+
+    /**
+     * System property controlling whether native libraries should be extracted
+     * from the classpath before loading. Defaults to {@code true}.
+     */
+    public static final String EXTRACT_NATIVE_LIBRARIES_PROPERTY = "com.jme3.ExtractNativeLibraries";
+
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
     private static File extractionFolderOverride = null;
     private static File extractionFolder = null;
-    
+    private static Boolean extractNativeLibrariesOverride = null;
+
     private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap = new HashMap<>();
 
     static {
@@ -175,7 +187,62 @@ public final class NativeLibraryLoader {
      * @param path Path where to extract native libraries.
      */
     public static void setCustomExtractionFolder(String path) {
-        extractionFolderOverride = new File(path).getAbsoluteFile();
+        extractionFolderOverride = path == null ? null : new File(path).getAbsoluteFile();
+    }
+
+    /**
+     * Returns the configured custom extraction folder.
+     *
+     * @return the programmatic override if set, otherwise the
+     *         {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} system property
+     */
+    public static File getCustomExtractionFolder() {
+        if (extractionFolderOverride != null) {
+            return extractionFolderOverride;
+        }
+
+        String extractionFolderProperty = System.getProperty(CUSTOM_EXTRACTION_FOLDER_PROPERTY);
+        if (extractionFolderProperty != null && !extractionFolderProperty.trim().isEmpty()) {
+            return new File(extractionFolderProperty).getAbsoluteFile();
+        }
+
+        return null;
+    }
+
+    /**
+     * Specify whether native libraries should be extracted from the classpath
+     * before loading. Set to {@code true} to preserve the default behavior.
+     *
+     * @param extractNativeLibraries true to extract classpath natives, false to
+     *                               load existing files from the extraction folder
+     */
+    public static void setExtractNativeLibraries(boolean extractNativeLibraries) {
+        extractNativeLibrariesOverride = extractNativeLibraries;
+    }
+
+    /**
+     * Clears the programmatic extraction flag override.
+     */
+    public static void clearExtractNativeLibrariesOverride() {
+        extractNativeLibrariesOverride = null;
+    }
+
+    /**
+     * Returns whether native libraries should be extracted before loading.
+     *
+     * @return the programmatic override if set, otherwise the
+     *         {@link #EXTRACT_NATIVE_LIBRARIES_PROPERTY} system property,
+     *         defaulting to true
+     */
+    public static boolean isExtractNativeLibraries() {
+        if (extractNativeLibrariesOverride != null) {
+            return extractNativeLibrariesOverride;
+        }
+
+        String extractNativeLibrariesProperty = System.getProperty(EXTRACT_NATIVE_LIBRARIES_PROPERTY);
+        return extractNativeLibrariesProperty == null
+                || extractNativeLibrariesProperty.trim().isEmpty()
+                || Boolean.parseBoolean(extractNativeLibrariesProperty);
     }
 
     /**
@@ -184,7 +251,9 @@ public final class NativeLibraryLoader {
      * following criteria:<br>
      * <ul>
      * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
-     * extraction folder} has been specified, it is returned.
+     * extraction folder} has been specified, it is returned.</li>
+     * <li>If the {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} system property
+     * has been specified, it is returned.</li>
      * <li>If the user can write to "java.io.tmpdir" folder, then it
      * is used.</li>
      * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
@@ -197,8 +266,9 @@ public final class NativeLibraryLoader {
      * @return Path where natives will be extracted to.
      */
     public static File getExtractionFolder() {
-        if (extractionFolderOverride != null) {
-            return extractionFolderOverride;
+        File customExtractionFolder = getCustomExtractionFolder();
+        if (customExtractionFolder != null) {
+            return customExtractionFolder;
         }
         if (extractionFolder == null) {
             File userTempDir = new File(System.getProperty("java.io.tmpdir"));
@@ -480,78 +550,94 @@ public final class NativeLibraryLoader {
             return null;
         }
 
-        URL url = Resources.getResource(pathInJar);
+        String loadedAsFileName = getLoadedAsFileName(library, pathInJar);
+        File extractionDirectory = getExtractionFolder();
+        File targetFile = new File(extractionDirectory, loadedAsFileName);
 
-        if (url == null) {
+        if (isExtractNativeLibraries()) {
+            URL url = Resources.getResource(pathInJar);
+
+            if (url == null) {
+                if (isRequired) {
+                    throw new UnsatisfiedLinkError(
+                            "The required native library '" + library.getName() + "'"
+                                    + " was not found in the classpath via '" + pathInJar);
+                } else if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "The optional native library ''{0}''" +
+                                    " was not found in the classpath via ''{1}''.",
+                            new Object[]{library.getName(), pathInJar});
+                }
+                return null;
+            }
+
+            // The library has been found and is ready to be extracted.
+            URLConnection conn;
+
+            try {
+                conn = url.openConnection();
+            } catch (IOException ex) {
+                // Maybe put more detail here? Not sure.
+                throw new UncheckedIOException("Failed to open file: '" + url +
+                                               "'. Error: " + ex, ex);
+            }
+
+            try (InputStream in = conn.getInputStream()) {
+                if (isExtractingRequired(conn, targetFile)) {
+                    Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                    // NOTE: On OSes that support "Date Created" property,
+                    // this will cause the last modified date to be lower than
+                    // date created which makes no sense
+                    targetFile.setLastModified(conn.getLastModified());
+
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "Extracted native library from ''{0}'' into ''{1}''. ",
+                                new Object[]{url, targetFile});
+                    }
+                } else {
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.",
+                                loadedAsFileName);
+                    }
+                }
+            } catch (IOException ex) {
+                /*if (ex.getMessage().contains("used by another process")) {
+                    return;
+                }*/
+
+                throw new UncheckedIOException("Failed to extract native library to: "
+                        + targetFile, ex);
+            }
+        } else if (!targetFile.isFile()) {
             if (isRequired) {
                 throw new UnsatisfiedLinkError(
                         "The required native library '" + library.getName() + "'"
-                                + " was not found in the classpath via '" + pathInJar);
+                                + " was not found at '" + targetFile
+                                + "' and native library extraction is disabled");
             } else if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "The optional native library ''{0}''" +
-                                " was not found in the classpath via ''{1}''.",
-                        new Object[]{library.getName(), pathInJar});
+                                " was not found at ''{1}'' and native library extraction is disabled.",
+                        new Object[]{library.getName(), targetFile});
             }
             return null;
         }
-        
-        // The library has been found and is ready to be extracted.
-        // Determine what filename it should be extracted as.
-        String loadedAsFileName;
+
+        library.getLoadFunction().accept(targetFile.getAbsolutePath());
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Loaded native library {0}.", library.getName());
+        }
+
+        return targetFile.getAbsolutePath();
+    }
+
+    private static String getLoadedAsFileName(NativeLibrary library, String pathInJar) {
         if (library.getExtractedAsName() != null) {
-            loadedAsFileName = library.getExtractedAsName();
-        } else {
-            // Just use the original filename as it is in the JAR.
-            loadedAsFileName = Paths.get(pathInJar).getFileName().toString();
+            return library.getExtractedAsName();
         }
-        
-        File extractionDirectory = getExtractionFolder();
-        URLConnection conn;
 
-        try {
-            conn = url.openConnection();
-        } catch (IOException ex) {
-            // Maybe put more detail here? Not sure.
-            throw new UncheckedIOException("Failed to open file: '" + url + 
-                                           "'. Error: " + ex, ex);
-        }
-        
-        File targetFile = new File(extractionDirectory, loadedAsFileName);
-        try (InputStream in = conn.getInputStream()) {
-            if (isExtractingRequired(conn, targetFile)) {
-                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-                // NOTE: On OSes that support "Date Created" property,
-                // this will cause the last modified date to be lower than
-                // date created which makes no sense
-                targetFile.setLastModified(conn.getLastModified());
-
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "Extracted native library from ''{0}'' into ''{1}''. ",
-                            new Object[]{url, targetFile});
-                }
-            } else {
-                if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.",
-                            loadedAsFileName);
-                }
-            }
-
-            library.getLoadFunction().accept(targetFile.getAbsolutePath());
-
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loaded native library {0}.", library.getName());
-            }
-
-            return targetFile.getAbsolutePath();
-        } catch (IOException ex) {
-            /*if (ex.getMessage().contains("used by another process")) {
-                return;
-            }*/
-
-            throw new UncheckedIOException("Failed to extract native library to: "
-                    + targetFile, ex);
-        }
+        // Just use the original filename as it is in the JAR.
+        return Paths.get(pathInJar).getFileName().toString();
     }
 
     /**

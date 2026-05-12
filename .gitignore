@@ -5,6 +5,7 @@
 **/.vscode/**
 **/out/
 /.gradle/
+**/.gradle/
 /.nb-gradle/
 /.idea/
 /dist/

@@ -221,6 +221,7 @@ public enum Platform {
 
     private final boolean is64bit;
     private final Os os;
+    private static final boolean NATIVE_IMAGE_RUNTIME = detectNativeImageRuntime();
 
     /**
      * Test for a 64-bit address space.
@@ -238,6 +239,19 @@ public enum Platform {
      */
     public Os getOs() {
         return os;
+    }
+
+    /**
+     * Test whether this process is running as a GraalVM native-image executable.
+     *
+     * @return true if running inside a native-image runtime, otherwise false
+     */
+    public boolean isGraalVMNativeImage() {
+        return NATIVE_IMAGE_RUNTIME;
+    }
+
+    private static boolean detectNativeImageRuntime() {
+        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
     }
 
     private Platform(Os os, boolean is64bit) {
