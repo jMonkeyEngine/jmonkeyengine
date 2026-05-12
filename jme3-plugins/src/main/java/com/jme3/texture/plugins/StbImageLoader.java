@@ -54,18 +54,12 @@ public class StbImageLoader implements AssetLoader {
 
         int width = info.getWidth();
         int height = info.getHeight();
-        // When channels == 0 the decoder will choose its natural output count.
         int desiredChannels = channels;
 
         boolean is16bit = info.is16Bit();
         boolean isFloat = info.isFloat();
 
-        // Some formats (e.g., TGA) don't report channel count via info().
-        // When channels == 0, load first and determine the format afterwards.
-        Image.Format jmeFormat = null;
-        if (channels != 0) {
-            jmeFormat = selectFormat(channels, is16bit, isFloat);
-        }
+        Image.Format jmeFormat = selectFormat(channels, is16bit, isFloat);
 
         StbImageResult imgData;
         if (isFloat){
@@ -74,12 +68,6 @@ public class StbImageLoader implements AssetLoader {
             imgData = decoder.load16(desiredChannels);
         } else {
             imgData = decoder.load(desiredChannels);
-        }
-
-        if (channels == 0) {
-            // Channel count was not available from info(); derive the format from
-            // the number of channels actually produced by the decoder.
-            jmeFormat = selectFormat(imgData.getChannels(), is16bit, isFloat);
         }
 
         boolean sRGB = (jmeFormat == Image.Format.RGB8 || jmeFormat == Image.Format.RGBA8);
