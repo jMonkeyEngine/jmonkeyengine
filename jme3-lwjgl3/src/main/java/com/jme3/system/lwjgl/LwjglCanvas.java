@@ -101,7 +101,8 @@ import org.lwjgl.system.Platform;
  * <pre><code>
  * ....
  *  AppSettings settings = new AppSettings(true);
- *  settings.setGammaCorrection(false);
+ *  settings.setGammaCorrection(true);
+ *  settings.setRenderer(AppSettings.LWJGL_OPENGL32);
  * ...
  * </code></pre>
  *
