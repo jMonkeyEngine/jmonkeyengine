@@ -498,7 +498,7 @@ public class TestChooser extends JFrame {
      *            command line parameters
      */
     public static void main(final String[] args) {
-        if (JmeSystem.getPlatform().isGraalVM()) {
+        if (JmeSystem.getPlatform().isGraalVMNativeImage()) {
             TestChooserCli.main(args);
             return;
         }

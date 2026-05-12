@@ -222,7 +222,6 @@ public enum Platform {
     private final boolean is64bit;
     private final Os os;
     private static final boolean NATIVE_IMAGE_RUNTIME = detectNativeImageRuntime();
-    private static final boolean GRAAL_VM_RUNTIME = detectGraalVmRuntime();
 
     /**
      * Test for a 64-bit address space.
@@ -243,57 +242,16 @@ public enum Platform {
     }
 
     /**
-     * Test whether this process runs on GraalVM or inside a native-image runtime.
-     *
-     * @return true if GraalVM/native-image is detected, otherwise false
-     */
-    public boolean isGraalVM() {
-        return GRAAL_VM_RUNTIME;
-    }
-
-    /**
      * Test whether this process is running as a GraalVM native-image executable.
      *
      * @return true if running inside a native-image runtime, otherwise false
      */
-    public boolean isNativeImage() {
+    public boolean isGraalVMNativeImage() {
         return NATIVE_IMAGE_RUNTIME;
-    }
-
-    /**
-     * Test whether this process is running on GraalVM JRE/JDK (not native-image).
-     *
-     * @return true if GraalVM is detected and this is not native-image
-     */
-    public boolean isGraalVmJvm() {
-        return GRAAL_VM_RUNTIME && !NATIVE_IMAGE_RUNTIME;
     }
 
     private static boolean detectNativeImageRuntime() {
         return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
-    }
-
-    private static boolean detectGraalVmRuntime() {
-        if (NATIVE_IMAGE_RUNTIME) {
-            return true;
-        }
-
-        String vmName = System.getProperty("java.vm.name", "").toLowerCase();
-        if (vmName.contains("graal")) {
-            return true;
-        }
-
-        String vendor = System.getProperty("java.vendor", "").toLowerCase();
-        if (vendor.contains("graal")) {
-            return true;
-        }
-
-        try {
-            Class.forName("org.graalvm.polyglot.Context", false, Platform.class.getClassLoader());
-            return true;
-        } catch (ClassNotFoundException ignored) {
-            return false;
-        }
     }
 
     private Platform(Os os, boolean is64bit) {
