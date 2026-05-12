@@ -58,56 +58,8 @@ public class StbImageLoader implements AssetLoader {
 
         boolean is16bit = info.is16Bit();
         boolean isFloat = info.isFloat();
-        boolean sRGB = false;
 
-
-        Image.Format jmeFormat;
-        if (is16bit || isFloat) {
-            switch (channels) {
-                case 1:
-                    jmeFormat = Image.Format.Luminance16F;
-                    desiredChannels = 1;
-                    break;
-                case 2:
-                    jmeFormat = Image.Format.Luminance16FAlpha16F;
-                    desiredChannels = 2;
-                    break;
-                case 3:
-                    jmeFormat = Image.Format.RGB16F;
-                    desiredChannels = 3;
-                    break;
-                case 4:
-                    jmeFormat = Image.Format.RGBA16F;
-                    desiredChannels = 4;
-                    break;
-                default:
-                    throw new IOException("Unsupported number of channels: " + channels);
-
-            }
-        } else {
-            switch (channels) {
-                case 1:
-                    jmeFormat = Image.Format.Luminance8;
-                    desiredChannels = 1;
-                    break;
-                case 2:
-                    jmeFormat = Image.Format.Luminance8Alpha8;
-                    desiredChannels = 2;
-                    break;
-                case 3:
-                    jmeFormat = Image.Format.RGB8;
-                    desiredChannels = 3;
-                    sRGB = true;
-                    break;
-                case 4:
-                    jmeFormat = Image.Format.RGBA8;
-                    desiredChannels = 4;
-                    sRGB = true;
-                    break;
-                default:
-                    throw new IOException("Unsupported number of channels: " + channels);
-            }
-        }
+        Image.Format jmeFormat = selectFormat(channels, is16bit, isFloat);
 
         StbImageResult imgData;
         if (isFloat){
@@ -118,6 +70,7 @@ public class StbImageLoader implements AssetLoader {
             imgData = decoder.load(desiredChannels);
         }
 
+        boolean sRGB = (jmeFormat == Image.Format.RGB8 || jmeFormat == Image.Format.RGBA8);
         ByteBuffer jmeImageBuffer = convertImageData(imgData, jmeFormat);
 
         return new Image(jmeFormat, width, height, jmeImageBuffer, sRGB ? ColorSpace.sRGB : ColorSpace.Linear);
@@ -138,6 +91,36 @@ public class StbImageLoader implements AssetLoader {
         }
     }
 
+    /**
+     * Maps a channel count and bit-depth to the corresponding {@link Image.Format}.
+     *
+     * @param channels  number of channels (1–4)
+     * @param is16bit   {@code true} for 16-bit-per-channel source data
+     * @param isFloat   {@code true} for floating-point source data
+     * @return the matching {@link Image.Format}
+     * @throws IOException if {@code channels} is outside the supported range
+     */
+    private static Image.Format selectFormat(int channels, boolean is16bit, boolean isFloat)
+            throws IOException {
+        if (is16bit || isFloat) {
+            switch (channels) {
+                case 1: return Image.Format.Luminance16F;
+                case 2: return Image.Format.Luminance16FAlpha16F;
+                case 3: return Image.Format.RGB16F;
+                case 4: return Image.Format.RGBA16F;
+                default: throw new IOException("Unsupported number of channels: " + channels);
+            }
+        } else {
+            switch (channels) {
+                case 1: return Image.Format.Luminance8;
+                case 2: return Image.Format.Luminance8Alpha8;
+                case 3: return Image.Format.RGB8;
+                case 4: return Image.Format.RGBA8;
+                default: throw new IOException("Unsupported number of channels: " + channels);
+            }
+        }
+    }
+
     private ByteBuffer convertImageData(StbImageResult imgData, Image.Format jmeFormat) {
         int outputSize = jmeFormat.getBitsPerPixel() / 8 * imgData.getWidth() * imgData.getHeight();
         ByteBuffer jmeImageBuffer = BufferUtils.createByteBuffer(outputSize);
@@ -151,7 +134,7 @@ public class StbImageLoader implements AssetLoader {
             return jmeImageBuffer;
         }
 
-        int sampleCount = imgData.getWidth() * imgData.getHeight() * imgData.getRequestedChannels();
+        int sampleCount = imgData.getWidth() * imgData.getHeight() * imgData.getChannels();
         if (imgData.is16Bit()) {
             for (int i = 0; i < sampleCount; i++) {
                 float value = (source.getShort() & 0xFFFF) / 65535f;
