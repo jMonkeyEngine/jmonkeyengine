@@ -77,6 +77,7 @@ import org.lwjgl.system.Configuration;
 
 import static org.lwjgl.system.MemoryUtil.*;
 import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
+import org.lwjgl.system.Platform;
 
 /**
  * Class <code>LwjglCanvas</code> that integrates <a href="https://github.com/LWJGLX/lwjgl3-awt">LWJGLX</a>
@@ -116,47 +117,53 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /*
         Register the different versions.
+
+        The 'COMPATIBILITY' profile is used for operational reasons on different
+        platforms.
+    
+        see the discussion:
+        https://github.com/jMonkeyEngine/jmonkeyengine/pull/2153#issuecomment-1860913192
     */
     static {
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, (data) -> {
             data.majorVersion = 3;
             data.minorVersion = 2;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, (data) -> {
             data.majorVersion = 3;
             data.minorVersion = 3;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 0;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 1;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 2;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 3;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 4;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 5;
-            data.profile = GLData.Profile.CORE;
+            data.profile = GLData.Profile.COMPATIBILITY;
         });
     }
 
@@ -453,6 +460,47 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     }
 
     /**
+     * Returns the GL context handler.
+     *
+     * @return String
+     */
+    @Override
+    protected String getCurrentVideoDriver() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append("AWT|Swing (LWJGLX) GLv")
+                .append(canvas.data.majorVersion)
+                .append('.')
+                .append(canvas.data.minorVersion);
+
+        String driver = isWayland() ? "(XWayland|X11) GLX" : "X11 GLX";
+
+        Platform platform = Platform.get();
+        if (null == platform) {
+            buffer.append(" Unknown NULL");
+        } else {
+            switch (platform) {
+                case FREEBSD:
+                    buffer.append(" FreeBSD ")
+                          .append(driver);
+                    break;
+                case LINUX:
+                    buffer.append(" Linux ")
+                           .append(driver);
+                    break;
+                case MACOSX:
+                    buffer.append(" MacOSX Cocoa NSGL");
+                    break;
+                case WINDOWS:
+                    buffer.append(" Win32 WGL");
+                    break;
+                default:
+                    break;
+            }
+        }
+        return String.valueOf(buffer);
+    }
+
+    /**
      * Check if the canvas is displayed, that is, if it has a parent that has set it up.
      * <p>
      * It is very important that this verification be done so that LWJGL3-AWT works correctly.
@@ -688,7 +736,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
 
         glData.alphaSize = settings.getAlphaBits();
-        glData.sRGB = settings.isGammaCorrection() && !useAuxFramebufferSrgb();
+        glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
 
         glData.depthSize = settings.getDepthBits();
         glData.stencilSize = settings.getStencilBits();
@@ -697,7 +745,11 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
         glData.debug = settings.isGraphicsDebug();
         glData.api = GLData.API.GL;
-        glData.forwardCompatible = true;
+
+        /* This is done to prevent the context from breaking in Windows,
+         * since the 'CORE' profile causes rendering failures (black screen).
+         */
+        glData.forwardCompatible = false;
 
         allowSwapBuffers = settings.isSwapBuffers();
 
@@ -766,7 +818,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     /** (non-Javadoc) */
     @Override protected void showWindow() { }
     /** (non-Javadoc) */
-    @Override  protected void setWindowIcon(final AppSettings settings) { }
+    @Override protected void setWindowIcon(final AppSettings settings) { }
     /**(non-Javadoc) */
     @Override public Vector2f getWindowContentScale(Vector2f store) {
         return store == null ? new Vector2f() : store;
@@ -1004,5 +1056,27 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override
     public Canvas getCanvas() {
         return canvas;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param settings AppSettings
+     */
+    @Override
+    public void setSettings(AppSettings settings) {
+        if (settings.getRenderer().equals(AppSettings.ANGLE_GLES3)) {
+            StringBuilder buffer = new StringBuilder();
+            buffer.append("LWJGX is not compatible with ANGLE/SDL or GLES, as it only supports the following:")
+                    .append('\n').append(" * WGL | Windows")
+                    .append('\n').append(" * GLX | Linux (X11/XWayland)")
+                    .append('\n').append(" * CGL | MacOsX")
+                    .append('\n').append(" * Therefore, version ")
+                    .append(AppSettings.LWJGL_OPENGL32)
+                    .append("(3.2) will be used for the GL context.");
+            
+            LOGGER.log(Level.WARNING, String.valueOf(buffer));
+            settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        }
+        super.setSettings(settings);
     }
 }
