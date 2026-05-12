@@ -12,8 +12,6 @@ buildscript {
     }
 }
 
-import org.gradle.api.file.RelativePath
-
 // Set the license for IDEs that understand this
 ext.license = file("$rootDir/source-file-header-template.txt")
 
@@ -280,10 +278,8 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
             }) {
                 eachFile { details ->
                     def segments = details.relativePath.segments
-                    if (segments.length <= 1) {
-                        details.exclude()
-                    } else {
-                        details.relativePath = new RelativePath(details.isDirectory(), segments[1..-1] as String[])
+                    if (segments.length > 1) {
+                        details.path = segments[1..-1].join('/')
                     }
                 }
                 includeEmptyDirs = false
