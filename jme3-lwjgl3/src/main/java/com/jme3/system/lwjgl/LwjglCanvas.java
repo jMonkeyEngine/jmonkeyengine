@@ -1067,7 +1067,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     public void setSettings(AppSettings settings) {
         if (settings.getRenderer().equals(AppSettings.ANGLE_GLES3)) {
             StringBuilder buffer = new StringBuilder();
-            buffer.append("LWJGX is not compatible with ANGLE/SDL or GLES, as it only supports the following:")
+            buffer.append("LWJGLX is not compatible with ANGLE/SDL or GLES, as it only supports the following:")
                     .append('\n').append(" * WGL | Windows")
                     .append('\n').append(" * GLX | Linux (X11/XWayland)")
                     .append('\n').append(" * CGL | MacOsX")
