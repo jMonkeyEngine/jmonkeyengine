@@ -31,6 +31,7 @@
  */
 package com.jme3.bounding;
 
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,19 @@ import org.junit.jupiter.api.Test;
  * @author Stephen Gold
  */
 public class TestBoundingBox {
+    /**
+     * Verify distanceToEdge() for points inside and outside a non-origin box.
+     */
+    @Test
+    public void testDistanceToEdge() {
+        BoundingBox box = new BoundingBox(new Vector3f(3f, -2f, 7f), 5f, 9f, 13f);
+
+        Assertions.assertEquals(0f, box.distanceToEdge(new Vector3f(4f, 0f, 9f)), 0f);
+        Assertions.assertEquals(0f, box.distanceToEdge(new Vector3f(8f, -2f, 7f)), 0f);
+        Assertions.assertEquals(3f, box.distanceToEdge(new Vector3f(11f, -2f, 7f)), 0f);
+        Assertions.assertEquals(6f, box.distanceToEdge(new Vector3f(10f, -15f, 24f)), FastMath.ZERO_TOLERANCE);
+    }
+
     /**
      * Verify that equals() behaves as expected.
      */

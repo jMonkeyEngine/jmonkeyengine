@@ -22,6 +22,107 @@ import com.jme3.util.BufferUtils;
 public class StbImageLoader implements AssetLoader {
     private final StbImage stbImage = new StbImage(BufferUtils::createByteBuffer);
 
+    /**
+     * Loads an image from an {@link InputStream} with optional vertical flip.
+     *
+     * @param in     the input stream containing the encoded image data (e.g. PNG, JPEG)
+     * @param flipY  {@code true} to flip the image vertically on load
+     * @return the decoded {@link Image}
+     * @throws IOException if the stream cannot be read or the image format is unsupported
+     */
+    public Image load(InputStream in, boolean flipY) throws IOException {
+        byte[] data = ByteUtils.getByteContent(in);
+        return load(data, flipY);
+    }
+
+    /**
+     * Loads an image from a byte array with optional vertical flip.
+     *
+     * @param data   the raw encoded image data (e.g. PNG, JPEG)
+     * @param flipY  {@code true} to flip the image vertically on load
+     * @return the decoded {@link Image}
+     * @throws IOException if the image data cannot be decoded or the format is unsupported
+     */
+    public Image load(byte[] data, boolean flipY) throws IOException {
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        stbImage.setConvertIphonePngToRgb(true);
+        stbImage.setUnpremultiplyOnLoad(true);
+
+        StbDecoder decoder = stbImage.getDecoder(buffer, flipY);
+        StbImageInfo info = decoder.info();
+        int channels = info.getChannels();
+
+        int width = info.getWidth();
+        int height = info.getHeight();
+        int desiredChannels = channels;
+
+        boolean is16bit = info.is16Bit();
+        boolean isFloat = info.isFloat();
+        boolean sRGB = false;
+
+
+        Image.Format jmeFormat;
+        if (is16bit || isFloat) {
+            switch (channels) {
+                case 1:
+                    jmeFormat = Image.Format.Luminance16F;
+                    desiredChannels = 1;
+                    break;
+                case 2:
+                    jmeFormat = Image.Format.Luminance16FAlpha16F;
+                    desiredChannels = 2;
+                    break;
+                case 3:
+                    jmeFormat = Image.Format.RGB16F;
+                    desiredChannels = 3;
+                    break;
+                case 4:
+                    jmeFormat = Image.Format.RGBA16F;
+                    desiredChannels = 4;
+                    break;
+                default:
+                    throw new IOException("Unsupported number of channels: " + channels);
+
+            }
+        } else {
+            switch (channels) {
+                case 1:
+                    jmeFormat = Image.Format.Luminance8;
+                    desiredChannels = 1;
+                    break;
+                case 2:
+                    jmeFormat = Image.Format.Luminance8Alpha8;
+                    desiredChannels = 2;
+                    break;
+                case 3:
+                    jmeFormat = Image.Format.RGB8;
+                    desiredChannels = 3;
+                    sRGB = true;
+                    break;
+                case 4:
+                    jmeFormat = Image.Format.RGBA8;
+                    desiredChannels = 4;
+                    sRGB = true;
+                    break;
+                default:
+                    throw new IOException("Unsupported number of channels: " + channels);
+            }
+        }
+
+        StbImageResult imgData;
+        if (isFloat){
+            imgData = decoder.loadf(desiredChannels);
+        } else if (is16bit){
+            imgData = decoder.load16(desiredChannels);
+        } else {
+            imgData = decoder.load(desiredChannels);
+        }
+
+        ByteBuffer jmeImageBuffer = convertImageData(imgData, jmeFormat);
+
+        return new Image(jmeFormat, width, height, jmeImageBuffer, sRGB ? ColorSpace.sRGB : ColorSpace.Linear);
+    }
+
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         AssetKey<?> key = assetInfo.getKey();
@@ -33,85 +134,7 @@ public class StbImageLoader implements AssetLoader {
         boolean flip = textureKey != null && textureKey.isFlipY();
 
         try(InputStream is = assetInfo.openStream()) {
-            byte[] data = ByteUtils.getByteContent(is);
-            ByteBuffer buffer = ByteBuffer.wrap(data);
-            stbImage.setConvertIphonePngToRgb(true);
-            stbImage.setUnpremultiplyOnLoad(true);
-
-            StbDecoder decoder = stbImage.getDecoder(buffer, flip);
-            StbImageInfo info = decoder.info();
-            int channels = info.getChannels();
-
-            int width = info.getWidth();
-            int height = info.getHeight();
-            int desiredChannels = channels;
-
-            boolean is16bit = info.is16Bit();
-            boolean isFloat = info.isFloat();
-            boolean sRGB = false;
-
-
-            Image.Format jmeFormat;
-            if (is16bit || isFloat) {
-                switch (channels) {
-                    case 1:
-                        jmeFormat = Image.Format.R16F;
-                        desiredChannels = 1;
-                        break;
-                    case 2:
-                        jmeFormat = Image.Format.RG16F;
-                        desiredChannels = 2;
-                        break;
-                    case 3:
-                        jmeFormat = Image.Format.RGB16F;
-                        desiredChannels = 3;
-                        break;
-                    case 4:
-                        jmeFormat = Image.Format.RGBA16F;
-                        desiredChannels = 4;
-                        break;
-                    default:
-                        throw new IOException("Unsupported number of channels: " + channels);
-
-                }
-            } else {
-                switch (channels) {
-                    case 1:
-                        jmeFormat = Image.Format.Luminance8;
-                        desiredChannels = 1;
-                        break;
-                    case 2:
-                        jmeFormat = Image.Format.Luminance8Alpha8;
-                        desiredChannels = 2;
-                        break;
-                    case 3:
-                        jmeFormat = Image.Format.RGB8;
-                        desiredChannels = 3;
-                        sRGB = true;
-                        break;
-                    case 4:
-                        jmeFormat = Image.Format.RGBA8;
-                        desiredChannels = 4;
-                        sRGB = true;
-                        break;
-                    default:
-                        throw new IOException("Unsupported number of channels: " + channels);
-                }
-            }
-
-            StbImageResult imgData;
-            if(isFloat){
-                imgData = decoder.loadf(desiredChannels);
-            } else if(is16bit){
-                imgData = decoder.load16(desiredChannels);
-            } else {
-                imgData = decoder.load(desiredChannels);
-            }
-
-            ByteBuffer jmeImageBuffer = convertImageData(imgData, jmeFormat);
-
-            Image jmeImage = new Image(jmeFormat, width, height, jmeImageBuffer, sRGB ? ColorSpace.sRGB : ColorSpace.Linear);
-            return jmeImage;
+            return load(is, flip);
         }
     }
 

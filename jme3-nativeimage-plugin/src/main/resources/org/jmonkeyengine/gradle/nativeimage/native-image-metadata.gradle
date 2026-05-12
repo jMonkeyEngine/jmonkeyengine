@@ -1,0 +1,985 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import org.gradle.api.tasks.PathSensitivity
+
+def extraProperties = project.extensions.extraProperties
+[
+        'jmeNativeImageAdditionalTargetTypes',
+        'jmeNativeImageAdditionalTargetAnnotations',
+        'jmeNativeImageAdditionalProxyInterfaceSets',
+        'jmeNativeImageAdditionalResourceGlobs',
+        'jmeNativeImageIncludeResourcesPattern',
+        'jmeNativeImageExcludeResourcesPattern'
+].each { propertyName ->
+    if (!extraProperties.has(propertyName)) {
+        if (propertyName == 'jmeNativeImageIncludeResourcesPattern') {
+            extraProperties.set(propertyName, '.*')
+        } else if (propertyName == 'jmeNativeImageExcludeResourcesPattern') {
+            extraProperties.set(propertyName, '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$')
+        } else {
+            extraProperties.set(propertyName, [])
+        }
+    }
+}
+
+if (!extraProperties.has('jmeApplyDefaultNativeImageResourceSettings')) {
+    extraProperties.set('jmeApplyDefaultNativeImageResourceSettings', { Object nativeBinary ->
+        if (nativeBinary == null) {
+            return
+        }
+
+        String includeResourcesPattern = project.ext.jmeNativeImageIncludeResourcesPattern?.toString() ?: '.*'
+        String excludeResourcesPattern = project.ext.jmeNativeImageExcludeResourcesPattern?.toString() ?: '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$'
+
+        nativeBinary.resources.autodetect()
+        nativeBinary.buildArgs.add("-H:IncludeResources=${includeResourcesPattern}")
+        nativeBinary.buildArgs.add("-H:ExcludeResources=${excludeResourcesPattern}")
+    })
+}
+
+def defaultTargetTypes = [
+        'java.lang.Cloneable',
+        'com.jme3.export.Savable',
+        'com.jme3.asset.AssetLoader',
+        'com.jme3.asset.AssetLocator',
+        'com.jme3.asset.cache.AssetCache',
+        'com.jme3.asset.AssetProcessor',
+        'com.jme3.scene.control.Control',
+        'com.jme3.post.Filter',
+        'com.jme3.post.SceneProcessor',
+        'com.jme3.util.clone.JmeCloneable',
+        'com.jme3.anim.util.JointModelTransform',
+        'com.jme3.util.struct.Struct',
+        'com.jme3.material.logic.TechniqueDefLogic',
+        'com.jme3.system.JmeSystemDelegate',
+        'com.jme3.system.JmeContext',
+        'com.jme3.system.JmeDialogsFactory',
+        'com.jme3.util.BufferAllocator',
+        'com.jme3.util.res.ResourceLoader',
+        'com.jme3.plugins.json.JsonParser',
+        'com.jme3.audio.openal.AL',
+        'com.jme3.audio.openal.ALC',
+        'com.jme3.audio.openal.EFX',
+        'com.jme3.opencl.PlatformChooser',
+        'com.jme3.network.Message',
+        'com.jme3.network.serializing.Serializer',
+        'com.jme3.app.Application'
+]
+
+def defaultTargetAnnotations = [
+        'com.jme3.network.serializing.Serializable'
+]
+
+def defaultProxyInterfaceSets = [
+        [
+                'com.jme3.renderer.opengl.GL',
+                'com.jme3.renderer.opengl.GL2',
+                'com.jme3.renderer.opengl.GL3',
+                'com.jme3.renderer.opengl.GL4'
+        ],
+        [
+                'com.jme3.renderer.opengl.GL',
+                'com.jme3.renderer.opengl.GLES_30',
+                'com.jme3.renderer.opengl.GLFbo',
+                'com.jme3.renderer.opengl.GLExt'
+        ],
+        [
+                'com.jme3.renderer.opengl.GL',
+                'com.jme3.renderer.opengl.GLExt',
+                'com.jme3.renderer.opengl.GLFbo'
+        ],
+        [
+                'com.jme3.renderer.opengl.GLExt'
+        ],
+        [
+                'com.jme3.renderer.opengl.GLFbo'
+        ]
+]
+
+def asStringList = { Object value ->
+    if (value == null) {
+        return []
+    }
+    if (value instanceof CharSequence) {
+        return [value.toString()]
+    }
+    if (value.getClass().isArray()) {
+        return value.toList().findAll { it != null }.collect { it.toString() }
+    }
+    if (value instanceof Collection) {
+        return value.findAll { it != null }.collect { it.toString() }
+    }
+    return [value.toString()]
+}
+
+def asStringMatrix = { Object value ->
+    if (!(value instanceof Collection) && !(value != null && value.getClass().isArray())) {
+        return []
+    }
+    def outer = value instanceof Collection ? value : value.toList()
+    return outer.collect { entry ->
+        asStringList(entry).findAll { !it.isEmpty() }
+    }.findAll { !it.isEmpty() }
+}
+
+def loadClassSafely = { ClassLoader loader, String className ->
+    try {
+        return Class.forName(className, false, loader)
+    } catch (Throwable ignored) {
+        return null
+    }
+}
+
+def isConstructible = { Class<?> clazz ->
+    int modifiers = clazz.modifiers
+    return !clazz.isInterface() && !clazz.isAnnotation() && !clazz.isAnonymousClass() && !clazz.isLocalClass() && !java.lang.reflect.Modifier.isAbstract(modifiers)
+}
+
+def safeAssignableFrom = { Class<?> target, Class<?> clazz ->
+    try {
+        return target.isAssignableFrom(clazz)
+    } catch (Throwable ignored) {
+        return false
+    }
+}
+
+def safeAnnotationPresent = { Class<?> clazz, Class<?> annotationClass ->
+    try {
+        return clazz.isAnnotationPresent(annotationClass)
+    } catch (Throwable ignored) {
+        return false
+    }
+}
+
+def safeSuperclass = { Class<?> clazz ->
+    try {
+        return clazz.superclass
+    } catch (Throwable ignored) {
+        return null
+    }
+}
+
+def hasPublicNoArgCloneMethod = { Class<?> clazz ->
+    try {
+        clazz.getMethod('clone')
+        return true
+    } catch (Throwable ignored) {
+        return false
+    }
+}
+
+def binaryClassName = { File classesDir, File classFile ->
+    String relativePath = classesDir.toPath().relativize(classFile.toPath()).toString().replace(File.separatorChar, (char) '/')
+    if (!relativePath.endsWith('.class')) {
+        return null
+    }
+    String className = relativePath.substring(0, relativePath.length() - '.class'.length()).replace('/', '.')
+    if (className.endsWith('module-info') || className.endsWith('package-info')) {
+        return null
+    }
+    return className
+}
+
+def normalizeClassReference = { String value ->
+    if (value == null || value.isEmpty()) {
+        return null
+    }
+    String raw = value
+    while (raw.startsWith('[')) {
+        raw = raw.substring(1)
+    }
+    if (raw.length() == 1 && 'BCDFIJSZV'.contains(raw)) {
+        return null
+    }
+    if (raw.startsWith('L') && raw.endsWith(';')) {
+        raw = raw.substring(1, raw.length() - 1)
+    }
+    int genericStart = raw.indexOf('<')
+    if (genericStart >= 0) {
+        raw = raw.substring(0, genericStart)
+    }
+    int signatureBound = raw.indexOf(':')
+    if (signatureBound >= 0) {
+        raw = raw.substring(0, signatureBound)
+    }
+    if (!raw.contains('/')) {
+        return null
+    }
+    String className = raw.replace('/', '.')
+    if (className.endsWith('module-info') || className.endsWith('package-info')) {
+        return null
+    }
+    return className
+}
+
+def collectDescriptorClassReferences = { String descriptor ->
+    SortedSet<String> references = new TreeSet<>()
+    if (descriptor == null || descriptor.indexOf('L') < 0) {
+        return references
+    }
+    int index = 0
+    while (index < descriptor.length()) {
+        int start = descriptor.indexOf('L', index)
+        if (start < 0 || start + 1 >= descriptor.length()) {
+            break
+        }
+        int end = start + 1
+        while (end < descriptor.length()) {
+            char ch = descriptor.charAt(end)
+            if (ch == ';' || ch == '<' || ch == ':') {
+                break
+            }
+            end++
+        }
+        if (end > start + 1) {
+            String className = normalizeClassReference(descriptor.substring(start + 1, end))
+            if (className != null) {
+                references.add(className)
+            }
+        }
+        index = end + 1
+    }
+    return references
+}
+
+def collectClassReferencesFromStream = { InputStream input ->
+    SortedSet<String> references = new TreeSet<>()
+    try {
+        new DataInputStream(new BufferedInputStream(input)).withCloseable { stream ->
+            if (stream.readInt() != -889275714) {
+                return references
+            }
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            int constantPoolCount = stream.readUnsignedShort()
+            String[] utf8Entries = new String[constantPoolCount]
+            int[] classNameIndices = new int[constantPoolCount]
+            for (int i = 1; i < constantPoolCount; i++) {
+                int tag = stream.readUnsignedByte()
+                switch (tag) {
+                    case 1:
+                        utf8Entries[i] = stream.readUTF()
+                        break
+                    case 3:
+                    case 4:
+                        stream.readInt()
+                        break
+                    case 5:
+                    case 6:
+                        stream.readLong()
+                        i++
+                        break
+                    case 7:
+                        classNameIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 8:
+                    case 16:
+                    case 19:
+                    case 20:
+                        stream.readUnsignedShort()
+                        break
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 17:
+                    case 18:
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        break
+                    case 15:
+                        stream.readUnsignedByte()
+                        stream.readUnsignedShort()
+                        break
+                    default:
+                        return references
+                }
+            }
+
+            classNameIndices.findAll { it > 0 }.each { int nameIndex ->
+                String className = normalizeClassReference(utf8Entries[nameIndex])
+                if (className != null) {
+                    references.add(className)
+                }
+            }
+            utf8Entries.findAll { it != null }.each { String entry ->
+                references.addAll(collectDescriptorClassReferences(entry))
+            }
+        }
+    } catch (Throwable ignored) {
+    }
+    return references
+}
+
+def collectClassReferences = { File classFile ->
+    try {
+        return classFile.withInputStream { input ->
+            collectClassReferencesFromStream(input)
+        }
+    } catch (Throwable ignored) {
+        return new TreeSet<String>()
+    }
+}
+
+def isJdkClassName = { String className ->
+    return className.startsWith('java.') ||
+            className.startsWith('javax.') ||
+            className.startsWith('jdk.') ||
+            className.startsWith('sun.') ||
+            className.startsWith('com.sun.') ||
+            className.startsWith('org.w3c.') ||
+            className.startsWith('org.xml.')
+}
+
+def normalizedTargetTypes = {
+    return (defaultTargetTypes + asStringList(project.ext.jmeNativeImageAdditionalTargetTypes))
+            .findAll { !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def normalizedTargetAnnotations = {
+    return (defaultTargetAnnotations + asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations))
+            .findAll { !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def normalizedProxyInterfaceSets = {
+    return (defaultProxyInterfaceSets + asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets)).collect { interfaceSet ->
+        new ArrayList<>(new LinkedHashSet<>(interfaceSet))
+    }.findAll { !it.isEmpty() }
+}
+
+def normalizedResourceGlobs = {
+    return asStringList(project.ext.jmeNativeImageAdditionalResourceGlobs)
+            .findAll { !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def currentNativeRuntimePlatform = {
+    String osName = System.getProperty('os.name', '').toLowerCase()
+    String arch = System.getProperty('os.arch', '').toLowerCase()
+    boolean arm64 = arch.contains('aarch64') || arch.contains('arm64')
+    boolean x64 = arch.contains('x86_64') || arch.contains('amd64') || arch == 'x64'
+    String matcher
+    List<String> platformLibraryIncludes = []
+    List<String> sharedLibraryExtensions = []
+    if (osName.contains('mac')) {
+        if (arm64) {
+            matcher = '(?i).*natives-macos-(arm64|aarch64)\\.jar'
+        } else if (x64) {
+            matcher = '(?i).*natives-macos\\.jar'
+        } else {
+            throw new GradleException("Unsupported native runtime architecture '${arch}' for '${osName}'")
+        }
+        sharedLibraryExtensions = ['dylib', 'jnilib']
+        List<String> archTokens = arm64 ? ['arm64', 'aarch64'] : ['x64', 'x86_64', 'amd64']
+        ['macos', 'osx', 'darwin'].each { osToken ->
+            archTokens.each { archToken ->
+                sharedLibraryExtensions.each { extension ->
+                    platformLibraryIncludes.add("**/${osToken}/${archToken}/**/*.${extension}".toString())
+                }
+            }
+        }
+    } else if (osName.contains('linux')) {
+        if (arm64) {
+            matcher = '(?i).*natives-linux-(arm64|aarch64)\\.jar'
+        } else if (x64) {
+            matcher = '(?i).*natives-linux\\.jar'
+        } else {
+            throw new GradleException("Unsupported native runtime architecture '${arch}' for '${osName}'")
+        }
+        sharedLibraryExtensions = ['so']
+        List<String> archTokens = arm64 ? ['arm64', 'aarch64'] : ['x64', 'x86_64', 'amd64']
+        archTokens.each { archToken ->
+            platformLibraryIncludes.add("**/linux/${archToken}/**/*.so".toString())
+        }
+    } else if (osName.contains('win')) {
+        if (arm64) {
+            matcher = '(?i).*natives-windows-(arm64|aarch64)\\.jar'
+        } else if (x64) {
+            matcher = '(?i).*natives-windows\\.jar'
+        } else {
+            throw new GradleException("Unsupported native runtime architecture '${arch}' for '${osName}'")
+        }
+        sharedLibraryExtensions = ['dll']
+        List<String> archTokens = arm64 ? ['arm64', 'aarch64'] : ['x64', 'x86_64', 'amd64']
+        archTokens.each { archToken ->
+            platformLibraryIncludes.add("**/windows/${archToken}/**/*.dll".toString())
+            platformLibraryIncludes.add("**/win32/${archToken}/**/*.dll".toString())
+        }
+    } else {
+        throw new GradleException("Unsupported native runtime operating system '${osName}'")
+    }
+
+    return [
+            osName                 : osName,
+            arch                   : arch,
+            matcher                : matcher,
+            platformLibraryIncludes: platformLibraryIncludes,
+            sharedLibraryExtensions: sharedLibraryExtensions
+    ]
+}
+
+def configured = false
+project.afterEvaluate {
+    if (configured || project.extensions.findByName('sourceSets') == null) {
+        return
+    }
+    configured = true
+
+    def mainSourceSet = project.sourceSets.findByName('main')
+    if (mainSourceSet == null) {
+        return
+    }
+
+    File generatedResourcesRoot = project.layout.buildDirectory.dir('generated/native-image-metadata/resources').get().asFile
+    File nativeImageMetadataDir = new File(generatedResourcesRoot, "META-INF/native-image/${project.group}/${project.name}")
+    File metadataFile = new File(nativeImageMetadataDir, 'reachability-metadata.json')
+    File reflectConfigFile = new File(nativeImageMetadataDir, 'reflect-config.json')
+    File nativeRuntimeLibsDir = project.layout.buildDirectory.dir('native/nativeCompile/lib').get().asFile
+    Set<File> originalResourceDirs = mainSourceSet.resources.srcDirs.collect { it.absoluteFile } as LinkedHashSet<File>
+    File projectBuildDir = project.layout.buildDirectory.get().asFile.absoluteFile
+    Set<File> metadataResourceDirs = originalResourceDirs.findAll { File resourceDir ->
+        !resourceDir.toPath().startsWith(projectBuildDir.toPath())
+    } as LinkedHashSet<File>
+    mainSourceSet.resources.srcDir(generatedResourcesRoot)
+    def runtimeDependencyFiles = {
+        Set<File> outputFiles = mainSourceSet.output.files.findAll { it != null } as LinkedHashSet<File>
+        return mainSourceSet.runtimeClasspath.files.findAll { File runtimeFile ->
+            runtimeFile.exists() && !outputFiles.any { File outputFile ->
+                runtimeFile.absoluteFile == outputFile.absoluteFile || runtimeFile.toPath().startsWith(outputFile.toPath())
+            }
+        }
+    }
+    def runtimeClasspathConfiguration = project.configurations.findByName(mainSourceSet.runtimeClasspathConfigurationName)
+    def runtimeProjectDependencyPaths = runtimeClasspathConfiguration == null
+            ? []
+            : runtimeClasspathConfiguration.allDependencies
+            .withType(org.gradle.api.artifacts.ProjectDependency)
+            .collect { "${it.path}:jar" }
+            .toSet()
+    String metadataGeneratorScriptHash = project.ext.has('jmeNativeImageGeneratorScriptHash')
+            ? project.ext.jmeNativeImageGeneratorScriptHash.toString()
+            : 'unknown'
+
+        def generateTaskProvider = project.tasks.register('generateNativeImageMetadata') {
+            group = 'build'
+            description = 'Generates GraalVM Native Image reachability metadata for the main source set.'
+            inputs.property('metadataGeneratorScriptHash', metadataGeneratorScriptHash)
+            inputs.files(mainSourceSet.output.classesDirs)
+                    .withPropertyName('mainClasses')
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files(mainSourceSet.compileClasspath)
+                .withPropertyName('compileClasspath')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files(runtimeDependencyFiles)
+                .withPropertyName('runtimeDependencyClasspath')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.files(project.files(metadataResourceDirs))
+                .withPropertyName('mainResources')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.property('jmeNativeImageTargetTypes', normalizedTargetTypes())
+        inputs.property('jmeNativeImageTargetAnnotations', normalizedTargetAnnotations())
+        inputs.property('jmeNativeImageProxyInterfaceSets', normalizedProxyInterfaceSets())
+        inputs.property('jmeNativeImageAdditionalResourceGlobs', normalizedResourceGlobs())
+        inputs.property('jmeNativeImageGeneratorVersion', 3)
+        outputs.file(metadataFile)
+        outputs.file(reflectConfigFile)
+
+        [mainSourceSet.compileJavaTaskName, 'compileGroovy', 'compileKotlin'].each { taskName ->
+            def compileTask = project.tasks.findByName(taskName)
+            if (compileTask != null) {
+                dependsOn(compileTask)
+            }
+        }
+        runtimeProjectDependencyPaths.each { dependencyJarTaskPath ->
+            dependsOn(dependencyJarTaskPath)
+        }
+
+        doLast {
+            metadataFile.parentFile.mkdirs()
+
+            Set<File> scanPathFiles = new LinkedHashSet<>()
+            scanPathFiles.addAll(mainSourceSet.output.classesDirs.files.findAll { it.exists() })
+            try {
+                scanPathFiles.addAll(mainSourceSet.compileClasspath.files.findAll { it.exists() })
+            } catch (Throwable ignored) {
+            }
+            try {
+                scanPathFiles.addAll(runtimeDependencyFiles())
+            } catch (Throwable ignored) {
+            }
+
+            URLClassLoader scanLoader = new URLClassLoader(
+                    scanPathFiles.collect { it.toURI().toURL() } as URL[],
+                    Thread.currentThread().contextClassLoader
+            )
+
+            try {
+                SortedSet<String> discoveredClassNames = new TreeSet<>()
+                SortedSet<String> referencedClassNames = new TreeSet<>()
+                mainSourceSet.output.classesDirs.files.findAll { it.exists() }.sort { it.absolutePath }.each { classesDir ->
+                    project.fileTree(classesDir).matching {
+                        include '**/*.class'
+                        exclude '**/module-info.class'
+                        exclude '**/package-info.class'
+                    }.files.sort { it.absolutePath }.each { classFile ->
+                        String className = binaryClassName(classesDir, classFile)
+                        if (className != null) {
+                            discoveredClassNames.add(className)
+                        }
+                        referencedClassNames.addAll(collectClassReferences(classFile))
+                    }
+                }
+
+                def additionalTargetTypes = asStringList(project.ext.jmeNativeImageAdditionalTargetTypes).findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalTargetAnnotations = asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations).findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalProxyInterfaceSets = asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets).collect { interfaceSet ->
+                    new ArrayList<>(new LinkedHashSet<>(interfaceSet))
+                }.findAll { !it.isEmpty() }
+                def targetTypes = normalizedTargetTypes()
+                def targetAnnotations = normalizedTargetAnnotations()
+                def proxyInterfaceSets = normalizedProxyInterfaceSets()
+                SortedSet<String> candidateClassNames = new TreeSet<>()
+                candidateClassNames.addAll(discoveredClassNames)
+                candidateClassNames.addAll(referencedClassNames)
+
+                Map<String, Class<?>> loadedTargetTypes = new LinkedHashMap<>()
+                targetTypes.each { targetType ->
+                    loadedTargetTypes[targetType] = loadClassSafely(scanLoader, targetType)
+                }
+                List<Class<?>> targetTypeClasses = loadedTargetTypes.values().findAll { it != null }
+
+                Map<String, Class<?>> loadedTargetAnnotations = new LinkedHashMap<>()
+                targetAnnotations.each { targetAnnotation ->
+                    loadedTargetAnnotations[targetAnnotation] = loadClassSafely(scanLoader, targetAnnotation)
+                }
+                def missingAdditionalTargetAnnotations = additionalTargetAnnotations.findAll { loadedTargetAnnotations[it] == null }
+                if (!missingAdditionalTargetAnnotations.isEmpty()) {
+                    throw new GradleException("${project.path}: configured native-image target annotations are not on the scan classpath: ${missingAdditionalTargetAnnotations.join(', ')}")
+                }
+                def invalidAdditionalTargetAnnotations = additionalTargetAnnotations.findAll { loadedTargetAnnotations[it] != null && !loadedTargetAnnotations[it].isAnnotation() }
+                if (!invalidAdditionalTargetAnnotations.isEmpty()) {
+                    throw new GradleException("${project.path}: configured native-image target annotations are not annotations: ${invalidAdditionalTargetAnnotations.join(', ')}")
+                }
+                List<Class<?>> targetAnnotationClasses = loadedTargetAnnotations.values().findAll { it != null && it.isAnnotation() }
+
+                Map<String, Map<String, Object>> classEntries = new TreeMap<>()
+                def updateClassEntry = { String className, boolean includeConstructors, boolean includeFields, boolean includeMethods ->
+                    Map<String, Object> entry = classEntries[className]
+                    if (entry == null) {
+                        entry = new LinkedHashMap<>()
+                        entry.type = className
+                        classEntries[className] = entry
+                    }
+                    if (includeConstructors) {
+                        entry.allDeclaredConstructors = true
+                    }
+                    if (includeFields) {
+                        entry.allDeclaredFields = true
+                    }
+                    if (includeMethods) {
+                        entry.allDeclaredMethods = true
+                        entry.allPublicMethods = true
+                    }
+                }
+                def addMethodEntry = { String className, String methodName, List<String> parameterTypes ->
+                    Map<String, Object> entry = classEntries[className]
+                    if (entry == null) {
+                        entry = new LinkedHashMap<>()
+                        entry.type = className
+                        classEntries[className] = entry
+                    }
+                    List<Map<String, Object>> methods = entry.methods as List<Map>
+                    if (methods == null) {
+                        methods = []
+                        entry.methods = methods
+                    }
+                    List<String> orderedParameterTypes = parameterTypes == null ? [] : parameterTypes
+                    boolean exists = methods.any { method ->
+                        method.name == methodName && ((method.parameterTypes ?: []) == orderedParameterTypes)
+                    }
+                    if (!exists) {
+                        methods.add([
+                                name          : methodName,
+                                parameterTypes: orderedParameterTypes
+                        ] as LinkedHashMap<String, Object>)
+                    }
+                }
+
+                loadedTargetTypes.each { String targetType, Class<?> targetClass ->
+                    if (targetClass == null || (!targetClass.isInterface() && !targetClass.isAnnotation())) {
+                        updateClassEntry(targetType, targetClass == null || isConstructible(targetClass), true, true)
+                    }
+                }
+
+                candidateClassNames.each { className ->
+                    Class<?> clazz = loadClassSafely(scanLoader, className)
+                    if (clazz == null) {
+                        return
+                    }
+
+                    boolean regularMatch =
+                            targetTypeClasses.any { safeAssignableFrom(it, clazz) } ||
+                            targetAnnotationClasses.any { safeAnnotationPresent(clazz, it) }
+                    if (regularMatch) {
+                        Class<?> current = clazz
+                        while (current != null && current != Object.class) {
+                            if (current == clazz || candidateClassNames.contains(current.name) || !isJdkClassName(current.name)) {
+                                updateClassEntry(current.name, isConstructible(current), true, true)
+                            }
+                            current = safeSuperclass(current)
+                        }
+                    }
+
+                    if (targetTypeClasses.any { it == Cloneable.class || it.name == 'java.lang.Cloneable' }
+                            && safeAssignableFrom(Cloneable.class, clazz)
+                            && hasPublicNoArgCloneMethod(clazz)) {
+                        addMethodEntry(className, 'clone', [])
+                    }
+                }
+
+                List<Map<String, Object>> reflectionEntries = classEntries.values().collect { entry ->
+                    Map<String, Object> orderedEntry = new LinkedHashMap<>()
+                    orderedEntry.type = entry.type
+                    if (entry.allDeclaredConstructors == true) {
+                        orderedEntry.allDeclaredConstructors = true
+                    }
+                    if (entry.allDeclaredFields == true) {
+                        orderedEntry.allDeclaredFields = true
+                    }
+                    if (entry.allDeclaredMethods == true) {
+                        orderedEntry.allDeclaredMethods = true
+                    }
+                    if (entry.allPublicMethods == true) {
+                        orderedEntry.allPublicMethods = true
+                    }
+                    if (entry.methods instanceof List && !entry.methods.isEmpty()) {
+                        orderedEntry.methods = entry.methods.collect { method ->
+                            [
+                                    name          : method.name,
+                                    parameterTypes: method.parameterTypes ?: []
+                            ] as LinkedHashMap<String, Object>
+                        }
+                    }
+                    return orderedEntry
+                }
+
+                proxyInterfaceSets.collect { interfaceSet ->
+                    def proxyClasses = interfaceSet.collect { loadClassSafely(scanLoader, it) }
+                    if (proxyClasses.every { it != null && it.isInterface() }) {
+                        return [proxy: interfaceSet]
+                    }
+                    if (additionalProxyInterfaceSets.any { it == interfaceSet }) {
+                        def missingInterfaces = []
+                        def nonInterfaces = []
+                        interfaceSet.eachWithIndex { interfaceName, index ->
+                            Class<?> proxyClass = proxyClasses[index]
+                            if (proxyClass == null) {
+                                missingInterfaces.add(interfaceName)
+                            } else if (!proxyClass.isInterface()) {
+                                nonInterfaces.add(interfaceName)
+                            }
+                        }
+                        if (!missingInterfaces.isEmpty()) {
+                            throw new GradleException("${project.path}: configured native-image proxy interfaces are not on the scan classpath: ${missingInterfaces.join(', ')}")
+                        }
+                        if (!nonInterfaces.isEmpty()) {
+                            throw new GradleException("${project.path}: configured native-image proxy entries are not interfaces: ${nonInterfaces.join(', ')}")
+                        }
+                    }
+                    return null
+                }.findAll { it != null }.sort { a, b ->
+                    a.proxy.join(',') <=> b.proxy.join(',')
+                }.each { proxyDefinition ->
+                    reflectionEntries.add([type: [proxy: proxyDefinition.proxy]])
+                }
+
+                SortedSet<String> resourceGlobs = new TreeSet<>()
+                metadataResourceDirs.findAll { it.exists() }.sort { it.absolutePath }.each { resourceDir ->
+                    project.fileTree(resourceDir).files.findAll { it.isFile() }.sort { it.absolutePath }.each { resourceFile ->
+                        if (resourceFile.toPath().startsWith(generatedResourcesRoot.toPath())) {
+                            return
+                        }
+                        String relativePath = resourceDir.toPath().relativize(resourceFile.toPath()).toString().replace(File.separatorChar, (char) '/')
+                        if (!relativePath.isEmpty()) {
+                            resourceGlobs.add(relativePath)
+                        }
+                    }
+                }
+                resourceGlobs.addAll(normalizedResourceGlobs())
+
+                SortedSet<String> bundleNames = new TreeSet<>()
+                if (resourceGlobs.contains('com/jme3/app/SettingsDialog.properties')) {
+                    bundleNames.add('com.jme3.app.SettingsDialog')
+                }
+
+                List<Map<String, Object>> resourceEntries = []
+                resourceGlobs.each { resourceGlob ->
+                    resourceEntries.add([glob: resourceGlob])
+                }
+                bundleNames.each { bundleName ->
+                    resourceEntries.add([bundle: bundleName])
+                }
+
+                Map<String, Object> metadata = new LinkedHashMap<>()
+                metadata.reflection = reflectionEntries
+                metadata.resources = resourceEntries
+                metadataFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(metadata)) + System.lineSeparator()
+
+                List<Map<String, Object>> reflectConfigEntries = classEntries.values().collect { entry ->
+                    Map<String, Object> reflectEntry = new LinkedHashMap<>()
+                    reflectEntry.name = entry.type
+                    if (entry.allDeclaredConstructors == true) {
+                        reflectEntry.allDeclaredConstructors = true
+                    }
+                    if (entry.allDeclaredFields == true) {
+                        reflectEntry.allDeclaredFields = true
+                    }
+                    if (entry.allDeclaredMethods == true) {
+                        reflectEntry.allDeclaredMethods = true
+                    }
+                    if (entry.allPublicMethods == true) {
+                        reflectEntry.allPublicMethods = true
+                    }
+                    if (entry.methods instanceof List && !entry.methods.isEmpty()) {
+                        reflectEntry.methods = entry.methods.collect { method ->
+                            [
+                                    name          : method.name,
+                                    parameterTypes: method.parameterTypes ?: []
+                            ] as LinkedHashMap<String, Object>
+                        }
+                    }
+                    return reflectEntry
+                }
+                reflectConfigFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(reflectConfigEntries)) + System.lineSeparator()
+            } finally {
+                scanLoader.close()
+            }
+        }
+    }
+
+    def validateTaskProvider = project.tasks.register('validateNativeImageMetadata') {
+        group = 'verification'
+        description = 'Validates generated GraalVM Native Image reachability metadata.'
+        dependsOn(generateTaskProvider)
+        inputs.file(metadataFile)
+        inputs.file(reflectConfigFile)
+
+        doLast {
+            def parsed = new JsonSlurper().parse(metadataFile)
+            if (!(parsed instanceof Map) || !(parsed.reflection instanceof List) || !(parsed.resources instanceof List)) {
+                throw new GradleException("Malformed reachability metadata in ${metadataFile}")
+            }
+            def parsedReflectConfig = new JsonSlurper().parse(reflectConfigFile)
+            if (!(parsedReflectConfig instanceof List)) {
+                throw new GradleException("Malformed reflect-config metadata in ${reflectConfigFile}")
+            }
+
+            Set<String> seenReflectionEntries = new LinkedHashSet<>()
+            parsed.reflection.eachWithIndex { entry, index ->
+                if (!(entry instanceof Map)) {
+                    throw new GradleException("Malformed reflection entry ${index} in ${metadataFile}")
+                }
+                def type = entry.type
+                if (type instanceof CharSequence) {
+                    String className = type.toString()
+                    if (className.isEmpty()) {
+                        throw new GradleException("Empty reflection type at entry ${index} in ${metadataFile}")
+                    }
+                    if (!seenReflectionEntries.add("class:${className}")) {
+                        throw new GradleException("Duplicate reflection type '${className}' in ${metadataFile}")
+                    }
+                } else if (type instanceof Map && type.proxy instanceof List) {
+                    List proxyInterfaces = type.proxy
+                    if (proxyInterfaces.isEmpty() || !proxyInterfaces.every { it instanceof CharSequence && !it.toString().isEmpty() }) {
+                        throw new GradleException("Malformed proxy reflection entry ${index} in ${metadataFile}")
+                    }
+                    String proxyKey = proxyInterfaces.collect { it.toString() }.join(',')
+                    if (!seenReflectionEntries.add("proxy:${proxyKey}")) {
+                        throw new GradleException("Duplicate proxy reflection entry '${proxyKey}' in ${metadataFile}")
+                    }
+                } else {
+                    throw new GradleException("Reflection entry ${index} must have a string type or proxy type in ${metadataFile}")
+                }
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                    if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
+                        throw new GradleException("Reflection flag '${flagName}' must be boolean at entry ${index} in ${metadataFile}")
+                    }
+                }
+                if (entry.methods != null) {
+                    if (!(entry.methods instanceof List)) {
+                        throw new GradleException("Reflection methods must be a list at entry ${index} in ${metadataFile}")
+                    }
+                    Set<String> seenMethods = new LinkedHashSet<>()
+                    entry.methods.eachWithIndex { method, methodIndex ->
+                        if (!(method instanceof Map) || !(method.name instanceof CharSequence) || method.name.toString().isEmpty() || !(method.parameterTypes instanceof List)) {
+                            throw new GradleException("Malformed reflection method ${methodIndex} at entry ${index} in ${metadataFile}")
+                        }
+                        if (!method.parameterTypes.every { it instanceof CharSequence }) {
+                            throw new GradleException("Reflection method parameter types must be strings at method ${methodIndex}, entry ${index} in ${metadataFile}")
+                        }
+                        String methodKey = "${method.name}(${method.parameterTypes.join(',')})"
+                        if (!seenMethods.add(methodKey)) {
+                            throw new GradleException("Duplicate reflection method '${methodKey}' at entry ${index} in ${metadataFile}")
+                        }
+                    }
+                }
+            }
+
+            Set<String> seenResources = new LinkedHashSet<>()
+            parsed.resources.eachWithIndex { entry, index ->
+                if (!(entry instanceof Map)) {
+                    throw new GradleException("Malformed resource entry ${index} in ${metadataFile}")
+                }
+                boolean hasGlob = entry.glob instanceof CharSequence && !entry.glob.toString().isEmpty()
+                boolean hasBundle = entry.bundle instanceof CharSequence && !entry.bundle.toString().isEmpty()
+                if (hasGlob == hasBundle) {
+                    throw new GradleException("Resource entry ${index} must contain exactly one of 'glob' or 'bundle' in ${metadataFile}")
+                }
+                String resourceKey = hasGlob ? "glob:${entry.glob}" : "bundle:${entry.bundle}"
+                if (!seenResources.add(resourceKey)) {
+                    throw new GradleException("Duplicate resource entry '${resourceKey}' in ${metadataFile}")
+                }
+            }
+
+            Set<String> reflectConfigNames = new LinkedHashSet<>()
+            parsedReflectConfig.eachWithIndex { entry, index ->
+                if (!(entry instanceof Map) || !(entry.name instanceof CharSequence) || entry.name.toString().isEmpty()) {
+                    throw new GradleException("Malformed reflect-config entry ${index} in ${reflectConfigFile}")
+                }
+                if (!reflectConfigNames.add(entry.name.toString())) {
+                    throw new GradleException("Duplicate reflect-config entry '${entry.name}' in ${reflectConfigFile}")
+                }
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                    if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
+                        throw new GradleException("Reflect-config flag '${flagName}' must be boolean at entry ${index} in ${reflectConfigFile}")
+                    }
+                }
+                if (entry.methods != null && !(entry.methods instanceof List)) {
+                    throw new GradleException("Reflect-config methods must be a list at entry ${index} in ${reflectConfigFile}")
+                }
+            }
+
+            Set<String> reflectionClassNames = seenReflectionEntries.findAll { it.startsWith('class:') }.collect { it.substring('class:'.length()) } as Set<String>
+            if (reflectConfigNames != reflectionClassNames) {
+                Set<String> missingFromReflectConfig = reflectionClassNames - reflectConfigNames
+                Set<String> extraReflectConfigEntries = reflectConfigNames - reflectionClassNames
+                throw new GradleException("Reflect-config entries do not match reachability reflection entries in ${project.path}; missing=${missingFromReflectConfig}, extra=${extraReflectConfigEntries}")
+            }
+        }
+    }
+
+        def prepareNativeRuntimeLibrariesProvider = project.tasks.register('prepareNativeRuntimeLibraries') {
+            group = 'build'
+            description = 'Extracts platform native libraries needed by native-image executables.'
+            inputs.property('metadataGeneratorScriptHash', metadataGeneratorScriptHash)
+        inputs.files(mainSourceSet.runtimeClasspath)
+                .withPropertyName('runtimeClasspath')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.property('nativeRuntimeOperatingSystem', System.getProperty('os.name', '').toLowerCase())
+        inputs.property('nativeRuntimeArchitecture', System.getProperty('os.arch', '').toLowerCase())
+        inputs.property('nativeRuntimeExtractorVersion', 3)
+        outputs.dir(nativeRuntimeLibsDir)
+
+        doLast {
+            project.delete(nativeRuntimeLibsDir)
+            nativeRuntimeLibsDir.mkdirs()
+
+            def platform = currentNativeRuntimePlatform()
+            String matcher = platform.matcher
+            List<String> platformLibraryIncludes = platform.platformLibraryIncludes
+            List<String> sharedLibraryExtensions = platform.sharedLibraryExtensions
+
+            Set<File> runtimeFiles = new LinkedHashSet<>()
+            try {
+                runtimeFiles.addAll(mainSourceSet.runtimeClasspath.files.findAll { it.exists() })
+            } catch (Throwable ignored) {
+            }
+
+            Set<File> runtimeJars = runtimeFiles.findAll {
+                it.name.endsWith('.jar')
+            } as Set<File>
+            Set<File> nativeJars = runtimeJars.findAll {
+                it.name =~ matcher
+            } as Set<File>
+            Set<String> extractedFileNames = new TreeSet<>()
+            Map<String, File> extractedFileSources = new TreeMap<>()
+
+            runtimeJars.each { File nativeJar ->
+                boolean currentPlatformNativeJar = nativeJars.contains(nativeJar)
+                project.copy {
+                    from(project.zipTree(nativeJar))
+                    if (currentPlatformNativeJar) {
+                        sharedLibraryExtensions.each { extension ->
+                            include "**/*.${extension}".toString()
+                        }
+                    }
+                    platformLibraryIncludes.each { includePattern ->
+                        include includePattern
+                    }
+                    into nativeRuntimeLibsDir
+                    includeEmptyDirs = false
+                    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+                    eachFile { details ->
+                        File existingSource = extractedFileSources.putIfAbsent(details.name, nativeJar)
+                        if (existingSource != null && existingSource != nativeJar) {
+                            throw new GradleException("Duplicate native runtime library '${details.name}' from ${nativeJar.name}; already extracted from ${existingSource.name}")
+                        }
+                        extractedFileNames.add(details.name)
+                        details.path = details.name
+                    }
+                }
+            }
+
+            logger.lifecycle("${project.path}: extracted ${extractedFileNames.size()} native files to ${nativeRuntimeLibsDir}")
+        }
+    }
+
+    def processResourcesTask = project.tasks.findByName('processResources')
+    if (processResourcesTask != null) {
+        processResourcesTask.dependsOn(generateTaskProvider)
+    }
+
+    def nativeImageDefaultsFeatureClassName = 'org.jmonkeyengine.gradle.nativeimage.internal.JmeNativeRuntimeDefaultsFeature'
+    def nativeImageDefaultsFeatureArg = "--features=${nativeImageDefaultsFeatureClassName}".toString()
+    def nativeImageRuntimeSupportExportArg = '--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jdk=ALL-UNNAMED'
+    File nativeImagePluginJar = project.ext.has('jmeNativeImagePluginJarPath')
+            ? project.file(project.ext.jmeNativeImagePluginJarPath.toString())
+            : null
+
+    project.pluginManager.withPlugin('org.graalvm.buildtools.native') {
+        ['nativeImageCompileOnly', 'nativeImageTestCompileOnly'].each { configurationName ->
+            if (nativeImagePluginJar != null && nativeImagePluginJar.exists() && project.configurations.findByName(configurationName) != null) {
+                project.dependencies.add(configurationName, project.files(nativeImagePluginJar))
+            }
+        }
+
+        def graalvmNativeExtension = project.extensions.findByName('graalvmNative')
+        if (graalvmNativeExtension != null) {
+            graalvmNativeExtension.binaries.configureEach { nativeBinary ->
+                List<String> currentBuildArgs = nativeBinary.buildArgs.getOrElse([])
+                if (!currentBuildArgs.contains(nativeImageDefaultsFeatureArg)) {
+                    nativeBinary.buildArgs.add(nativeImageDefaultsFeatureArg)
+                }
+                List<String> currentJvmArgs = nativeBinary.jvmArgs.getOrElse([])
+                if (!currentJvmArgs.contains(nativeImageRuntimeSupportExportArg)) {
+                    nativeBinary.jvmArgs.add(nativeImageRuntimeSupportExportArg)
+                }
+            }
+        }
+    }
+
+    def nativeCompileTask = project.tasks.findByName('nativeCompile')
+    if (nativeCompileTask != null) {
+        nativeCompileTask.finalizedBy(prepareNativeRuntimeLibrariesProvider)
+    }
+
+    def checkTask = project.tasks.findByName('check')
+    if (checkTask != null) {
+        checkTask.dependsOn(validateTaskProvider)
+    }
+}

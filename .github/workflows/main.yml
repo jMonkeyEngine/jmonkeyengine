@@ -443,29 +443,31 @@ jobs:
     name: Deploy Java Snapshot
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref_name == 'master'
+    permissions:
+      contents: read
     steps:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 1
 
       # Setup jdk 21 used for building Maven-style artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Download natives for android
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: android-natives
           path: build/native
 
       - name: Download natives for iOS
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ios-natives
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
@@ -482,7 +484,6 @@ jobs:
             -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
 

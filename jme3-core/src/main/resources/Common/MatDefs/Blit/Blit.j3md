@@ -8,8 +8,8 @@ MaterialDef Blit {
     }
 
     Technique {
-        VertexShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.vert
-        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.frag
+        VertexShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.frag
 
         WorldParameters {
         }

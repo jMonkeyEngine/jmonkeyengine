@@ -12,6 +12,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.jmonkeyengine.nativeimage' apply false
+}
+
 import org.gradle.api.file.RelativePath
 
 // Set the license for IDEs that understand this
@@ -52,6 +56,25 @@ subprojects {
                 html.required = !project.hasProperty("xml-reports")
                 xml.required = project.hasProperty("xml-reports")
             }
+        }
+    }
+}
+
+def nativeImagePluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
+def nativeImagePluginPublishTasks = [
+        publish                                      : ':publish',
+        publishToMavenLocal                         : ':publishToMavenLocal',
+        install                                      : ':install',
+        publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
+        publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
+]
+
+subprojects {
+    tasks.configureEach { task ->
+        String includedTaskPath = nativeImagePluginPublishTasks[task.name]
+        if (includedTaskPath != null) {
+            task.dependsOn nativeImagePluginBuild.task(includedTaskPath)
         }
     }
 }
@@ -280,10 +303,8 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
             }) {
                 eachFile { details ->
                     def segments = details.relativePath.segments
-                    if (segments.length <= 1) {
-                        details.exclude()
-                    } else {
-                        details.relativePath = new RelativePath(details.isDirectory(), segments[1..-1] as String[])
+                    if (segments.length > 1) {
+                        details.path = segments[1..-1].join('/')
                     }
                 }
                 includeEmptyDirs = false

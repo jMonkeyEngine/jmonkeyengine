@@ -124,7 +124,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     protected Format getColorFormat() {
         if (colorFormat == null) {
-            this.colorFormat = renderManager.getRenderer().getBestColorTargetFormat(true, false, false);
+            this.colorFormat = renderManager.getRenderer().getBestColorTargetFormat(true, false, false, false);
         }
         return colorFormat;
     }

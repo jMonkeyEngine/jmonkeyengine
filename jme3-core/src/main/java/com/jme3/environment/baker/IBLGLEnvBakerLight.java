@@ -104,9 +104,11 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         float remapMaxValue = 0;
         Format format = Format.RGBA32F;
         if (!renderManager.getRenderer().getCaps().contains(Caps.FloatColorBufferRGBA)) {
-            LOG.warning("Float textures not supported, using RGB8 instead. This may cause accuracy issues.");
-            format = Format.RGBA8;
-            remapMaxValue = 0.05f;
+            format = renderManager.getRenderer().getBestColorTargetFormat(true, true, true, false);
+            if(!format.isFloatingPont()){
+                LOG.warning("Float textures not supported, using RGB8 instead. This may cause accuracy issues.");
+                remapMaxValue = 0.05f;
+            }
         }
 
         if (remapMaxValue > 0) {
@@ -170,6 +172,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         for (int i = 0; i < NUM_SH_COEFFICIENT; ++i) {
             if (remapMaxValue > 0) shCoef[i].divideLocal(remapMaxValue);
             shCoef[i].multLocal(4.0f * FastMath.PI / weightAccum);
+            assert Vector3f.isValidVector(shCoef[i]);
         }
         EnvMapUtils.prepareShCoefs(shCoef);
         img.dispose();
