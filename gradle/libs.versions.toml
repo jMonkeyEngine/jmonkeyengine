@@ -12,7 +12,7 @@ spotbugs = "4.9.8"
 
 [libraries]
 
-androidx-annotation = "androidx.annotation:annotation:1.7.1"
+androidx-annotation = "androidx.annotation:annotation:1.10.0"
 androidx-fragment = "androidx.fragment:fragment:1.8.9"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
