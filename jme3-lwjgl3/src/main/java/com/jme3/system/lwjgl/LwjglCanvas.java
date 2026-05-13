@@ -81,7 +81,10 @@ import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
 
 /**
  * Class <code>LwjglCanvas</code> that integrates <a href="https://github.com/LWJGLX/lwjgl3-awt">LWJGLX</a>
- * which allows using AWT-Swing components.
+ * which allows using AWT-Swing components, make sure you use an OpenGL renderer:
+ * <pre><code>
+ * settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+ * </code></pre>
  *
  * <p>
  * If <b>LwjglCanvas</b> throws an exception due to configuration problems, we can debug as follows:
@@ -101,8 +104,7 @@ import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
  * <pre><code>
  * ....
  *  AppSettings settings = new AppSettings(true);
- *  settings.setGammaCorrection(true);
- *  settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+ *  settings.setGammaCorrection(false);
  * ...
  * </code></pre>
  *
