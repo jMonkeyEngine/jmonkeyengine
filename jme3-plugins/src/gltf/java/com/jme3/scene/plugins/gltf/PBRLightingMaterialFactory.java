@@ -100,7 +100,7 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 
 		setParam(material, "EmissiveMap", gltfMaterialData.getGltfParam(EMISSIVE_TEXTURE_PARAM));
 		setParam(material, "Emissive", gltfMaterialData.getGltfParam(EMISSIVE_COLOR_PARAM), ColorRGBA.Black);
-		setParam(material, "EmissiveIntensity", gltfMaterialData.getGltfParam(EMISSIVE_STRENGTH_PARAM));
+		setParam(material, "EmissiveIntensity", gltfMaterialData.getGltfParam(EMISSIVE_STRENGTH_PARAM), 1f);
 
 		if (gltfMaterialData.containsGltfParam(ALPHA_MODE_PARAM)) {
 			String alphaMode = (String) gltfMaterialData.getGltfParam(ALPHA_MODE_PARAM);

@@ -1808,8 +1808,8 @@ public class GltfLoader implements AssetLoader {
      * @param materialFactory The {@link GltfMaterialFactory} to register.
      */
     public static void registerMaterialFactoryFirst(GltfMaterialFactory materialFactory) {
-            unregisterMaterialFactory(materialFactory.getClass());
-            materialFactoryList.add(0, materialFactory);
+        unregisterMaterialFactory(materialFactory.getClass());
+        materialFactoryList.add(0, materialFactory);
     }
 
     /**

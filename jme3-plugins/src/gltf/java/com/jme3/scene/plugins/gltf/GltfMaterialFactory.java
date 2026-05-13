@@ -38,7 +38,7 @@ import com.jme3.material.Material;
 /**
  * A material factory creates {@link Material}s based on the data of a single material from a GLTF file.
  * <p>
- *   All material factories have bo be registered at the {@link GltfLoader} by using one of its
+ *   All material factories have bo be registered with the {@link GltfLoader} by using one of its
  *   static register methods.
  * </p>
  */

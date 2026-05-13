@@ -196,15 +196,17 @@ public class GltfModelKey extends ModelKey {
                 || !Objects.equals(extrasLoader, other.extrasLoader)) {
             return false;
         }
-        return keepSkeletonPose == other.keepSkeletonPose;
+        return keepSkeletonPose == other.keepSkeletonPose
+                && materialAdaptersEnabled == other.materialAdaptersEnabled;
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 37 * hash + materialAdapters.hashCode();
-        hash = 37 * hash + Objects.hashCode(this.extrasLoader);
-        hash = 37 * hash + (this.keepSkeletonPose ? 1 : 0);
+        hash = 37 * hash + Objects.hashCode(extrasLoader);
+        hash = 37 * hash + (keepSkeletonPose ? 1 : 0);
+        hash = 37 * hash + (materialAdaptersEnabled ? 1 : 0);
         return hash;
     }
     
