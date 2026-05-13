@@ -52,6 +52,7 @@ public class UnlitMaterialAdapter extends MaterialAdapter {
         addParamMapping("alphaMode", "alpha");
         addParamMapping("alphaCutoff", "AlphaDiscardThreshold");
         addParamMapping("doubleSided", "doubleSided");
+        addParamMapping("usesVertexColors", "VertexColor");
     }
 
     @Override

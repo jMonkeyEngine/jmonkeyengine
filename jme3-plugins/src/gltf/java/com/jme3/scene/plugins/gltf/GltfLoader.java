@@ -532,7 +532,11 @@ public class GltfLoader implements AssetLoader {
 
                 Integer materialIndex = getAsInteger(meshObject, "material");
                 if (materialIndex == null) {
-                    geom.setMaterial(defaultMat);
+                    // Create a new default material
+                    Material material = defaultMat.clone();
+                    material.setBoolean("UseVertexColor", useVertexColors);
+                    geom.setMaterial(material);
+
                 } else {
                     useNormalsFlag = false;
                     Material material = readMaterial(materialIndex, useVertexColors);
@@ -811,7 +815,7 @@ public class GltfLoader implements AssetLoader {
     public Material readMaterial(int materialIndex, boolean usesVertexColors) throws IOException {
         // Fallback to the old material adapter system, if the legacy flag is set.
         if (GltfUtils.isMaterialAdaptersEnabled(info)) {
-            return readMaterialUsingMaterialAdapters(materialIndex);
+            return readMaterialUsingMaterialAdapters(materialIndex, usesVertexColors);
         }
 
         assertNotNull(materials, "There is no material defined yet a mesh references one");
@@ -876,7 +880,7 @@ public class GltfLoader implements AssetLoader {
     }
 
     @Deprecated
-    protected Material readMaterialUsingMaterialAdapters(int materialIndex) throws IOException {
+    protected Material readMaterialUsingMaterialAdapters(int materialIndex, boolean usesVertexColors) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
@@ -948,6 +952,8 @@ public class GltfLoader implements AssetLoader {
         }
 
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
+
+        adapter.setParam("usesVertexColors", usesVertexColors);
 
         return adapter.getMaterial();
     }
