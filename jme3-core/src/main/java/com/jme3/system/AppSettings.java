@@ -217,6 +217,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Use the LWJGL OpenAL based renderer for audio capabilities.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String LWJGL_OPENAL = "LWJGL";
@@ -232,8 +233,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * NOTE: Supports Android 2.2+ platforms.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations.
-     * use {@link #ANDROID_OPENAL_SOFT} instead.
+     * @deprecated This audio renderer has too many limitations. Use {@link #OPENAL} instead..
      */
     @Deprecated
     public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
@@ -245,6 +245,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * NOTE: Only to be used on Android 2.3+ platforms due to using OpenSL.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
@@ -255,6 +256,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
     @Deprecated
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
@@ -265,6 +267,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
     @Deprecated
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
@@ -275,6 +278,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String JOAL = "JOAL";
