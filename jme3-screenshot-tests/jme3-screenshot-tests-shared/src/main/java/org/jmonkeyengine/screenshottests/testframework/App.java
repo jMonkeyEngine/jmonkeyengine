@@ -33,7 +33,6 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
-import com.jme3.app.state.VideoRecorderAppState;
 import com.jme3.math.ColorRGBA;
 
 import java.util.function.Consumer;
@@ -53,12 +52,63 @@ public class App extends SimpleApplication {
     @Override
     public void simpleInitApp(){
         getViewPort().setBackgroundColor(ColorRGBA.Black);
-        setTimer(new VideoRecorderAppState.IsoTimer(60));
+        setTimer(new IsoTimer(60));
     }
 
     @Override
     public void handleError(String errMsg, Throwable t) {
         super.handleError(errMsg, t);
         onError.accept(t);
+    }
+
+    public static final class IsoTimer extends com.jme3.system.Timer {
+
+        private final float framerate;
+        private int ticks;
+        private long lastTime = 0;
+
+        public IsoTimer(float framerate) {
+            this.framerate = framerate;
+            this.ticks = 0;
+        }
+
+        @Override
+        public long getTime() {
+            return (long) (this.ticks * (1.0f / this.framerate) * 1000f);
+        }
+
+        @Override
+        public long getResolution() {
+            return 1000L;
+        }
+
+        @Override
+        public float getFrameRate() {
+            return this.framerate;
+        }
+
+        @Override
+        public float getTimePerFrame() {
+            return 1.0f / this.framerate;
+        }
+
+        @Override
+        public void update() {
+            long time = System.currentTimeMillis();
+            long difference = time - lastTime;
+            lastTime = time;
+            if (difference < (1.0f / this.framerate) * 1000.0f) {
+                try {
+                    Thread.sleep(difference);
+                } catch (InterruptedException ex) {
+                }
+            }
+            this.ticks++;
+        }
+
+        @Override
+        public void reset() {
+            this.ticks = 0;
+        }
     }
 }

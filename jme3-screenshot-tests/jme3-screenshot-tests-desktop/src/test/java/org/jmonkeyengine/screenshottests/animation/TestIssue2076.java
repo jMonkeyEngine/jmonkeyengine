@@ -31,22 +31,7 @@
  */
 package org.jmonkeyengine.screenshottests.animation;
 
-import com.jme3.anim.SkinningControl;
-import com.jme3.anim.util.AnimMigrationUtils;
-import com.jme3.animation.SkeletonControl;
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.BaseAppState;
-import com.jme3.asset.AssetManager;
-import com.jme3.light.AmbientLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
-
-import org.jmonkeyengine.screenshottests.scenarios.ScenarioIssue2076;
+import org.jmonkeyengine.screenshottests.scenarios.animation.ScenarioIssue2076;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
 import org.junit.jupiter.api.Test;
 

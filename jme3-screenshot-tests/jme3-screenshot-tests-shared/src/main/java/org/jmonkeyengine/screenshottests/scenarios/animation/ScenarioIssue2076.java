@@ -1,4 +1,4 @@
-package org.jmonkeyengine.screenshottests.scenarios;
+package org.jmonkeyengine.screenshottests.scenarios.animation;
 
 import static org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase.screenshotTest;
 

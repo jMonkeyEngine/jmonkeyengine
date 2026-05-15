@@ -10,7 +10,6 @@ dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-effects')
     implementation project(':jme3-terrain')
-    implementation project(':jme3-lwjgl3')
     implementation project(':jme3-plugins')
 
     implementation 'com.aventstack:extentreports:5.1.2'

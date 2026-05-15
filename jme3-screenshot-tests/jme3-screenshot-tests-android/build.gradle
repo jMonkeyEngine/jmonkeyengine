@@ -32,6 +32,10 @@ android {
         jniLibs {
             useLegacyPackaging = true
         }
+        resources {
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
+        }
     }
 }
 
@@ -49,4 +53,6 @@ dependencies {
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.androidx.test.rules
     androidTestImplementation libs.androidx.test.espresso.core
+
+    implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
 }
