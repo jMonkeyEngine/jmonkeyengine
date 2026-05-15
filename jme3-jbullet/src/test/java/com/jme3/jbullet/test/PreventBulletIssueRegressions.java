@@ -40,10 +40,11 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
-import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.KinematicRagdollControl;
+import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsRigidBody;
+import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.binary.BinaryExporter;
@@ -169,6 +170,21 @@ public class PreventBulletIssueRegressions {
         Assertions.assertNotNull(rbcCopy);
         Assertions.assertEquals(new Vector3f(0.04f, 0.05f, 0.06f), rbcCopy.getAngularVelocity());
         Assertions.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbcCopy.getLinearVelocity());
+    }
+
+    /**
+     * Debug collision meshes should render as line primitives instead of
+     * relying on OpenGL polygon wireframe mode, which is unavailable in GLES.
+     */
+    @Test
+    public void testDebugMeshesUseLines() {
+        CollisionShape shape = new BoxCollisionShape(Vector3f.UNIT_XYZ);
+        Mesh mesh = DebugShapeFactory.getDebugMesh(shape);
+
+        Assertions.assertNotNull(mesh);
+        Assertions.assertEquals(Mesh.Mode.Lines, mesh.getMode());
+        Assertions.assertTrue(mesh.getVertexCount() > 0);
+        Assertions.assertEquals(0, mesh.getVertexCount() % 6);
     }
 
     /**

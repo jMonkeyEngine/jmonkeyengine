@@ -98,6 +98,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     protected TextureCubeMap envMap;
     protected Format depthFormat;
+    protected Format colorFormat;
 
     protected final RenderManager renderManager;
     protected final AssetManager assetManager;
@@ -107,17 +108,32 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     protected GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
         this.depthFormat = depthFormat;
+        this.colorFormat = colorFormat;
 
         renderManager = rm;
         assetManager = am;
 
         cam = new Camera(128, 128);
 
-        envMap = new TextureCubeMap(env_size, env_size, colorFormat);
+        envMap = new TextureCubeMap(env_size, env_size, getColorFormat());
         envMap.setMagFilter(MagFilter.Bilinear);
         envMap.setMinFilter(MinFilter.BilinearNoMipMaps);
         envMap.setWrap(WrapMode.EdgeClamp);
         envMap.getImage().setColorSpace(ColorSpace.Linear);
+    }
+
+    protected Format getColorFormat() {
+        if (colorFormat == null) {
+            this.colorFormat = renderManager.getRenderer().getBestColorTargetFormat(true, false, false, false);
+        }
+        return colorFormat;
+    }
+
+    protected Format getDepthFormat() {
+        if (depthFormat == null) {
+            this.depthFormat = renderManager.getRenderer().getBestDepthTargetFormat(false, false, false);
+        }
+        return depthFormat;
     }
 
     @Override
@@ -170,7 +186,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         FrameBuffer envbakers[] = new FrameBuffer[6];
         for (int i = 0; i < 6; i++) {
             envbakers[i] = new FrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
-            envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
+            envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(getDepthFormat()));
             envbakers[i].setSrgb(false);
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
         }

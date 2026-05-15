@@ -42,6 +42,7 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.system.AppSettings;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 

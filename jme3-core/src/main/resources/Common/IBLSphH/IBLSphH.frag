@@ -42,10 +42,11 @@ vec3 getVectorFromCubemapFaceTexCoord(float x, float y, float mapSize, int face)
     
 
     // Warp texel centers in the proximity of the edges.
-    float a = pow(mapSize, 2.0) / pow(mapSize - 1., 3.0);
+    float warpDenom = max(mapSize - 1.0, 1.0);
+    float a = (mapSize * mapSize) / (warpDenom * warpDenom * warpDenom);
 
-    u = a * pow(u, 3.) + u;
-    v = a * pow(v, 3.) + v;
+    u = a * u * u * u + u;
+    v = a * v * v * v + v;
     //compute vector depending on the face
     // Code from Nvtt : https://github.com/castano/nvidia-texture-tools/blob/master/src/nvtt/CubeSurface.cpp#L101
     vec3 o =vec3(0);

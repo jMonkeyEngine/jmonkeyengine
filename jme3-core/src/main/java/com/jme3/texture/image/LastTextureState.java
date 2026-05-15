@@ -45,6 +45,7 @@ public final class LastTextureState {
     public Texture.WrapMode sWrap, tWrap, rWrap;
     public Texture.MagFilter magFilter;
     public Texture.MinFilter minFilter;
+    public boolean minFilterMipmapsAvailable;
     public int anisoFilter;
     public Texture.ShadowCompareMode shadowCompareMode;
     
@@ -58,6 +59,7 @@ public final class LastTextureState {
         rWrap = null;
         magFilter = null;
         minFilter = null;
+        minFilterMipmapsAvailable = false;
         anisoFilter = 1;
         
         // The default in OpenGL is OFF, so we avoid setting this per texture

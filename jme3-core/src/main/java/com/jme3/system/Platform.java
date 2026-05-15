@@ -37,9 +37,25 @@ package com.jme3.system;
 public enum Platform {
 
     /**
+     * Microsoft Windows 32-bit AMD/Intel
+     *
+     * @deprecated 32-bit Windows is no longer supported.
+     */
+    @Deprecated
+    Windows32(Os.Windows),
+
+    /**
      * Microsoft Windows 64-bit AMD/Intel
      */
     Windows64(Os.Windows, true),
+
+    /**
+     * Microsoft Windows 32-bit ARM
+     *
+     * @deprecated 32-bit Windows is no longer supported.
+     */
+    @Deprecated
+    Windows_ARM32(Os.Windows),
 
     /**
      * Microsoft Windows 64-bit ARM
@@ -47,14 +63,38 @@ public enum Platform {
     Windows_ARM64(Os.Windows, true),
 
     /**
+     * Linux 32-bit Intel
+     *
+     * @deprecated 32-bit Linux is no longer supported.
+     */
+    @Deprecated
+    Linux32(Os.Linux),
+
+    /**
      * Linux 64-bit Intel
      */
     Linux64(Os.Linux, true),
 
     /**
+     * Linux 32-bit ARM
+     *
+     * @deprecated 32-bit Linux is no longer supported.
+     */
+    @Deprecated
+    Linux_ARM32(Os.Linux),
+
+    /**
      * Linux 64-bit ARM
      */
     Linux_ARM64(Os.Linux, true),
+
+    /**
+     * Apple Mac OS X 32-bit Intel
+     *
+     * @deprecated 32-bit macOS is no longer supported.
+     */
+    @Deprecated
+    MacOSX32(Os.MacOS),
 
     /**
      * Apple Mac OS X 64-bit Intel
@@ -65,11 +105,59 @@ public enum Platform {
      * Apple Mac OS X 64-bit ARM
      */
     MacOSX_ARM64(Os.MacOS, true),
- 
+
+    /**
+     * Apple Mac OS X 32 bit PowerPC
+     *
+     * @deprecated PowerPC macOS is no longer supported.
+     */
+    @Deprecated
+    MacOSX_PPC32(Os.MacOS),
+
+    /**
+     * Apple Mac OS X 64 bit PowerPC
+     *
+     * @deprecated PowerPC macOS is no longer supported.
+     */
+    @Deprecated
+    MacOSX_PPC64(Os.MacOS, true),
+
+    /**
+     * Android ARM5
+     *
+     * @deprecated 32-bit Android is no longer supported.
+     */
+    @Deprecated
+    Android_ARM5(Os.Android),
+
+    /**
+     * Android ARM6
+     *
+     * @deprecated 32-bit Android is no longer supported.
+     */
+    @Deprecated
+    Android_ARM6(Os.Android),
+
+    /**
+     * Android ARM7
+     *
+     * @deprecated 32-bit Android is no longer supported.
+     */
+    @Deprecated
+    Android_ARM7(Os.Android),
+
     /**
      * Android ARM8
      */
     Android_ARM8(Os.Android, true),
+
+    /**
+     * Android x86
+     *
+     * @deprecated 32-bit Android is no longer supported.
+     */
+    @Deprecated
+    Android_X86(Os.Android),
 
     /**
      * Android x86_64
@@ -77,17 +165,26 @@ public enum Platform {
     Android_X86_64(Os.Android, true),
 
     /**
+     * iOS on x86_64 (simulator)
+     */
+    iOS_X86(Os.iOS, true),
+
+    /**
      * iOS on ARM
      */
     iOS_ARM(Os.iOS, true),
 
     /**
-     * iOS on x86_64 (simulator)
+     * Android running on unknown platform (could be x86 or mips for example).
+     *
+     * @deprecated Android platforms with unknown architectures are no longer supported.
      */
-    iOS_X86(Os.iOS, true),
+    @Deprecated
+    Android_Other(Os.Android),
+
     /**
-    * Generic web platform on unknown architecture
-    */
+     * Generic web platform on unknown architecture
+     */
     Web(Os.Web, true) // assume always 64-bit, it shouldn't matter for web
     ;
 
@@ -124,6 +221,7 @@ public enum Platform {
 
     private final boolean is64bit;
     private final Os os;
+    private static final boolean NATIVE_IMAGE_RUNTIME = detectNativeImageRuntime();
 
     /**
      * Test for a 64-bit address space.
@@ -141,6 +239,19 @@ public enum Platform {
      */
     public Os getOs() {
         return os;
+    }
+
+    /**
+     * Test whether this process is running as a GraalVM native-image executable.
+     *
+     * @return true if running inside a native-image runtime, otherwise false
+     */
+    public boolean isGraalVMNativeImage() {
+        return NATIVE_IMAGE_RUNTIME;
+    }
+
+    private static boolean detectNativeImageRuntime() {
+        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
     }
 
     private Platform(Os os, boolean is64bit) {

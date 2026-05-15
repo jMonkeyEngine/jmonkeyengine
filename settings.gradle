@@ -1,6 +1,15 @@
 /**
  * This is the global settings file used by all subprojects.
  **/
+pluginManagement {
+    includeBuild 'jme3-nativeimage-plugin'
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        google()
+    }
+}
+
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }

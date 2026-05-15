@@ -179,4 +179,8 @@ abstract class ImageCodec {
         }
         return codec;
     }
+
+    static boolean isSupported(Format format) {
+        return params.containsKey(format);
+    }
 }

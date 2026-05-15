@@ -1,15 +1,5 @@
 
 import java.text.SimpleDateFormat
-import org.ajoberstar.grgit.*
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath libs.gradle.git
-    }
-}
 
 ext {
     jmeRevision     = 0
@@ -22,8 +12,22 @@ ext {
     jmeVersionTag="SNAPSHOT"
 }
 
-task configureVersionInfo {
-    try {
+def gitOutput = { List<String> args ->
+    def output = providers.exec {
+        commandLine(['git'] + args)
+        ignoreExitValue = true
+    }
+    if (output.result.get().exitValue == 0) {
+        return output.standardOutput.asText.get().trim()
+    }
+    return ""
+}
+
+def normalizeBranchName = { String branchName ->
+    branchName && branchName != "HEAD" ? branchName : "unknown"
+}
+
+try {
         // Users can configure behavior by setting properties on the command
         // line:
         //
@@ -39,43 +43,28 @@ task configureVersionInfo {
         // Set to true if a non-master branch name should be included in the automatically
         // generated version.
 
-        def grgit = Grgit.open(project.file('.'))
-        def head = grgit.head()
-        jmeRevision = grgit.log(includes: [head]).size()
-        jmeGitHash = head.id
-        jmeShortGitHash = head.abbreviatedId
-        jmeBranchName = grgit.branch.current.name
+        def revisionOutput = gitOutput(['rev-list', '--count', 'HEAD'])
+        jmeRevision = revisionOutput ? revisionOutput.toInteger() : 0
+        jmeGitHash = gitOutput(['rev-parse', 'HEAD'])
+        jmeShortGitHash = gitOutput(['rev-parse', '--short=7', 'HEAD'])
+        jmeBranchName = normalizeBranchName(gitOutput(['branch', '--show-current']) ?: gitOutput(['rev-parse', '--abbrev-ref', 'HEAD']))
 
         // This code will find an exact-match tag if the current
         // commit is the same as the tag commit.
-        jmeGitTag = grgit.tag.list().find { it.commit == head }
+        jmeGitTag = gitOutput(['describe', '--tags', '--exact-match', 'HEAD'])
         def latestTag;
         if( jmeGitTag ) {
-            // Just use the name.  We keep jmeGitTag separate because there
-            // is some logic that wants to know if this specific commit has
-            // a tag versus 'whatever tag we are a child of'... which is what
-            // 'latestTag' will be.
-            jmeGitTag = jmeGitTag.name
             latestTag = jmeGitTag;
         } else {
-            // Use describe to find the most recent tag.  Unfortunately,
-            // in this version of grgit, we don't have the 'always' options
-            // so we can't make as many assumptions about the format of the
-            // string.
-            // If the commit is an exact match then it will return just the
-            // tag name... else it will be tagName-commitCount-abbreviatedId
-            // We'll use some groovy regex magic to get the tag either way.
-            def describe = grgit.describe()
-            def fullDescribe = (describe =~/(.*?)-(\d+)-g$jmeShortGitHash/)
-            latestTag = fullDescribe ? fullDescribe[0][1] : describe
+            latestTag = gitOutput(['describe', '--tags', '--abbrev=0', 'HEAD'])
             println "Latest tag:" + latestTag
         }
 
         // We could enhance this with some more regex if we wanted to sanity
         // check that it was formatted like our versions.
-        def tagVersion = (latestTag =~/v?(.*)/)[0][1];
+        def tagVersion = latestTag ? latestTag.replaceFirst(/^v/, "") : jmeVersion;
         // If the branch is not master then use the tag.
-        if( jmeBranchName != "master" ) {
+        if( jmeBranchName != "master" && latestTag ) {
             jmeVersion = tagVersion
         }
 
@@ -97,9 +86,8 @@ task configureVersionInfo {
                 // real CI builds should be using non-SNAPSHOT versions so we may
                 // eventually want to change the script to always use -SNAPSHOT with
                 // a CI option to turn it off.
-                // We could also check the grgit.status for unstaged modified/removed files.
-                //     def unstaged = grgit.status().unstaged;
-                //     def modCount = unstaged.modified.size() + unstaged.removed.size()
+                // We could also check for unstaged modified/removed files.
+                //     def modCount = ...
                 // ...but that seems like a wasteful check considering only official
                 // version builds should not have a -SNAPSHOT.
 
@@ -113,7 +101,7 @@ task configureVersionInfo {
                 println "Auto-detecting version"
                 jmeVersionTag = "SNAPSHOT"
 
-                if( includeBranchInVersion == "true" && jmeBranchName != "master" ) {
+                if( includeBranchInVersion == "true" && jmeBranchName != "master" && jmeBranchName != "unknown" ) {
                     jmeFullVersion = baseVersion + "-" + jmeBranchName + "-" + jmeVersionTag;
                 } else {
                     jmeFullVersion = baseVersion + "-" + jmeVersionTag;
@@ -137,9 +125,8 @@ task configureVersionInfo {
         println("Build Suffix: ${jmeVersionTag}")
         println("Build Version: ${jmeFullVersion}")
 
-    } catch (ex) {
-        // Failed to get repo info
-        logger.warn("Failed to get repository info: " + ex.message + ". " + \
-                    "Only partial build info will be generated.")
-    }
+} catch (ex) {
+    // Failed to get repo info
+    logger.warn("Failed to get repository info: " + ex.message + ". " + \
+                "Only partial build info will be generated.")
 }

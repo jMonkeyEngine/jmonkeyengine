@@ -229,49 +229,52 @@
 
 
     #if  defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_computeLightInWorldSpace)
-        void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos,vec3 worldNormal, vec3 viewDir, inout Light light){
+        void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos, vec3 worldNormal, vec3 viewDir, inout Light light){
             if(light.ready) return;
 
-            // lightComputeDir
-            float posLight = step(0.5, light.type);     
-            light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight); //tempVec lightVec
+            float posLight = step(0.5, light.type);
+            light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
 
-            vec3 L; // lightDir
+            vec3 L;
             float dist;
-            Math_lengthAndNormalize(light.vector,dist,L);
+            Math_lengthAndNormalize(light.vector, dist, L);
 
-            float invRange=light.invRadius; // position.w
-            const float light_threshold = 0.01;
+            if (posLight > 0.5) {
+                float clampedDist = max(dist, 0.00001);
+                float invSq = 1.0 / (clampedDist * clampedDist);
 
-            #ifdef SRGB
-                light.fallOff = (1.0 - invRange * dist) / (1.0 + invRange * dist * dist); // lightDir.w
-                light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
-            #else
-                light.fallOff = clamp(1.0 - invRange * dist * posLight, 0.0, 1.0);
-            #endif
+                float radius = 1.0 / light.invRadius;
+                float rangeAtt = 1.0;
 
-            // computeSpotFalloff
-            if(light.type>1.){
-                vec3 spotdir = normalize(light.spotDirection);
-                float curAngleCos = dot(-L, spotdir);    
-                float innerAngleCos = floor(light.spotAngleCos) * 0.001;
-                float outerAngleCos = fract(light.spotAngleCos);
-                float innerMinusOuter = innerAngleCos - outerAngleCos;
-                float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-                #ifdef SRGB
-                    // Use quadratic falloff (notice the ^4)
-                    falloff = pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
-                #endif
-                light.fallOff*=falloff;
+                if (radius > 0.0) {
+                    float x = dist / radius;
+                    rangeAtt = clamp(1.0 - pow(x, 4.0), 0.0, 1.0);
+                }
+
+                light.fallOff = invSq * rangeAtt;
+            } else {
+                light.fallOff = 1.0;
             }
 
+            if (light.type > 1.0) {
+                float innerAngleCos = floor(light.spotAngleCos) * 0.001;
+                float outerAngleCos = fract(light.spotAngleCos);
 
-            vec3 h=normalize(L+viewDir);
-            light.dir=L;
+                vec3 spotDir = normalize(light.spotDirection);
+                float cosA = dot(-L, spotDir);
+                float denom = max(innerAngleCos - outerAngleCos, 0.0001);
+                float spotAtten = clamp((cosA - outerAngleCos) / denom, 0.0, 1.0);
+
+                light.fallOff *= spotAtten;
+            }
+
+            vec3 h = normalize(L + viewDir);
+            light.dir = L;
             light.NdotL = max(dot(worldNormal, L), 0.0);
             light.NdotH = max(dot(worldNormal, h), 0.0);
             light.LdotH = max(dot(L, h), 0.0);
-            light.HdotV = max(dot(viewDir,h), 0.);
+            light.HdotV = max(dot(viewDir, h), 0.0);
+            light.ready = true;
         }
     #endif
 

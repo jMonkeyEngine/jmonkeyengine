@@ -32,16 +32,26 @@
 
 package com.jme3.system;
 
+import java.util.logging.Logger;
+
 import com.jme3.awt.AWTErrorDialog;
 import com.jme3.awt.AWTSettingsDialog;
 
 public class JmeDialogsFactoryImpl implements JmeDialogsFactory {
-    
+    private final static Logger logger = Logger.getLogger(JmeDialogsFactoryImpl.class.getName());
     public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry){
+        if(JmeSystem.getPlatform()==Platform.MacOSX64||JmeSystem.getPlatform()==Platform.MacOSX_ARM64){
+            logger.warning("AWT settings dialog skipped in MacOS");
+            return true;
+        }
         return AWTSettingsDialog.showDialog(settings,loadFromRegistry);
     }
 
     public void showErrorDialog(String message){
+        if(JmeSystem.getPlatform()==Platform.MacOSX64||JmeSystem.getPlatform()==Platform.MacOSX_ARM64){
+            logger.warning("AWT error dialog skipped in MacOS");
+            return;
+        }
         AWTErrorDialog.showDialog(message);
     }
     

@@ -12,6 +12,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'org.jmonkeyengine.nativeimage' apply false
+}
+
 import org.gradle.api.file.RelativePath
 
 // Set the license for IDEs that understand this
@@ -52,6 +56,25 @@ subprojects {
                 html.required = !project.hasProperty("xml-reports")
                 xml.required = project.hasProperty("xml-reports")
             }
+        }
+    }
+}
+
+def nativeImagePluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
+def nativeImagePluginPublishTasks = [
+        publish                                      : ':publish',
+        publishToMavenLocal                         : ':publishToMavenLocal',
+        install                                      : ':install',
+        publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
+        publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
+]
+
+subprojects {
+    tasks.configureEach { task ->
+        String includedTaskPath = nativeImagePluginPublishTasks[task.name]
+        if (includedTaskPath != null) {
+            task.dependsOn nativeImagePluginBuild.task(includedTaskPath)
         }
     }
 }
@@ -182,17 +205,56 @@ task configureAndroidNDK {
         ndkBuildFile = "ndk-build.cmd"
     }
 
-    // ndkPath is defined in the root project gradle.properties file
-    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
-    //Use the environment variable for the NDK location if defined
-    if (System.env.ANDROID_NDK != null) {
-        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
+    def ndkCandidates = []
+    if (System.env.ANDROID_NDK) {
+        ndkCandidates << file(System.env.ANDROID_NDK)
+    }
+    if (System.env.ANDROID_NDK_HOME) {
+        ndkCandidates << file(System.env.ANDROID_NDK_HOME)
+    }
+    if (project.hasProperty('ndkPath') && ndkPath) {
+        ndkCandidates << file(ndkPath)
     }
 
-    if (new File(ndkBuildPath).exists()) {
-        ndkExists = true
-        ndkCommandPath = ndkBuildPath
+    def localProperties = file('local.properties')
+    if (localProperties.isFile()) {
+        Properties properties = new Properties()
+        localProperties.withInputStream { properties.load(it) }
+        if (properties.getProperty('ndk.dir')) {
+            ndkCandidates << file(properties.getProperty('ndk.dir'))
+        }
+        if (properties.getProperty('sdk.dir')) {
+            ndkCandidates.addAll(findAndroidNdkDirs(file(properties.getProperty('sdk.dir'))))
+        }
     }
+
+    if (System.env.ANDROID_HOME) {
+        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_HOME)))
+    }
+    if (System.env.ANDROID_SDK_ROOT) {
+        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_SDK_ROOT)))
+    }
+    ndkCandidates.addAll(findAndroidNdkDirs(file("${System.properties['user.home']}/Android/Sdk")))
+
+    def ndkBuildPath = ndkCandidates.collect { new File(it, ndkBuildFile) }.find { it.isFile() }
+    if (ndkBuildPath != null) {
+        ndkExists = true
+        ndkCommandPath = ndkBuildPath.absolutePath
+    }
+}
+
+def findAndroidNdkDirs(File sdkDir) {
+    def ndkDirs = []
+    def nestedSdkDir = new File(sdkDir, 'Sdk')
+    if (nestedSdkDir.isDirectory()) {
+        ndkDirs.addAll(findAndroidNdkDirs(nestedSdkDir))
+    }
+    def sideBySideDir = new File(sdkDir, 'ndk')
+    if (sideBySideDir.isDirectory()) {
+        ndkDirs.addAll(sideBySideDir.listFiles()?.findAll { it.isDirectory() }?.sort { a, b -> b.name <=> a.name } ?: [])
+    }
+    ndkDirs << new File(sdkDir, 'ndk-bundle')
+    return ndkDirs
 }
 
 gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
@@ -241,10 +303,8 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
             }) {
                 eachFile { details ->
                     def segments = details.relativePath.segments
-                    if (segments.length <= 1) {
-                        details.exclude()
-                    } else {
-                        details.relativePath = new RelativePath(details.isDirectory(), segments[1..-1] as String[])
+                    if (segments.length > 1) {
+                        details.path = segments[1..-1].join('/')
                     }
                 }
                 includeEmptyDirs = false

@@ -132,10 +132,12 @@ public class DebugShapeFactory {
             mesh = new Mesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConvexShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
+            mesh.setMode(Mesh.Mode.Lines);
         } else if (shape.getCShape() instanceof ConcaveShape) {
             mesh = new Mesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConcaveShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
+            mesh.setMode(Mesh.Mode.Lines);
         }
         return mesh;
     }
@@ -157,10 +159,10 @@ public class DebugShapeFactory {
 
     /**
      *  Processes the given convex shape to retrieve a correctly ordered FloatBuffer to
-     *  construct the shape from with a TriMesh.
+     *  construct the shape from with line segments.
      *
      * @param convexShape the shape to retrieve the vertices from.
-     * @return the vertices as a FloatBuffer, ordered as Triangles.
+     * @return the vertices as a FloatBuffer, ordered as line segments.
      */
     private static FloatBuffer getVertices(ConvexShape convexShape) {
         // Check there is a hull shape to render
@@ -180,8 +182,8 @@ public class DebugShapeFactory {
         assert hull.numTriangles() > 0 : "Expecting the Hull shape to have triangles";
         int numberOfTriangles = hull.numTriangles();
 
-        // The number of bytes needed is: (floats in a vertex) * (vertices in a triangle) * (# of triangles) * (size of float in bytes)
-        final int numberOfFloats = 3 * 3 * numberOfTriangles;
+        // The number of floats needed is: (floats in a vertex) * (vertices in a triangle outline) * (# of triangles)
+        final int numberOfFloats = 3 * 6 * numberOfTriangles;
         FloatBuffer vertices = BufferUtils.createFloatBuffer(numberOfFloats); 
 
         // Force the limit, set the cap - the largest number of floats we will use the buffer for
@@ -199,14 +201,23 @@ public class DebugShapeFactory {
             vertexB = hullVertices.get(hullIndices.get(index++));
             vertexC = hullVertices.get(hullIndices.get(index++));
 
-            // Put the vertices into the vertex buffer
-            vertices.put(vertexA.x).put(vertexA.y).put(vertexA.z);
-            vertices.put(vertexB.x).put(vertexB.y).put(vertexB.z);
-            vertices.put(vertexC.x).put(vertexC.y).put(vertexC.z);
+            putTriangleOutline(vertices, vertexA, vertexB, vertexC);
         }
 
         vertices.clear();
         return vertices;
+    }
+
+    private static void putTriangleOutline(FloatBuffer vertices, Vector3f vertexA,
+            Vector3f vertexB, Vector3f vertexC) {
+        putLine(vertices, vertexA, vertexB);
+        putLine(vertices, vertexB, vertexC);
+        putLine(vertices, vertexC, vertexA);
+    }
+
+    private static void putLine(FloatBuffer vertices, Vector3f start, Vector3f end) {
+        vertices.put(start.x).put(start.y).put(start.z);
+        vertices.put(end.x).put(end.y).put(end.z);
     }
 }
 
@@ -227,11 +238,13 @@ class BufferedTriangleCallback extends TriangleCallback {
 
     @Override
     public void processTriangle(Vector3f[] triangle, int partId, int triangleIndex) {
-        // Three sets of individual lines
         // The new Vector is needed as the given triangle reference is from a pool
         vertices.add(new Vector3f(triangle[0]));
         vertices.add(new Vector3f(triangle[1]));
+        vertices.add(new Vector3f(triangle[1]));
         vertices.add(new Vector3f(triangle[2]));
+        vertices.add(new Vector3f(triangle[2]));
+        vertices.add(new Vector3f(triangle[0]));
     }
 
     /**

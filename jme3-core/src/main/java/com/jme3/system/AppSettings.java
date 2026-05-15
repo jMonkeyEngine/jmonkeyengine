@@ -31,8 +31,6 @@
  */
 package com.jme3.system;
 
-import com.jme3.opencl.DefaultPlatformChooser;
-import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -72,6 +70,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
@@ -101,6 +100,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
 
     /**
@@ -114,6 +114,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
 
     /**
@@ -219,6 +220,8 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public static final String LWJGL_OPENAL = "LWJGL";
 
+    public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
@@ -296,18 +299,18 @@ public final class AppSettings extends HashMap<String, Object> {
     static {
         defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
-        defaults.put("Width", 640);
-        defaults.put("Height", 480);
+        defaults.put("Width", 1440);
+        defaults.put("Height", 900);
         defaults.put("WindowWidth", Integer.MIN_VALUE);
         defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
-        defaults.put("Frequency", 60);
+        defaults.put("Frequency", 0);
         defaults.put("DepthBits", 24);
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL32);
+        defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
@@ -317,10 +320,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
         defaults.put("GammaCorrection", true);
-        defaults.put("Resizable", false);
+        defaults.put("Resizable", true);
         defaults.put("SwapBuffers", true);
-        defaults.put("OpenCL", false);
-        defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         defaults.put("UseRetinaFrameBuffer", false);
         defaults.put("WindowYPosition", 0);
         defaults.put("WindowXPosition", 0);
@@ -1353,32 +1354,45 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * True to enable the creation of an OpenCL context.
+     * OpenCL support has been removed from the engine.
      *
-     * @param support whether to create the context or not
+     * @param support ignored
+     * @deprecated OpenCL support has been removed.
      */
+    @Deprecated
     public void setOpenCLSupport(boolean support) {
-        putBoolean("OpenCL", support);
-    }
-
-    public boolean isOpenCLSupport() {
-        return getBoolean("OpenCL");
     }
 
     /**
-     * Sets a custom platform chooser. This chooser specifies which platform and
-     * which devices are used for the OpenCL context.
-     * <p>
-     * Default: an implementation defined one.
+     * OpenCL support has been removed from the engine.
      *
-     * @param chooser the class of the chooser, must have a default constructor
+     * @return false
+     * @deprecated OpenCL support has been removed.
      */
-    public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
-        putString("OpenCLPlatformChooser", chooser.getName());
+    @Deprecated
+    public boolean isOpenCLSupport() {
+        return false;
     }
 
+    /**
+     * OpenCL support has been removed from the engine.
+     *
+     * @param chooser ignored
+     * @deprecated OpenCL support has been removed.
+     */
+    @Deprecated
+    public void setOpenCLPlatformChooser(Class<?> chooser) {
+    }
+
+    /**
+     * OpenCL support has been removed from the engine.
+     *
+     * @return null
+     * @deprecated OpenCL support has been removed.
+     */
+    @Deprecated
     public String getOpenCLPlatformChooser() {
-        return getString("OpenCLPlatformChooser");
+        return null;
     }
 
     /**
@@ -1722,4 +1736,3 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SDLGameControllerDBResourcePath");
     }
 }
-
