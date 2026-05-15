@@ -1,17 +1,23 @@
-package org.jmonkeyengine.screenshottests.android.android;
+package org.jmonkeyengine.screenshottests.testframework;
 
 import android.opengl.GLSurfaceView;
 
 import com.jme3.app.AndroidHarnessFragment;
 import com.jme3.app.LegacyApplication;
+import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 
+public class AndroidTestHarness extends AndroidHarnessFragment {
 
-public class AndroidLauncher extends AndroidHarnessFragment {
+    SimpleApplication application;
+
+    public AndroidTestHarness(SimpleApplication application) {
+        this.application = application;
+    }
 
     @Override
     protected LegacyApplication createApplication(){
-        return new JmeAndroidApp();
+        return application;
     }
 
     @Override

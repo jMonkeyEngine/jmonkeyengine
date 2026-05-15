@@ -49,7 +49,9 @@ import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -286,6 +288,6 @@ public class TestPBRTerrain extends ScreenshotTestBase {
 
         }).setBaseImageFileName(imageName)
           .setFramesToTakeScreenshotsOn(5)
-          .run();
+          .run(new DesktopRunner());
     }
 }

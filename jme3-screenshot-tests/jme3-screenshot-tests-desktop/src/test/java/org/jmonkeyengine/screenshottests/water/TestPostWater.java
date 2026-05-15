@@ -58,13 +58,15 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.water.WaterFilter;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestPostWater extends ScreenshotTestBase{
+public class TestPostWater extends ScreenshotTestBase {
 
     /**
      * This test creates a scene with a terrain and post process water filter.
@@ -206,7 +208,7 @@ public class TestPostWater extends ScreenshotTestBase{
                 terrain.setShadowMode(ShadowMode.Receive);
                 rootNode.attachChild(terrain);
             }
-        }).run();
+        }).run(new DesktopRunner());
     }
 
 }

@@ -42,7 +42,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -127,6 +129,6 @@ public class TestInstanceNodeWithPbr extends ScreenshotTestBase {
             }
         )
         .setFramesToTakeScreenshotsOn(1, 10)
-        .run();
+        .run(new DesktopRunner());
     }
 }

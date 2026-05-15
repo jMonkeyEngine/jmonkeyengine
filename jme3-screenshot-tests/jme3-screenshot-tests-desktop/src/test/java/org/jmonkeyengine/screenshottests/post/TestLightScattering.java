@@ -47,7 +47,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -59,7 +61,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestLightScattering extends ScreenshotTestBase {
+public class TestLightScattering  extends ScreenshotTestBase {
 
     /**
      * This test creates a scene with a light scattering effect.
@@ -121,6 +123,6 @@ public class TestLightScattering extends ScreenshotTestBase {
             }
         })
         .setFramesToTakeScreenshotsOn(1)
-        .run();
+        .run(new DesktopRunner());
     }
 }

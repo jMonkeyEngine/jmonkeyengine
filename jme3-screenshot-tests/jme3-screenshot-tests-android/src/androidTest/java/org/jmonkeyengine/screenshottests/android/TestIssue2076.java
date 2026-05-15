@@ -1,10 +1,10 @@
 package org.jmonkeyengine.screenshottests.android;
 
 import org.jmonkeyengine.screenshottests.scenarios.animation.ScenarioIssue2076;
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.AndroidRunner;
 import org.junit.Test;
 
-public class TestIssue2076 extends ScreenshotTestBase {
+public class TestIssue2076{
 
     /**
      * This test creates a scene with two Jaime models, one using the old animation system
@@ -12,6 +12,6 @@ public class TestIssue2076 extends ScreenshotTestBase {
      */
     @Test
     public void testIssue2076() {
-        ScenarioIssue2076.testIssue2076().run();
+        ScenarioIssue2076.testIssue2076().run(new AndroidRunner());
     }
 }

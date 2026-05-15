@@ -10,6 +10,7 @@ saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 googleMaterial = "1.4.0"
+androidx-fragment-testing = "1.8.9"
 
 [libraries]
 
@@ -24,6 +25,8 @@ androidx-test-core = "androidx.test:core:1.6.1"
 androidx-test-rules = "androidx.test:rules:1.6.1"
 androidx-test-ext-junit = "androidx.test.ext:junit:1.2.1"
 androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.6.1"
+androidx-fragment-testing = { module ="androidx.fragment:fragment-testing", version.ref = "androidx-fragment-testing"}
+androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "androidx-fragment-testing"}
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 androidx-test-runner = "androidx.test:runner:1.7.0"
 groovy-test = "org.apache.groovy:groovy-test:4.0.31"

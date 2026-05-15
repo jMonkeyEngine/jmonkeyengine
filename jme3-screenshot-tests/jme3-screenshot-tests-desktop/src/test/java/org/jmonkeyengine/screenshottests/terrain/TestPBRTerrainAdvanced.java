@@ -54,7 +54,9 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.TextureArray;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -363,6 +365,6 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
 
         }).setBaseImageFileName(imageName)
           .setFramesToTakeScreenshotsOn(5)
-          .run();
+          .run(new DesktopRunner());
     }
 }

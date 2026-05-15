@@ -46,7 +46,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -58,7 +60,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestSimpleBumps extends ScreenshotTestBase {
+public class TestSimpleBumps  extends ScreenshotTestBase {
 
     /**
      * This test creates a scene with a bump-mapped quad and an orbiting light.
@@ -120,6 +122,6 @@ public class TestSimpleBumps extends ScreenshotTestBase {
             }
         })
         .setFramesToTakeScreenshotsOn(10, 60)
-        .run();
+        .run(new DesktopRunner());
     }
 }

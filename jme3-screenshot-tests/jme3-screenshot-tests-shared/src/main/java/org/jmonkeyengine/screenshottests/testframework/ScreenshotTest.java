@@ -31,12 +31,32 @@
  */
 package org.jmonkeyengine.screenshottests.testframework;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import com.aventstack.extentreports.ExtentTest;
+import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
+import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  * This is how a test is configured and started. It uses a fluent API.
@@ -44,6 +64,22 @@ import java.util.List;
  * @author Richard Tingle (aka richtea)
  */
 public class ScreenshotTest{
+
+    public static final String IMAGES_ARE_DIFFERENT = "Generated images is different from committed image. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+
+    public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
+
+    public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
+
+    public static final String KNOWN_BAD_TEST_IMAGES_DIFFERENT = "Images are different. This is a known broken test.";
+
+    public static final String KNOWN_BAD_TEST_IMAGES_SAME = "This is (or was?) a known broken test but it is now passing, please change the test type to MUST_PASS.";
+
+    public static final String NON_DETERMINISTIC_TEST = "This is a non deterministic test, please manually review the expected and actual images to make sure they are approximately the same.";
+
+
+    private static final Logger logger = Logger.getLogger(ScreenshotTest.class.getName());
+
 
     TestType testType = TestType.MUST_PASS;
 
@@ -100,9 +136,8 @@ public class ScreenshotTest{
         return this;
     }
 
-    public void run(){
+    public void run(AppRunner osSpecificRunner){
         AppSettings settings = new AppSettings(true);
-        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
         settings.setAudioRenderer(null); // Disable audio (for headless)
         settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
@@ -110,9 +145,139 @@ public class ScreenshotTest{
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
-        TestDriver.bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios);
+        bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner);
     }
 
+    /**
+     * Boots up the application on a separate thread (blocks this thread) and then does the following:
+     * - Takes screenshots on the requested frames
+     * - After all the frames have been taken it stops the application
+     * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
+     */
+    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner){
+
+        Collections.sort(framesToTakeScreenshotsOn);
+        ScenarioScreenshotRecorder overallScreenshots = new ScenarioScreenshotRecorder();
+        // usually there is a single scenario, but the framework can be set up to expect multiple scenarios that give identical results
+        for(Scenario scenario : scenarios) {
+            FastMath.rand.setSeed(0); //try to make things deterministic by setting the random seed
+
+
+            List<AppState> states = new ArrayList<>(Arrays.asList(scenario.states));
+            TestDriver testDriver = new TestDriver(scenario.scenarioName, framesToTakeScreenshotsOn);
+            states.add(testDriver);
+
+            SimpleApplication app = new App(states.toArray(new AppState[0]));
+            app.setSettings(appSettings);
+            app.setShowSettings(false);
+            testDriver.waitLatch = new CountDownLatch(1);
+
+            osSpecificRunner.runApplicationUntilScenarioCompletes(app, testDriver.waitLatch);
+
+            overallScreenshots.addAll(testDriver.screenshotsAtFrames);
+        }
+        String failureMessage = null;
+
+        try {
+            String primeScenarioName = scenarios.get(0).scenarioName;
+            if(scenarios.size()>1){
+
+                // check each scenario gave the same results (before checking a single scenario against the reference images
+                for(int i=1;i<scenarios.size();i++){
+                    String thisScenarioName = scenarios.get(i).scenarioName;
+
+                    for(int frame : framesToTakeScreenshotsOn) {
+                        Path primeImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                                "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
+                        ));
+                        Path otherImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                                "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
+                        ));
+
+                        BufferedImage img1 = ImageIO.read(primeImage.toFile());
+                        BufferedImage img2 = ImageIO.read(otherImage.toFile());
+
+                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+
+                        if (!imagesAreVerySimilar(img1, img2)) {
+                            attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", img1);
+                            attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", img2);
+                            attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(img1, img2));
+
+                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
+                            }
+                            ExtentReportExtension.getCurrentTest().fail(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
+                        }
+                    }
+                }
+            }
+
+
+            for(int frame : framesToTakeScreenshotsOn) {
+                Path generatedImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                        "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
+                ));
+
+                String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+
+                Path expectedImage = Paths.get("src/test/resources/" + thisFrameBaseImageFileName + ".png");
+
+                if(!Files.exists(expectedImage)){
+                    try{
+                        Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+                        attachImage("New image:", thisFrameBaseImageFileName + ".png", savedImage);
+                        String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts (on github). If running locally you can see them at build/changed-images but those should not be committed";
+                        if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                            failureMessage = message;
+                        }
+                        ExtentReportExtension.getCurrentTest().fail(message);
+                        continue;
+                    } catch(IOException e){
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                BufferedImage img1 = ImageIO.read(generatedImage.toFile());
+                BufferedImage img2 = ImageIO.read(expectedImage.toFile());
+
+                if (imagesAreVerySimilar(img1, img2)) {
+                    if(testType == TestType.KNOWN_TO_FAIL){
+                        ExtentReportExtension.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_SAME);
+                    }
+                } else {
+                    //save the generated image to the build directory
+                    Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+
+                    attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
+                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", savedImage);
+                    attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(img1, img2));
+
+                    switch(testType){
+                        case MUST_PASS:
+                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                failureMessage = IMAGES_ARE_DIFFERENT;
+                            }
+                            ExtentReportExtension.getCurrentTest().fail(IMAGES_ARE_DIFFERENT);
+                            break;
+                        case NON_DETERMINISTIC:
+                            ExtentReportExtension.getCurrentTest().warning(NON_DETERMINISTIC_TEST);
+                            break;
+                        case KNOWN_TO_FAIL:
+                            ExtentReportExtension.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
+                            break;
+                    }
+                }
+
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading images", e);
+        }
+
+        if(failureMessage!=null){
+            fail(failureMessage);
+        }
+    }
 
     private String calculateImageFilePrefix(){
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -125,6 +290,194 @@ public class ScreenshotTest{
             throw new RuntimeException("Caller information is not available.");
         }
     }
+
+    /**
+     * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
+     * if the instigator of the change wants to accept this as the new "correct" state.
+     */
+    private static Path saveGeneratedImageToChangedImages(Path generatedImage, String imageFileName) throws IOException{
+        Path savedImage = Paths.get("build/changed-images/" + imageFileName + ".png");
+        Files.createDirectories(savedImage.getParent());
+        Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
+        aggressivelyCompressImage(savedImage);
+        return savedImage;
+    }
+
+    /**
+     * This remains lossless but makes the maximum effort to compress the image. As these images
+     * may be committed to the repository it is important to keep them as small as possible and worth the extra CPU time
+     * to do so
+     */
+    private static void aggressivelyCompressImage(Path path) throws IOException {
+        // Load your image
+        BufferedImage image = ImageIO.read(path.toFile());
+
+        // Get a PNG writer
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
+        ImageWriteParam writeParam = writer.getDefaultWriteParam();
+
+        // Increase compression effort
+        writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        writeParam.setCompressionQuality(0.0f); // 0.0 means maximum compression
+
+        // Save the image with increased compression
+        try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(path.toFile())) {
+            writer.setOutput(outputStream);
+            writer.write(null, new IIOImage(image, null, null), writeParam);
+        }
+
+        // Clean up
+        writer.dispose();
+    }
+
+    /**
+     * Attaches the image to the report. A copy of the image is made in the report directory
+     */
+    private static void attachImage(String title, String fileName, Path originalImage) throws IOException{
+        ExtentTest test = ExtentReportExtension.getCurrentTest();
+        Files.copy(originalImage.toAbsolutePath(), Paths.get("build/reports/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+        test.addScreenCaptureFromPath(fileName, title);
+    }
+
+    /**
+     * Attaches the image to the report. The image is written to the report directory
+     */
+    private static void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
+        ExtentTest test = ExtentReportExtension.getCurrentTest();
+        ImageIO.write(originalImage, "png", Paths.get("build/reports/" + fileName).toFile());
+        test.addScreenCaptureFromPath(fileName, title);
+    }
+
+    /**
+     * Tests that the images are the same for the purposes of the test.
+     * If they are not the same it will return false (which may fail the test depending on the test type).
+     * Different sizes are so fatal that they will immediately fail the test.
+     */
+    private static boolean imagesAreVerySimilar(BufferedImage img1, BufferedImage img2) {
+        if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
+            ExtentReportExtension.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
+            ExtentReportExtension.getCurrentTest().createNode("Image 2 size : " + img2.getWidth() + "x" + img2.getHeight());
+            fail(IMAGES_ARE_DIFFERENT_SIZES);
+        }
+
+        for (int y = 0; y < img1.getHeight(); y++) {
+            for (int x = 0; x < img1.getWidth(); x++) {
+                int rgb1 = img1.getRGB(x, y);
+                int rgb2 = img2.getRGB(x, y);
+
+                if (rgb1  != rgb2){
+                    int r1 = (rgb1 >> 16) & 0xFF;
+                    int g1 = (rgb1 >> 8) & 0xFF;
+                    int b1 = rgb1 & 0xFF;
+
+                    int r2 = (rgb2 >> 16) & 0xFF;
+                    int g2 = (rgb2 >> 8) & 0xFF;
+                    int b2 = rgb2 & 0xFF;
+
+                    int dr = Math.abs(r1 - r2);
+                    int dg = Math.abs(g1 - g2);
+                    int db = Math.abs(b1 - b2);
+
+                    double largestPixelValueDifference = Math.max(dr, Math.max(dg, db));
+                    if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Creates an image that highlights the differences between the two images. The reference image is shown
+     * dully in grey with blue, yellow, orange and red showing where pixels are different.
+     */
+    private static BufferedImage createComparisonImage(BufferedImage img1, BufferedImage img2) {
+        BufferedImage comparisonImage = new BufferedImage(img1.getWidth(), img1.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        for (int y = 0; y < img1.getHeight(); y++) {
+            for (int x = 0; x < img1.getWidth(); x++) {
+                PixelSamenessDegree pixelSameness = categorisePixelDifference(img1.getRGB(x, y),img2.getRGB(x, y));
+
+                if(pixelSameness == PixelSamenessDegree.SAME){
+                    int washedOutPixel = getWashedOutPixel(img1, x, y, 0.9f);
+                    //Color rawColor = new Color(img1.getRGB(x, y), true);
+                    comparisonImage.setRGB(x, y, washedOutPixel);
+                }else{
+                    comparisonImage.setRGB(x, y, pixelSameness.getColorInDebugImage().asIntARGB());
+                }
+            }
+        }
+        return comparisonImage;
+    }
+
+    /**
+     * This produces the almost grey ghost of the original image, used when the differences are being highlighted
+     */
+    public static int getWashedOutPixel(BufferedImage img, int x, int y, float alpha) {
+        // Get the raw pixel value
+        int rgb = img.getRGB(x, y);
+
+        // Extract the color components
+        int a = (rgb >> 24) & 0xFF;
+        int r = (rgb >> 16) & 0xFF;
+        int g = (rgb >> 8) & 0xFF;
+        int b = rgb & 0xFF;
+
+        // Define the overlay gray color (same value for r, g, b)
+        int gray = 128;
+
+        // Blend the original color with the gray color
+        r = (int) ((1 - alpha) * r + alpha * gray);
+        g = (int) ((1 - alpha) * g + alpha * gray);
+        b = (int) ((1 - alpha) * b + alpha * gray);
+
+        // Clamp the values to the range [0, 255]
+        r = Math.min(255, r);
+        g = Math.min(255, g);
+        b = Math.min(255, b);
+
+        // Combine the components back into a single int
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
+    }
+
+    private static PixelSamenessDegree categorisePixelDifference(int pixel1, int pixel2){
+        if(pixel1 == pixel2){
+            return PixelSamenessDegree.SAME;
+        }
+
+        int pixelDifference = getMaximumComponentDifference(pixel1, pixel2);
+
+        if(pixelDifference<= PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
+            return PixelSamenessDegree.NEGLIGIBLY_DIFFERENT;
+        }
+        if(pixelDifference<= PixelSamenessDegree.SUBTLY_DIFFERENT.getMaximumAllowedDifference()){
+            return PixelSamenessDegree.SUBTLY_DIFFERENT;
+        }
+        if(pixelDifference<= PixelSamenessDegree.MEDIUMLY_DIFFERENT.getMaximumAllowedDifference()){
+            return PixelSamenessDegree.MEDIUMLY_DIFFERENT;
+        }
+        if(pixelDifference<= PixelSamenessDegree.VERY_DIFFERENT.getMaximumAllowedDifference()){
+            return PixelSamenessDegree.VERY_DIFFERENT;
+        }
+        return PixelSamenessDegree.EXTREMELY_DIFFERENT;
+    }
+
+    private static int getMaximumComponentDifference(int pixel1, int pixel2){
+        int r1 = (pixel1 >> 16) & 0xFF;
+        int g1 = (pixel1 >> 8) & 0xFF;
+        int b1 = pixel1 & 0xFF;
+        int a1 = (pixel1 >> 24) & 0xFF;
+
+        int r2 = (pixel2 >> 16) & 0xFF;
+        int g2 = (pixel2 >> 8) & 0xFF;
+        int b2 = pixel2 & 0xFF;
+        int a2 = (pixel2 >> 24) & 0xFF;
+
+        return Math.max(Math.abs(r1 - r2), Math.max(Math.abs(g1 - g2), Math.max(Math.abs(b1 - b2), Math.abs(a1 - a2))));
+    }
+
 
 
 }

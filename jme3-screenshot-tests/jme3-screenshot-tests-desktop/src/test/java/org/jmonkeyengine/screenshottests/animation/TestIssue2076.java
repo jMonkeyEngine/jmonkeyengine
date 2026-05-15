@@ -32,7 +32,7 @@
 package org.jmonkeyengine.screenshottests.animation;
 
 import org.jmonkeyengine.screenshottests.scenarios.animation.ScenarioIssue2076;
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Test;
  * @author Stephen Gold (original test)
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestIssue2076 extends ScreenshotTestBase {
+public class TestIssue2076{
 
     /**
      * This test creates a scene with two Jaime models, one using the old animation system
@@ -55,6 +55,6 @@ public class TestIssue2076 extends ScreenshotTestBase {
      */
     @Test
     public void testIssue2076() {
-        ScenarioIssue2076.testIssue2076().run();
+        ScenarioIssue2076.testIssue2076().run(new DesktopRunner());
     }
 }

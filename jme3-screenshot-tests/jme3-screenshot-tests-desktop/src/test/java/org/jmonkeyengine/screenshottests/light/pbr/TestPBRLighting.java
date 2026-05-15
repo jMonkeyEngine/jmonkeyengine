@@ -51,7 +51,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -66,7 +68,7 @@ import java.util.stream.Stream;
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  *
  */
-public class TestPBRLighting extends ScreenshotTestBase {
+public class TestPBRLighting  extends ScreenshotTestBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(
@@ -187,6 +189,6 @@ public class TestPBRLighting extends ScreenshotTestBase {
             }
         }).setBaseImageFileName(imageName)
           .setFramesToTakeScreenshotsOn(12)
-          .run();
+          .run(new DesktopRunner());
     }
 }

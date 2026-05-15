@@ -47,7 +47,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.texture.Texture;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -59,7 +61,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestCartoonEdge extends ScreenshotTestBase {
+public class TestCartoonEdge  extends ScreenshotTestBase {
 
     /**
      * This test creates a scene with a cartoon-shaded monkey head model.
@@ -145,6 +147,6 @@ public class TestCartoonEdge extends ScreenshotTestBase {
             }
         })
         .setFramesToTakeScreenshotsOn(1)
-        .run();
+        .run(new DesktopRunner());
     }
 }

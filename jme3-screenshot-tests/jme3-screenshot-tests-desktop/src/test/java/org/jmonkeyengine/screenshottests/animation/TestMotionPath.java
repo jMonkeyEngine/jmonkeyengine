@@ -50,7 +50,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -183,6 +185,6 @@ public class TestMotionPath extends ScreenshotTestBase {
             }
         })
         .setFramesToTakeScreenshotsOn(10, 60)
-        .run();
+        .run(new DesktopRunner());
     }
 }

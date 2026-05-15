@@ -45,13 +45,15 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestExplosionEffect extends ScreenshotTestBase{
+public class TestExplosionEffect extends ScreenshotTestBase {
 
     /**
      * This test's particle effects (using an explosion)
@@ -284,7 +286,7 @@ public class TestExplosionEffect extends ScreenshotTestBase{
             }
 
         }).setFramesToTakeScreenshotsOn(2,15)
-          .run();
+          .run(new DesktopRunner());
     }
 
 }

@@ -43,7 +43,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -56,7 +58,7 @@ import java.util.stream.Stream;
  *
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
-public class TestPBRSimple extends ScreenshotTestBase {
+public class TestPBRSimple  extends ScreenshotTestBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(
@@ -133,6 +135,6 @@ public class TestPBRSimple extends ScreenshotTestBase {
             }
         }).setBaseImageFileName(imageName)
           .setFramesToTakeScreenshotsOn(10)
-          .run();
+          .run(new DesktopRunner());
     }
 }

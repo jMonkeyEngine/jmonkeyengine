@@ -61,7 +61,9 @@ import com.jme3.scene.shape.CenterQuad;
 import com.jme3.scene.shape.Torus;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.texture.Texture;
+
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -71,7 +73,7 @@ import java.util.Arrays;
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestIssue1773 extends ScreenshotTestBase{
+public class TestIssue1773 extends ScreenshotTestBase {
 
     /**
      * Test case for Issue 1773 (Wrong particle position when using
@@ -261,6 +263,6 @@ public class TestIssue1773 extends ScreenshotTestBase{
 
         }).setFramesToTakeScreenshotsOn(45)
           .setBaseImageFileName(imageName)
-          .run();
+          .run(new DesktopRunner());
     }
 }

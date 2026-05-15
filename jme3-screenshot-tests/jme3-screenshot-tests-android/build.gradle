@@ -44,15 +44,15 @@ dependencies {
     implementation libs.googleMaterial
     implementation libs.androidxConstraintlayout
 
-    //implementation project(":jme3-android")
-    //implementation project(":jme3-android-native")
-    implementation("org.jmonkeyengine:jme3-android:3.9.0-stable");
-    implementation("org.jmonkeyengine:jme3-android-native:3.9.0-stable"); // todo, should be local
+    implementation project(":jme3-android")
+    implementation project(":jme3-android-native")
 
-    androidTestImplementation libs.androidx.test.core
-    androidTestImplementation libs.androidx.test.ext.junit
-    androidTestImplementation libs.androidx.test.rules
-    androidTestImplementation libs.androidx.test.espresso.core
+    implementation libs.androidx.test.core
+    implementation libs.androidx.test.ext.junit
+    implementation libs.androidx.test.rules
+    implementation libs.androidx.test.espresso.core
+    implementation libs.androidx.fragment.testing
+    debugImplementation libs.androidx.fragment.testing.manifest
 
     implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
 }

@@ -96,7 +96,6 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
 
         try {
             app = createApplication();
-
             AppSettings settings = createSettings();
             configureSettings(settings);
             app.setSettings(settings);
