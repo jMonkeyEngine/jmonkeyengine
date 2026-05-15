@@ -52,18 +52,4 @@ public class JmeFragment extends AndroidHarnessFragment {
         return (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
     }
 
-    @Override
-    protected void configureSettings(AppSettings settings) {
-        settings.setEmulateMouse(mouseEventsEnabled);
-        settings.setUseJoysticks(joystickEventsEnabled);
-        settings.setEmulateKeyboard(keyEventsEnabled);
-
-        settings.setBitsPerPixel(24);
-        settings.setAlphaBits(0);
-        settings.setGammaCorrection(true);
-        settings.setDepthBits(16);
-        settings.setSamples(4);
-        settings.setStencilBits(0);
-        settings.setFrameRate(-1);
-    }
 }

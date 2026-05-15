@@ -218,9 +218,13 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENAL = "LWJGL";
 
     public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
+    public static final String OPENAL = "OPENAL";
+
 
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
@@ -242,6 +246,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
 
     /**
@@ -251,6 +256,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
 
     /**
@@ -260,6 +266,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
 
     /**
@@ -269,6 +276,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String JOAL = "JOAL";
 
     /**
@@ -311,7 +319,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", ANGLE_GLES3);
-        defaults.put("AudioRenderer", LWJGL_OPENAL);
+        defaults.put("AudioRenderer", OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
         defaults.put("VSync", true);

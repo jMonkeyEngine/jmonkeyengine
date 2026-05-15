@@ -257,7 +257,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         AL al;
         ALC alc;
         EFX efx;
-        if (settings.getAudioRenderer().startsWith("LWJGL")) {
+        if (settings.getAudioRenderer().startsWith("LWJGL") || settings.getAudioRenderer().equals(AppSettings.OPENAL)) {
             al = newObject("com.jme3.audio.lwjgl.LwjglAL");
             alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
             efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
