@@ -32,7 +32,6 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static View view;
-    private static String audioRendererType = AppSettings.OPENAL;
 
     static {
         try {
@@ -79,16 +78,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
-        if (settings.getAudioRenderer() == null) {
-            audioRendererType = null;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
-            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)||settings.getAudioRenderer().equals(AppSettings.OPENAL)) {
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-        } else {
-            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to OpenAL Soft");
-            audioRendererType = AppSettings.OPENAL;
-        }
         initialize(settings);
         JmeContext ctx = new OGLESContext();
         ctx.setSettings(settings);
@@ -204,10 +193,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static View getView() {
         return view;
-    }
-
-    public static String getAudioRendererType() {
-        return audioRendererType;
     }
 
     @Override
