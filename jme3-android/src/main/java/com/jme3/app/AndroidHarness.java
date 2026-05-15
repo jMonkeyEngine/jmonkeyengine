@@ -141,7 +141,7 @@ public class AndroidHarness extends FragmentActivity {
         }
     }
 
-    private class HarnessFragment extends AndroidHarnessFragment
+    public static class HarnessFragment extends AndroidHarnessFragment
             implements TouchListener, DialogInterface.OnClickListener {
 
         private static final String ESCAPE_EVENT = "TouchEscape";
@@ -150,52 +150,59 @@ public class AndroidHarness extends FragmentActivity {
         private ImageView splashImageView;
         private boolean firstDrawFrame = true;
 
+        private AndroidHarness harness() {
+            return (AndroidHarness) requireActivity();
+        }
+
         @Override
         protected LegacyApplication createApplication() throws Exception {
-            Class<?> clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
-            return app;
+            AndroidHarness harness = harness();
+            Class<?> clazz = Class.forName(harness.appClass);
+            harness.app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+            return harness.app;
         }
 
         @Override
         protected AppSettings createSettings() {
             AppSettings settings = super.createSettings();
-            settings.setAudioRenderer(audioRendererType);
+            settings.setAudioRenderer(harness().audioRendererType);
             return settings;
         }
 
         @Override
         protected void configureSettings(AppSettings settings) {
-            settings.setEmulateMouse(mouseEventsEnabled);
-            settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
-            settings.setUseJoysticks(joystickEventsEnabled);
-            settings.setEmulateKeyboard(keyEventsEnabled);
+            AndroidHarness harness = harness();
+            settings.setEmulateMouse(harness.mouseEventsEnabled);
+            settings.setEmulateMouseFlipAxis(harness.mouseEventsInvertX, harness.mouseEventsInvertY);
+            settings.setUseJoysticks(harness.joystickEventsEnabled);
+            settings.setEmulateKeyboard(harness.keyEventsEnabled);
 
-            settings.setBitsPerPixel(eglBitsPerPixel);
-            settings.setAlphaBits(eglAlphaBits);
-            settings.setDepthBits(eglDepthBits);
-            settings.setSamples(eglSamples);
-            settings.setStencilBits(eglStencilBits);
-            settings.setFrameRate(frameRate);
+            settings.setBitsPerPixel(harness.eglBitsPerPixel);
+            settings.setAlphaBits(harness.eglAlphaBits);
+            settings.setDepthBits(harness.eglDepthBits);
+            settings.setSamples(harness.eglSamples);
+            settings.setStencilBits(harness.eglStencilBits);
+            settings.setFrameRate(harness.frameRate);
         }
 
         @Override
         public View onCreateView(android.view.LayoutInflater inflater,
                 ViewGroup container, Bundle savedInstanceState) {
             View jmeView = super.onCreateView(inflater, container, savedInstanceState);
-            if (splashPicID == 0 || app == null) {
+            AndroidHarness harness = harness();
+            if (harness.splashPicID == 0 || harness.app == null) {
                 return jmeView;
             }
 
-            frameLayout = new FrameLayout(AndroidHarness.this);
+            frameLayout = new FrameLayout(harness);
             frameLayout.addView(jmeView);
 
-            splashImageView = new ImageView(AndroidHarness.this);
-            Drawable drawable = getResources().getDrawable(splashPicID);
+            splashImageView = new ImageView(harness);
+            Drawable drawable = getResources().getDrawable(harness.splashPicID);
             if (drawable instanceof NinePatchDrawable) {
                 splashImageView.setBackgroundDrawable(drawable);
             } else {
-                splashImageView.setImageResource(splashPicID);
+                splashImageView.setImageResource(harness.splashPicID);
             }
 
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
@@ -222,12 +229,13 @@ public class AndroidHarness extends FragmentActivity {
         @Override
         public void initialize() {
             super.initialize();
-            if (handleExitHook) {
-                if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
-                    app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+            AndroidHarness harness = harness();
+            if (harness.handleExitHook) {
+                if (harness.app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
+                    harness.app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
                 }
-                app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
-                app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
+                harness.app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+                harness.app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
             }
         }
 
@@ -243,12 +251,13 @@ public class AndroidHarness extends FragmentActivity {
         @Override
         public void onTouch(String name, TouchEvent event, float tpf) {
             if (ESCAPE_EVENT.equals(name) && event.getType() == TouchEvent.Type.KEY_UP) {
-                runOnUiThread(new Runnable() {
+                harness().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        new AlertDialog.Builder(AndroidHarness.this)
-                                .setTitle(exitDialogTitle)
-                                .setMessage(exitDialogMessage)
+                        AndroidHarness harness = harness();
+                        new AlertDialog.Builder(harness)
+                                .setTitle(harness.exitDialogTitle)
+                                .setMessage(harness.exitDialogMessage)
                                 .setPositiveButton("Yes", HarnessFragment.this)
                                 .setNegativeButton("No", HarnessFragment.this)
                                 .create()
@@ -261,17 +270,18 @@ public class AndroidHarness extends FragmentActivity {
         @Override
         public void onClick(DialogInterface dialog, int whichButton) {
             if (whichButton != DialogInterface.BUTTON_NEGATIVE) {
-                if (app != null) {
-                    app.stop(true);
+                AndroidHarness harness = harness();
+                if (harness.app != null) {
+                    harness.app.stop(true);
                 }
-                app = null;
-                finish();
+                harness.app = null;
+                harness.finish();
             }
         }
 
         private void removeSplashScreen() {
             if (splashImageView != null && frameLayout != null) {
-                runOnUiThread(new Runnable() {
+                harness().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         splashImageView.setVisibility(View.INVISIBLE);
