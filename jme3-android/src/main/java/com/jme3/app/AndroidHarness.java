@@ -35,6 +35,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -44,12 +45,21 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import androidx.fragment.app.FragmentActivity;
+import com.jme3.audio.AudioRenderer;
+import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
+import com.jme3.system.SystemListener;
+import com.jme3.system.android.JmeAndroidSystem;
+import com.jme3.system.android.OGLESContext;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -59,9 +69,12 @@ import java.util.logging.Logger;
  * {@link FragmentActivity} instead.
  */
 @Deprecated
-public class AndroidHarness extends FragmentActivity {
+public class AndroidHarness extends FragmentActivity
+        implements TouchListener, DialogInterface.OnClickListener, SystemListener {
 
     protected static final Logger logger = Logger.getLogger(AndroidHarness.class.getName());
+    private static final String HARNESS_FRAGMENT_TAG = "com.jme3.app.AndroidHarness.fragment";
+    private static final String ESCAPE_EVENT = "TouchEscape";
 
     /**
      * The application class to start.
@@ -93,16 +106,22 @@ public class AndroidHarness extends FragmentActivity {
     protected boolean screenShowTitle = true;
     protected int splashPicID = 0;
 
+    protected OGLESContext ctx;
+    protected GLSurfaceView view;
+    protected boolean isGLThreadPaused = true;
+    protected ImageView splashImageView;
+    protected FrameLayout frameLayout;
+
     private HarnessFragment fragment;
+    private boolean firstDrawFrame = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         configureWindow();
 
-        fragment = new HarnessFragment();
+        fragment = attachFragment();
         fragment.setFinishOnAppStop(finishOnAppStop);
-        attachFragment(fragment);
     }
 
     private void configureWindow() {
@@ -119,15 +138,24 @@ public class AndroidHarness extends FragmentActivity {
         return app;
     }
 
-    private void attachFragment(AndroidHarnessFragment fragment) {
+    private HarnessFragment attachFragment() {
         try {
             Method getSupportFragmentManager = getClass().getMethod("getSupportFragmentManager");
             Object fragmentManager = getSupportFragmentManager.invoke(this);
+            Object existingFragment = fragmentManager.getClass()
+                    .getMethod("findFragmentByTag", String.class)
+                    .invoke(fragmentManager, HARNESS_FRAGMENT_TAG);
+            if (existingFragment instanceof HarnessFragment) {
+                return (HarnessFragment) existingFragment;
+            }
+
+            HarnessFragment newFragment = new HarnessFragment();
             Object transaction = fragmentManager.getClass().getMethod("beginTransaction").invoke(fragmentManager);
             transaction = transaction.getClass()
-                    .getMethod("replace", int.class, androidx.fragment.app.Fragment.class)
-                    .invoke(transaction, android.R.id.content, fragment);
+                    .getMethod("replace", int.class, androidx.fragment.app.Fragment.class, String.class)
+                    .invoke(transaction, android.R.id.content, newFragment, HARNESS_FRAGMENT_TAG);
             transaction.getClass().getMethod("commit").invoke(transaction);
+            return newFragment;
         } catch (ReflectiveOperationException exception) {
             throw new IllegalStateException("Unable to attach AndroidHarnessFragment", exception);
         }
@@ -141,14 +169,203 @@ public class AndroidHarness extends FragmentActivity {
         }
     }
 
-    public static class HarnessFragment extends AndroidHarnessFragment
-            implements TouchListener, DialogInterface.OnClickListener {
+    @Override
+    public void handleError(final String errorMsg, final Throwable throwable) {
+        String stackTrace = "";
+        String title = "Error";
 
-        private static final String ESCAPE_EVENT = "TouchEscape";
+        if (throwable != null) {
+            StringWriter writer = new StringWriter(100);
+            throwable.printStackTrace(new PrintWriter(writer));
+            stackTrace = writer.toString();
+            title = throwable.toString();
+        }
+
+        final String finalTitle = title;
+        final String finalMessage = (errorMsg != null ? errorMsg : "Uncaught Exception")
+                + "\n" + stackTrace;
+
+        logger.log(Level.SEVERE, finalMessage);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(AndroidHarness.this)
+                        .setTitle(finalTitle)
+                        .setMessage(finalMessage)
+                        .setPositiveButton("Kill", AndroidHarness.this)
+                        .create()
+                        .show();
+            }
+        });
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int whichButton) {
+        if (whichButton != DialogInterface.BUTTON_NEGATIVE) {
+            if (app != null) {
+                app.stop(true);
+            }
+            app = null;
+            finish();
+        }
+    }
+
+    @Override
+    public void onTouch(String name, TouchEvent event, float tpf) {
+        if (ESCAPE_EVENT.equals(name) && event.getType() == TouchEvent.Type.KEY_UP) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(AndroidHarness.this)
+                            .setTitle(exitDialogTitle)
+                            .setMessage(exitDialogMessage)
+                            .setPositiveButton("Yes", AndroidHarness.this)
+                            .setNegativeButton("No", AndroidHarness.this)
+                            .create()
+                            .show();
+                }
+            });
+        }
+    }
+
+    public void layoutDisplay() {
+        logger.log(Level.FINE, "Splash Screen Picture Resource ID: {0}", splashPicID);
+        frameLayout = null;
+        splashImageView = null;
+
+        if (splashPicID == 0 || view == null) {
+            return;
+        }
+
+        frameLayout = new FrameLayout(this);
+        frameLayout.addView(view);
+
+        splashImageView = new ImageView(this);
+        Drawable drawable = getResources().getDrawable(splashPicID);
+        if (drawable instanceof NinePatchDrawable) {
+            splashImageView.setBackgroundDrawable(drawable);
+        } else {
+            splashImageView.setImageResource(splashPicID);
+        }
+
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER);
+        frameLayout.addView(splashImageView, layoutParams);
+    }
+
+    public void removeSplashScreen() {
+        if (splashImageView != null && frameLayout != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    splashImageView.setVisibility(View.INVISIBLE);
+                    frameLayout.removeView(splashImageView);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void initialize() {
+        app.initialize();
+        if (handleExitHook) {
+            if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
+                app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+            }
+            app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+            app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
+        }
+    }
+
+    @Override
+    public void reshape(int width, int height) {
+        app.reshape(width, height);
+    }
+
+    @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
+    }
+
+    @Override
+    public void update() {
+        app.update();
+        if (firstDrawFrame) {
+            removeSplashScreen();
+            firstDrawFrame = false;
+        }
+    }
+
+    @Override
+    public void requestClose(boolean esc) {
+        app.requestClose(esc);
+    }
+
+    @Override
+    public void destroy() {
+        if (app != null) {
+            app.destroy();
+        }
+        if (finishOnAppStop) {
+            finish();
+        }
+    }
+
+    @Override
+    public void gainFocus() {
+        logger.fine("gainFocus");
+        if (view != null) {
+            view.onResume();
+        }
+
+        if (app != null) {
+            AudioRenderer audioRenderer = app.getAudioRenderer();
+            if (audioRenderer != null) {
+                audioRenderer.resumeAll();
+            }
+
+            JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
+            if (joyInput instanceof AndroidSensorJoyInput) {
+                ((AndroidSensorJoyInput) joyInput).resumeSensors();
+            }
+
+            app.gainFocus();
+        }
+        isGLThreadPaused = false;
+    }
+
+    @Override
+    public void loseFocus() {
+        logger.fine("loseFocus");
+        if (app != null) {
+            app.loseFocus();
+        }
+
+        if (view != null) {
+            view.onPause();
+        }
+
+        if (app != null) {
+            AudioRenderer audioRenderer = app.getAudioRenderer();
+            if (audioRenderer != null) {
+                audioRenderer.pauseAll();
+            }
+
+            JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
+            if (joyInput instanceof AndroidSensorJoyInput) {
+                ((AndroidSensorJoyInput) joyInput).pauseSensors();
+            }
+        }
+        isGLThreadPaused = true;
+    }
+
+    public static class HarnessFragment extends AndroidHarnessFragment {
 
         private FrameLayout frameLayout;
         private ImageView splashImageView;
-        private boolean firstDrawFrame = true;
 
         private AndroidHarness harness() {
             return (AndroidHarness) requireActivity();
@@ -190,27 +407,18 @@ public class AndroidHarness extends FragmentActivity {
                 ViewGroup container, Bundle savedInstanceState) {
             View jmeView = super.onCreateView(inflater, container, savedInstanceState);
             AndroidHarness harness = harness();
-            if (harness.splashPicID == 0 || harness.app == null) {
+            if (jmeView instanceof GLSurfaceView) {
+                harness.view = (GLSurfaceView) jmeView;
+            }
+            harness.ctx = harness.app != null ? (OGLESContext) harness.app.getContext() : null;
+            if (harness.app == null) {
                 return jmeView;
             }
 
-            frameLayout = new FrameLayout(harness);
-            frameLayout.addView(jmeView);
-
-            splashImageView = new ImageView(harness);
-            Drawable drawable = getResources().getDrawable(harness.splashPicID);
-            if (drawable instanceof NinePatchDrawable) {
-                splashImageView.setBackgroundDrawable(drawable);
-            } else {
-                splashImageView.setImageResource(harness.splashPicID);
-            }
-
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    Gravity.CENTER);
-            frameLayout.addView(splashImageView, layoutParams);
-            return frameLayout;
+            harness.layoutDisplay();
+            frameLayout = harness.frameLayout;
+            splashImageView = harness.splashImageView;
+            return frameLayout != null ? frameLayout : jmeView;
         }
 
         @Override
@@ -223,72 +431,57 @@ public class AndroidHarness extends FragmentActivity {
             }
             splashImageView = null;
             frameLayout = null;
+            AndroidHarness harness = harness();
+            harness.frameLayout = null;
+            harness.splashImageView = null;
+            harness.view = null;
+            JmeAndroidSystem.setView(null);
             super.onDestroyView();
         }
 
         @Override
         public void initialize() {
-            super.initialize();
-            AndroidHarness harness = harness();
-            if (harness.handleExitHook) {
-                if (harness.app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
-                    harness.app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
-                }
-                harness.app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
-                harness.app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
-            }
+            harness().initialize();
+        }
+
+        @Override
+        public void reshape(int width, int height) {
+            harness().reshape(width, height);
+        }
+
+        @Override
+        public void rescale(float x, float y) {
+            harness().rescale(x, y);
         }
 
         @Override
         public void update() {
-            super.update();
-            if (firstDrawFrame) {
-                removeSplashScreen();
-                firstDrawFrame = false;
-            }
+            harness().update();
         }
 
         @Override
-        public void onTouch(String name, TouchEvent event, float tpf) {
-            if (ESCAPE_EVENT.equals(name) && event.getType() == TouchEvent.Type.KEY_UP) {
-                harness().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        AndroidHarness harness = harness();
-                        new AlertDialog.Builder(harness)
-                                .setTitle(harness.exitDialogTitle)
-                                .setMessage(harness.exitDialogMessage)
-                                .setPositiveButton("Yes", HarnessFragment.this)
-                                .setNegativeButton("No", HarnessFragment.this)
-                                .create()
-                                .show();
-                    }
-                });
-            }
+        public void requestClose(boolean esc) {
+            harness().requestClose(esc);
         }
 
         @Override
-        public void onClick(DialogInterface dialog, int whichButton) {
-            if (whichButton != DialogInterface.BUTTON_NEGATIVE) {
-                AndroidHarness harness = harness();
-                if (harness.app != null) {
-                    harness.app.stop(true);
-                }
-                harness.app = null;
-                harness.finish();
-            }
+        public void destroy() {
+            harness().destroy();
         }
 
-        private void removeSplashScreen() {
-            if (splashImageView != null && frameLayout != null) {
-                harness().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        splashImageView.setVisibility(View.INVISIBLE);
-                        frameLayout.removeView(splashImageView);
-                    }
-                });
-            }
+        @Override
+        public void gainFocus() {
+            harness().gainFocus();
+        }
+
+        @Override
+        public void loseFocus() {
+            harness().loseFocus();
+        }
+
+        @Override
+        public void handleError(String errorMsg, Throwable throwable) {
+            harness().handleError(errorMsg, throwable);
         }
     }
 }
