@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
-import com.jme3.environment.baker.IBLHybridEnvBakerLight;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -49,7 +48,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.texture.Image.Format;
 
 /**
  * A control that automatically handles environment bake and rebake including
@@ -87,6 +85,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private float frustumNear = 0.001f, frustumFar = 1000f;
     private String uuid = "none";
     private boolean enabled = true;
+    private IBLGLEnvBakerLight.SphericalHarmonicsMode sphericalHarmonicsMode =
+            IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO;
 
     private Predicate<Geometry> filter = (s) -> {
         return s.getUserData("tags.env") != null || s.getUserData("tags.env.env" + uuid) != null;
@@ -187,7 +187,18 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        throw new UnsupportedOperationException();
+        EnvironmentProbeControl control = new EnvironmentProbeControl();
+        control.setAssetManager(assetManager);
+        control.setFrustumFar(frustumFar);
+        control.setFrustumNear(frustumNear);
+        control.setRequiredSavableResults(requiredSavableResults);
+        control.setEnabled(enabled);
+        control.setSphericalHarmonicsMode(sphericalHarmonicsMode);
+        control.envMapSize = envMapSize;
+        control.uuid = uuid;
+        control.filter = filter;
+        control.spatial = spatial;
+        return control;
     }
 
     /**
@@ -209,6 +220,38 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      */
     public boolean isRequiredSavableResults() {
         return requiredSavableResults;
+    }
+
+    /**
+     * Sets how spherical harmonics coefficients are baked by this control.
+     *
+     * @param mode the spherical harmonics bake mode
+     */
+    public void setSphericalHarmonicsMode(IBLGLEnvBakerLight.SphericalHarmonicsMode mode) {
+        if (mode == null) {
+            throw new IllegalArgumentException("mode cannot be null");
+        }
+        sphericalHarmonicsMode = mode;
+    }
+
+    /**
+     * Returns the spherical harmonics bake mode used by this control.
+     *
+     * @return the spherical harmonics bake mode
+     */
+    public IBLGLEnvBakerLight.SphericalHarmonicsMode getSphericalHarmonicsMode() {
+        return sphericalHarmonicsMode;
+    }
+
+    /**
+     * Enables or disables the spherical harmonics fast path explicitly.
+     *
+     * @param enabled true to use the fast path, false to use the quality path
+     */
+    public void setSphericalHarmonicsFastPathEnabled(boolean enabled) {
+        setSphericalHarmonicsMode(enabled
+                ? IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST
+                : IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY);
     }
 
     @Override
@@ -287,8 +330,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     void rebakeNow(RenderManager renderManager) {
-        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, null,
+        IBLGLEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, null,
                 null, envMapSize, envMapSize);
+        baker.setSphericalHarmonicsMode(sphericalHarmonicsMode);
                     
         baker.setTexturePulling(isRequiredSavableResults());
         baker.bakeEnvironment(spatial, getPosition(), frustumNear, frustumFar, filter);
@@ -331,6 +375,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         oc.write(frustumFar, "frustumFar", 1000f);
         oc.write(frustumNear, "frustumNear", 0.001f);
         oc.write(uuid, "envProbeControlUUID", "none");
+        oc.write(sphericalHarmonicsMode, "sphericalHarmonicsMode",
+                IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO);
     }
 
     @Override
@@ -346,6 +392,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         frustumFar = ic.readFloat("frustumFar", 1000f);
         frustumNear = ic.readFloat("frustumNear", 0.001f);
         uuid = ic.readString("envProbeControlUUID", "none");
+        sphericalHarmonicsMode = ic.readEnum("sphericalHarmonicsMode",
+                IBLGLEnvBakerLight.SphericalHarmonicsMode.class,
+                IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO);
     }
 
 }

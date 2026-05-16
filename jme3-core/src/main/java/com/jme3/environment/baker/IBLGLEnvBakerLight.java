@@ -44,6 +44,8 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -63,7 +65,30 @@ import com.jme3.util.BufferUtils;
  */
 public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
     private static final int NUM_SH_COEFFICIENT = 9;
+    private static final int DEFAULT_FAST_SH_SAMPLE_COUNT = 8192;
     private static final Logger LOG = Logger.getLogger(IBLGLEnvBakerLight.class.getName());
+
+    /**
+     * Selects how spherical harmonics coefficients are baked on the GPU.
+     */
+    public enum SphericalHarmonicsMode {
+        /**
+         * Use full cubemap integration on desktop and the Hammersley fast path on
+         * Android and iOS.
+         */
+        AUTO,
+        /**
+         * Use Hammersley sampling.
+         */
+        FAST,
+        /**
+         * Integrate every cubemap texel in a single shader pass.
+         */
+        QUALITY
+    }
+
+    private SphericalHarmonicsMode sphericalHarmonicsMode = SphericalHarmonicsMode.AUTO;
+    private int sphericalHarmonicsFastPathSampleCount = DEFAULT_FAST_SH_SAMPLE_COUNT;
 
     /**
      * Create a new IBL env baker
@@ -91,6 +116,49 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         return this.texturePulling;
     }
 
+    /**
+     * Sets how spherical harmonics coefficients are baked.
+     *
+     * @param mode the spherical harmonics bake mode
+     */
+    public void setSphericalHarmonicsMode(SphericalHarmonicsMode mode) {
+        if (mode == null) {
+            throw new IllegalArgumentException("mode cannot be null");
+        }
+        this.sphericalHarmonicsMode = mode;
+    }
+
+    /**
+     * Returns the current spherical harmonics bake mode.
+     *
+     * @return the spherical harmonics bake mode
+     */
+    public SphericalHarmonicsMode getSphericalHarmonicsMode() {
+        return sphericalHarmonicsMode;
+    }
+
+    /**
+     * Sets the sample count used by the Hammersley spherical harmonics fast path.
+     *
+     * @param sampleCount the number of samples, must be positive
+     */
+    public void setSphericalHarmonicsFastPathSampleCount(int sampleCount) {
+        if (sampleCount <= 0) {
+            throw new IllegalArgumentException("sampleCount must be greater than zero");
+        }
+        this.sphericalHarmonicsFastPathSampleCount = sampleCount;
+    }
+
+    /**
+     * Returns the sample count used by the Hammersley spherical harmonics fast path.
+     *
+     * @return the Hammersley sample count
+     */
+    public int getSphericalHarmonicsFastPathSampleCount() {
+        return sphericalHarmonicsFastPathSampleCount;
+    }
+
+
     @Override
     public void bakeSphericalHarmonicsCoefficients() {
         Box boxm = new Box(1, 1, 1);
@@ -99,7 +167,24 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         Material mat = new Material(assetManager, "Common/IBLSphH/IBLSphH.j3md");
         mat.setTexture("Texture", envMap);
         mat.setVector2("Resolution", new Vector2f(envMap.getImage().getWidth(), envMap.getImage().getHeight()));
+        mat.setInt("SampleCount", sphericalHarmonicsFastPathSampleCount);
         screen.setMaterial(mat);
+
+        switch (sphericalHarmonicsMode) {
+            case FAST: {
+                mat.setBoolean("UseFastSphericalHarmonics", true);
+                break;
+            }
+            case QUALITY: {
+                mat.setBoolean("UseFastSphericalHarmonics", false);
+                break;
+            }
+            case AUTO: {
+                Platform.Os os = JmeSystem.getPlatform().getOs();
+                mat.setBoolean("UseFastSphericalHarmonics",  os == Platform.Os.Android || os == Platform.Os.iOS);
+                break;
+            }
+        }
 
         float remapMaxValue = 0;
         Format format = Format.RGBA32F;
@@ -117,38 +202,21 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             mat.clearParam("RemapMaxValue");
         }
 
-        Texture2D shCoefTx[] = { new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format), new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format) };
+        Texture2D shCoefTx = new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format);
 
-        FrameBuffer shbaker[] = { new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1), new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1) };
-        shbaker[0].setSrgb(false);
-        shbaker[0].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[0]));
+        FrameBuffer shbaker = new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1);
+        shbaker.setSrgb(false);
+        shbaker.addColorTarget(FrameBufferTarget.newTarget(shCoefTx));
 
-        shbaker[1].setSrgb(false);
-        shbaker[1].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[1]));
+        screen.updateLogicalState(0);
+        screen.updateGeometricState();
 
-        int renderOnT = -1;
+        renderManager.setCamera(updateAndGetInternalCamera(0, shbaker.getWidth(), shbaker.getHeight(), Vector3f.ZERO, 1, 1000), false);
+        renderManager.getRenderer().setFrameBuffer(shbaker);
+        renderManager.renderGeometry(screen);
 
-        for (int faceId = 0; faceId < 6; faceId++) {
-            if (renderOnT != -1) {
-                int s = renderOnT;
-                renderOnT = renderOnT == 0 ? 1 : 0;
-                mat.setTexture("ShCoef", shCoefTx[s]);
-            } else {
-                renderOnT = 0;
-            }
-
-            mat.setInt("FaceId", faceId);
-
-            screen.updateLogicalState(0);
-            screen.updateGeometricState();
-
-            renderManager.setCamera(updateAndGetInternalCamera(0, shbaker[renderOnT].getWidth(), shbaker[renderOnT].getHeight(), Vector3f.ZERO, 1, 1000), false);
-            renderManager.getRenderer().setFrameBuffer(shbaker[renderOnT]);
-            renderManager.renderGeometry(screen);
-        }
-
-        ByteBuffer shCoefRaw = BufferUtils.createByteBuffer(NUM_SH_COEFFICIENT * 1 * (shbaker[renderOnT].getColorTarget().getFormat().getBitsPerPixel() / 8));
-        renderManager.getRenderer().readFrameBufferWithFormat(shbaker[renderOnT], shCoefRaw, shbaker[renderOnT].getColorTarget().getFormat());
+        ByteBuffer shCoefRaw = BufferUtils.createByteBuffer(NUM_SH_COEFFICIENT * 1 * (shbaker.getColorTarget().getFormat().getBitsPerPixel() / 8));
+        renderManager.getRenderer().readFrameBufferWithFormat(shbaker, shCoefRaw, shbaker.getColorTarget().getFormat());
         shCoefRaw.rewind();
 
         Image img = new Image(format, NUM_SH_COEFFICIENT, 1, shCoefRaw, ColorSpace.Linear);
@@ -176,6 +244,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         }
         EnvMapUtils.prepareShCoefs(shCoef);
         img.dispose();
+        shbaker.dispose();
 
     }
 }

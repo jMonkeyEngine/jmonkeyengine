@@ -15,11 +15,10 @@ in vec3 LocalPos;
 
 
 uniform samplerCube m_Texture;
-#ifdef SH_COEF
-    uniform sampler2D m_ShCoef;
+#ifdef FAST_SPHERICAL_HARMONICS
+    uniform int m_SampleCount;
 #endif
 uniform vec2 m_Resolution;
-uniform int m_FaceId;
 
 const float sqrtPi = sqrt(PI);
 const float sqrt3Pi = sqrt(3. / PI);
@@ -29,7 +28,6 @@ const float sqrt15Pi = sqrt(15. / PI);
 #ifdef REMAP_MAX_VALUE
     uniform float m_RemapMaxValue;
 #endif
-
 
 vec3 getVectorFromCubemapFaceTexCoord(float x, float y, float mapSize, int face) {
     float u;
@@ -145,6 +143,37 @@ vec3 pixelFaceToV(int faceId, float pixelX, float pixelY, float cubeMapSize) {
     return normalize(direction);
 }
 
+#ifdef FAST_SPHERICAL_HARMONICS
+void sphHammersleyKernel(int coefficientIndex, out vec3 shCoef, out float weightAccum) {
+    vec3 texelVect = vec3(0.0);
+    float shDir = 0.0;
+    vec4 color = vec4(0.0);
+
+    shCoef = vec3(0.0);
+    weightAccum = 0.0;
+
+    for(int sampleIndex = 0; sampleIndex < m_SampleCount; sampleIndex++) {
+        vec4 xi = Hammersley(uint(sampleIndex), uint(m_SampleCount));
+        float z = 1.0 - 2.0 * xi.x;
+        float r = sqrt(max(0.0, 1.0 - z * z));
+        float phi = 2.0 * PI * xi.y;
+        texelVect = vec3(r * cos(phi), z, r * sin(phi));
+        evalShBasis(texelVect, coefficientIndex, shDir);
+        color = texture(m_Texture, texelVect);
+        shCoef.x = (shCoef.x + color.r * shDir);
+        shCoef.y = (shCoef.y + color.g * shDir);
+        shCoef.z = (shCoef.z + color.b * shDir);
+        weightAccum += 1.0;
+    }
+
+    #ifdef REMAP_MAX_VALUE
+        float sampleWeight = 4.0 * PI / float(m_SampleCount);
+        shCoef.xyz = shCoef.xyz * sampleWeight;
+        weightAccum = weightAccum * sampleWeight;
+    #endif
+}
+#endif
+
 void sphKernel() {
     int width = int(m_Resolution.x);
     int height = int(m_Resolution.y);
@@ -155,28 +184,26 @@ void sphKernel() {
 
     int i=int(gl_FragCoord.x);
 
-    #ifdef SH_COEF
-        vec4 r=texelFetch(m_ShCoef, ivec2(i, 0), 0);
-        vec3 shCoef=r.rgb;
-        float weightAccum = r.a;
+    vec3 shCoef=vec3(0.0);
+    float weightAccum = 0.0;
+
+    #ifdef FAST_SPHERICAL_HARMONICS
+        sphHammersleyKernel(i, shCoef, weightAccum);
     #else
-        vec3 shCoef=vec3(0.0);
-        float weightAccum = 0.0;
-    #endif
-
-    for(int y = 0; y < height; y++) {
-        for(int x = 0; x < width; x++) {
-            weight = getSolidAngleAndVector(float(x), float(y), float(width), m_FaceId, texelVect);
-            evalShBasis(texelVect, i, shDir);
-            color = texture(m_Texture, texelVect);
-            shCoef.x = (shCoef.x + color.r * shDir * weight);
-            shCoef.y = (shCoef.y + color.g * shDir * weight);
-            shCoef.z = (shCoef.z + color.b * shDir * weight);
-            weightAccum += weight;
+        for(int faceId = 0; faceId < 6; faceId++) {
+            for(int y = 0; y < height; y++) {
+                for(int x = 0; x < width; x++) {
+                    weight = getSolidAngleAndVector(float(x), float(y), float(width), faceId, texelVect);
+                    evalShBasis(texelVect, i, shDir);
+                    color = texture(m_Texture, texelVect);
+                    shCoef.x = (shCoef.x + color.r * shDir * weight);
+                    shCoef.y = (shCoef.y + color.g * shDir * weight);
+                    shCoef.z = (shCoef.z + color.b * shDir * weight);
+                    weightAccum += weight;
+                }
+            }
         }
-    }
-
-
+    #endif
 
     #ifdef REMAP_MAX_VALUE
         shCoef.xyz=shCoef.xyz*m_RemapMaxValue;

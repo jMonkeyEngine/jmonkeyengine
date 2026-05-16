@@ -34,6 +34,7 @@ package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentProbeControl;
+import com.jme3.environment.baker.IBLGLEnvBakerLight.SphericalHarmonicsMode;
 import com.jme3.input.KeyInput;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.controls.ActionListener;
@@ -53,10 +54,13 @@ public class TestPBRSimple extends SimpleApplication {
     private boolean REALTIME_BAKING = false;
     private static final String INCREASE_METALLIC = "IncreaseMetallic";
     private static final String DECREASE_METALLIC = "DecreaseMetallic";
+    private static final String TOGGLE_SH_FAST_PATH = "ToggleShFastPath";
 
     private Material pbrMat;
+    private EnvironmentProbeControl envProbe;
     private float metallic = 0.0f;
     private float roughness = 1.0f;
+    private boolean shFastPath = false;
 
     public static void main(String[] args) {
         new TestPBRSimple().start();
@@ -86,14 +90,16 @@ public class TestPBRSimple extends SimpleApplication {
         rootNode.attachChild(sky);
 
         // Create baker control
-        EnvironmentProbeControl envProbe=new EnvironmentProbeControl(assetManager,256);
+        envProbe = new EnvironmentProbeControl(assetManager, 256);
+        envProbe.setSphericalHarmonicsMode(SphericalHarmonicsMode.QUALITY);
         rootNode.addControl(envProbe);
         // Tag the sky, only the tagged spatials will be rendered in the env map
         envProbe.tag(sky);
 
         inputManager.addMapping(INCREASE_METALLIC, new KeyTrigger(KeyInput.KEY_N));
         inputManager.addMapping(DECREASE_METALLIC, new KeyTrigger(KeyInput.KEY_P));
-        inputManager.addListener(metallicListener, INCREASE_METALLIC, DECREASE_METALLIC);
+        inputManager.addMapping(TOGGLE_SH_FAST_PATH, new KeyTrigger(KeyInput.KEY_F));
+        inputManager.addListener(materialListener, INCREASE_METALLIC, DECREASE_METALLIC, TOGGLE_SH_FAST_PATH);
 
         updateMaterial();
 
@@ -113,7 +119,7 @@ public class TestPBRSimple extends SimpleApplication {
         }
     }
 
-    private final ActionListener metallicListener = (name, isPressed, tpf) -> {
+    private final ActionListener materialListener = (name, isPressed, tpf) -> {
         if (!isPressed) {
             return;
         }
@@ -124,6 +130,12 @@ public class TestPBRSimple extends SimpleApplication {
         } else if (DECREASE_METALLIC.equals(name)) {
             metallic = FastMath.clamp(metallic - 0.1f, 0.0f, 1.0f);
             roughness = FastMath.clamp(roughness + 0.1f, 0.0f, 1.0f);
+        } else if (TOGGLE_SH_FAST_PATH.equals(name)) {
+            shFastPath = !shFastPath;
+            envProbe.setSphericalHarmonicsFastPathEnabled(shFastPath);
+            envProbe.rebake();
+            System.out.println("Spherical harmonics mode -> "
+                    + envProbe.getSphericalHarmonicsMode() + "; rebaking probe");
         }
 
         updateMaterial();
@@ -133,6 +145,7 @@ public class TestPBRSimple extends SimpleApplication {
         pbrMat.setFloat("Metallic", metallic);
         pbrMat.setFloat("Roughness", roughness);
         System.out.println(
-                "Tank material -> metallic: " + metallic + ", roughness: " + roughness + " (N/P)");
+                "Tank material -> metallic: " + metallic + ", roughness: " + roughness
+                        + " (N/P, F toggles SH fast path)");
     }
 }
