@@ -89,6 +89,8 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
 
     private SphericalHarmonicsMode sphericalHarmonicsMode = SphericalHarmonicsMode.AUTO;
     private int sphericalHarmonicsFastPathSampleCount = DEFAULT_FAST_SH_SAMPLE_COUNT;
+    private Texture2D shCoefTexture;
+    private FrameBuffer shBaker;
 
     /**
      * Create a new IBL env baker
@@ -158,6 +160,35 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         return sphericalHarmonicsFastPathSampleCount;
     }
 
+    @Override
+    public void clean() {
+        super.clean();
+        if (shBaker != null) {
+            shBaker.dispose();
+            shBaker = null;
+        }
+        shCoefTexture = null;
+    }
+
+    private Texture2D getShCoefTexture(Format format) {
+        if (shCoefTexture == null || shCoefTexture.getImage().getFormat() != format) {
+            if (shBaker != null) {
+                shBaker.dispose();
+                shBaker = null;
+            }
+            shCoefTexture = new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format);
+        }
+        return shCoefTexture;
+    }
+
+    private FrameBuffer getShBaker(Texture2D shCoefTexture) {
+        if (shBaker == null) {
+            shBaker = new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1);
+            shBaker.setSrgb(false);
+            shBaker.addColorTarget(FrameBufferTarget.newTarget(shCoefTexture));
+        }
+        return shBaker;
+    }
 
     @Override
     public void bakeSphericalHarmonicsCoefficients() {
@@ -202,11 +233,8 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             mat.clearParam("RemapMaxValue");
         }
 
-        Texture2D shCoefTx = new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format);
-
-        FrameBuffer shbaker = new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1);
-        shbaker.setSrgb(false);
-        shbaker.addColorTarget(FrameBufferTarget.newTarget(shCoefTx));
+        Texture2D shCoefTx = getShCoefTexture(format);
+        FrameBuffer shbaker = getShBaker(shCoefTx);
 
         screen.updateLogicalState(0);
         screen.updateGeometricState();
@@ -244,7 +272,6 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         }
         EnvMapUtils.prepareShCoefs(shCoef);
         img.dispose();
-        shbaker.dispose();
 
     }
 }

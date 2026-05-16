@@ -55,6 +55,7 @@ public class TestPBRSimple extends SimpleApplication {
     private static final String INCREASE_METALLIC = "IncreaseMetallic";
     private static final String DECREASE_METALLIC = "DecreaseMetallic";
     private static final String TOGGLE_SH_FAST_PATH = "ToggleShFastPath";
+    private static final String TOGGLE_SH_REALTIME = "ToggleShRealtime";
 
     private Material pbrMat;
     private EnvironmentProbeControl envProbe;
@@ -99,7 +100,8 @@ public class TestPBRSimple extends SimpleApplication {
         inputManager.addMapping(INCREASE_METALLIC, new KeyTrigger(KeyInput.KEY_N));
         inputManager.addMapping(DECREASE_METALLIC, new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping(TOGGLE_SH_FAST_PATH, new KeyTrigger(KeyInput.KEY_F));
-        inputManager.addListener(materialListener, INCREASE_METALLIC, DECREASE_METALLIC, TOGGLE_SH_FAST_PATH);
+        inputManager.addMapping(TOGGLE_SH_REALTIME, new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addListener(materialListener, TOGGLE_SH_REALTIME, INCREASE_METALLIC, DECREASE_METALLIC, TOGGLE_SH_FAST_PATH);
 
         updateMaterial();
 
@@ -136,6 +138,9 @@ public class TestPBRSimple extends SimpleApplication {
             envProbe.rebake();
             System.out.println("Spherical harmonics mode -> "
                     + envProbe.getSphericalHarmonicsMode() + "; rebaking probe");
+        } else if (TOGGLE_SH_REALTIME.equals(name)) {
+            REALTIME_BAKING = !REALTIME_BAKING;
+            System.out.println("Real-time baking -> " + REALTIME_BAKING);
         }
 
         updateMaterial();

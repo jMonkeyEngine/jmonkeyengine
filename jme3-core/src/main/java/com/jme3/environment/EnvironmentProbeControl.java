@@ -87,10 +87,10 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private boolean enabled = true;
     private IBLGLEnvBakerLight.SphericalHarmonicsMode sphericalHarmonicsMode =
             IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO;
-
     private Predicate<Geometry> filter = (s) -> {
         return s.getUserData("tags.env") != null || s.getUserData("tags.env.env" + uuid) != null;
     };
+    private transient IBLGLEnvBakerLight baker;
 
     protected EnvironmentProbeControl() {
         super();
@@ -187,18 +187,36 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        EnvironmentProbeControl control = new EnvironmentProbeControl();
-        control.setAssetManager(assetManager);
+        EnvironmentProbeControl control = new EnvironmentProbeControl(assetManager, envMapSize);
         control.setFrustumFar(frustumFar);
         control.setFrustumNear(frustumNear);
         control.setRequiredSavableResults(requiredSavableResults);
         control.setEnabled(enabled);
         control.setSphericalHarmonicsMode(sphericalHarmonicsMode);
-        control.envMapSize = envMapSize;
-        control.uuid = uuid;
-        control.filter = filter;
-        control.spatial = spatial;
+        control.setColor(getColor());
+        control.setName(getName());
+        control.setFrustumCheckNeeded(isFrustumCheckNeeded());
+        control.setAreaType(getAreaType());
+        control.getArea().setRadius(getArea().getRadius());
+        control.setPosition(getPosition());
+        control.retagForClone(spatial, uuid);
+        control.setSpatial(spatial);
         return control;
+    }
+
+    private void retagForClone(Spatial spatial, String sourceUuid) {
+        if (spatial instanceof Node) {
+            Node n = (Node) spatial;
+            for (Spatial sx : n.getChildren()) {
+                retagForClone(sx, sourceUuid);
+            }
+        } else if (spatial instanceof Geometry) {
+            String sourceTag = "tags.env.env" + sourceUuid;
+            if (spatial.getUserData(sourceTag) != null) {
+                spatial.setUserData("tags.env.env" + uuid, true);
+                spatial.setUserData(sourceTag, null);
+            }
+        }
     }
 
     /**
@@ -259,6 +277,10 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         if (this.spatial != null && spatial != null && spatial != this.spatial) {
             throw new IllegalStateException("This control has already been added to a Spatial");
         }
+        if (spatial == null && baker != null) {
+            baker.clean();
+            baker = null;
+        }
         this.spatial = spatial;
         if (spatial != null) spatial.addLight(this);
     }
@@ -273,7 +295,12 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         if (!isEnabled()) return;
         if (bakeNeeded) {
             bakeNeeded = false;
-            rebakeNow(rm);
+            try {
+                rebakeNow(rm);
+            } finally {
+                rm.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+                rm.setCamera(vp.getCamera(), false);
+            }
         }
     }
 
@@ -327,11 +354,22 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
+        if (baker != null) {
+            baker.clean();
+            baker = null;
+        }
+    }
+
+    private IBLGLEnvBakerLight getBaker(RenderManager renderManager) {
+        if (baker == null) {
+            baker = new IBLGLEnvBakerLight(renderManager, assetManager, null,
+                    null, envMapSize, envMapSize);
+        }
+        return baker;
     }
 
     void rebakeNow(RenderManager renderManager) {
-        IBLGLEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, null,
-                null, envMapSize, envMapSize);
+        IBLGLEnvBakerLight baker = getBaker(renderManager);
         baker.setSphericalHarmonicsMode(sphericalHarmonicsMode);
                     
         baker.setTexturePulling(isRequiredSavableResults());
@@ -347,8 +385,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         setShCoeffs(baker.getSphericalHarmonicsCoefficients());
         setPosition(Vector3f.ZERO);
         setReady(true);
-
-        baker.clean();
     }
     
     public void setEnabled(boolean enabled) {
