@@ -31,17 +31,19 @@
  */
 package androidx.fragment.app;
 
-import android.app.Activity;
-
 /**
- * Compile-time stub for the AndroidX FragmentActivity API.
+ * Compile-time stub for the AndroidX FragmentTransaction API.
  *
  * <p>The real AndroidX Fragment dependency must be supplied by the Android
  * application. This class is excluded from jme3-android artifacts.</p>
  */
-public class FragmentActivity extends Activity {
+public class FragmentTransaction {
 
-    public FragmentManager getSupportFragmentManager() {
-        return null;
+    public FragmentTransaction replace(int containerViewId, Fragment fragment, String tag) {
+        return this;
+    }
+
+    public int commit() {
+        return 0;
     }
 }
