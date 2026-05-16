@@ -44,7 +44,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
@@ -58,7 +60,6 @@ import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,7 +113,6 @@ public class AndroidHarness extends FragmentActivity
     protected ImageView splashImageView;
     protected FrameLayout frameLayout;
 
-    private HarnessFragment fragment;
     private boolean firstDrawFrame = true;
 
     @Override
@@ -120,7 +120,7 @@ public class AndroidHarness extends FragmentActivity
         super.onCreate(savedInstanceState);
         configureWindow();
 
-        fragment = attachFragment();
+        HarnessFragment fragment = attachFragment();
         fragment.setFinishOnAppStop(finishOnAppStop);
     }
 
@@ -139,26 +139,17 @@ public class AndroidHarness extends FragmentActivity
     }
 
     private HarnessFragment attachFragment() {
-        try {
-            Method getSupportFragmentManager = getClass().getMethod("getSupportFragmentManager");
-            Object fragmentManager = getSupportFragmentManager.invoke(this);
-            Object existingFragment = fragmentManager.getClass()
-                    .getMethod("findFragmentByTag", String.class)
-                    .invoke(fragmentManager, HARNESS_FRAGMENT_TAG);
-            if (existingFragment instanceof HarnessFragment) {
-                return (HarnessFragment) existingFragment;
-            }
-
-            HarnessFragment newFragment = new HarnessFragment();
-            Object transaction = fragmentManager.getClass().getMethod("beginTransaction").invoke(fragmentManager);
-            transaction = transaction.getClass()
-                    .getMethod("replace", int.class, androidx.fragment.app.Fragment.class, String.class)
-                    .invoke(transaction, android.R.id.content, newFragment, HARNESS_FRAGMENT_TAG);
-            transaction.getClass().getMethod("commit").invoke(transaction);
-            return newFragment;
-        } catch (ReflectiveOperationException exception) {
-            throw new IllegalStateException("Unable to attach AndroidHarnessFragment", exception);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment existingFragment = fragmentManager.findFragmentByTag(HARNESS_FRAGMENT_TAG);
+        if (existingFragment instanceof HarnessFragment) {
+            return (HarnessFragment) existingFragment;
         }
+
+        HarnessFragment newFragment = new HarnessFragment();
+        fragmentManager.beginTransaction()
+                .replace(android.R.id.content, newFragment, HARNESS_FRAGMENT_TAG)
+                .commit();
+        return newFragment;
     }
 
     @Override
