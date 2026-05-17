@@ -578,7 +578,7 @@ public class DefaultClient implements Client
         /**
          * Creates the redispatch bridge.
          */
-        protected Redispatch() {
+        public Redispatch() {
         }
         @Override
         public void messageReceived( Object source, Message m )
