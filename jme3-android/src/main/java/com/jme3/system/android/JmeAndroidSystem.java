@@ -51,6 +51,18 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             });
         });
     }
+
+    /**
+     * Returns the default Android audio renderer type.
+     *
+     * @return the default Android audio renderer type
+     * @deprecated Use {@link AppSettings#getAudioRenderer()} and
+     * {@link AppSettings#OPENAL} instead.
+     */
+    @Deprecated
+    public String getAudioRendererType() {
+        return AppSettings.OPENAL;
+    }
     
     @Override
     public URL getPlatformAssetConfigURL() {

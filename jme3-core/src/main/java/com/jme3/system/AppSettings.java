@@ -224,6 +224,11 @@ public final class AppSettings extends HashMap<String, Object> {
 
     public static final String ANGLE_GLES3 = "ANGLE_GLES3";
 
+    /**
+     * Use the default OpenAL renderer for the current platform.
+     *
+     * @see AppSettings#setAudioRenderer(java.lang.String)
+     */
     public static final String OPENAL = "OPENAL";
 
 
@@ -233,7 +238,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * NOTE: Supports Android 2.2+ platforms.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations. Use {@link #OPENAL} instead..
+     * @deprecated This audio renderer has too many limitations. Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
@@ -241,7 +246,6 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
      * <p>
-     * This is the current default for Android platforms.
      * NOTE: Only to be used on Android 2.3+ platforms due to using OpenSL.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
@@ -826,12 +830,13 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the audio renderer to use. One of:<br>
      * <ul>
-     * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>AppSettings.OPENAL - Default OpenAL renderer for the current platform</li>
+     * <li>AppSettings.LWJGL_OPENAL - Deprecated LWJGL OpenAL renderer identifier</li>
      * <li>AppSettings.JOAL</li>
      * <li>null - Disable audio</li>
      * </ul>
      * @param audioRenderer
-     * (Default: LWJGL)
+     * (Default: AppSettings.OPENAL)
      */
     public void setAudioRenderer(String audioRenderer) {
         putString("AudioRenderer", audioRenderer);
@@ -1266,7 +1271,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the audio renderer
      *
-     * @return the audio renderer's name, for example "LWJGL"
+     * @return the audio renderer's name, for example "OPENAL"
      * @see #setAudioRenderer(java.lang.String)
      */
     public String getAudioRenderer() {
