@@ -95,8 +95,8 @@ public class Vector2fTest {
         final Vector2f retval = target.addLocal(new Vector2f(2.0f, 6.2f));
 
         assertNotNull(retval);
-        assertEquals(retval.x, 2.0f, 0.0f);
-        assertEquals(retval.y, -1.32f, 0.01f);
+        assertEquals(2.0f, retval.x, 0.0f);
+        assertEquals(-1.32f, retval.y, 0.01f);
     }
 
     @Test
@@ -105,8 +105,8 @@ public class Vector2fTest {
         final Vector2f retval = target.addLocal(2.0f, 6.2f);
 
         assertNotNull(retval);
-        assertEquals(retval.x, 2.0f, 0.0f);
-        assertEquals(retval.y, -1.32f, 0.01f);
+        assertEquals(2.0f, retval.x, 0.0f);
+        assertEquals(-1.32f, retval.y, 0.01f);
     }
 
     @Test
@@ -353,8 +353,8 @@ public class Vector2fTest {
         final Vector2f retval = target.mult(0, 4.4e-29f);
 
         assertNotNull(retval);
-        assertEquals(0, retval.x, 0.0f);
-        assertEquals(0, retval.y, 0.0f);
+        assertEquals(0.0f, retval.x, 0.0f);
+        assertEquals(0.0f, retval.y, 0.0f);
     }
 
     @Test
@@ -503,13 +503,13 @@ public class Vector2fTest {
     public void testSet() {
         Vector2f target = new Vector2f(0.0f, 0.0f);
         target.set(5.0f, 3.0f);
-        assertEquals(target.x, 5.0, 0.0f);
-        assertEquals(target.y, 3.0, 0.0f);
+        assertEquals(5.0f, target.x, 0.0f);
+        assertEquals(3.0f, target.y, 0.0f);
 
         target = new Vector2f(0.0f, 0.0f);
         target.set(new Vector2f(8.0f, 2.0f));
-        assertEquals(target.x, 8.0, 0.0f);
-        assertEquals(target.y, 2.0, 0.0f);
+        assertEquals(8.0f, target.x, 0.0f);
+        assertEquals(2.0f, target.y, 0.0f);
     }
 
     @Test
@@ -633,5 +633,67 @@ public class Vector2fTest {
         assertNotNull(retval);
         assertEquals(0.0f, retval.x, 0.0f);
         assertEquals(0.0f, retval.y, 0.0f);
+    }
+
+    @Test
+    public void testGetAngle() {
+        assertEquals(0.0f, new Vector2f(1.0f, 0.0f).getAngle(), 0.001f);
+        assertEquals(FastMath.HALF_PI, new Vector2f(0.0f, 1.0f).getAngle(), 0.001f);
+        assertEquals(FastMath.PI, new Vector2f(-1.0f, 0.0f).getAngle(), 0.001f);
+    }
+
+    @Test
+    public void testSmallestAngleBetween() {
+        final Vector2f v1 = new Vector2f(1.0f, 0.0f);
+        final Vector2f v2 = new Vector2f(0.0f, 1.0f);
+
+        assertEquals(FastMath.HALF_PI, v1.smallestAngleBetween(v2), 0.001f);
+    }
+
+    @Test
+    public void testSmallestAngleBetween_same() {
+        final Vector2f v = new Vector2f(1.0f, 0.0f);
+
+        assertEquals(0.0f, v.smallestAngleBetween(v), 0.001f);
+    }
+
+    @Test
+    public void testRotateAroundOrigin() {
+        final Vector2f target = new Vector2f(1.0f, 0.0f);
+
+        target.rotateAroundOrigin(FastMath.HALF_PI, false);
+
+        assertEquals(0.0f, target.x, 0.001f);
+        assertEquals(1.0f, target.y, 0.001f);
+    }
+
+    @Test
+    public void testRotateAroundOrigin_clockwise() {
+        final Vector2f target = new Vector2f(1.0f, 0.0f);
+
+        target.rotateAroundOrigin(FastMath.HALF_PI, true);
+
+        assertEquals(0.0f, target.x, 0.001f);
+        assertEquals(-1.0f, target.y, 0.001f);
+    }
+
+    @Test
+    public void testEquals() {
+        final Vector2f v1 = new Vector2f(1.0f, 2.0f);
+        final Vector2f v2 = new Vector2f(1.0f, 2.0f);
+        final Vector2f v3 = new Vector2f(1.0f, 3.0f);
+
+        assertEquals(v1, v2);
+        assertNotEquals(v1, v3);
+        assertNotEquals(v1, null);
+        assertNotEquals(v1, "not a vector");
+    }
+
+    @Test
+    public void testHashCode() {
+        final Vector2f v1 = new Vector2f(1.0f, 2.0f);
+        final Vector2f v2 = new Vector2f(1.0f, 2.0f);
+
+        assertEquals(v1.hashCode(), v2.hashCode());
     }
 }

@@ -784,4 +784,68 @@ public class Vector4fTest {
         assertEquals(0.0f, retval.z, 0.0f);
         assertEquals(5.0f, retval.w, 0.0f);
     }
+
+    @Test
+    public void testProject() {
+        final Vector4f target = new Vector4f(3.0f, 0.0f, 0.0f, 0.0f);
+        final Vector4f other = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+
+        final Vector4f retval = target.project(other);
+
+        assertNotNull(retval);
+        assertEquals(3.0f, retval.x, 0.001f);
+        assertEquals(0.0f, retval.y, 0.001f);
+        assertEquals(0.0f, retval.z, 0.001f);
+        assertEquals(0.0f, retval.w, 0.001f);
+    }
+
+    @Test
+    public void testProject2() {
+        final Vector4f target = new Vector4f(1.0f, 1.0f, 0.0f, 0.0f);
+        final Vector4f other = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+
+        final Vector4f retval = target.project(other);
+
+        assertNotNull(retval);
+        assertEquals(1.0f, retval.x, 0.001f);
+        assertEquals(0.0f, retval.y, 0.001f);
+        assertEquals(0.0f, retval.z, 0.001f);
+        assertEquals(0.0f, retval.w, 0.001f);
+    }
+
+    @Test
+    public void testAngleBetween() {
+        final Vector4f v1 = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+        final Vector4f v2 = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+
+        assertEquals(0.0f, v1.angleBetween(v2), 0.001f);
+    }
+
+    @Test
+    public void testAngleBetween2() {
+        final Vector4f v1 = new Vector4f(1.0f, 0.0f, 0.0f, 0.0f);
+        final Vector4f v2 = new Vector4f(0.0f, 1.0f, 0.0f, 0.0f);
+
+        assertEquals(FastMath.HALF_PI, v1.angleBetween(v2), 0.001f);
+    }
+
+    @Test
+    public void testEquals() {
+        final Vector4f v1 = new Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+        final Vector4f v2 = new Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+        final Vector4f v3 = new Vector4f(1.0f, 2.0f, 3.0f, 5.0f);
+
+        assertEquals(v1, v2);
+        assertNotEquals(v1, v3);
+        assertNotEquals(v1, null);
+        assertNotEquals(v1, "not a vector");
+    }
+
+    @Test
+    public void testHashCode() {
+        final Vector4f v1 = new Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+        final Vector4f v2 = new Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+
+        assertEquals(v1.hashCode(), v2.hashCode());
+    }
 }
