@@ -748,7 +748,7 @@ public class DefaultServer implements Server
         /**
          * Creates the redispatch bridge.
          */
-        protected Redispatch() {
+        public Redispatch() {
         }
         @Override
         public void messageReceived( HostedConnection source, Message m )
