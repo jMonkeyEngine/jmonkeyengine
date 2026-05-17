@@ -81,7 +81,7 @@ public class ZIPCompressedMessage extends CompressedMessage {
     }
 
     /**
-     * Returns the currently configured ZIP compression level.
+     * Returns the currently globally configured ZIP compression level.
      *
      * @return the ZIP compression level
      */
