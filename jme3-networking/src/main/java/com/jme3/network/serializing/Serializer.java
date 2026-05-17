@@ -78,7 +78,7 @@ public abstract class Serializer {
     /**
      * Creates a serializer.
      */
-    protected Serializer() {
+    public Serializer() {
     }
     
 
