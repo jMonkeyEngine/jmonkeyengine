@@ -147,7 +147,7 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
         /**
          * Creates the connection observer.
          */
-        protected ConnectionObserver() {
+        public ConnectionObserver() {
         }
 
         @Override
