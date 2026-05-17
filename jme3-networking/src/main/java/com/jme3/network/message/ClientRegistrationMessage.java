@@ -93,7 +93,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
     public static class ClientRegistrationSerializer extends Serializer {
      
         @Override
-        public ClientRegistrationMessage readObject( ByteBuffer data, Class c ) throws IOException {
+        public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
     
             // Read the null/non-null marker
             if (data.get() == 0x0)
@@ -105,7 +105,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
             msg.id = data.getLong();
             msg.version = data.getInt();
             
-            return msg;
+            return c.cast(msg);
         }
 
         @Override

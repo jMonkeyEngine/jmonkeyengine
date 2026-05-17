@@ -35,16 +35,21 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import java.lang.ref.WeakReference;
-import com.jme3.shader.bufferobject.BufferObject;
 
 /**
  * Represents the current state of the graphics library. This class is used
  * internally to reduce state changes. NOTE: This class is specific to OpenGL.
  */
 public class RenderContext {
+    @SuppressWarnings("unchecked")
+    private static <T> WeakReference<T>[] newWeakReferenceArray(int size) {
+        return (WeakReference<T>[]) new WeakReference<?>[size];
+    }
+
     /**
      * Number of texture units that JME supports.
      */
@@ -264,8 +269,8 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final WeakReference<Image> boundTextures[]
-            = new WeakReference[maxTextureUnits];
+    public final WeakReference<Image>[] boundTextures
+            = newWeakReferenceArray(maxTextureUnits);
 
 
     /**
@@ -274,7 +279,7 @@ public class RenderContext {
      * @see Renderer#setUniformBufferObject(int, com.jme3.shader.BufferObject)
      * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.BufferObject)
      */
-    public final WeakReference<BufferObject>[] boundBO = new WeakReference[maxBufferObjectUnits];
+    public final WeakReference<BufferObject>[] boundBO = newWeakReferenceArray(maxBufferObjectUnits);
 
     /**
      * IDList for texture units.
@@ -331,7 +336,7 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
+    public final WeakReference<VertexBuffer>[] boundAttribs = newWeakReferenceArray(16);
 
     /**
      * IDList for vertex attributes.

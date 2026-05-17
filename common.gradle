@@ -28,7 +28,7 @@ apply plugin: 'org.jmonkeyengine.nativeimage'
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
-    options.compilerArgs << '-Xlint:unchecked'
+    options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:-options', '-Werror'])
     options.encoding = 'UTF-8'
     options.release = 8
 }
@@ -103,26 +103,26 @@ task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from 
 }
 
 ext.pomConfig = {
-    name POM_NAME
-    description POM_DESCRIPTION
-    url POM_URL
-    inceptionYear POM_INCEPTION_YEAR
+    name = POM_NAME
+    description = POM_DESCRIPTION
+    url = POM_URL
+    inceptionYear = POM_INCEPTION_YEAR
     scm {
-        url POM_SCM_URL
-        connection POM_SCM_CONNECTION
-        developerConnection POM_SCM_DEVELOPER_CONNECTION
+        url = POM_SCM_URL
+        connection = POM_SCM_CONNECTION
+        developerConnection = POM_SCM_DEVELOPER_CONNECTION
     }
     licenses {
         license {
-            name POM_LICENSE_NAME
-            url POM_LICENSE_URL
-            distribution POM_LICENSE_DISTRIBUTION
+            name = POM_LICENSE_NAME
+            url = POM_LICENSE_URL
+            distribution = POM_LICENSE_DISTRIBUTION
         }
     }
     developers {
         developer {
-            name 'jMonkeyEngine Team'
-            id 'jMonkeyEngine'
+            name = 'jMonkeyEngine Team'
+            id = 'jMonkeyEngine'
         }
     }
 }

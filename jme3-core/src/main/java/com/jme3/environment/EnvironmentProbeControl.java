@@ -186,6 +186,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     @Override
+    @Deprecated
     public Control cloneForSpatial(Spatial spatial) {
         throw new UnsupportedOperationException();
     }

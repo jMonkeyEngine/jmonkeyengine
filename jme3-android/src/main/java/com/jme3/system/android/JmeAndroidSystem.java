@@ -78,6 +78,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
 
     @Override
+    @SuppressWarnings("deprecation")
     public JmeContext newContext(AppSettings settings, Type contextType) {
         if (settings.getAudioRenderer() == null) {
             audioRendererType = null;

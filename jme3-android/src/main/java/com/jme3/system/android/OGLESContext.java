@@ -727,8 +727,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                     public void run() {
                         final FrameLayout layoutTextDialogInput = new FrameLayout(view.getContext());
                         final EditText editTextDialogInput = new EditText(view.getContext());
-                        editTextDialogInput.setWidth(LayoutParams.FILL_PARENT);
-                        editTextDialogInput.setHeight(LayoutParams.FILL_PARENT);
+                        editTextDialogInput.setWidth(LayoutParams.MATCH_PARENT);
+                        editTextDialogInput.setHeight(LayoutParams.MATCH_PARENT);
                         editTextDialogInput.setPadding(20, 20, 20, 20);
                         editTextDialogInput.setGravity(Gravity.FILL_HORIZONTAL);
                         //editTextDialogInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
