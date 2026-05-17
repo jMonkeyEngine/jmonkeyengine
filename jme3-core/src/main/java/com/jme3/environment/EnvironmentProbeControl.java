@@ -186,37 +186,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     @Override
+    @Deprecated
     public Control cloneForSpatial(Spatial spatial) {
-        EnvironmentProbeControl control = new EnvironmentProbeControl(assetManager, envMapSize);
-        control.setFrustumFar(frustumFar);
-        control.setFrustumNear(frustumNear);
-        control.setRequiredSavableResults(requiredSavableResults);
-        control.setEnabled(enabled);
-        control.setSphericalHarmonicsMode(sphericalHarmonicsMode);
-        control.setColor(getColor());
-        control.setName(getName());
-        control.setFrustumCheckNeeded(isFrustumCheckNeeded());
-        control.setAreaType(getAreaType());
-        control.getArea().setRadius(getArea().getRadius());
-        control.setPosition(getPosition());
-        control.retagForClone(spatial, uuid);
-        control.setSpatial(spatial);
-        return control;
-    }
-
-    private void retagForClone(Spatial spatial, String sourceUuid) {
-        if (spatial instanceof Node) {
-            Node n = (Node) spatial;
-            for (Spatial sx : n.getChildren()) {
-                retagForClone(sx, sourceUuid);
-            }
-        } else if (spatial instanceof Geometry) {
-            String sourceTag = "tags.env.env" + sourceUuid;
-            if (spatial.getUserData(sourceTag) != null) {
-                spatial.setUserData("tags.env.env" + uuid, true);
-                spatial.setUserData(sourceTag, null);
-            }
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**
