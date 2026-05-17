@@ -41,7 +41,8 @@ import com.jme3.network.serializing.Serializable;
  */
 @Serializable()
 public class ZIPCompressedMessage extends CompressedMessage {
-    private static int compressionLevel = 6;
+    private static int defaultCompressionLevel = 6;
+    private int compressionLevel = defaultCompressionLevel;
 
     /**
      * Creates an empty ZIP-compressed message for serialization.
@@ -67,21 +68,31 @@ public class ZIPCompressedMessage extends CompressedMessage {
      */
     public ZIPCompressedMessage(Message msg, int level) {
         super(msg);
-        setLevel(level);
+        this.compressionLevel = level;
     }
 
     /**
-     * Set the compression level, where 1 is the best compression but slower and 9 is the weakest
-     *  compression but the quickest. Default is 6.
+     * Set the default compression level for newly created ZIP compressed messages,
+     * where 1 is the best compression but slower and 9 is the weakest compression
+     * but the quickest. Default is 6.
      *
      * @param level The level.
      */
     public static void setLevel(int level) {
+        defaultCompressionLevel = level;
+    }
+
+    /**
+     * Sets this message's compression level.
+     *
+     * @param level The level.
+     */
+    public void setCompressionLevel(int level) {
         compressionLevel = level;
     }
 
     /**
-     * Returns the currently globally configured ZIP compression level.
+     * Returns this message's configured ZIP compression level.
      *
      * @return the ZIP compression level
      */
