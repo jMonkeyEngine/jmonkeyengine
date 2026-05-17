@@ -32,7 +32,6 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static View view;
-    private static String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
 
     static {
         try {
@@ -51,6 +50,18 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 dialog.show();
             });
         });
+    }
+
+    /**
+     * Returns the default Android audio renderer type.
+     *
+     * @return the default Android audio renderer type
+     * @deprecated Use {@link AppSettings#getAudioRenderer()} and
+     * {@link AppSettings#OPENAL} instead.
+     */
+    @Deprecated
+    public String getAudioRendererType() {
+        return AppSettings.OPENAL;
     }
     
     @Override
@@ -80,16 +91,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     @Override
     @SuppressWarnings("deprecation")
     public JmeContext newContext(AppSettings settings, Type contextType) {
-        if (settings.getAudioRenderer() == null) {
-            audioRendererType = null;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
-            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-        } else {
-            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to OpenAL Soft");
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-        }
         initialize(settings);
         JmeContext ctx = new OGLESContext();
         ctx.setSettings(settings);
@@ -205,10 +206,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static View getView() {
         return view;
-    }
-
-    public static String getAudioRendererType() {
-        return audioRendererType;
     }
 
     @Override

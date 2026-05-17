@@ -30,19 +30,8 @@ public class TestActivity extends FragmentActivity {
         args.putString(MainActivity.SELECTED_APP_CLASS, appClass);
 //        Log.d(TestActivity.class.getSimpleName(), "AppClass="+appClass);
 
-        boolean mouseEnabled = bundle.getBoolean(MainActivity.ENABLE_MOUSE_EVENTS, true);
-        args.putBoolean(MainActivity.ENABLE_MOUSE_EVENTS, mouseEnabled);
-//        Log.d(TestActivity.class.getSimpleName(), "MouseEnabled="+mouseEnabled);
-
-        boolean joystickEnabled = bundle.getBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, true);
-        args.putBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, joystickEnabled);
-//        Log.d(TestActivity.class.getSimpleName(), "JoystickEnabled="+joystickEnabled);
-
-        boolean keyEnabled = bundle.getBoolean(MainActivity.ENABLE_KEY_EVENTS, true);
-        args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, keyEnabled);
-//        Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+keyEnabled);
-
-        boolean verboseLogging = bundle.getBoolean(MainActivity.VERBOSE_LOGGING, true);
+        boolean verboseLogging = bundle.getBoolean(MainActivity.VERBOSE_LOGGING,
+                MainActivity.DEFAULT_VERBOSE_LOGGING);
         args.putBoolean(MainActivity.VERBOSE_LOGGING, verboseLogging);
 //        Log.d(TestActivity.class.getSimpleName(), "VerboseLogging="+verboseLogging);
 

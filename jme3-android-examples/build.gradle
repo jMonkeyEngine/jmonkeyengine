@@ -123,13 +123,12 @@ tasks.register('runAndroidExamples', Exec) {
 
         def exampleClass = project.findProperty('example')?.toString()?.trim()
         if (exampleClass) {
+            def verboseLogging = project.findProperty('verboseLogging')?.toString()?.trim() ?: 'false'
+
             args 'shell', 'am', 'start',
                     '-n', 'org.jmonkeyengine.jme3androidexamples/.TestActivity',
                     '--es', 'Selected_App_Class', exampleClass,
-                    '--ez', 'Enable_Mouse_Events', 'true',
-                    '--ez', 'Enable_Joystick_Events', 'false',
-                    '--ez', 'Enable_Key_Events', 'true',
-                    '--ez', 'Verbose_Logging', 'false'
+                    '--ez', 'Verbose_Logging', verboseLogging
         } else {
             args 'shell', 'am', 'start',
                     '-n', 'org.jmonkeyengine.jme3androidexamples/.MainActivity'
