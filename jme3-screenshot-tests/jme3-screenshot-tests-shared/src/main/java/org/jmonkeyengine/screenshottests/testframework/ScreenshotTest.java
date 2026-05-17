@@ -167,7 +167,7 @@ public class ScreenshotTest{
             TestDriver testDriver = new TestDriver(scenario.scenarioName, framesToTakeScreenshotsOn);
             states.add(testDriver);
 
-            SimpleApplication app = new App(states.toArray(new AppState[0]));
+            App app = new App(states.toArray(new AppState[0]));
             app.setSettings(appSettings);
             app.setShowSettings(false);
             testDriver.waitLatch = new CountDownLatch(1);
@@ -225,7 +225,7 @@ public class ScreenshotTest{
 
                 if(!Files.exists(expectedImage)){
                     try{
-                        Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+                        Path savedImage = saveGeneratedImageToChangedImages(generatedImage, osSpecificRunner, thisFrameBaseImageFileName);
                         attachImage("New image:", thisFrameBaseImageFileName + ".png", savedImage);
                         String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts (on github). If running locally you can see them at build/changed-images but those should not be committed";
                         if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
@@ -247,7 +247,7 @@ public class ScreenshotTest{
                     }
                 } else {
                     //save the generated image to the build directory
-                    Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+                    Path savedImage = saveGeneratedImageToChangedImages(generatedImage, osSpecificRunner, thisFrameBaseImageFileName);
 
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                     attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", savedImage);
@@ -295,8 +295,8 @@ public class ScreenshotTest{
      * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
      * if the instigator of the change wants to accept this as the new "correct" state.
      */
-    private static Path saveGeneratedImageToChangedImages(Path generatedImage, String imageFileName) throws IOException{
-        Path savedImage = Paths.get("build/changed-images/" + imageFileName + ".png");
+    private static Path saveGeneratedImageToChangedImages(Path generatedImage, AppRunner runner, String imageFileName) throws IOException{
+        Path savedImage = runner.getChangedImagesDirectory().resolve(imageFileName + ".png");
         Files.createDirectories(savedImage.getParent());
         Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
         aggressivelyCompressImage(savedImage);
@@ -309,24 +309,19 @@ public class ScreenshotTest{
      * to do so
      */
     private static void aggressivelyCompressImage(Path path) throws IOException {
-        // Load your image
         BufferedImage image = ImageIO.read(path.toFile());
 
-        // Get a PNG writer
         ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
         ImageWriteParam writeParam = writer.getDefaultWriteParam();
 
-        // Increase compression effort
         writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         writeParam.setCompressionQuality(0.0f); // 0.0 means maximum compression
 
-        // Save the image with increased compression
         try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(path.toFile())) {
             writer.setOutput(outputStream);
             writer.write(null, new IIOImage(image, null, null), writeParam);
         }
 
-        // Clean up
         writer.dispose();
     }
 

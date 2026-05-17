@@ -195,6 +195,8 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             title = throwable.toString();
         }
 
+        app.handleError(errorMsg, throwable);
+
         final String finalTitle = title;
         final String finalMessage = (errorMsg != null ? errorMsg : "Uncaught Exception")
                 + "\n" + stackTrace;

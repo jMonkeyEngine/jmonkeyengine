@@ -47,7 +47,7 @@ public class App extends SimpleApplication {
         super(initialStates);
     }
 
-    Consumer<Throwable> onError = (onError) -> {};
+    public Consumer<Throwable> onError = (onError) -> {};
 
     @Override
     public void simpleInitApp(){
@@ -58,7 +58,7 @@ public class App extends SimpleApplication {
     @Override
     public void handleError(String errMsg, Throwable t) {
         super.handleError(errMsg, t);
-        onError.accept(t);
+        onError.accept(t); // this is desktop only. Android errors are handled in the fragment
     }
 
     public static final class IsoTimer extends com.jme3.system.Timer {

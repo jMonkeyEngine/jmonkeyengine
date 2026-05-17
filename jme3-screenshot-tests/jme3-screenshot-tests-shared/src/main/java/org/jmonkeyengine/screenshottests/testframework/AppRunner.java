@@ -2,6 +2,7 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import com.jme3.app.SimpleApplication;
 
+import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -10,5 +11,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public interface AppRunner {
 
-    void runApplicationUntilScenarioCompletes(SimpleApplication application, CountDownLatch applicationFinishedLatch);
+    void runApplicationUntilScenarioCompletes(App application, CountDownLatch applicationFinishedLatch);
+
+    Path getChangedImagesDirectory();
+
 }

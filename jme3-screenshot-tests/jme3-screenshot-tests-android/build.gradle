@@ -55,4 +55,6 @@ dependencies {
     debugImplementation libs.androidx.fragment.testing.manifest
 
     implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
+
+    implementation project(':jme3-testdata')
 }

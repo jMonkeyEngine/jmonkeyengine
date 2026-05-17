@@ -119,7 +119,6 @@ public class TestDriver extends BaseAppState{
             offScreenshotAppState.takeScreenshot(screenshotPath);
         }
         if(tick >= tickToTerminateApp){
-            getApplication().stop(true);
             waitLatch.countDown();
         }
 
@@ -127,11 +126,6 @@ public class TestDriver extends BaseAppState{
     }
 
     @Override protected void initialize(Application app){
-        ((App)app).onError = error -> {
-            logger.log(Level.WARNING, "Error in test application", error);
-            waitLatch.countDown();
-        };
-
         AppSettings settings = app.getContext().getSettings();
         int width = settings.getWidth();
         int height = settings.getHeight();

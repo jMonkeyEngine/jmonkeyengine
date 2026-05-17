@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -47,6 +48,10 @@ import com.jme3.system.AppSettings;
 
 import org.jmonkeyengine.screenshottests.android.android.AndroidLauncher;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -56,7 +61,7 @@ public class AndroidRunner implements AppRunner {
     private static final Logger logger = Logger.getLogger(AndroidRunner.class.getName());
 
     @Override
-    public void runApplicationUntilScenarioCompletes(SimpleApplication application, CountDownLatch applicationFinishedLatch) {
+    public void runApplicationUntilScenarioCompletes(App application, CountDownLatch applicationFinishedLatch) {
 
 
         FragmentFactory fragmentFactory = new FragmentFactory(){
@@ -64,12 +69,11 @@ public class AndroidRunner implements AppRunner {
             @Override
             public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
                 if (className.equals(AndroidTestHarness.class.getName())) {
-                    return new AndroidTestHarness(application);
+                    return new AndroidTestHarness(application, applicationFinishedLatch);
                 }
                 return super.instantiate(classLoader, className);
             }
         };
-
         try (FragmentScenario<AndroidTestHarness> scenario = FragmentScenario.launchInContainer(
                 AndroidTestHarness.class,
                 Bundle.EMPTY,
@@ -83,14 +87,23 @@ public class AndroidRunner implements AppRunner {
 
                 if (!exitedProperly) {
                     logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
-                    application.stop(true);
                 }
 
-                Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
         }
+        try{
+            Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Path getChangedImagesDirectory() {
+        return Environment.getExternalStorageDirectory().toPath().resolve("changed-images");
     }
 }
