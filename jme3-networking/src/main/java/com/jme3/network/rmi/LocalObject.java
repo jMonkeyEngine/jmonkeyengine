@@ -39,6 +39,11 @@ import java.lang.reflect.Method;
  * @author Kirill Vainer
  */
 public class LocalObject {
+    /**
+     * Creates an empty local object descriptor.
+     */
+    public LocalObject() {
+    }
 
     /**
      * Object name

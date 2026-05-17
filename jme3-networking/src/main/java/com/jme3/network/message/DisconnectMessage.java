@@ -45,28 +45,69 @@ import java.nio.ByteBuffer;
 @Serializable()
 public class DisconnectMessage extends AbstractMessage {
 
+    /**
+     * Serializer id reserved for backwards-compatible disconnect messages.
+     */
     public static final short SERIALIZER_ID = -42;
 
+    /**
+     * Disconnect type used when a client is kicked by the server.
+     */
     public static final String KICK = "Kick";
+    /**
+     * Disconnect type used when the user requested closure.
+     */
     public static final String USER_REQUESTED = "User requested";
+    /**
+     * Disconnect type used when an error closed the connection.
+     */
     public static final String ERROR = "Error";
+    /**
+     * Disconnect type used when a message or client was filtered.
+     */
     public static final String FILTERED = "Filtered";
 
     private String reason;
     private String type;
 
+    /**
+     * Creates an empty disconnect message for serialization.
+     */
+    public DisconnectMessage() {
+    }
+
+    /**
+     * Returns the disconnect reason text.
+     *
+     * @return the disconnect reason, or null
+     */
     public String getReason() {
         return reason;
     }
 
+    /**
+     * Sets the disconnect reason text.
+     *
+     * @param reason the disconnect reason
+     */
     public void setReason(String reason) {
         this.reason = reason;
     }
 
+    /**
+     * Returns the disconnect category.
+     *
+     * @return the disconnect type
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Sets the disconnect category.
+     *
+     * @param type the disconnect type
+     */
     public void setType(String type) {
         this.type = type;
     }
@@ -83,6 +124,11 @@ public class DisconnectMessage extends AbstractMessage {
      *  SM serializer registrations... and now will be forever.
      */   
     public static class DisconnectSerializer extends Serializer {
+        /**
+         * Creates the serializer used for disconnect messages.
+         */
+        public DisconnectSerializer() {
+        }
      
         @Override
         public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {

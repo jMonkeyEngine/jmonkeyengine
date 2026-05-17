@@ -44,6 +44,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class SerializableSerializer extends Serializer {
+    /**
+     * Creates a serializer for {@link java.io.Serializable} values.
+     */
+    public SerializableSerializer() {
+    }
 
     @Override
     public Serializable readObject(ByteBuffer data, Class c) throws IOException {

@@ -84,6 +84,8 @@ public class RpcHostedService extends AbstractHostedConnectionService {
      *  with the Network server and will optionally 'host'
      *  RPC services and each new network connection depending
      *  on the specified 'autoHost' flag.
+     *
+     *  @param autoHost true to automatically host RPC on new connections
      */
     public RpcHostedService( boolean autoHost ) {
         super(autoHost);
@@ -120,6 +122,9 @@ public class RpcHostedService extends AbstractHostedConnectionService {
      *  startHostingOnConnection() (or via autohosting).  Returns null
      *  if the connection currently doesn't have RPC hosting services
      *  attached.
+     *
+     *  @param hc the hosted connection
+     *  @return the RPC connection, or null if not hosted
      */
     public RpcConnection getRpcConnection( HostedConnection hc ) {
         return hc.getAttribute(ATTRIBUTE_NAME);

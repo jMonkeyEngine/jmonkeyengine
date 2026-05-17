@@ -52,6 +52,7 @@ import java.util.logging.Logger;
  *  specified.  Subclasses provide specific implementations for how to
  *  find the actual delegate object.
  *
+ *  @param <S> the message connection type handled by this delegator
  *  @author    Paul Speed
  */
 public abstract class AbstractMessageDelegator<S extends MessageConnection> 
@@ -68,6 +69,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  messages to methods of the specified delegate type.  If automap
      *  is true then reflection is used to lookup probably message handling
      *  methods.
+     *
+     *  @param delegateType the delegate class that contains handler methods
+     *  @param automap true to scan the delegate type for handler methods immediately
      */   
     protected AbstractMessageDelegator( Class delegateType, boolean automap ) {
         this.delegateType = delegateType;
@@ -79,6 +83,8 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
     /**
      *  Returns the array of messages known to be handled by this message
      *  delegator.
+     *
+     *  @return the message types currently mapped to delegate methods
      */
     public Class[] getMessageTypes() {
         if( messageTypes == null ) {
@@ -93,6 +99,10 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  provide implementation specific filtering of methods.
      *  This implementation checks for methods that take either the connection and message 
      *  type arguments (in that order) or just the message type.
+     *
+     *  @param m the method to test
+     *  @param messageType the expected message type, or null to accept any {@link Message}
+     *  @return true if the method can handle the specified message type
      */
     protected boolean isValidMethod( Method m, Class messageType ) {
  
@@ -135,6 +145,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  getParameterTypes() array, thus supporting both 
      *  method(connection, messageType) and method(messageType)
      *  calling forms.
+     *
+     *  @param m the method to inspect
+     *  @return the message type accepted by the method
      */
     protected Class getMessageType( Method m ) {
         Class<?>[] parms = m.getParameterTypes();
@@ -145,6 +158,10 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  Goes through all of the delegate type's methods to find
      *  a method of the specified name that may take the specified 
      *  message type.
+     *
+     *  @param name the method name to search for
+     *  @param messageType the message type the delegate method should accept
+     *  @return the matching method, or null if none is found
      */   
     protected Method findDelegate( String name, Class messageType ) {
         // We do an exhaustive search because it's easier to 
@@ -169,6 +186,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  This is used by automapping to determine if a method
      *  should be rejected purely on name.  Default implementation
      *  always returns true.
+     *
+     *  @param name the method name to evaluate
+     *  @return true if the name is eligible for automapping
      */
     protected boolean allowName( String name ) {
         return true;
@@ -188,6 +208,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
     /**
      *  Specifically maps the specified methods names, autowiring
      *  the parameters.
+     *
+     *  @param methodNames the delegate method names to map
+     *  @return this delegator for chaining
      */
     public AbstractMessageDelegator<S> map( String... methodNames ) {
         Set<String> names = new HashSet<>( Arrays.asList(methodNames) );
@@ -205,6 +228,8 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  isValidMethod() is called with a null message type argument.
      *  All methods are made accessible thus supporting non-public
      *  methods as well as public methods.    
+     *
+     *  @param constraints the allowed method names, or null to use {@link #allowName(String)}
      */   
     protected void map( Set<String> constraints ) {
         
@@ -241,6 +266,10 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
  
     /**
      *  Manually maps a specified method to the specified message type.
+     *
+     *  @param messageType the message type to map
+     *  @param methodName the delegate method name to invoke for that type
+     *  @return this delegator for chaining
      */   
     public AbstractMessageDelegator<S> map( Class messageType, String methodName ) {
         // Lookup the method 
@@ -261,6 +290,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
     
     /**
      *  Returns the mapped method for the specified message type.
+     *
+     *  @param c the message type
+     *  @return the mapped method, or null if none is registered
      */
     protected Method getMethod( Class c ) {
         Method m = methods.get(c);
@@ -270,6 +302,9 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
     /**
      *  Implemented by subclasses to provide the actual delegate object
      *  against which the mapped message type methods will be called.
+     *
+     *  @param source the source connection associated with the message
+     *  @return the delegate object to invoke, or null to ignore the message
      */ 
     protected abstract Object getSourceDelegate( S source );
 

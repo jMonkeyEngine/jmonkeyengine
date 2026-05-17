@@ -43,6 +43,9 @@ import com.jme3.network.serializing.Serializable;
 @Serializable
 public class RemoteMethodReturnMessage extends AbstractMessage {
 
+    /**
+     * Creates an empty remote method return message.
+     */
     public RemoteMethodReturnMessage(){
         super(true);
     }

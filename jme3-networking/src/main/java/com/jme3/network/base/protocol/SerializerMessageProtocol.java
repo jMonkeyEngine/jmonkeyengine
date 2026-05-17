@@ -53,6 +53,9 @@ public class SerializerMessageProtocol implements MessageProtocol {
 
     public static final int MAX_MESSAGE_SIZE = Short.MAX_VALUE;
  
+    /**
+     * Creates a serializer-backed message protocol.
+     */
     public SerializerMessageProtocol() {
     }
  
@@ -104,6 +107,5 @@ public class SerializerMessageProtocol implements MessageProtocol {
     }
      
 }
-
 
 

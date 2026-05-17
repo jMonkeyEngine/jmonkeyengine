@@ -51,6 +51,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
 
     /**
      *  Creates a HostedServiceManager for the specified network Server.
+     *
+     *  @param server the server whose services are managed here
      */    
     public HostedServiceManager( Server server ) {
         this.server = server;
@@ -60,6 +62,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
 
     /**
      *  Returns the network Server associated with this HostedServiceManager.
+     *
+     *  @return the managed server
      */
     public Server getServer() {
         return server;
@@ -77,6 +81,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
     /**
      *  Adds the specified HostedService and initializes it.  If the service manager
      *  has already been started then the service will also be started.
+     *
+     *  @param s the hosted service to add
      */   
     public void addService( HostedService s ) {
         super.addService(s);
@@ -88,6 +94,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
      *  This is a convenience method that delegates to addService(), thus each
      *  service will be initialized (and possibly started) in sequence rather
      *  than doing them all at the end.
+     *
+     *  @param services the hosted services to add
      */   
     public void addServices( HostedService... services ) {
         for( HostedService s : services ) {
@@ -100,6 +108,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
      *  and terminating it as required.  If this service manager is in a
      *  started state then the service will be stopped.  After removal,
      *  the service will be terminated.
+     *
+     *  @param s the hosted service to remove
      */
     public void removeService( HostedService s ) {
         super.removeService(s);
@@ -108,6 +118,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
     /**
      *  Called internally when a new connection has been added so that the
      *  services can be notified.
+     *
+     *  @param hc the added hosted connection
      */
     protected void addConnection( HostedConnection hc ) {
         for( Service s : getServices() ) {
@@ -118,6 +130,8 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
     /**
      *  Called internally when a connection has been removed so that the
      *  services can be notified.
+     *
+     *  @param hc the removed hosted connection
      */   
     protected void removeConnection( HostedConnection hc ) {
         for( Service s : getServices() ) {
@@ -125,7 +139,16 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
         }
     }
  
+    /**
+     * Observes server connection events and forwards them to hosted services.
+     */
     protected class ConnectionObserver implements ConnectionListener {
+
+        /**
+         * Creates the connection observer.
+         */
+        public ConnectionObserver() {
+        }
 
         @Override
         public void connectionAdded(Server server, HostedConnection hc) {

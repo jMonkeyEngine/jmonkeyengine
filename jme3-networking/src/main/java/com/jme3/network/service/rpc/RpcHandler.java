@@ -45,6 +45,12 @@ public interface RpcHandler {
     /**
      *  Called when a remote procedure call request is received for a particular
      *  object from the other end of the network connection.
+     *
+     *  @param conn the RPC connection handling the call
+     *  @param objectId the target object id
+     *  @param procId the target procedure id
+     *  @param args the invocation arguments
+     *  @return the invocation result
      */
     public Object call( RpcConnection conn, short objectId, short procId, Object... args );
 }

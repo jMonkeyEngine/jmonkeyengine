@@ -47,6 +47,11 @@ public class TcpConnectorFactory implements ConnectorFactory
 {
     private InetAddress remoteAddress;
     
+    /**
+     * Creates a factory that connects to the specified remote address.
+     *
+     * @param remoteAddress the remote address for created TCP connectors
+     */
     public TcpConnectorFactory( InetAddress remoteAddress )
     {
         this.remoteAddress = remoteAddress;

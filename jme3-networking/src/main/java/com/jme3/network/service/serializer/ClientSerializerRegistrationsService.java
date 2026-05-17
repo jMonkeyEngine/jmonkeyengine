@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 
 
 /**
- *
+ *  Receives serializer registration updates from the server and applies them on the client.
  *
  *  @author    Paul Speed
  */
@@ -52,6 +52,12 @@ public class ClientSerializerRegistrationsService extends AbstractClientService
                                                   implements MessageListener<Client> {
                                                   
     private static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
+
+    /**
+     * Creates the client-side serializer registration service.
+     */
+    public ClientSerializerRegistrationsService() {
+    }
 
     @Override
     protected void onInitialize( ClientServiceManager serviceManager ) {

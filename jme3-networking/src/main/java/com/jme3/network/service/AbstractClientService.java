@@ -46,12 +46,17 @@ import com.jme3.network.Client;
 public abstract class AbstractClientService extends AbstractService<ClientServiceManager> 
                                             implements ClientService { 
     
+    /**
+     * Creates an uninitialized client service.
+     */
     protected AbstractClientService() {
     }
    
     /**
      *  Returns the client for this client service or null if
      *  the service is not yet attached.
+     *
+     *  @return the attached client, or null if the service is detached
      */   
     protected Client getClient() {
         ClientServiceManager csm = getServiceManager();

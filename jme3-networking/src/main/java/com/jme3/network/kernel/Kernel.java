@@ -59,6 +59,8 @@ public interface Kernel
      *  Gracefully terminates the kernel and stops any internal 
      *  daemon processing.  This method will not return until all
      *  internal threads have been shut down.
+     *
+     *  @throws InterruptedException if the calling thread is interrupted while waiting
      */
     public void terminate() throws InterruptedException;
 
@@ -70,24 +72,36 @@ public interface Kernel
      *  the data buffer.  Though it is important that the buffer not be changed
      *  by another thread while this call is running.
      *  Only the bytes from data.position() to data.remaining() are sent.  
+     *
+     *  @param filter the endpoint filter used to select recipients
+     *  @param data the payload to send
+     *  @param reliable true to use reliable transport semantics
+     *  @param copy true to copy the buffer before dispatching it
      */ 
     public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable, 
                            boolean copy );
  
     /**
      *  Returns true if there are waiting envelopes.
+     *
+     *  @return true if at least one envelope is queued
      */   
     public boolean hasEnvelopes();
  
     /**
      *  Removes one envelope from the received messages queue or
      *  blocks until one is available.
+     *
+     *  @return the next queued envelope
+     *  @throws InterruptedException if interrupted while waiting for an envelope
      */   
     public Envelope read() throws InterruptedException;
     
     /**
      *  Removes and returns one endpoint event from the event queue or
      *  null if there are no endpoint events.     
+     *
+     *  @return the next endpoint event, or null if none are queued
      */
     public EndpointEvent nextEvent();     
 }

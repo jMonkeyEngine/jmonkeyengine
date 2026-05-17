@@ -41,11 +41,22 @@ package com.jme3.network.kernel;
  */
 public class ConnectorException extends RuntimeException
 {
+    /**
+     * Creates a connector exception with a message and cause.
+     *
+     * @param message the exception message
+     * @param cause the underlying cause
+     */
     public ConnectorException( String message, Throwable cause )
     {
         super( message, cause );
     }
     
+    /**
+     * Creates a connector exception with a message.
+     *
+     * @param message the exception message
+     */
     public ConnectorException( String message )
     {
         super( message );

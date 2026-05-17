@@ -47,6 +47,9 @@ import java.lang.reflect.Method;
 @Serializable
 public final class MethodInfo {
     
+    /**
+     * Sentinel used to represent a null method info entry.
+     */
     public static final MethodInfo NULL_INFO = new MethodInfo();
     
     private String representation;
@@ -60,6 +63,12 @@ public final class MethodInfo {
     public MethodInfo() {
     }
     
+    /**
+     * Creates metadata for a shared method.
+     *
+     * @param id the shared method id
+     * @param m the reflected method
+     */
     public MethodInfo( short id, Method m ) {
         this.id = id;
         this.method = m;
@@ -67,6 +76,13 @@ public final class MethodInfo {
         this.callType = getCallType(m);
     }
  
+    /**
+     * Invokes the reflected method on the specified target.
+     *
+     * @param target the invocation target
+     * @param parms the invocation parameters
+     * @return the invocation result
+     */
     public Object invoke( Object target, Object... parms ) {
         try {
             return method.invoke(target, parms);
@@ -77,18 +93,40 @@ public final class MethodInfo {
         }
     }
  
+    /**
+     * Returns the shared method id.
+     *
+     * @return the method id
+     */
     public short getId() {
         return id;
     }
  
+    /**
+     * Returns the call type for the shared method.
+     *
+     * @return the call type
+     */
     public CallType getCallType() {
         return callType;
     }
  
+    /**
+     * Returns true if the reflected method matches this method metadata.
+     *
+     * @param m the reflected method to compare
+     * @return true if the method signatures match
+     */
     public boolean matches( Method m ) {
         return representation.equals(methodToString(m));
     }
  
+    /**
+     * Converts a reflected method into its serialized signature representation.
+     *
+     * @param m the reflected method
+     * @return the serialized signature
+     */
     public static String methodToString( Method m ) {
         StringBuilder sb = new StringBuilder();
         for( Class t : m.getParameterTypes() ) {
@@ -99,6 +137,12 @@ public final class MethodInfo {
         return m.getReturnType().getName() + " " + m.getName() + "(" + sb + ")";
     }
  
+    /**
+     * Resolves the call type for a reflected method.
+     *
+     * @param m the reflected method
+     * @return the call type
+     */
     public static CallType getCallType( Method m ) {
         if( m.getReturnType() != Void.TYPE ) {
             return CallType.Synchronous;

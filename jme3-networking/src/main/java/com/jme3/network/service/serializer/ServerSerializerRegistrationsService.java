@@ -41,11 +41,16 @@ import com.jme3.network.service.HostedServiceManager;
 
 
 /**
- *
+ *  Prepares and sends serializer registration data to connecting clients.
  *
  *  @author    Paul Speed
  */
 public class ServerSerializerRegistrationsService extends AbstractHostedService {
+    /**
+     * Creates the serializer registration service.
+     */
+    public ServerSerializerRegistrationsService() {
+    }
 
     @Override
     protected void onInitialize( HostedServiceManager serviceManager ) {

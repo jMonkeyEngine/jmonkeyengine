@@ -63,21 +63,43 @@ public class SelectorKernel extends AbstractKernel
 
     private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<>();
 
+    /**
+     * Creates a selector kernel for the specified host and port.
+     *
+     * @param host the local bind address
+     * @param port the local bind port
+     */
     public SelectorKernel( InetAddress host, int port )
     {
         this( new InetSocketAddress(host, port) );
     }
 
+    /**
+     * Creates a selector kernel bound to the specified port on the wildcard address.
+     *
+     * @param port the local bind port
+     * @throws IOException if the address cannot be prepared
+     */
     public SelectorKernel( int port ) throws IOException
     {
         this( new InetSocketAddress(port) );
     }
 
+    /**
+     * Creates a selector kernel for the specified socket address.
+     *
+     * @param address the local socket address
+     */
     public SelectorKernel( InetSocketAddress address )
     {
         this.address = address;
     }
 
+    /**
+     * Creates the selector thread implementation used by this kernel.
+     *
+     * @return the selector thread
+     */
     protected SelectorThread createSelectorThread()
     {
         return new SelectorThread();
@@ -147,6 +169,12 @@ public class SelectorKernel extends AbstractKernel
         wakeupSelector();
     }
 
+    /**
+     * Creates and registers a new endpoint for the accepted channel.
+     *
+     * @param c the accepted socket channel
+     * @return the created endpoint
+     */
     protected NioEndpoint addEndpoint( SocketChannel c )
     {
         // Note: we purposely do NOT put the key in the endpoint.
@@ -162,6 +190,12 @@ public class SelectorKernel extends AbstractKernel
         return p;
     }
 
+    /**
+     * Removes bookkeeping for a closed endpoint.
+     *
+     * @param p the endpoint being removed
+     * @param c the underlying socket channel
+     */
     protected void removeEndpoint( NioEndpoint p, SocketChannel c )
     {
         endpoints.remove( p.getId() );
@@ -175,6 +209,9 @@ public class SelectorKernel extends AbstractKernel
 
     /**
      *  Called by the endpoints when they need to be closed.
+     *
+     *  @param p the endpoint to close
+     *  @throws IOException if the endpoint cannot be closed cleanly
      */
     protected void closeEndpoint( NioEndpoint p ) throws IOException
     {
@@ -192,6 +229,14 @@ public class SelectorKernel extends AbstractKernel
         thread.wakeupSelector();
     }
 
+    /**
+     * Queues newly read endpoint data as an envelope.
+     *
+     * @param p the source endpoint
+     * @param c the source socket channel
+     * @param shared the shared read buffer
+     * @param size the number of valid bytes in {@code shared}
+     */
     protected void newData( NioEndpoint p, SocketChannel c, ByteBuffer shared, int size )
     {
         // Note: if ever desirable, it would be possible to accumulate
@@ -229,12 +274,20 @@ public class SelectorKernel extends AbstractKernel
          */
         private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<>();
 
+        /**
+         * Creates the selector thread.
+         */
         public SelectorThread()
         {
             setName( "Selector@" + address );
             setDaemon(true);
         }
 
+        /**
+         * Opens and binds the selector infrastructure.
+         *
+         * @throws IOException if the selector or socket cannot be opened
+         */
         public void connect() throws IOException
         {
             // Create a new selector
@@ -254,6 +307,12 @@ public class SelectorKernel extends AbstractKernel
             log.log( Level.FINE, "Hosting TCP connection:{0}.", address );
         }
 
+        /**
+         * Stops the selector thread and closes its resources.
+         *
+         * @throws IOException if socket shutdown fails
+         * @throws InterruptedException if interrupted while waiting for shutdown
+         */
         public void close() throws IOException, InterruptedException
         {
             // Set the thread to stop
@@ -269,11 +328,17 @@ public class SelectorKernel extends AbstractKernel
             join();
         }
 
+        /**
+         * Wakes the selector if it is blocked in {@link #select()}.
+         */
         protected void wakeupSelector()
         {
             selector.wakeup();
         }
 
+        /**
+         * Recomputes selector interest ops for endpoints with pending output.
+         */
         protected void setupSelectorOptions()
         {
             // For now, selection keys will either be in OP_READ
@@ -294,6 +359,12 @@ public class SelectorKernel extends AbstractKernel
             }
         }
 
+        /**
+         * Accepts a new incoming TCP connection.
+         *
+         * @param key the selected accept key
+         * @throws IOException if the connection cannot be accepted or configured
+         */
         protected void accept( SelectionKey key ) throws IOException
         {
             // Would only get accepts on a server channel
@@ -318,6 +389,12 @@ public class SelectorKernel extends AbstractKernel
             endpointKeys.put(p, endKey);
         }
 
+        /**
+         * Cancels and closes the specified endpoint.
+         *
+         * @param p the endpoint to cancel
+         * @throws IOException if closing the channel fails
+         */
         protected void cancel( NioEndpoint p ) throws IOException
         {
             SelectionKey key = endpointKeys.remove(p);
@@ -338,6 +415,13 @@ public class SelectorKernel extends AbstractKernel
             removeEndpoint( p, c );
         }
 
+        /**
+         * Cancels and closes the specified selection key and channel.
+         *
+         * @param key the key to cancel
+         * @param c the channel to close
+         * @throws IOException if closing the channel fails
+         */
         protected void cancel( SelectionKey key, SocketChannel c ) throws IOException
         {
             NioEndpoint p = (NioEndpoint)key.attachment();            
@@ -351,6 +435,12 @@ public class SelectorKernel extends AbstractKernel
             removeEndpoint( p, c );
         }
 
+        /**
+         * Reads pending bytes from a readable channel.
+         *
+         * @param key the readable key
+         * @throws IOException if the read fails
+         */
         protected void read( SelectionKey key ) throws IOException
         {
             NioEndpoint p = (NioEndpoint)key.attachment();
@@ -377,6 +467,12 @@ public class SelectorKernel extends AbstractKernel
             newData( p, c, working, size );
         }
 
+        /**
+         * Flushes pending endpoint data to a writable channel.
+         *
+         * @param key the writable key
+         * @throws IOException if writing fails
+         */
         protected void write( SelectionKey key ) throws IOException
         {
             NioEndpoint p = (NioEndpoint)key.attachment();
@@ -406,6 +502,11 @@ public class SelectorKernel extends AbstractKernel
             }
         }
 
+        /**
+         * Waits for and dispatches selector activity.
+         *
+         * @throws IOException if selector processing fails
+         */
         protected void select() throws IOException
         {
             selector.select();

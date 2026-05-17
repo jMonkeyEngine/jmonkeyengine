@@ -45,12 +45,17 @@ public interface Message
     /**
      *  Sets this message to 'reliable' or not and returns this
      *  message.
+     *
+     *  @param f true to send the message reliably
+     *  @return this message for chaining
      */
     public Message setReliable(boolean f);
     
     /**
      *  Indicates which way an outgoing message should be sent
      *  or which way an incoming message was sent.
+     *
+     *  @return true if the message is or was sent reliably
      */
     public boolean isReliable();
 }

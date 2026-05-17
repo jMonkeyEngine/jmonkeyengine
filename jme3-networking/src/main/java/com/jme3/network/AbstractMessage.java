@@ -44,10 +44,18 @@ public abstract class AbstractMessage implements Message
 {
     private transient boolean reliable = true;
 
+    /**
+     * Creates a reliable message by default.
+     */
     protected AbstractMessage()
     {
     }
 
+    /**
+     * Creates a message with the specified reliability.
+     *
+     * @param reliable true if the message should be sent reliably
+     */
     protected AbstractMessage( boolean reliable )
     {
         this.reliable = reliable; 

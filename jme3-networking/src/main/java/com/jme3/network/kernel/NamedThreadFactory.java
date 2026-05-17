@@ -48,21 +48,45 @@ public class NamedThreadFactory implements ThreadFactory
     private boolean daemon;
     private ThreadFactory delegate;
     
+    /**
+     * Creates a named thread factory using the default thread factory.
+     *
+     * @param name the thread name prefix
+     */
     public NamedThreadFactory( String name )
     {
         this( name, Executors.defaultThreadFactory() );
     }
     
+    /**
+     * Creates a named thread factory using the default thread factory.
+     *
+     * @param name the thread name prefix
+     * @param daemon true to mark created threads as daemon threads
+     */
     public NamedThreadFactory( String name, boolean daemon )
     {
         this( name, daemon, Executors.defaultThreadFactory() );
     }
     
+    /**
+     * Creates a named thread factory that wraps another thread factory.
+     *
+     * @param name the thread name prefix
+     * @param delegate the wrapped thread factory
+     */
     public NamedThreadFactory( String name, ThreadFactory delegate )
     {
         this( name, false, delegate );
     }
 
+    /**
+     * Creates a named thread factory that wraps another thread factory.
+     *
+     * @param name the thread name prefix
+     * @param daemon true to mark created threads as daemon threads
+     * @param delegate the wrapped thread factory
+     */
     public NamedThreadFactory( String name, boolean daemon, ThreadFactory delegate )
     {
         this.name = name;
@@ -80,4 +104,3 @@ public class NamedThreadFactory implements ThreadFactory
         return result;
     } 
 }
-

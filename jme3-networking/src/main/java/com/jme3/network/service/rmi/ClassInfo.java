@@ -56,16 +56,32 @@ public final class ClassInfo {
     public ClassInfo() {
     }
     
+    /**
+     * Creates shared class metadata for the specified type.
+     *
+     * @param typeId the network id assigned to the shared type
+     * @param type the reflected shared interface type
+     */
     public ClassInfo( short typeId, Class type ) {
         this.typeId = typeId;
         this.name = type.getName();
         this.methods = toMethodInfo(type, type.getMethods());
     }
  
+    /**
+     * Returns the binary name of the shared type.
+     *
+     * @return the shared type name
+     */
     public String getName() {
         return name;
     }
  
+    /**
+     * Resolves the shared type into a {@link Class}.
+     *
+     * @return the resolved class
+     */
     public Class getType() {
         try {
             return Class.forName(name);
@@ -74,14 +90,31 @@ public final class ClassInfo {
         }
     }
  
+    /**
+     * Returns the network id assigned to this type.
+     *
+     * @return the type id
+     */
     public short getId() {
         return typeId;
     }
  
+    /**
+     * Returns the method metadata associated with the specified id.
+     *
+     * @param id the method id
+     * @return the matching method metadata
+     */
     public MethodInfo getMethod( short id ) {
         return methods[id];
     }
  
+    /**
+     * Finds method metadata matching the specified reflected method.
+     *
+     * @param m the reflected method
+     * @return the matching method metadata, or null if none matches
+     */
     public MethodInfo getMethod( Method m ) {        
         for( MethodInfo mi : methods ) {
             if( mi.matches(m) ) {
@@ -101,6 +134,11 @@ public final class ClassInfo {
         return result.toArray(new MethodInfo[result.size()]);
     }
  
+    /**
+     * Returns the method metadata array for this shared type.
+     *
+     * @return the shared method metadata
+     */
     public MethodInfo[] getMethods() {
         return methods;
     }

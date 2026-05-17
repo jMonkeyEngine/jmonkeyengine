@@ -86,6 +86,12 @@ public class DefaultClient implements Client
     private ClientServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
     
+    /**
+     * Creates a client with the specified game name and protocol version.
+     *
+     * @param gameName the expected game name
+     * @param version the expected protocol version
+     */
     public DefaultClient( String gameName, int version )
     {
         this.gameName = gameName;
@@ -94,6 +100,15 @@ public class DefaultClient implements Client
         addStandardServices();
     }
     
+    /**
+     * Creates a client with preconfigured reliable and optional fast connectors.
+     *
+     * @param gameName the expected game name
+     * @param version the expected protocol version
+     * @param reliable the reliable transport connector
+     * @param fast the optional fast transport connector
+     * @param connectorFactory the factory used for any additional channels
+     */
     public DefaultClient( String gameName, int version, Connector reliable, Connector fast,
                           ConnectorFactory connectorFactory )
     {
@@ -101,11 +116,21 @@ public class DefaultClient implements Client
         setPrimaryConnectors( reliable, fast, connectorFactory );
     }
 
+    /**
+     * Adds the default client services.
+     */
     protected void addStandardServices() {
         log.fine("Adding standard services...");
         services.addService(new ClientSerializerRegistrationsService());
     }
 
+    /**
+     * Sets the primary transport connectors used by this client.
+     *
+     * @param reliable the reliable connector
+     * @param fast the optional fast connector
+     * @param connectorFactory the factory used for additional channels
+     */
     protected void setPrimaryConnectors( Connector reliable, Connector fast, ConnectorFactory connectorFactory )
     {
         if( reliable == null )
@@ -125,6 +150,9 @@ public class DefaultClient implements Client
         }
     }  
 
+    /**
+     * Ensures the client has been started.
+     */
     protected void checkRunning()
     {
         if( !isRunning )
@@ -188,6 +216,9 @@ public class DefaultClient implements Client
         return isRunning;
     }
 
+    /**
+     * Blocks until the client finishes connecting.
+     */
     protected void waitForConnected()
     {
         if( isConnected() )
@@ -264,6 +295,13 @@ public class DefaultClient implements Client
         send(channel + CH_FIRST, message, true);
     }
     
+    /**
+     * Sends a message over a specific internal channel.
+     *
+     * @param channel the internal channel index
+     * @param message the message to send
+     * @param waitForConnected true to wait until the client is connected first
+     */
     protected void send( int channel, Message message, boolean waitForConnected )
     {
         checkRunning();
@@ -301,6 +339,11 @@ public class DefaultClient implements Client
         closeConnections( null );
     }         
 
+    /**
+     * Closes all connectors and terminates client services.
+     *
+     * @param info optional disconnect information to report to listeners
+     */
     protected void closeConnections( DisconnectInfo info )
     {
         synchronized(this) {
@@ -385,6 +428,9 @@ public class DefaultClient implements Client
         errorListeners.remove( listener );
     } 
  
+    /**
+     * Notifies registered state listeners that the client connected.
+     */
     protected void fireConnected()
     {
         for( ClientStateListener l : stateListeners ) {
@@ -392,6 +438,9 @@ public class DefaultClient implements Client
         }            
     }
 
+    /**
+     * Starts the client services after connection setup completes.
+     */
     protected void startServices() 
     {
         log.fine("Starting client services.");
@@ -399,6 +448,11 @@ public class DefaultClient implements Client
         services.start();      
     }
     
+    /**
+     * Notifies registered state listeners that the client disconnected.
+     *
+     * @param info optional disconnect information
+     */
     protected void fireDisconnected( DisconnectInfo info )
     {
         for( ClientStateListener l : stateListeners ) {
@@ -409,6 +463,8 @@ public class DefaultClient implements Client
     /**
      *  Either calls the ErrorListener or closes the connection
      *  if there are no listeners.  
+     *
+     *  @param t the error to handle
      */ 
     @SuppressWarnings("unchecked")
     protected void handleError( Throwable t )
@@ -429,6 +485,12 @@ public class DefaultClient implements Client
         } 
     }
  
+    /**
+     * Configures any additional channels announced by the server.
+     *
+     * @param tempId the temporary client registration id
+     * @param ports the alternate channel ports announced by the server
+     */
     protected void configureChannels( long tempId, int[] ports ) {
 
         try {               
@@ -452,6 +514,11 @@ public class DefaultClient implements Client
         }
     }
  
+    /**
+     * Dispatches a received message, handling connection-management messages internally.
+     *
+     * @param m the received message
+     */
     protected void dispatch( Message m )
     {
         if( log.isLoggable(Level.FINER) ) {
@@ -503,8 +570,16 @@ public class DefaultClient implements Client
         }
     }
  
+    /**
+     * Bridges connector callbacks back into this client instance.
+     */
     protected class Redispatch implements MessageListener<Object>, ErrorListener<Object>
     {
+        /**
+         * Creates the redispatch bridge.
+         */
+        public Redispatch() {
+        }
         @Override
         public void messageReceived( Object source, Message m )
         {

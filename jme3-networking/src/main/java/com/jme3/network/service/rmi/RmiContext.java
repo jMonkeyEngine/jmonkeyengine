@@ -55,6 +55,8 @@ public class RmiContext {
     /**
      *  Returns the HostedConnection that is responsible for any
      *  RMI-related calls on this thread.
+     *
+     *  @return the current RMI caller connection, or null if none is set
      */   
     public static HostedConnection getRmiConnection() {
         return connection.get();

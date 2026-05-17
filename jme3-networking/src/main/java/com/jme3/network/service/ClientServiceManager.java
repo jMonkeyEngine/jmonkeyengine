@@ -46,6 +46,8 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
  
     /**
      *  Creates a new ClientServiceManager for the specified network Client.
+     *
+     *  @param client the client whose services are being managed
      */   
     public ClientServiceManager( Client client ) {
         this.client = client;
@@ -53,6 +55,8 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
  
     /**
      *  Returns the network Client associated with this ClientServiceManager.
+     *
+     *  @return the managed client
      */   
     public Client getClient() {
         return client;
@@ -70,6 +74,8 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
     /**
      *  Adds the specified ClientService and initializes it.  If the service manager
      *  has already been started then the service will also be started.
+     *
+     *  @param s the client service to add
      */   
     public void addService( ClientService s ) {
         super.addService(s);
@@ -81,6 +87,8 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
      *  This is a convenience method that delegates to addService(), thus each
      *  service will be initialized (and possibly started) in sequence rather
      *  than doing them all at the end.
+     *
+     *  @param services the client services to add
      */   
     public void addServices( ClientService... services ) {
         for( ClientService s : services ) {
@@ -93,6 +101,8 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
      *  and terminating it as required.  If this service manager is in a
      *  started state then the service will be stopped.  After removal,
      *  the service will be terminated.
+     *
+     *  @param s the client service to remove
      */
     public void removeService( ClientService s ) {
         super.removeService(s);

@@ -81,6 +81,15 @@ public class KernelAdapter extends Thread
     // through this connector.
     private boolean reliable;
     
+    /**
+     * Creates an adapter for a kernel used by {@link DefaultServer}.
+     *
+     * @param server the owning server
+     * @param kernel the kernel to wrap
+     * @param protocol the message protocol used to decode envelopes
+     * @param messageDispatcher the listener that receives decoded messages
+     * @param reliable true if this adapter represents a reliable channel
+     */
     public KernelAdapter( DefaultServer server, Kernel kernel, MessageProtocol protocol, MessageListener<HostedConnection> messageDispatcher,
                           boolean reliable )
     {
@@ -93,22 +102,43 @@ public class KernelAdapter extends Thread
         setDaemon(true);
     }
 
+    /**
+     * Returns the wrapped kernel.
+     *
+     * @return the wrapped kernel
+     */
     public Kernel getKernel()
     {
         return kernel;
     }
 
+    /**
+     * Initializes the wrapped kernel.
+     */
     public void initialize()
     {
         kernel.initialize();
     }
  
+    /**
+     * Broadcasts raw bytes through the wrapped kernel.
+     *
+     * @param filter the endpoint filter, or null to target all endpoints
+     * @param data the bytes to broadcast
+     * @param reliable true to request reliable transport
+     * @param copy true to copy the buffer before dispatch
+     */
     public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable, 
                            boolean copy )
     {
         kernel.broadcast( filter, data, reliable, copy );
     }                           
  
+    /**
+     * Closes the adapter and terminates the wrapped kernel.
+     *
+     * @throws InterruptedException if interrupted while waiting for shutdown
+     */
     public void close() throws InterruptedException
     {
         go.set(false);
@@ -119,6 +149,13 @@ public class KernelAdapter extends Thread
         join();
     }
 
+    /**
+     * Reports an adapter or kernel error and closes the endpoint when possible.
+     *
+     * @param p the endpoint involved in the failure
+     * @param context additional context for the failure
+     * @param e the error that occurred
+     */
     protected void reportError( Endpoint p, Object context, Exception e )
     {
         // Should really be queued up so the outer thread can
@@ -131,11 +168,22 @@ public class KernelAdapter extends Thread
         }
     }                                                      
 
+    /**
+     * Resolves a hosted connection from an endpoint.
+     *
+     * @param p the endpoint to resolve
+     * @return the hosted connection, or null if none exists
+     */
     protected HostedConnection getConnection( Endpoint p )
     {
         return server.getConnection(p);
     }
  
+    /**
+     * Handles endpoint closure and clears any buffered message state.
+     *
+     * @param p the closed endpoint
+     */
     protected void connectionClosed( Endpoint p )
     {
         // Remove any message buffer we've been accumulating 
@@ -166,6 +214,9 @@ public class KernelAdapter extends Thread
      *  <p>And that's why this note is here.  DefaultServer does a rudimentary
      *  per-connection locking but it couldn't possibly guard against
      *  out of order Envelope processing.</p>    
+     *
+     *  @param p the endpoint that sent the message
+     *  @param m the decoded message
      */
     protected void dispatch( Endpoint p, Message m )
     {
@@ -193,6 +244,12 @@ public class KernelAdapter extends Thread
         }
     }
 
+    /**
+     * Returns the message buffer used to accumulate bytes for an endpoint.
+     *
+     * @param p the endpoint supplying bytes
+     * @return the message buffer for that endpoint
+     */
     protected MessageBuffer getMessageBuffer( Endpoint p )
     {
         if( !reliable ) {
@@ -213,6 +270,11 @@ public class KernelAdapter extends Thread
         }
     }
 
+    /**
+     * Decodes an envelope into messages and dispatches them.
+     *
+     * @param env the received envelope
+     */
     protected void createAndDispatch( Envelope env )
     {
         MessageBuffer protocol = getMessageBuffer(env.getSource()); 
@@ -244,6 +306,11 @@ public class KernelAdapter extends Thread
         }
     } 
 
+    /**
+     * Handles a kernel endpoint event.
+     *
+     * @param event the endpoint event
+     */
     protected void createAndDispatch( EndpointEvent event )
     {
         // Only need to tell the server about disconnects 
@@ -252,6 +319,9 @@ public class KernelAdapter extends Thread
         }            
     }
  
+    /**
+     * Drains and processes all currently queued kernel events.
+     */
     protected void flushEvents()
     {
         EndpointEvent event;
@@ -298,5 +368,3 @@ public class KernelAdapter extends Thread
     }
         
 }
-
-

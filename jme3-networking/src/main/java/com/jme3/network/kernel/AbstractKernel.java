@@ -65,10 +65,18 @@ public abstract class AbstractKernel implements Kernel
      */
     private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<>();
 
+    /**
+     * Creates a kernel base with empty event and envelope queues.
+     */
     protected AbstractKernel()
     {
     }
 
+    /**
+     * Reports an internal kernel error.
+     *
+     * @param e the error to report
+     */
     protected void reportError( Exception e )
     {
         // Should really be queued up so the outer thread can
@@ -76,6 +84,9 @@ public abstract class AbstractKernel implements Kernel
         log.log( Level.SEVERE, "Unhandled kernel error", e );
     }
 
+    /**
+     * Wakes a waiting reader by enqueueing the {@link #EVENTS_PENDING} marker if needed.
+     */
     protected void wakeupReader() {
         // If there are no pending messages then add one so that the
         // kernel-user knows to wake up if it is only listening for
@@ -88,6 +99,11 @@ public abstract class AbstractKernel implements Kernel
         }
     }
 
+    /**
+     * Returns the next unique endpoint identifier.
+     *
+     * @return the next endpoint id
+     */
     protected long nextEndpointId()
     {
         return nextId.getAndIncrement();
@@ -122,11 +138,21 @@ public abstract class AbstractKernel implements Kernel
         return endpointEvents.poll();
     }
 
+    /**
+     * Adds an endpoint event to the pending event queue.
+     *
+     * @param e the event to enqueue
+     */
     protected void addEvent( EndpointEvent e )
     {
         endpointEvents.add( e );
     }
 
+    /**
+     * Adds an envelope to the pending message queue.
+     *
+     * @param env the envelope to enqueue
+     */
     protected void addEnvelope( Envelope env )
     {
         if( !envelopes.offer( env ) ) {

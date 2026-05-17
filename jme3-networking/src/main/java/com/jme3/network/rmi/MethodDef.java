@@ -39,6 +39,11 @@ package com.jme3.network.rmi;
  * @author Kirill Vainer
  */
 public class MethodDef {
+    /**
+     * Creates an empty method definition.
+     */
+    public MethodDef() {
+    }
 
     /**
      * Method name

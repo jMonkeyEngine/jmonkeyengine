@@ -60,6 +60,11 @@ public class GreedyMessageBuffer implements MessageBuffer {
     private int size;
     private Byte carry;
     
+    /**
+     * Creates a greedy message buffer for the specified protocol.
+     *
+     * @param protocol the protocol used to deserialize complete messages
+     */
     public GreedyMessageBuffer( MessageProtocol protocol ) {
         this.protocol = protocol;
     }
@@ -163,5 +168,4 @@ public class GreedyMessageBuffer implements MessageBuffer {
         }
     }
 }
-
 

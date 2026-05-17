@@ -57,6 +57,11 @@ public class LazyMessageBuffer implements MessageBuffer {
     private int size;
     private Byte carry;
     
+    /**
+     * Creates a lazy message buffer for the specified protocol.
+     *
+     * @param protocol the protocol used to deserialize buffered messages
+     */
     public LazyMessageBuffer( MessageProtocol protocol ) {
         this.protocol = protocol;
     }
@@ -181,5 +186,4 @@ public class LazyMessageBuffer implements MessageBuffer {
         }
     }
 }
-
 
