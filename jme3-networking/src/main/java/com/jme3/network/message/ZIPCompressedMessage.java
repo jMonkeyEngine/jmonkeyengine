@@ -73,8 +73,8 @@ public class ZIPCompressedMessage extends CompressedMessage {
 
     /**
      * Set the default compression level for newly created ZIP compressed messages,
-     * where 1 is the best compression but slower and 9 is the weakest compression
-     * but the quickest. Default is 6.
+     * where 1 is the weakest compression but quickest and 9 is the best
+     * compression but slowest. Default is 6.
      *
      * @param level The level.
      */
