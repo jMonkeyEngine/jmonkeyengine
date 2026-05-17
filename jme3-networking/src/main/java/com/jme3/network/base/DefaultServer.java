@@ -392,7 +392,7 @@ public class DefaultServer implements Server
     }            
 
     /**
-     * Returns the internal channel index for the specified adapter.
+     * Returns the internal channel index for the specified adapter or -1 if not found
      *
      * @param ka the kernel adapter
      * @return the adapter index
