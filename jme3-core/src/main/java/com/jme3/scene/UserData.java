@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * <code>UserData</code> is used to contain user data objects
@@ -74,8 +75,14 @@ public final class UserData implements Savable {
     private static final int   TYPE_SHORT        = 10;
     private static final int   TYPE_BYTE         = 11;
 
+    private static final AtomicLong uniqueIdCounter = new AtomicLong(0);
+
+    private static final String LEGACY_PREFIX = "0";
+
     protected byte             type;
     protected Object           value;
+
+    private transient volatile String uniqueId;
 
     public UserData() {
     }
@@ -102,6 +109,17 @@ public final class UserData implements Savable {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+  /**
+   * Prefix for list/map/array fields in the export capsule.
+   * Legacy files use "0" / "1"; new files use "udN_0" / "udN_1" (no ':' for XML).
+   */
+    private String listFieldPrefix(int index) {
+        if (LEGACY_PREFIX.equals(uniqueId)) {
+            return String.valueOf(index);
+        }
+        return uniqueId + "_" + index;
     }
 
     public static byte getObjectType(Object type) {
@@ -138,7 +156,16 @@ public final class UserData implements Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
-        
+
+        if (uniqueId == null) {
+            synchronized (this) {
+                if (uniqueId == null) {
+                    uniqueId = "ud" + uniqueIdCounter.incrementAndGet();
+                }
+            }
+        }
+        oc.write(uniqueId, "uniqueId", null);
+
         switch (type) {
             case TYPE_INTEGER:
                 int i = (Integer) value;
@@ -165,15 +192,15 @@ public final class UserData implements Savable {
                 oc.write(sav, "savableVal", null);
                 break;
             case TYPE_LIST:
-                this.writeList(oc, (List<?>) value, "0");
+                this.writeList(oc, (List<?>) value, listFieldPrefix(0));
                 break;
             case TYPE_MAP:
                 Map<?, ?> map = (Map<?, ?>) value;
-                this.writeList(oc, map.keySet(), "0");
-                this.writeList(oc, map.values(), "1");
+                this.writeList(oc, map.keySet(), listFieldPrefix(0));
+                this.writeList(oc, map.values(), listFieldPrefix(1));
                 break;
             case TYPE_ARRAY:
-                this.writeList(oc, Arrays.asList((Object[]) value), "0");
+                this.writeList(oc, Arrays.asList((Object[]) value), listFieldPrefix(0));
                 break;
             case TYPE_DOUBLE:
                 Double d = (Double) value;
@@ -196,6 +223,12 @@ public final class UserData implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
+
+        uniqueId = ic.readString("uniqueId", null);
+        if (uniqueId == null) {
+            uniqueId = LEGACY_PREFIX;
+        }
+
         switch (type) {
             case TYPE_INTEGER:
                 value = ic.readInt("intVal", 0);
@@ -216,19 +249,19 @@ public final class UserData implements Savable {
                 value = ic.readSavable("savableVal", null);
                 break;
             case TYPE_LIST:
-                value = this.readList(ic, "0");
+                value = this.readList(ic, listFieldPrefix(0));
                 break;
             case TYPE_MAP:
                 Map<Object, Object> map = new HashMap<>();
-                List<?> keys = this.readList(ic, "0");
-                List<?> values = this.readList(ic, "1");
+                List<?> keys = this.readList(ic, listFieldPrefix(0));
+                List<?> values = this.readList(ic, listFieldPrefix(1));
                 for (int i = 0; i < keys.size(); ++i) {
                     map.put(keys.get(i), values.get(i));
                 }
                 value = map;
                 break;
             case TYPE_ARRAY:
-                value = this.readList(ic, "0").toArray();
+                value = this.readList(ic, listFieldPrefix(0)).toArray();
                 break;
             case TYPE_DOUBLE:
                 value = ic.readDouble("doubleVal", 0.);
