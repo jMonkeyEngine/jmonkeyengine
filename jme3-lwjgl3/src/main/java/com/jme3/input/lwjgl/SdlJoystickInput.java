@@ -201,6 +201,7 @@ public class SdlJoystickInput implements JoyInput {
         // clear all states associated with this joystick
         joyButtonPressed.entrySet().removeIf(e -> e.getKey().getJoystick() == joystick);
         joyAxisValues.entrySet().removeIf(e -> e.getKey().getJoystick() == joystick);
+        stopJoyRumble(joystick.getJoyId());
         joysticks.remove(deviceIndex);
 
         // free resources
@@ -214,7 +215,10 @@ public class SdlJoystickInput implements JoyInput {
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
 
-        for (SdlJoystick js : joysticks.values()) destroyJoystick(js);
+        for (SdlJoystick js : joysticks.values()) {
+            stopJoyRumble(js.getJoyId());
+            destroyJoystick(js);
+        }
         joysticks.clear();
 
         joyButtonPressed.clear();
@@ -225,8 +229,9 @@ public class SdlJoystickInput implements JoyInput {
             IntBuffer gamepads = SDL_GetGamepads();
             if (gamepads != null) {
                 try {
-                    while (gamepads.hasRemaining()) {
-                        int deviceId = gamepads.get();
+                    IntBuffer gamepadIds = gamepads.duplicate();
+                    while (gamepadIds.hasRemaining()) {
+                        int deviceId = gamepadIds.get();
                         onDeviceConnected(inputManager, deviceId, true);
                     }
                 } finally {
@@ -240,8 +245,9 @@ public class SdlJoystickInput implements JoyInput {
             IntBuffer joys = SDL_GetJoysticks();
             if (joys != null) {
                 try {
-                    while (joys.hasRemaining()) {
-                        int deviceId = joys.get();
+                    IntBuffer joystickIds = joys.duplicate();
+                    while (joystickIds.hasRemaining()) {
+                        int deviceId = joystickIds.get();
                         onDeviceConnected(inputManager, deviceId, false);
                     }
                 } finally {
@@ -378,21 +384,43 @@ public class SdlJoystickInput implements JoyInput {
 
     @Override
     public void setJoyRumble(int joyId, float amount) {
-        setJoyRumble(joyId, amount, amount, 100f / 1000f);
+        setJoyRumble(joyId, amount, amount, Float.POSITIVE_INFINITY);
     }
 
-    public void setJoyRumble(int joyId, float highFrequency, float lowFrequency, float duration) {
+    @Override
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
         SdlJoystick js = joysticks.get(joyId);
         if (js == null) return;
 
-        highFrequency = FastMath.clamp(highFrequency, 0f, 1f);
-        lowFrequency = FastMath.clamp(lowFrequency, 0f, 1f);
+        amountHigh = FastMath.clamp(amountHigh, 0f, 1f);
+        amountLow = FastMath.clamp(amountLow, 0f, 1f);
 
+        int durationMs = 0;
+        if (duration == Float.POSITIVE_INFINITY) {
+            durationMs = 21 * 24 * 60 * 60 * 1000; 
+        }else if (duration <= 0f) {
+            durationMs = 0;
+        } else{
+            durationMs = Math.max(1, (int) (duration * 1000f));
+        }
+
+        int ampLow = (int) (amountLow * 0xFFFF);
+        int ampHigh = (int) (amountHigh * 0xFFFF);
         if (js.isGamepad() && js.gamepad != 0L) {
-            int ampHigh = (int) (highFrequency * 0xFFFF);
-            int ampLow = (int) (lowFrequency * 0xFFFF);
-            int durationMs = (int) (duration * 1000f);
-            SDL_RumbleGamepad(js.gamepad, (short) ampHigh, (short) ampLow, durationMs);
+            SDL_RumbleGamepad(js.gamepad, (short) ampLow, (short) ampHigh, durationMs);
+        } else if (js.joystick != 0L) {
+            SDL_RumbleJoystick(js.joystick, (short) ampLow, (short) ampHigh, durationMs);
+        }
+    }
+
+    @Override
+    public void stopJoyRumble(int joyId) {
+        SdlJoystick js = joysticks.get(joyId);
+        if (js == null) return;
+        if (js.isGamepad() && js.gamepad != 0L) {
+            SDL_RumbleGamepad(js.gamepad, (short) 0, (short) 0, 0);
+        } else if (js.joystick != 0L) {
+            SDL_RumbleJoystick(js.joystick, (short) 0, (short) 0, 0);
         }
     }
 
@@ -539,6 +567,7 @@ public class SdlJoystickInput implements JoyInput {
     public void destroy() {
         // Close devices
         for (SdlJoystick js : joysticks.values()) {
+            stopJoyRumble(js.getJoyId());
             if (js.gamepad != 0L) SDL_CloseGamepad(js.gamepad);
             if (js.joystick != 0L) SDL_CloseJoystick(js.joystick);
         }

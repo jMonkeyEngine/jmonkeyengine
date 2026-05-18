@@ -46,6 +46,7 @@ import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,10 +67,15 @@ public class JInputJoyInput implements JoyInput {
     private RawInputListener listener;
 
     private Map<Controller, JInputJoystick> joystickIndex = new HashMap<>();
+    private Map<Integer, Long> rumbleStopTimes = new HashMap<>();
 
     @Override
     public void setJoyRumble(int joyId, float amount){
+        rumbleStopTimes.remove(joyId);
+        applyJoyRumble(joyId, amount);
+    }
 
+    private void applyJoyRumble(int joyId, float amount) {
         if( joyId >= joysticks.length )
             throw new IllegalArgumentException();
 
@@ -80,7 +86,37 @@ public class JInputJoyInput implements JoyInput {
     }
 
     @Override
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        float amount = Math.max(amountHigh, amountLow);
+        if (amount <= 0f || !(duration > 0f)) {
+            stopJoyRumble(joyId);
+            return;
+        }
+
+        applyJoyRumble(joyId, amount);
+        if (duration == Float.POSITIVE_INFINITY) {
+            rumbleStopTimes.remove(joyId);
+        } else {
+            long durationNanos = Math.max(1L, (long) (duration * 1_000_000_000L));
+            rumbleStopTimes.put(joyId, System.nanoTime() + durationNanos);
+        }
+    }
+
+    @Override
+    public void stopJoyRumble(int joyId) {
+        rumbleStopTimes.remove(joyId);
+        applyJoyRumble(joyId, 0f);
+    }
+
+    @Override
     public Joystick[] loadJoysticks(InputManager inputManager){
+        if (joysticks != null) {
+            for (JInputJoystick joystick : joysticks) {
+                applyJoyRumble(joystick.getJoyId(), 0f);
+            }
+        }
+        rumbleStopTimes.clear();
+
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
 
@@ -122,6 +158,8 @@ public class JInputJoyInput implements JoyInput {
 
     @Override
     public void update() {
+        updateTimedRumbles();
+
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
 
@@ -189,8 +227,26 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    private void updateTimedRumbles() {
+        long now = System.nanoTime();
+        Iterator<Map.Entry<Integer, Long>> iterator = rumbleStopTimes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Long> entry = iterator.next();
+            if (now >= entry.getValue()) {
+                applyJoyRumble(entry.getKey(), 0f);
+                iterator.remove();
+            }
+        }
+    }
+
     @Override
     public void destroy() {
+        if (joysticks != null) {
+            for (JInputJoystick joystick : joysticks) {
+                applyJoyRumble(joystick.getJoyId(), 0f);
+            }
+        }
+        rumbleStopTimes.clear();
         initialized = false;
     }
 
@@ -357,6 +413,3 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 }
-
-
-

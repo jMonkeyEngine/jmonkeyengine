@@ -92,6 +92,16 @@ public abstract class AbstractJoystick implements Joystick {
         joyInput.setJoyRumble(joyId, amount);
     }
 
+    @Override
+    public void rumble(float amountHigh, float amountLow, float duration) {
+        joyInput.setJoyRumble(joyId, amountHigh, amountLow, duration);
+    }
+
+    @Override
+    public void stopRumble() {
+        joyInput.stopJoyRumble(joyId);
+    }
+
     /**
      * Assign the mapping name to receive events from the given button index
      * on the joystick.

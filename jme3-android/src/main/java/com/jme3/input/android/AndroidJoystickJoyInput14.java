@@ -47,6 +47,7 @@ import com.jme3.input.JoystickButton;
 import com.jme3.input.JoystickCompatibilityMappings;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.system.android.AndroidHapticFeedback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +97,7 @@ public class AndroidJoystickJoyInput14 {
 
 
     public void pauseJoysticks() {
-
+        stopAllRumble();
     }
 
     public void resumeJoysticks() {
@@ -104,7 +105,7 @@ public class AndroidJoystickJoyInput14 {
     }
 
     public void destroy() {
-
+        stopAllRumble();
     }
 
     public List<Joystick> loadJoysticks(int joyId, InputManager inputManager) {
@@ -245,6 +246,48 @@ public class AndroidJoystickJoyInput14 {
         return consumed;
     }
 
+    public boolean setJoyRumble(int joyId, float amount) {
+        AndroidJoystick joystick = getJoystick(joyId);
+        if (joystick == null || !joystick.isHapticFeedbackSupported()) {
+            return false;
+        }
+        joystick.rumble(amount);
+        return true;
+    }
+
+    public boolean setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        AndroidJoystick joystick = getJoystick(joyId);
+        if (joystick == null || !joystick.isHapticFeedbackSupported()) {
+            return false;
+        }
+        joystick.rumble(amountHigh, amountLow, duration);
+        return true;
+    }
+
+    public boolean stopJoyRumble(int joyId) {
+        AndroidJoystick joystick = getJoystick(joyId);
+        if (joystick == null || !joystick.isHapticFeedbackSupported()) {
+            return false;
+        }
+        joystick.stopRumble();
+        return true;
+    }
+
+    private AndroidJoystick getJoystick(int joyId) {
+        for (AndroidJoystick joystick : joystickIndex.values()) {
+            if (joystick.getJoyId() == joyId) {
+                return joystick;
+            }
+        }
+        return null;
+    }
+
+    private void stopAllRumble() {
+        for (AndroidJoystick joystick : joystickIndex.values()) {
+            joystick.stopRumble();
+        }
+    }
+
     protected class AndroidJoystick extends AbstractJoystick {
 
         private JoystickAxis nullAxis;
@@ -276,6 +319,30 @@ public class AndroidJoystickJoyInput14 {
 
         protected Set<Integer> getAndroidAxes() {
             return axisIndex.keySet();
+        }
+
+        @SuppressWarnings("deprecation")
+        private android.os.Vibrator getVibrator() {
+            return device.getVibrator();
+        }
+
+        protected boolean isHapticFeedbackSupported() {
+            return AndroidHapticFeedback.isSupported(getVibrator());
+        }
+
+        @Override
+        public void rumble(float amount) {
+            AndroidHapticFeedback.rumble(getVibrator(), amount, amount, Float.POSITIVE_INFINITY);
+        }
+
+        @Override
+        public void rumble(float amountHigh, float amountLow, float duration) {
+            AndroidHapticFeedback.rumble(getVibrator(), amountHigh, amountLow, duration);
+        }
+
+        @Override
+        public void stopRumble() {
+            AndroidHapticFeedback.stop(getVibrator());
         }
 
         protected JoystickButton getButton(int keyCode) {

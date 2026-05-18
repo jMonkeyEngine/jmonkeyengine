@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import com.jme3.input.InputManager;
 import com.jme3.input.Joystick;
+import com.jme3.system.JmeSystem;
 import java.util.logging.Logger;
 
 /**
@@ -95,6 +96,33 @@ public class AndroidJoyInput14 extends AndroidJoyInput {
         joystickList.addAll(joystickJoyInput.loadJoysticks(joystickList.size(), inputManager));
         // return the list of joysticks back to InputManager
         return joystickList.toArray( new Joystick[joystickList.size()] );
+    }
+
+    @Override
+    public void setJoyRumble(int joyId, float amount) {
+        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
+            super.setJoyRumble(joyId, amount);
+        } else {
+            joystickJoyInput.setJoyRumble(joyId, amount);
+        }
+    }
+
+    @Override
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
+            super.setJoyRumble(joyId, amountHigh, amountLow, duration);
+        } else {
+            joystickJoyInput.setJoyRumble(joyId, amountHigh, amountLow, duration);
+        }
+    }
+
+    @Override
+    public void stopJoyRumble(int joyId) {
+        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
+            super.stopJoyRumble(joyId);
+        } else {
+            joystickJoyInput.stopJoyRumble(joyId);
+        }
     }
 
     public boolean onGenericMotion(MotionEvent event) {

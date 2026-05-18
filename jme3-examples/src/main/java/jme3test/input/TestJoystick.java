@@ -29,6 +29,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,6 +44,7 @@ public class TestJoystick extends SimpleApplication {
     private Node joystickInfo;
     private float yInfo = 0;
     private JoystickButton lastButton;
+    private static final float SHORT_RUMBLE_TIME = 0.4f;
 
     public static void main(String[] args){
         TestJoystick app = new TestJoystick();
@@ -62,11 +65,16 @@ public class TestJoystick extends SimpleApplication {
             throw new IllegalStateException("Cannot find any joysticks!");
 
         try {
-            PrintWriter out = new PrintWriter( new FileWriter( "joysticks-" + System.currentTimeMillis() + ".txt" ) );
-            dumpJoysticks( joysticks, out );
-            out.close();
+            File storageFolder = JmeSystem.getStorageFolder();
+            if (storageFolder != null) {
+                storageFolder.mkdirs();
+            }
+            File dumpFile = new File(storageFolder, "joysticks-" + System.currentTimeMillis() + ".txt");
+            try (PrintWriter out = new PrintWriter(new FileWriter(dumpFile))) {
+                dumpJoysticks(joysticks, out);
+            }
         } catch( IOException e ) {
-            throw new RuntimeException( "Error writing joystick dump", e );
+            System.err.println( "Error writing joystick dump: " + e );
         }   
 
 
@@ -137,6 +145,7 @@ public class TestJoystick extends SimpleApplication {
             yInfo = 0;
  
             addInfo(  "Joystick:\"" + stick.getName() + "\"  id:" + stick.getJoyId(), 0 );
+            addInfo(  "Rumble: buttons=joystick, dpad=device", 0 );
  
             yInfo -= 5;
                        
@@ -156,6 +165,118 @@ public class TestJoystick extends SimpleApplication {
             }
             
         } 
+    }
+
+    protected void handleRumbleButton(JoystickButton button, boolean pressed) {
+        String logicalId = button.getLogicalId();
+        if (isDpadButton(logicalId)) {
+            handleDeviceRumbleButton(logicalId, pressed);
+            return;
+        }
+
+        Joystick joystick = button.getJoystick();
+        if (JoystickButton.BUTTON_XBOX_B.equals(logicalId)) {
+            if (pressed) {
+                joystick.rumble(1f, 0.35f, SHORT_RUMBLE_TIME);
+            }
+            return;
+        }
+
+        if (!pressed) {
+            joystick.stopRumble();
+            return;
+        }
+
+        float[] pattern = getJoystickRumblePattern(button);
+        joystick.rumble(pattern[0], pattern[1], Float.POSITIVE_INFINITY);
+    }
+
+    protected void handleTriggerRumble(JoystickAxis axis, float value) {
+        String logicalId = axis.getLogicalId();
+        if (!JoystickAxis.AXIS_XBOX_LEFT_TRIGGER.equals(logicalId)
+                && !JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER.equals(logicalId)) {
+            return;
+        }
+
+        Joystick joystick = axis.getJoystick();
+        if (value <= 0f) {
+            joystick.stopRumble();
+            return;
+        }
+
+        float amount = FastMath.clamp(value, 0f, 1f);
+        if (JoystickAxis.AXIS_XBOX_LEFT_TRIGGER.equals(logicalId)) {
+            joystick.rumble(0.25f + amount * 0.35f, amount, Float.POSITIVE_INFINITY);
+        } else {
+            joystick.rumble(amount, 0.25f + amount * 0.35f, Float.POSITIVE_INFINITY);
+        }
+    }
+
+    protected boolean isDpadButton(String logicalId) {
+        return JoystickButton.BUTTON_XBOX_DPAD_UP.equals(logicalId)
+                || JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(logicalId)
+                || JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(logicalId)
+                || JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(logicalId);
+    }
+
+    protected void handleDeviceRumbleButton(String logicalId, boolean pressed) {
+        if (!JmeSystem.isDeviceRumbleSupported()) {
+            return;
+        }
+        if (!pressed) {
+            JmeSystem.stopRumble();
+            return;
+        }
+
+        float high = 0.5f;
+        float low = 0.5f;
+        if (JoystickButton.BUTTON_XBOX_DPAD_UP.equals(logicalId)) {
+            high = 1f;
+            low = 0.2f;
+        } else if (JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(logicalId)) {
+            high = 0.2f;
+            low = 1f;
+        } else if (JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(logicalId)) {
+            high = 0.35f;
+            low = 0.35f;
+        } else if (JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(logicalId)) {
+            high = 0.75f;
+            low = 0.75f;
+        }
+
+        JmeSystem.rumble(high, low, Float.POSITIVE_INFINITY);
+    }
+
+    protected float[] getJoystickRumblePattern(JoystickButton button) {
+        String logicalId = button.getLogicalId();
+        if (JoystickButton.BUTTON_XBOX_A.equals(logicalId)) {
+            return new float[]{1f, 1f};
+        } else if (JoystickButton.BUTTON_XBOX_X.equals(logicalId)) {
+            return new float[]{0.25f, 1f};
+        } else if (JoystickButton.BUTTON_XBOX_Y.equals(logicalId)) {
+            return new float[]{1f, 0.25f};
+        } else if (JoystickButton.BUTTON_XBOX_LB.equals(logicalId)) {
+            return new float[]{0.15f, 0.7f};
+        } else if (JoystickButton.BUTTON_XBOX_RB.equals(logicalId)) {
+            return new float[]{0.7f, 0.15f};
+        } else if (JoystickButton.BUTTON_XBOX_LT.equals(logicalId)) {
+            return new float[]{0.45f, 0.9f};
+        } else if (JoystickButton.BUTTON_XBOX_RT.equals(logicalId)) {
+            return new float[]{0.9f, 0.45f};
+        } else if (JoystickButton.BUTTON_XBOX_BACK.equals(logicalId)) {
+            return new float[]{0.3f, 0.3f};
+        } else if (JoystickButton.BUTTON_XBOX_START.equals(logicalId)) {
+            return new float[]{0.6f, 0.6f};
+        } else if (JoystickButton.BUTTON_XBOX_L3.equals(logicalId)) {
+            return new float[]{0.2f, 0.5f};
+        } else if (JoystickButton.BUTTON_XBOX_R3.equals(logicalId)) {
+            return new float[]{0.5f, 0.2f};
+        }
+
+        int index = Math.abs(button.getButtonId());
+        float high = 0.2f + (index % 5) * 0.16f;
+        float low = 1f - (index % 4) * 0.18f;
+        return new float[]{high, low};
     }
 
     /**
@@ -184,9 +305,9 @@ public class TestJoystick extends SimpleApplication {
             }         
             setViewedJoystick( evt.getAxis().getJoystick() );            
             gamepad.setAxisValue( evt.getAxis(), value );
+            handleTriggerRumble(evt.getAxis(), value);
             if( value != 0 ) {
                 lastValues.put(evt.getAxis(), value);
-                evt.getAxis().getJoystick().rumble(0.5f);
             } 
         }
 
@@ -194,7 +315,7 @@ public class TestJoystick extends SimpleApplication {
         public void onJoyButtonEvent(JoyButtonEvent evt) {
             setViewedJoystick( evt.getButton().getJoystick() );
             gamepad.setButtonValue( evt.getButton(), evt.isPressed() ); 
-            evt.getButton().getJoystick().rumble(1f);
+            handleRumbleButton(evt.getButton(), evt.isPressed());
         }
 
         @Override
