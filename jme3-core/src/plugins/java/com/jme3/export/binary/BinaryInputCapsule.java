@@ -959,6 +959,10 @@ final class BinaryInputCapsule implements InputCapsule {
         }
         bytes = ByteUtils.rightAlignBytes(bytes, 8);
         long value = ByteUtils.convertLongFromBytes(bytes);
+        if (value == BinaryOutputCapsule.NULL_OBJECT
+                || value == BinaryOutputCapsule.DEFAULT_OBJECT) {
+            index -= 4;
+        }
         return value;
     }
 
