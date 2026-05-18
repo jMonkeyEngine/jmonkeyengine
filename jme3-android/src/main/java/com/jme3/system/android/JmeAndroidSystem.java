@@ -215,11 +215,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     }
 
     @Override
-    public void rumble(float amount) {
-        AndroidHapticFeedback.rumble(getVibrator(), amount, amount, Float.POSITIVE_INFINITY);
-    }
-
-    @Override
     public void rumble(float amountHigh, float amountLow, float duration) {
         AndroidHapticFeedback.rumble(getVibrator(), amountHigh, amountLow, duration);
     }

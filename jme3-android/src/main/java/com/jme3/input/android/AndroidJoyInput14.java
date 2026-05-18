@@ -99,15 +99,6 @@ public class AndroidJoyInput14 extends AndroidJoyInput {
     }
 
     @Override
-    public void setJoyRumble(int joyId, float amount) {
-        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
-            super.setJoyRumble(joyId, amount);
-        } else {
-            joystickJoyInput.setJoyRumble(joyId, amount);
-        }
-    }
-
-    @Override
     public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
         if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
             super.setJoyRumble(joyId, amountHigh, amountLow, duration);

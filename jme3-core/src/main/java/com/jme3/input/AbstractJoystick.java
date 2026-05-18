@@ -82,16 +82,6 @@ public abstract class AbstractJoystick implements Joystick {
         buttons.add(button);
     }
 
-    /**
-     * Rumbles the joystick for the given amount/magnitude.
-     *
-     * @param amount The amount to rumble. Should be between 0 and 1.
-     */
-    @Override
-    public void rumble(float amount) {
-        joyInput.setJoyRumble(joyId, amount);
-    }
-
     @Override
     public void rumble(float amountHigh, float amountLow, float duration) {
         joyInput.setJoyRumble(joyId, amountHigh, amountLow, duration);

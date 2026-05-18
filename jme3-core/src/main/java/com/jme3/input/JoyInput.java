@@ -56,7 +56,9 @@ public interface JoyInput extends Input {
      * @param joyId The joystick index
      * @param amount Rumble amount. Should be between 0 and 1.
      */
-    public void setJoyRumble(int joyId, float amount);
+    public default void setJoyRumble(int joyId, float amount) {
+        setJoyRumble(joyId, amount, amount, Float.POSITIVE_INFINITY);
+    }
 
     /**
      * Causes the joystick at <code>joyId</code> index to rumble with
@@ -67,9 +69,7 @@ public interface JoyInput extends Input {
      * @param amountLow Low frequency rumble amount. Should be between 0 and 1.
      * @param duration Rumble duration in seconds.
      */
-    public default void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
-        setJoyRumble(joyId, Math.max(amountHigh, amountLow));
-    }
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration);
 
     /**
      * Stops any rumble currently playing on the joystick at <code>joyId</code>.

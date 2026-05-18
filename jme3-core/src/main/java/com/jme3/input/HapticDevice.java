@@ -44,7 +44,9 @@ public interface HapticDevice {
      *
      * @param amount the amount to rumble, between 0 and 1
      */
-    void rumble(float amount);
+    default void rumble(float amount) {
+        rumble(amount, amount, Float.POSITIVE_INFINITY);
+    }
 
     /**
      * Rumbles the device with separate high and low frequency amounts for the

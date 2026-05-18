@@ -383,11 +383,6 @@ public class SdlJoystickInput implements JoyInput {
     }
 
     @Override
-    public void setJoyRumble(int joyId, float amount) {
-        setJoyRumble(joyId, amount, amount, Float.POSITIVE_INFINITY);
-    }
-
-    @Override
     public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
         SdlJoystick js = joysticks.get(joyId);
         if (js == null) return;

@@ -163,11 +163,6 @@ public abstract class JmeSystemDelegate implements HapticDevice {
     public void rumble(float amountHigh, float amountLow, float duration) {
     }
 
-
-    @Override
-    public void rumble(float amount) {
-    }
-
     public final AssetManager newAssetManager(URL configFile) {
         return new DesktopAssetManager(configFile);
     }

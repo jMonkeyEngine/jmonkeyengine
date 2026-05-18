@@ -69,12 +69,6 @@ public class JInputJoyInput implements JoyInput {
     private Map<Controller, JInputJoystick> joystickIndex = new HashMap<>();
     private Map<Integer, Long> rumbleStopTimes = new HashMap<>();
 
-    @Override
-    public void setJoyRumble(int joyId, float amount){
-        rumbleStopTimes.remove(joyId);
-        applyJoyRumble(joyId, amount);
-    }
-
     private void applyJoyRumble(int joyId, float amount) {
         if( joyId >= joysticks.length )
             throw new IllegalArgumentException();

@@ -173,13 +173,6 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     @Override
-    public void setJoyRumble(int joyId, float amount) {
-        if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
-            JmeSystem.rumble(amount);
-        }
-    }
-
-    @Override
     public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
         if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
             JmeSystem.rumble(amountHigh, amountLow, duration);
