@@ -125,7 +125,7 @@ public class AndroidJoyInput implements JoyInput {
             sensorJoyInput.pauseSensors();
         }
         if (onDeviceJoystickRumble) {
-            JmeSystem.rumble(0f);
+            JmeSystem.stopRumble();
         }
 
     }

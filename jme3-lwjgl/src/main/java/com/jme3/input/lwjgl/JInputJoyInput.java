@@ -44,10 +44,10 @@ import com.jme3.input.JoystickCompatibilityMappings;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.math.FastMath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import com.jme3.math.FastMath;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -223,6 +223,9 @@ public class JInputJoyInput implements JoyInput {
     }
 
     private void updateTimedRumbles() {
+        if (rumbleStopTimes.isEmpty()) {
+            return;
+        }
         long now = System.nanoTime();
         Iterator<Map.Entry<Integer, Long>> iterator = rumbleStopTimes.entrySet().iterator();
         while (iterator.hasNext()) {

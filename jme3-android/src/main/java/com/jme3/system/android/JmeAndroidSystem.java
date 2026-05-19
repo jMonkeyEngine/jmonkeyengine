@@ -33,6 +33,7 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static View view;
+    private static Vibrator vibrator;
 
     static {
         try {
@@ -203,6 +204,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static void setView(View view) {
         JmeAndroidSystem.view = view;
+        vibrator = null;
     }
 
     public static View getView() {
@@ -225,11 +227,16 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     }
 
     private static Vibrator getVibrator() {
+        if (vibrator != null) {
+            return vibrator;
+        }
+
         View currentView = view;
         if (currentView == null || currentView.getContext() == null) {
             return null;
         }
-        return (Vibrator) currentView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) currentView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        return vibrator;
     }
 
     @Override

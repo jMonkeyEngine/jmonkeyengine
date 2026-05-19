@@ -392,7 +392,7 @@ public class SdlJoystickInput implements JoyInput {
 
         int durationMs = 0;
         if (duration == Float.POSITIVE_INFINITY) {
-            durationMs = 21 * 24 * 60 * 60 * 1000;
+            durationMs = -1;
         } else if (duration <= 0f) {
             durationMs = 0;
         } else {
