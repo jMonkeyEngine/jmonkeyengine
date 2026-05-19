@@ -47,6 +47,7 @@ import com.jme3.input.event.JoyButtonEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import com.jme3.math.FastMath;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
