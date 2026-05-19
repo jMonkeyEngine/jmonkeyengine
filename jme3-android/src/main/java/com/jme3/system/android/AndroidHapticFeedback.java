@@ -42,6 +42,7 @@ import android.os.Vibrator;
  */
 public final class AndroidHapticFeedback {
 
+    private static final long PULSE_CYCLE_MS = 250L;
 
     private AndroidHapticFeedback() {
     }
@@ -80,14 +81,43 @@ public final class AndroidHapticFeedback {
                     int amplitude = Math.max(1, Math.round(amount * 255f));
                     vibrator.vibrate(VibrationEffect.createOneShot(durationMs, amplitude));
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE));
+                    vibrator.vibrate(VibrationEffect.createWaveform(createPulsePattern(amount, durationMs), -1));
                 } else {
-                    vibrator.vibrate(durationMs);
+                    vibrator.vibrate(createPulsePattern(amount, durationMs), -1);
                 }
             }
         } catch (SecurityException ignored) {
             // Applications without VIBRATE permission should degrade to no-op.
         }
+    }
+
+    private static long[] createPulsePattern(float amount, long durationMs) {
+        long rumbleOnDur = Math.max(1L, Math.round(amount * PULSE_CYCLE_MS));
+        long rumbleOffDur = Math.max(0L, PULSE_CYCLE_MS - rumbleOnDur);
+        long[] rumblePattern = new long[(int) Math.ceil((double) durationMs / PULSE_CYCLE_MS) * 2 + 1];
+
+        rumblePattern[0] = 0L;
+        long remainingMs = durationMs;
+        int patternIndex = 1;
+        while (remainingMs > 0L) {
+            long onDur = Math.min(rumbleOnDur, remainingMs);
+            rumblePattern[patternIndex++] = onDur;
+            remainingMs -= onDur;
+
+            if (remainingMs > 0L) {
+                long offDur = Math.min(rumbleOffDur, remainingMs);
+                rumblePattern[patternIndex++] = offDur;
+                remainingMs -= offDur;
+            }
+        }
+
+        if (patternIndex == rumblePattern.length) {
+            return rumblePattern;
+        }
+
+        long[] trimmedPattern = new long[patternIndex];
+        System.arraycopy(rumblePattern, 0, trimmedPattern, 0, patternIndex);
+        return trimmedPattern;
     }
 
     public static void stop(Vibrator vibrator) {
