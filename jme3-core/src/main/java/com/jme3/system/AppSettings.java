@@ -346,6 +346,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("JoysticksTriggerToButtonThreshold", 0.5f);
         defaults.put("JoysticksAxisJitterThreshold", 0.0001f);
         defaults.put("SDLGameControllerDBResourcePath", "");
+        defaults.put("OnDeviceJoystickRumble", false);
         //  defaults.put("Icons", null);
     }
 
@@ -796,6 +797,15 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setUseJoysticks(boolean use) {
         putBoolean("DisableJoysticks", !use);
+    }
+
+    /**
+     * @param enabled If true, joystick rumble requests may be redirected to
+     * the device rumble motor on supported platforms.
+     * (Default: false)
+     */
+    public void setOnDeviceJoystickRumble(boolean enabled) {
+        putBoolean("OnDeviceJoystickRumble", enabled);
     }
 
     /**
@@ -1266,6 +1276,16 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean useJoysticks() {
         return !getBoolean("DisableJoysticks");
+    }
+
+    /**
+     * Get whether joystick rumble may be redirected to device rumble.
+     *
+     * @return true to redirect joystick rumble to device rumble when supported
+     * @see #setOnDeviceJoystickRumble(boolean)
+     */
+    public boolean isOnDeviceJoystickRumble() {
+        return getBoolean("OnDeviceJoystickRumble");
     }
 
     /**

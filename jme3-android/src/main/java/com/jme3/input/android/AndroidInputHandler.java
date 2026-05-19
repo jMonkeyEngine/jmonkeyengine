@@ -111,6 +111,7 @@ public class AndroidInputHandler implements View.OnTouchListener,
 
     public void loadSettings(AppSettings settings) {
         touchInput.loadSettings(settings);
+        joyInput.loadSettings(settings);
     }
 
     public TouchInput getTouchInput() {

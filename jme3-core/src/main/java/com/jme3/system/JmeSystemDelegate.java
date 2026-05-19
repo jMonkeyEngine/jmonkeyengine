@@ -34,6 +34,7 @@ package com.jme3.system;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.input.HapticDevice;
 import com.jme3.input.SoftTextDialogInput;
 import com.jme3.util.res.Resources;
 
@@ -55,7 +56,7 @@ import java.util.logging.Logger;
  *
  * @author Kirill Vainer, normenhansen
  */
-public abstract class JmeSystemDelegate {
+public abstract class JmeSystemDelegate implements HapticDevice {
 
     protected final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     protected boolean initialized = false;
@@ -152,6 +153,14 @@ public abstract class JmeSystemDelegate {
     
     public SoftTextDialogInput getSoftTextDialogInput() {
         return softTextDialogInput;
+    }
+
+    public boolean isDeviceRumbleSupported() {
+        return false;
+    }
+
+    @Override
+    public void rumble(float amountHigh, float amountLow, float duration) {
     }
 
     public final AssetManager newAssetManager(URL configFile) {

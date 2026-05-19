@@ -125,6 +125,26 @@ public class JmeSystem {
         systemDelegate.showSoftKeyboard(show);
     }
 
+    public static boolean isDeviceRumbleSupported() {
+        checkDelegate();
+        return systemDelegate.isDeviceRumbleSupported();
+    }
+
+    public static void rumble(float amount) {
+        checkDelegate();
+        systemDelegate.rumble(amount);
+    }
+
+    public static void rumble(float amountHigh, float amountLow, float duration) {
+        checkDelegate();
+        systemDelegate.rumble(amountHigh, amountLow, duration);
+    }
+
+    public static void stopRumble() {
+        checkDelegate();
+        systemDelegate.stopRumble();
+    }
+
     public static SoftTextDialogInput getSoftTextDialogInput() {
         checkDelegate();
         return systemDelegate.getSoftTextDialogInput();

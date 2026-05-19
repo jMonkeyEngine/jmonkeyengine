@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import com.jme3.audio.AudioRenderer;
@@ -32,6 +33,7 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static View view;
+    private static Vibrator vibrator;
 
     static {
         try {
@@ -202,10 +204,39 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static void setView(View view) {
         JmeAndroidSystem.view = view;
+        vibrator = null;
     }
 
     public static View getView() {
         return view;
+    }
+
+    @Override
+    public boolean isDeviceRumbleSupported() {
+        return AndroidHapticFeedback.isSupported(getVibrator());
+    }
+
+    @Override
+    public void rumble(float amountHigh, float amountLow, float duration) {
+        AndroidHapticFeedback.rumble(getVibrator(), amountHigh, amountLow, duration);
+    }
+
+    @Override
+    public void stopRumble() {
+        AndroidHapticFeedback.stop(getVibrator());
+    }
+
+    private static Vibrator getVibrator() {
+        if (vibrator != null) {
+            return vibrator;
+        }
+
+        View currentView = view;
+        if (currentView == null || currentView.getContext() == null) {
+            return null;
+        }
+        vibrator = (Vibrator) currentView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        return vibrator;
     }
 
     @Override

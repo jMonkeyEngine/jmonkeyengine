@@ -31,9 +31,7 @@
  */
 package com.jme3.input.android;
 
-import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Vibrator;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
@@ -42,6 +40,7 @@ import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -55,9 +54,9 @@ import java.util.logging.Logger;
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
- * This handler also supports the joystick.rumble(rumbleAmount) method.  In this
- * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
- * if the device has a built-in vibrate motor.
+ * This handler also supports redirecting joystick.rumble(rumbleAmount) to the
+ * Android device vibrator if AppSettings#setOnDeviceJoystickRumble(boolean) is
+ * enabled and the device has a built-in vibrate motor.
  *
  * Because Android does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
@@ -92,9 +91,7 @@ public class AndroidJoyInput implements JoyInput {
     private RawInputListener listener = null;
     private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
-    private Vibrator vibrator = null;
-    private boolean vibratorActive = false;
-    private long maxRumbleTime = 250;  // 250ms
+    private boolean onDeviceJoystickRumble = false;
 
     public AndroidJoyInput(AndroidInputHandler inputHandler) {
         this.inputHandler = inputHandler;
@@ -102,23 +99,17 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     public void setView(GLSurfaceView view) {
-        if (view == null) {
-            vibrator = null;
-        } else {
-            // Get instance of Vibrator from current Context
-            vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator == null) {
-                logger.log(Level.FINE, "Vibrator Service not found.");
-            }
-        }
-
         if (sensorJoyInput != null) {
             sensorJoyInput.setView(view);
         }
     }
 
     public void loadSettings(AppSettings settings) {
+        onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
+    }
 
+    boolean isOnDeviceJoystickRumble() {
+        return onDeviceJoystickRumble;
     }
 
     public void addEvent(InputEvent event) {
@@ -133,8 +124,8 @@ public class AndroidJoyInput implements JoyInput {
         if (sensorJoyInput != null) {
             sensorJoyInput.pauseSensors();
         }
-        if (vibrator != null && vibratorActive) {
-            vibrator.cancel();
+        if (onDeviceJoystickRumble) {
+            JmeSystem.stopRumble();
         }
 
     }
@@ -182,28 +173,16 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     @Override
-    public void setJoyRumble(int joyId, float amount) {
-        // convert amount to pulses since Android doesn't allow intensity
-        if (vibrator != null) {
-            final long rumbleOnDur = (long)(amount * maxRumbleTime); // ms to pulse vibration on
-            final long rumbleOffDur = maxRumbleTime - rumbleOnDur; // ms to delay between pulses
-            final long[] rumblePattern = {
-                0, // start immediately
-                rumbleOnDur, // time to leave vibration on
-                rumbleOffDur // time to delay between vibrations
-            };
-            final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
+            JmeSystem.rumble(amountHigh, amountLow, duration);
+        }
+    }
 
-//            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
-//                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
-
-            if (rumbleOnDur > 0) {
-                vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
-                vibratorActive = true;
-            } else {
-                vibrator.cancel();
-                vibratorActive = false;
-            }
+    @Override
+    public void stopJoyRumble(int joyId) {
+        if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
+            JmeSystem.stopRumble();
         }
     }
 
