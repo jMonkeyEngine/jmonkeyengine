@@ -87,8 +87,6 @@ public final class AndroidHapticFeedback {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator.hasAmplitudeControl()) {
                     int amplitude = Math.max(1, Math.round(amount * 255f));
                     vibrator.vibrate(VibrationEffect.createOneShot(durationMs, amplitude));
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrateWithoutAmplitudeControl(vibrator, amount, durationMs);
                 } else {
                     vibrateWithoutAmplitudeControl(vibrator, amount, durationMs);
                 }
