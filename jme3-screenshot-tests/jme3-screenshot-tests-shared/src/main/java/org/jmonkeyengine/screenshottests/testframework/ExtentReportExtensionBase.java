@@ -41,6 +41,7 @@ import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
 
+import java.io.File;
 import java.util.Optional;
 
 /**
@@ -48,14 +49,15 @@ import java.util.Optional;
  *
  * @author Richard Tingle (aka richtea)
  */
-public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallback, TestWatcher, BeforeTestExecutionCallback{
+public abstract class ExtentReportExtensionBase{
     private static ExtentReports extent;
     private static ExtentTest currentTest;
 
-    @Override
-    public void beforeAll(ExtensionContext context) {
+    public abstract File reportPath();
+
+    protected void startReportIfNecessary() {
         if(extent==null){
-            ExtentSparkReporter spark = new ExtentSparkReporter("build/reports/ScreenshotDiffReport.html");
+            ExtentSparkReporter spark = new ExtentSparkReporter(reportPath());
             spark.config().setTheme(Theme.STANDARD);
             spark.config().setDocumentTitle("Screenshot Test Report");
             spark.config().setReportName("Screenshot Test Report");
@@ -66,8 +68,7 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
         ExtentReportLogCapture.initialize();
     }
 
-    @Override
-    public void afterAll(ExtensionContext context) {
+    public void completeReport() {
         /*
         * this writes the entire report after each test class. This sucks but I don't think there is
         * anywhere else I can hook into the lifecycle of the end of all tests to write the report.
@@ -78,30 +79,23 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
         ExtentReportLogCapture.restore();
     }
 
-    @Override
-    public void testSuccessful(ExtensionContext context) {
+    public void testSuccessful() {
         getCurrentTest().pass("Test passed");
     }
 
-    @Override
-    public void testFailed(ExtensionContext context, Throwable cause) {
+    public void testFailed(Throwable cause) {
         getCurrentTest().fail(cause);
     }
 
-    @Override
-    public void testAborted(ExtensionContext context, Throwable cause) {
+    public void testAborted(Throwable cause) {
         getCurrentTest().skip("Test aborted " + cause.toString());
     }
 
-    @Override
-    public void testDisabled(ExtensionContext context, Optional<String> reason) {
+    public void testDisabled(Optional<String> reason) {
         getCurrentTest().skip("Test disabled: " + reason.orElse("No reason"));
     }
 
-    @Override
-    public void beforeTestExecution(ExtensionContext context) {
-        String testName = context.getDisplayName();
-        String className = context.getRequiredTestClass().getSimpleName();
+    public void setUpForTest(String testName, String className){
         currentTest = extent.createTest(className + "." + testName);
     }
 

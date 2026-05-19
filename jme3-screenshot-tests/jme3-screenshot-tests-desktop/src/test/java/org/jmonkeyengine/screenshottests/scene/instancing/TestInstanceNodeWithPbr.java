@@ -43,7 +43,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,7 @@ import java.util.Locale;
  * @author Ryan McDonough - original test
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
-public class TestInstanceNodeWithPbr extends ScreenshotTestBase {
+public class TestInstanceNodeWithPbr extends ScreenshotTestDesktopBase {
 
     @Test
     public void testInstanceNodeWithPbr() {

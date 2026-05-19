@@ -55,7 +55,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.TextureArray;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -100,7 +100,7 @@ import java.util.stream.Stream;
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
 @SuppressWarnings("FieldCanBeLocal")
-public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
+public class TestPBRTerrainAdvanced extends ScreenshotTestDesktopBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(

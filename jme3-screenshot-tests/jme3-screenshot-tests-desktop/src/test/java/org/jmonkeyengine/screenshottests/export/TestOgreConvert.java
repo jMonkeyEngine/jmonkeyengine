@@ -45,7 +45,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +56,7 @@ import java.io.IOException;
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestOgreConvert extends ScreenshotTestBase {
+public class TestOgreConvert extends ScreenshotTestDesktopBase {
 
     /**
      * This tests loads an Ogre model, converts it to binary, and then reloads it.

@@ -19,6 +19,7 @@ androidx-fragment = "androidx.fragment:fragment:1.8.9"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
+androidx-storage = { module = "androidx.test.services:storage", version = "1.6.0" }
 androidxAppcompat = { module = "androidx.appcompat:appcompat", version = "1.4.0" }
 androidxConstraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.1.1" }
 androidx-test-core = "androidx.test:core:1.6.1"

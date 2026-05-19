@@ -43,14 +43,14 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestBitmapText3D  extends ScreenshotTestBase {
+public class TestBitmapText3D  extends ScreenshotTestDesktopBase {
 
     /**
      * This tests both that bitmap text is rendered correctly and that it is

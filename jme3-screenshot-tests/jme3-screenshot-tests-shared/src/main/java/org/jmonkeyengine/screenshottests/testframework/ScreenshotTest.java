@@ -34,7 +34,6 @@ package org.jmonkeyengine.screenshottests.testframework;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.aventstack.extentreports.ExtentTest;
-import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
@@ -95,6 +94,8 @@ public class ScreenshotTest{
 
     String baseImageFileName = null;
 
+    private AppRunner osSpecificRunner;
+
     public ScreenshotTest(AppState... initialStates){
         scenarios.add(new Scenario("SimpleSingleScenario", initialStates));
         framesToTakeScreenshotsOn.add(1); //default behaviour is to take a screenshot on the first frame
@@ -137,6 +138,7 @@ public class ScreenshotTest{
     }
 
     public void run(AppRunner osSpecificRunner){
+        this.osSpecificRunner = osSpecificRunner;
         AppSettings settings = new AppSettings(true);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
         settings.setAudioRenderer(null); // Disable audio (for headless)
@@ -167,7 +169,7 @@ public class ScreenshotTest{
             TestDriver testDriver = new TestDriver(scenario.scenarioName, framesToTakeScreenshotsOn);
             states.add(testDriver);
 
-            App app = new App(states.toArray(new AppState[0]));
+            TestContainingApp app = new TestContainingApp(states.toArray(new AppState[0]));
             app.setSettings(appSettings);
             app.setShowSettings(false);
             testDriver.waitLatch = new CountDownLatch(1);
@@ -207,7 +209,7 @@ public class ScreenshotTest{
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
                             }
-                            ExtentReportExtension.getCurrentTest().fail(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
+                            ExtentReportExtensionBase.getCurrentTest().fail(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
                         }
                     }
                 }
@@ -231,7 +233,7 @@ public class ScreenshotTest{
                         if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                             failureMessage = message;
                         }
-                        ExtentReportExtension.getCurrentTest().fail(message);
+                        ExtentReportExtensionBase.getCurrentTest().fail(message);
                         continue;
                     } catch(IOException e){
                         throw new RuntimeException(e);
@@ -243,7 +245,7 @@ public class ScreenshotTest{
 
                 if (imagesAreVerySimilar(img1, img2)) {
                     if(testType == TestType.KNOWN_TO_FAIL){
-                        ExtentReportExtension.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_SAME);
+                        ExtentReportExtensionBase.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_SAME);
                     }
                 } else {
                     //save the generated image to the build directory
@@ -258,13 +260,13 @@ public class ScreenshotTest{
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT;
                             }
-                            ExtentReportExtension.getCurrentTest().fail(IMAGES_ARE_DIFFERENT);
+                            ExtentReportExtensionBase.getCurrentTest().fail(IMAGES_ARE_DIFFERENT);
                             break;
                         case NON_DETERMINISTIC:
-                            ExtentReportExtension.getCurrentTest().warning(NON_DETERMINISTIC_TEST);
+                            ExtentReportExtensionBase.getCurrentTest().warning(NON_DETERMINISTIC_TEST);
                             break;
                         case KNOWN_TO_FAIL:
-                            ExtentReportExtension.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
+                            ExtentReportExtensionBase.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
                             break;
                     }
                 }
@@ -328,18 +330,18 @@ public class ScreenshotTest{
     /**
      * Attaches the image to the report. A copy of the image is made in the report directory
      */
-    private static void attachImage(String title, String fileName, Path originalImage) throws IOException{
-        ExtentTest test = ExtentReportExtension.getCurrentTest();
-        Files.copy(originalImage.toAbsolutePath(), Paths.get("build/reports/" + fileName), StandardCopyOption.REPLACE_EXISTING);
+    private void attachImage(String title, String fileName, Path originalImage) throws IOException{
+        ExtentTest test = ExtentReportExtensionBase.getCurrentTest();
+        Files.copy(originalImage.toAbsolutePath(), osSpecificRunner.getReportsDirectory().resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
         test.addScreenCaptureFromPath(fileName, title);
     }
 
     /**
      * Attaches the image to the report. The image is written to the report directory
      */
-    private static void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
-        ExtentTest test = ExtentReportExtension.getCurrentTest();
-        ImageIO.write(originalImage, "png", Paths.get("build/reports/" + fileName).toFile());
+    private void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
+        ExtentTest test = ExtentReportExtensionBase.getCurrentTest();
+        ImageIO.write(originalImage, "png", osSpecificRunner.getReportsDirectory().resolve(fileName).toFile());
         test.addScreenCaptureFromPath(fileName, title);
     }
 
@@ -350,8 +352,8 @@ public class ScreenshotTest{
      */
     private static boolean imagesAreVerySimilar(BufferedImage img1, BufferedImage img2) {
         if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
-            ExtentReportExtension.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
-            ExtentReportExtension.getCurrentTest().createNode("Image 2 size : " + img2.getWidth() + "x" + img2.getHeight());
+            ExtentReportExtensionBase.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
+            ExtentReportExtensionBase.getCurrentTest().createNode("Image 2 size : " + img2.getWidth() + "x" + img2.getHeight());
             fail(IMAGES_ARE_DIFFERENT_SIZES);
         }
 

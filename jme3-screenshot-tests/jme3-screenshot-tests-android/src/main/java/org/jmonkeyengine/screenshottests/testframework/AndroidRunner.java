@@ -31,7 +31,7 @@
  */
 package org.jmonkeyengine.screenshottests.testframework;
 
-import android.opengl.GLSurfaceView;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Environment;
 
@@ -39,29 +39,25 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.services.storage.TestStorage;
 
-import com.jme3.app.AndroidHarnessFragment;
-import com.jme3.app.LegacyApplication;
-import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AppState;
-import com.jme3.system.AppSettings;
-
-import org.jmonkeyengine.screenshottests.android.android.AndroidLauncher;
-
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+@SuppressLint("RestrictedApi")
 public class AndroidRunner implements AppRunner {
 
     private static final Logger logger = Logger.getLogger(AndroidRunner.class.getName());
 
+    TestStorage testStorage = new TestStorage();
+
     @Override
-    public void runApplicationUntilScenarioCompletes(App application, CountDownLatch applicationFinishedLatch) {
+    public void runApplicationUntilScenarioCompletes(TestContainingApp application, CountDownLatch applicationFinishedLatch) {
 
 
         FragmentFactory fragmentFactory = new FragmentFactory(){
@@ -104,6 +100,29 @@ public class AndroidRunner implements AppRunner {
 
     @Override
     public Path getChangedImagesDirectory() {
-        return Environment.getExternalStorageDirectory().toPath().resolve("changed-images");
+        return InstrumentationRegistry
+                .getInstrumentation()
+                .getTargetContext()
+                .getExternalFilesDir(null)
+                .toPath()
+                .resolve("changed-images");
+    }
+
+    @Override
+    public Path getReportsDirectory() {
+        return InstrumentationRegistry
+                .getInstrumentation()
+                .getTargetContext()
+                .getExternalFilesDir(null)
+                .toPath()
+                .resolve("reports");
+    }
+
+    public OutputStream getPersistentFileOutputStream(String relativePath){
+        try{
+            return testStorage.openOutputFile(relativePath);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

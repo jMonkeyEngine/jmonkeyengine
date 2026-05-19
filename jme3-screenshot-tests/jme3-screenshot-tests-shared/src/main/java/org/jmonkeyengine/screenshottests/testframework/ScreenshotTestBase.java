@@ -40,8 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
  *
  * @author Richard Tingle (aka richtea)
  */
-@ExtendWith(ExtentReportExtension.class)
-@Tag("integration")
 public abstract class ScreenshotTestBase{
 
     /**

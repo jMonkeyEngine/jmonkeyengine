@@ -103,7 +103,7 @@ public class ExtentReportLogCapture {
 
         private void addToExtentReport(String s) {
             try {
-                ExtentTest currentTest = ExtentReportExtension.getCurrentTest();
+                ExtentTest currentTest = ExtentReportExtensionBase.getCurrentTest();
                 if (currentTest != null) {
                     currentTest.info(s);
                 }

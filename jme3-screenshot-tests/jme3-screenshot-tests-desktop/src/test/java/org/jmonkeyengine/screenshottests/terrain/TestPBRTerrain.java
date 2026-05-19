@@ -50,7 +50,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -78,7 +78,7 @@ import java.util.stream.Stream;
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
 @SuppressWarnings("FieldCanBeLocal")
-public class TestPBRTerrain extends ScreenshotTestBase {
+public class TestPBRTerrain extends ScreenshotTestDesktopBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(

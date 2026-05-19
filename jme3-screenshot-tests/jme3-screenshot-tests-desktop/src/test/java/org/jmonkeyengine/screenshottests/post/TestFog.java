@@ -50,7 +50,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import org.jmonkeyengine.screenshottests.testframework.Scenario;
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
 
@@ -62,7 +62,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestFog  extends ScreenshotTestBase {
+public class TestFog  extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a fog effect.

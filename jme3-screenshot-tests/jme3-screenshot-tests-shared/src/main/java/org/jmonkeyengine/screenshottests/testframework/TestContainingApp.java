@@ -41,9 +41,9 @@ import java.util.function.Consumer;
  * The app used for the tests. AppState(s) are used to inject the actual test code.
  * @author Richard Tingle (aka richtea)
  */
-public class App extends SimpleApplication {
+public class TestContainingApp extends SimpleApplication {
 
-    public App(AppState... initialStates){
+    public TestContainingApp(AppState... initialStates){
         super(initialStates);
     }
 

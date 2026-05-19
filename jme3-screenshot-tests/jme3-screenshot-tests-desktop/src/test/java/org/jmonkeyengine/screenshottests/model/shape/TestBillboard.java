@@ -45,7 +45,7 @@ import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Quad;
 
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +65,7 @@ import java.util.stream.Stream;
  * @author Richard Tingle (screenshot test adaptation)
  */
 @SuppressWarnings("OptionalGetWithoutIsPresent")
-public class TestBillboard  extends ScreenshotTestBase {
+public class TestBillboard  extends ScreenshotTestDesktopBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(
