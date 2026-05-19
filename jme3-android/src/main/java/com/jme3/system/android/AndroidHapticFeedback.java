@@ -75,7 +75,7 @@ public final class AndroidHapticFeedback {
                     vibrator.vibrate(new long[]{0, rumbleOnDur, rumbleOffDur}, 0);
                 }
             } else {
-               long durationMs = duration <= 0f ? 0L : Math.max(1L, Math.round(duration * 1000f));
+                long durationMs = Math.max(1L, Math.round(duration * 1000f));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && vibrator.hasAmplitudeControl()) {
                     int amplitude = Math.max(1, Math.round(amount * 255f));
                     vibrator.vibrate(VibrationEffect.createOneShot(durationMs, amplitude));
