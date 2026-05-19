@@ -92,7 +92,7 @@ public class JInputJoyInput implements JoyInput {
         if (duration == Float.POSITIVE_INFINITY) {
             rumbleStopTimes.remove(joyId);
         } else {
-            long durationNanos = Math.max(1L, (long) (duration * 1_000_000_000L));
+            long durationNanos = Math.max(1L, Math.round(duration * 1_000_000_000.0));
             rumbleStopTimes.put(joyId, System.nanoTime() + durationNanos);
         }
     }
