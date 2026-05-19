@@ -82,7 +82,7 @@ public class JInputJoyInput implements JoyInput {
 
     @Override
     public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
-        float amount = Math.max(amountHigh, amountLow);
+        float amount = Math.max(FastMath.clamp(amountHigh, 0f, 1f), FastMath.clamp(amountLow, 0f, 1f));
         if (amount <= 0f || !(duration > 0f)) {
             stopJoyRumble(joyId);
             return;
