@@ -246,7 +246,7 @@ public class AndroidJoystickJoyInput14 {
         return consumed;
     }
 
-    public boolean setJoyRumble(int joyId, float amount) {
+    boolean setJoyRumble(int joyId, float amount) {
         AndroidJoystick joystick = getJoystick(joyId);
         if (joystick == null || !joystick.isHapticFeedbackSupported()) {
             return false;
@@ -255,7 +255,7 @@ public class AndroidJoystickJoyInput14 {
         return true;
     }
 
-    public boolean setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+    boolean setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
         AndroidJoystick joystick = getJoystick(joyId);
         if (joystick == null || !joystick.isHapticFeedbackSupported()) {
             return false;
@@ -264,7 +264,7 @@ public class AndroidJoystickJoyInput14 {
         return true;
     }
 
-    public boolean stopJoyRumble(int joyId) {
+    boolean stopJoyRumble(int joyId) {
         AndroidJoystick joystick = getJoystick(joyId);
         if (joystick == null || !joystick.isHapticFeedbackSupported()) {
             return false;
@@ -326,7 +326,7 @@ public class AndroidJoystickJoyInput14 {
             return device.getVibrator();
         }
 
-        protected boolean isHapticFeedbackSupported() {
+        private boolean isHapticFeedbackSupported() {
             return AndroidHapticFeedback.isSupported(getVibrator());
         }
 

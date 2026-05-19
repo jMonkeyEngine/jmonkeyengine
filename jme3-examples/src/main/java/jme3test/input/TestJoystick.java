@@ -167,7 +167,7 @@ public class TestJoystick extends SimpleApplication {
         } 
     }
 
-    protected void handleRumbleButton(JoystickButton button, boolean pressed) {
+    private void handleRumbleButton(JoystickButton button, boolean pressed) {
         String logicalId = button.getLogicalId();
         if (isDpadButton(logicalId)) {
             handleDeviceRumbleButton(logicalId, pressed);
@@ -191,7 +191,7 @@ public class TestJoystick extends SimpleApplication {
         joystick.rumble(pattern[0], pattern[1], Float.POSITIVE_INFINITY);
     }
 
-    protected void handleTriggerRumble(JoystickAxis axis, float value) {
+    private void handleTriggerRumble(JoystickAxis axis, float value) {
         String logicalId = axis.getLogicalId();
         if (!JoystickAxis.AXIS_XBOX_LEFT_TRIGGER.equals(logicalId)
                 && !JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER.equals(logicalId)) {
@@ -212,14 +212,14 @@ public class TestJoystick extends SimpleApplication {
         }
     }
 
-    protected boolean isDpadButton(String logicalId) {
+    private boolean isDpadButton(String logicalId) {
         return JoystickButton.BUTTON_XBOX_DPAD_UP.equals(logicalId)
                 || JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(logicalId)
                 || JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(logicalId)
                 || JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(logicalId);
     }
 
-    protected void handleDeviceRumbleButton(String logicalId, boolean pressed) {
+    private void handleDeviceRumbleButton(String logicalId, boolean pressed) {
         if (!JmeSystem.isDeviceRumbleSupported()) {
             return;
         }
@@ -247,7 +247,7 @@ public class TestJoystick extends SimpleApplication {
         JmeSystem.rumble(high, low, Float.POSITIVE_INFINITY);
     }
 
-    protected float[] getJoystickRumblePattern(JoystickButton button) {
+    private float[] getJoystickRumblePattern(JoystickButton button) {
         String logicalId = button.getLogicalId();
         if (JoystickButton.BUTTON_XBOX_A.equals(logicalId)) {
             return new float[]{1f, 1f};

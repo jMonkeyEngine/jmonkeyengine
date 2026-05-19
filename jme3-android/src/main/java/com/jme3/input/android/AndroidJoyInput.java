@@ -108,7 +108,7 @@ public class AndroidJoyInput implements JoyInput {
         onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
     }
 
-    protected boolean isOnDeviceJoystickRumble() {
+    boolean isOnDeviceJoystickRumble() {
         return onDeviceJoystickRumble;
     }
 
