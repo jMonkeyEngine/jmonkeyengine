@@ -136,3 +136,16 @@ jobs:
             Contact @richardTingle (aka richtea) for guidance if required
           edit-mode: replace
           comment-id: ${{ steps.existingCommentId.outputs.comment-id }}
+
+      - name: Remove screenshot failure comment if tests pass
+        if: steps.check-status.outputs.failed == 'false' && steps.existingCommentId.outputs.comment-id != ''
+        uses: actions/github-script@v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            await github.rest.issues.deleteComment({
+              owner,
+              repo,
+              comment_id: Number('${{ steps.existingCommentId.outputs.comment-id }}')
+            });
