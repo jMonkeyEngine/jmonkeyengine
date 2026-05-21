@@ -77,7 +77,10 @@ public class ZIPCompressedMessage extends CompressedMessage {
      * compression but slowest. Default is 6.
      *
      * @param level The level.
+     * @deprecated Use {@link #setCompressionLevel(int)} to configure an instance-specific
+     * compression level.
      */
+    @Deprecated
     public static void setLevel(int level) {
         defaultCompressionLevel = level;
     }
