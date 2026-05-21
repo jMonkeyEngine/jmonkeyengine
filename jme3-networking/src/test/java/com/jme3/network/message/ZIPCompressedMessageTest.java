@@ -53,9 +53,11 @@ public class ZIPCompressedMessageTest {
         ZIPCompressedMessage third = new ZIPCompressedMessage(new TestMessage());
 
         assertEquals(6, first.getCompressionLevel());
+        assertEquals(first.getCompressionLevel(), first.getLevel());
         assertEquals(1, second.getCompressionLevel());
-        assertEquals(1, second.getLevel());
+        assertEquals(second.getCompressionLevel(), second.getLevel());
         assertEquals(6, third.getCompressionLevel());
+        assertEquals(third.getCompressionLevel(), third.getLevel());
     }
 
     @Test
