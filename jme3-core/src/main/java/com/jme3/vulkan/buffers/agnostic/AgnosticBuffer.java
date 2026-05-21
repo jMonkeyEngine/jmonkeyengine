@@ -5,7 +5,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;

@@ -1,5 +1,6 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.memory.MemorySize;
 
 @Deprecated

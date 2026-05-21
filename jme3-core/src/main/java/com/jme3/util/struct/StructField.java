@@ -1,5 +1,8 @@
 package com.jme3.util.struct;
 
+import com.jme3.vulkan.alloc.Memory;
+import com.jme3.vulkan.alloc.MemoryPointer;
+
 import java.util.Objects;
 
 /**
@@ -8,7 +11,7 @@ import java.util.Objects;
  *
  * @param <T>
  */
-public interface StructField <T> {
+public interface StructField <T> extends Memory {
 
     /**
      * Binds this field to the struct and memory offset.
@@ -25,6 +28,13 @@ public interface StructField <T> {
      * @param value value to serialize
      */
     void set(T value);
+
+    /**
+     * Assigns {@code value} to this field's {@link #alias()}.
+     *
+     * @param value value to assign to the alias
+     */
+    void setAlias(T value);
 
     /**
      * Deserializes from the proper memory address to the {@link #alias() alias}

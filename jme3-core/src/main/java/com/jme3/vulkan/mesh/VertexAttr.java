@@ -92,12 +92,12 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
 
     @Override
     public void set(T value) {
-        description.write(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, value);
+        description.write(struct.getLayout(), , value);
     }
 
     @Override
     public T get() {
-        return alias = description.read(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, alias);
+        return alias = description.read(struct.getLayout(), , alias);
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface RenderElement {
 
     Material getMaterial();
 
-    long getTechniqueSortPosition();
+    long getPipelineSortPosition();
 
     long getMaterialSortPosition();
 

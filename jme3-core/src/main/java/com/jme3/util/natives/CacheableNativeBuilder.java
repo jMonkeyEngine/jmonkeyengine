@@ -1,6 +1,6 @@
 package com.jme3.util.natives;
 
-import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.util.cache.InlineTimedCache;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.logging.Level;
@@ -11,12 +11,12 @@ public abstract class CacheableNativeBuilder<C, T extends C> {
     private static final Logger logger = Logger.getLogger(CacheableNativeBuilder.class.getName());
 
     protected final MemoryStack stack = MemoryStack.stackPush();
-    protected Cache<C> cache;
+    protected InlineTimedCache<C> cache;
 
     public T build() {
         T obj = getBuildTarget();
         if (cache != null) {
-            obj = cache.allocate(obj, this::construct);
+            obj = cache.computeIfAbsent(obj, this::construct);
         } else {
             logger.log(Level.WARNING, "Building {0} without a cache.", getClass().getName());
             construct();
@@ -29,11 +29,11 @@ public abstract class CacheableNativeBuilder<C, T extends C> {
 
     protected abstract T getBuildTarget();
 
-    public void setCache(Cache<C> cache) {
+    public void setCache(InlineTimedCache<C> cache) {
         this.cache = cache;
     }
 
-    public Cache<C> getCache() {
+    public InlineTimedCache<C> getCache() {
         return cache;
     }
 

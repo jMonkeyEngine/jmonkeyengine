@@ -1,8 +1,9 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.util.ResourceHandle;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.buffers.VirtualBufferMapping;
+import com.jme3.vulkan.buffers.mapping.VirtualBufferMapping;
 
 import java.util.Iterator;
 
@@ -11,7 +12,7 @@ import java.util.Iterator;
  *
  * @param <T>
  */
-public class StructMapping <T extends Struct> implements StructSequence<T>, AutoCloseable {
+public class StructMapping <T extends Struct> implements StructSequence<T>, ResourceHandle<T> {
 
     private final T struct;
     private final int stride;

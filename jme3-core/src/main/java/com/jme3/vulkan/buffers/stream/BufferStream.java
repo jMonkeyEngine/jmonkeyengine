@@ -3,6 +3,7 @@ package com.jme3.vulkan.buffers.stream;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.newbuf.AbstractVulkanBuffer;
 import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -13,7 +14,6 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkBufferCopy;
 
 import java.io.IOException;
-import java.net.UnknownServiceException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -166,7 +166,14 @@ public class BufferStream {
         }
 
         @Override
-        public void resize(long bytes) {}
+        public void flush() {
+            page.flush();
+        }
+
+        @Override
+        public void resize(long bytes) {
+
+        }
 
         @Override
         public MemorySize size() {

@@ -25,7 +25,7 @@ public interface FrameRenderer extends AutoCloseable {
 
     /**
      * Fetches render-time globals by type. If no existing globals are assignable
-     * to {@code type}, then a new {@link RenderGlobals} instance is created by
+     * to {@code type}, then a new {@link ShadingGlobals} instance is created by
      * {@code factory} and registered. Globals registered more recently are
      * preferred.
      *
@@ -34,6 +34,6 @@ public interface FrameRenderer extends AutoCloseable {
      * @param factory creates a new globals instance
      * @return globals for type
      */
-    <T extends RenderGlobals> T getGlobals(Class<T> type, Supplier<T> factory);
+    <T extends ShadingGlobals> T getGlobals(Class<T> type, Supplier<T> factory);
 
 }

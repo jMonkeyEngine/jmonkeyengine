@@ -36,9 +36,12 @@ import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attributes.AttributeMapping;
 import com.jme3.vulkan.mesh.VertexBuffer;
+import com.jme3.vulkan.pipeline.FaceWinding;
 import com.jme3.vulkan.pipeline.Topology;
+import com.jme3.vulkan.pipeline.VertexPipeline;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Stores the vertex, index, and instance data for drawing indexed meshes.
@@ -54,6 +57,8 @@ import java.util.Collection;
  */
 public interface Mesh extends Savable {
 
+    VertexInput declareVertexInput(Function<String, Integer> attributeMapper);
+
     int selectLevelOfDetail(int lod);
 
     void setIndexBuffer(int lod, IdxBuffer buffer);
@@ -62,21 +67,11 @@ public interface Mesh extends Savable {
 
     IdxBuffer getLevelOfDetail(int lod);
 
-    void stageIndices(int lod);
-
-    void stageLevelOfDetail(int lod);
-
-    void stageIndices();
-
     void addVertexBuffer(VertexBuffer vertexBuffer);
 
     Collection<VertexBuffer> getVertexBuffers();
 
     AttributeMapping mapAttributes(InputRate rate, String... attributes);
-
-    void stageVertices(int baseVertex, int vertices);
-
-    void stageInstances(int baseInstance, int instances);
 
     int setVertexCount(int vertices);
 
@@ -88,6 +83,10 @@ public interface Mesh extends Savable {
 
     void setTopology(Topology topology);
 
+    void setFaceWinding(FaceWinding winding);
+
+    void setPrimitiveRestart(boolean primitiveRestart);
+
     int getVertexCount();
 
     int getInstanceCount();
@@ -98,26 +97,16 @@ public interface Mesh extends Savable {
 
     Topology getTopology();
 
+    FaceWinding getFaceWinding();
+
+    boolean isPrimitiveRestart();
+
     default void setBaseIndexBuffer(IdxBuffer buffer) {
         setIndexBuffer(0, buffer);
     }
 
     default IdxBuffer getBaseIndexBuffer() {
         return getIndexBuffer(0);
-    }
-
-    default void stageAll() {
-        stageIndices();
-        stageVertices();
-        stageInstances();
-    }
-
-    default void stageVertices() {
-        stageVertices(0, getVertexCount());
-    }
-
-    default void stageInstances() {
-        stageInstances(0, getInstanceCount());
     }
 
     default void setVertexCount(int vertices, int resizePadding) {

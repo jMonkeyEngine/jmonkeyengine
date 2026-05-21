@@ -33,14 +33,12 @@ package com.jme3.scene.shape;
 
 import com.jme3.math.Spline;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;

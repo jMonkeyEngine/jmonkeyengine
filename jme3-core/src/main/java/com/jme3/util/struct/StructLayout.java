@@ -1,7 +1,6 @@
 package com.jme3.util.struct;
 
 import com.jme3.math.*;
-import com.jme3.vulkan.buffers.BufferMapping;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -42,112 +41,95 @@ public class StructLayout {
         final StructLayout[] stds = {std140, std430};
 
         // general descriptions
-        addToLayouts(new StructDesc(), stds, Struct.class);
         addToAllLayouts(new ObjectDesc<Boolean>(Float.BYTES, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Boolean value) {
-                mapping.getBytes().putInt(position, value ? Integer.MAX_VALUE : 0);
-                mapping.stage(position, Integer.BYTES);
+            public void write(StructLayout layout, ByteBuffer buffer, Boolean value) {
+                buffer.putInt(value ? Integer.MAX_VALUE : 0);
             }
             @Override
-            public Boolean read(StructLayout layout, BufferMapping mapping, int position, Boolean store) {
-                return mapping.getBytes().get(position) != 0;
+            public Boolean read(StructLayout layout, ByteBuffer buffer, Boolean store) {
+                return buffer.get() != 0;
             }
         }, boolean.class, Boolean.class);
         addToAllLayouts(new ObjectDesc<Integer>(Float.BYTES, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Integer value) {
-                mapping.getBytes().putInt(position, value);
-                mapping.stage(position, Integer.BYTES);
+            public void write(StructLayout layout, ByteBuffer buffer, Integer value) {
+                buffer.putInt(value);
             }
             @Override
-            public Integer read(StructLayout layout, BufferMapping mapping, int position, Integer store) {
-                return mapping.getBytes().getInt(position);
+            public Integer read(StructLayout layout, ByteBuffer buffer, Integer store) {
+                return buffer.getInt(0);
             }
         }, int.class, Integer.class);
         addToAllLayouts(new ObjectDesc<Float>(Float.BYTES, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Float value) {
-                mapping.getBytes().putFloat(position, value);
-                mapping.stage(position, Float.BYTES);
+            public void write(StructLayout layout, ByteBuffer buffer, Float value) {
+                buffer.putFloat(value);
             }
             @Override
-            public Float read(StructLayout layout, BufferMapping mapping, int position, Float store) {
-                return mapping.getBytes().getFloat(position);
+            public Float read(StructLayout layout, ByteBuffer buffer, Float store) {
+                return buffer.getFloat(0);
             }
         }, float.class, Float.class);
         addToLayouts(new ObjectDesc<Vector2f>(VEC2_WIDTH, VEC2_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector2f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y);
-                mapping.stage(position, VEC2_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector2f value) {
+                buffer.putFloat(value.x).putFloat(value.y);
             }
             @Override
-            public Vector2f read(StructLayout layout, BufferMapping mapping, int position, Vector2f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat());
+            public Vector2f read(StructLayout layout, ByteBuffer buffer, Vector2f store) {
+                buffer.position(0);
+                return store.set(buffer.getFloat(), buffer.getFloat());
             }
         }, stds, Vector2f.class);
         addToLayouts(new ObjectDesc<Vector3f>(Float.BYTES * 3, VEC4_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector3f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y).putFloat(value.z);
-                mapping.stage(position, VEC3_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector3f value) {
+                buffer.putFloat(value.x).putFloat(value.y).putFloat(value.z);
             }
             @Override
-            public Vector3f read(StructLayout layout, BufferMapping mapping, int position, Vector3f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public Vector3f read(StructLayout layout, ByteBuffer buffer, Vector3f store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, stds, Vector3f.class);
         addToLayouts(new ObjectDesc<Vector4f>(VEC4_WIDTH, VEC4_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector4f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y).putFloat(value.z).putFloat(value.w);
-                mapping.stage(position, VEC4_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector4f value) {
+                buffer.putFloat(value.x).putFloat(value.y).putFloat(value.z).putFloat(value.w);
             }
             @Override
-            public Vector4f read(StructLayout layout, BufferMapping mapping, int position, Vector4f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public Vector4f read(StructLayout layout, ByteBuffer buffer, Vector4f store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, stds, Vector4f.class);
         addToLayouts(new ObjectDesc<ColorRGBA>(VEC4_WIDTH, VEC4_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, ColorRGBA value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.r).putFloat(value.g).putFloat(value.b).putFloat(value.a);
-                mapping.stage(position, VEC4_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, ColorRGBA value) {
+                buffer.putFloat(value.r).putFloat(value.g).putFloat(value.b).putFloat(value.a);
             }
             @Override
-            public ColorRGBA read(StructLayout layout, BufferMapping mapping, int position, ColorRGBA store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public ColorRGBA read(StructLayout layout, ByteBuffer buffer, ColorRGBA store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, stds, ColorRGBA.class);
         addToLayouts(new ObjectDesc<Matrix3f>(Float.BYTES * 12, VEC4_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Matrix3f value) {
-                value.writeToStdBuffer(mapping.getBytes().position(position));
-                mapping.stage(position, Float.BYTES * 12);
+            public void write(StructLayout layout, ByteBuffer buffer, Matrix3f value) {
+                value.writeToStdBuffer(buffer);
             }
             @Override
-            public Matrix3f read(StructLayout layout, BufferMapping mapping, int position, Matrix3f store) {
-                return store.readFromStdBuffer(mapping.getBytes().position(position));
+            public Matrix3f read(StructLayout layout, ByteBuffer buffer, Matrix3f store) {
+                return store.readFromStdBuffer(buffer);
             }
         }, stds, Matrix3f.class);
         addToLayouts(new ObjectDesc<Matrix4f>(Float.BYTES << 4, VEC4_WIDTH) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Matrix4f value) {
-                value.writeToBuffer(mapping.getBytes().position(position));
-                mapping.stage(position, Float.BYTES << 4);
+            public void write(StructLayout layout, ByteBuffer buffer, Matrix4f value) {
+                value.writeToBuffer(buffer);
             }
             @Override
-            public Matrix4f read(StructLayout layout, BufferMapping mapping, int position, Matrix4f store) {
-                return store.readFromBuffer(mapping.getBytes().position(position));
+            public Matrix4f read(StructLayout layout, ByteBuffer buffer, Matrix4f store) {
+                return store.readFromBuffer(buffer);
             }
         }, stds, Matrix4f.class);
 
@@ -264,74 +246,62 @@ public class StructLayout {
         // packed descriptions
         packed.addFieldDescription(new ObjectDesc<Vector2f>(VEC2_WIDTH, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector2f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y);
-                mapping.stage(position, VEC2_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector2f value) {
+                buffer.putFloat(value.x).putFloat(value.y);
             }
             @Override
-            public Vector2f read(StructLayout layout, BufferMapping mapping, int position, Vector2f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat());
+            public Vector2f read(StructLayout layout, ByteBuffer buffer, Vector2f store) {
+                return store.set(buffer.getFloat(), buffer.getFloat());
             }
         }, Vector2f.class);
         packed.addFieldDescription(new ObjectDesc<Vector3f>(VEC3_WIDTH, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector3f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y).putFloat(value.z);
-                mapping.stage(position, VEC3_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector3f value) {
+                buffer.putFloat(value.x).putFloat(value.y).putFloat(value.z);
             }
             @Override
-            public Vector3f read(StructLayout layout, BufferMapping mapping, int position, Vector3f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public Vector3f read(StructLayout layout, ByteBuffer buffer, Vector3f store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, Vector3f.class);
         packed.addFieldDescription(new ObjectDesc<Vector4f>(VEC4_WIDTH, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Vector4f value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.x).putFloat(value.y).putFloat(value.z).putFloat(value.w);
-                mapping.stage(position, VEC4_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, Vector4f value) {
+                buffer.putFloat(value.x).putFloat(value.y).putFloat(value.z).putFloat(value.w);
             }
             @Override
-            public Vector4f read(StructLayout layout, BufferMapping mapping, int position, Vector4f store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public Vector4f read(StructLayout layout, ByteBuffer buffer, Vector4f store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, Vector4f.class);
         packed.addFieldDescription(new ObjectDesc<ColorRGBA>(VEC4_WIDTH, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, ColorRGBA value) {
-                ByteBuffer buf = mapping.getBytes();
-                buf.position(position).putFloat(value.r).putFloat(value.g).putFloat(value.b).putFloat(value.a);
-                mapping.stage(position, VEC4_WIDTH);
+            public void write(StructLayout layout, ByteBuffer buffer, ColorRGBA value) {
+                buffer.putFloat(value.r).putFloat(value.g).putFloat(value.b).putFloat(value.a);
             }
             @Override
-            public ColorRGBA read(StructLayout layout, BufferMapping mapping, int position, ColorRGBA store) {
-                ByteBuffer buf = mapping.getBytes().position(position);
-                return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
+            public ColorRGBA read(StructLayout layout, ByteBuffer buffer, ColorRGBA store) {
+                return store.set(buffer.getFloat(), buffer.getFloat(), buffer.getFloat(), buffer.getFloat());
             }
         }, ColorRGBA.class);
         packed.addFieldDescription(new ObjectDesc<Matrix3f>(VEC3_WIDTH * 3, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Matrix3f value) {
-                value.writeToPackedBuffer(mapping.getBytes().position(position));
+            public void write(StructLayout layout, ByteBuffer buffer, Matrix3f value) {
+                value.writeToPackedBuffer(buffer);
             }
             @Override
-            public Matrix3f read(StructLayout layout, BufferMapping mapping, int position, Matrix3f store) {
-                return store.readFromPackedBuffer(mapping.getBytes().position(position));
+            public Matrix3f read(StructLayout layout, ByteBuffer buffer, Matrix3f store) {
+                return store.readFromPackedBuffer(buffer);
             }
         }, Matrix3f.class);
         packed.addFieldDescription(new ObjectDesc<Matrix4f>(Float.BYTES << 4, Float.BYTES) {
             @Override
-            public void write(StructLayout layout, BufferMapping mapping, int position, Matrix4f value) {
-                value.writeToBuffer(mapping.getBytes().position(position));
+            public void write(StructLayout layout, ByteBuffer buffer, Matrix4f value) {
+                value.writeToBuffer(buffer);
             }
             @Override
-            public Matrix4f read(StructLayout layout, BufferMapping mapping, int position, Matrix4f store) {
-                return store.readFromBuffer(mapping.getBytes().position(position));
+            public Matrix4f read(StructLayout layout, ByteBuffer buffer, Matrix4f store) {
+                return store.readFromBuffer(buffer);
             }
         }, Matrix4f.class);
 
@@ -384,33 +354,6 @@ public class StructLayout {
         else return getFieldDescription(type.getSuperclass());
     }
 
-    public static class StructDesc implements FieldDesc<Struct> {
-
-        @Override
-        public int getSize(StructLayout layout, Struct value) {
-            value.bind(layout);
-            return value.getSize();
-        }
-
-        @Override
-        public int getAlignment(StructLayout layout, Struct value) {
-            value.bind(layout);
-            return value.getAlignment();
-        }
-
-        @Override
-        public void write(StructLayout layout, BufferMapping mapping, int position, Struct value) {
-            value.bind(layout, mapping, position);
-        }
-
-        @Override
-        public Struct read(StructLayout layout, BufferMapping mapping, int position, Struct store) {
-            store.bind(layout, mapping, position);
-            return store;
-        }
-
-    }
-
     public static abstract class ObjectDesc <T> implements FieldDesc<T> {
 
         private final int size, alignment;
@@ -454,22 +397,23 @@ public class StructLayout {
         }
 
         @Override
-        public void write(StructLayout layout, BufferMapping mapping, int position, T value) {
+        public void write(StructLayout layout, ByteBuffer buffer, T value) {
             int l = getLength(value);
             assert l > 0 : "Struct array must contain at least one element.";
             for (int i = 0; i < l; i++) {
-                elementDesc.write(layout, mapping, position, getElement(value, i));
-                position += stride;
+                elementDesc.write(layout, buffer.slice(), getElement(value, i));
+                buffer.position(buffer.position() + stride);
             }
         }
 
         @Override
-        public T read(StructLayout layout, BufferMapping mapping, int position, T store) {
+        public T read(StructLayout layout, ByteBuffer buffer, T store) {
             int l = getLength(store);
             assert l > 0 : "Struct array must contain at least one element.";
+            buffer.position(0);
             for (int i = 0; i < l; i++) {
-                setElement(store, i, elementDesc.read(layout, mapping, position, getElement(store, i)));
-                position += stride;
+                setElement(store, i, elementDesc.read(layout, buffer, getElement(store, i)));
+                buffer.position(buffer.position() + stride);
             }
             return store;
         }
@@ -506,24 +450,24 @@ public class StructLayout {
         }
 
         @Override
-        public void write(StructLayout layout, BufferMapping mapping, int position, Object[] value) {
+        public void write(StructLayout layout, ByteBuffer buffer, Object[] value) {
             assert value.length != 0 : "Struct array must contain at least one element.";
             FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
             int stride = getStride(layout, d, value[0]);
             for (Object v : value) {
-                d.write(layout, mapping, position, v);
-                position += stride;
+                d.write(layout, buffer, v);
+                buffer.position(buffer.position() + stride);
             }
         }
 
         @Override
-        public Object[] read(StructLayout layout, BufferMapping mapping, int position, Object[] store) {
+        public Object[] read(StructLayout layout, ByteBuffer buffer, Object[] store) {
             assert store.length != 0 : "Struct array must contain at least one element.";
             FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(store[0].getClass());
             int stride = getStride(layout, d, store[0]);
             for (int i = 0; i < store.length; i++) {
-                store[i] = d.read(layout, mapping, position, store[i]);
-                position += stride;
+                store[i] = d.read(layout, buffer, store[i]);
+                buffer.position(buffer.position() + stride);
             }
             return store;
         }
@@ -558,28 +502,28 @@ public class StructLayout {
         }
 
         @Override
-        public void write(StructLayout layout, BufferMapping mapping, int position, List value) {
+        public void write(StructLayout layout, ByteBuffer buffer, List value) {
             Object first = value.getFirst();
             FieldDesc d = layout.getFieldDescription(first.getClass());
             int stride = getStride(layout, d, first);
             for (Object v : value) {
-                d.write(layout, mapping, position, v);
-                position += stride;
+                d.write(layout, buffer, v);
+                buffer.position(buffer.position() + stride);
             }
         }
 
         @Override
-        public List read(StructLayout layout, BufferMapping mapping, int position, List store) {
+        public List read(StructLayout layout, ByteBuffer buffer, List store) {
             Object first = store.getFirst();
             FieldDesc d = layout.getFieldDescription(first.getClass());
             int stride = getStride(layout, d, first);
             for (ListIterator it = store.listIterator(); it.hasNext();) {
                 Object oldVal = it.next();
-                Object newVal = d.read(layout, mapping, position, oldVal);
+                Object newVal = d.read(layout, buffer.slice(), oldVal);
+                buffer.position(buffer.position() + stride);
                 if (newVal != oldVal) {
                     it.set(newVal);
                 }
-                position += stride;
             }
             return store;
         }

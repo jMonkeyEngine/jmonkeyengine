@@ -39,15 +39,11 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlMesh;
-import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
@@ -55,7 +51,6 @@ import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**

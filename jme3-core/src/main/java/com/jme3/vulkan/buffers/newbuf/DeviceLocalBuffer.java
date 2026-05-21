@@ -1,7 +1,7 @@
 package com.jme3.vulkan.buffers.newbuf;
 
 import com.jme3.export.*;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.alloc.BufferAllocRequest;
 import com.jme3.vulkan.buffers.stream.BufferStream;

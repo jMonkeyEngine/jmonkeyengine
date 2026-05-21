@@ -2,36 +2,38 @@ package com.jme3.vulkan.material.experimental;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
+import com.jme3.vulkan.util.pointer.Pointer;
+import com.jme3.vulkan.util.pointer.PushPointer;
 
-public class PBR implements ShaderInterface {
+public class PBR implements ShadingInterface {
 
-    private final ColorRGBA color = new ColorRGBA();
-    private float metallic = 0.5f;
-    private float roughness = 0.5f;
-    private Texture colorMap, normalMap;
+    private final Pointer<ColorRGBA> color = new PushPointer<>(new ColorRGBA(0, 0, 0, 0));
+    private final Pointer<Float> metallic = new PushPointer<>(0.5f);
+    private final Pointer<Float> roughness = new PushPointer<>(0.5f);
+    private final Pointer<Boolean> fogEnabled = new PushPointer<>(false);
+    private final Pointer<ColorRGBA> fogColor = new PushPointer<>(new ColorRGBA(0, 0, 0, 0));
 
-    public ColorRGBA getColor() {
+    private Texture colorMap;
+    private Texture normalMap;
+
+    public Pointer<ColorRGBA> getColor() {
         return color;
     }
 
-    public void getColor(ColorRGBA color) {
-        this.color.set(color);
-    }
-
-    public float getMetallic() {
+    public Pointer<Float> getMetallic() {
         return metallic;
     }
 
-    public void setMetallic(float metallic) {
-        this.metallic = metallic;
-    }
-
-    public float getRoughness() {
+    public Pointer<Float> getRoughness() {
         return roughness;
     }
 
-    public void setRoughness(float roughness) {
-        this.roughness = roughness;
+    public Pointer<Boolean> getFogEnabled() {
+        return fogEnabled;
+    }
+
+    public Pointer<ColorRGBA> getFogColor() {
+        return fogColor;
     }
 
     public Texture getColorMap() {

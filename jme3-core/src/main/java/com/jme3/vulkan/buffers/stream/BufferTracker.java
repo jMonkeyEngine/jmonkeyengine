@@ -5,12 +5,12 @@ import java.util.Iterator;
 public class BufferTracker implements Iterable<BufferTracker.Island> {
 
     private final Island head = new Island(0, 0);
-    private Island tail = head;
-    private long minIslandGap = 10;
+    private long minIslandGap = 32;
 
     public void add(long offset, long size) {
         long end = offset + size;
-        for (Island i = head.next; i != null; i = i.next) {
+        Island prev = head;
+        for (Island i = head.next; i != null; prev = i, i = i.next) {
             if (end < i.start - minIslandGap) {
                 // insert below
                 Island ins = new Island(offset, end);
@@ -21,34 +21,60 @@ public class BufferTracker implements Iterable<BufferTracker.Island> {
                 return;
             }
             if (offset <= i.end + minIslandGap) {
-                if (offset < i.start) {
-                    i.start = offset;
-                }
+                if (offset < i.start) i.start = offset;
                 // merge with higher islands
                 if (end > i.end) {
                     i.end = end;
                     Island next = i.next;
-//noinspection StatementWithEmptyBody
-                    for (; next != null && i.end >= next.start - minIslandGap; next = next.next);
-                    if (next == null) {
-                        tail = i;
-                    } else if (next != i.next) {
-                        next.prev = i;
+                    for (; next != null && i.end >= next.start - minIslandGap; next = next.next) {
+                        i.end = Math.max(next.end, i.end);
                     }
+                    if (next != null) next.prev = i;
                     i.next = next;
                 }
                 return;
             }
         }
         // append at end
-        tail.next = new Island(offset, size);
-        tail.next.prev = tail;
-        tail = tail.next;
+        prev.next = new Island(offset, size);
+        prev.next.prev = prev;
+    }
+
+    public void remove(long offset, long size) {
+        long end = offset + size;
+        for (Island i = head.next; i != null; i = i.next) {
+            if (i.start >= end) return;
+            if (i.end <= offset) continue;
+            boolean side1 = offset - i.start > 0;
+            boolean side2 = i.end - end > 0;
+            if (side1 && side2) {
+                // split island
+                i.start = offset;
+                Island next = new Island(end, i.end);
+                next.next = i.next;
+                next.prev = i;
+                i.next.prev = next;
+                i.next = next;
+                return;
+            }
+            if (side1) {
+                // squash island up
+                i.start = end;
+                return;
+            }
+            if (side2) {
+                // squash island down
+                i.end = offset;
+                continue;
+            }
+            // fully encompassed, remove island
+            i.prev.next = i.next;
+            if (i.next != null) i.next.prev = i.prev;
+        }
     }
 
     public void clear() {
         head.next = null;
-        tail = head;
     }
 
     public boolean isEmpty() {

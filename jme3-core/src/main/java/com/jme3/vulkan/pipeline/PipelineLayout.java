@@ -5,10 +5,7 @@ import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.technique.PushConstantRange;
-import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
-import org.lwjgl.vulkan.VkPushConstantRange;
 
 import java.nio.LongBuffer;
 import java.util.*;
@@ -64,13 +61,12 @@ public class PipelineLayout extends AbstractNative<Long> {
 
     public class Builder extends CacheableNativeBuilder<PipelineLayout, PipelineLayout> {
 
-        private Cache<DescriptorSetLayout> setLayoutCache;
         private int maxLayoutIndex = -1;
 
         @Override
         protected void construct() {
             LongBuffer layoutBuf = stack.mallocLong(maxLayoutIndex - 1);
-            DescriptorSetLayout dummy = DescriptorSetLayout.nullLayout(device, setLayoutCache);
+            DescriptorSetLayout dummy = DescriptorSetLayout.nullLayout();
             for (int i = 0; i <= maxLayoutIndex; i++) {
                 layoutBuf.put((layouts[i] != null ? layouts[i] : dummy).getNativeObject());
             }
@@ -90,10 +86,6 @@ public class PipelineLayout extends AbstractNative<Long> {
         @Override
         protected PipelineLayout getBuildTarget() {
             return PipelineLayout.this;
-        }
-
-        public void setSetLayoutCache(Cache<DescriptorSetLayout> setLayoutCache) {
-            this.setLayoutCache = setLayoutCache;
         }
 
         public void addSetLayout(int location, DescriptorSetLayout layout) {

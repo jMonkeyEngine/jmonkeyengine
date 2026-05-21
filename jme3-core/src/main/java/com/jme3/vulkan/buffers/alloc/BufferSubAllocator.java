@@ -4,7 +4,7 @@ import com.jme3.export.*;
 import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.SharingMode;
 import com.jme3.vulkan.buffers.VulkanBuffer;

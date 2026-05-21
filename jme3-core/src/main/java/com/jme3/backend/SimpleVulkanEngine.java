@@ -2,6 +2,7 @@ package com.jme3.backend;
 
 import com.jme3.app.Application;
 import com.jme3.material.plugins.VulkanMaterialLoader;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.TransparentComparator;
@@ -27,10 +28,12 @@ import com.jme3.vulkan.material.shader.ShaderModule;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.pipeline.*;
-import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.vulkan.pipeline.framebuffer.*;
-import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
+import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
+import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.jme3.vulkan.render.bucket.RenderElement;
 import com.jme3.vulkan.render.bucket.VulkanRenderElement;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
@@ -58,10 +61,10 @@ public class SimpleVulkanEngine implements Engine {
     private BufferStream stream;
     private OutputFrameBuffer outFrameBuffer;
 
-    private final Cache<Pipeline> pipelineCache = new Cache<>();
-    private final Cache<PipelineLayout> pipelineLayoutCache = new Cache<>();
-    private final Cache<ShaderModule> shaderCache = new Cache<>();
-    private final Cache<DescriptorSetLayout> descSetLayoutCache = new Cache<>();
+    private final InlineTimedCache<Pipeline> pipelineCache = new InlineTimedCache<>();
+    private final InlineTimedCache<PipelineLayout> pipelineLayoutCache = new InlineTimedCache<>();
+    private final InlineTimedCache<ShaderModule> shaderCache = new InlineTimedCache<>();
+    private final InlineTimedCache<DescriptorSetLayout> descSetLayoutCache = new InlineTimedCache<>();
 
     private DescriptorSet globalBindings;
 
@@ -191,16 +194,15 @@ public class SimpleVulkanEngine implements Engine {
         return outFrameBuffer;
     }
 
-    private class Frame implements RenderSession {
+    public class Frame implements RenderSession<SimpleVulkanEngine> {
 
         private final CommandBuffer graphics = graphicsPool.allocate(CommandBuffer.Level.Primary);
         private final Semaphore imageAcquired = new BinarySemaphore(device);
         private final Semaphore renderComplete = new BinarySemaphore(device);
         private final Fence inFlight = new Fence(device, true);
-        private final StandardRenderSettings settings = new VulkanRenderSettings(graphics);
         private boolean outputAvailable = false;
 
-        public Frame init() {
+        protected Frame init() {
             inFlight.block(5000L);
             outputAvailable = outFrameBuffer.acquireNextTarget(imageAcquired, null, 5000L);
             graphics.reset();
@@ -221,7 +223,7 @@ public class SimpleVulkanEngine implements Engine {
         }
 
         @Override
-        public Engine getEngine() {
+        public SimpleVulkanEngine getEngine() {
             return SimpleVulkanEngine.this;
         }
 
@@ -236,29 +238,33 @@ public class SimpleVulkanEngine implements Engine {
                 fbo.beginDynamicRender(graphics,
                         VulkanImage.Load.DontCare, VulkanImage.Store.Store,
                         VulkanImage.Load.DontCare, VulkanImage.Store.DontCare);
-                settings.pushViewPort(vp.getArea());
-                settings.pushScissor(vp.getArea().toScissor(null));
+                //settings.pushViewPort(vp.getArea());
+                //settings.pushScissor(vp.getArea().toScissor(null));
                 for (GeometryBucket b : vp.gatherGeometry(s -> s.runControlRender(SimpleVulkanEngine.this, vp))) {
-                    b.setupRender(vp, settings);
-                    settings.applySettings();
+                    //b.setupRender(vp, settings);
+                    //settings.applySettings();
                     for (ShadingTechnique t : techniques) {
-                        t.render(this, vp, b, g -> new EngineRenderElement(vp.getCamera(),
-                                g, graphics, vp.getOutputFrameBuffer(), t.getProgram()));
+                        t.render(this, vp, b);
                         if (b.isEmpty()) {
                             break;
                         }
                     }
-                    b.cleanupRender(vp, settings);
+                    //b.cleanupRender(vp, settings);
                 }
-                settings.popViewPort();
-                settings.popScissor();
+                //settings.popViewPort();
+                //settings.popScissor();
                 fbo.endDynamicRender(graphics);
             }
 
         }
 
         @Override
-        public void stageShaderSets(int location, SetBind... sets) {
+        public RenderElement createRenderElement(ViewPort vp, Geometry g, GraphicsState state) {
+            return new EngineRenderElement(graphics, vp.getOutputFrameBuffer(), vp.getCamera(), g, state);
+        }
+
+        @Override
+        public void stageShaderSet(int location, SetBindCommand sets) {
             graphics.stageShaderSets(location, sets);
         }
 
@@ -293,16 +299,13 @@ public class SimpleVulkanEngine implements Engine {
 
         private final CommandBuffer cmd;
         private final FrameBuffer frameBuffer;
+        private final VertexPipeline pipeline;
 
-        public EngineRenderElement(CommandBuffer cmd, ViewPort vp, Geometry geometry) {
-            super(vp.getCamera(), geometry);
+        public EngineRenderElement(CommandBuffer cmd, FrameBuffer frameBuffer, Camera cam, Geometry g, GraphicsState state) {
+            super(cam, g);
             this.cmd = cmd;
-            this.frameBuffer = vp.getOutputFrameBuffer();
-        }
-
-        @Override
-        protected VertexPipeline createPipeline() {
-            return GraphicsPipeline.build(device, p -> {
+            this.frameBuffer = frameBuffer;
+            this.pipeline = DynamicGraphicsPipeline.build(device, p -> {
                 p.setCache(pipelineCache);
                 p.setLayoutCache(pipelineLayoutCache);
                 p.setShaderCache(shaderCache);
@@ -323,12 +326,17 @@ public class SimpleVulkanEngine implements Engine {
 
         @Override
         public void bind() {
-            cmd.cmdBindPipeline(getPipeline());
+            cmd.cmdBindPipeline(pipeline);
         }
 
         @Override
         public void render() {
-            getMesh().render(cmd, getPipeline());
+            getMesh().render(cmd, pipeline);
+        }
+
+        @Override
+        public long getPipelineSortPosition() {
+            return 0;
         }
 
     }

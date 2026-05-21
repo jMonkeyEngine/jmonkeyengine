@@ -39,7 +39,7 @@ public class OpaqueComparator implements Comparator<RenderElement> {
 
     @Override
     public int compare(RenderElement o1, RenderElement o2) {
-        int result = Long.compare(o1.getTechniqueSortPosition(), o1.getTechniqueSortPosition());
+        int result = Long.compare(o1.getPipelineSortPosition(), o1.getPipelineSortPosition());
         if (result == 0) {
             result = Long.compare(o1.getMaterialSortPosition(), o2.getMaterialSortPosition());
             if (result == 0) {

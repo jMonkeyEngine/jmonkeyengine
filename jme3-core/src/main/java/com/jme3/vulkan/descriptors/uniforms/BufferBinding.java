@@ -22,11 +22,11 @@ public class BufferBinding extends UniformBinding<VulkanBuffer> {
     }
 
     @Override
-    public DescriptorSetWriter createWriter(VulkanBuffer value) {
+    public DescriptorSetWriter createWriter(LogicalDevice<?> device, VulkanBuffer value) {
         return new Writer(value);
     }
 
-    private class Writer implements DescriptorSetWriter {
+    private class Writer implements DescriptorSetWriter<VulkanBuffer> {
 
         private final VulkanBuffer buffer;
         private final MemorySize size;
@@ -44,6 +44,11 @@ public class BufferBinding extends UniformBinding<VulkanBuffer> {
             write.descriptorType(getType().getEnum())
                 .descriptorCount(1)
                 .dstArrayElement(0);
+        }
+
+        @Override
+        public boolean outdated(VulkanBuffer value) {
+            return false;
         }
 
         @Override

@@ -1,25 +1,36 @@
 
 package com.jme3.backend;
 
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.material.exp2.RenderSession;
-import com.jme3.vulkan.material.experimental.FrameRenderer;
 import com.jme3.vulkan.material.experimental.ShaderBindingSet;
-import com.jme3.vulkan.material.experimental.ShaderSetBuilder;
+import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.slang.ComponentType;
+import com.jme3.vulkan.slang.Session;
+import com.jme3.vulkan.util.Flag;
 
-import java.util.function.Consumer;
+import java.util.Map;
 
 public interface Engine {
 
-    /**
-     * Creates a {@link FrameRenderer} for performing rendering tasks for the current rendering frame.
-     *
-     * @param tpf time per frame
-     * @return renderer
-     */
     RenderSession createRenderSession(float tpf);
 
-    ShadingLayout createShadingLayout()
+    MappableBuffer createBuffer(long bytes, Flag<BufferUsage> usage, UpdateHint update);
 
-    ShaderBindingSet createShaderBindings(Consumer<ShaderSetBuilder> builder);
+    ShaderBindingSet createShaderSet(Map<Integer, UniformBinding> bindings);
+
+    UniformBinding createUniformBufferBinding(Flag<ShaderStage> scope);
+
+    UniformBinding createStorageBufferBinding(Flag<ShaderStage> scope);
+
+    UniformBinding createTextureBinding(Flag<ShaderStage> scope);
+
+    ShaderModule createShader(ComponentType component);
+
+    Session getSlangSession();
 
 }

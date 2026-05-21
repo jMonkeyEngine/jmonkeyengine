@@ -9,6 +9,8 @@ import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.DirectBufferMapping;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;

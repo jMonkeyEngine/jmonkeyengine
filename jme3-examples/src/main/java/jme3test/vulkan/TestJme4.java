@@ -16,7 +16,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.vulkan.commands.StandardRenderSettings;
 import com.jme3.vulkan.material.exp2.RenderSession;
-import com.jme3.vulkan.material.experimental.FrameRenderer;
 import com.jme3.vulkan.material.experimental.PBR;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 

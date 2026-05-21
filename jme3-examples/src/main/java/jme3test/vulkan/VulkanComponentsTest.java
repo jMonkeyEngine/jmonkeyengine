@@ -27,7 +27,7 @@ import com.jme3.vulkan.pipeline.PipelineLayout;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
-import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
+import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.render.BatchRenderer;
 import com.jme3.vulkan.render.RenderEngine;
@@ -120,7 +120,7 @@ public class VulkanComponentsTest {
                 d.addBinding("ColorMap", new UniformBinding(Descriptor.CombinedImageSampler, 1, ShaderStage.Fragment));
             });
         });
-        GraphicsPipeline pipeline = GraphicsPipeline.build(device, b -> {
+        DynamicGraphicsPipeline pipeline = DynamicGraphicsPipeline.build(device, b -> {
             b.setSubpass(null);
             b.setLayout(pipelineLayout);
             b.setMeshLayout(meshLayout);

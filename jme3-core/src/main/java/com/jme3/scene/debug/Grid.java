@@ -32,13 +32,10 @@
 package com.jme3.scene.debug;
 
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlMesh;
-import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
@@ -46,7 +43,6 @@ import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.Topology;
 
-import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**

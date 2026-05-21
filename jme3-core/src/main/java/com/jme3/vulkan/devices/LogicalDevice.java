@@ -18,6 +18,8 @@ import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Struct;
+import org.lwjgl.util.vma.Vma;
+import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
@@ -30,7 +32,7 @@ import java.util.stream.Collectors;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkDevice> implements BufferAllocator<VulkanBuffer> {
+public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkDevice> {
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
@@ -42,7 +44,6 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         this.instance = instance;
     }
 
-    @Override
     public VulkanBuffer allocate(long bytes, Flag<BufferUsage> usage, UpdateHint update) {
         switch (update) {
             case Stream: return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(bytes, b -> b.setUsage(usage)));
@@ -73,6 +74,10 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
     public void waitIdle() {
         vkDeviceWaitIdle(object);
+    }
+
+    public VulkanInstance getInstance() {
+        return instance;
     }
 
     public T getPhysicalDevice() {
@@ -204,6 +209,8 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
             ref = DisposableManager.get().register(LogicalDevice.this);
             physical.getInstance().getReference().addDependent(ref);
             physical.createQueues(LogicalDevice.this);
+            VmaAllocatorCreateInfo alloc = VmaAllocatorCreateInfo.calloc(stack);
+            Vma.vmaCreateAllocator(alloc, ptr);
             return LogicalDevice.this;
         }
 

@@ -2,9 +2,12 @@ package com.jme3.util.struct;
 
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.alloc.MappingArena;
+import com.jme3.vulkan.alloc.Memory;
+import com.jme3.vulkan.alloc.MemoryPointer;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,15 +29,48 @@ import java.util.logging.Logger;
  *
  * @param <T> field type accepted by the struct
  */
-public abstract class Struct <T extends StructField> implements Savable {
+public abstract class Struct <T extends StructField> implements MemoryPointer, Savable {
 
     protected static final Logger logger = Logger.getLogger(Struct.class.getName());
 
     private final List<T> fields = new LinkedList<>();
     protected StructLayout layout;
-    protected BufferMapping mapping;
-    protected int position;
+    private Memory source;
     private int size, alignment;
+
+    @Override
+    public void bind(Memory memory) {
+        this.source = memory;
+    }
+
+    @Override
+    public ByteBuffer map(MappingArena arena) {
+        assert source != null : "No memory bound.";
+        return source.map(arena);
+    }
+
+    @Override
+    public ByteBuffer map() {
+        assert source != null : "No memory bound.";
+        return source.map();
+    }
+
+    @Override
+    public void stage(long offset, long size) {
+        assert source != null : "No memory bound.";
+        source.stage(offset, size);
+    }
+
+    @Override
+    public void stage() {
+        assert source != null : "No memory bound.";
+        source.stage();
+    }
+
+    @Override
+    public Memory getBoundMemory() {
+        return source;
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -61,24 +97,6 @@ public abstract class Struct <T extends StructField> implements Savable {
     @SafeVarargs
     protected final void addFields(T... fields) {
         this.fields.addAll(Arrays.asList(fields));
-    }
-
-    public void bind(StructLayout layout, BufferMapping mapping, int position) {
-        bind(layout);
-        this.mapping = mapping;
-        this.position = position;
-    }
-
-    public void bind(BufferMapping mapping, int position) {
-        if (layout == null) {
-            bind(StructLayout.packed);
-        }
-        this.mapping = mapping;
-        this.position = position;
-    }
-
-    public void bind(Struct struct) {
-        bind(struct.getLayout(), struct.getMapping(), struct.getPosition());
     }
 
     /**
@@ -128,6 +146,22 @@ public abstract class Struct <T extends StructField> implements Savable {
         size = FastMath.toMultipleOf(size, alignment);
     }
 
+    public void set(Struct struct) {
+        ListIterator<T> dst = fields.listIterator();
+        ListIterator<StructField> src = struct.getFields().listIterator();
+        while (dst.hasNext() && src.hasNext()) {
+            dst.next().set(src.next().get());
+        }
+    }
+
+    public void setFromAlias(Struct struct) {
+        ListIterator<T> dst = fields.listIterator();
+        ListIterator<StructField> src = struct.getFields().listIterator();
+        while (dst.hasNext() && src.hasNext()) {
+            dst.next().set(src.next().alias());
+        }
+    }
+
     /**
      * Gets this struct's member fields in the order they were registered
      * as an unmodifiable list.
@@ -145,14 +179,6 @@ public abstract class Struct <T extends StructField> implements Savable {
      */
     public StructLayout getLayout() {
         return layout;
-    }
-
-    public BufferMapping getMapping() {
-        return mapping;
-    }
-
-    public int getPosition() {
-        return position;
     }
 
     /**
@@ -191,7 +217,7 @@ public abstract class Struct <T extends StructField> implements Savable {
      */
     public static class Field <T> implements StructField<T> {
 
-        private String name;
+        private final String name;
         private T alias;
         private Struct struct;
         private FieldDesc<T> description;
@@ -215,15 +241,43 @@ public abstract class Struct <T extends StructField> implements Savable {
         }
 
         @Override
+        public ByteBuffer map(MappingArena arena) {
+            ByteBuffer buf = struct.map(arena);
+            return buf.position(buf.position() + offset);
+        }
+
+        @Override
+        public ByteBuffer map() {
+            ByteBuffer buf = struct.map();
+            return buf.position(buf.position() + offset);
+        }
+
+        @Override
+        public void stage(long offset, long size) {
+            struct.stage(this.offset + offset, size);
+        }
+
+        @Override
+        public void stage() {
+            struct.stage(offset, description.getSize(struct.getLayout(), alias));
+        }
+
+        @Override
         public void set(T value) {
-            assert description != null : "Struct not bound: unable to write.";
-            description.write(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, value);
+            assert description != null : "Field not bound: unable to write.";
+            description.write(struct.getLayout(), struct.map(), value);
+        }
+
+        @Override
+        public void setAlias(T value) {
+            assert alias != null : "Alias cannot be null.";
+            this.alias = value;
         }
 
         @Override
         public T get() {
-            assert description != null : "Struct not bound: unable to read.";
-            return alias = description.read(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, alias);
+            assert description != null : "Field not bound: unable to read.";
+            return alias = description.read(struct.getLayout(), struct.map(), alias);
         }
 
         @Override

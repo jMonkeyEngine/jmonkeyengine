@@ -5,7 +5,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public interface DescriptorSetWriter {
+public interface DescriptorSetWriter <T> {
 
     /**
      * Populates write information.
@@ -15,5 +15,7 @@ public interface DescriptorSetWriter {
      * @param write write information to be populated
      */
     void populateWrite(MemoryStack stack, LogicalDevice<?> device, VkWriteDescriptorSet write);
+
+    boolean outdated(T value);
 
 }

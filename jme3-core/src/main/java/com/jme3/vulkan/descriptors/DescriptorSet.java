@@ -17,7 +17,7 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
     private final DescriptorPool pool;
     private final DescriptorSetLayout layout;
     private final Map<Integer, DescriptorSetWriter> writers = new HashMap<>();
-    private final Map<Integer, DescriptorSetWriter> staged = new HashMap<>();
+    private final Map<Integer, Object> staged = new HashMap<>();
 
     public DescriptorSet(LogicalDevice<?> device, DescriptorPool pool, DescriptorSetLayout layout, long id) {
         this.device = device;
@@ -39,7 +39,8 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
 
     @Override
     public void stage(int binding, Object value) {
-        staged.put(binding, layout.getBindings().get(binding).createWriter(value));
+        DescriptorSetWriter writer = layout.getBindings().get(binding).createWriter(value);
+        if (writer != null) staged.put(binding, writer);
     }
 
     @Override
@@ -49,16 +50,17 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(staged.size(), stack);
-            for (Map.Entry<Integer, DescriptorSetWriter> e : staged.entrySet()) {
-                if (Objects.equals(e.getValue(), writers.get(e.getKey()))) {
+            for (Map.Entry<Integer, Object> e : staged.entrySet()) {
+                DescriptorSetWriter writer = layout.getBindings().get(e.getKey()).createWriter(e.getValue());
+                if (writer == null || Objects.equals(e.getValue(), writers.get(e.getKey()))) {
                     continue;
                 }
                 VkWriteDescriptorSet nextWrite = write.get();
-                e.getValue().populateWrite(stack, device, nextWrite);
+                writer.populateWrite(stack, device, nextWrite);
                 nextWrite.sType$Default()
                         .dstSet(object)
                         .dstBinding(e.getKey());
-                writers.put(e.getKey(), e.getValue());
+                writers.put(e.getKey(), writer);
             }
             if (write.position() > 0) {
                 vkUpdateDescriptorSets(device.getNativeObject(), write.flip(), null);
@@ -77,6 +79,16 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
 
     public DescriptorSetLayout getLayout() {
         return layout;
+    }
+
+    private static class Slot {
+
+        private Object value;
+        private DescriptorSetWriter writer;
+        private boolean needsUpdate = false;
+
+        public void persist()
+
     }
 
 }

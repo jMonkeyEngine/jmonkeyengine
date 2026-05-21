@@ -4,8 +4,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.ViewPortArea;
-import com.jme3.scene.Geometry;
 import com.jme3.vulkan.VulkanEnums;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.descriptors.DescriptorSet;
@@ -13,16 +13,14 @@ import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.material.VulkanMaterial;
-import com.jme3.vulkan.material.experimental.SetBind;
+import com.jme3.vulkan.material.experimental.SetBindCommand;
 import com.jme3.vulkan.material.shader.VulkanShaderModule;
-import com.jme3.vulkan.mesh.VulkanMesh;
+import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.pipeline.*;
-import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
 import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
-import com.jme3.vulkan.pipeline.framebuffer.VulkanRenderTarget;
-import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
@@ -78,29 +76,29 @@ public class CommandBuffer implements RenderCommands {
     private RenderState forcedRenderState;
 
     private AssetManager assetManager;
-    private Cache<Pipeline> pipelineCache;
-    private Cache<PipelineLayout> layoutCache;
-    private Cache<VulkanShaderModule> shaderCache;
-    private Cache<DescriptorSetLayout> setLayoutCache;
+    private InlineTimedCache<Pipeline> pipelineCache;
+    private InlineTimedCache<PipelineLayout> layoutCache;
+    private InlineTimedCache<VulkanShaderModule> shaderCache;
+    private InlineTimedCache<DescriptorSetLayout> setLayoutCache;
 
-    private final SetBind<DescriptorSet>[][] boundSets;
+    private final SetBindCommand<DescriptorSet>[][] boundSets;
     private final int[] stagedSetRange;
 
     protected CommandBuffer(CommandPool pool, VkCommandBuffer buffer) {
         this.pool = pool;
         this.buffer = buffer;
-        this.boundSets = new SetBind[pool.getDevice().getPhysicalLimits().maxBoundDescriptorSets()][2];
+        this.boundSets = new SetBindCommand[pool.getDevice().getPhysicalLimits().maxBoundDescriptorSets()][2];
         this.stagedSetRange = new int[] {boundSets.length, 0};
     }
 
     @Override
-    public void bindFrameBuffer(FrameBuffer fbo, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore) {
+    public void cmdBindFrameBuffer(FrameBuffer fbo, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore) {
         activeFrameBuffer = (VulkanFrameBuffer)fbo;
         activeFrameBuffer.beginDynamicRender(this, colorLoad, colorStore, depthLoad, depthStore);
     }
 
     @Override
-    public void setViewPort(ViewPortArea area) {
+    public void cmdSetViewPort(ViewPortArea area) {
         if (activeViewPort.equals(area)) {
             return;
         }
@@ -117,46 +115,14 @@ public class CommandBuffer implements RenderCommands {
     }
 
     @Override
-    public void renderGeometry(Geometry geometry) {
-        VertexPipeline pipeline = GraphicsPipeline.build(pool.getDevice(), b -> {
-            b.setCache(pipelineCache);
-            b.setLayoutCache(layoutCache);
-            b.setShaderCache(shaderCache);
-            b.setSetLayoutCache(setLayoutCache);
-            b.setFrameBuffer(activeFrameBuffer);
-            b.setDynamic(DynamicState.ViewPort, true);
-            b.setDynamic(DynamicState.Scissor, true);
-            b.setDepthClamp(true);
-            b.applyGeometry(assetManager, geometry, activeTechnique);
-            b.applyRenderState(new RenderState().integrateGeometryStates(geometry, forcedState,
-                    geometry.getMaterial().getAdditionalRenderState(),
-                    geometry.getMaterial().getActiveTechnique().getRenderState()));
-        });
-        if (pipeline != activePipeline) {
-            (activePipeline = pipeline).bind(this);
+    public void cmdCopyBuffer(MappableBuffer src, MappableBuffer dst, MemorySize... regions) {
+        if (regions.length == 0) {
+            return;
         }
-        if (geometry.getMaterial() != activeMaterial) {
-            activeMaterial = (VulkanMaterial)geometry.getMaterial();
-            activeMaterial.bind(this, pipeline, descriptorPool);
-        }
-        uploadBuffers(stream);
-        ((VulkanMesh)geometry.getMesh()).render(this, pipeline);
-    }
-
-    @Override
-    public void blitFrameBuffer(FrameBuffer src, FrameBuffer dst, Flag<VulkanImage.Aspect> aspects) {
-        if (aspects.isEmpty()) return;
-        VulkanFrameBuffer<VulkanRenderTarget> source = (VulkanFrameBuffer)src;
-        VulkanFrameBuffer<VulkanRenderTarget> dest = (VulkanFrameBuffer)dst;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            if (aspects.containsAny(VulkanImage.Aspect.Color)) {
-                for (ListIterator<VulkanRenderTarget> s = source.getColorTargets().listIterator(),
-                        d = dest.getColorTargets().listIterator(); s.hasNext() && d.hasNext();) {
-                    s.next().getView().getImage().copyTo(stack, this, d.next().getView().getImage(), aspects);
-                }
-            }
-            if (aspects.containsAny(VulkanImage.Aspect.DepthStencil)) {
-                source.getDepthTarget().getView().getImage().copyTo(stack, this, dest.getDepthTarget().getView().getImage(), aspects);
+            VkBufferCopy.Buffer copy = VkBufferCopy.malloc(regions.length, stack);
+            for (MemorySize r : regions) {
+                copy.get().set()
             }
         }
     }
@@ -164,7 +130,7 @@ public class CommandBuffer implements RenderCommands {
     public void cmdBindPipeline(Pipeline pipeline) {
         if (pipeline != activePipeline) {
             if (activePipeline != null && !pipeline.getLayout().equals(activePipeline.getLayout())) {
-                for (SetBind<DescriptorSet>[] stack : boundSets) {
+                for (SetBindCommand<DescriptorSet>[] stack : boundSets) {
                     stack[ACTIVE_SET] = null;
                 }
             }
@@ -173,7 +139,7 @@ public class CommandBuffer implements RenderCommands {
         }
     }
 
-    public void stageShaderSets(int location, SetBind... sets) {
+    public void stageShaderSets(int location, SetBindCommand... sets) {
         for (int i = 0; i < sets.length; i++) {
             boundSets[location + i][STAGED_SET] = sets[i];
         }
@@ -183,8 +149,8 @@ public class CommandBuffer implements RenderCommands {
 
     public void fillPipelineLayoutSets(PipelineLayout.Builder layout) {
         for (int i = 0; i < boundSets.length; i++) {
-            SetBind<DescriptorSet>[] stack = boundSets[i];
-            SetBind<DescriptorSet> set = (stack[STAGED_SET] == null ? stack[ACTIVE_SET] : stack[STAGED_SET]);
+            SetBindCommand<DescriptorSet>[] stack = boundSets[i];
+            SetBindCommand<DescriptorSet> set = (stack[STAGED_SET] == null ? stack[ACTIVE_SET] : stack[STAGED_SET]);
             if (set != null) layout.addSetLayout(i, set.getSet().getLayout());
         }
     }
@@ -201,7 +167,7 @@ public class CommandBuffer implements RenderCommands {
             IntBuffer offsets = stack.mallocInt(binds.capacity());
             for (int i = stagedSetRange[LOWER], location = i; i < stagedSetRange[UPPER]; i++) {
                 for (; i < boundSets.length && boundSets[i][STAGED_SET] != null && !boundSets[i][STAGED_SET].equals(boundSets[i][ACTIVE_SET]); i++) {
-                    SetBind<DescriptorSet>[] bindStack = boundSets[i];
+                    SetBindCommand<DescriptorSet>[] bindStack = boundSets[i];
                     bindStack[ACTIVE_SET] = bindStack[STAGED_SET];
                     bindStack[STAGED_SET] = null;
                     binds.put(bindStack[ACTIVE_SET].getSet().getNativeObject());
@@ -394,7 +360,7 @@ public class CommandBuffer implements RenderCommands {
         signals.clear();
         waits.clear();
         completionListeners.clear();
-        for (SetBind<DescriptorSet>[] s : boundSets) {
+        for (SetBindCommand<DescriptorSet>[] s : boundSets) {
             Arrays.fill(s, null);
         }
         stagedSetRange[LOWER] = boundSets.length;

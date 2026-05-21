@@ -6,16 +6,12 @@ public interface ShaderBindingSet {
 
     void write();
 
-    default SetBind bind() {
-        return new SetBind(this);
+    default SetBindCommand bind(int dynamicOffset) {
+        return new SetBindCommand(this, dynamicOffset);
     }
 
-    default SetBind bind(int offset) {
-        return new SetBind(this, offset);
-    }
-
-    default SetLayout layout(int location) {
-        return new SetLayout(this, location);
+    default SetBindCommand bind() {
+        return new SetBindCommand(this, 0);
     }
 
 }

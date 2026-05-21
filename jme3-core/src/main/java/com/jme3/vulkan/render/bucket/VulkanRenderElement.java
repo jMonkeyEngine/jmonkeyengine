@@ -13,7 +13,6 @@ public abstract class VulkanRenderElement implements RenderElement {
     private final Geometry geometry;
     private final VulkanMesh mesh;
     private final VulkanMaterial material;
-    private final VertexPipeline pipeline;
     private float distance = Float.NaN;
     private float distanceSq = Float.NaN;
 
@@ -22,10 +21,7 @@ public abstract class VulkanRenderElement implements RenderElement {
         this.geometry = geometry;
         this.mesh = (VulkanMesh)geometry.getMesh();
         this.material = (VulkanMaterial)geometry.getMaterial();
-        this.pipeline = createPipeline();
     }
-
-    protected abstract VertexPipeline createPipeline();
 
     @Override
     public float computeDistanceSq() {
@@ -55,17 +51,8 @@ public abstract class VulkanRenderElement implements RenderElement {
     }
 
     @Override
-    public long getTechniqueSortPosition() {
-        return pipeline.getSortPosition();
-    }
-
-    @Override
     public long getMaterialSortPosition() {
         return 0;
-    }
-
-    public VertexPipeline getPipeline() {
-        return pipeline;
     }
 
 }

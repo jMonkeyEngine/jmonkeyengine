@@ -1,5 +1,7 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.DirectBufferMapping;
 import com.jme3.vulkan.memory.MemorySize;
 
 public class PersistentBuffer <T extends MappableBuffer> implements MappableBuffer {

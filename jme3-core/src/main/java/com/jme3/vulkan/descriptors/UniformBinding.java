@@ -1,5 +1,6 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -19,7 +20,7 @@ public abstract class UniformBinding <T> {
         this.stages = stages;
     }
 
-    public abstract DescriptorSetWriter createWriter(T value);
+    public abstract DescriptorSetWriter createWriter(LogicalDevice<?> device, T value);
 
     public void fillLayoutBinding(VkDescriptorSetLayoutBinding layoutBinding) {
         layoutBinding.descriptorType(type.getEnum())

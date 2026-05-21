@@ -5,7 +5,7 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 
-public class VulkanRenderer implements RenderGlobals {
+public class VulkanRenderer implements ShadingGlobals {
 
     private final CommandBuffer cmd;
     private final Semaphore imageAcquired, renderComplete;

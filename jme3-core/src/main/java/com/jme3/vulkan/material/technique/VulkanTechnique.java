@@ -8,7 +8,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.uniforms.ShaderParam;
 import com.jme3.vulkan.pipeline.PipelineLayout;
-import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.vulkan.material.shader.VulkanShaderModule;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
@@ -87,7 +87,7 @@ public class VulkanTechnique implements NewTechnique {
     }
 
     public Collection<VulkanShaderModule> getShaders(LogicalDevice<?> device, AssetManager assetManager,
-                                                     Cache<VulkanShaderModule> cache, VulkanMaterial material) {
+                                                     InlineTimedCache<VulkanShaderModule> cache, VulkanMaterial material) {
         Collection<VulkanShaderModule> modules = new ArrayList<>(shaders.size());
         for (Map.Entry<ShaderStage, String> shaderInfo : shaders.entrySet()) {
             modules.add(VulkanShaderModule.build(device, assetManager, s -> {
@@ -105,8 +105,8 @@ public class VulkanTechnique implements NewTechnique {
         return modules;
     }
 
-    public PipelineLayout getLayout(LogicalDevice<?> device, Cache<PipelineLayout> layoutCache,
-                                    Cache<DescriptorSetLayout> setCache) {
+    public PipelineLayout getLayout(LogicalDevice<?> device, InlineTimedCache<PipelineLayout> layoutCache,
+                                    InlineTimedCache<DescriptorSetLayout> setCache) {
         return PipelineLayout.build(device, p -> {
             p.setCache(layoutCache);
             for (Map<String, UniformBinding> set : bindings) {

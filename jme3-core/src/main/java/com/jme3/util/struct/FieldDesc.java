@@ -1,6 +1,6 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.buffers.BufferMapping;
+import java.nio.ByteBuffer;
 
 public interface FieldDesc<T> {
 
@@ -8,8 +8,8 @@ public interface FieldDesc<T> {
 
     int getAlignment(StructLayout layout, T value);
 
-    void write(StructLayout layout, BufferMapping mapping, int position, T value);
+    void write(StructLayout layout, ByteBuffer buffer, T value);
 
-    T read(StructLayout layout, BufferMapping mapping, int position, T store);
+    T read(StructLayout layout, ByteBuffer buffer, T store);
 
 }

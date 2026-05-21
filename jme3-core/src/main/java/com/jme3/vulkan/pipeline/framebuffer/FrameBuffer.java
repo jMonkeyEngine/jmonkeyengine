@@ -24,8 +24,12 @@ public class FrameBuffer <T extends ImageView> {
         return depthStencilTarget;
     }
 
+    public boolean isUsingDepth() {
+        return depthStencilTarget != null;
+    }
+
     public boolean isUsingStencil() {
-        return depthStencilTarget != null && depthStencilTarget.getAspects().containsAny(VulkanImage.Aspect.Stencil);
+        return isUsingDepth() && depthStencilTarget.getAspects().containsAny(VulkanImage.Aspect.Stencil);
     }
 
     public Point getArea() {

@@ -4,10 +4,11 @@ import com.jme3.export.*;
 import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.DirectBufferMapping;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.tmp.Final;
 import com.jme3.vulkan.tmp.FinalWriter;
-import com.jme3.vulkan.tmp.SerializationOnly;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;

@@ -42,7 +42,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attribute.Attribute;
 import org.lwjgl.system.MemoryUtil;

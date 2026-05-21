@@ -4,6 +4,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.tmp.Final;
 import com.jme3.vulkan.tmp.FinalWriter;

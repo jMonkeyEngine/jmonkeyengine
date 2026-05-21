@@ -31,9 +31,8 @@
  */
 package com.jme3.material;
 
-import com.jme3.vulkan.material.experimental.ShaderInterface;
-
-import java.util.function.Function;
+import com.jme3.vulkan.material.experimental.ShadingInterface;
+import com.jme3.vulkan.pipeline.state.GraphicsState;
 
 /**
  *
@@ -41,16 +40,16 @@ import java.util.function.Function;
  */
 public interface Material {
 
-    void setParameter(String name, Object value);
+    <T extends ShadingInterface> void setInterface(Class<T> type, T shaderInterface);
 
-    <P> P getParameter(String name);
+    <T extends ShadingInterface> T getInterface(Class<T> type);
 
-    <T extends ShaderInterface> void setInterface(Class<T> type, Function<Material, T> factory);
+    boolean containsInterface(Class<? extends ShadingInterface> type);
 
-    <T extends ShaderInterface> T getInterface(Class<T> type);
+    GraphicsState getGraphicsState();
 
-    boolean containsInterface(Class<? extends ShaderInterface> type);
-
-    RenderState getAdditionalRenderState();
+    default <T extends ShadingInterface> void setInterface(T shaderInterface) {
+        setInterface((Class<T>)shaderInterface.getClass(), shaderInterface);
+    }
 
 }

@@ -3,9 +3,14 @@ package com.jme3.vulkan.buffers;
 import com.jme3.export.Savable;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.memory.MemorySize;
 
-public interface MappableBuffer extends Mappable, Savable {
+/**
+ * @deprecated use {@link com.jme3.vulkan.buffernew.GpuBuffer} instead
+ */
+@Deprecated
+public interface MappableBuffer extends Savable {
 
     /**
      * Maps the memory of this buffer and returns a pointer to the mapped
@@ -27,6 +32,11 @@ public interface MappableBuffer extends Mappable, Savable {
      * @param size size of the region in bytes
      */
     void stage(long offset, long size);
+
+    /**
+     * Flushes {@link #stage(long, long) staged} regions to the GPU.
+     */
+    void flush();
 
     /**
      * Resizes this buffer.

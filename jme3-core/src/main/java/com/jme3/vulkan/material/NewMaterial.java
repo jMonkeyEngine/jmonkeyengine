@@ -1,11 +1,11 @@
 package com.jme3.vulkan.material;
 
 import com.jme3.material.RenderState;
-import com.jme3.vulkan.buffers.BufferMapping;
-import com.jme3.vulkan.buffers.DirectBufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.DirectBufferMapping;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
-import com.jme3.vulkan.material.experimental.ShaderInterface;
+import com.jme3.vulkan.material.experimental.ShadingInterface;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.material.technique.PushConstantRange;
 import com.jme3.vulkan.material.uniforms.VulkanUniform;
@@ -24,7 +24,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class NewMaterial implements VulkanMaterial {
 
     private final Map<String, Object> parameters = new HashMap<>();
-    private final Set<Class<? extends ShaderInterface>> interfaces = new HashSet<>();
+    private final Set<Class<? extends ShadingInterface>> interfaces = new HashSet<>();
     private final Map<DescriptorSetLayout, CachedDescriptorSet> setCache = new HashMap<>();
     private final RenderState renderState = new RenderState();
 
@@ -91,13 +91,13 @@ public class NewMaterial implements VulkanMaterial {
     }
 
     @Override
-    public void enableInterface(Class<? extends ShaderInterface> interfaceType, boolean enable) {
+    public void enableInterface(Class<? extends ShadingInterface> interfaceType, boolean enable) {
         if (enable) interfaces.add(interfaceType);
         else interfaces.remove(interfaceType);
     }
 
     @Override
-    public boolean isInterfaceEnabled(Class<? extends ShaderInterface> interfaceType) {
+    public boolean isInterfaceEnabled(Class<? extends ShadingInterface> interfaceType) {
         return interfaces.contains(interfaceType);
     }
 

@@ -65,7 +65,7 @@ import com.jme3.util.NativeObjectManager;
 
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.OpenGLEnums;
-import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.stream.DirtyRegions;

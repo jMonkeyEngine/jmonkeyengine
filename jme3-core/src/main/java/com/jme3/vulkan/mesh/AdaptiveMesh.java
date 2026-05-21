@@ -27,6 +27,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import static org.lwjgl.vulkan.VK10.*;
@@ -58,9 +59,7 @@ public class AdaptiveMesh implements VulkanMesh, GlMesh, Mesh {
         if (vertices <= 0 || instances <= 0) {
             return;
         }
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            pipeline.bindVertexBuffers(stack, cmd, vertexBuffers);
-        }
+        pipeline.bindVertexBuffers(cmd, vertexBuffers);
         if (activeIndex == null) {
             selectLevelOfDetail(0);
         }
@@ -75,8 +74,8 @@ public class AdaptiveMesh implements VulkanMesh, GlMesh, Mesh {
     }
 
     @Override
-    public VertexInput declareVertexInput(VertexPipeline pipeline) {
-        return new VertexInput(pipeline, vertexBuffers);
+    public VertexInput declareVertexInput(Function<String, Integer> attributeMapper) {
+        return new VertexInput(attributeMapper, vertexBuffers);
     }
 
     @Override

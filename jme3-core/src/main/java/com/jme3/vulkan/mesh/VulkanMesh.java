@@ -8,6 +8,4 @@ public interface VulkanMesh extends Mesh {
 
     void render(CommandBuffer cmd, VertexPipeline pipeline);
 
-    VertexInput declareVertexInput(VertexPipeline pipeline);
-
 }
