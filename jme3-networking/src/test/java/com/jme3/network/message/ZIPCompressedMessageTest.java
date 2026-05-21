@@ -52,9 +52,9 @@ public class ZIPCompressedMessageTest {
         ZIPCompressedMessage second = new ZIPCompressedMessage(new TestMessage(), 1);
         ZIPCompressedMessage third = new ZIPCompressedMessage(new TestMessage());
 
-        assertEquals(6, first.getLevel());
-        assertEquals(1, second.getLevel());
-        assertEquals(6, third.getLevel());
+        assertEquals(6, first.getCompressionLevel());
+        assertEquals(1, second.getCompressionLevel());
+        assertEquals(6, third.getCompressionLevel());
     }
 
     @Test
@@ -66,8 +66,16 @@ public class ZIPCompressedMessageTest {
         ZIPCompressedMessage.setLevel(4);
         ZIPCompressedMessage second = new ZIPCompressedMessage(new TestMessage());
 
-        assertEquals(9, first.getLevel());
-        assertEquals(4, second.getLevel());
+        assertEquals(9, first.getCompressionLevel());
+        assertEquals(4, second.getCompressionLevel());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testDeprecatedGetLevelDelegatesToGetCompressionLevel() {
+        ZIPCompressedMessage message = new ZIPCompressedMessage(new TestMessage(), 3);
+
+        assertEquals(message.getCompressionLevel(), message.getLevel());
     }
 
     private static class TestMessage extends AbstractMessage {

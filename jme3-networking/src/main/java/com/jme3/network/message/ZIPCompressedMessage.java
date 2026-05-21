@@ -99,5 +99,18 @@ public class ZIPCompressedMessage extends CompressedMessage {
      *
      * @return the ZIP compression level
      */
-    public int getLevel() { return compressionLevel; }
+    public int getCompressionLevel() {
+        return compressionLevel;
+    }
+
+    /**
+     * Returns this message's configured ZIP compression level.
+     *
+     * @return the ZIP compression level
+     * @deprecated Use {@link #getCompressionLevel()}.
+     */
+    @Deprecated
+    public int getLevel() {
+        return getCompressionLevel();
+    }
 }

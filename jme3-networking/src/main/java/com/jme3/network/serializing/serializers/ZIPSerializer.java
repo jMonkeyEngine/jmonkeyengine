@@ -100,7 +100,7 @@ public class ZIPSerializer extends Serializer {
 
         ByteArrayOutputStream byteArrayOutput = new ByteArrayOutputStream();
         ZipOutputStream zipOutput = new ZipOutputStream(byteArrayOutput);
-        zipOutput.setLevel(zipMessage.getLevel());
+        zipOutput.setLevel(zipMessage.getCompressionLevel());
 
         ZipEntry zipEntry = new ZipEntry("zip");
 
