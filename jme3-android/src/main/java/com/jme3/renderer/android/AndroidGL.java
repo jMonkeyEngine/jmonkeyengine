@@ -81,6 +81,62 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         return buffer.limit() / elementSize;
     }
 
+    private static int getRemainingBytes(ByteBuffer buffer) {
+        checkLimit(buffer);
+        return buffer.remaining();
+    }
+
+    private static int getRemainingBytes(IntBuffer buffer) {
+        checkLimit(buffer);
+        return checkedLongToInt((long) buffer.remaining() * 4L, "buffer size");
+    }
+
+    private static int checkedLongToInt(long value, String name) {
+        if (value < 0 || value > Integer.MAX_VALUE) {
+            throw new RendererException(name + " exceeds the range supported by Android GLES bindings: " + value);
+        }
+        return (int) value;
+    }
+
+    private static long getSyncHandle(Object sync) {
+        if (!(sync instanceof Long)) {
+            throw new IllegalArgumentException("Expected a sync object returned by glFenceSync");
+        }
+        return (Long) sync;
+    }
+
+    private static int getBooleanValueCount(int pname) {
+        if (pname == GLES20.GL_COLOR_WRITEMASK) {
+            return 4;
+        }
+        return 1;
+    }
+
+    private static String joinShaderSource(String[] strings, IntBuffer lengths) {
+        StringBuilder builder = new StringBuilder();
+        int lengthPosition = lengths == null ? 0 : lengths.position();
+
+        for (int i = 0; i < strings.length; i++) {
+            String source = strings[i];
+            if (lengths != null) {
+                int length = lengths.get(lengthPosition + i);
+                if (length >= 0 && length < source.length()) {
+                    builder.append(source, 0, length);
+                    continue;
+                }
+            }
+            builder.append(source);
+        }
+
+        return builder.toString();
+    }
+
+    private static void unmapBufferAfterRead(int target) {
+        if (!GLES30.glUnmapBuffer(target)) {
+            throw new RendererException("Mapped buffer data became corrupted while reading");
+        }
+    }
+
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
             return;
@@ -148,32 +204,57 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glBufferData(int target, long dataSize, int usage) {
-        GLES20.glBufferData(target, (int) dataSize, null, usage);
+        GLES20.glBufferData(target, checkedLongToInt(dataSize, "data size"), null, usage);
     }
 
     @Override
     public void glBufferSubData(int target, long offset, FloatBuffer data) {
-        GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
+        GLES20.glBufferSubData(target, checkedLongToInt(offset, "offset"), getLimitBytes(data), data);
     }
 
     @Override
     public void glBufferSubData(int target, long offset, ShortBuffer data) {
-        GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
+        GLES20.glBufferSubData(target, checkedLongToInt(offset, "offset"), getLimitBytes(data), data);
     }
 
     @Override
     public void glBufferSubData(int target, long offset, ByteBuffer data) {
-        GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
+        GLES20.glBufferSubData(target, checkedLongToInt(offset, "offset"), getLimitBytes(data), data);
     }
 
     @Override
     public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support glGetBufferSubData");
+        int byteCount = getRemainingBytes(data);
+        Buffer mapped = GLES30.glMapBufferRange(target, checkedLongToInt(offset, "offset"), byteCount, GLES30.GL_MAP_READ_BIT);
+        if (!(mapped instanceof ByteBuffer)) {
+            throw new RendererException("Unable to map buffer for reading");
+        }
+
+        try {
+            ByteBuffer source = (ByteBuffer) mapped;
+            source.limit(byteCount);
+            data.duplicate().put(source);
+        } finally {
+            unmapBufferAfterRead(target);
+        }
     }
 
     @Override
     public void glGetBufferSubData(int target, long offset, IntBuffer data) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support glGetBufferSubData");
+        int byteCount = getRemainingBytes(data);
+        Buffer mapped = GLES30.glMapBufferRange(target, checkedLongToInt(offset, "offset"), byteCount, GLES30.GL_MAP_READ_BIT);
+        if (!(mapped instanceof ByteBuffer)) {
+            throw new RendererException("Unable to map buffer for reading");
+        }
+
+        try {
+            ByteBuffer source = (ByteBuffer) mapped;
+            source.limit(byteCount);
+            source.order(data.order());
+            data.duplicate().put(source.asIntBuffer());
+        } finally {
+            unmapBufferAfterRead(target);
+        }
     }
 
     @Override
@@ -280,7 +361,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices) {
-        GLES20.glDrawElements(mode, count, type, (int)indices);
+        GLES30.glDrawRangeElements(mode, start, end, count, type, checkedLongToInt(indices, "indices offset"));
     }
 
     @Override
@@ -325,8 +406,18 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glGetBoolean(int pname, ByteBuffer params) {
-        // GLES20.glGetBoolean(pname, params);
-        throw new UnsupportedOperationException("Today is not a good day for this");
+        checkLimit(params);
+        int count = getBooleanValueCount(pname);
+        if (params.remaining() < count) {
+            throw new RendererException("Insufficient buffer space for boolean query result");
+        }
+        boolean[] values = new boolean[count];
+        GLES20.glGetBooleanv(pname, values, 0);
+
+        ByteBuffer destination = params.duplicate();
+        for (boolean value : values) {
+            destination.put((byte) (value ? GLES20.GL_TRUE : GLES20.GL_FALSE));
+        }
     }
 
     @Override
@@ -427,10 +518,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glShaderSource(int shader, String[] string, IntBuffer length) {
-        if (string.length != 1) {
-            throw new UnsupportedOperationException("Today is not a good day");
-        }
-        GLES20.glShaderSource(shader, string[0]);
+        GLES20.glShaderSource(shader, joinShaderSource(string, length));
     }
 
     @Override
@@ -545,7 +633,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glVertexAttribPointer(int index, int size, int type, boolean normalized, int stride, long pointer) {
-        GLES20.glVertexAttribPointer(index, size, type, normalized, stride, (int)pointer);
+        GLES20.glVertexAttribPointer(index, size, type, normalized, stride, checkedLongToInt(pointer, "pointer offset"));
     }
 
     @Override
@@ -565,7 +653,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glBufferSubData(int target, long offset, IntBuffer data) {
-        GLES20.glBufferSubData(target, (int)offset, getLimitBytes(data), data);
+        GLES20.glBufferSubData(target, checkedLongToInt(offset, "offset"), getLimitBytes(data), data);
     }
 
     @Override
@@ -580,12 +668,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glDrawElementsInstancedARB(int mode, int indicesCount, int type, long indicesBufferOffset, int primcount) {
-        GLES30.glDrawElementsInstanced(mode, indicesCount, type, (int)indicesBufferOffset, primcount);
+        GLES30.glDrawElementsInstanced(mode, indicesCount, type, checkedLongToInt(indicesBufferOffset, "indices offset"), primcount);
     }
 
     @Override
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        GLES31.glGetMultisamplefv(pname, index, val);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
@@ -595,7 +683,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
@@ -620,15 +708,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
-        return GLES31.glGetProgramResourceIndex(program, programInterface, name);
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
-        /*
-         * GLES 3.1 exposes shader storage block binding through GLSL layout(binding = N).
-         * Android's GLES31 Java bindings do not expose glShaderStorageBlockBinding.
-         */
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override
@@ -692,23 +777,22 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glReadPixels(int x, int y, int width, int height, int format, int type, long offset) {
-        // TODO: no offset???
-        GLES20.glReadPixels(x, y, width, height, format, type, null);
+        GLES30.glReadPixels(x, y, width, height, format, type, checkedLongToInt(offset, "offset"));
     }
 
     @Override
     public int glClientWaitSync(Object sync, int flags, long timeout) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+        return GLES30.glClientWaitSync(getSyncHandle(sync), flags, timeout);
     }
 
     @Override
     public void glDeleteSync(Object sync) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+        GLES30.glDeleteSync(getSyncHandle(sync));
     }
 
     @Override
     public Object glFenceSync(int condition, int flags) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+        return GLES30.glFenceSync(condition, flags);
     }
 
     @Override

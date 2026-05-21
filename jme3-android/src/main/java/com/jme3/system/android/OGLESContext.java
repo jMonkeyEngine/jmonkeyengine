@@ -59,6 +59,7 @@ import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.material.Material;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.*;
@@ -101,6 +102,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     private Application application;
     private Material blitMaterial;
     private Picture blitGeometry;
+    private final Camera blitCamera = new Camera(1, 1);
     private FrameBuffer linearFrameBuffer;
     private Texture2D linearFrameBufferColorTexture;
     private boolean linearFrameBufferDirty;
@@ -693,12 +695,27 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
 
         renderer.setMainFrameBufferOverride(null);
+        RenderManager renderManager = application.getRenderManager();
+        Camera previousCamera = renderManager.getCurrentCamera();
         try {
             renderer.setFrameBuffer(null);
+            int blitWidth = linearFrameBuffer.getWidth();
+            int blitHeight = linearFrameBuffer.getHeight();
+            if (blitCamera.getWidth() != blitWidth || blitCamera.getHeight() != blitHeight) {
+                blitCamera.resize(blitWidth, blitHeight, true);
+            }
+            renderManager.setCamera(blitCamera, true);
+            if (blitGeometry.getWidth() != blitWidth || blitGeometry.getHeight() != blitHeight) {
+                blitGeometry.setWidth(blitWidth);
+                blitGeometry.setHeight(blitHeight);
+            }            
             blitGeometry.updateGeometricState();
-            application.getRenderManager().renderGeometry(blitGeometry);
+            renderManager.renderGeometry(blitGeometry);
         } finally {
             renderer.setMainFrameBufferOverride(restoreMainFramebuffer);
+            if (previousCamera != null) {
+                renderManager.setCamera(previousCamera, false);
+            }
         }
         return true;
     }

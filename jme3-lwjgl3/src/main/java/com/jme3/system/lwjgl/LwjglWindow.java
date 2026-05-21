@@ -57,6 +57,7 @@ import com.jme3.input.lwjgl.SdlMouseInput;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
@@ -216,6 +217,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private final Vector2f oldScale = new Vector2f(1, 1);
     private Material auxFramebufferBlitMaterial;
     private Picture auxFramebufferBlitGeometry;
+    private final Camera auxFramebufferBlitCamera = new Camera(1, 1);
     private FrameBuffer auxFramebuffer;
     private Texture2D auxFramebufferColorTexture;
     private boolean auxFramebufferDirty;
@@ -872,12 +874,27 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         glRenderer.setMainFrameBufferOverride(null);
+        Camera previousCamera = renderManager.getCurrentCamera();
         try {
             glRenderer.setFrameBuffer(null);
+            int blitWidth = auxFramebuffer.getWidth();
+            int blitHeight = auxFramebuffer.getHeight();
+            if (auxFramebufferBlitCamera.getWidth() != blitWidth
+                    || auxFramebufferBlitCamera.getHeight() != blitHeight) {
+                auxFramebufferBlitCamera.resize(blitWidth, blitHeight, true);
+            }
+            renderManager.setCamera(auxFramebufferBlitCamera, true);
+            if (auxFramebufferBlitGeometry.getWidth() != blitWidth || auxFramebufferBlitGeometry.getHeight() != blitHeight) {
+                auxFramebufferBlitGeometry.setWidth(blitWidth);
+                auxFramebufferBlitGeometry.setHeight(blitHeight);
+            }
             auxFramebufferBlitGeometry.updateGeometricState();
             renderManager.renderGeometry(auxFramebufferBlitGeometry);
         } finally {
             glRenderer.setMainFrameBufferOverride(restoreMainFramebuffer);
+            if (previousCamera != null) {
+                renderManager.setCamera(previousCamera, false);
+            }
         }
         return true;
     }
