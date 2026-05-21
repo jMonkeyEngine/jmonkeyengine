@@ -131,6 +131,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         return builder.toString();
     }
 
+    private static void unmapBufferAfterRead(int target) {
+        if (!GLES30.glUnmapBuffer(target)) {
+            throw new RendererException("Mapped buffer data became corrupted while reading");
+        }
+    }
+
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
             return;
@@ -229,7 +235,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
             source.limit(byteCount);
             data.duplicate().put(source);
         } finally {
-            GLES30.glUnmapBuffer(target);
+            unmapBufferAfterRead(target);
         }
     }
 
@@ -247,7 +253,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
             source.order(data.order());
             data.duplicate().put(source.asIntBuffer());
         } finally {
-            GLES30.glUnmapBuffer(target);
+            unmapBufferAfterRead(target);
         }
     }
 
@@ -355,7 +361,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices) {
-        GLES20.glDrawElements(mode, count, type, checkedLongToInt(indices, "indices offset"));
+        GLES30.glDrawRangeElements(mode, start, end, count, type, checkedLongToInt(indices, "indices offset"));
     }
 
     @Override
@@ -667,7 +673,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        GLES31.glGetMultisamplefv(pname, index, val);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
@@ -677,7 +683,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
@@ -702,15 +708,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
-        return GLES31.glGetProgramResourceIndex(program, programInterface, name);
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
-        /*
-         * GLES 3.1 exposes shader storage block binding through GLSL layout(binding = N).
-         * Android's GLES31 Java bindings do not expose glShaderStorageBlockBinding.
-         */
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override

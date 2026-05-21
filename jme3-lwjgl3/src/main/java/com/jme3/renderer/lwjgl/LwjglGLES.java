@@ -17,7 +17,6 @@ import java.nio.ShortBuffer;
 import org.lwjgl.opengles.GLES;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.opengles.GLES30;
-import org.lwjgl.opengles.GLES31;
 import org.lwjgl.opengles.EXTDisjointTimerQuery;
 import org.lwjgl.system.MemoryUtil;
 
@@ -630,15 +629,12 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
-        return GLES31.glGetProgramResourceIndex(program, programInterface, name);
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
-        /*
-         * GLES 3.1 exposes shader storage block binding through GLSL layout(binding = N),
-         * but not as a GL entry point.
-         */
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 
     @Override
@@ -738,15 +734,13 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        checkLimit(val);
-        GLES31.glGetMultisamplefv(pname, index, val);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height,
             boolean fixedSampleLocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height,
-                fixedSampleLocations);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
 
