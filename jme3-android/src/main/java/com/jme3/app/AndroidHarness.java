@@ -184,7 +184,7 @@ public class AndroidHarness extends FragmentActivity
                 new AlertDialog.Builder(AndroidHarness.this)
                         .setTitle(finalTitle)
                         .setMessage(finalMessage)
-                        .setPositiveButton("Kill", AndroidHarness.this)
+                        .setPositiveButton("Close", AndroidHarness.this)
                         .create()
                         .show();
             }
