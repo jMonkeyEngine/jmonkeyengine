@@ -442,6 +442,31 @@ public class SdlJoystickInput implements JoyInput {
 
             case SDL_GAMEPAD_BUTTON_LABEL_UNKNOWN:
             default:
+                break;
+        }
+
+        switch (sdlButtonIndex) {
+            case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
+                return "LEFT SHOULDER";
+            case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER:
+                return "RIGHT SHOULDER";
+            case SDL_GAMEPAD_BUTTON_BACK:
+                return "BACK";
+            case SDL_GAMEPAD_BUTTON_START:
+                return "START";
+            case SDL_GAMEPAD_BUTTON_LEFT_STICK:
+                return "LEFT STICK";
+            case SDL_GAMEPAD_BUTTON_RIGHT_STICK:
+                return "RIGHT STICK";
+            case SDL_GAMEPAD_BUTTON_DPAD_UP:
+                return "D-PAD UP";
+            case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+                return "D-PAD DOWN";
+            case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+                return "D-PAD LEFT";
+            case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+                return "D-PAD RIGHT";
+            default:
                 return "" + sdlButtonIndex;
         }
     }
