@@ -1,3 +1,30 @@
+repositories {
+    def libJGLIOSRepositories = []
+    if ((findProperty('libJGLIOSLocal') ?: 'false').toString().toBoolean()) {
+        libJGLIOSRepositories << mavenLocal()
+    }
+    libJGLIOSRepositories << maven {
+        name = 'CentralSnapshots'
+        url = uri('https://central.sonatype.com/repository/maven-snapshots/')
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+    exclusiveContent {
+        forRepositories(*libJGLIOSRepositories)
+        filter {
+            includeModule('org.ngengine', 'libjglios-core-ios')
+            includeModule('org.ngengine', 'libjglios-gles-ios')
+            includeModule('org.ngengine', 'libjglios-sdl3-ios')
+            includeModule('org.ngengine', 'libjglios-openal-ios')
+        }
+    }
+}
+
 dependencies {
     api project(':jme3-core')
+    api 'org.ngengine:libjglios-core-ios:0.1.0-SNAPSHOT'
+    api 'org.ngengine:libjglios-gles-ios:0.1.0-SNAPSHOT'
+    api 'org.ngengine:libjglios-sdl3-ios:0.1.0-SNAPSHOT'
+    api 'org.ngengine:libjglios-openal-ios:0.1.0-SNAPSHOT'
 }

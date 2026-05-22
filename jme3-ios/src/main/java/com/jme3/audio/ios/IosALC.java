@@ -1,34 +1,50 @@
 package com.jme3.audio.ios;
 
 import com.jme3.audio.openal.ALC;
+
 import java.nio.IntBuffer;
 
 public final class IosALC implements ALC {
-    
     public IosALC() {
     }
 
     @Override
-    public native void createALC();
+    public void createALC() {
+        org.ngengine.libjglios.openal.ios.IosALC.createALC();
+    }
 
     @Override
-    public native void destroyALC();
+    public void destroyALC() {
+        org.ngengine.libjglios.openal.ios.IosALC.destroyALC();
+    }
 
     @Override
-    public native boolean isCreated();
+    public boolean isCreated() {
+        return org.ngengine.libjglios.openal.ios.IosALC.isCreated();
+    }
 
     @Override
-    public native String alcGetString(int parameter);
-    
+    public String alcGetString(int parameter) {
+        return org.ngengine.libjglios.openal.ios.IosALC.alcGetString(parameter);
+    }
+
     @Override
-    public native boolean alcIsExtensionPresent(String extension);
-    
+    public boolean alcIsExtensionPresent(String extension) {
+        return org.ngengine.libjglios.openal.ios.IosALC.alcIsExtensionPresent(extension);
+    }
+
     @Override
-    public native void alcGetInteger(int param, IntBuffer buffer, int size);
-    
+    public void alcGetInteger(int param, IntBuffer buffer, int size) {
+        org.ngengine.libjglios.openal.ios.IosALC.alcGetInteger(param, buffer, size);
+    }
+
     @Override
-    public native void alcDevicePauseSOFT();
-    
+    public void alcDevicePauseSOFT() {
+        org.ngengine.libjglios.openal.ios.IosALC.alcDevicePauseSOFT();
+    }
+
     @Override
-    public native void alcDeviceResumeSOFT();
+    public void alcDeviceResumeSOFT() {
+        org.ngengine.libjglios.openal.ios.IosALC.alcDeviceResumeSOFT();
+    }
 }

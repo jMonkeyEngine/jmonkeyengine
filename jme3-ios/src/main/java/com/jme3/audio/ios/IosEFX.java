@@ -1,43 +1,65 @@
 package com.jme3.audio.ios;
 
 import com.jme3.audio.openal.EFX;
+
 import java.nio.IntBuffer;
 
-public class IosEFX implements EFX {
-
+public final class IosEFX implements EFX {
     public IosEFX() {
     }
 
     @Override
-    public native void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers);
+    public void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenAuxiliaryEffectSlots(numSlots, buffers);
+    }
 
     @Override
-    public native void alGenEffects(int numEffects, IntBuffer buffers);
+    public void alGenEffects(int numEffects, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenEffects(numEffects, buffers);
+    }
 
     @Override
-    public native void alEffecti(int effect, int param, int value);
+    public void alEffecti(int effect, int param, int value) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alEffecti(effect, param, value);
+    }
 
     @Override
-    public native void alAuxiliaryEffectSloti(int effectSlot, int param, int value);
+    public void alAuxiliaryEffectSloti(int effectSlot, int param, int value) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alAuxiliaryEffectSloti(effectSlot, param, value);
+    }
 
     @Override
-    public native void alDeleteEffects(int numEffects, IntBuffer buffers);
+    public void alDeleteEffects(int numEffects, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteEffects(numEffects, buffers);
+    }
 
     @Override
-    public native void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers);
+    public void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteAuxiliaryEffectSlots(numEffectSlots, buffers);
+    }
 
     @Override
-    public native void alGenFilters(int numFilters, IntBuffer buffers);
+    public void alGenFilters(int numFilters, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenFilters(numFilters, buffers);
+    }
 
     @Override
-    public native void alFilteri(int filter, int param, int value);
+    public void alFilteri(int filter, int param, int value) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alFilteri(filter, param, value);
+    }
 
     @Override
-    public native void alFilterf(int filter, int param, float value);
+    public void alFilterf(int filter, int param, float value) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alFilterf(filter, param, value);
+    }
 
     @Override
-    public native void alDeleteFilters(int numFilters, IntBuffer buffers);
+    public void alDeleteFilters(int numFilters, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteFilters(numFilters, buffers);
+    }
 
     @Override
-    public native void alEffectf(int effect, int param, float value);
+    public void alEffectf(int effect, int param, float value) {
+        org.ngengine.libjglios.openal.ios.IosEFX.alEffectf(effect, param, value);
+    }
 }

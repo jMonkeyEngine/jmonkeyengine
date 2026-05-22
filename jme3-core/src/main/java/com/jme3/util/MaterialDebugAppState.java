@@ -377,16 +377,23 @@ public class MaterialDebugAppState extends AbstractAppState {
                     file = new File(url.getFile());
                     fileLastM = file.lastModified();
 
-                } catch (NoSuchFieldException
-                        | SecurityException
+                } catch (NoSuchFieldException ex) {
+                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.FINE,
+                            "Material hot reload disabled for {0}; asset URL is not reflectively available.",
+                            fileName);
+                } catch (SecurityException
                         | IllegalArgumentException
                         | IllegalAccessException ex) {
-                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.FINE,
+                            "Material hot reload disabled for " + fileName, ex);
                 }
             }
         }
 
         public boolean shouldFire() {
+            if (file == null || fileLastM == null) {
+                return false;
+            }
             if (file.lastModified() != fileLastM) {
                 fileLastM = file.lastModified();
                 return true;

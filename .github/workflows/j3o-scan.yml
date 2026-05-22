@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
 
       - name: Scan J3O assets
         run: ./gradlew :jme3-desktop:scanJ3O --console=plain

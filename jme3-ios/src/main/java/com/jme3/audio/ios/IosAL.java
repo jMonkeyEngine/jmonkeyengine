@@ -6,68 +6,106 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public final class IosAL implements AL {
-
     public IosAL() {
     }
 
     @Override
-    public native String alGetString(int parameter);
+    public String alGetString(int parameter) {
+        return org.ngengine.libjglios.openal.ios.IosAL.alGetString(parameter);
+    }
 
     @Override
-    public native int alGenSources();
+    public int alGenSources() {
+        return org.ngengine.libjglios.openal.ios.IosAL.alGenSources();
+    }
 
     @Override
-    public native int alGetError();
+    public int alGetError() {
+        return org.ngengine.libjglios.openal.ios.IosAL.alGetError();
+    }
 
     @Override
-    public native void alDeleteSources(int numSources, IntBuffer sources);
+    public void alDeleteSources(int numSources, IntBuffer sources) {
+        org.ngengine.libjglios.openal.ios.IosAL.alDeleteSources(numSources, sources);
+    }
 
     @Override
-    public native void alGenBuffers(int numBuffers, IntBuffer buffers);
+    public void alGenBuffers(int numBuffers, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosAL.alGenBuffers(numBuffers, buffers);
+    }
 
     @Override
-    public native void alDeleteBuffers(int numBuffers, IntBuffer buffers);
+    public void alDeleteBuffers(int numBuffers, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosAL.alDeleteBuffers(numBuffers, buffers);
+    }
 
     @Override
-    public native void alSourceStop(int source);
+    public void alSourceStop(int source) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourceStop(source);
+    }
 
     @Override
-    public native void alSourcei(int source, int param, int value);
+    public void alSourcei(int source, int param, int value) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourcei(source, param, value);
+    }
 
     @Override
-    public native void alBufferData(int buffer, int format, ByteBuffer data, int size, int frequency);
+    public void alBufferData(int buffer, int format, ByteBuffer data, int size, int frequency) {
+        org.ngengine.libjglios.openal.ios.IosAL.alBufferData(buffer, format, data, size, frequency);
+    }
 
     @Override
-    public native void alSourcePlay(int source);
+    public void alSourcePlay(int source) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourcePlay(source);
+    }
 
     @Override
-    public native void alSourcePause(int source);
+    public void alSourcePause(int source) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourcePause(source);
+    }
 
     @Override
-    public native void alSourcef(int source, int param, float value);
+    public void alSourcef(int source, int param, float value) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourcef(source, param, value);
+    }
 
     @Override
-    public native void alSource3f(int source, int param, float value1, float value2, float value3);
+    public void alSource3f(int source, int param, float value1, float value2, float value3) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSource3f(source, param, value1, value2, value3);
+    }
 
     @Override
-    public native int alGetSourcei(int source, int param);
+    public int alGetSourcei(int source, int param) {
+        return org.ngengine.libjglios.openal.ios.IosAL.alGetSourcei(source, param);
+    }
 
     @Override
-    public native void alSourceUnqueueBuffers(int source, int numBuffers, IntBuffer buffers);
+    public void alSourceUnqueueBuffers(int source, int numBuffers, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourceUnqueueBuffers(source, numBuffers, buffers);
+    }
 
     @Override
-    public native void alSourceQueueBuffers(int source, int numBuffers, IntBuffer buffers);
+    public void alSourceQueueBuffers(int source, int numBuffers, IntBuffer buffers) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSourceQueueBuffers(source, numBuffers, buffers);
+    }
 
     @Override
-    public native void alListener(int param, FloatBuffer data);
+    public void alListener(int param, FloatBuffer data) {
+        org.ngengine.libjglios.openal.ios.IosAL.alListener(param, data);
+    }
 
     @Override
-    public native void alListenerf(int param, float value);
+    public void alListenerf(int param, float value) {
+        org.ngengine.libjglios.openal.ios.IosAL.alListenerf(param, value);
+    }
 
     @Override
-    public native void alListener3f(int param, float value1, float value2, float value3);
+    public void alListener3f(int param, float value1, float value2, float value3) {
+        org.ngengine.libjglios.openal.ios.IosAL.alListener3f(param, value1, value2, value3);
+    }
 
     @Override
-    public native void alSource3i(int source, int param, int value1, int value2, int value3);
-
+    public void alSource3i(int source, int param, int value1, int value2, int value3) {
+        org.ngengine.libjglios.openal.ios.IosAL.alSource3i(source, param, value1, value2, value3);
+    }
 }
