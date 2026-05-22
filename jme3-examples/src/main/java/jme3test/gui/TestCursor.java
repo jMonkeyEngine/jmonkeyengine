@@ -1,7 +1,12 @@
 package jme3test.gui;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.cursors.plugins.CursorConverter;
 import com.jme3.cursors.plugins.JmeCursor;
+import com.jme3.texture.Image;
+import com.jme3.texture.image.ImageRaster;
+import com.jme3.texture.Texture2D;
+import com.jme3.math.ColorRGBA;
 import java.util.ArrayList;
 
 /**
@@ -48,13 +53,39 @@ public class TestCursor extends SimpleApplication {
          *
          * The animated cursor has been made by Pointer Adic and can be found here:
          * http://www.rw-designer.com/cursor-set/monkey
+         * 
+         * At date of 2026/05/22, the three cursor examples has been converter to png formats. 
+         * Checking and following the licences restrictions in the process.
          */
-        cursors.add((JmeCursor) assetManager.loadAsset("Textures/Cursors/meme.cur"));
-        cursors.add((JmeCursor) assetManager.loadAsset("Textures/Cursors/nyancat.ico"));
-        cursors.add((JmeCursor) assetManager.loadAsset("Textures/Cursors/monkey.ani"));
+
+        Image[] textureCursors = {
+            (Image) assetManager.loadAsset("Textures/Cursors/meme.png"),
+            (Image) assetManager.loadAsset("Textures/Cursors/nyancat.png"),
+            (Image) assetManager.loadAsset("Textures/Cursors/monkey.png")
+        };
+
+        for (Image cursor : textureCursors) {
+            flipVertically(cursor);
+            cursors.add(CursorConverter.fromTexture(new Texture2D(cursor)));
+        }
 
         sysTime = System.currentTimeMillis();
         inputManager.setMouseCursor(cursors.get(count));
+    }
+
+    private void flipVertically(Image image) {
+        int height = image.getHeight();
+        int width = image.getWidth();
+
+        ImageRaster raster = ImageRaster.create(image);
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height / 2; j++){
+                ColorRGBA reserve = raster.getPixel(i, j);
+                raster.setPixel(i, j, raster.getPixel(i, height - j -1));
+                raster.setPixel(i, height - j -1, reserve);
+            }
+        }
     }
 
     @Override
