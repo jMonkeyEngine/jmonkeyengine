@@ -204,7 +204,7 @@ public class IGLESContext implements JmeContext {
     public void create(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext create");
         if (!LibJGLIOSEglBridge.makeCurrent()) {
-            throw new IllegalStateException("Unable to make iOS EGL context current: " + lastEglError());
+            throw new IllegalStateException("Unable to make iOS EGL context current: " + LibJGLIOSEglBridge.lastError());
         }
         if (listener instanceof Application) {
             application = (Application) listener;
@@ -256,7 +256,7 @@ public class IGLESContext implements JmeContext {
             return;
         }
         if (!LibJGLIOSEglBridge.makeCurrent()) {
-            throw new IllegalStateException("Unable to make iOS EGL context current: " + lastEglError());
+            throw new IllegalStateException("Unable to make iOS EGL context current: " + LibJGLIOSEglBridge.lastError());
         }
         updateFramebufferSizeFromLibJGLIOS();
         if (!renderFrameWithBlitSrgbConversion()) {
