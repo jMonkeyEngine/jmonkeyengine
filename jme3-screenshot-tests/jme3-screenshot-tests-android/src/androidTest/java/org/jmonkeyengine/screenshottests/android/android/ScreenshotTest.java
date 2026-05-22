@@ -1,12 +1,8 @@
 package org.jmonkeyengine.screenshottests.android.android;
 
 import androidx.fragment.app.testing.FragmentScenario;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.GrantPermissionRule;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,21 +17,10 @@ import java.util.concurrent.TimeUnit;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
-import android.view.PixelCopy;
-import android.view.View;
 
 @RunWith(AndroidJUnit4.class)
-public class ScreenshotTest {
-
-    // Storage permissions are not needed for getExternalFilesDir() on modern Android
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE);
+public class ScreenshotTest extends ScreenshotTestAndroidBase {
 
     @Test
     public void takeScreenshot() {

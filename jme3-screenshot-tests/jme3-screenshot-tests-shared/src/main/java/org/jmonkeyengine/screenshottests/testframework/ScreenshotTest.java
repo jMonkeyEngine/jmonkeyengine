@@ -35,11 +35,20 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.aventstack.extentreports.ExtentTest;
 import com.jme3.app.state.AppState;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
+import com.jme3.texture.Image;
 
-import java.awt.image.BufferedImage;
+import org.jmonkeyengine.screenshottests.image.ImagePixelWrapper;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,12 +59,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 
 /**
  * This is how a test is configured and started. It uses a fluent API.
@@ -95,6 +98,9 @@ public class ScreenshotTest{
     String baseImageFileName = null;
 
     private AppRunner osSpecificRunner;
+
+    private final AssetManager assetManager = new DesktopAssetManager();
+
 
     public ScreenshotTest(AppState... initialStates){
         scenarios.add(new Scenario("SimpleSingleScenario", initialStates));
@@ -196,8 +202,8 @@ public class ScreenshotTest{
                                 "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
                         ));
 
-                        BufferedImage img1 = ImageIO.read(primeImage.toFile());
-                        BufferedImage img2 = ImageIO.read(otherImage.toFile());
+                        Image img1 = readImage(primeImage.toFile());
+                        Image img2 = readImage(otherImage.toFile());
 
                         String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
@@ -240,8 +246,8 @@ public class ScreenshotTest{
                     }
                 }
 
-                BufferedImage img1 = ImageIO.read(generatedImage.toFile());
-                BufferedImage img2 = ImageIO.read(expectedImage.toFile());
+                Image img1 = readImage(generatedImage.toFile());
+                Image img2 = readImage(expectedImage.toFile());
 
                 if (imagesAreVerySimilar(img1, img2)) {
                     if(testType == TestType.KNOWN_TO_FAIL){
@@ -281,6 +287,10 @@ public class ScreenshotTest{
         }
     }
 
+    private Image readImage(File file) {
+        return assetManager.loadTexture(new TextureKey(file.getAbsolutePath())).getImage();
+    }
+
     private String calculateImageFilePrefix(){
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
@@ -301,31 +311,9 @@ public class ScreenshotTest{
         Path savedImage = runner.getChangedImagesDirectory().resolve(imageFileName + ".png");
         Files.createDirectories(savedImage.getParent());
         Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
-        aggressivelyCompressImage(savedImage);
         return savedImage;
     }
 
-    /**
-     * This remains lossless but makes the maximum effort to compress the image. As these images
-     * may be committed to the repository it is important to keep them as small as possible and worth the extra CPU time
-     * to do so
-     */
-    private static void aggressivelyCompressImage(Path path) throws IOException {
-        BufferedImage image = ImageIO.read(path.toFile());
-
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
-        ImageWriteParam writeParam = writer.getDefaultWriteParam();
-
-        writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        writeParam.setCompressionQuality(0.0f); // 0.0 means maximum compression
-
-        try (ImageOutputStream outputStream = ImageIO.createImageOutputStream(path.toFile())) {
-            writer.setOutput(outputStream);
-            writer.write(null, new IIOImage(image, null, null), writeParam);
-        }
-
-        writer.dispose();
-    }
 
     /**
      * Attaches the image to the report. A copy of the image is made in the report directory
@@ -339,9 +327,11 @@ public class ScreenshotTest{
     /**
      * Attaches the image to the report. The image is written to the report directory
      */
-    private void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
+    private void attachImage(String title, String fileName, Image originalImage) throws IOException{
         ExtentTest test = ExtentReportExtensionBase.getCurrentTest();
-        ImageIO.write(originalImage, "png", osSpecificRunner.getReportsDirectory().resolve(fileName).toFile());
+        try (FileOutputStream fileOutBuf = new FileOutputStream(osSpecificRunner.getReportsDirectory().resolve(fileName).toFile())) {
+            JmeSystem.writeImageFile(fileOutBuf, "png",originalImage.getData(0),originalImage.getWidth(), originalImage.getHeight());
+        }
         test.addScreenCaptureFromPath(fileName, title);
     }
 
@@ -350,36 +340,36 @@ public class ScreenshotTest{
      * If they are not the same it will return false (which may fail the test depending on the test type).
      * Different sizes are so fatal that they will immediately fail the test.
      */
-    private static boolean imagesAreVerySimilar(BufferedImage img1, BufferedImage img2) {
+    private static boolean imagesAreVerySimilar(Image img1, Image img2) {
         if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
             ExtentReportExtensionBase.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
             ExtentReportExtensionBase.getCurrentTest().createNode("Image 2 size : " + img2.getWidth() + "x" + img2.getHeight());
             fail(IMAGES_ARE_DIFFERENT_SIZES);
         }
 
+        ImagePixelWrapper image1Wrapper = new ImagePixelWrapper(img1);
+        ImagePixelWrapper image2Wrapper = new ImagePixelWrapper(img2);
+
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                int rgb1 = img1.getRGB(x, y);
-                int rgb2 = img2.getRGB(x, y);
 
-                if (rgb1  != rgb2){
-                    int r1 = (rgb1 >> 16) & 0xFF;
-                    int g1 = (rgb1 >> 8) & 0xFF;
-                    int b1 = rgb1 & 0xFF;
+                int r1 = image1Wrapper.getR(x,y);
+                int g1 = image1Wrapper.getG(x,y);
+                int b1 = image1Wrapper.getB(x,y);
 
-                    int r2 = (rgb2 >> 16) & 0xFF;
-                    int g2 = (rgb2 >> 8) & 0xFF;
-                    int b2 = rgb2 & 0xFF;
+                int r2= image2Wrapper.getR(x,y);
+                int g2 = image2Wrapper.getG(x,y);
+                int b2 = image2Wrapper.getB(x,y);
 
-                    int dr = Math.abs(r1 - r2);
-                    int dg = Math.abs(g1 - g2);
-                    int db = Math.abs(b1 - b2);
+                int dr = Math.abs(r1 - r2);
+                int dg = Math.abs(g1 - g2);
+                int db = Math.abs(b1 - b2);
 
-                    double largestPixelValueDifference = Math.max(dr, Math.max(dg, db));
-                    if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
-                        return false;
-                    }
+                double largestPixelValueDifference = Math.max(dr, Math.max(dg, db));
+                if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
+                    return false;
                 }
+
             }
         }
         return true;
@@ -389,31 +379,34 @@ public class ScreenshotTest{
      * Creates an image that highlights the differences between the two images. The reference image is shown
      * dully in grey with blue, yellow, orange and red showing where pixels are different.
      */
-    private static BufferedImage createComparisonImage(BufferedImage img1, BufferedImage img2) {
-        BufferedImage comparisonImage = new BufferedImage(img1.getWidth(), img1.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    private static Image createComparisonImage(Image img1, Image img2) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(img1.getWidth() * img1.getHeight() * 4);
+        ImagePixelWrapper comparisonImage = new ImagePixelWrapper(new Image(Image.Format.RGBA8, img1.getWidth(), img1.getHeight(), buffer, img1.getColorSpace()));
+        ImagePixelWrapper image1Wrapped = new ImagePixelWrapper(img1);
+        ImagePixelWrapper image2Wrapped = new ImagePixelWrapper(img2);
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                PixelSamenessDegree pixelSameness = categorisePixelDifference(img1.getRGB(x, y),img2.getRGB(x, y));
+                PixelSamenessDegree pixelSameness = categorisePixelDifference(image1Wrapped.getARGB(x, y),image2Wrapped.getARGB(x, y));
 
                 if(pixelSameness == PixelSamenessDegree.SAME){
-                    int washedOutPixel = getWashedOutPixel(img1, x, y, 0.9f);
+                    int washedOutPixel = getWashedOutPixel(image1Wrapped, x, y, 0.9f);
                     //Color rawColor = new Color(img1.getRGB(x, y), true);
-                    comparisonImage.setRGB(x, y, washedOutPixel);
+                    comparisonImage.setARGB(x, y, washedOutPixel);
                 }else{
-                    comparisonImage.setRGB(x, y, pixelSameness.getColorInDebugImage().asIntARGB());
+                    comparisonImage.setARGB(x, y, pixelSameness.getColorInDebugImage().asIntARGB());
                 }
             }
         }
-        return comparisonImage;
+        return comparisonImage.getUnderlyingImage();
     }
 
     /**
      * This produces the almost grey ghost of the original image, used when the differences are being highlighted
      */
-    public static int getWashedOutPixel(BufferedImage img, int x, int y, float alpha) {
+    public static int getWashedOutPixel(ImagePixelWrapper img, int x, int y, float alpha) {
         // Get the raw pixel value
-        int rgb = img.getRGB(x, y);
+        int rgb = img.getARGB(x, y);
 
         // Extract the color components
         int a = (rgb >> 24) & 0xFF;
