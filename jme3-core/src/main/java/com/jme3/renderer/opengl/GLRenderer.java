@@ -453,6 +453,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.DepthTexture);
         }
 
+        if (gl2 != null || caps.contains(Caps.OpenGLES30)) {
+            caps.add(Caps.TextureShadowCompare);
+        }
+
         if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL)
                 || hasExtension("GL_OES_depth24")) {
             caps.add(Caps.Depth24);
@@ -2674,7 +2678,7 @@ public final class GLRenderer implements Renderer {
         }
 
         ShadowCompareMode texCompareMode = tex.getShadowCompareMode();
-        if ( (gl2 != null || caps.contains(Caps.OpenGLES30)) && curState.shadowCompareMode != texCompareMode) {
+        if (caps.contains(Caps.TextureShadowCompare) && curState.shadowCompareMode != texCompareMode) {
             bindTextureAndUnit(target, image, unit);
             if (texCompareMode != ShadowCompareMode.Off) {
                 gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);

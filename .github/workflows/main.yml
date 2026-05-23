@@ -69,7 +69,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run Checkstyle
@@ -96,7 +96,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run SpotBugs
@@ -120,6 +120,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
       - name: Start xvfb
         run: |
           Xvfb :99 -ac -screen 0 1024x768x16 &
@@ -150,45 +155,6 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
-  # Build iOS natives
-  BuildIosNatives:
-    name: Build natives for iOS
-    runs-on: macOS-14
-
-    steps:
-      - name: Check default JAVAs 
-        run: echo $JAVA_HOME --- $JAVA_HOME_8_X64 --- $JAVA_HOME_11_X64 --- $JAVA_HOME_17_X64 --- $JAVA_HOME_21_X64 ---
-
-      - name: Setup the java environment
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup the XCode version to 15.1.0 
-        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
-        with:
-          xcode-version: '15.1.0'
-
-      - name: Clone the repo
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-
-      - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
-
-      - name: Build
-        run: |
-          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
-          :jme3-ios-native:build
-
-      - name: Upload natives
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: ios-natives
-          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
-
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
@@ -202,11 +168,11 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Java 17
+      - name: Setup Java 25
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
 
       - name: Check java version
         run: java -version
@@ -234,7 +200,7 @@ jobs:
 
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
-    needs: [BuildAndroidNatives, BuildIosNatives]
+    needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -259,17 +225,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.jdk }}
+
       - name: Download natives for android
         uses: actions/download-artifact@v8.0.1
         with:
           name: android-natives
           path: build/native
-
-      - name: Download natives for iOS
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: ios-natives
-          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
@@ -453,24 +419,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Maven-style artifacts
+      # Setup jdk 25 used for building Maven-style artifacts
       - name: Setup the java environment
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
 
       - name: Download natives for android
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: android-natives
           path: build/native
-
-      - name: Download natives for iOS
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ios-natives
-          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
@@ -502,12 +462,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Sonatype artifacts
+      # Setup jdk 25 used for building Sonatype artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
 
       # Download all the stuff...
       - name: Download maven artifacts
@@ -527,12 +487,6 @@ jobs:
         with:
           name: android-natives
           path: build/native
-
-      - name: Download natives for iOS
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: ios-natives
-          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
         run: |

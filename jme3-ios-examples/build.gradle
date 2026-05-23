@@ -1,0 +1,336 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath libs.libjglios.gradle.plugin
+    }
+}
+
+import groovy.json.JsonOutput
+import java.io.DataInputStream
+import java.util.zip.ZipFile
+
+apply plugin: 'org.ngengine.libjglios'
+
+description = 'iOS libJGLIOS launcher for jme3-examples.'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+def examplesJar = project(':jme3-examples').tasks.named('jar')
+def generateExamplesTestChooserClassList = project(':jme3-examples').tasks.named('generateTestChooserClassList')
+def generatedExamplesTestChooserResourcesDir = project(':jme3-examples').layout.buildDirectory.dir('generated/testchooser/resources')
+def examplesTestClassListFile = generatedExamplesTestChooserResourcesDir.map { it.file('jme3test/test-classes.txt') }
+def iosChooserLauncherClass = 'jme3test.ios.IosTestChooserLauncher'
+def requestedExampleClass = findProperty('example')?.toString()?.trim()
+def exampleClass = requestedExampleClass ?: iosChooserLauncherClass
+def iosExampleClassesDir = layout.buildDirectory.dir('ios-example-classes')
+def iosInitialExampleSourceDir = layout.buildDirectory.dir('generated/ios-initial-example/sources')
+def iosNativeImageMetadataDir = layout.buildDirectory.dir('generated/ios-native-image-metadata/resources')
+def iosChooserExcludedPrefixes = [
+    'jme3test.awt.',
+    'jme3test.bullet.',
+    'jme3test.niftygui.',
+    'jme3test.opencl.',
+    'jme3test.terrain.'
+]
+def iosChooserExcludedNames = [
+    'jme3test.app.TestChangeAppIcon',
+    'jme3test.app.TestContextRestart',
+    'jme3test.app.TestMonitorApp',
+    'jme3test.app.TestResizableApp',
+    'jme3test.asset.TestOnlineJar',
+    'jme3test.audio.TestAudioDeviceDisconnect'
+]
+def isIosChooserClass = { String className ->
+    !iosChooserExcludedPrefixes.any { className.startsWith(it) }
+        && !iosChooserExcludedNames.contains(className)
+        && !className.contains('Jogl')
+        && !className.contains('Lwjgl')
+}
+def readExamplesTestClassList = {
+    def file = examplesTestClassListFile.get().asFile
+    if (!file.exists()) {
+        return []
+    }
+    file.readLines('UTF-8')
+        .collect { it.trim() }
+        .findAll { it }
+        .findAll { isIosChooserClass(it) }
+}
+def selectedIosExampleClasses = {
+    requestedExampleClass ? [requestedExampleClass] : readExamplesTestClassList()
+}
+def javaStringLiteral = { String value ->
+    if (value == null) {
+        return 'null'
+    }
+    '"' + value
+        .replace('\\', '\\\\')
+        .replace('"', '\\"')
+        .replace('\n', '\\n')
+        .replace('\r', '\\r') + '"'
+}
+def readClassReferences = { ZipFile zip, String classPath ->
+    def entry = zip.getEntry("${classPath}.class")
+    if (entry == null) {
+        return [] as Set
+    }
+    zip.getInputStream(entry).withCloseable { input ->
+        def data = new DataInputStream(input)
+        if (data.readInt() != (int) 0xCAFEBABE) {
+            return [] as Set
+        }
+        data.readUnsignedShort()
+        data.readUnsignedShort()
+        def constantPool = new Object[data.readUnsignedShort()]
+        for (int index = 1; index < constantPool.length; index++) {
+            int tag = data.readUnsignedByte()
+            switch (tag) {
+                case 1:
+                    constantPool[index] = data.readUTF()
+                    break
+                case 3:
+                case 4:
+                    data.skipBytes(4)
+                    break
+                case 5:
+                case 6:
+                    data.skipBytes(8)
+                    index++
+                    break
+                case 7:
+                case 8:
+                case 16:
+                case 19:
+                case 20:
+                    constantPool[index] = [tag: tag, nameIndex: data.readUnsignedShort()]
+                    break
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 18:
+                    data.skipBytes(4)
+                    break
+                case 15:
+                    data.skipBytes(3)
+                    break
+                case 17:
+                    data.skipBytes(4)
+                    break
+                default:
+                    throw new GradleException("Unsupported constant-pool tag ${tag} in ${classPath}.class")
+            }
+        }
+        constantPool.findAll { it instanceof Map && it.tag == 7 }
+            .collect { constantPool[it.nameIndex] }
+            .findAll { it instanceof String && it.startsWith('jme3test/') && !it.startsWith('jme3test/ios/') }
+            .collect { it.replace('/', '.') }
+            .findAll { !it.contains('[') } as Set
+    }
+}
+def expandExamplesClassNames = { Collection<String> rootClasses ->
+    def expanded = new LinkedHashSet<String>(rootClasses)
+    def jarFile = examplesJar.flatMap { it.archiveFile }.get().asFile
+    new ZipFile(jarFile).withCloseable { zip ->
+        def availablePaths = new LinkedHashSet<String>()
+        zip.entries().each { entry ->
+            if (entry.directory || !entry.name.endsWith('.class')) {
+                return
+            }
+            def classPath = entry.name.substring(0, entry.name.length() - '.class'.length())
+            if (classPath.startsWith('jme3test/')) {
+                availablePaths.add(classPath)
+            }
+        }
+
+        def pending = new ArrayDeque<String>(expanded)
+        while (!pending.isEmpty()) {
+            def className = pending.removeFirst()
+            def rootPath = className.replace('.', '/')
+            availablePaths.findAll { it.startsWith("${rootPath}\$") }.each { classPath ->
+                def nestedClass = classPath.replace('/', '.')
+                if (expanded.add(nestedClass)) {
+                    pending.add(nestedClass)
+                }
+            }
+            readClassReferences(zip, rootPath).each { referencedClass ->
+                def referencedPath = referencedClass.replace('.', '/')
+                if (availablePaths.contains(referencedPath) && expanded.add(referencedClass)) {
+                    pending.add(referencedClass)
+                }
+            }
+        }
+    }
+    expanded as List
+}
+def collectRuntimeClassNamesByPrefix = { Collection<String> prefixes ->
+    def classes = new LinkedHashSet<String>()
+    sourceSets.main.compileClasspath.files.findAll { it.exists() }.each { file ->
+        if (file.isDirectory()) {
+            file.eachFileRecurse { classFile ->
+                if (!classFile.name.endsWith('.class')) {
+                    return
+                }
+                def relativePath = file.toPath().relativize(classFile.toPath()).toString().replace(File.separatorChar, (char) '/')
+                def className = relativePath.substring(0, relativePath.length() - '.class'.length()).replace('/', '.')
+                if (prefixes.any { className.startsWith(it) } && !className.endsWith('module-info') && !className.endsWith('package-info')) {
+                    classes.add(className)
+                }
+            }
+        } else if (file.name.endsWith('.jar')) {
+            new ZipFile(file).withCloseable { zip ->
+                zip.entries().each { entry ->
+                    if (entry.directory || !entry.name.endsWith('.class')) {
+                        return
+                    }
+                    def className = entry.name.substring(0, entry.name.length() - '.class'.length()).replace('/', '.')
+                    if (prefixes.any { className.startsWith(it) } && !className.endsWith('module-info') && !className.endsWith('package-info')) {
+                        classes.add(className)
+                    }
+                }
+            }
+        }
+    }
+    classes as List
+}
+
+def prepareIosExampleClasses = tasks.register('prepareIosExampleClasses', Sync) {
+    dependsOn examplesJar, generateExamplesTestChooserClassList
+    inputs.property('exampleClass', exampleClass)
+    inputs.property('requestedExampleClass', requestedExampleClass ?: '')
+    inputs.property('iosExampleClassExpansionVersion', 'bytecode-reference-v1')
+    inputs.property('iosExampleIncludes', findProperty('iosExampleIncludes')?.toString() ?: '')
+    inputs.file(examplesTestClassListFile)
+    inputs.file(examplesJar.flatMap { it.archiveFile })
+    from(zipTree(examplesJar.flatMap { it.archiveFile })) {
+        def expandedClasses
+        include { details ->
+            expandedClasses = expandedClasses ?: expandExamplesClassNames(selectedIosExampleClasses())
+            expandedClasses.any { className -> details.path == "${className.replace('.', '/')}.class" }
+        }
+        def extraIncludes = findProperty('iosExampleIncludes')?.toString()
+        if (extraIncludes) {
+            extraIncludes.split(',').collect { it.trim() }.findAll { it }.each { include it }
+        }
+    }
+    into iosExampleClassesDir
+}
+
+def generateIosInitialExampleSource = tasks.register('generateIosInitialExampleSource') {
+    def outputFile = iosInitialExampleSourceDir.map { it.file('jme3test/ios/IosInitialExample.java') }
+    outputs.file(outputFile)
+    inputs.property('requestedExampleClass', requestedExampleClass ?: '')
+    doLast {
+        def file = outputFile.get().asFile
+        file.parentFile.mkdirs()
+        file.text = """package jme3test.ios;
+
+final class IosInitialExample {
+    private static final String CLASS_NAME = ${javaStringLiteral(requestedExampleClass)};
+
+    private IosInitialExample() {
+    }
+
+    static String className() {
+        return CLASS_NAME;
+    }
+}
+"""
+    }
+}
+
+def generateIosNativeImageMetadata = tasks.register('generateIosNativeImageMetadata') {
+    dependsOn examplesJar, generateExamplesTestChooserClassList, tasks.named('prepareGraalHostNik')
+    def reflectConfig = iosNativeImageMetadataDir.map {
+        it.file('META-INF/native-image/org.jmonkeyengine/jme3-ios-testchooser/reflect-config.json')
+    }
+    outputs.file(reflectConfig)
+    inputs.property('exampleClass', exampleClass)
+    inputs.property('requestedExampleClass', requestedExampleClass ?: '')
+    inputs.property('iosExampleClassExpansionVersion', 'bytecode-reference-v1')
+    inputs.file(examplesTestClassListFile)
+    inputs.file(examplesJar.flatMap { it.archiveFile })
+    inputs.files({ sourceSets.main.compileClasspath })
+    doLast {
+        def exampleClasses = selectedIosExampleClasses()
+        def classes = (expandExamplesClassNames(exampleClasses)
+            + collectRuntimeClassNamesByPrefix(['com.bulletphysics.'])
+            + [iosChooserLauncherClass, 'jme3test.ios.IosTestChooser', 'jme3test.ios.IosInitialExample']).unique()
+        def metadata = classes.collect { className ->
+            [
+                name: className,
+                allDeclaredConstructors: true,
+                allPublicConstructors: true,
+                allPublicMethods: true
+            ]
+        }
+        def outputFile = reflectConfig.get().asFile
+        outputFile.parentFile.mkdirs()
+        outputFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(metadata)) + System.lineSeparator()
+    }
+}
+
+libJGLIOS {
+    mainClass = iosChooserLauncherClass
+    bundleId = 'org.jmonkeyengine.jme3iosexamples'
+    appName = 'JmeIosExamples'
+    simulatorDevice = (findProperty('iosSimulatorDevice') ?: 'iPhone 16').toString()
+}
+
+sourceSets {
+    main {
+        java.srcDir iosInitialExampleSourceDir
+        output.dir(iosExampleClassesDir, builtBy: prepareIosExampleClasses)
+        resources {
+            srcDir iosNativeImageMetadataDir
+            srcDir generatedExamplesTestChooserResourcesDir
+            srcDir '../jme3-testdata/src/main/resources'
+            srcDir '../jme3-examples/src/main/resources'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':jme3-core')
+    implementation project(':jme3-ios')
+    implementation libs.libjglios.core.ios
+    implementation libs.libjglios.gles.ios
+    implementation libs.libjglios.sdl3.ios
+    implementation libs.libjglios.openal.ios
+    implementation libs.libjglios.angle.ios
+    implementation project(':jme3-effects')
+    implementation project(':jme3-jbullet')
+    implementation project(':jme3-jogg')
+    implementation project(':jme3-networking')
+    implementation project(':jme3-plugins')
+    implementation project(':jme3-plugins-json')
+    implementation project(':jme3-plugins-json-gson')
+
+    if ((findProperty('iosIncludeAwtUnsafeModules') ?: 'false').toString().toBoolean()) {
+        implementation project(':jme3-niftygui')
+        implementation project(':jme3-terrain')
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn prepareIosExampleClasses, generateIosInitialExampleSource
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    options.release = 11
+}
+
+tasks.named('processResources') {
+    dependsOn generateIosNativeImageMetadata, generateExamplesTestChooserClassList
+}
+
+tasks.register('runIosExamples') {
+    group = 'verification'
+    description = 'Builds, installs, and launches the jme3-examples iOS app.'
+    dependsOn tasks.named('runIosDebugApp')
+}

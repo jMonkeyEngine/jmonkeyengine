@@ -6,6 +6,7 @@ checkstyle = "13.3.0"
 jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
 angle = "2026-05-09"
+libjglios = "0.2"
 saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
@@ -56,6 +57,12 @@ vecmath = "javax.vecmath:vecmath:1.5.2"
 stb-image = "org.ngengine:stb-image:2.30.5"
 imagewebp = "org.ngengine:image-webp-decoder:1.3.0"
 angle = { module = "org.ngengine:angle-natives", version.ref = "angle" }
+libjglios-angle-ios = { module = "org.ngengine:libjglios-angle-ios", version.ref = "libjglios" }
+libjglios-core-ios = { module = "org.ngengine:libjglios-core-ios", version.ref = "libjglios" }
+libjglios-gles-ios = { module = "org.ngengine:libjglios-gles-ios", version.ref = "libjglios" }
+libjglios-gradle-plugin = { module = "org.ngengine:libjglios-gradle-plugin", version.ref = "libjglios" }
+libjglios-openal-ios = { module = "org.ngengine:libjglios-openal-ios", version.ref = "libjglios" }
+libjglios-sdl3-ios = { module = "org.ngengine:libjglios-sdl3-ios", version.ref = "libjglios" }
 saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
 saferalloc-natives-linux-x8664 = { module = "org.ngengine:saferalloc-natives-linux-x86_64", version.ref = "saferalloc" }
 saferalloc-natives-linux-aarch64 = { module = "org.ngengine:saferalloc-natives-linux-aarch64", version.ref = "saferalloc" }

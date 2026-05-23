@@ -428,6 +428,11 @@ public enum Caps {
     DepthTexture,
 
     /**
+     * Supports hardware depth texture comparison for shadow maps.
+     */
+    TextureShadowCompare,
+
+    /**
      * Supports 32-bit index buffers.
      */
     IntegerIndexBuffer,
