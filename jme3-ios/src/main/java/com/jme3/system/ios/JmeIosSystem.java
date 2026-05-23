@@ -31,24 +31,25 @@
  */
 package com.jme3.system.ios;
 
+import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.ios.IosAL;
+import com.jme3.audio.ios.IosALC;
+import com.jme3.audio.ios.IosEFX;
+import com.jme3.audio.openal.ALAudioRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
 import com.jme3.system.Platform;
 import com.jme3.util.res.Resources;
-import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.ios.IosAL;
-import com.jme3.audio.ios.IosALC;
-//import com.jme3.audio.ios.IosEFX;
-import com.jme3.audio.openal.AL;
-import com.jme3.audio.openal.ALAudioRenderer;
-import com.jme3.audio.openal.ALC;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
+import org.ngengine.libjglios.core.LibJGLIOSDeviceBridge;
+import org.ngengine.libjglios.core.LibJGLIOSKeyboardBridge;
+import org.ngengine.libjglios.core.LibJGLIOSLifecycleBridge;
 
 /**
  *
@@ -75,7 +76,14 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
    
 
-    private native void showDialog(String message);
+    private void showDialog(String message) {
+        System.err.println(message);
+        try {
+            LibJGLIOSLifecycleBridge.showError("jME iOS Error", message);
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError | RuntimeException ignored) {
+            // Keep stderr as the fallback when the native iOS launcher is not active.
+        }
+    }
 
     
 
@@ -97,10 +105,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
-        ALC alc = new IosALC();
-        AL al = new IosAL();
-        //EFX efx = new IosEFX();
-        return new ALAudioRenderer(al, alc, null);
+        return new ALAudioRenderer(new IosAL(), new IosALC(), new IosEFX());
      }
 
     @Override
@@ -123,6 +128,41 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public void showSoftKeyboard(boolean show) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            LibJGLIOSKeyboardBridge.setSoftwareKeyboardVisible(show);
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError ignored) {
+            // Desktop/unit-test runs may load this delegate without the iOS launcher.
+        }
+    }
+
+    @Override
+    public boolean isDeviceRumbleSupported() {
+        try {
+            return LibJGLIOSDeviceBridge.isRumbleSupported();
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError ignored) {
+            return false;
+        }
+    }
+
+    @Override
+    public void rumble(float amountHigh, float amountLow, float duration) {
+        if (duration <= 0f) {
+            stopRumble();
+            return;
+        }
+        try {
+            LibJGLIOSDeviceBridge.rumble(amountHigh, amountLow, duration);
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError ignored) {
+            // Desktop/unit-test runs may load this delegate without the iOS launcher.
+        }
+    }
+
+    @Override
+    public void stopRumble() {
+        try {
+            LibJGLIOSDeviceBridge.stopRumble();
+        } catch (UnsatisfiedLinkError | NoClassDefFoundError ignored) {
+            // Desktop/unit-test runs may load this delegate without the iOS launcher.
+        }
     }
 }

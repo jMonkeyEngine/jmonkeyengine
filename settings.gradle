@@ -93,5 +93,6 @@ if (androidSdk != null) {
     gradle.ext.androidExamplesCompileSdk = androidSdk.compileSdk
     include 'jme3-android-examples'
 }
+include 'jme3-ios-examples'
 include 'jme3-screenshot-tests'
 

@@ -65,7 +65,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run Checkstyle
@@ -92,7 +92,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Run SpotBugs
@@ -116,6 +116,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
       - name: Start xvfb
         run: |
           Xvfb :99 -ac -screen 0 1024x768x16 &
@@ -171,6 +176,12 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.jdk }}
 
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
@@ -250,12 +261,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Maven-style artifacts
+      # Setup jdk 25 used for building Maven-style artifacts
       - name: Setup the java environment
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
@@ -287,12 +298,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Sonatype artifacts
+      # Setup jdk 25 used for building Sonatype artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
 
       # Download all the stuff...
       - name: Download maven artifacts
