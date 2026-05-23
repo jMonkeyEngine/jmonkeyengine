@@ -76,10 +76,8 @@ include 'jme3-terrain'
 // Desktop dependent java classes
 include 'jme3-desktop'
 include 'jme3-lwjgl'
-if (JavaVersion.current().isJava8Compatible()) {
-    include 'jme3-lwjgl3'
-    include 'jme3-saferallocator'
-}
+include 'jme3-lwjgl3'
+include 'jme3-saferallocator'
 
 // Other external dependencies
 include 'jme3-jbullet'

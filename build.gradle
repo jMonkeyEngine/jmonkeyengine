@@ -175,9 +175,7 @@ tasks.register('mergedJavadoc', Javadoc) {
     destinationDir = file("dist/javadoc")
 
     options.encoding = 'UTF-8'
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
+    options.addStringOption('Xdoclint:none', '-quiet')
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
