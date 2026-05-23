@@ -16,6 +16,45 @@ plugins {
 
 rootProject.name = 'jmonkeyengine'
 
+def androidExamplesMinCompileSdk = 34
+
+def findAndroidSdk = {
+    def sdkDirs = []
+
+    if (gradle.startParameter.projectProperties['android.sdk.path']) {
+        sdkDirs << file(gradle.startParameter.projectProperties['android.sdk.path'])
+    }
+
+    def localProperties = file('local.properties')
+    if (localProperties.isFile()) {
+        Properties properties = new Properties()
+        localProperties.withInputStream { properties.load(it) }
+        if (properties.getProperty('sdk.dir')) {
+            sdkDirs << file(properties.getProperty('sdk.dir'))
+        }
+    }
+
+    if (System.env.ANDROID_HOME) {
+        sdkDirs << file(System.env.ANDROID_HOME)
+    }
+    if (System.env.ANDROID_SDK_ROOT) {
+        sdkDirs << file(System.env.ANDROID_SDK_ROOT)
+    }
+    sdkDirs << file("${System.properties['user.home']}/Android/Sdk")
+
+    return sdkDirs.unique { it.absolutePath }.collect { sdkDir ->
+        def platformDir = new File(sdkDir, 'platforms')
+        def compileSdk = platformDir.listFiles()?.collect { platform ->
+            def matcher = platform.name =~ /^android-(\d+)$/
+            matcher.matches() && new File(platform, 'android.jar').isFile() ? matcher[0][1] as int : null
+        }?.findAll { it != null }?.max()
+
+        [dir: sdkDir, compileSdk: compileSdk]
+    }.find { sdk ->
+        sdk.dir.isDirectory() && sdk.compileSdk != null && sdk.compileSdk >= androidExamplesMinCompileSdk
+    }
+}
+
 // Core classes, should work on all java platforms
 include 'jme3-core'
 include 'jme3-effects'
@@ -41,10 +80,6 @@ include 'jme3-jogg'
 include 'jme3-android'
 include 'jme3-ios'
 
-//native builds
-include 'jme3-android-native' //cpp
-include 'jme3-ios-native' //cpp
-
 // Test Data project
 include 'jme3-testdata'
 
@@ -52,7 +87,10 @@ include 'jme3-testdata'
 include 'jme3-examples'
 include 'jme3-awt-dialogs'
 
-if(buildAndroidExamples == "true"){
+def androidSdk = findAndroidSdk()
+if (androidSdk != null) {
+    System.setProperty('android.home', androidSdk.dir.absolutePath)
+    gradle.ext.androidExamplesCompileSdk = androidSdk.compileSdk
     include 'jme3-android-examples'
 }
 include 'jme3-screenshot-tests'

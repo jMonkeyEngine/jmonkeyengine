@@ -4,7 +4,7 @@ def examplesJar = project(':jme3-examples').tasks.named('jar')
 
 android {
     namespace "org.jmonkeyengine.jme3androidexamples"
-    compileSdk 34
+    compileSdk gradle.ext.androidExamplesCompileSdk
 
     lint {
         // Fix nifty gui referencing "java.awt" package.
@@ -43,11 +43,6 @@ android {
                 srcDir '../jme3-testdata/src/main/resources'
                 srcDir '../jme3-examples/src/main/resources'
             }
-            jniLibs {
-                srcDir '../build/native/openalsoft'
-                srcDir '../build/native/decode'
-                srcDir '../build/native/allocator'
-            }
         }
     }
 }
@@ -62,7 +57,6 @@ dependencies {
     implementation libs.androidx.fragment
     implementation project(':jme3-core')
     implementation project(':jme3-android')
-    implementation project(':jme3-android-native')
     implementation project(':jme3-effects')
     implementation project(':jme3-jbullet')
     implementation project(':jme3-jogg')
@@ -77,13 +71,6 @@ dependencies {
 
 tasks.named('preBuild') {
     dependsOn examplesJar
-    if (buildNativeProjects == "true") {
-        dependsOn ':jme3-android-native:updatePreCompiledOpenAlSoftLibs'
-        dependsOn ':jme3-android-native:updatePreCompiledLibsBufferAllocator'
-    } else if (skipPrebuildLibraries != "true") {
-        dependsOn ':jme3-android-native:copyPreCompiledOpenAlSoftLibs'
-        dependsOn ':jme3-android-native:copyPreCompiledLibsBufferAllocator'
-    }
 }
 
 tasks.register('installAndroidExamples', Exec) {

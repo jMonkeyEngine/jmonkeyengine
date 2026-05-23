@@ -9,6 +9,7 @@ angle = "2026-05-09"
 saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
+jmeAndroidNatives = "0.1.0-SNAPSHOT"
 
 [libraries]
 
@@ -21,6 +22,7 @@ androidx-test-runner = "androidx.test:runner:1.7.0"
 groovy-test = "org.apache.groovy:groovy-test:4.0.31"
 gson = "com.google.code.gson:gson:2.13.2"
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
+jme3-android-natives = { module = "org.jmonkeyengine:jme3-android-native", version.ref = "jmeAndroidNatives" }
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.18.1"
