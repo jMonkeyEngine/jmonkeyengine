@@ -366,20 +366,10 @@ public class AndroidHarness extends FragmentActivity
         protected LegacyApplication createApplication() throws Exception {
             AndroidHarness harness = harness();
             Class<?> clazz = Class.forName(harness.appClass);
-            harness.app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
-            return harness.app;
-        }
+            LegacyApplication application = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
 
-        @Override
-        protected AppSettings createSettings() {
-            AppSettings settings = super.createSettings();
-            settings.setAudioRenderer(harness().audioRendererType);
-            return settings;
-        }
-
-        @Override
-        protected void configureSettings(AppSettings settings) {
-            AndroidHarness harness = harness();
+            AppSettings settings = new AppSettings(true);
+            settings.setAudioRenderer(harness.audioRendererType);
             settings.setEmulateMouse(harness.mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(harness.mouseEventsInvertX, harness.mouseEventsInvertY);
             settings.setUseJoysticks(harness.joystickEventsEnabled);
@@ -391,6 +381,10 @@ public class AndroidHarness extends FragmentActivity
             settings.setSamples(harness.eglSamples);
             settings.setStencilBits(harness.eglStencilBits);
             settings.setFrameRate(harness.frameRate);
+
+            application.setSettings(settings);
+            harness.app = application;
+            return application;
         }
 
         @Override
