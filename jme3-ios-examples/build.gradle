@@ -373,19 +373,6 @@ tasks.named('processResources') {
 tasks.register('runIosExamples') {
     group = 'verification'
     description = 'Builds, installs, and launches the jme3-examples iOS app.'
-    dependsOn tasks.named('runIosApp')
+    dependsOn tasks.named('runIosDebugApp')
 }
 
-tasks.register('printIosExamplesRunHelp') {
-    group = 'help'
-    description = 'Prints how to run jme3-examples on iOS through libJGLIOS.'
-    doLast {
-        println "Run :jme3-ios-examples:runIosExamples for the iOS test chooser."
-        println "Run :jme3-ios-examples:runIosExamples -Pexample=jme3test.helloworld.HelloJME3 to open one example automatically through the chooser launcher."
-        println "runIosExamples uses an available connected device automatically, otherwise it opens the simulator."
-        println "Use -PiosAppTarget=simulator to force simulator, or -PiosDevice='<UDID-or-device-name>' to force a device."
-        println "For device signing, add -PiosSigningIdentity, -PiosProvisioningProfile, and optionally -PiosCodesignEntitlements."
-        println "For examples with helper classes, add -PiosExampleIncludes='jme3test/path/**'."
-        println "Terrain and niftygui are excluded by default because they pull java.awt into native-image; opt in with -PiosIncludeAwtUnsafeModules=true."
-    }
-}

@@ -35,7 +35,7 @@ public final class IosALC implements ALC {
 
     @Override
     public void alcGetInteger(int param, IntBuffer buffer, int size) {
-        org.ngengine.libjglios.openal.ios.IosALC.alcGetInteger(param, buffer, size);
+        org.ngengine.libjglios.openal.ios.IosALC.alcGetInteger(param, buffer, buffer.position() * 4L, size);
     }
 
     @Override

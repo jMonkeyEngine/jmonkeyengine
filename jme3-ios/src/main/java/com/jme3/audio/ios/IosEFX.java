@@ -10,12 +10,12 @@ public final class IosEFX implements EFX {
 
     @Override
     public void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alGenAuxiliaryEffectSlots(numSlots, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenAuxiliaryEffectSlots(numSlots, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alGenEffects(int numEffects, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alGenEffects(numEffects, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenEffects(numEffects, buffers, buffers.position() * 4L);
     }
 
     @Override
@@ -30,17 +30,17 @@ public final class IosEFX implements EFX {
 
     @Override
     public void alDeleteEffects(int numEffects, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteEffects(numEffects, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteEffects(numEffects, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteAuxiliaryEffectSlots(numEffectSlots, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteAuxiliaryEffectSlots(numEffectSlots, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alGenFilters(int numFilters, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alGenFilters(numFilters, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alGenFilters(numFilters, buffers, buffers.position() * 4L);
     }
 
     @Override
@@ -55,7 +55,7 @@ public final class IosEFX implements EFX {
 
     @Override
     public void alDeleteFilters(int numFilters, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteFilters(numFilters, buffers);
+        org.ngengine.libjglios.openal.ios.IosEFX.alDeleteFilters(numFilters, buffers, buffers.position() * 4L);
     }
 
     @Override

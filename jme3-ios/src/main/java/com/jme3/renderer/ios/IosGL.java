@@ -361,18 +361,39 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public void glGenBuffers(IntBuffer buffers) {
         checkLimit(buffers);
-        GLES.glGenBuffers(buffers.remaining(), buffers, buffers.position() * 4L);
+        int count = buffers.remaining();
+        if (tempArray.length < count) {
+            tempArray = new int[count];
+        }
+        GLES.glGenBuffers(count, tempArray);
+        int pos = buffers.position();
+        buffers.put(tempArray, 0, count);
+        buffers.position(pos);
     }
 
     @Override
     public void glGenTextures(IntBuffer textures) {
         checkLimit(textures);
-        GLES.glGenTextures(textures.remaining(), textures, textures.position() * 4L);
+        int count = textures.remaining();
+        if (tempArray.length < count) {
+            tempArray = new int[count];
+        }
+        GLES.glGenTextures(count, tempArray);
+        int pos = textures.position();
+        textures.put(tempArray, 0, count);
+        textures.position(pos);
     }
 
     @Override
     public void glGenQueries(int num, IntBuffer buff) {
-        GLES.glGenQueries(num, buff, buff.position() * 4L);
+        checkLimit(buff);
+        if (tempArray.length < num) {
+            tempArray = new int[num];
+        }
+        GLES.glGenQueries(num, tempArray);
+        int pos = buff.position();
+        buff.put(tempArray, 0, num);
+        buff.position(pos);
     }
 
     @Override
@@ -588,9 +609,19 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border,
             int format, int type, ByteBuffer data) {
+        if (data == null) {
+            GLES.glTexImage2D(target, level, internalFormat, width, height, 0, format, type, 0L);
+            return;
+        }
         checkLimit(data);
-        GLES.glTexImage2D(target, level, internalFormat, width, height, 0, format, type,
-                data, data == null ? 0L : data.position());
+        int count = data.remaining();
+        if (tempByteArray.length < count) {
+            tempByteArray = new byte[count];
+        }
+        int pos = data.position();
+        data.get(tempByteArray, 0, count);
+        data.position(pos);
+        GLES.glTexImage2D(target, level, internalFormat, width, height, 0, format, type, tempByteArray);
     }
 
     @Override
@@ -607,8 +638,14 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     public void glTexSubImage2D(int target, int level, int xoffset, int yoffset,
             int width, int height, int format, int type, ByteBuffer data) {
         checkLimit(data);
-        GLES.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type,
-                data, data == null ? 0L : data.position());
+        int count = data.remaining();
+        if (tempByteArray.length < count) {
+            tempByteArray = new byte[count];
+        }
+        int pos = data.position();
+        data.get(tempByteArray, 0, count);
+        data.position(pos);
+        GLES.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, tempByteArray);
     }
 
     @Override
@@ -907,13 +944,27 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public void glGenFramebuffersEXT(IntBuffer param1) {
         checkLimit(param1);
-        GLES.glGenFramebuffers(param1.remaining(), param1, param1.position() * 4L);
+        int count = param1.remaining();
+        if (tempArray.length < count) {
+            tempArray = new int[count];
+        }
+        GLES.glGenFramebuffers(count, tempArray);
+        int pos = param1.position();
+        param1.put(tempArray, 0, count);
+        param1.position(pos);
     }
 
     @Override
     public void glGenRenderbuffersEXT(IntBuffer param1) {
         checkLimit(param1);
-        GLES.glGenRenderbuffers(param1.remaining(), param1, param1.position() * 4L);
+        int count = param1.remaining();
+        if (tempArray.length < count) {
+            tempArray = new int[count];
+        }
+        GLES.glGenRenderbuffers(count, tempArray);
+        int pos = param1.position();
+        param1.put(tempArray, 0, count);
+        param1.position(pos);
     }
 
     @Override

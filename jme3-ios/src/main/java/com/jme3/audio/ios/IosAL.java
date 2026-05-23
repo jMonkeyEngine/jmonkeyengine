@@ -26,17 +26,17 @@ public final class IosAL implements AL {
 
     @Override
     public void alDeleteSources(int numSources, IntBuffer sources) {
-        org.ngengine.libjglios.openal.ios.IosAL.alDeleteSources(numSources, sources);
+        org.ngengine.libjglios.openal.ios.IosAL.alDeleteSources(numSources, sources, sources.position() * 4L);
     }
 
     @Override
     public void alGenBuffers(int numBuffers, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosAL.alGenBuffers(numBuffers, buffers);
+        org.ngengine.libjglios.openal.ios.IosAL.alGenBuffers(numBuffers, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alDeleteBuffers(int numBuffers, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosAL.alDeleteBuffers(numBuffers, buffers);
+        org.ngengine.libjglios.openal.ios.IosAL.alDeleteBuffers(numBuffers, buffers, buffers.position() * 4L);
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class IosAL implements AL {
 
     @Override
     public void alBufferData(int buffer, int format, ByteBuffer data, int size, int frequency) {
-        org.ngengine.libjglios.openal.ios.IosAL.alBufferData(buffer, format, data, size, frequency);
+        org.ngengine.libjglios.openal.ios.IosAL.alBufferData(buffer, format, data, data == null ? 0L : data.position(), size, frequency);
     }
 
     @Override
@@ -81,17 +81,17 @@ public final class IosAL implements AL {
 
     @Override
     public void alSourceUnqueueBuffers(int source, int numBuffers, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosAL.alSourceUnqueueBuffers(source, numBuffers, buffers);
+        org.ngengine.libjglios.openal.ios.IosAL.alSourceUnqueueBuffers(source, numBuffers, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alSourceQueueBuffers(int source, int numBuffers, IntBuffer buffers) {
-        org.ngengine.libjglios.openal.ios.IosAL.alSourceQueueBuffers(source, numBuffers, buffers);
+        org.ngengine.libjglios.openal.ios.IosAL.alSourceQueueBuffers(source, numBuffers, buffers, buffers.position() * 4L);
     }
 
     @Override
     public void alListener(int param, FloatBuffer data) {
-        org.ngengine.libjglios.openal.ios.IosAL.alListener(param, data);
+        org.ngengine.libjglios.openal.ios.IosAL.alListener(param, data, data.position() * 4L);
     }
 
     @Override
