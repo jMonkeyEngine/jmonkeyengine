@@ -50,7 +50,6 @@ import java.io.File;
 
 public class TestSceneWater extends SimpleApplication {
 
-    // set default for applets
     private static boolean useHttp = false;
 
     public static void main(String[] args) {
