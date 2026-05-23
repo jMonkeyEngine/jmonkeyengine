@@ -42,7 +42,8 @@ subprojects {
         apply from: rootProject.file('common-android-app.gradle')
     }
 
-    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
+    def isAndroidApp = project.plugins.hasPlugin('com.android.application')
+    if (!project.name.endsWith("-native") && !isAndroidApp && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
@@ -191,128 +192,4 @@ tasks.named('clean') {
     dependsOn cleanMergedJavadoc
 }
 
-ext {
-    ndkCommandPath  = ""
-    ndkExists       = false
-}
-
 apply from: 'gradle/jacoco.gradle'
-
-task configureAndroidNDK {
-    def ndkBuildFile = "ndk-build"
-    // if windows, use ndk-build.cmd instead
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        ndkBuildFile = "ndk-build.cmd"
-    }
-
-    def ndkCandidates = []
-    if (System.env.ANDROID_NDK) {
-        ndkCandidates << file(System.env.ANDROID_NDK)
-    }
-    if (System.env.ANDROID_NDK_HOME) {
-        ndkCandidates << file(System.env.ANDROID_NDK_HOME)
-    }
-    if (project.hasProperty('ndkPath') && ndkPath) {
-        ndkCandidates << file(ndkPath)
-    }
-
-    def localProperties = file('local.properties')
-    if (localProperties.isFile()) {
-        Properties properties = new Properties()
-        localProperties.withInputStream { properties.load(it) }
-        if (properties.getProperty('ndk.dir')) {
-            ndkCandidates << file(properties.getProperty('ndk.dir'))
-        }
-        if (properties.getProperty('sdk.dir')) {
-            ndkCandidates.addAll(findAndroidNdkDirs(file(properties.getProperty('sdk.dir'))))
-        }
-    }
-
-    if (System.env.ANDROID_HOME) {
-        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_HOME)))
-    }
-    if (System.env.ANDROID_SDK_ROOT) {
-        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_SDK_ROOT)))
-    }
-    ndkCandidates.addAll(findAndroidNdkDirs(file("${System.properties['user.home']}/Android/Sdk")))
-
-    def ndkBuildPath = ndkCandidates.collect { new File(it, ndkBuildFile) }.find { it.isFile() }
-    if (ndkBuildPath != null) {
-        ndkExists = true
-        ndkCommandPath = ndkBuildPath.absolutePath
-    }
-}
-
-def findAndroidNdkDirs(File sdkDir) {
-    def ndkDirs = []
-    def nestedSdkDir = new File(sdkDir, 'Sdk')
-    if (nestedSdkDir.isDirectory()) {
-        ndkDirs.addAll(findAndroidNdkDirs(nestedSdkDir))
-    }
-    def sideBySideDir = new File(sdkDir, 'ndk')
-    if (sideBySideDir.isDirectory()) {
-        ndkDirs.addAll(sideBySideDir.listFiles()?.findAll { it.isDirectory() }?.sort { a, b -> b.name <=> a.name } ?: [])
-    }
-    ndkDirs << new File(sdkDir, 'ndk-bundle')
-    return ndkDirs
-}
-
-gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
-
-if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
-    File nativesSnapshotPropF = file('natives-snapshot.properties')
-
-    if (nativesSnapshotPropF.exists()) {
-        def readNativesConfig = {
-            Properties nativesSnapshotProp = new Properties()
-            nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
-
-            String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot")
-            if (!nativesSnapshot) {
-                throw new GradleException("Missing 'natives.snapshot' in ${nativesSnapshotPropF}")
-            }
-
-            [
-                snapshot: nativesSnapshot,
-                url: PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot),
-                zipFile: layout.buildDirectory.file("${nativesSnapshot}-natives.zip"),
-                nativeDir: layout.buildDirectory.dir("native"),
-            ]
-        }
-
-        def nativesZipFile = providers.provider { readNativesConfig().zipFile.get().asFile }
-        def nativesPath = layout.buildDirectory.dir("native")
-
-        def getNativesZipFile = tasks.register('getNativesZipFile') {
-            outputs.file(nativesZipFile)
-            doFirst {
-                def nativesConfig = readNativesConfig()
-                File target = nativesConfig.zipFile.get().asFile
-                println("Use natives snapshot: ${nativesConfig.url}")
-                println("Download natives from ${nativesConfig.url} to ${target}")
-                target.getParentFile().mkdirs()
-                ant.get(src: nativesConfig.url, dest: target)
-            }
-        }
-
-        def extractPrebuiltNatives = tasks.register('extractPrebuiltNatives', Sync) {
-            dependsOn(getNativesZipFile)
-            into(nativesPath)
-            from({
-                zipTree(readNativesConfig().zipFile.get().asFile)
-            }) {
-                eachFile { details ->
-                    def segments = details.relativePath.segments
-                    if (segments.length > 1) {
-                        details.path = segments[1..-1].join('/')
-                    }
-                }
-                includeEmptyDirs = false
-            }
-        }
-
-        tasks.named('assemble') {
-            dependsOn extractPrebuiltNatives
-        }
-    }
-}

@@ -2,9 +2,7 @@
 # JME CI/CD
 ######################################################################################
 # Quick overview of what is going on in this script:
-#   - Build natives for android
-#   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
-#   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
+#   - Build the engine, create the zip release, maven artifacts and javadoc
 #   - (only when building a release) Deploy everything else to github releases and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
@@ -13,8 +11,6 @@
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
 ################# CONFIGURATIONS #####################################################
-# >> Configure MINIO NATIVES SNAPSHOT
-#     OBJECTS_KEY=XXXXXX
 # >> Configure SONATYPE RELEASE
 #     CENTRAL_PASSWORD=XXXXXX
 #     CENTRAL_USERNAME=XXXXXX
@@ -155,52 +151,8 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
-  # Build the natives on android
-  BuildAndroidNatives:
-    name: Build natives for android
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/cirruslabs/android-sdk:36-ndk
-
-    steps:
-      - name: Clone the repo
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
-
-      - name: Setup Java 25
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '25'
-
-      - name: Check java version
-        run: java -version
-
-      - name: Install CMake
-        run: |
-          apt-get update
-          apt-get install -y cmake
-          cmake --version
-
-      - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
-
-      - name: Build
-        run: |
-          export ANDROID_NDK="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
-          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
-          :jme3-android-native:assemble
-
-      - name: Upload natives
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: android-natives
-          path: build/native
-
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
-    needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -231,19 +183,13 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
 
-      - name: Download natives for android
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: android-natives
-          path: build/native
-
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Build Engine
         shell: bash
         run: |
           # Normal build plus ZIP distribution and merged javadoc
-          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true \
+          ./gradlew -PuseCommitHashAsVersionName=true \
           -x checkstyleMain -x checkstyleTest \
           build createZipDistribution mergedJavadoc
 
@@ -264,32 +210,17 @@ jobs:
               echo "SIGNING_KEY, SIGNING_PASSWORD"
 
               ./gradlew publishMavenPublicationToDistRepository \
-              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
             else
               ./gradlew publishMavenPublicationToDistRepository \
               -PsigningKey='${{ secrets.SIGNING_KEY }}' \
               -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
             fi
 
-            # Zip the natives into a single archive (we are going to use this to deploy native snapshots)
-            echo "Create native zip"
-            cdir="$PWD"
-            cd "build/native"
-            zip -r "$cdir/dist/jme3-natives.zip" *
-            cd "$cdir"
-            echo "Done"
           fi
-
-      # Used later by DeploySnapshot
-      - name: Upload merged natives
-        if: matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: natives
-          path: dist/jme3-natives.zip
 
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
@@ -314,95 +245,6 @@ jobs:
           name: release
           path: dist/release
 
-  # This job deploys the native snapshot.
-  # The snapshot is downloaded when people build the engine without setting buildNativeProject
-  # this is useful for people that want to build only the java part and don't have
-  # all the stuff needed to compile natives.
-  DeployNativeSnapshot:
-    needs: [BuildJMonkey]
-    name: "Deploy native snapshot"
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-
-      # We clone the repo manually, since we are going to push back a reference to the snapshot
-      - name: Clone the repo
-        run: |
-          branch="${GITHUB_REF//refs\/heads\//}"
-          if [ "$branch" != "" ];
-          then
-            git clone --single-branch --branch "$branch" https://github.com/${GITHUB_REPOSITORY}.git .
-          fi
-
-      - name: Download merged natives
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: natives
-          path: dist/
-
-      - name: Deploy natives snapshot
-        run: |
-          source .github/actions/tools/minio.sh
-          NATIVE_CHANGES="yes"
-          branch="${GITHUB_REF//refs\/heads\//}"
-          if [ "$branch" != "" ];
-          then
-            if [ -f "natives-snapshot.properties" ];
-            then
-              nativeSnapshot=`cat "natives-snapshot.properties"`
-              nativeSnapshot="${nativeSnapshot#*=}"
-
-              # We deploy ONLY if GITHUB_SHA (the current commit hash) is newer than $nativeSnapshot
-              if [ "`git rev-list --count $nativeSnapshot..$GITHUB_SHA`" = "0" ];
-              then
-                NATIVE_CHANGES=""
-              else
-                # We check if the native code changed.
-                echo "Detect changes"
-                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"
-              fi
-            fi
-
-            # We do nothing if there is no change
-            if [ "$NATIVE_CHANGES" = "" ];
-            then
-              echo "No changes, skip."
-            else
-              if [ "${{ secrets.OBJECTS_KEY }}" = "" ];
-              then
-                echo "Configure the OBJECTS_KEY secret to enable natives snapshot deployment to MinIO"
-              else
-                # Deploy natives snapshot to a MinIO instance using function in minio.sh
-                minio_uploadFile dist/jme3-natives.zip \
-                  native-snapshots/$GITHUB_SHA/jme3-natives.zip \
-                  https://objects.jmonkeyengine.org \
-                  jmonkeyengine \
-                  ${{ secrets.OBJECTS_KEY }}
-
-                # We reference the snapshot by writing its commit hash in  natives-snapshot.properties
-                echo "natives.snapshot=$GITHUB_SHA" > natives-snapshot.properties
-
-                # We commit the updated  natives-snapshot.properties
-                git config --global user.name "Github Actions"
-                git config --global user.email "actions@users.noreply.github.com"
-
-                git add natives-snapshot.properties
-
-                git commit -m "[skip ci] update natives snapshot"
-
-                # Pull rebase from the remote repo, just in case there was a push in the meantime
-                git pull -q --rebase
-
-                # We need to calculate the header for git authentication
-                header=$(echo -n "ad-m:${{ secrets.GITHUB_TOKEN }}" | base64)
-
-                # Push
-                (git -c http.extraheader="AUTHORIZATION: basic $header" push origin "$branch" || true)
-
-              fi
-            fi
-          fi
-
   # This job deploys snapshots on the master branch
   DeployJavaSnapshot:
     needs: [BuildJMonkey]
@@ -425,12 +267,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '25'
-
-      - name: Download natives for android
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: android-natives
-          path: build/native
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
@@ -481,12 +317,6 @@ jobs:
         with:
           name: release
           path: dist/release
-
-      - name: Download natives for android
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: android-natives
-          path: build/native
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
         run: |
