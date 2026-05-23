@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -210,6 +210,7 @@ public class TestCanvas {
         // Note: Only for Linux and Wayland platforms, forces you to
         // use XWayland (x11) with awt.
         settings.setX11PlatformPreferred(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setWidth(640);
         settings.setHeight(480);
 

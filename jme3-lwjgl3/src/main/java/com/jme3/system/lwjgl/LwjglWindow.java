@@ -31,20 +31,6 @@
  */
 package com.jme3.system.lwjgl;
 
-import static org.lwjgl.egl.EXTPlatformWayland.EGL_PLATFORM_WAYLAND_EXT;
-import static org.lwjgl.egl.EXTPlatformX11.EGL_PLATFORM_X11_EXT;
-import static org.lwjgl.sdl.SDLError.*;
-import static org.lwjgl.sdl.SDLEvents.*;
-import static org.lwjgl.sdl.SDLHints.*;
-import static org.lwjgl.sdl.SDLInit.*;
-import static org.lwjgl.sdl.SDLKeyboard.*;
-import static org.lwjgl.sdl.SDLMouse.*;
-import static org.lwjgl.sdl.SDLPixels.*;
-import static org.lwjgl.sdl.SDLSurface.*;
-import static org.lwjgl.sdl.SDLStdinc.SDL_setenv_unsafe;
-import static org.lwjgl.sdl.SDLVideo.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
-
 import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.JoyInput;
@@ -76,6 +62,8 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
+import com.jme3.renderer.opengl.GLRenderer;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -86,6 +74,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.lwjgl.Version;
 import org.lwjgl.sdl.SDL_DisplayMode;
 import org.lwjgl.sdl.SDL_Event;
@@ -93,7 +82,18 @@ import org.lwjgl.sdl.SDL_Surface;
 import org.lwjgl.sdl.SDLStdinc;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
-import com.jme3.renderer.opengl.GLRenderer;
+
+import static org.lwjgl.egl.EXTPlatformWayland.EGL_PLATFORM_WAYLAND_EXT;
+import static org.lwjgl.egl.EXTPlatformX11.EGL_PLATFORM_X11_EXT;
+import static org.lwjgl.sdl.SDLError.*;
+import static org.lwjgl.sdl.SDLEvents.*;
+import static org.lwjgl.sdl.SDLHints.*;
+import static org.lwjgl.sdl.SDLInit.*;
+import static org.lwjgl.sdl.SDLPixels.*;
+import static org.lwjgl.sdl.SDLSurface.*;
+import static org.lwjgl.sdl.SDLStdinc.SDL_setenv_unsafe;
+import static org.lwjgl.sdl.SDLVideo.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * SDL3-backed window/context implementation for LWJGL 3.4+.
@@ -243,6 +243,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException("Unable to disable NVIDIA OpenGL threaded optimizations: "
                     + SDL_GetError());
         }
+    }
+
+    @Override
+    protected String getCurrentVideoDriver() {
+        return "SDL " + SDL_GetCurrentVideoDriver();
     }
 
     @Override

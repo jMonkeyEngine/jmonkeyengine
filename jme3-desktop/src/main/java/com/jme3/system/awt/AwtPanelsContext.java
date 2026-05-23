@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -239,7 +239,7 @@ public class AwtPanelsContext implements JmeContext {
     @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
-        this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
+        this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         if (actualContext != null) {
             actualContext.setSettings(settings);
         }
