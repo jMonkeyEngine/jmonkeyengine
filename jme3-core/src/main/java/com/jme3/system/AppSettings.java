@@ -1148,7 +1148,6 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Sets how supporting backends enter fullscreen when
      * {@link #setFullscreen(boolean)} is enabled.
-     * <p>
      * <ul>
      * <li>{@link #FULLSCREEN_MODE_BORDERLESS_WINDOW}: borderless fullscreen
      * desktop mode.</li>
