@@ -10,7 +10,7 @@ libjglios = "0.2"
 saferalloc = "0.0.8"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
-jmeAndroidNatives = "0.1.0-SNAPSHOT"
+jmeAndroidNatives = "3.10.0-xt"
 
 [libraries]
 

@@ -27,13 +27,6 @@ apply from: file('version.gradle')
 allprojects {
     repositories {
         mavenCentral()
-        maven {
-            name = 'CentralSnapshots'
-            url = 'https://central.sonatype.com/repository/maven-snapshots/'
-            mavenContent {
-                snapshotsOnly()
-            }
-        }
         google()
     }
     tasks.withType(Jar) {
