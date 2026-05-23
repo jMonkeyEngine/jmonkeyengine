@@ -42,7 +42,8 @@ subprojects {
         apply from: rootProject.file('common-android-app.gradle')
     }
 
-    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
+    def isAndroidApp = project.plugins.hasPlugin('com.android.application')
+    if (!project.name.endsWith("-native") && !isAndroidApp && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
