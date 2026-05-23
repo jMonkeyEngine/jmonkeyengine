@@ -40,7 +40,15 @@ def findAndroidSdk = {
     if (System.env.ANDROID_SDK_ROOT) {
         sdkDirs << file(System.env.ANDROID_SDK_ROOT)
     }
+    if (System.env.ANDROID_HOME) {
+        sdkDirs << file(System.env.ANDROID_HOME)
+    }
+    if (System.env.ANDROID_SDK_ROOT) {
+        sdkDirs << file(System.env.ANDROID_SDK_ROOT)
+    }
     sdkDirs << file("${System.properties['user.home']}/Android/Sdk")
+    sdkDirs << file("${System.properties['user.home']}/Library/Android/sdk")
+    sdkDirs << file("${System.properties['user.home']}/AppData/Local/Android/Sdk")
 
     return sdkDirs.unique { it.absolutePath }.collect { sdkDir ->
         def platformDir = new File(sdkDir, 'platforms')
