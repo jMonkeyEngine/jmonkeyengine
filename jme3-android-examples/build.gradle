@@ -49,9 +49,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation platform(libs.junit.bom)
-    testImplementation libs.junit.jupiter
-    testRuntimeOnly libs.junit.platform.launcher
     androidTestImplementation libs.junit4
     androidTestImplementation libs.androidx.test.runner
     implementation libs.androidx.fragment
