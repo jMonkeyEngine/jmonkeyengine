@@ -26,7 +26,6 @@ apply from: file('version.gradle')
 
 allprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
         google()
     }
