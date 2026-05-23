@@ -17,6 +17,7 @@ import java.util.List;
 
 public final class IosTestChooserLauncher {
     private static final String CLASS_LIST_RESOURCE = "/jme3test/test-classes.txt";
+    private static final String IOS_INITIAL_EXAMPLE_CLASS = "jme3test.ios.IosInitialExample";
     private static List<String> testClasses;
     private static IosTestChooserLauncher activeLauncher;
 
@@ -151,7 +152,7 @@ public final class IosTestChooserLauncher {
     }
 
     private static String initialExampleClass() {
-        String className = IosInitialExample.className();
+        String className = generatedInitialExampleClassName();
         if (className == null || className.isEmpty()) {
             return null;
         }
@@ -159,6 +160,20 @@ public final class IosTestChooserLauncher {
             throw new IllegalStateException("Configured iOS test is not available: " + className);
         }
         return className;
+    }
+
+    private static String generatedInitialExampleClassName() {
+        try {
+            Class<?> clazz = Class.forName(IOS_INITIAL_EXAMPLE_CLASS, false,
+                    IosTestChooserLauncher.class.getClassLoader());
+            java.lang.reflect.Method method = clazz.getDeclaredMethod("className");
+            method.setAccessible(true);
+            return (String) method.invoke(null);
+        } catch (ClassNotFoundException exception) {
+            return null;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+            throw new IllegalStateException("Could not read generated iOS initial example", exception);
+        }
     }
 
     private void runDelegateFrame() {

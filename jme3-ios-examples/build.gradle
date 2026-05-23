@@ -47,10 +47,10 @@ def iosChooserExcludedNames = [
     'jme3test.audio.TestAudioDeviceDisconnect'
 ]
 def isIosChooserClass = { String className ->
-    !iosChooserExcludedPrefixes.any { className.startsWith(it) }
+    (!iosChooserExcludedPrefixes.any { className.startsWith(it) }
         && !iosChooserExcludedNames.contains(className)
         && !className.contains('Jogl')
-        && !className.contains('Lwjgl')
+        && !className.contains('Lwjgl'))
 }
 def readExamplesTestClassList = {
     def file = examplesTestClassListFile.get().asFile
@@ -263,12 +263,16 @@ def generateIosNativeImageMetadata = tasks.register('generateIosNativeImageMetad
             + collectRuntimeClassNamesByPrefix(['com.bulletphysics.'])
             + [iosChooserLauncherClass, 'jme3test.ios.IosTestChooser', 'jme3test.ios.IosInitialExample']).unique()
         def metadata = classes.collect { className ->
-            [
+            def metadataEntry = [
                 name: className,
                 allDeclaredConstructors: true,
                 allPublicConstructors: true,
                 allPublicMethods: true
             ]
+            if (className == 'jme3test.ios.IosInitialExample') {
+                metadataEntry.allDeclaredMethods = true
+            }
+            metadataEntry
         }
         def outputFile = reflectConfig.get().asFile
         outputFile.parentFile.mkdirs()
