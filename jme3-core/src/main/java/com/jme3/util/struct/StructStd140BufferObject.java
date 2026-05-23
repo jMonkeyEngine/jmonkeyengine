@@ -58,7 +58,6 @@ public class StructStd140BufferObject extends BufferObject {
     /**
      * Create an empty Struct buffer
      * 
-     * @param str
      */
     public StructStd140BufferObject() {
     }

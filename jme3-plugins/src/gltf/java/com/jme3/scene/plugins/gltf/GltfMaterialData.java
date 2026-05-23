@@ -39,7 +39,6 @@ import java.util.Set;
 /**
  * Stores all data of a single material from a GLTF file.
  * This data can then be used by a {@link GltfMaterialFactory} to create a new material.
- * <p>
  *  <h2>Parameter naming convention</h2>
  *  <ul>
  *    <li>
@@ -58,7 +57,6 @@ import java.util.Set;
  *      All additional parameter names from GLTF extras should start with {@link #MATERIAL_EXTRA_PARAM_PREFIX}.
  *    </li>
  *  </ul>
- * </p>
  */
 public class GltfMaterialData {
 
