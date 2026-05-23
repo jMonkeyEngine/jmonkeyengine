@@ -79,11 +79,9 @@ tasks.named('preBuild') {
     dependsOn examplesJar
     if (buildNativeProjects == "true") {
         dependsOn ':jme3-android-native:updatePreCompiledOpenAlSoftLibs'
-        dependsOn ':jme3-android-native:updatePreCompiledLibs'
         dependsOn ':jme3-android-native:updatePreCompiledLibsBufferAllocator'
     } else if (skipPrebuildLibraries != "true") {
         dependsOn ':jme3-android-native:copyPreCompiledOpenAlSoftLibs'
-        dependsOn ':jme3-android-native:copyPreCompiledLibs'
         dependsOn ':jme3-android-native:copyPreCompiledLibsBufferAllocator'
     }
 }

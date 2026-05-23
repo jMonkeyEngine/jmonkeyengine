@@ -31,5 +31,4 @@ ext {
 
 // add each native lib build file
 apply from: file('openalsoft.gradle')
-apply from: file('decode.gradle')
 apply from: file('bufferallocator.gradle')
