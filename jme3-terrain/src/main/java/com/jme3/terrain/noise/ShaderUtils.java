@@ -29,15 +29,6 @@
  */
 package com.jme3.terrain.noise;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.WritableRaster;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 /**
  * Helper class containing useful functions explained in the book:
  * Texturing &amp; Modeling - A Procedural Approach
@@ -64,12 +55,6 @@ public class ShaderUtils {
 
     public static final float mix(final float a, final float b, final float f) {
         return (1 - f) * a + f * b;
-    }
-
-    public static final Color mix(final Color a, final Color b, final float f) {
-        return new Color((int) ShaderUtils.clamp(ShaderUtils.mix(a.getRed(), b.getRed(), f), 0, 255), (int) ShaderUtils.clamp(
-                ShaderUtils.mix(a.getGreen(), b.getGreen(), f), 0, 255), (int) ShaderUtils.clamp(
-                ShaderUtils.mix(a.getBlue(), b.getBlue(), f), 0, 255));
     }
 
     public static final int mix(final int a, final int b, final float f) {
@@ -255,28 +240,6 @@ public class ShaderUtils {
             s += vv * vv;
         }
         return (float) Math.sqrt(s);
-    }
-
-    public static final ByteBuffer getImageDataFromImage(BufferedImage bufferedImage) {
-        WritableRaster wr;
-        DataBuffer db;
-
-        BufferedImage bi = new BufferedImage(128, 64, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bi.createGraphics();
-        g.drawImage(bufferedImage, null, null);
-        bufferedImage = bi;
-        wr = bi.getRaster();
-        db = wr.getDataBuffer();
-
-        DataBufferInt dbi = (DataBufferInt) db;
-        int[] data = dbi.getData();
-
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(data.length * 4);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        byteBuffer.asIntBuffer().put(data);
-        byteBuffer.flip();
-
-        return byteBuffer;
     }
 
     public static float frac(float f) {
