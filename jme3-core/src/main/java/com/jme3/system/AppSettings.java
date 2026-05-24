@@ -63,6 +63,24 @@ public final class AppSettings extends HashMap<String, Object> {
     private static final AppSettings defaults = new AppSettings(false);
 
     /**
+     * Do not request display scaling support on platforms where the backend can
+     * opt out.
+     */
+    public static final float DISPLAY_SCALE_DISABLED = 0f;
+
+    /**
+     * Request the native-density framebuffer and expose physical framebuffer
+     * pixels as the application coordinate system.
+     */
+    public static final float DISPLAY_SCALE_NATIVE_PIXELS = -1f;
+
+    /**
+     * Request the native-density framebuffer while keeping cameras, GUI,
+     * picking, and input in DPI-aware logical coordinates.
+     */
+    public static final float DISPLAY_SCALE_DPI_AWARE = 1f;
+
+    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -1513,19 +1531,66 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Returns the active display scale mode.
+     * <p>
+     * If {@link #setDisplayScaleMode(float)} was not called, this method
+     * returns {@link #DISPLAY_SCALE_DISABLED}.
+     * <p>
+     * Values greater than {@link #DISPLAY_SCALE_DPI_AWARE} mean emulated display
+     * scaling. For example, {@code 1.5f} keeps DPI-aware application coordinates
+     * while rendering on-screen content to an intermediate framebuffer sized
+     * {@code physicalFramebufferSize * 1.5}.
+     *
+     * @return the active display scale mode
+     */
+    public float getDisplayScaleMode() {
+        Object mode = get("DisplayScaleMode");
+        if (mode instanceof Float) {
+            return DisplayScaleUtils.normalizeDisplayScaleMode((Float) mode);
+        }
+        return DISPLAY_SCALE_DISABLED;
+    }
+
+    /**
+     * Sets the display scale mode. New applications should use this API
+     * instead of {@link #setUseRetinaFrameBuffer(boolean)}.
+     * <p>
+     * Use {@link #DISPLAY_SCALE_DISABLED},
+     * {@link #DISPLAY_SCALE_NATIVE_PIXELS}, or
+     * {@link #DISPLAY_SCALE_DPI_AWARE} for built-in modes. Values below
+     * {@code 1.0}, except {@link #DISPLAY_SCALE_NATIVE_PIXELS}, are normalized
+     * to {@link #DISPLAY_SCALE_DISABLED}. Values above
+     * {@link #DISPLAY_SCALE_DPI_AWARE} enable emulated display scaling above the
+     * physical framebuffer size.
+     *
+     * @param mode the desired mode
+     */
+    public void setDisplayScaleMode(float mode) {
+        if (!Float.isFinite(mode)) {
+            throw new IllegalArgumentException("DisplayScaleMode must be finite.");
+        }
+        putFloat("DisplayScaleMode", DisplayScaleUtils.normalizeDisplayScaleMode(mode));
+    }
+
+    /**
      * Determine whether to use full resolution framebuffers on Retina displays.
      *
      * @return whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #getDisplayScaleMode()} instead.
      */
+    @Deprecated
     public boolean isUseRetinaFrameBuffer() {
         return getBoolean("UseRetinaFrameBuffer");
     }
 
     /**
-     * Specifies whether to use full resolution framebuffers on Retina displays. This is ignored on other platforms.
+     * Specifies whether to use full resolution framebuffers on Retina/high-DPI
+     * displays where the backend supports requesting them.
      *
      * @param useRetinaFrameBuffer whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #setDisplayScaleMode(float)} instead.
      */
+    @Deprecated
     public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
         putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
     }

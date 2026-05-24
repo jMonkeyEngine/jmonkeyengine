@@ -226,6 +226,11 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     }
 
     @Override
+    public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        app.reshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
+    }
+
+    @Override
     public void rescale(float x, float y) {
         app.rescale(x, y);
     }

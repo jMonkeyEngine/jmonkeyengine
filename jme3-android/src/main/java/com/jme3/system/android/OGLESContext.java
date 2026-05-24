@@ -37,13 +37,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
@@ -58,6 +55,7 @@ import com.jme3.input.android.AndroidInputHandler26;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.material.Material;
+import com.jme3.math.Vector2f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -68,6 +66,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
@@ -99,6 +98,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected AndroidInputHandler androidInput;
     protected long minFrameDuration = 0; // No FPS cap
     protected long lastUpdateTime = 0;
+    private int logicalWidth = 1;
+    private int logicalHeight = 1;
+    private int framebufferWidth = 1;
+    private int framebufferHeight = 1;
+    private final Vector2f displayScale = new Vector2f(1f, 1f);
+    private float appliedDisplayScaleMode = Float.NaN;
     private Application application;
     private Material blitMaterial;
     private Picture blitGeometry;
@@ -452,16 +457,62 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 new Object[] { width, height }
             );
         }
-        // update the application settings with the new resolution
-        settings.setResolution(width, height);
-        // Reload settings in androidInput so the correct touch event scaling can be
-        // calculated in case the surface resolution is different than the view.
-        androidInput.loadSettings(settings);
+        framebufferWidth = Math.max(width, 1);
+        framebufferHeight = Math.max(height, 1);
+        updateDisplayScaleMetrics();
         // if the application has already been initialized (ie renderable is set)
         // then call reshape so the app can adjust to the new resolution.
         if (renderable.get()) {
             logger.log(Level.FINE, "App already initialized, calling reshape");
-            listener.reshape(width, height);
+            listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
+            listener.rescale(displayScale.x, displayScale.y);
+        }
+    }
+
+    private float getAndroidDisplayDensity() {
+        if (androidInput != null && androidInput.getView() != null
+                && androidInput.getView().getResources() != null) {
+            android.util.DisplayMetrics metrics = androidInput.getView().getResources().getDisplayMetrics();
+            if (metrics != null) {
+                if (metrics.density > 0f) {
+                    return metrics.density;
+                }
+                if (metrics.densityDpi > 0) {
+                    return metrics.densityDpi / 160f;
+                }
+            }
+        }
+        return 1f;
+    }
+
+    private void updateDisplayScaleMetrics() {
+        float density = DisplayScaleUtils.sanitizeScale(getAndroidDisplayDensity());
+        displayScale.set(density, density);
+        appliedDisplayScaleMode = settings.getDisplayScaleMode();
+        if (DisplayScaleUtils.isNativePixelsMode(appliedDisplayScaleMode)) {
+            logicalWidth = framebufferWidth;
+            logicalHeight = framebufferHeight;
+        } else {
+            logicalWidth = Math.max(Math.round(framebufferWidth / density), 1);
+            logicalHeight = Math.max(Math.round(framebufferHeight / density), 1);
+        }
+        settings.setResolution(logicalWidth, logicalHeight);
+        // Reload settings in androidInput so the correct touch event scaling can be
+        // calculated in case the surface resolution is different than the view.
+        if (androidInput != null) {
+            androidInput.loadSettings(settings);
+        }
+    }
+
+    private void applyDisplayScaleModeIfNeeded() {
+        if (Float.compare(settings.getDisplayScaleMode(), appliedDisplayScaleMode) == 0) {
+            return;
+        }
+
+        updateDisplayScaleMetrics();
+        if (renderable.get()) {
+            listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
+            listener.rescale(displayScale.x, displayScale.y);
         }
     }
 
@@ -475,8 +526,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         if (!renderable.get()) {
             if (created.get()) {
+                applyDisplayScaleModeIfNeeded();
                 logger.fine("GL Surface is setup, initializing application");
                 listener.initialize();
+                if (framebufferWidth > 0 && framebufferHeight > 0) {
+                    listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
+                    listener.rescale(displayScale.x, displayScale.y);
+                }
                 renderable.set(true);
             }
         } else {
@@ -484,6 +540,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 throw new IllegalStateException("onDrawFrame without create");
             }
 
+            applyDisplayScaleModeIfNeeded();
             if (!renderFrameWithBlitSrgbConversion()) {
                 listener.update();
             }
@@ -549,12 +606,43 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         return settings.isGammaCorrection() && application != null;
     }
 
+    private boolean useBlitFrameBuffer() {
+        float mode = settings.getDisplayScaleMode();
+        return application != null && (useBlitSrgbConversion()
+                || DisplayScaleUtils.isDisabledMode(mode) || DisplayScaleUtils.isEmulatedScaleMode(mode));
+    }
+
+    private int getRenderFramebufferWidth() {
+        float mode = settings.getDisplayScaleMode();
+        if (DisplayScaleUtils.isDisabledMode(mode)) {
+            return Math.max(logicalWidth, 1);
+        }
+        if (DisplayScaleUtils.isEmulatedScaleMode(mode)) {
+            return Math.max(Math.round(framebufferWidth * mode), 1);
+        }
+        return Math.max(framebufferWidth, 1);
+    }
+
+    private int getRenderFramebufferHeight() {
+        float mode = settings.getDisplayScaleMode();
+        if (DisplayScaleUtils.isDisabledMode(mode)) {
+            return Math.max(logicalHeight, 1);
+        }
+        if (DisplayScaleUtils.isEmulatedScaleMode(mode)) {
+            return Math.max(Math.round(framebufferHeight * mode), 1);
+        }
+        return Math.max(framebufferHeight, 1);
+    }
+
     private int getLinearFrameBufferSampleCount() {
         int samples = Math.max(settings.getSamples(), 1);
-        if (samples > 1 && renderer != null && !renderer.getCaps().contains(Caps.TextureMultisample)) {
+        if (samples > 1 && renderer != null
+                && (!renderer.getCaps().contains(Caps.TextureMultisample)
+                || !renderer.getCaps().contains(Caps.OpenGL32))) {
             if (!multisampleTextureWarningIssued) {
-                logger.warning("sRGB blit conversion requires multisampled textures for MSAA. "
-                        + "Falling back to a single-sample linear framebuffer.");
+                logger.log(Level.WARNING,
+                        "Display scale blit requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample linear framebuffer.",
+                        samples);
                 multisampleTextureWarningIssued = true;
             }
             return 1;
@@ -563,13 +651,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     private void rebuildLinearFrameBufferIfNeeded() {
-        if (!useBlitSrgbConversion()) {
+        if (!useBlitFrameBuffer()) {
             destroyLinearFrameBufferResources();
             return;
         }
 
-        int width = Math.max(settings.getWidth(), 1);
-        int height = Math.max(settings.getHeight(), 1);
+        int width = getRenderFramebufferWidth();
+        int height = getRenderFramebufferHeight();
         int samples = getLinearFrameBufferSampleCount();
 
         if (linearFrameBuffer != null && linearFrameBuffer.getWidth() == width
@@ -585,6 +673,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         Texture2D colorTexture = new Texture2D(
                 new Image(getLinearFrameBufferColorFormat(), width, height, null, ColorSpace.Linear));
+        colorTexture.setMagFilter(Texture.MagFilter.Bilinear);
+        colorTexture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         if (samples > 1) {
             colorTexture.getImage().setMultiSamples(samples);
         }
@@ -610,7 +700,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     private boolean ensureBlitResources() {
-        if (!useBlitSrgbConversion()) {
+        if (!useBlitFrameBuffer()) {
             return false;
         }
 
@@ -622,10 +712,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         if (blitMaterial == null) {
             blitMaterial = new Material(assetManager, BLIT_MATERIAL);
-            blitMaterial.setBoolean("Srgb", true);
             blitMaterial.getAdditionalRenderState().setDepthTest(false);
             blitMaterial.getAdditionalRenderState().setDepthWrite(false);
         }
+        blitMaterial.setBoolean("Srgb", useBlitSrgbConversion());
 
         if (blitGeometry == null) {
             blitGeometry = new Picture("Linear to sRGB Blit");
@@ -667,7 +757,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     private boolean renderFrameWithBlitSrgbConversion() {
-        if (!useBlitSrgbConversion()) {
+        if (!useBlitFrameBuffer()) {
             return false;
         }
 
@@ -699,8 +789,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         Camera previousCamera = renderManager.getCurrentCamera();
         try {
             renderer.setFrameBuffer(null);
-            int blitWidth = linearFrameBuffer.getWidth();
-            int blitHeight = linearFrameBuffer.getHeight();
+            int blitWidth = Math.max(getFramebufferWidth(), 1);
+            int blitHeight = Math.max(getFramebufferHeight(), 1);
             if (blitCamera.getWidth() != blitWidth || blitCamera.getHeight() != blitHeight) {
                 blitCamera.resize(blitWidth, blitHeight, true);
             }
@@ -811,16 +901,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             );
     }
 
-    /**
-     * Returns the height of the input surface.
-     *
-     * @return the height (in pixels)
-     */
     @Override
     public int getFramebufferHeight() {
-        Rect rect = getSurfaceFrame();
-        int result = rect.height();
-        return result;
+        return framebufferHeight;
     }
 
     /**
@@ -830,9 +913,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      */
     @Override
     public int getFramebufferWidth() {
-        Rect rect = getSurfaceFrame();
-        int result = rect.width();
-        return result;
+        return framebufferWidth;
     }
 
     /**
@@ -853,19 +934,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public int getWindowYPosition() {
         throw new UnsupportedOperationException("not implemented yet");
-    }
-
-    /**
-     * Retrieves the dimensions of the input surface. Note: do not modify the
-     * returned object.
-     *
-     * @return the dimensions (in pixels, left and top are 0)
-     */
-    private Rect getSurfaceFrame() {
-        SurfaceView view = (SurfaceView) androidInput.getView();
-        SurfaceHolder holder = view.getHolder();
-        Rect result = holder.getSurfaceFrame();
-        return result;
     }
 
     @Override
