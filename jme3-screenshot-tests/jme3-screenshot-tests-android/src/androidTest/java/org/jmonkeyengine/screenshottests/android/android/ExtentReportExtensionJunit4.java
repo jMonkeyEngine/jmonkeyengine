@@ -1,7 +1,5 @@
 package org.jmonkeyengine.screenshottests.android.android;
 
-import android.net.Uri;
-
 import androidx.test.services.storage.TestStorage;
 
 import com.jme3.system.JmeSystem;
@@ -16,7 +14,6 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,7 +27,7 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
 
     private static final String REPORT_DIRECTORY = "report";
 
-    ProtoReport report = new ProtoReport("Screenshot Test Report - Android");
+    static ProtoReport report = new ProtoReport("Screenshot Test Report - Android");
     ProtoReportTestItem testInProgress;
     TestStorage testStorage = new TestStorage();
 
