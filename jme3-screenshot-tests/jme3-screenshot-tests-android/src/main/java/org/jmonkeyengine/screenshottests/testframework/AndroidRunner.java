@@ -42,7 +42,14 @@ import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.services.storage.TestStorage;
 
+import com.jme3.system.JmeSystem;
+import com.jme3.texture.Image;
+
+import org.junit.Assert;
+
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -108,20 +115,25 @@ public class AndroidRunner implements AppRunner {
                 .resolve("changed-images");
     }
 
-    @Override
-    public Path getReportsDirectory() {
-        return InstrumentationRegistry
-                .getInstrumentation()
-                .getTargetContext()
-                .getExternalFilesDir(null)
-                .toPath()
-                .resolve("reports");
-    }
-
     public OutputStream getPersistentFileOutputStream(String relativePath){
         try{
             return testStorage.openOutputFile(relativePath);
         } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <V> V fail(String s) {
+        Assert.fail(s);
+        return (V)null;
+    }
+
+    @Override
+    public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
+        try (OutputStream out = getPersistentFileOutputStream("changed-images/" + fileName)) {
+            JmeSystem.writeImageFile(out, "png",generatedImage.getData(0), generatedImage.getWidth(), generatedImage.getHeight());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -52,12 +52,17 @@ dependencies {
     implementation libs.androidx.test.rules
     implementation libs.androidx.test.espresso.core
     implementation libs.androidx.fragment.testing
+    implementation libs.jackson
     debugImplementation libs.androidx.fragment.testing.manifest
+    androidTestImplementation libs.androidx.fragment.testing.manifest
+    debugImplementation libs.androidx.storage
 
     implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
+    implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-proto-report')
 
     implementation project(':jme3-testdata')
 
     // Allows the test to communicate with the orchestrator storage
-    androidTestImplementation libs.androidx.storage
+    androidTestImplementation libs.androidx.test.services
+    debugImplementation libs.androidx.test.services
 }

@@ -1,5 +1,7 @@
 package org.jmonkeyengine.screenshottests.testframework;
 
+import com.jme3.texture.Image;
+
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -14,8 +16,7 @@ public interface AppRunner {
 
     Path getChangedImagesDirectory();
 
-    Path getReportsDirectory();
+    <V> V fail(String s);
 
-    OutputStream getPersistentFileOutputStream(String relativePath);
-
+    void saveGeneratedImageToChangedImages(Image generatedImage, String fileName);
 }

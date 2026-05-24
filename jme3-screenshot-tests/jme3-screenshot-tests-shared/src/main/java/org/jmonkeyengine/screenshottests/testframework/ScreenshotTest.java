@@ -33,22 +33,23 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.aventstack.extentreports.ExtentTest;
 import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
+import com.jme3.texture.plugins.StbImageLoader;
 
 import org.jmonkeyengine.screenshottests.image.ImagePixelWrapper;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -195,27 +196,34 @@ public class ScreenshotTest{
                     String thisScenarioName = scenarios.get(i).scenarioName;
 
                     for(int frame : framesToTakeScreenshotsOn) {
-                        Path primeImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                        Path primeGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                         ));
-                        Path otherImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                        Path otherGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
                         ));
 
-                        Image img1 = readImage(primeImage.toFile());
-                        Image img2 = readImage(otherImage.toFile());
+                        Image primeGeneratedImage = readImage(primeGeneratedImagePath.toFile());
+                        Image otherGeneratedImage = readImage(otherGeneratedImagePath.toFile());
 
                         String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
-                        if (!imagesAreVerySimilar(img1, img2)) {
-                            attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", img1);
-                            attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", img2);
-                            attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(img1, img2));
+                        if(!imagesAreSameSize(primeGeneratedImage, otherGeneratedImage)){
+                            TestReportCaptureBase.INSTANCE.warning("Scenario " + primeScenarioName + " size : " + primeGeneratedImage.getWidth() + "x" + primeGeneratedImage.getHeight());
+                            TestReportCaptureBase.INSTANCE.warning("Scenario " + thisScenarioName + " size : " + otherGeneratedImage.getWidth() + "x" + otherGeneratedImage.getHeight());
+                            osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
+                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
+                            }
+                        }else if (!imagesAreVerySimilar(primeGeneratedImage, otherGeneratedImage)) {
+                            attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
+                            attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
+                            attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(primeGeneratedImage, otherGeneratedImage));
 
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
                             }
-                            ExtentReportExtensionBase.getCurrentTest().fail(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
+                            TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
                         }
                     }
                 }
@@ -223,56 +231,64 @@ public class ScreenshotTest{
 
 
             for(int frame : framesToTakeScreenshotsOn) {
-                Path generatedImage = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> fail(
+                Path generatedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                         "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                 ));
 
                 String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
-                Path expectedImage = Paths.get("src/test/resources/" + thisFrameBaseImageFileName + ".png");
+                Path expectedImagePath = Paths.get("src/test/resources/" + thisFrameBaseImageFileName + ".png");
 
-                if(!Files.exists(expectedImage)){
+                if(!Files.exists(expectedImagePath)){
                     try{
-                        Path savedImage = saveGeneratedImageToChangedImages(generatedImage, osSpecificRunner, thisFrameBaseImageFileName);
-                        attachImage("New image:", thisFrameBaseImageFileName + ".png", savedImage);
+                        Image otherGeneratedImage = readImage(generatedImagePath.toFile());
+                        osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + ".png");
+                        attachImage("New image:", thisFrameBaseImageFileName + ".png", otherGeneratedImage);
                         String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts (on github). If running locally you can see them at build/changed-images but those should not be committed";
                         if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                             failureMessage = message;
                         }
-                        ExtentReportExtensionBase.getCurrentTest().fail(message);
+                        TestReportCaptureBase.INSTANCE.markFailInReport(message);
                         continue;
                     } catch(IOException e){
                         throw new RuntimeException(e);
                     }
                 }
 
-                Image img1 = readImage(generatedImage.toFile());
-                Image img2 = readImage(expectedImage.toFile());
+                Image generatedImage = readImage(generatedImagePath.toFile());
+                Image expectedImage = readImage(expectedImagePath.toFile());
 
-                if (imagesAreVerySimilar(img1, img2)) {
+                if(!imagesAreSameSize(generatedImage, expectedImage)){
+                    TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
+                    TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
+                    osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
+                    if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                        failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
+                    }
+                }else if (!imagesAreVerySimilar(generatedImage, expectedImage))  {
                     if(testType == TestType.KNOWN_TO_FAIL){
-                        ExtentReportExtensionBase.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_SAME);
+                        TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
                     }
                 } else {
                     //save the generated image to the build directory
-                    Path savedImage = saveGeneratedImageToChangedImages(generatedImage, osSpecificRunner, thisFrameBaseImageFileName);
+                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
 
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
-                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", savedImage);
-                    attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(img1, img2));
+                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
+                    attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
 
                     switch(testType){
                         case MUST_PASS:
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT;
                             }
-                            ExtentReportExtensionBase.getCurrentTest().fail(IMAGES_ARE_DIFFERENT);
+                            TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
                             break;
                         case NON_DETERMINISTIC:
-                            ExtentReportExtensionBase.getCurrentTest().warning(NON_DETERMINISTIC_TEST);
+                            TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
                             break;
                         case KNOWN_TO_FAIL:
-                            ExtentReportExtensionBase.getCurrentTest().warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
+                            TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
                             break;
                     }
                 }
@@ -283,12 +299,26 @@ public class ScreenshotTest{
         }
 
         if(failureMessage!=null){
-            fail(failureMessage);
+            osSpecificRunner.fail(failureMessage);
         }
     }
 
     private Image readImage(File file) {
-        return assetManager.loadTexture(new TextureKey(file.getAbsolutePath())).getImage();
+        assetManager.registerLocator(file.getParent(), FileLocator.class);
+        assetManager.registerLoader(StbImageLoader.class, "png", "jpg", "jpeg");
+        return assetManager.loadTexture(file.getName()).getImage();
+
+        //return assetManager.loadTexture(new TextureKey(file.getAbsolutePath())).getImage();
+    }
+
+    public static ByteBuffer loadFileIntoByteBuffer(File file) throws Exception {
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r");
+             FileChannel channel = raf.getChannel()) {
+            ByteBuffer buffer = ByteBuffer.allocateDirect((int) channel.size());
+            channel.read(buffer);
+            buffer.flip(); // Prepare for reading
+            return buffer;
+        }
     }
 
     private String calculateImageFilePrefix(){
@@ -307,7 +337,7 @@ public class ScreenshotTest{
      * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
      * if the instigator of the change wants to accept this as the new "correct" state.
      */
-    private static Path saveGeneratedImageToChangedImages(Path generatedImage, AppRunner runner, String imageFileName) throws IOException{
+    private static Path xsaveGeneratedImageToChangedImages(Path generatedImage, AppRunner runner, String imageFileName) throws IOException{
         Path savedImage = runner.getChangedImagesDirectory().resolve(imageFileName + ".png");
         Files.createDirectories(savedImage.getParent());
         Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
@@ -316,23 +346,14 @@ public class ScreenshotTest{
 
 
     /**
-     * Attaches the image to the report. A copy of the image is made in the report directory
-     */
-    private void attachImage(String title, String fileName, Path originalImage) throws IOException{
-        ExtentTest test = ExtentReportExtensionBase.getCurrentTest();
-        Files.copy(originalImage.toAbsolutePath(), osSpecificRunner.getReportsDirectory().resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-        test.addScreenCaptureFromPath(fileName, title);
-    }
-
-    /**
      * Attaches the image to the report. The image is written to the report directory
      */
     private void attachImage(String title, String fileName, Image originalImage) throws IOException{
-        ExtentTest test = ExtentReportExtensionBase.getCurrentTest();
-        try (FileOutputStream fileOutBuf = new FileOutputStream(osSpecificRunner.getReportsDirectory().resolve(fileName).toFile())) {
-            JmeSystem.writeImageFile(fileOutBuf, "png",originalImage.getData(0),originalImage.getWidth(), originalImage.getHeight());
-        }
-        test.addScreenCaptureFromPath(fileName, title);
+        TestReportCaptureBase.INSTANCE.attachImage(title, fileName, originalImage);
+    }
+
+    private static boolean imagesAreSameSize(Image img1, Image img2) {
+        return img1.getWidth() == img2.getWidth() && img1.getHeight() == img2.getHeight();
     }
 
     /**
@@ -341,12 +362,6 @@ public class ScreenshotTest{
      * Different sizes are so fatal that they will immediately fail the test.
      */
     private static boolean imagesAreVerySimilar(Image img1, Image img2) {
-        if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
-            ExtentReportExtensionBase.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
-            ExtentReportExtensionBase.getCurrentTest().createNode("Image 2 size : " + img2.getWidth() + "x" + img2.getHeight());
-            fail(IMAGES_ARE_DIFFERENT_SIZES);
-        }
-
         ImagePixelWrapper image1Wrapper = new ImagePixelWrapper(img1);
         ImagePixelWrapper image2Wrapper = new ImagePixelWrapper(img2);
 

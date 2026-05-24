@@ -35,6 +35,9 @@ import com.aventstack.extentreports.ExtentTest;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * This class captures console logs and adds them to the ExtentReport.
@@ -48,16 +51,26 @@ public class ExtentReportLogCapture {
     private static final PrintStream originalErr = System.err;
     private static boolean initialized = false;
 
+    private static List<String> logs = new ArrayList<>();
+
     /**
      * Initializes the log capture system. This should be called once at the start of the test suite.
      */
     public static void initialize() {
         if (!initialized) {
             // Redirect System.out and System.err
-            System.setOut(new ExtentReportPrintStream(originalOut));
-            System.setErr(new ExtentReportPrintStream(originalErr));
+            System.setOut(new InMemoryLogCapture(originalOut, logLine -> logs.add(logLine)));
+            System.setErr(new InMemoryLogCapture(originalErr, logLine -> logs.add(logLine)));
 
             initialized = true;
+        }
+    }
+
+    public static List<String> getAndPurgeLogs(){
+        try{
+            return logs;
+        }finally {
+            logs = new ArrayList<>();
         }
     }
 
@@ -76,11 +89,13 @@ public class ExtentReportLogCapture {
     /**
      * A custom PrintStream that redirects output to both the original console and the ExtentReport.
      */
-    private static class ExtentReportPrintStream extends PrintStream {
-        private StringBuilder buffer = new StringBuilder();
+    private static class InMemoryLogCapture extends PrintStream {
+        private final StringBuilder buffer = new StringBuilder();
 
-        public ExtentReportPrintStream(OutputStream out) {
+        Consumer<String> logLineConsumer;
+        public InMemoryLogCapture(OutputStream out, Consumer<String> logLineConsumer) {
             super(out, true);
+            this.logLineConsumer = logLineConsumer;
         }
 
         @Override
@@ -93,20 +108,21 @@ public class ExtentReportLogCapture {
 
             // If we have a complete line (ends with newline), process it
             if (s.endsWith("\n") || s.endsWith("\r\n")) {
-                String line = buffer.toString().trim();
-                if (!line.isEmpty()) {
-                    addToExtentReport(line);
-                }
-                buffer.setLength(0); // Clear the buffer
+                finishCurrentLine();
             }
+        }
+
+        public void finishCurrentLine(){
+            String line = buffer.toString().trim();
+            if(!line.isEmpty()){
+                logLineConsumer.accept(line);
+            }
+            buffer.setLength(0); // Clear the buffer
         }
 
         private void addToExtentReport(String s) {
             try {
-                ExtentTest currentTest = ExtentReportExtensionBase.getCurrentTest();
-                if (currentTest != null) {
-                    currentTest.info(s);
-                }
+
             } catch (Exception e) {
                 // If there's an error adding to the report, just continue
                 // This ensures that console logs are still displayed even if there's an issue with the report

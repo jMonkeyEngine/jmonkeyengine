@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    implementation libs.jackson
+    implementation libs.extent.reports
+    testImplementation libs.junit4
+}
+
+test {
+    useJUnit()
+}

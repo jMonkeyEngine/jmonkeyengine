@@ -110,7 +110,7 @@ public class TestDriver extends BaseAppState{
         if(framesToTakeScreenshotsOn.contains(tick)){
             Path screenshotPath;
             try {
-                screenshotPath = Files.createTempFile("screenshot_" + scenarioName + "_" + tick + "_", ".tmp");
+                screenshotPath = Files.createTempFile("screenshot_" + scenarioName + "_" + tick + "_", ".png");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
