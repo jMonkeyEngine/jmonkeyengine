@@ -39,7 +39,7 @@ jobs:
           api-level: 31
           avd-name: test_avd
           target: google_apis
-          abi: x86_64
+          arch: x86_64
           force-avd-creation: true
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
