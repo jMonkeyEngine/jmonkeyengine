@@ -319,27 +319,23 @@ public class ScreenshotTest{
 
     private String calculateImageFilePrefix(){
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        Class<?> screenshotTestBaseClass = ScreenshotTestBase.class;
 
-        // The element at index 2 is the caller of this method, so at 3 should be the test class
-        if (stackTrace.length > 3) {
-            StackTraceElement caller = stackTrace[3];
-            return caller.getClassName() + "." + caller.getMethodName();
-        } else {
-            throw new RuntimeException("Caller information is not available.");
+        for (int i = 1; i < stackTrace.length; i++) {
+            StackTraceElement element = stackTrace[i];
+            try {
+                Class<?> clazz = Class.forName(element.getClassName());
+                if (screenshotTestBaseClass.isAssignableFrom(clazz)) {
+                    return element.getClassName() + "." + element.getMethodName();
+                }
+            } catch (ClassNotFoundException e) {
+                // Class not found, skip
+                continue;
+            }
         }
-    }
 
-    /**
-     * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
-     * if the instigator of the change wants to accept this as the new "correct" state.
-     */
-    private static Path xsaveGeneratedImageToChangedImages(Path generatedImage, AppRunner runner, String imageFileName) throws IOException{
-        Path savedImage = runner.getChangedImagesDirectory().resolve(imageFileName + ".png");
-        Files.createDirectories(savedImage.getParent());
-        Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
-        return savedImage;
+        throw new RuntimeException("No caller class extending ScreenshotTestBase found in stack trace.");
     }
-
 
     /**
      * Attaches the image to the report. The image is written to the report directory
