@@ -41,19 +41,16 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           avd-name: test_avd
-          force-avd-creation: true  # Do NOT recreate the AVD
+          force-avd-creation: true
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
             timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
             adb uninstall org.jmonkeyengine.screenshottests.android || true
-            # Install APKs manually (don't use connectedDebugAndroidTest as that auto unistalls at the end)
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebug
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:installDebugAndroidTest
-            # Run tests without auto-uninstall
-            adb shell am instrument -w -r -e class org.jmonkeyengine.screenshottests.android.android.ScreenshotTest org.jmonkeyengine.screenshottests.android.test/androidx.test.runner.AndroidJUnitRunner
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
             adb logcat -d > logcat.txt
-            adb pull /storage/emulated/0/Android/data/org.jmonkeyengine.screenshottests.android/files/screenshot.png .
+            adb pull /storage/emulated/0/googletest/test_outputfiles/report ./protoReport
+            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images . || true
       - name: Upload logcat
         uses: actions/upload-artifact@v4
         if: always()
@@ -64,6 +61,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: android-screenshot
-          path: screenshot.png
+          name: android-screenshot-report
+          path: protoReport
           if-no-files-found: error
