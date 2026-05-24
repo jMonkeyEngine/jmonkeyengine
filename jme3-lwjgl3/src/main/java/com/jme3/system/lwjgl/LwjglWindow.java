@@ -211,7 +211,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
-    private boolean auxFramebufferSrgbFallback;
 
     // state maintained by updateSizes()
     private int logicalWidth = 1;
@@ -226,13 +225,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private int oldLogicalHeight;
     private final Vector2f oldScale = new Vector2f(1, 1);
     private final Vector2f displayScale = new Vector2f(1, 1);
-    private Material auxFramebufferBlitMaterial;
-    private Picture auxFramebufferBlitGeometry;
-    private final Camera auxFramebufferBlitCamera = new Camera(1, 1);
-    private FrameBuffer auxFramebuffer;
-    private Texture2D auxFramebufferColorTexture;
-    private boolean auxFramebufferDirty;
-    private boolean auxFramebufferTextureMultisampleWarningIssued;
+    private Material blitMaterial;
+    private Picture blitGeometry;
+    private final Camera blitCamera = new Camera(1, 1);
+    private FrameBuffer blitFramebuffer;
+    private Texture2D blitColorTexture;
+    private boolean blitFramebufferDirty;
+    private boolean blitFramebufferTextureMultisampleWarningIssued;
 
     public LwjglWindow(final JmeContext.Type type) {
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -285,7 +284,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected void createContext(final AppSettings settings) {
         disableNvidiaThreadedOptimizations();
         useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
-        auxFramebufferSrgbFallback = false;
         configureVideoDriverHints(settings);
         configureAngleHints(settings);
 
@@ -431,14 +429,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         String initialError = SDL_GetError();
-        if (canUseAuxFramebuffer()) {
-            auxFramebufferSrgbFallback = true;
-        }
-
         LOGGER.log(Level.WARNING,
-                auxFramebufferSrgbFallback
-                        ? "Unable to create an sRGB-capable SDL window, retrying with the auxiliary sRGB framebuffer: {0}"
-                        : "Unable to create an sRGB-capable SDL window, retrying with a linear default framebuffer: {0}",
+                "Unable to create an sRGB-capable SDL window, retrying with a linear default framebuffer and shader sRGB conversion: {0}",
                 initialError);
         SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
 
@@ -481,12 +473,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings.getSamples() > 0 ? 1 : 0);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
 
-        boolean srgbFramebufferRequested = settings.isGammaCorrection() && !useAuxFramebufferSrgb();
-        if (srgbFramebufferRequested) {
-            if (!SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1)) {
-                throw new IllegalStateException("SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1) failed: "
-                        + SDL_GetError());
-            }
+        boolean srgbFramebufferRequested = false;
+        if (!SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0)) {
+            throw new IllegalStateException("SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE) failed: "
+                    + SDL_GetError());
         }
 
         if (settings.getBitsPerPixel() == 24) {
@@ -628,7 +618,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected void destroyContext() {
         Exception failure = null;
         try {
-            destroyAuxFramebufferResources();
+            destroyBlitFramebufferResources();
             if (renderer != null) {
                 renderer.cleanup();
             }
@@ -726,31 +716,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return true;
     }
 
-    @Override
-    protected boolean useAuxFramebufferSrgb() {
-        return settings.isGammaCorrection() && (useAngle || auxFramebufferSrgbFallback) && canUseAuxFramebuffer();
-    }
-
-    @Override
-    protected boolean enableAuxFramebufferSrgbFallback() {
-        if (!canUseAuxFramebuffer()) {
-            return false;
-        }
-        auxFramebufferSrgbFallback = true;
-        return true;
-    }
-
-    private boolean canUseAuxFramebuffer() {
+    private boolean canUseBlitFramebuffer() {
         return (type == Type.Display || type == Type.Canvas) && listener instanceof Application;
     }
 
-    protected boolean useAuxFramebuffer() {
-        return canUseAuxFramebuffer()
-                && (useAuxFramebufferDisplayScale() || useAuxFramebufferSrgb());
-    }
-
-    protected boolean useAuxFramebufferDisplayScale() {
-        return DisplayScaleUtils.isEmulatedScaleMode(settings.getDisplayScaleMode());
+    protected boolean useBlitFramebuffer() {
+        return canUseBlitFramebuffer();
     }
 
     protected int getRenderFramebufferWidth() {
@@ -791,41 +762,36 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return null;
     }
 
-    private int getAuxFramebufferSampleCount() {
+    private int getBlitFramebufferSampleCount() {
         int samples = Math.max(settings.getSamples(), 1);
         if (samples > 1 && renderer != null
                 && (!renderer.getCaps().contains(Caps.TextureMultisample)
                 || !renderer.getCaps().contains(Caps.OpenGL32))) {
-            if (!auxFramebufferTextureMultisampleWarningIssued) {
+            if (!blitFramebufferTextureMultisampleWarningIssued) {
                 LOGGER.log(Level.WARNING,
-                        "Auxiliary framebuffer blit requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample auxiliary framebuffer.",
+                        "Blit framebuffer requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample blit framebuffer.",
                         samples);
-                auxFramebufferTextureMultisampleWarningIssued = true;
+                blitFramebufferTextureMultisampleWarningIssued = true;
             }
             return 1;
         }
         return samples;
     }
 
-    private void rebuildAuxFramebufferIfNeeded() {
-        if (!useAuxFramebuffer()) {
-            destroyAuxFramebufferResources();
-            return;
-        }
-
+    private void rebuildBlitFramebufferIfNeeded() {
         int width = getRenderFramebufferWidth();
         int height = getRenderFramebufferHeight();
-        int samples = getAuxFramebufferSampleCount();
+        int samples = getBlitFramebufferSampleCount();
 
-        if (auxFramebuffer != null && auxFramebuffer.getWidth() == width
-                && auxFramebuffer.getHeight() == height && auxFramebuffer.getSamples() == samples) {
+        if (blitFramebuffer != null && blitFramebuffer.getWidth() == width
+                && blitFramebuffer.getHeight() == height && blitFramebuffer.getSamples() == samples) {
             return;
         }
 
-        destroyAuxFramebuffer();
+        destroyBlitFramebuffer();
 
         FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
-        frameBuffer.setName("LWJGL3 Auxiliary FrameBuffer");
+        frameBuffer.setName("LWJGL3 Blit FrameBuffer");
         frameBuffer.setSrgb(false);
 
         Texture2D colorTexture = new Texture2D(
@@ -842,13 +808,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
         }
 
-        auxFramebufferColorTexture = colorTexture;
-        auxFramebuffer = frameBuffer;
-        auxFramebufferDirty = true;
+        blitColorTexture = colorTexture;
+        blitFramebuffer = frameBuffer;
+        blitFramebufferDirty = true;
     }
 
-    private boolean ensureAuxFramebufferBlitResources() {
-        if (!useAuxFramebuffer()) {
+    private boolean ensureBlitResources() {
+        if (!useBlitFramebuffer()) {
             return false;
         }
 
@@ -863,54 +829,58 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return false;
         }
 
-        if (auxFramebufferBlitMaterial == null) {
-            auxFramebufferBlitMaterial = new Material(assetManager, BLIT_MATERIAL);
-            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthTest(false);
-            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthWrite(false);
+        if (blitMaterial == null) {
+            blitMaterial = new Material(assetManager, BLIT_MATERIAL);
+            blitMaterial.getAdditionalRenderState().setDepthTest(false);
+            blitMaterial.getAdditionalRenderState().setDepthWrite(false);
         }
-        auxFramebufferBlitMaterial.setBoolean("Srgb", useAuxFramebufferSrgb());
+        blitMaterial.setBoolean("Srgb", useBlitFramebufferShaderSrgbConversion());
 
-        if (auxFramebufferBlitGeometry == null) {
-            auxFramebufferBlitGeometry = new Picture("AuxFramebuffer Blit");
-            auxFramebufferBlitGeometry.setWidth(1f);
-            auxFramebufferBlitGeometry.setHeight(1f);
-            auxFramebufferBlitGeometry.setMaterial(auxFramebufferBlitMaterial);
+        if (blitGeometry == null) {
+            blitGeometry = new Picture("Blit FrameBuffer");
+            blitGeometry.setWidth(1f);
+            blitGeometry.setHeight(1f);
+            blitGeometry.setMaterial(blitMaterial);
         }
 
-        if (auxFramebufferDirty && auxFramebufferColorTexture != null) {
-            auxFramebufferBlitMaterial.setTexture("Texture", auxFramebufferColorTexture);
-            if (auxFramebuffer != null && auxFramebuffer.getSamples() > 1) {
-                auxFramebufferBlitMaterial.setInt("NumSamples", auxFramebuffer.getSamples());
+        if (blitFramebufferDirty && blitColorTexture != null) {
+            blitMaterial.setTexture("Texture", blitColorTexture);
+            if (blitFramebuffer != null && blitFramebuffer.getSamples() > 1) {
+                blitMaterial.setInt("NumSamples", blitFramebuffer.getSamples());
             } else {
-                auxFramebufferBlitMaterial.clearParam("NumSamples");
+                blitMaterial.clearParam("NumSamples");
             }
-            auxFramebufferDirty = false;
+            blitFramebufferDirty = false;
         }
 
         return true;
     }
 
-    private void destroyAuxFramebuffer() {
-        if (auxFramebuffer != null) {
-            auxFramebuffer.dispose();
-            auxFramebuffer = null;
-        }
-        if (auxFramebufferColorTexture != null && auxFramebufferColorTexture.getImage() != null) {
-            auxFramebufferColorTexture.getImage().dispose();
-        }
-        auxFramebufferColorTexture = null;
-        auxFramebufferDirty = true;
+    private boolean useBlitFramebufferShaderSrgbConversion() {
+        return settings.isGammaCorrection() && renderer != null && !renderer.isMainFrameBufferSrgb();
     }
 
-    private void destroyAuxFramebufferResources() {
-        destroyAuxFramebuffer();
-        auxFramebufferBlitMaterial = null;
-        auxFramebufferBlitGeometry = null;
-        auxFramebufferTextureMultisampleWarningIssued = false;
+    private void destroyBlitFramebuffer() {
+        if (blitFramebuffer != null) {
+            blitFramebuffer.dispose();
+            blitFramebuffer = null;
+        }
+        if (blitColorTexture != null && blitColorTexture.getImage() != null) {
+            blitColorTexture.getImage().dispose();
+        }
+        blitColorTexture = null;
+        blitFramebufferDirty = true;
     }
 
-    protected boolean renderFrameWithAuxFramebuffer() {
-        if (!(renderer instanceof GLRenderer) || !useAuxFramebuffer()) {
+    private void destroyBlitFramebufferResources() {
+        destroyBlitFramebuffer();
+        blitMaterial = null;
+        blitGeometry = null;
+        blitFramebufferTextureMultisampleWarningIssued = false;
+    }
+
+    protected boolean renderFrameWithBlitFramebuffer() {
+        if (!(renderer instanceof GLRenderer) || !useBlitFramebuffer()) {
             return false;
         }
 
@@ -919,8 +889,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return false;
         }
 
-        rebuildAuxFramebufferIfNeeded();
-        if (auxFramebuffer == null || !ensureAuxFramebufferBlitResources()) {
+        rebuildBlitFramebufferIfNeeded();
+        if (blitFramebuffer == null || !ensureBlitResources()) {
             return false;
         }
 
@@ -928,11 +898,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         RenderManager renderManager = getApplicationListener().getRenderManager();
         FrameBuffer restoreMainFramebuffer = previousMainFramebuffer;
 
-        glRenderer.setMainFrameBufferOverride(auxFramebuffer);
+        glRenderer.setMainFrameBufferOverride(blitFramebuffer);
         try {
             listener.update();
             FrameBuffer currentMainFramebuffer = renderer.getCurrentFrameBuffer();
-            if (currentMainFramebuffer != auxFramebuffer) {
+            if (currentMainFramebuffer != blitFramebuffer) {
                 restoreMainFramebuffer = currentMainFramebuffer;
             }
         } finally {
@@ -945,17 +915,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glRenderer.setFrameBuffer(null);
             int blitWidth = Math.max(getFramebufferWidth(), 1);
             int blitHeight = Math.max(getFramebufferHeight(), 1);
-            if (auxFramebufferBlitCamera.getWidth() != blitWidth
-                    || auxFramebufferBlitCamera.getHeight() != blitHeight) {
-                auxFramebufferBlitCamera.resize(blitWidth, blitHeight, true);
+            if (blitCamera.getWidth() != blitWidth
+                    || blitCamera.getHeight() != blitHeight) {
+                blitCamera.resize(blitWidth, blitHeight, true);
             }
-            renderManager.setCamera(auxFramebufferBlitCamera, true);
-            if (auxFramebufferBlitGeometry.getWidth() != blitWidth || auxFramebufferBlitGeometry.getHeight() != blitHeight) {
-                auxFramebufferBlitGeometry.setWidth(blitWidth);
-                auxFramebufferBlitGeometry.setHeight(blitHeight);
+            renderManager.setCamera(blitCamera, true);
+            if (blitGeometry.getWidth() != blitWidth || blitGeometry.getHeight() != blitHeight) {
+                blitGeometry.setWidth(blitWidth);
+                blitGeometry.setHeight(blitHeight);
             }
-            auxFramebufferBlitGeometry.updateGeometricState();
-            renderManager.renderGeometry(auxFramebufferBlitGeometry);
+            blitGeometry.updateGeometricState();
+            renderManager.renderGeometry(blitGeometry);
         } finally {
             glRenderer.setMainFrameBufferOverride(restoreMainFramebuffer);
             if (previousCamera != null) {
@@ -974,7 +944,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
-        if (!renderFrameWithAuxFramebuffer()) {
+        if (!renderFrameWithBlitFramebuffer()) {
             listener.update();
         }
 

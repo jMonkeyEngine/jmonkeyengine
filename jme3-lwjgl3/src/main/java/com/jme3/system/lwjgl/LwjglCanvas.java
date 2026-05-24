@@ -624,7 +624,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             throw new IllegalStateException();
         }
 
-        if (!renderFrameWithAuxFramebuffer()) {
+        if (!renderFrameWithBlitFramebuffer()) {
             listener.update();
         }
 
@@ -826,11 +826,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override protected void showWindow() { }
     /** (non-Javadoc) */
     @Override protected void setWindowIcon(final AppSettings settings) { }
-
-    @Override
-    protected boolean useAuxFramebufferDisplayScale() {
-        return false;
-    }
 
     @Override
     protected int getRenderFramebufferWidth() {
