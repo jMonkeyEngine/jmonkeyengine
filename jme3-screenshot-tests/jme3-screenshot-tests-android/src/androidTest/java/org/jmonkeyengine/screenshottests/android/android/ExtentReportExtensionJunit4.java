@@ -30,7 +30,7 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
 
     private static final String REPORT_DIRECTORY = "report";
 
-    ProtoReport report = new ProtoReport();
+    ProtoReport report = new ProtoReport("Screenshot Test Report - Android");
     ProtoReportTestItem testInProgress;
     TestStorage testStorage = new TestStorage();
 

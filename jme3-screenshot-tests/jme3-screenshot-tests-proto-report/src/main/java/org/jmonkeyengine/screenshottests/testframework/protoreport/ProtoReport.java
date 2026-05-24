@@ -16,6 +16,10 @@ public class ProtoReport {
         return testResults;
     }
 
+    public ProtoReport(String reportTitle) {
+        this.reportTitle = reportTitle;
+    }
+
     public void setTestResults(List<ProtoReportTestItem> testResults) {
         this.testResults = testResults;
     }
