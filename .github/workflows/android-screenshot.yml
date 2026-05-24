@@ -36,9 +36,9 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: true
-          emulator-build: 6061023
           ram-size: 4096M
           heap-size: 2048M
+          profile: pixel_tablet
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
