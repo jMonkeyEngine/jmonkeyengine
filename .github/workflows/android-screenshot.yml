@@ -49,7 +49,7 @@ jobs:
             mkdir -p report
             adb pull /storage/emulated/0/googletest/test_outputfiles/report report/protoReport
             adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images report/changed-images || true
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="report/protoReport report/extentReport"
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="$(pwd)/report/protoReport $(pwd)/report/extentReport"
             echo "GRADLE_EXIT_CODE=$exit_code" >> $GITHUB_ENV
             echo "Exit code from Gradle: $exit_code"
             exit $exit_code
