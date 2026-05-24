@@ -92,10 +92,6 @@ public class TestPBRTerrainAdvanced {
     @ParameterizedTest(name = "{0}")
     @MethodSource("testParameters")
     public void testPBRTerrainAdvanced(String testName, int debugMode, TestInfo testInfo) {
-        if(!testInfo.getTestClass().isPresent() || !testInfo.getTestMethod().isPresent()) {
-            throw new RuntimeException("Test preconditions not met");
-        }
-
         String imageName = testInfo.getTestClass().get().getName() + "." + testInfo.getTestMethod().get().getName() + "_" + testName;
 
         ScenarioPBRTerrainAdvanced.testPBRTerrainAdvanced(debugMode)

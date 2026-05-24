@@ -39,6 +39,8 @@ import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
 import org.jmonkeyengine.screenshottests.testframework.TestResolution;
+import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -85,6 +87,6 @@ public class TestSingleChannelTexture  extends ScreenshotTestDesktopBase {
         })
         .setTestResolution(new TestResolution(TEXTURE_SIZE * 2, TEXTURE_SIZE))
         .setFramesToTakeScreenshotsOn(1)
-        .run();
+        .run(new DesktopRunner());
     }
 }
