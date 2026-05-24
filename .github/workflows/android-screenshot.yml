@@ -7,11 +7,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
-    strategy:
-      matrix:
-        api-level: [31]
-
     steps:
       - name: checkout
         uses: actions/checkout@v6
@@ -32,7 +27,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
+          key: avd-35
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
