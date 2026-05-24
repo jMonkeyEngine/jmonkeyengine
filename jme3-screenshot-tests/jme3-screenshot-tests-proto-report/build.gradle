@@ -14,6 +14,11 @@ dependencies {
     testImplementation libs.junit4
 }
 
+task upgradeProtoReport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.jmonkeyengine.screenshottests.testframework.protoreport.UpgradeProtoReportToExtentReport'
+}
+
 test {
     useJUnit()
 }

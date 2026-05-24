@@ -47,8 +47,9 @@ jobs:
             ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest || exit_code=$?
             adb logcat -d > logcat/logcat_full.txt || true
             adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
-            adb pull /storage/emulated/0/googletest/test_outputfiles/report .report/protoReport || true
-            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images .report/changed-images || true
+            adb pull /storage/emulated/0/googletest/test_outputfiles/report report/protoReport || true
+            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images report/changed-images || true
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="report/protoReport report/extentReport" || true
              exit $exit_code
       - name: Upload logcat
         uses: actions/upload-artifact@v4
