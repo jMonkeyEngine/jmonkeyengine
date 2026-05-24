@@ -39,11 +39,11 @@ jobs:
           emulator-build: 6061023
           ram-size: 4096M
           heap-size: 2048M
-          profile: pixel_tablet
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
             GITHUB_ENV="$GITHUB_ENV" sh <<'EOF'
+            avdmanager list device
             curl -L https://maven.google.com/androidx/test/services/test-services/1.6.0/test-services-1.6.0.apk --output test-services-1.6.0.apk
             adb install -r -g test-services-1.6.0.apk
             adb uninstall org.jmonkeyengine.screenshottests.android || true
