@@ -31,23 +31,9 @@
  */
 package org.jmonkeyengine.screenshottests.scene.instancing;
 
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.BaseAppState;
-import com.jme3.font.BitmapText;
-import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.instancing.InstancedNode;
-import com.jme3.scene.shape.Box;
-
-import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
+import org.jmonkeyengine.screenshottests.scenarios.scene.instancing.ScenarioInstanceNodeWithPbr;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
 import org.junit.jupiter.api.Test;
-
-import java.util.Locale;
 
 /**
  * This test specifically validates the corrected PBR rendering when combined
@@ -61,74 +47,10 @@ import java.util.Locale;
  * @author Ryan McDonough - original test
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
-public class TestInstanceNodeWithPbr extends ScreenshotTestDesktopBase {
+public class TestInstanceNodeWithPbr {
 
     @Test
     public void testInstanceNodeWithPbr() {
-        screenshotTest(
-            new BaseAppState() {
-                private Geometry box;
-                private float pos = -5;
-                private float vel = 50;
-                private BitmapText bmp;
-
-                @Override
-                protected void initialize(Application app) {
-                    SimpleApplication simpleApp = (SimpleApplication) app;
-
-                    app.getCamera().setLocation(Vector3f.UNIT_XYZ.mult(12));
-                    app.getCamera().lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
-
-                    bmp = new BitmapText(app.getAssetManager().loadFont("Interface/Fonts/Default.fnt"));
-                    bmp.setText("<placeholder>");
-                    bmp.setLocalTranslation(10, app.getContext().getSettings().getHeight() - 20, 0);
-                    bmp.setColor(ColorRGBA.Red);
-                    simpleApp.getGuiNode().attachChild(bmp);
-
-                    InstancedNode instancedNode = new InstancedNode("InstancedNode");
-                    simpleApp.getRootNode().attachChild(instancedNode);
-
-                    Box mesh = new Box(0.5f, 0.5f, 0.5f);
-                    box = new Geometry("Box", mesh);
-                    Material pbrMaterial = createPbrMaterial(app, ColorRGBA.Red);
-                    box.setMaterial(pbrMaterial);
-
-                    instancedNode.attachChild(box);
-                    instancedNode.instance();
-
-                    DirectionalLight light = new DirectionalLight();
-                    light.setDirection(new Vector3f(-1, -2, -3).normalizeLocal());
-                    simpleApp.getRootNode().addLight(light);
-                }
-
-                private Material createPbrMaterial(Application app, ColorRGBA color) {
-                    Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Light/PBRLighting.j3md");
-                    mat.setColor("BaseColor", color);
-                    mat.setFloat("Roughness", 0.8f);
-                    mat.setFloat("Metallic", 0.1f);
-                    mat.setBoolean("UseInstancing", true);
-                    return mat;
-                }
-
-                @Override
-                public void update(float tpf) {
-                    pos += tpf * vel;
-                    box.setLocalTranslation(pos, 0f, 0f);
-
-                    bmp.setText(String.format(Locale.ENGLISH, "BoxPosition: (%.2f, %.1f, %.1f)", pos, 0f, 0f));
-                }
-
-                @Override
-                protected void cleanup(Application app) {}
-
-                @Override
-                protected void onEnable() {}
-
-                @Override
-                protected void onDisable() { }
-            }
-        )
-        .setFramesToTakeScreenshotsOn(1, 10)
-        .run(new DesktopRunner());
+        ScenarioInstanceNodeWithPbr.testInstanceNodeWithPbr().run(new DesktopRunner());
     }
 }

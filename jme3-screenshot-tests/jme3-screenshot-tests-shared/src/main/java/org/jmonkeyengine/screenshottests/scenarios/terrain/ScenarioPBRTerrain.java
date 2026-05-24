@@ -1,0 +1,193 @@
+package org.jmonkeyengine.screenshottests.scenarios.terrain;
+
+import static org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase.screenshotTest;
+
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.BaseAppState;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.LightProbe;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
+
+public class ScenarioPBRTerrain {
+
+    public static ScreenshotTest testPBRTerrain(int debugMode) {
+        return screenshotTest(new BaseAppState() {
+            private TerrainQuad terrain;
+            private Material matTerrain;
+
+            private final int terrainSize = 512;
+            private final int patchSize = 256;
+            private final float dirtScale = 24;
+            private final float darkRockScale = 24;
+            private final float snowScale = 64;
+            private final float tileRoadScale = 64;
+            private final float grassScale = 24;
+            private final float marbleScale = 64;
+            private final float gravelScale = 64;
+
+            @Override
+            protected void initialize(Application app) {
+                SimpleApplication simpleApp = (SimpleApplication) app;
+                AssetManager assetManager = app.getAssetManager();
+
+                setUpTerrain(simpleApp, assetManager);
+                setUpTerrainMaterial(assetManager);
+                setUpLights(simpleApp, assetManager);
+                setUpCamera(app);
+
+                // Set debug mode
+                matTerrain.setInt("DebugValuesMode", debugMode);
+            }
+
+            private void setUpTerrainMaterial(AssetManager assetManager) {
+                matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/PBRTerrain.j3md");
+                matTerrain.setBoolean("useTriPlanarMapping", false);
+
+                matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alpha1.png"));
+                matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
+
+                Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                dirt.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_0", dirt);
+                matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
+                matTerrain.setFloat("Roughness_0", 1);
+                matTerrain.setFloat("Metallic_0", 0);
+
+                Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
+                darkRock.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_1", darkRock);
+                matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
+                matTerrain.setFloat("Roughness_1", 0.92f);
+                matTerrain.setFloat("Metallic_1", 0.02f);
+
+                Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
+                snow.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_2", snow);
+                matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
+                matTerrain.setFloat("Roughness_2", 0.55f);
+                matTerrain.setFloat("Metallic_2", 0.12f);
+
+                Texture tiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
+                tiles.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_3", tiles);
+                matTerrain.setFloat("AlbedoMap_3_scale", tileRoadScale);
+                matTerrain.setFloat("Roughness_3", 0.87f);
+                matTerrain.setFloat("Metallic_3", 0.08f);
+
+                Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                grass.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_4", grass);
+                matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
+                matTerrain.setFloat("Roughness_4", 1);
+                matTerrain.setFloat("Metallic_4", 0);
+
+                Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
+                marble.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_5", marble);
+                matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
+                matTerrain.setFloat("Roughness_5", 0.06f);
+                matTerrain.setFloat("Metallic_5", 0.8f);
+
+                Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
+                gravel.setWrap(WrapMode.Repeat);
+                matTerrain.setTexture("AlbedoMap_6", gravel);
+                matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
+                matTerrain.setFloat("Roughness_6", 0.9f);
+                matTerrain.setFloat("Metallic_6", 0.07f);
+
+                Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
+                normalMapDirt.setWrap(WrapMode.Repeat);
+                Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
+                normalMapDarkRock.setWrap(WrapMode.Repeat);
+                Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
+                normalMapSnow.setWrap(WrapMode.Repeat);
+                Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
+                normalMapGravel.setWrap(WrapMode.Repeat);
+                Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
+                normalMapGrass.setWrap(WrapMode.Repeat);
+                Texture normalMapTiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
+                normalMapTiles.setWrap(WrapMode.Repeat);
+
+                matTerrain.setTexture("NormalMap_0", normalMapDirt);
+                matTerrain.setTexture("NormalMap_1", normalMapDarkRock);
+                matTerrain.setTexture("NormalMap_2", normalMapSnow);
+                matTerrain.setTexture("NormalMap_3", normalMapTiles);
+                matTerrain.setTexture("NormalMap_4", normalMapGrass);
+                matTerrain.setTexture("NormalMap_6", normalMapGravel);
+
+                terrain.setMaterial(matTerrain);
+            }
+
+            private void setUpTerrain(SimpleApplication simpleApp, AssetManager assetManager) {
+                TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
+                Texture heightMapImage = assetManager.loadTexture(hmKey);
+
+                AbstractHeightMap heightmap;
+                try {
+                    heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.3f);
+                    heightmap.load();
+                    heightmap.smooth(0.9f, 1);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                terrain = new TerrainQuad("terrain", patchSize + 1, terrainSize + 1, heightmap.getHeightMap());
+                TerrainLodControl control = new TerrainLodControl(terrain, simpleApp.getCamera());
+                control.setLodCalculator(new DistanceLodCalculator(patchSize + 1, 2.7f));
+                terrain.addControl(control);
+                terrain.setMaterial(matTerrain);
+                terrain.setLocalTranslation(0, -100, 0);
+                terrain.setLocalScale(1f, 1f, 1f);
+                simpleApp.getRootNode().attachChild(terrain);
+            }
+
+            private void setUpLights(SimpleApplication simpleApp, AssetManager assetManager) {
+                LightProbe probe = (LightProbe) assetManager.loadAsset("Scenes/LightProbes/quarry_Probe.j3o");
+                probe.setAreaType(LightProbe.AreaType.Spherical);
+                probe.getArea().setRadius(2000);
+                probe.getArea().setCenter(new Vector3f(0, 0, 0));
+                simpleApp.getRootNode().addLight(probe);
+
+                DirectionalLight directionalLight = new DirectionalLight();
+                directionalLight.setDirection((new Vector3f(-0.3f, -0.5f, -0.3f)).normalize());
+                directionalLight.setColor(ColorRGBA.White);
+                simpleApp.getRootNode().addLight(directionalLight);
+
+                AmbientLight ambientLight = new AmbientLight();
+                ambientLight.setColor(ColorRGBA.White);
+                simpleApp.getRootNode().addLight(ambientLight);
+            }
+
+            private void setUpCamera(Application app) {
+                app.getCamera().setLocation(new Vector3f(0, 10, -10));
+                app.getCamera().lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+            }
+
+            @Override
+            protected void cleanup(Application app) {
+            }
+
+            @Override
+            protected void onEnable() {
+            }
+
+            @Override
+            protected void onDisable() {
+            }
+        }).setFramesToTakeScreenshotsOn(5);
+    }
+}
