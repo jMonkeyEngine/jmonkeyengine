@@ -16,6 +16,9 @@ public class ProtoReport {
         return testResults;
     }
 
+    public ProtoReport() {
+    }
+
     public ProtoReport(String reportTitle) {
         this.reportTitle = reportTitle;
     }
