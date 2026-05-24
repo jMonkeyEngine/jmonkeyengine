@@ -100,9 +100,6 @@ public class ScreenshotTest{
 
     private AppRunner osSpecificRunner;
 
-    private final AssetManager assetManager = new DesktopAssetManager();
-
-
     public ScreenshotTest(AppState... initialStates){
         scenarios.add(new Scenario("SimpleSingleScenario", initialStates));
         framesToTakeScreenshotsOn.add(1); //default behaviour is to take a screenshot on the first frame
@@ -304,11 +301,10 @@ public class ScreenshotTest{
     }
 
     private Image readImage(File file) {
+        AssetManager assetManager = new DesktopAssetManager();
         assetManager.registerLocator(file.getParent(), FileLocator.class);
         assetManager.registerLoader(StbImageLoader.class, "png", "jpg", "jpeg");
         return assetManager.loadTexture(file.getName()).getImage();
-
-        //return assetManager.loadTexture(new TextureKey(file.getAbsolutePath())).getImage();
     }
 
     public static ByteBuffer loadFileIntoByteBuffer(File file) throws Exception {
