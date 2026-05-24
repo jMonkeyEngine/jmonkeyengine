@@ -43,7 +43,11 @@ jobs:
             adb install -r -g test-services-1.6.0.apk
             adb uninstall org.jmonkeyengine.screenshottests.android || true
             exit_code=0
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest || exit_code=$?
+            if ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest; then
+              exit_code=0
+            else
+              exit_code=$?
+            fi
             adb logcat -d > logcat/logcat_full.txt || true
             adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
             mkdir -p report
