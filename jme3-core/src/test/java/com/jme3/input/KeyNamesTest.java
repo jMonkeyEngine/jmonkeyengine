@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Verifies that key codes defined in {@link KeyInput} correctly map
  * to their human-readable names, and that unmapped codes return null.
  */
-public class KeyNamesTest {
+class KeyNamesTest {
 
     /**
      * Verify that common key codes return the expected human-readable names,
