@@ -42,22 +42,24 @@ jobs:
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: |
-            timeout 120 bash -c 'until adb shell getprop sys.boot_completed | grep -m 1 1; do sleep 5; done'
             adb uninstall org.jmonkeyengine.screenshottests.android || true
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
-            adb logcat -d > logcat.txt
-            adb pull /storage/emulated/0/googletest/test_outputfiles/report ./protoReport
-            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images . || true
+            exit_code=0
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest || exit_code=$?
+            adb logcat -d > logcat/logcat_full.txt || true
+            adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
+            adb pull /storage/emulated/0/googletest/test_outputfiles/report .report/protoReport || true
+            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images .report/changed-images || true
+             exit $exit_code
       - name: Upload logcat
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-logcat
-          path: logcat.txt
+          path: logcat
       - name: Upload Screenshot
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: android-screenshot-report
-          path: protoReport
+          path: report
           if-no-files-found: error
