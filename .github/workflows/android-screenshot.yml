@@ -2,9 +2,6 @@ name: Android Screenshot Test
 
 on:
   push:
-    paths:
-      - 'jme3-screenshot-tests/jme3-screenshot-tests-android/**'
-      - '.github/workflows/android-screenshot.yml'
 
 jobs:
   test:

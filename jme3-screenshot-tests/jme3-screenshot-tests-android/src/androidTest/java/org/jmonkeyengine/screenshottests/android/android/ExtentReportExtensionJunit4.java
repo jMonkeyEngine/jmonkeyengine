@@ -94,8 +94,6 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
 
     public OutputStream getPersistentFileOutputStream(String relativePath){
         try{
-            Uri where = testStorage.getOutputFileUri(relativePath);
-
             return testStorage.openOutputFile(relativePath);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
