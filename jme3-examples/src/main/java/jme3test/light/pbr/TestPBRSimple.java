@@ -92,7 +92,6 @@ public class TestPBRSimple extends SimpleApplication {
 
         // Create baker control
         envProbe = new EnvironmentProbeControl(assetManager, 256);
-        envProbe.setSphericalHarmonicsMode(SphericalHarmonicsMode.QUALITY);
         rootNode.addControl(envProbe);
         // Tag the sky, only the tagged spatials will be rendered in the env map
         envProbe.tag(sky);
