@@ -21,7 +21,7 @@ android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
 androidx-test-runner = "androidx.test:runner:1.7.0"
 groovy-test = "org.apache.groovy:groovy-test:4.0.31"
-gson = "com.google.code.gson:gson:2.13.2"
+gson = "com.google.code.gson:gson:2.14.0"
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jme3-android-natives = { module = "org.jmonkeyengine:jme3-android-native", version.ref = "jmeAndroidNatives" }
 jbullet = "com.github.stephengold:jbullet:1.0.3"
