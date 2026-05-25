@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,20 @@ import com.jme3.math.Transform;
 import com.jme3.util.clone.Cloner;
 import java.util.Collection;
 
+/**
+ * An implementation of the Action interface that manages the interpolation code
+ * using the action length (duration) and time per frames in seconds.
+ *
+ *
+ * To implement this interface, override the methods :
+ * <li>{@link BlendableAction#doInterpolate(double)} and place your interpolation management code.</li>
+ * <li>{@link BlendableAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)} and place your interpolation code based on the #{@link BlendableAction#weight}.</li>
+ * <li>{@link BlendableAction#getTargets()} and place the code to get target objects subjected to interpolation.</li>
+ *
+ * Created by Nehon.
+ * @see ClipAction
+ * @see BlendAction
+ */
 public abstract class BlendableAction extends Action {
 
     protected BlendableAction collectTransformDelegate;
@@ -46,11 +60,24 @@ public abstract class BlendableAction extends Action {
     private double transitionLength = 0.4f;
     private float weight = 1f;
     private TransitionTween transition = new TransitionTween(transitionLength);
-
+    
+    /**
+     * Callback to the constructor of the super class to assign actions to {@link Action#actions} to be interpolated.
+     *
+     * @param tweens actions in raw tween {@link AbstractTween} and its descendants( ex : {@link com.jme3.anim.tween.Tweens#parallel(Tween...)},
+     *               or an array of {@link Action} and its descendants(ex : {@link ClipAction} and {@link BaseAction}.
+     * @see Action#Action(Tween...)
+     */
     public BlendableAction(Tween... tweens) {
         super(tweens);
     }
 
+    /**
+     * Delegates the interpolation to a specific instance of type {@link BlendableAction} based on its weight attribute.
+     * This instance will be the source of the animation transition weight.
+     *
+     * @param delegate the 
+     */
     public void setCollectTransformDelegate(BlendableAction delegate) {
         this.collectTransformDelegate = delegate;
     }
@@ -61,12 +88,13 @@ public abstract class BlendableAction extends Action {
         if (t < 0) {
             return true;
         }
-
+        
+        // if the interpolation isn't delegated to a subclass instance, then calculate the transitionWeight from here.
         if (collectTransformDelegate == null) {
             if (transition.getLength() > getLength()) {
                 transition.setLength(getLength());
             }
-            if(isForward()) {
+            if (isForward()) {
                 transition.interpolate(t);
             } else {
                 float v = Math.max((float)(getLength() - t), 0f);
@@ -93,11 +121,32 @@ public abstract class BlendableAction extends Action {
     public void setWeight(float weight) {
         this.weight = weight;
     }
-
+    
+    /**
+     * Override this method and manage the interpolation code inside.
+     * Called by {@link BlendableAction#interpolate(double)}, after clamping time(t) to a ratio between (0)
+     * and (1) based on the action length.
+     * 
+     * @param t the current time of frames.
+     */
     protected abstract void doInterpolate(double t);
 
+    /**
+     * Override this method and collect the target objects for this action that the interpolation will be applied on them.
+     *
+     * @return the current involved targets.
+     */
     public abstract Collection<HasLocalTransform> getTargets();
 
+    /**
+     * Override this method and interpolate collected transforms based on the custom weight {@link BlendableAction#weight} from a delegated source.
+     * This method is dispatched by delegating from another BlendableActions sources using {@link BlendableAction#setCollectTransformDelegate(BlendableAction)}.
+     *
+     * @param target the target involved for interpolation.
+     * @param t the transform to be used in interpolation.
+     * @param weight the scale factor(delta) used for interpolation.
+     * @param source the source of the method call(Source of delegation).
+     */
     public abstract void collectTransform(HasLocalTransform target, Transform t, float weight, BlendableAction source);
 
     public double getTransitionLength() {
@@ -129,8 +178,9 @@ public abstract class BlendableAction extends Action {
     }
 
     /**
+     * Retrieves the maximum weight at which the transition can occur. 
      *
-     * @return The max transition weight (default=1)
+     * @return the max transition weight (default=1)
      */
     public double getMaxTransitionWeight() {
         return maxTransitionWeight;
