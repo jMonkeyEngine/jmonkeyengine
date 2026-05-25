@@ -218,7 +218,21 @@ public final class IosTestChooserLauncher {
         AppSettings settings = new AppSettings(true);
         settings.setUseJoysticks(true);
         settings.setOnDeviceJoystickRumble(true);
+        invokeConfigureSettings(application, settings);
         application.setSettings(settings);
+    }
+
+    private static void invokeConfigureSettings(Application application, AppSettings settings) {
+        try {
+            java.lang.reflect.Method method = application.getClass().getMethod("configureSettings", AppSettings.class);
+            Object target = java.lang.reflect.Modifier.isStatic(method.getModifiers()) ? null : application;
+            method.invoke(target, settings);
+        } catch (NoSuchMethodException ignored) {
+            // Most examples rely on default settings.
+        } catch (IllegalAccessException | InvocationTargetException exception) {
+            throw new IllegalStateException("Could not configure iOS settings for "
+                    + application.getClass().getName(), exception);
+        }
     }
 
     private static Object invokeIfPresent(Object target, String name, Class<?>[] parameterTypes, Object... args) {

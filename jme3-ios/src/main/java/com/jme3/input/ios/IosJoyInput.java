@@ -369,8 +369,8 @@ public final class IosJoyInput implements JoyInput {
                 && joysticks.isEmpty()
                 && !keyboardSuppressedAutoJoystick);
         virtualJoystick.setEnabled(active);
-        if (active && isMinimizedMode(virtualJoystickMode)) {
-            virtualJoystick.setShown(false);
+        if (active) {
+            virtualJoystick.setShown(!isMinimizedMode(virtualJoystickMode));
         }
     }
 

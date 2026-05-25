@@ -315,8 +315,8 @@ public class AndroidJoyInput implements JoyInput {
                 && !physicalJoystickAvailable
                 && !keyboardSuppressedAutoJoystick);
         virtualJoystick.setEnabled(active);
-        if (active && isMinimizedMode(virtualJoystickMode)) {
-            virtualJoystick.setShown(false);
+        if (active) {
+            virtualJoystick.setShown(!isMinimizedMode(virtualJoystickMode));
         }
     }
 
