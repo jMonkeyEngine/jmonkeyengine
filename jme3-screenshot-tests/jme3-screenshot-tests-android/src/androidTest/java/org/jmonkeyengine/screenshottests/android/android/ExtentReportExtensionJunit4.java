@@ -46,7 +46,6 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
 
         @Override
         protected void failed(Throwable e, Description description) {
-
             testInProgress.addStatus(ProtoReportTestItem.ReportStatus.FAILED, getStackTraceAsString(e));
         }
 
@@ -57,7 +56,6 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
 
         @Override
         protected void finished(Description description) {
-
             testInProgress.addLogs(ExtentReportLogCapture.getAndPurgeLogs());
             report.addTest(testInProgress);
             ExtentReportLogCapture.restore();

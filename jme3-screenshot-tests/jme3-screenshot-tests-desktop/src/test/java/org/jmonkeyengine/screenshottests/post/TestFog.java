@@ -45,9 +45,6 @@ import org.junit.jupiter.api.Test;
  */
 public class TestFog {
 
-    /**
-     * This test creates a scene with a fog effect.
-     */
     @Test
     public void testFog() {
         ScenarioFog.testFog().run(new DesktopRunner());

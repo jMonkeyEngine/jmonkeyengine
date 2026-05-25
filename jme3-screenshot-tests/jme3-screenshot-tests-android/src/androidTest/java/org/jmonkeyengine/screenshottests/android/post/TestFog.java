@@ -11,9 +11,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class TestFog extends ScreenshotTestAndroidBase {
 
-    /**
-     * This test creates a scene with a fog effect.
-     */
     @Test
     public void testFog() {
         ScenarioFog.testFog().run(new AndroidRunner());

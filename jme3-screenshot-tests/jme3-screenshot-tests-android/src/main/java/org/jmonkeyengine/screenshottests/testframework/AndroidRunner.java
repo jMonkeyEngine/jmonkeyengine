@@ -61,11 +61,14 @@ public class AndroidRunner implements AppRunner {
 
     private static final Logger logger = Logger.getLogger(AndroidRunner.class.getName());
 
+    /**
+     * Any created files are normally deleted at the end of the test. Using TestStorage
+     * we can persist them (requires test-services to be installed, see the readme)
+     */
     TestStorage testStorage = new TestStorage();
 
     @Override
     public void runApplicationUntilScenarioCompletes(TestContainingApp application, CountDownLatch applicationFinishedLatch) {
-
 
         FragmentFactory fragmentFactory = new FragmentFactory(){
             @NonNull

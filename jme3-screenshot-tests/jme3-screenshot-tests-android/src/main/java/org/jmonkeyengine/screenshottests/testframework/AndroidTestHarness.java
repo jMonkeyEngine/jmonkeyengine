@@ -41,8 +41,4 @@ public class AndroidTestHarness extends AndroidHarnessFragment {
 
         super.handleError(errorMsg, throwable);
     }
-
-    public GLSurfaceView getGLSurfaceView() {
-        return this.view;
-    }
 }
