@@ -371,6 +371,8 @@ public class VirtualJoystickLayout implements Savable {
     }
 
     public static class Element implements Savable {
+        private static final ColorRGBA DEFAULT_COLOR = new ColorRGBA(1f, 1f, 1f, 0.72f);
+
         volatile String id;
         volatile String label;
         volatile String yAxisLogicalId;
@@ -396,6 +398,26 @@ public class VirtualJoystickLayout implements Savable {
         transient Picture nub;
         transient Picture icon;
         transient BitmapText text;
+        private transient boolean baseGeometrySynced;
+        private transient boolean baseColorSynced;
+        private transient boolean nubGeometrySynced;
+        private transient boolean iconGeometrySynced;
+        private transient boolean iconColorSynced;
+        private transient boolean textGeometrySynced;
+        private transient boolean textColorSynced;
+        private transient boolean nodePositionSynced;
+        private transient boolean lastPressed;
+        private transient float lastBaseWidth;
+        private transient float lastBaseHeight;
+        private transient float lastBaseX;
+        private transient float lastBaseY;
+        private transient float lastNubSize;
+        private transient float lastNubX;
+        private transient float lastNubY;
+        private transient float lastIconSize;
+        private transient float lastTextSize;
+        private transient float lastNodeX;
+        private transient float lastNodeY;
 
         public Element() {
         }
@@ -465,35 +487,81 @@ public class VirtualJoystickLayout implements Savable {
             } else {
                 pixelY = height * 0.5f;
             }
-            base.setWidth(pixelWidth);
-            base.setHeight(pixelHeight);
-            base.setPosition(-pixelWidth * 0.5f, -pixelHeight * 0.5f);
-            setColor(base, pressed ? ColorRGBA.White : new ColorRGBA(1f, 1f, 1f, 0.72f));
+            float baseX = -pixelWidth * 0.5f;
+            float baseY = -pixelHeight * 0.5f;
+            if (!baseGeometrySynced || lastBaseWidth != pixelWidth) {
+                base.setWidth(pixelWidth);
+                lastBaseWidth = pixelWidth;
+            }
+            if (!baseGeometrySynced || lastBaseHeight != pixelHeight) {
+                base.setHeight(pixelHeight);
+                lastBaseHeight = pixelHeight;
+            }
+            if (!baseGeometrySynced || lastBaseX != baseX || lastBaseY != baseY) {
+                base.setPosition(baseX, baseY);
+                lastBaseX = baseX;
+                lastBaseY = baseY;
+            }
+            baseGeometrySynced = true;
+            if (!baseColorSynced || lastPressed != pressed) {
+                setColor(base, pressed ? ColorRGBA.White : DEFAULT_COLOR);
+                lastPressed = pressed;
+                baseColorSynced = true;
+            }
 
             if (nub != null) {
                 float nubSize = pixelHeight * 0.42f;
-                nub.setWidth(nubSize);
-                nub.setHeight(nubSize);
-                nub.setPosition((nubX * pixelHeight * 0.32f) - nubSize * 0.5f,
-                        (nubY * pixelHeight * 0.32f) - nubSize * 0.5f);
+                float nubPixelX = (nubX * pixelHeight * 0.32f) - nubSize * 0.5f;
+                float nubPixelY = (nubY * pixelHeight * 0.32f) - nubSize * 0.5f;
+                if (!nubGeometrySynced || lastNubSize != nubSize) {
+                    nub.setWidth(nubSize);
+                    nub.setHeight(nubSize);
+                    lastNubSize = nubSize;
+                }
+                if (!nubGeometrySynced || lastNubX != nubPixelX || lastNubY != nubPixelY) {
+                    nub.setPosition(nubPixelX, nubPixelY);
+                    lastNubX = nubPixelX;
+                    lastNubY = nubPixelY;
+                }
+                nubGeometrySynced = true;
             }
 
             if (icon != null) {
                 float iconSize = pixelHeight * (aspect > 1f ? 0.38f : 0.46f);
-                icon.setWidth(iconSize);
-                icon.setHeight(iconSize);
-                icon.setPosition(-iconSize * 0.5f, -iconSize * 0.5f);
-                setColor(icon, ColorRGBA.White);
+                if (!iconGeometrySynced || lastIconSize != iconSize) {
+                    icon.setWidth(iconSize);
+                    icon.setHeight(iconSize);
+                    icon.setPosition(-iconSize * 0.5f, -iconSize * 0.5f);
+                    lastIconSize = iconSize;
+                    iconGeometrySynced = true;
+                }
+                if (!iconColorSynced) {
+                    setColor(icon, ColorRGBA.White);
+                    iconColorSynced = true;
+                }
             }
 
             if (text != null) {
-                text.setSize(pixelHeight * (label.length() > 2 ? 0.2f : 0.32f));
-                text.setColor(ColorRGBA.White);
-                text.setLocalTranslation(-text.getLineWidth() * 0.5f,
-                        text.getLineHeight() * 0.48f, 1f);
+                float textSize = pixelHeight * (label.length() > 2 ? 0.2f : 0.32f);
+                if (!textGeometrySynced || lastTextSize != textSize) {
+                    text.setSize(textSize);
+                    lastTextSize = textSize;
+                    text.setLocalTranslation(-text.getLineWidth() * 0.5f,
+                            text.getLineHeight() * 0.48f, 1f);
+                    textGeometrySynced = true;
+                }
+                if (!textColorSynced) {
+                    text.setColor(ColorRGBA.White);
+                    textColorSynced = true;
+                }
             }
 
-            node.setLocalTranslation(pixelX, pixelY, 0f);
+            if (!nodePositionSynced || lastNodeX != pixelX || lastNodeY != pixelY) {
+                node.setLocalTranslation(pixelX, pixelY, 0f);
+                lastNodeX = pixelX;
+                lastNodeY = pixelY;
+                nodePositionSynced = true;
+            }
         }
 
         synchronized void clearVisuals() {
@@ -505,12 +573,24 @@ public class VirtualJoystickLayout implements Savable {
             nub = null;
             icon = null;
             text = null;
+            clearSyncState();
         }
 
         private void setColor(Picture picture, ColorRGBA color) {
             if (picture.getMaterial() != null) {
                 picture.getMaterial().setColor("Color", color);
             }
+        }
+
+        private void clearSyncState() {
+            baseGeometrySynced = false;
+            baseColorSynced = false;
+            nubGeometrySynced = false;
+            iconGeometrySynced = false;
+            iconColorSynced = false;
+            textGeometrySynced = false;
+            textColorSynced = false;
+            nodePositionSynced = false;
         }
 
         @Override

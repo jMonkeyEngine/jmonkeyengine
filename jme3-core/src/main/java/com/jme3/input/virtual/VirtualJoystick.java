@@ -75,6 +75,7 @@ public class VirtualJoystick extends AbstractJoystick {
     private final Map<String, JoystickButton> buttonsByLogicalId = new HashMap<>();
     private final Map<Integer, Capture> captures = new HashMap<>();
     private final ArrayDeque<InputEvent> events = new ArrayDeque<>();
+    private final ArrayDeque<InputEvent> auxiliaryEvents = new ArrayDeque<>();
     private final float[] axisValues = new float[8];
     private final boolean[] buttonValues = new boolean[16];
     private final Object inputLock = new Object();
@@ -295,7 +296,6 @@ public class VirtualJoystick extends AbstractJoystick {
             return;
         }
 
-        ArrayDeque<InputEvent> pendingEvents;
         synchronized (inputLock) {
             if (!hasEvents) {
                 return;
@@ -305,13 +305,16 @@ public class VirtualJoystick extends AbstractJoystick {
                 hasEvents = false;
                 return;
             }
-            pendingEvents = new ArrayDeque<>(events);
-            events.clear();
+            auxiliaryEvents.clear();
+            InputEvent event;
+            while ((event = events.poll()) != null) {
+                auxiliaryEvents.add(event);
+            }
             hasEvents = false;
         }
 
         InputEvent event;
-        while ((event = pendingEvents.poll()) != null) {
+        while ((event = auxiliaryEvents.poll()) != null) {
             if (event instanceof JoyAxisEvent) {
                 listener.onJoyAxisEvent((JoyAxisEvent) event);
             } else if (event instanceof JoyButtonEvent) {
@@ -352,7 +355,9 @@ public class VirtualJoystick extends AbstractJoystick {
         }
 
         if (!enabled) {
-            visualRoot.detachAllChildren();
+            if (visualRoot.getQuantity() > 0) {
+                visualRoot.detachAllChildren();
+            }
             return;
         }
 
@@ -376,12 +381,12 @@ public class VirtualJoystick extends AbstractJoystick {
         syncElement(currentLayout.getToggleElement(), assetManager, width, height, scale);
         if (!shown) {
             for (Element element : currentLayout.getButtons()) {
-                if (element.node != null) {
+                if (element.node != null && element.node.getParent() != null) {
                     element.node.removeFromParent();
                 }
             }
             for (Element element : currentLayout.getAxisElements()) {
-                if (element.node != null) {
+                if (element.node != null && element.node.getParent() != null) {
                     element.node.removeFromParent();
                 }
             }
@@ -588,7 +593,7 @@ public class VirtualJoystick extends AbstractJoystick {
             return;
         }
         if (!element.visible) {
-            if (element.node != null) {
+            if (element.node != null && element.node.getParent() != null) {
                 element.node.removeFromParent();
             }
             return;
