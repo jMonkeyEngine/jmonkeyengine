@@ -261,7 +261,7 @@ public class ScreenshotTest{
                     if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                         failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
                     }
-                }else if (!imagesAreVerySimilar(generatedImage, expectedImage))  {
+                }else if (imagesAreVerySimilar(generatedImage, expectedImage))  {
                     if(testType == TestType.KNOWN_TO_FAIL){
                         TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
                     }
@@ -382,7 +382,6 @@ public class ScreenshotTest{
                 int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
 
                 if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
-                    TestReportCaptureBase.INSTANCE.warning("x: " + x + " y:" + y + "p1: " + pixel1 + "p2: " + pixel2);
                     return false;
                 }
 
