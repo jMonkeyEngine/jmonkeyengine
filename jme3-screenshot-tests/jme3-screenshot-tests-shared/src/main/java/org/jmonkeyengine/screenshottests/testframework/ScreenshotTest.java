@@ -382,6 +382,7 @@ public class ScreenshotTest{
                 int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
 
                 if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
+                    TestReportCaptureBase.INSTANCE.warning("x: " + x + " y:" + y + "p1: " + pixel1 + "p2: " + pixel2);
                     return false;
                 }
 
