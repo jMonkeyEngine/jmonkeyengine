@@ -42,7 +42,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
-import com.jme3.input.android.AndroidSensorJoyInput;
+import com.jme3.input.android.AndroidJoyInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
@@ -269,8 +269,8 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
-                ((AndroidSensorJoyInput) joyInput).resumeSensors();
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).resumeJoysticks();
             }
 
             app.gainFocus();
@@ -295,8 +295,8 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
-                ((AndroidSensorJoyInput) joyInput).pauseSensors();
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).pauseJoysticks();
             }
         }
     }

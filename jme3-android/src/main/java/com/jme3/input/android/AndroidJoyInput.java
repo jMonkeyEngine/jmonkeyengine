@@ -50,9 +50,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Main class that manages various joystick devices.  Joysticks can be many forms
- * including a simulated joystick to communicate the device orientation as well
- * as physical joysticks. <br>
+ * Main class that manages joystick devices. Joysticks can be physical gamepads,
+ * the on-screen virtual joystick, or an explicitly-enabled sensor joystick. <br>
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
@@ -81,7 +80,6 @@ import java.util.logging.Logger;
  */
 public class AndroidJoyInput implements JoyInput {
     private static final Logger logger = Logger.getLogger(AndroidJoyInput.class.getName());
-    public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
     protected List<Joystick> joystickList = new ArrayList<>();
@@ -96,16 +94,18 @@ public class AndroidJoyInput implements JoyInput {
     private boolean onDeviceJoystickRumble = false;
     private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
     private boolean useJoysticks = true;
+    private boolean useAndroidSensorJoystick = false;
     private boolean physicalJoystickAvailable = false;
     private boolean keyboardSuppressedAutoJoystick = false;
     private VirtualJoystick virtualJoystick;
+    private GLSurfaceView view;
 
     public AndroidJoyInput(AndroidInputHandler inputHandler) {
         this.inputHandler = inputHandler;
-        sensorJoyInput = new AndroidSensorJoyInput(this);
     }
 
     public void setView(GLSurfaceView view) {
+        this.view = view;
         if (sensorJoyInput != null) {
             sensorJoyInput.setView(view);
         }
@@ -115,6 +115,7 @@ public class AndroidJoyInput implements JoyInput {
         onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
         virtualJoystickMode = settings.getVirtualJoystickMode();
         useJoysticks = settings.useJoysticks();
+        useAndroidSensorJoystick = settings.useAndroidSensorJoystick();
     }
 
     boolean isOnDeviceJoystickRumble() {
@@ -150,7 +151,6 @@ public class AndroidJoyInput implements JoyInput {
         if (sensorJoyInput != null) {
             sensorJoyInput.resumeSensors();
         }
-
     }
 
     @Override
@@ -166,12 +166,11 @@ public class AndroidJoyInput implements JoyInput {
     @Override
     public void destroy() {
         initialized = false;
-
         if (sensorJoyInput != null) {
             sensorJoyInput.destroy();
+            sensorJoyInput = null;
         }
-
-        setView(null);
+        view = null;
     }
 
     @Override
@@ -204,7 +203,11 @@ public class AndroidJoyInput implements JoyInput {
             logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
         }
         joystickList.clear();
-        if (!disableSensors) {
+        if (useJoysticks && useAndroidSensorJoystick) {
+            if (sensorJoyInput == null) {
+                sensorJoyInput = new AndroidSensorJoyInput(this);
+                sensorJoyInput.setView(view);
+            }
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }
         physicalJoystickAvailable = false;
