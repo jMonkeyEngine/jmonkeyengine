@@ -70,13 +70,13 @@ import static org.ngengine.libjglios.sdl3.SDL3.SDL_SetJoystickEventsEnabled;
 public final class IosJoyInput implements JoyInput {
     private static volatile IosJoyInput active;
     private static final int POV_X_AXIS_ID = 0x4000;
-    private static final int POV_Y_AXIS_ID = 0x4001;
     private final Map<Integer, IosJoystick> joysticks = new HashMap<>();
     private RawInputListener listener;
     private InputManager inputManager;
     private boolean initialized;
     private boolean onDeviceJoystickRumble;
-    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
+    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO;
+    private String virtualJoystickDefaultLayout = AppSettings.VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
     private boolean useJoysticks = true;
     private boolean keyboardSuppressedAutoJoystick;
     private volatile VirtualJoystick virtualJoystick;
@@ -122,6 +122,7 @@ public final class IosJoyInput implements JoyInput {
     public void update() {
         VirtualJoystick joystick = virtualJoystick;
         if (joystick != null) {
+            updateVirtualJoystickAutoVisibility();
             joystick.dispatchEvents(listener);
         }
     }
@@ -179,6 +180,7 @@ public final class IosJoyInput implements JoyInput {
     public void loadSettings(AppSettings settings) {
         onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
         virtualJoystickMode = settings.getVirtualJoystickMode();
+        virtualJoystickDefaultLayout = settings.getVirtualJoystickDefaultLayout();
         useJoysticks = settings.useJoysticks();
     }
 
@@ -188,6 +190,8 @@ public final class IosJoyInput implements JoyInput {
         refreshJoysticks(false);
         if (shouldCreateVirtualJoystick()) {
             virtualJoystick = new VirtualJoystick(inputManager, this, nextVirtualJoyId());
+            virtualJoystick.setLayout(VirtualJoystick.createLayout(virtualJoystickDefaultLayout));
+            virtualJoystick.setEnabled(false);
             updateVirtualJoystickAutoVisibility();
         } else {
             virtualJoystick = null;
@@ -212,7 +216,7 @@ public final class IosJoyInput implements JoyInput {
     }
 
     private void onKeyboardInput() {
-        if (isAutoMode(virtualJoystickMode)) {
+        if (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)) {
             keyboardSuppressedAutoJoystick = true;
             updateVirtualJoystickAutoVisibility();
         }
@@ -364,29 +368,15 @@ public final class IosJoyInput implements JoyInput {
         if (virtualJoystick == null) {
             return;
         }
-        boolean active = isEnabledMode(virtualJoystickMode)
-                || (isAutoMode(virtualJoystickMode)
+        boolean wasEnabled = virtualJoystick.isEnabled();
+        boolean active = AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(virtualJoystickMode)
+                || (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)
                 && joysticks.isEmpty()
-                && !keyboardSuppressedAutoJoystick);
-        virtualJoystick.setEnabled(active);
-        if (active) {
-            virtualJoystick.setShown(!isMinimizedMode(virtualJoystickMode));
+                && !keyboardSuppressedAutoJoystick
+                && virtualJoystick.hasInputBindings());
+        if (wasEnabled != active) {
+            virtualJoystick.setEnabled(active);
         }
-    }
-
-    private static boolean isEnabledMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode);
-    }
-
-    private static boolean isAutoMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
-    }
-
-    private static boolean isMinimizedMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
     }
 
     private Joystick[] currentJoysticks() {
@@ -435,13 +425,11 @@ public final class IosJoyInput implements JoyInput {
         private JoystickAxis xAxis;
         private JoystickAxis yAxis;
         private JoystickAxis povXAxis;
-        private JoystickAxis povYAxis;
         private boolean dpadUp;
         private boolean dpadDown;
         private boolean dpadLeft;
         private boolean dpadRight;
         private float povXValue;
-        private float povYValue;
 
         IosJoystick(InputManager inputManager, JoyInput joyInput, int id, boolean gamepad, long gamepadHandle,
                 long joystickHandle, String name, int axisCount, int buttonCount) {
@@ -525,9 +513,6 @@ public final class IosJoyInput implements JoyInput {
             JoystickAxis povX = new DefaultJoystickAxis(inputManager, this, POV_X_AXIS_ID, JoystickAxis.POV_X,
                     JoystickAxis.POV_X, true, false, 0f);
             addAxis(POV_X_AXIS_ID, povX);
-            JoystickAxis povY = new DefaultJoystickAxis(inputManager, this, POV_Y_AXIS_ID, JoystickAxis.POV_Y,
-                    JoystickAxis.POV_Y, true, false, 0f);
-            addAxis(POV_Y_AXIS_ID, povY);
         }
 
         JoystickAxis getAxisById(int id) {
@@ -555,7 +540,7 @@ public final class IosJoyInput implements JoyInput {
 
         @Override
         public JoystickAxis getPovYAxis() {
-            return povYAxis;
+            return null;
         }
 
         private void addAxis(int index, JoystickAxis axis) {
@@ -570,9 +555,6 @@ public final class IosJoyInput implements JoyInput {
                     break;
                 case POV_X_AXIS_ID:
                     povXAxis = axis;
-                    break;
-                case POV_Y_AXIS_ID:
-                    povYAxis = axis;
                     break;
                 default:
                     break;
@@ -601,15 +583,10 @@ public final class IosJoyInput implements JoyInput {
             }
 
             float nextPovX = (dpadRight ? 1f : 0f) + (dpadLeft ? -1f : 0f);
-            float nextPovY = (dpadUp ? 1f : 0f) + (dpadDown ? -1f : 0f);
             if (listener != null && povXAxis != null && povXValue != nextPovX) {
                 listener.onJoyAxisEvent(new JoyAxisEvent(povXAxis, nextPovX, nextPovX));
             }
-            if (listener != null && povYAxis != null && povYValue != nextPovY) {
-                listener.onJoyAxisEvent(new JoyAxisEvent(povYAxis, nextPovY, nextPovY));
-            }
             povXValue = nextPovX;
-            povYValue = nextPovY;
         }
 
         protected void addButton(JoystickButton button) {

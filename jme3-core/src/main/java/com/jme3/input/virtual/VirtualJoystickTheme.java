@@ -58,7 +58,6 @@ public class VirtualJoystickTheme implements Savable {
         BUTTON_START_ICON,
         STICK_PAD,
         STICK_NUB,
-        TOGGLE_ICON,
         DPAD_UP,
         DPAD_DOWN,
         DPAD_LEFT,
@@ -86,7 +85,6 @@ public class VirtualJoystickTheme implements Savable {
         textures.put(TextureKey.BUTTON_START_ICON, "Common/VirtualJoystick/icon_star.png");
         textures.put(TextureKey.STICK_PAD, "Common/VirtualJoystick/joystick_circle_pad_a.png");
         textures.put(TextureKey.STICK_NUB, "Common/VirtualJoystick/joystick_circle_nub_a.png");
-        textures.put(TextureKey.TOGGLE_ICON, "Common/VirtualJoystick/icon_dpad.png");
         textures.put(TextureKey.DPAD_UP, "Common/VirtualJoystick/dpad_element_north.png");
         textures.put(TextureKey.DPAD_DOWN, "Common/VirtualJoystick/dpad_element_south.png");
         textures.put(TextureKey.DPAD_LEFT, "Common/VirtualJoystick/dpad_element_west.png");

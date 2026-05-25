@@ -92,7 +92,8 @@ public class AndroidJoyInput implements JoyInput {
     private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
     private boolean onDeviceJoystickRumble = false;
-    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
+    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO;
+    private String virtualJoystickDefaultLayout = AppSettings.VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
     private boolean useJoysticks = true;
     private boolean useAndroidSensorJoystick = false;
     private boolean physicalJoystickAvailable = false;
@@ -114,6 +115,7 @@ public class AndroidJoyInput implements JoyInput {
     public void loadSettings(AppSettings settings) {
         onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
         virtualJoystickMode = settings.getVirtualJoystickMode();
+        virtualJoystickDefaultLayout = settings.getVirtualJoystickDefaultLayout();
         useJoysticks = settings.useJoysticks();
         useAndroidSensorJoystick = settings.useAndroidSensorJoystick();
     }
@@ -213,6 +215,8 @@ public class AndroidJoyInput implements JoyInput {
         physicalJoystickAvailable = false;
         if (shouldCreateVirtualJoystick()) {
             virtualJoystick = new VirtualJoystick(inputManager, this, joystickList.size());
+            virtualJoystick.setLayout(VirtualJoystick.createLayout(virtualJoystickDefaultLayout));
+            virtualJoystick.setEnabled(false);
             updateVirtualJoystickAutoVisibility();
             joystickList.add(virtualJoystick);
         } else {
@@ -260,7 +264,7 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     public void onKeyboardInput() {
-        if (isAutoMode(virtualJoystickMode)) {
+        if (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)) {
             keyboardSuppressedAutoJoystick = true;
             updateVirtualJoystickAutoVisibility();
         }
@@ -284,6 +288,7 @@ public class AndroidJoyInput implements JoyInput {
             }
         }
         if (virtualJoystick != null) {
+            updateVirtualJoystickAutoVisibility();
             virtualJoystick.dispatchEvents(listener);
         }
 
@@ -310,29 +315,15 @@ public class AndroidJoyInput implements JoyInput {
         if (virtualJoystick == null) {
             return;
         }
-        boolean active = isEnabledMode(virtualJoystickMode)
-                || (isAutoMode(virtualJoystickMode)
+        boolean wasEnabled = virtualJoystick.isEnabled();
+        boolean active = AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(virtualJoystickMode)
+                || (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)
                 && !physicalJoystickAvailable
-                && !keyboardSuppressedAutoJoystick);
-        virtualJoystick.setEnabled(active);
-        if (active) {
-            virtualJoystick.setShown(!isMinimizedMode(virtualJoystickMode));
+                && !keyboardSuppressedAutoJoystick
+                && virtualJoystick.hasInputBindings());
+        if (wasEnabled != active) {
+            virtualJoystick.setEnabled(active);
         }
-    }
-
-    private static boolean isEnabledMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode);
-    }
-
-    private static boolean isAutoMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
-    }
-
-    private static boolean isMinimizedMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
     }
 
 }

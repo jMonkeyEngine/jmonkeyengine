@@ -37,8 +37,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.font.BitmapText;
-import com.jme3.input.JoystickAxis;
-import com.jme3.input.JoystickButton;
 import com.jme3.input.virtual.VirtualJoystickTheme.TextureKey;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -52,98 +50,31 @@ import java.util.Map;
 /**
  * Virtual joystick controls layout.
  */
-public class VirtualJoystickLayout implements Savable {
+public abstract class VirtualJoystickLayout implements Savable {
 
     private final Map<String, Element> buttons = new LinkedHashMap<>();
     private final Map<String, Element> axisElements = new LinkedHashMap<>();
-    private volatile Element toggleElement;
     private volatile float scale = 1.15f;
     private transient volatile boolean updateNeeded = true;
     private transient volatile Element[] buttonSnapshot = new Element[0];
     private transient volatile Element[] axisSnapshot = new Element[0];
-    private transient boolean bulkUpdate;
-
-    public VirtualJoystickLayout() {
-        resetToDefault();
+    protected VirtualJoystickLayout() {
     }
 
-    public synchronized final void resetToDefault() {
-        buttons.clear();
-        axisElements.clear();
-        bulkUpdate = true;
-
-        try {
-            float leftColumn = 0.135f;
-            float rightColumn = 0.865f;
-            float upperRow = 0.52f;
-            float lowerRow = 0.15f;
-            float faceButtonSize = 0.095f;
-            float faceButtonOffset = 0.106f;
-            float shoulderSize = 0.09f;
-
-            addButtonElement(JoystickButton.BUTTON_XBOX_A, "", rightColumn, upperRow, 0f, -faceButtonOffset, faceButtonSize,
-                    TextureKey.BUTTON, TextureKey.BUTTON_A_ICON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_B, "", rightColumn, upperRow, faceButtonOffset, 0f, faceButtonSize,
-                    TextureKey.BUTTON, TextureKey.BUTTON_B_ICON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_X, "", rightColumn, upperRow, -faceButtonOffset, 0f, faceButtonSize,
-                    TextureKey.BUTTON, TextureKey.BUTTON_X_ICON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_Y, "", rightColumn, upperRow, 0f, faceButtonOffset, faceButtonSize,
-                    TextureKey.BUTTON, TextureKey.BUTTON_Y_ICON);
-
-            addButtonElement(JoystickButton.BUTTON_XBOX_LT, "LT", leftColumn, 0.94f, shoulderSize, 2f,
-                    TextureKey.BUTTON_WIDE);
-            addButtonElement(JoystickButton.BUTTON_XBOX_RT, "RT", rightColumn, 0.94f, shoulderSize, 2f,
-                    TextureKey.BUTTON_WIDE);
-            addButtonElement(JoystickButton.BUTTON_XBOX_LB, "LB", leftColumn, 0.79f, shoulderSize, 2f,
-                    TextureKey.BUTTON_WIDE);
-            addButtonElement(JoystickButton.BUTTON_XBOX_RB, "RB", rightColumn, 0.79f, shoulderSize, 2f,
-                    TextureKey.BUTTON_WIDE);
-
-            addButtonElement(JoystickButton.BUTTON_XBOX_BACK, "", 0.44f, 0.06f, 0.078f, 2f,
-                    TextureKey.BUTTON_WIDE, TextureKey.BUTTON_BACK_ICON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_START, "", 0.56f, 0.06f, 0.078f, 2f,
-                    TextureKey.BUTTON_WIDE, TextureKey.BUTTON_START_ICON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_L3, "L3", leftColumn, upperRow, -0.145f, 0f, 0.065f,
-                    TextureKey.BUTTON);
-            addButtonElement(JoystickButton.BUTTON_XBOX_R3, "R3", rightColumn, lowerRow, 0.145f, 0f, 0.065f,
-                    TextureKey.BUTTON);
-
-            addButtonElement(JoystickButton.BUTTON_XBOX_DPAD_UP, "", leftColumn, lowerRow, 0f, 0.064f, 0.085f,
-                    TextureKey.DPAD_UP);
-            addButtonElement(JoystickButton.BUTTON_XBOX_DPAD_DOWN, "", leftColumn, lowerRow, 0f, -0.064f, 0.085f,
-                    TextureKey.DPAD_DOWN);
-            addButtonElement(JoystickButton.BUTTON_XBOX_DPAD_LEFT, "", leftColumn, lowerRow, -0.064f, 0f, 0.085f,
-                    TextureKey.DPAD_LEFT);
-            addButtonElement(JoystickButton.BUTTON_XBOX_DPAD_RIGHT, "", leftColumn, lowerRow, 0.064f, 0f, 0.085f,
-                    TextureKey.DPAD_RIGHT);
-
-            addAxisElement(JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_X, JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_Y,
-                    "", leftColumn, upperRow, 0.235f, TextureKey.STICK_PAD, TextureKey.STICK_NUB);
-            addAxisElement(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_X, JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_Y,
-                    "", rightColumn, lowerRow, 0.235f, TextureKey.STICK_PAD, TextureKey.STICK_NUB);
-            setToggleElement(new Element("toggle", "", 0.5f, 0.94f, 0.055f, TextureKey.BUTTON)
-                    .setIconTextureKey(TextureKey.TOGGLE_ICON));
-        } finally {
-            bulkUpdate = false;
-            rebuildSnapshots();
-            markUpdateNeeded();
-        }
-    }
-
-    public synchronized void addButtonElement(String logicalId, String label, float x, float y, float size,
+    protected final synchronized void addButtonElement(String logicalId, String label, float x, float y, float size,
             TextureKey textureKey) {
         buttons.put(logicalId, new Element(logicalId, label, x, y, size, textureKey));
         layoutChanged();
     }
 
-    public synchronized void addButtonElement(String logicalId, String label, float x, float y, float shortOffsetX,
+    protected final synchronized void addButtonElement(String logicalId, String label, float x, float y, float shortOffsetX,
             float shortOffsetY, float size, TextureKey textureKey) {
         buttons.put(logicalId, new Element(logicalId, label, x, y, size, textureKey)
                 .setShortOffset(shortOffsetX, shortOffsetY));
         layoutChanged();
     }
 
-    public synchronized void addButtonElement(String logicalId, String label, float x, float y, float shortOffsetX,
+    protected final synchronized void addButtonElement(String logicalId, String label, float x, float y, float shortOffsetX,
             float shortOffsetY, float size, TextureKey textureKey, TextureKey iconTextureKey) {
         buttons.put(logicalId, new Element(logicalId, label, x, y, size, textureKey)
                 .setShortOffset(shortOffsetX, shortOffsetY)
@@ -151,13 +82,13 @@ public class VirtualJoystickLayout implements Savable {
         layoutChanged();
     }
 
-    public synchronized void addButtonElement(String logicalId, String label, float x, float y, float size, float aspect,
+    protected final synchronized void addButtonElement(String logicalId, String label, float x, float y, float size, float aspect,
             TextureKey textureKey) {
         buttons.put(logicalId, new Element(logicalId, label, x, y, size, textureKey).setAspect(aspect));
         layoutChanged();
     }
 
-    public synchronized void addButtonElement(String logicalId, String label, float x, float y, float size, float aspect,
+    protected final synchronized void addButtonElement(String logicalId, String label, float x, float y, float size, float aspect,
             TextureKey textureKey, TextureKey iconTextureKey) {
         buttons.put(logicalId, new Element(logicalId, label, x, y, size, textureKey)
                 .setAspect(aspect)
@@ -165,7 +96,7 @@ public class VirtualJoystickLayout implements Savable {
         layoutChanged();
     }
 
-    public synchronized void addAxisElement(String xAxisLogicalId, String yAxisLogicalId, String label, float x, float y,
+    protected final synchronized void addAxisElement(String xAxisLogicalId, String yAxisLogicalId, String label, float x, float y,
             float size, TextureKey textureKey, TextureKey nubTextureKey) {
         axisElements.put(xAxisLogicalId, new Element(xAxisLogicalId, label, x, y, size, textureKey)
                 .setYAxisLogicalId(yAxisLogicalId)
@@ -173,12 +104,7 @@ public class VirtualJoystickLayout implements Savable {
         layoutChanged();
     }
 
-    public synchronized void setToggleElement(Element toggleElement) {
-        this.toggleElement = toggleElement;
-        layoutChanged();
-    }
-
-    public synchronized void setButtonPosition(String logicalId, float x, float y) {
+    protected final synchronized void setButtonPosition(String logicalId, float x, float y) {
         element(buttons, logicalId).setPosition(x, y);
         markUpdateNeeded();
     }
@@ -188,8 +114,11 @@ public class VirtualJoystickLayout implements Savable {
         return new Vector2f(element.positionX, element.positionY);
     }
 
-    public synchronized void setButtonVisible(String logicalId, boolean visible) {
+    protected final synchronized void setButtonVisible(String logicalId, boolean visible) {
         Element element = element(buttons, logicalId);
+        if (element.visible == visible) {
+            return;
+        }
         element.visible = visible;
         markUpdateNeeded();
     }
@@ -198,7 +127,7 @@ public class VirtualJoystickLayout implements Savable {
         return element(buttons, logicalId).visible;
     }
 
-    public synchronized void setAxisPosition(String logicalId, float x, float y) {
+    protected final synchronized void setAxisPosition(String logicalId, float x, float y) {
         axisElement(logicalId).setPosition(x, y);
         markUpdateNeeded();
     }
@@ -208,8 +137,11 @@ public class VirtualJoystickLayout implements Savable {
         return new Vector2f(element.positionX, element.positionY);
     }
 
-    public synchronized void setAxisVisible(String logicalId, boolean visible) {
+    protected final synchronized void setAxisVisible(String logicalId, boolean visible) {
         Element element = axisElement(logicalId);
+        if (element.visible == visible) {
+            return;
+        }
         element.visible = visible;
         markUpdateNeeded();
     }
@@ -218,43 +150,43 @@ public class VirtualJoystickLayout implements Savable {
         return axisElement(logicalId).visible;
     }
 
-    public synchronized void setButtonSize(String logicalId, float size) {
+    protected final synchronized void setButtonSize(String logicalId, float size) {
         Element element = element(buttons, logicalId);
         element.size = FastMath.clamp(size, 0.01f, 1f);
         markUpdateNeeded();
     }
 
-    public synchronized void setButtonTextureKey(String logicalId, TextureKey textureKey) {
+    protected final synchronized void setButtonTextureKey(String logicalId, TextureKey textureKey) {
         Element element = element(buttons, logicalId);
         element.textureKey = textureKey;
         markUpdateNeeded();
     }
 
-    public synchronized void setButtonIconTextureKey(String logicalId, TextureKey iconTextureKey) {
+    protected final synchronized void setButtonIconTextureKey(String logicalId, TextureKey iconTextureKey) {
         Element element = element(buttons, logicalId);
         element.iconTextureKey = iconTextureKey;
         markUpdateNeeded();
     }
 
-    public synchronized void setAxisSize(String logicalId, float size) {
+    protected final synchronized void setAxisSize(String logicalId, float size) {
         Element element = axisElement(logicalId);
         element.size = FastMath.clamp(size, 0.01f, 1f);
         markUpdateNeeded();
     }
 
-    public synchronized void setAxisTextureKey(String logicalId, TextureKey textureKey) {
+    protected final synchronized void setAxisTextureKey(String logicalId, TextureKey textureKey) {
         Element element = axisElement(logicalId);
         element.textureKey = textureKey;
         markUpdateNeeded();
     }
 
-    public synchronized void setAxisNubTextureKey(String logicalId, TextureKey nubTextureKey) {
+    protected final synchronized void setAxisNubTextureKey(String logicalId, TextureKey nubTextureKey) {
         Element element = axisElement(logicalId);
         element.nubTextureKey = nubTextureKey;
         markUpdateNeeded();
     }
 
-    public synchronized void setScale(float scale) {
+    protected final synchronized void setScale(float scale) {
         this.scale = FastMath.clamp(scale, 0.25f, 3f);
         markUpdateNeeded();
     }
@@ -283,8 +215,7 @@ public class VirtualJoystickLayout implements Savable {
         return axisSnapshot;
     }
 
-    public Element getToggleElement() {
-        return toggleElement;
+    public void update(VirtualJoystick joystick) {
     }
 
     public synchronized Element getButtonElement(String logicalId) {
@@ -330,7 +261,6 @@ public class VirtualJoystickLayout implements Savable {
         capsule.write(scale, "scale", 1.15f);
         capsule.write(buttons.values().toArray(new Element[0]), "buttons", null);
         capsule.write(axisElements.values().toArray(new Element[0]), "axes", null);
-        capsule.write(toggleElement, "toggle", null);
     }
 
     @Override
@@ -353,15 +283,12 @@ public class VirtualJoystickLayout implements Savable {
                 axisElements.put(element.id, element);
             }
         }
-        toggleElement = (Element) capsule.readSavable("toggle", null);
         rebuildSnapshots();
         markUpdateNeeded();
     }
 
     private void layoutChanged() {
-        if (!bulkUpdate) {
-            rebuildSnapshots();
-        }
+        rebuildSnapshots();
         markUpdateNeeded();
     }
 
@@ -426,7 +353,7 @@ public class VirtualJoystickLayout implements Savable {
             setPosition(x, y);
         }
 
-        public synchronized Element setPosition(float x, float y) {
+        synchronized Element setPosition(float x, float y) {
             positionX = FastMath.clamp(x, 0f, 1f);
             positionY = FastMath.clamp(y, 0f, 1f);
             shortOffsetX = 0f;
@@ -434,28 +361,28 @@ public class VirtualJoystickLayout implements Savable {
             return this;
         }
 
-        public synchronized Element setShortOffset(float x, float y) {
+        synchronized Element setShortOffset(float x, float y) {
             shortOffsetX = x;
             shortOffsetY = y;
             return this;
         }
 
-        public synchronized Element setAspect(float aspect) {
+        synchronized Element setAspect(float aspect) {
             this.aspect = aspect;
             return this;
         }
 
-        public synchronized Element setYAxisLogicalId(String yAxisLogicalId) {
+        synchronized Element setYAxisLogicalId(String yAxisLogicalId) {
             this.yAxisLogicalId = yAxisLogicalId;
             return this;
         }
 
-        public synchronized Element setNubTextureKey(TextureKey nubTextureKey) {
+        synchronized Element setNubTextureKey(TextureKey nubTextureKey) {
             this.nubTextureKey = nubTextureKey;
             return this;
         }
 
-        public synchronized Element setIconTextureKey(TextureKey iconTextureKey) {
+        synchronized Element setIconTextureKey(TextureKey iconTextureKey) {
             this.iconTextureKey = iconTextureKey;
             return this;
         }

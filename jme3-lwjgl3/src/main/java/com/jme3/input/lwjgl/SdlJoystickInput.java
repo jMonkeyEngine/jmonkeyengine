@@ -177,12 +177,6 @@ public class SdlJoystickInput implements JoyInput {
         joystick.addAxis(povXAxisId, povX);
         joystick.povAxisX = povX;
 
-        int povYAxisId = joystick.getAxisCount();
-        JoystickAxis povY = new DefaultJoystickAxis(inputManager, joystick, povYAxisId, JoystickAxis.POV_Y,
-                JoystickAxis.POV_Y, true, false, 0.0f);
-        joystick.addAxis(povYAxisId, povY);
-        joystick.povAxisY = povY;
-
         inputManager.fireJoystickConnectedEvent(joystick);
 
     }
@@ -261,9 +255,10 @@ public class SdlJoystickInput implements JoyInput {
             }
         }
 
-        if (settings.useJoysticks() && isEnabledMode(settings.getVirtualJoystickMode())) {
+        if (settings.useJoysticks()
+                && AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(settings.getVirtualJoystickMode())) {
             virtualJoystick = new VirtualJoystick(inputManager, this, nextVirtualJoyId());
-            virtualJoystick.setShown(!isMinimizedMode(settings.getVirtualJoystickMode()));
+            virtualJoystick.setLayout(VirtualJoystick.createLayout(settings.getVirtualJoystickDefaultLayout()));
         } else {
             virtualJoystick = null;
         }
@@ -358,8 +353,6 @@ public class SdlJoystickInput implements JoyInput {
                 }
 
                 float povXValue = 0f;
-                float povYValue = 0f;
-
                 for (JoystickButton button : js.getButtons()) {
                     int buttonId = button.getButtonId();
                     String jmeButtonId = button.getLogicalId();
@@ -371,10 +364,6 @@ public class SdlJoystickInput implements JoyInput {
                         povXValue += pressed ? -1f : 0f;
                     } else if (JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(jmeButtonId)) {
                         povXValue += pressed ? 1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_UP.equals(jmeButtonId)) {
-                        povYValue += pressed ? 1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(jmeButtonId)) {
-                        povYValue += pressed ? -1f : 0f;
                     }
                 }
 
@@ -382,11 +371,6 @@ public class SdlJoystickInput implements JoyInput {
                 if (povXAxis != null) {
                     updateAxis(povXAxis, povXValue, povXValue);
                 }
-                JoystickAxis povYAxis = js.getPovYAxis();
-                if (povYAxis != null) {
-                    updateAxis(povYAxis, povYValue, povYValue);
-                }
-
             } else {
                 long joy = js.joystick;
 
@@ -424,16 +408,6 @@ public class SdlJoystickInput implements JoyInput {
             id = Math.max(id, joystickId + 1);
         }
         return id;
-    }
-
-    private static boolean isEnabledMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode);
-    }
-
-    private static boolean isMinimizedMode(String mode) {
-        return AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
-                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
     }
 
     @Override
@@ -673,7 +647,6 @@ public class SdlJoystickInput implements JoyInput {
         private JoystickAxis xAxis;
         private JoystickAxis yAxis;
         private JoystickAxis povAxisX;
-        private JoystickAxis povAxisY;
 
         long joystick;
         long gamepad;
@@ -722,7 +695,7 @@ public class SdlJoystickInput implements JoyInput {
 
         @Override
         public JoystickAxis getPovYAxis() {
-            return povAxisY;
+            return null;
         }
 
         @Override

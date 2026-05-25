@@ -41,7 +41,13 @@ import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
+import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
+import com.jme3.input.TouchInput;
+import com.jme3.input.controls.JoyAxisTrigger;
+import com.jme3.input.controls.JoyButtonTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
@@ -49,6 +55,7 @@ import com.jme3.input.virtual.VirtualJoystickLayout.Element;
 import com.jme3.input.virtual.VirtualJoystickTheme.TextureKey;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Node;
+import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.ui.Picture;
 import java.util.ArrayDeque;
@@ -67,7 +74,6 @@ public class VirtualJoystick extends AbstractJoystick {
     private static final int AXIS_LEFT_TRIGGER = 4;
     private static final int AXIS_RIGHT_TRIGGER = 5;
     private static final int AXIS_POV_X_ID = 6;
-    private static final int AXIS_POV_Y_ID = 7;
 
     private static final String ROOT_NAME = "Virtual Joystick";
 
@@ -76,7 +82,7 @@ public class VirtualJoystick extends AbstractJoystick {
     private final Map<Integer, Capture> captures = new HashMap<>();
     private ArrayDeque<InputEvent> events = new ArrayDeque<>();
     private ArrayDeque<InputEvent> readyEvents = new ArrayDeque<>();
-    private final float[] axisValues = new float[8];
+    private final float[] axisValues = new float[7];
     private final boolean[] buttonValues = new boolean[16];
     private final Object inputLock = new Object();
     private final Element.BoundsSnapshot inputBounds = new Element.BoundsSnapshot();
@@ -84,13 +90,11 @@ public class VirtualJoystick extends AbstractJoystick {
     private JoystickAxis xAxis;
     private JoystickAxis yAxis;
     private JoystickAxis povXAxis;
-    private JoystickAxis povYAxis;
     private volatile boolean enabled = true;
-    private volatile boolean shown = true;
     private volatile int buttonStateMask;
     private volatile boolean hasEvents;
     private volatile VirtualJoystickTheme theme = new VirtualJoystickTheme();
-    private volatile VirtualJoystickLayout layout = new VirtualJoystickLayout();
+    private volatile VirtualJoystickLayout layout = new VirtualJoystickDynamicLayout(true);
     private volatile int visualWidth;
     private volatile int visualHeight;
     private Node visualRoot;
@@ -127,19 +131,6 @@ public class VirtualJoystick extends AbstractJoystick {
         }
     }
 
-    public boolean isShown() {
-        return shown;
-    }
-
-    public void setShown(boolean shown) {
-        synchronized (inputLock) {
-            this.shown = shown;
-            if (!shown) {
-                releaseAllLocked(0L);
-            }
-        }
-    }
-
     public VirtualJoystickTheme getTheme() {
         return theme;
     }
@@ -156,9 +147,16 @@ public class VirtualJoystick extends AbstractJoystick {
     public void setLayout(VirtualJoystickLayout layout) {
         synchronized (inputLock) {
             releaseAllLocked(0L);
-            this.layout = layout == null ? new VirtualJoystickLayout() : layout;
+            this.layout = layout == null ? new VirtualJoystickDynamicLayout(true) : layout;
             this.layout.markUpdateNeeded();
         }
+    }
+
+    public static VirtualJoystickLayout createLayout(String layout) {
+        if (AppSettings.VIRTUAL_JOYSTICK_LAYOUT_XBOX.equalsIgnoreCase(layout)) {
+            return new VirtualJoystickXboxLayout();
+        }
+        return new VirtualJoystickDynamicLayout(true);
     }
 
     @Override
@@ -174,16 +172,6 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     /**
-     * Restores the default Xbox-like layout.
-     */
-    public void reset() {
-        synchronized (inputLock) {
-            layout.resetToDefault();
-            releaseAllLocked(0L);
-        }
-    }
-
-    /**
      * Processes a pointer-down event.
      *
      * @return true if the pointer was captured by a virtual control
@@ -195,19 +183,9 @@ public class VirtualJoystick extends AbstractJoystick {
                 return existingCapture != null;
             }
 
-            Element toggleElement = layout.getToggleElement();
-            if (toggleElement != null && toggleElement.contains(x, y)) {
-                captures.put(pointerId, new Capture(toggleElement, false, true));
-                return true;
-            }
-
-            if (!shown) {
-                return false;
-            }
-
             for (Element element : layout.getAxisElements()) {
                 if (element.visible && element.contains(x, y)) {
-                    captures.put(pointerId, new Capture(element, true, false));
+                    captures.put(pointerId, new Capture(element, true));
                     updateAxisCapture(element, x, y, time);
                     return true;
                 }
@@ -215,7 +193,7 @@ public class VirtualJoystick extends AbstractJoystick {
 
             for (Element element : layout.getButtons()) {
                 if (element.visible && element.contains(x, y)) {
-                    captures.put(pointerId, new Capture(element, false, false));
+                    captures.put(pointerId, new Capture(element, false));
                     if (isToggleButton(element.id)) {
                         pressButton(element.id, !isButtonPressed(element.id), time);
                     } else {
@@ -240,9 +218,6 @@ public class VirtualJoystick extends AbstractJoystick {
             if (capture == null) {
                 return false;
             }
-            if (capture.toggle) {
-                return true;
-            }
             if (capture.axis) {
                 updateAxisCapture(capture.element, x, y, time);
             }
@@ -261,11 +236,6 @@ public class VirtualJoystick extends AbstractJoystick {
             if (capture == null) {
                 return false;
             }
-            if (capture.toggle) {
-                shown = !shown;
-                releaseAllLocked(time);
-                return true;
-            }
             if (capture.axis) {
                 centerAxisCapture(capture.element, time);
             } else if (!isToggleButton(capture.element.id)) {
@@ -276,7 +246,7 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     /**
-     * Releases all active pointer captures without activating toggle buttons.
+     * Releases all active pointer captures.
      *
      * @return true if at least one pointer was captured
      */
@@ -339,11 +309,7 @@ public class VirtualJoystick extends AbstractJoystick {
         if (visualRoot == null) {
             visualRoot = new Node(ROOT_NAME);
         }
-        if (visualParent != parent) {
-            visualRoot.removeFromParent();
-            parent.attachChild(visualRoot);
-            visualParent = parent;
-        }
+        attachVisualRootOnTop(parent);
         if (width != visualWidth || height != visualHeight) {
             synchronized (inputLock) {
                 if (width != visualWidth || height != visualHeight) {
@@ -363,6 +329,7 @@ public class VirtualJoystick extends AbstractJoystick {
 
         VirtualJoystickTheme currentTheme = theme;
         VirtualJoystickLayout currentLayout = layout;
+        currentLayout.update(this);
         boolean themeUpdateNeeded = currentTheme.isUpdateNeeded();
         if (themeUpdateNeeded || currentLayout.isUpdateNeeded()) {
             clearVisuals(currentLayout);
@@ -378,26 +345,28 @@ public class VirtualJoystick extends AbstractJoystick {
         }
 
         float scale = currentLayout.getScale();
-        syncElement(currentLayout.getToggleElement(), assetManager, width, height, scale);
-        if (!shown) {
-            for (Element element : currentLayout.getButtons()) {
-                if (element.node != null && element.node.getParent() != null) {
-                    element.node.removeFromParent();
-                }
-            }
-            for (Element element : currentLayout.getAxisElements()) {
-                if (element.node != null && element.node.getParent() != null) {
-                    element.node.removeFromParent();
-                }
-            }
-            return;
-        }
 
         for (Element element : currentLayout.getButtons()) {
             syncElement(element, assetManager, width, height, scale);
         }
         for (Element element : currentLayout.getAxisElements()) {
             syncElement(element, assetManager, width, height, scale);
+        }
+    }
+
+    private void attachVisualRootOnTop(Node parent) {
+        if (visualParent != parent || visualRoot.getParent() != parent) {
+            visualRoot.removeFromParent();
+            parent.attachChild(visualRoot);
+            visualParent = parent;
+            return;
+        }
+
+        int childIndex = parent.getChildIndex(visualRoot);
+        int topIndex = parent.getQuantity() - 1;
+        if (childIndex >= 0 && childIndex < topIndex) {
+            visualRoot.removeFromParent();
+            parent.attachChild(visualRoot);
         }
     }
 
@@ -418,7 +387,58 @@ public class VirtualJoystick extends AbstractJoystick {
 
     @Override
     public JoystickAxis getPovYAxis() {
-        return povYAxis;
+        return null;
+    }
+
+    public boolean hasInputBindings() {
+        for (JoystickAxis axis : getAxes()) {
+            if (isAxisBound(axis.getLogicalId())) {
+                return true;
+            }
+        }
+        for (JoystickButton button : getButtons()) {
+            if (isButtonBound(button.getLogicalId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isAxisBound(String logicalId) {
+        JoystickAxis axis = axesByLogicalId.get(logicalId);
+        if (axis == null) {
+            return false;
+        }
+        InputManager manager = getInputManager();
+        return manager != null
+                && (manager.hasTriggerMapping(JoyAxisTrigger.joyAxisHash(getJoyId(), axis.getAxisId(), false))
+                || manager.hasTriggerMapping(JoyAxisTrigger.joyAxisHash(getJoyId(), axis.getAxisId(), true)));
+    }
+
+    public boolean isButtonBound(String logicalId) {
+        JoystickButton button = buttonsByLogicalId.get(logicalId);
+        if (button == null) {
+            return false;
+        }
+        InputManager manager = getInputManager();
+        return manager != null
+                && manager.hasTriggerMapping(JoyButtonTrigger.joyButtonHash(getJoyId(), button.getButtonId()));
+    }
+
+    public boolean hasPointerLookBindings() {
+        InputManager manager = getInputManager();
+        if (manager == null) {
+            return false;
+        }
+        boolean mouseLook = hasMouseAxisBinding(manager, MouseInput.AXIS_X)
+                && hasMouseAxisBinding(manager, MouseInput.AXIS_Y);
+        boolean touchLook = manager.hasTriggerMapping(TouchTrigger.touchHash(TouchInput.ALL));
+        return touchLook || (mouseLook && manager.isSimulateMouse());
+    }
+
+    private boolean hasMouseAxisBinding(InputManager manager, int axis) {
+        return manager.hasTriggerMapping(MouseAxisTrigger.mouseAxisHash(axis, false))
+                || manager.hasTriggerMapping(MouseAxisTrigger.mouseAxisHash(axis, true));
     }
 
     private void addAxes() {
@@ -429,7 +449,6 @@ public class VirtualJoystick extends AbstractJoystick {
         addAxis(AXIS_LEFT_TRIGGER, "LEFT TRIGGER", JoystickAxis.AXIS_XBOX_LEFT_TRIGGER);
         addAxis(AXIS_RIGHT_TRIGGER, "RIGHT TRIGGER", JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER);
         povXAxis = addAxis(AXIS_POV_X_ID, JoystickAxis.POV_X, JoystickAxis.POV_X);
-        povYAxis = addAxis(AXIS_POV_Y_ID, JoystickAxis.POV_Y, JoystickAxis.POV_Y);
     }
 
     private JoystickAxis addAxis(int id, String name, String logicalId) {
@@ -518,7 +537,7 @@ public class VirtualJoystick extends AbstractJoystick {
         } else if (JoystickButton.BUTTON_XBOX_RT.equals(logicalId)) {
             setAxisValue(JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER, pressed ? 1f : 0f, time);
         } else if (isDpad(logicalId)) {
-            updatePovAxes(time);
+            updatePovXAxis(time);
         }
     }
 
@@ -539,15 +558,8 @@ public class VirtualJoystick extends AbstractJoystick {
                 || JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(logicalId);
     }
 
-    private void updatePovAxes(long time) {
+    private void updatePovXAxis(long time) {
         float x = 0f;
-        float y = 0f;
-        if (buttonValues[buttonsByLogicalId.get(JoystickButton.BUTTON_XBOX_DPAD_UP).getButtonId()]) {
-            y += 1f;
-        }
-        if (buttonValues[buttonsByLogicalId.get(JoystickButton.BUTTON_XBOX_DPAD_DOWN).getButtonId()]) {
-            y -= 1f;
-        }
         if (buttonValues[buttonsByLogicalId.get(JoystickButton.BUTTON_XBOX_DPAD_LEFT).getButtonId()]) {
             x -= 1f;
         }
@@ -555,7 +567,6 @@ public class VirtualJoystick extends AbstractJoystick {
             x += 1f;
         }
         setAxisValue(JoystickAxis.POV_X, x, time);
-        setAxisValue(JoystickAxis.POV_Y, y, time);
     }
 
     private void setAxisValue(String logicalId, float value, long time) {
@@ -658,10 +669,6 @@ public class VirtualJoystick extends AbstractJoystick {
         for (Element element : layout.getAxisElements()) {
             element.clearVisuals();
         }
-        Element toggle = layout.getToggleElement();
-        if (toggle != null) {
-            toggle.clearVisuals();
-        }
         if (visualRoot != null) {
             visualRoot.detachAllChildren();
         }
@@ -670,12 +677,10 @@ public class VirtualJoystick extends AbstractJoystick {
     private static final class Capture {
         final Element element;
         final boolean axis;
-        final boolean toggle;
 
-        Capture(Element element, boolean axis, boolean toggle) {
+        Capture(Element element, boolean axis) {
             this.element = element;
             this.axis = axis;
-            this.toggle = toggle;
         }
     }
 }

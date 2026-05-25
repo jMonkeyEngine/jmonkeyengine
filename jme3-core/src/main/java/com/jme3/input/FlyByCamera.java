@@ -118,6 +118,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     protected boolean canRotate = false;
     protected boolean invertY = false;
     protected InputManager inputManager;
+    private boolean inputMappingsRegistered;
 
     // Reusable temporary objects to reduce allocations during updates
     private final Matrix3f tempMat = new Matrix3f();
@@ -214,12 +215,19 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      * @param enable true to enable, false to disable
      */
     public void setEnabled(boolean enable) {
+        if (enabled == enable) {
+            return;
+        }
         if (enabled && !enable) {
             if (inputManager != null && (!dragToRotate || (dragToRotate && canRotate))) {
                 inputManager.setCursorVisible(true);
             }
+            unregisterInputMappings();
         }
         enabled = enable;
+        if (enabled) {
+            registerInputMappings();
+        }
     }
 
     /**
@@ -256,7 +264,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
         if (inputManager != null) {
-            inputManager.setCursorVisible(dragToRotate);
+            inputManager.setCursorVisible(dragToRotate || !isEnabled());
         }
     }
 
@@ -269,7 +277,18 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      */
     public void registerWithInput(InputManager inputManager) {
         this.inputManager = inputManager;
+        if (enabled) {
+            registerInputMappings();
+        } else {
+            inputManager.setCursorVisible(true);
+        }
+        inputManager.addJoystickConnectionListener(this);
+    }
 
+    private void registerInputMappings() {
+        if (inputManager == null || inputMappingsRegistered) {
+            return;
+        }
         // Mouse and Keyboard Mappings for Rotation
         inputManager.addMapping(CameraInput.FLYCAM_LEFT, new MouseAxisTrigger(MouseInput.AXIS_X, true),
                 new KeyTrigger(KeyInput.KEY_LEFT));
@@ -305,7 +324,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
                 mapJoystick(j);
             }
         }
-        inputManager.addJoystickConnectionListener(this);
+        inputMappingsRegistered = true;
     }
 
     /**
@@ -331,16 +350,11 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
             rightXAxis.assignAxis(FLYCAM_JOYSTICK_RIGHT, FLYCAM_JOYSTICK_LEFT);
         }
 
-        JoystickButton backButton = joystick.getButton(JoystickButton.BUTTON_XBOX_BACK);
-        if (backButton != null) {
-            // Let the standard select button be the y invert toggle
-            backButton.assignButton(CameraInput.FLYCAM_INVERTY);
-        }
     }
 
     @Override
     public void onConnected(Joystick joystick) {
-        if (inputManager != null) {
+        if (inputManager != null && inputMappingsRegistered) {
             mapJoystick(joystick);
         }
     }
@@ -357,6 +371,16 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
             return;
         }
 
+        unregisterInputMappings();
+        inputManager.removeJoystickConnectionListener(this);
+        inputManager.setCursorVisible(!dragToRotate);
+        inputManager = null; // Clear reference
+    }
+
+    private void unregisterInputMappings() {
+        if (inputManager == null || !inputMappingsRegistered) {
+            return;
+        }
         for (String s : mappings) {
             if (inputManager.hasMapping(s)) {
                 inputManager.deleteMapping(s);
@@ -364,12 +388,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
         }
 
         inputManager.removeListener(this);
-        inputManager.removeJoystickConnectionListener(this);
-        inputManager.setCursorVisible(!dragToRotate);
-
-        // Joysticks cannot be "unassigned" in the same way, but mappings are removed with listener.
-        // Joystick-specific mapping might persist but won't trigger this listener.
-        inputManager = null; // Clear reference
+        inputMappingsRegistered = false;
     }
 
     /**

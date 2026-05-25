@@ -32,32 +32,32 @@
 package jme3test.input;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.font.BitmapText;
-import com.jme3.input.JoystickAxis;
-import com.jme3.input.RawInputListenerAdapter;
-import com.jme3.input.event.JoyAxisEvent;
+import com.jme3.input.Joystick;
+import com.jme3.input.JoystickButton;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.virtual.VirtualJoystick;
+import com.jme3.input.virtual.VirtualJoystickDynamicLayout;
+import com.jme3.input.virtual.VirtualJoystickXboxLayout;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.jme3.util.SkyFactory;
 
 /**
  * Manual test for the on-screen virtual joystick.
  */
 public class TestVirtualJoystick extends SimpleApplication {
 
-    private final Map<String, Float> axisValues = new LinkedHashMap<>();
-    private BitmapText axisDebug;
+    private static final String TOGGLE_LAYOUT = "ToggleVirtualJoystickLayout";
+
+    private boolean dynamicLayout;
 
     public static void main(String[] args) {
         TestVirtualJoystick app = new TestVirtualJoystick();
@@ -83,107 +83,68 @@ public class TestVirtualJoystick extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(0f, 5f, 22f));
-        cam.lookAt(new Vector3f(0f, 5f, 0f), Vector3f.UNIT_Y);
+        setDisplayStatView(false);
+        setDisplayFps(false);
+
+        cam.setLocation(new Vector3f(42f, 18f, 18f));
+        cam.lookAt(new Vector3f(-18f, 4f, -10f), Vector3f.UNIT_Y);
         cam.setFrustumPerspective(60f, cam.getAspect(), 0.1f, 500f);
 
         flyCam.setMoveSpeed(18f);
         flyCam.setRotationSpeed(2f);
         flyCam.setDragToRotate(true);
         inputManager.setCursorVisible(true);
-        setupAxisDebug();
+        setupLayoutToggle();
 
         AmbientLight ambient = new AmbientLight();
-        ambient.setColor(new ColorRGBA(0.25f, 0.25f, 0.25f, 1f));
+        ambient.setColor(new ColorRGBA(0.35f, 0.35f, 0.35f, 1f));
         rootNode.addLight(ambient);
 
         DirectionalLight sun = new DirectionalLight();
-        sun.setDirection(new Vector3f(-0.35f, -0.8f, -0.45f).normalizeLocal());
-        sun.setColor(ColorRGBA.White.mult(0.8f));
+        sun.setDirection(new Vector3f(-0.4f, -0.75f, -0.3f).normalizeLocal());
+        sun.setColor(ColorRGBA.White.mult(1.1f));
         rootNode.addLight(sun);
 
         buildScene();
     }
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        updateAxisDebug();
-    }
-
-    private void setupAxisDebug() {
-        axisDebug = new BitmapText(guiFont, false);
-        axisDebug.setSize(16f);
-        axisDebug.setColor(ColorRGBA.White);
-        axisDebug.setLocalTranslation(12f, cam.getHeight() - 12f, 10f);
-        guiNode.attachChild(axisDebug);
-
-        inputManager.addRawInputListener(new RawInputListenerAdapter() {
-            @Override
-            public void onJoyAxisEvent(JoyAxisEvent evt) {
-                JoystickAxis axis = evt.getAxis();
-                String key = axis.getJoystick().getJoyId() + " "
-                        + axis.getJoystick().getName() + " "
-                        + axis.getLogicalId() + "[" + axis.getAxisId() + "]";
-                axisValues.put(key, evt.getValue());
+    private void setupLayoutToggle() {
+        inputManager.addMapping(TOGGLE_LAYOUT, new KeyTrigger(KeyInput.KEY_L));
+        Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks != null) {
+            for (Joystick joystick : joysticks) {
+                JoystickButton start = joystick.getButton(JoystickButton.BUTTON_XBOX_START);
+                if (start != null) {
+                    start.assignButton(TOGGLE_LAYOUT);
+                }
             }
-        });
+        }
+        inputManager.addListener(layoutListener, TOGGLE_LAYOUT);
     }
 
-    private void updateAxisDebug() {
-        if (axisDebug == null) {
+    private final ActionListener layoutListener = (name, isPressed, tpf) -> {
+        if (!TOGGLE_LAYOUT.equals(name) || !isPressed) {
             return;
         }
-
-        StringBuilder text = new StringBuilder("Joystick axes\n");
-        for (Map.Entry<String, Float> entry : axisValues.entrySet()) {
-            text.append(entry.getKey())
-                    .append(" = ")
-                    .append(String.format("%.3f", entry.getValue()))
-                    .append('\n');
+        dynamicLayout = !dynamicLayout;
+        Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks == null) {
+            return;
         }
-        axisDebug.setText(text.toString());
-    }
+        for (Joystick joystick : joysticks) {
+            if (joystick instanceof VirtualJoystick) {
+                ((VirtualJoystick) joystick).setLayout(dynamicLayout
+                        ? new VirtualJoystickDynamicLayout(true)
+                        : new VirtualJoystickXboxLayout());
+            }
+        }
+    };
 
     private void buildScene() {
-        Material floorMaterial = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
-        Material wallMaterial = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
-        Material columnMaterial = assetManager.loadMaterial("Textures/Terrain/Rock/Rock.j3m");
+        Spatial scene = assetManager.loadModel("BlenderParity/scene.glb");
+        rootNode.attachChild(scene);
 
-        Geometry floor = new Geometry("Textured Floor", new Box(24f, 0.1f, 24f));
-        floor.getMesh().scaleTextureCoordinates(new Vector2f(12f, 12f));
-        floor.setLocalTranslation(0f, -0.1f, 0f);
-        floor.setMaterial(floorMaterial);
-        rootNode.attachChild(floor);
-
-        addWall("Back Wall", wallMaterial, 0f, 3f, -24f, 24f, 3f, 0.15f);
-        addWall("Left Wall", wallMaterial, -24f, 3f, 0f, 0.15f, 3f, 24f);
-        addWall("Right Wall", wallMaterial, 24f, 3f, 0f, 0.15f, 3f, 24f);
-
-        addColumn(columnMaterial, -10f, 0f);
-        addColumn(columnMaterial, 10f, 0f);
-        addColumn(columnMaterial, -10f, -12f);
-        addColumn(columnMaterial, 10f, -12f);
-
-        Spatial tank = assetManager.loadModel("Models/Tank/tank.j3o");
-        tank.setLocalTranslation(0f, 0.15f, -8f);
-        tank.setLocalScale(2f);
-        rootNode.attachChild(tank);
-    }
-
-    private void addWall(String name, Material material, float x, float y, float z, float xExtent, float yExtent,
-            float zExtent) {
-        Geometry wall = new Geometry(name, new Box(xExtent, yExtent, zExtent));
-        wall.getMesh().scaleTextureCoordinates(new Vector2f(8f, 2f));
-        wall.setLocalTranslation(x, y, z);
-        wall.setMaterial(material);
-        rootNode.attachChild(wall);
-    }
-
-    private void addColumn(Material material, float x, float z) {
-        Geometry column = new Geometry("Column", new Box(1.25f, 3f, 1.25f));
-        column.getMesh().scaleTextureCoordinates(new Vector2f(2f, 2f));
-        column.setLocalTranslation(x, 3f, z);
-        column.setMaterial(material);
-        rootNode.attachChild(column);
+        Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
+        rootNode.attachChild(sky);
     }
 }
