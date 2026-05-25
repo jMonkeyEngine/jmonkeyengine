@@ -1,5 +1,5 @@
 sourceSets {
-    main {
+    androidxStubs {
         java {
             srcDir 'src/androidx-stubs/java'
         }
@@ -10,13 +10,11 @@ dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly libs.androidx.annotation
     compileOnly libs.androidx.lifecycle.common
+    compileOnly sourceSets.androidxStubs.output
+    androidxStubsCompileOnly files(rootProject.file('lib/android.jar'))
     api project(':jme3-core')
+    implementation libs.jme3.android.natives
     compileOnly files(rootProject.file('lib/android.jar'))
-}
-
-compileJava {
-    // The Android-Native Project requires the jni headers to be generated, so we do that here
-    options.compilerArgs += ["-h", "${project.rootDir}/jme3-android-native/src/native/headers"]
 }
 
 tasks.withType(Jar).configureEach {

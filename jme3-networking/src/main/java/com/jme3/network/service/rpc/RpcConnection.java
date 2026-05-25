@@ -82,6 +82,8 @@ public class RpcConnection {
  
     /**
      *  Creates a new RpcConnection for the specified network connection.
+     *
+     *  @param connection the backing message connection
      */   
     public RpcConnection( MessageConnection connection ) {
         this.connection = connection;
@@ -102,6 +104,12 @@ public class RpcConnection {
      *  Performs a remote procedure call with the specified arguments and waits
      *  for the response.  Both the outbound message and inbound response will
      *  be sent on the specified channel.
+     *
+     *  @param channel the channel to use
+     *  @param objId the target object id
+     *  @param procId the target procedure id
+     *  @param args the invocation arguments
+     *  @return the invocation result
      */
     public Object callAndWait( byte channel, short objId, short procId, Object... args ) {
         
@@ -134,6 +142,11 @@ public class RpcConnection {
      *  Performs a remote procedure call with the specified arguments but does
      *  not wait for a response.  The outbound message is sent on the specified channel.
      *  There is no inbound response message. 
+     *
+     *  @param channel the channel to use
+     *  @param objId the target object id
+     *  @param procId the target procedure id
+     *  @param args the invocation arguments
      */
     public void callAsync( byte channel, short objId, short procId, Object... args ) {
         
@@ -150,6 +163,9 @@ public class RpcConnection {
      *  handler per object ID can be registered at any given time,
      *  though the same handler can be registered for multiple object
      *  IDs.
+     *
+     *  @param objId the target object id
+     *  @param handler the handler to register
      */    
     public void registerHandler( short objId, RpcHandler handler ) {
         handlers.put(objId, handler);
@@ -158,6 +174,9 @@ public class RpcConnection {
     /**
      *  Removes a previously registered handler for the specified
      *  object ID.  
+     *
+     *  @param objId the target object id
+     *  @param handler the handler to remove
      */
     public void removeHandler( short objId, RpcHandler handler ) {
         RpcHandler removing = handlers.get(objId);
@@ -168,6 +187,12 @@ public class RpcConnection {
         handlers.remove(objId);
     }
  
+    /**
+     * Sends an RPC response on the specified channel.
+     *
+     * @param channel the channel to use
+     * @param msg the response message
+     */
     protected void send( byte channel, RpcResponseMessage msg ) {
         if( channel >= 0 ) {
             connection.send(channel, msg);
@@ -179,6 +204,8 @@ public class RpcConnection {
     /**
      *  Called internally when an RpcCallMessage is received from 
      *  the remote connection.
+     *
+     *  @param msg the received RPC call
      */ 
     public void handleMessage( RpcCallMessage msg ) {
     
@@ -206,6 +233,8 @@ public class RpcConnection {
     /**
      *  Called internally when an RpcResponseMessage is received from 
      *  the remote connection.
+     *
+     *  @param msg the received RPC response
      */ 
     public void handleMessage( RpcResponseMessage msg ) {
         if( log.isLoggable(Level.FINEST) ) {

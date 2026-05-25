@@ -71,10 +71,19 @@ public class RmiClientService extends AbstractClientService {
     
     private final List<ObjectInfo> pending = new ArrayList<>();   
     
+    /**
+     * Creates an RMI client service using the default object id and reliable channel.
+     */
     public RmiClientService() {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE);
     }
     
+    /**
+     * Creates an RMI client service.
+     *
+     * @param rmiObjectId the shared RMI object id
+     * @param defaultChannel the default network channel for RMI traffic
+     */
     public RmiClientService( short rmiObjectId, byte defaultChannel ) {
         this.defaultChannel = defaultChannel;
         this.rmiObjectId = rmiObjectId;
@@ -84,6 +93,10 @@ public class RmiClientService extends AbstractClientService {
      *  Shares the specified object with the server and associates it with the 
      *  specified type.  Objects shared in this way are available in the connection-specific
      *  RMI registry on the server and are not available to other connections.
+     *
+     *  @param <T> the shared object type
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( T object, Class<? super T> type ) {
         share(defaultChannel, object, type);       
@@ -95,6 +108,11 @@ public class RmiClientService extends AbstractClientService {
      *  RMI registry on the server and are not available to other connections.
      *  All object related communication will be done over the specified connection
      *  channel.
+     *
+     *  @param <T> the shared object type
+     *  @param channel the network channel to use
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( byte channel, T object, Class<? super T> type ) {
         share(channel, type.getName(), object, type);
@@ -104,6 +122,11 @@ public class RmiClientService extends AbstractClientService {
      *  Shares the specified object with the server and associates it with the 
      *  specified name.  Objects shared in this way are available in the connection-specific
      *  RMI registry on the server and are not available to other connections.
+     *
+     *  @param <T> the shared object type
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( String name, T object, Class<? super T> type ) {
         share(defaultChannel, name, object, type);
@@ -115,6 +138,12 @@ public class RmiClientService extends AbstractClientService {
      *  RMI registry on the server and are not available to other connections.
      *  All object related communication will be done over the specified connection
      *  channel.
+     *
+     *  @param <T> the shared object type
+     *  @param channel the network channel to use
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( byte channel, String name, T object, Class<? super T> type ) {
         if( !isStarted ) {
@@ -133,6 +162,10 @@ public class RmiClientService extends AbstractClientService {
     /**
      *  Looks up a remote object on the server by type and returns a local proxy to the 
      *  remote object that was shared on the other end of the network connection.  
+     *
+     *  @param <T> the requested proxy type
+     *  @param type the shared interface type
+     *  @return the remote object proxy
      */
     public <T> T getRemoteObject( Class<T> type ) {
         return rmi.getRemoteObject(type);
@@ -141,6 +174,11 @@ public class RmiClientService extends AbstractClientService {
     /**
      *  Looks up a remote object on the server by name and returns a local proxy to the 
      *  remote object that was shared on the other end of the network connection.  
+     *
+     *  @param <T> the requested proxy type
+     *  @param name the exported object name
+     *  @param type the shared interface type
+     *  @return the remote object proxy
      */
     public <T> T getRemoteObject( String name, Class<T> type ) {
         return rmi.getRemoteObject(name, type);

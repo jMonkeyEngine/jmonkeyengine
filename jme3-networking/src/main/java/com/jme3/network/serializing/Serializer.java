@@ -55,6 +55,9 @@ import java.util.logging.Logger;
  * @author Lars Wesselius
  */
 public abstract class Serializer {
+    /**
+     * Shared logger for serializer infrastructure.
+     */
     protected static final Logger log = Logger.getLogger(Serializer.class.getName());
 
     private static final SerializerRegistration NULL_CLASS = new SerializerRegistration( null, Void.class, (short)-1 );
@@ -71,6 +74,12 @@ public abstract class Serializer {
     private static boolean strictRegistration = true;
 
     private static volatile boolean locked = false;
+
+    /**
+     * Creates a serializer.
+     */
+    public Serializer() {
+    }
     
 
     // Registers the classes we already have serializers for.
@@ -78,6 +87,9 @@ public abstract class Serializer {
         initialize();
     }
     
+    /**
+     * Reinitializes the global serializer registry with the built-in registrations.
+     */
     public static void initialize() {
 
         // Reset all of the indices and tracking variables just in case
@@ -155,15 +167,28 @@ public abstract class Serializer {
      *  {@code @Serializable } will not be auto-registered during write.  Defaults
      *  to true since this is almost never desired behavior with the way
      *  this code works.  Set to false to get the old permissive behavior.
+     *
+     *  @param b true to forbid automatic registration for classes without fixed ids
      */
     public static void setStrictRegistration( boolean b ) {
         strictRegistration = b;
     }
 
+    /**
+     * Registers the specified serializable class.
+     *
+     * @param cls the class to register
+     * @return the resulting serializer registration
+     */
     public static SerializerRegistration registerClass(Class cls) {
         return registerClass(cls, true);
     }
     
+    /**
+     * Registers each of the specified classes.
+     *
+     * @param classes the classes to register
+     */
     public static void registerClasses(Class... classes) {
         for( Class c : classes ) {
             registerClass(c);
@@ -188,11 +213,18 @@ public abstract class Serializer {
      *  to register classes will fail.  This can be used by servers to lock the
      *  registry to avoid accidentally registering classes after a full registry
      *  set has been compiled.
+     *
+     *  @param b true to lock the registry against future registrations
      */
     public static void setReadOnly( boolean b ) {
         locked = b;
     }
 
+    /**
+     * Returns whether the registry is locked against new registrations.
+     *
+     * @return true if the registry is read-only
+     */
     public static boolean isReadOnly() {
         return locked;
     }
@@ -201,6 +233,11 @@ public abstract class Serializer {
      *  Directly registers a class for a specific ID.  Generally, use the regular
      *  registerClass() method.  This method is intended for framework code that might
      *  be maintaining specific ID maps across client and server.
+     *
+     *  @param id the serializer id to bind to the class
+     *  @param cls the class being registered
+     *  @param serializer the serializer instance to use for the class
+     *  @return the created serializer registration
      */
     public static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
  
@@ -227,6 +264,10 @@ public abstract class Serializer {
     /**
      *  Registers the specified class. The failOnMiss flag controls whether
      *  this method returns null for failed registration or throws an exception.
+     *
+     *  @param cls the class to register
+     *  @param failOnMiss true to throw if the class is not serializable
+     *  @return the serializer registration, or null if registration is skipped
      */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
@@ -258,6 +299,9 @@ public abstract class Serializer {
     /**
      *  @deprecated This cannot be implemented in a reasonable way that works in
      *              all deployment methods.
+     *
+     *  @param pkgName the package name to scan
+     *  @return the registrations created for classes found in the package
      */
     @Deprecated
     public static SerializerRegistration[] registerPackage(String pkgName) {
@@ -304,6 +348,13 @@ public abstract class Serializer {
         return classes;
     }
 
+    /**
+     * Registers a class using the specified serializer instance.
+     *
+     * @param cls the class to register
+     * @param serializer the serializer instance to bind
+     * @return the resulting serializer registration
+     */
     public static SerializerRegistration registerClass(Class cls, Serializer serializer) {
         SerializerRegistration existingReg = getExactSerializerRegistration(cls);
 
@@ -316,30 +367,73 @@ public abstract class Serializer {
         return registerClassForId( id, cls, serializer );
     }
 
+    /**
+     * Returns the serializer registered directly for the specified class.
+     *
+     * @param cls the class to resolve
+     * @return the directly registered serializer
+     */
     public static Serializer getExactSerializer(Class cls) {
         return classRegistrations.get(cls).getSerializer();
     }
 
+    /**
+     * Returns the serializer for the specified class using the configured miss behavior.
+     *
+     * @param cls the class to resolve
+     * @return the serializer for the class
+     */
     public static Serializer getSerializer(Class cls) {
         return getSerializer(cls, true);
     }
     
+    /**
+     * Returns the serializer for the specified class.
+     *
+     * @param cls the class to resolve
+     * @param failOnMiss true to fail if no serializer can be resolved
+     * @return the serializer for the class
+     */
     public static Serializer getSerializer(Class cls, boolean failOnMiss) {
         return getSerializerRegistration(cls, failOnMiss).getSerializer();
     }
 
+    /**
+     * Returns the ordered collection of current serializer registrations.
+     *
+     * @return the serializer registrations
+     */
     public static Collection<SerializerRegistration> getSerializerRegistrations() {
         return registrations;
     }
 
+    /**
+     * Returns the registration directly associated with the specified class.
+     *
+     * @param cls the class to resolve
+     * @return the direct registration, or {@code null}
+     */
     public static SerializerRegistration getExactSerializerRegistration(Class cls) {
         return classRegistrations.get(cls);
     }
     
+    /**
+     * Returns the registration for the specified class using the configured miss behavior.
+     *
+     * @param cls the class to resolve
+     * @return the resolved serializer registration
+     */
     public static SerializerRegistration getSerializerRegistration(Class cls) {
         return getSerializerRegistration(cls, strictRegistration); 
     }
     
+    /**
+     * Returns the registration for the specified class.
+     *
+     * @param cls the class to resolve
+     * @param failOnMiss true to fail if no registration can be resolved
+     * @return the resolved serializer registration
+     */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration getSerializerRegistration(Class cls, boolean failOnMiss) {
         SerializerRegistration reg = classRegistrations.get(cls);
@@ -411,6 +505,7 @@ public abstract class Serializer {
      * @param buffer The buffer to write the given class to.
      * @param type The class to write.
      * @return The SerializerRegistration that's registered to the class.
+     * @throws IOException If writing to the buffer fails.
      */
     public static SerializerRegistration writeClass(ByteBuffer buffer, Class type) throws IOException {
         SerializerRegistration reg = getSerializerRegistration(type);
@@ -460,6 +555,7 @@ public abstract class Serializer {
     /**
      * Read an object from the buffer, effectively deserializing it.
      *
+     * @param <T> The object type expected from the serializer.
      * @param data The buffer to read from.
      * @param c The class of the object.
      * @return The object read.

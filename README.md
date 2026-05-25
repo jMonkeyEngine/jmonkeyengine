@@ -130,12 +130,12 @@ You can optionally use the `-Pexample` property to specify an example to start w
 You can run the Android examples on a local android emulator with:
 
 ```bash
-./gradlew -PbuildAndroidExamples=true -PbuildNativeProjects=true runAndroidExamples 
+./gradlew runAndroidExamples
 # or for a specific example:
-# ./gradlew -PbuildAndroidExamples=true -PbuildNativeProjects=true runAndroidExamples -Pexample=jme3test.post.TestBloom
+# ./gradlew runAndroidExamples -Pexample=jme3test.post.TestBloom
 ```
 
-*Make sure to have the SDK and NDK installed and configured properly, and the emulator running before executing the command.*
+*Make sure to have the SDK installed and configured properly, and the emulator running before executing the command.*
 
 
 ## Running Tests 
@@ -151,4 +151,3 @@ This runs all subproject tests and produces two sets of HTML reports:
 
 A summary index linking to every per-module report is also generated at:
 `build/reports/jacoco/index.html`
-

@@ -224,7 +224,8 @@ public abstract class LwjglContext implements JmeContext {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
-        if (AppSettings.LWJGL_OPENAL.equals(settings.getAudioRenderer())) {
+        String audioRenderer = settings.getAudioRenderer();
+        if (AppSettings.LWJGL_OPENAL.equals(audioRenderer) || AppSettings.OPENAL.equals(audioRenderer)) {
             NativeLibraryLoader.loadNativeLibrary(NativeLibraries.OpenAL.getName(), true);
         }
         if (settings.useJoysticks()) {

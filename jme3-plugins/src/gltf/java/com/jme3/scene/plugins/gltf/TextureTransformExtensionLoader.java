@@ -91,12 +91,17 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 fb.put(v.getX()).put(v.getY());
             }
             fb.clear();
-            tc.updateData(fb);   
+            tc.updateData(fb);
         }
     }
-    
-    // The algorithm relies on the fact that the GltfLoader.class object 
-    // loads all textures of a given mesh before doing so for the next mesh.    
+
+    @SuppressWarnings("unchecked")
+    private Map<Integer, Matrix3f> fetchTransformMap(GltfLoader loader) {
+        return loader.fetchFromCache("textureTransformData", 1, HashMap.class);
+    }
+
+    // The algorithm relies on the fact that the GltfLoader.class object
+    // loads all textures of a given mesh before doing so for the next mesh.
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         if (!(input instanceof Texture2D)) {
@@ -129,10 +134,10 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             }     
             if (jsonObject.has("texCoord")) {
                 texCoord = jsonObject.get("texCoord").getAsInt(); // it overrides the parent's texCoord value
-            }                 
+            }
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
-            Map<Integer, Matrix3f> transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
+            Map<Integer, Matrix3f> transformMap = fetchTransformMap(loader);
             if (mesh != meshLast || (transformMap != null && transformMap.get(texCoord) == null)) {
                 // at this point, we're processing a new mesh or the same mesh as before but for a different UV set
                 if (mesh != meshLast) { // it's a new mesh

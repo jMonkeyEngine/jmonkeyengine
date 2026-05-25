@@ -41,30 +41,76 @@ import com.jme3.network.serializing.Serializable;
  */
 @Serializable()
 public class ZIPCompressedMessage extends CompressedMessage {
-    private static int compressionLevel = 6;
+    private static int defaultCompressionLevel = 6;
+    private int compressionLevel = defaultCompressionLevel;
 
+    /**
+     * Creates an empty ZIP-compressed message for serialization.
+     */
     public ZIPCompressedMessage() {
         super();
     }
 
+    /**
+     * Creates a ZIP-compressed wrapper for the specified message.
+     *
+     * @param msg the message to compress
+     */
     public ZIPCompressedMessage(Message msg) {
         super(msg);
     }
 
+    /**
+     * Creates a ZIP-compressed wrapper for the specified message and compression level.
+     *
+     * @param msg the message to compress
+     * @param level the compression level to apply
+     */
     public ZIPCompressedMessage(Message msg, int level) {
         super(msg);
-        setLevel(level);
+        this.compressionLevel = level;
     }
 
     /**
-     * Set the compression level, where 1 is the best compression but slower and 9 is the weakest
-     *  compression but the quickest. Default is 6.
+     * Set the default compression level for newly created ZIP compressed messages,
+     * where 1 is the weakest compression but quickest and 9 is the best
+     * compression but slowest. Default is 6.
+     *
+     * @param level The level.
+     * @deprecated Use {@link #setCompressionLevel(int)} to configure an instance-specific
+     * compression level.
+     */
+    @Deprecated
+    public static void setLevel(int level) {
+        defaultCompressionLevel = level;
+    }
+
+    /**
+     * Sets this message's compression level.
      *
      * @param level The level.
      */
-    public static void setLevel(int level) {
+    public void setCompressionLevel(int level) {
         compressionLevel = level;
     }
 
-    public int getLevel() { return compressionLevel; }
+    /**
+     * Returns this message's configured ZIP compression level.
+     *
+     * @return the ZIP compression level
+     */
+    public int getCompressionLevel() {
+        return compressionLevel;
+    }
+
+    /**
+     * Returns this message's configured ZIP compression level.
+     *
+     * @return the ZIP compression level
+     * @deprecated Use {@link #getCompressionLevel()} instead.
+     */
+    @Deprecated
+    public int getLevel() {
+        return getCompressionLevel();
+    }
 }

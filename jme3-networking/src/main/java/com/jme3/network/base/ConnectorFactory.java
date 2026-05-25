@@ -43,5 +43,13 @@ import java.io.IOException;
  */
 public interface ConnectorFactory
 {
+    /**
+     * Creates a connector for the specified channel and remote port.
+     *
+     * @param channel the logical channel index
+     * @param port the remote port to connect to
+     * @return the created connector
+     * @throws IOException if the connector cannot be created
+     */
     public Connector createConnector( int channel, int port ) throws IOException;
 }

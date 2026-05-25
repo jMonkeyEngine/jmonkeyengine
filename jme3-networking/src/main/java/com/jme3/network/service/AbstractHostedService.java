@@ -48,12 +48,17 @@ import com.jme3.network.Server;
 public abstract class AbstractHostedService extends AbstractService<HostedServiceManager> 
                                             implements HostedService { 
     
+    /**
+     * Creates an uninitialized hosted service.
+     */
     protected AbstractHostedService() {
     }
  
     /**
      *  Returns the server for this hosted service or null if
      *  the service is not yet attached.
+     *
+     *  @return the attached server, or null if the service is detached
      */   
     protected Server getServer() {
         HostedServiceManager hsm = getServiceManager();

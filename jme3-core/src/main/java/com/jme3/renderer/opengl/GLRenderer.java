@@ -453,6 +453,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.DepthTexture);
         }
 
+        if (gl2 != null || caps.contains(Caps.OpenGLES30)) {
+            caps.add(Caps.TextureShadowCompare);
+        }
+
         if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL)
                 || hasExtension("GL_OES_depth24")) {
             caps.add(Caps.Depth24);
@@ -1969,6 +1973,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
+    @Deprecated
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         copyFrameBuffer(src, dst, true, copyDepth);
     }
@@ -2239,7 +2244,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void updateFrameBuffer(FrameBuffer fb) {
-        if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
+        if (fb.getNumColorTargets() == 0 && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
         }
@@ -2255,13 +2260,13 @@ public final class GLRenderer implements Renderer {
 
         bindFrameBuffer(fb);
 
-        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
+        FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf);
         }
 
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
+        for (int i = 0; i < fb.getNumColorTargets(); i++) {
+            FrameBuffer.RenderBuffer colorBuf = fb.getColorTarget(i);
             updateFrameBufferAttachment(fb, colorBuf);
         }
 
@@ -2322,13 +2327,13 @@ public final class GLRenderer implements Renderer {
 
         if (fb != null) {
           
-            if (fb.getNumColorBuffers() == 0) {
+            if (fb.getNumColorTargets() == 0) {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.                
                 gl2.glDrawBuffer(GL.GL_NONE);             
                 gl2.glReadBuffer(GL.GL_NONE);                 
             } else {
-                if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
+                if (fb.getNumColorTargets() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
                             + "attachments than are supported"
                             + " by the video hardware!");
@@ -2338,21 +2343,21 @@ public final class GLRenderer implements Renderer {
                         throw new RendererException("Multiple render targets "
                                 + " are not supported by the video hardware");
                     }
-                    if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferMrtAttachments)) {
+                    if (fb.getNumColorTargets() > limits.get(Limits.FrameBufferMrtAttachments)) {
                         throw new RendererException("Framebuffer has more"
                                 + " multi targets than are supported"
                                 + " by the video hardware!");
                     }
 
                     intBuf16.clear();
-                    for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+                    for (int i = 0; i < fb.getNumColorTargets(); i++) {
                         intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                     }
 
                     intBuf16.flip();
                     glext.glDrawBuffers(intBuf16);
                 } else {
-                    RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
+                    RenderBuffer rb = fb.getColorTarget(fb.getTargetIndex());
                     // select this draw buffer
                     gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     // select this read buffer
@@ -2386,8 +2391,8 @@ public final class GLRenderer implements Renderer {
         if (boundFB != null && (boundFB.getMipMapsGenerationHint() != null
                 ? boundFB.getMipMapsGenerationHint()
                 : generateMipmapsForFramebuffers)) {
-            for (int i = 0; i < boundFB.getNumColorBuffers(); i++) {
-                RenderBuffer rb = boundFB.getColorBuffer(i);
+            for (int i = 0; i < boundFB.getNumColorTargets(); i++) {
+                RenderBuffer rb = boundFB.getColorTarget(i);
                 Texture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()
                         && isMipmapGenerationSupported(tex.getImage().getFormat(),
@@ -2442,7 +2447,7 @@ public final class GLRenderer implements Renderer {
 
     private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
         if (fb != null) {
-            RenderBuffer rb = fb.getColorBuffer();
+            RenderBuffer rb = fb.getColorTarget();
             if (rb == null) {
                 throw new IllegalArgumentException("Specified framebuffer"
                         + " does not have a colorbuffer");
@@ -2477,11 +2482,11 @@ public final class GLRenderer implements Renderer {
                 context.boundFBO = 0;
             }
 
-            if (fb.getDepthBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getDepthBuffer());
+            if (fb.getDepthTarget() != null) {
+                deleteRenderBuffer(fb, fb.getDepthTarget());
             }
-            if (fb.getColorBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getColorBuffer());
+            if (fb.getColorTarget() != null) {
+                deleteRenderBuffer(fb, fb.getColorTarget());
             }
 
             intBuf1.put(0, fb.getId());
@@ -2673,7 +2678,7 @@ public final class GLRenderer implements Renderer {
         }
 
         ShadowCompareMode texCompareMode = tex.getShadowCompareMode();
-        if ( (gl2 != null || caps.contains(Caps.OpenGLES30)) && curState.shadowCompareMode != texCompareMode) {
+        if (caps.contains(Caps.TextureShadowCompare) && curState.shadowCompareMode != texCompareMode) {
             bindTextureAndUnit(target, image, unit);
             if (texCompareMode != ShadowCompareMode.Off) {
                 gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);

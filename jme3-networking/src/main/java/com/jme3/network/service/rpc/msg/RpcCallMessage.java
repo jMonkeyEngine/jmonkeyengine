@@ -51,9 +51,21 @@ public class RpcCallMessage extends AbstractMessage {
     private short procId;
     private Object[] args;
 
+    /**
+     * Creates an empty RPC call message for serialization.
+     */
     public RpcCallMessage() {
     }
     
+    /**
+     * Creates an RPC call message.
+     *
+     * @param msgId the RPC message id, or {@code -1} for async calls
+     * @param channel the channel used to send the invocation
+     * @param objId the remote object id
+     * @param procId the remote procedure id
+     * @param args the invocation arguments
+     */
     public RpcCallMessage( long msgId, byte channel, short objId, short procId, Object... args ) {
         this.msgId = msgId;
         this.channel = channel;
@@ -62,26 +74,56 @@ public class RpcCallMessage extends AbstractMessage {
         this.args = args;
     }
  
+    /**
+     * Returns the RPC message id.
+     *
+     * @return the RPC message id
+     */
     public long getMessageId() {
         return msgId;
     }
     
+    /**
+     * Returns the channel used for the invocation.
+     *
+     * @return the invocation channel
+     */
     public byte getChannel() {
         return channel;
     }
  
+    /**
+     * Returns whether this call is asynchronous.
+     *
+     * @return true if the call does not expect a response
+     */
     public boolean isAsync() {
         return msgId == -1;
     }
  
+    /**
+     * Returns the remote object id.
+     *
+     * @return the remote object id
+     */
     public short getObjectId() {
         return objId;
     }
     
+    /**
+     * Returns the remote procedure id.
+     *
+     * @return the remote procedure id
+     */
     public short getProcedureId() {
         return procId;
     }
     
+    /**
+     * Returns the invocation arguments.
+     *
+     * @return the invocation arguments
+     */
     public Object[] getArguments() {
         return args;
     }

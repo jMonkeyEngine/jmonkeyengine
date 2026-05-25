@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import com.jme3.audio.AudioRenderer;
@@ -32,7 +33,7 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static View view;
-    private static String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
+    private static Vibrator vibrator;
 
     static {
         try {
@@ -51,6 +52,18 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 dialog.show();
             });
         });
+    }
+
+    /**
+     * Returns the default Android audio renderer type.
+     *
+     * @return the default Android audio renderer type
+     * @deprecated Use {@link AppSettings#getAudioRenderer()} and
+     * {@link AppSettings#OPENAL} instead.
+     */
+    @Deprecated
+    public String getAudioRendererType() {
+        return AppSettings.OPENAL;
     }
     
     @Override
@@ -78,17 +91,8 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
 
     @Override
+    @SuppressWarnings("deprecation")
     public JmeContext newContext(AppSettings settings, Type contextType) {
-        if (settings.getAudioRenderer() == null) {
-            audioRendererType = null;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
-            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-        } else {
-            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to OpenAL Soft");
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-        }
         initialize(settings);
         JmeContext ctx = new OGLESContext();
         ctx.setSettings(settings);
@@ -200,14 +204,39 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static void setView(View view) {
         JmeAndroidSystem.view = view;
+        vibrator = null;
     }
 
     public static View getView() {
         return view;
     }
 
-    public static String getAudioRendererType() {
-        return audioRendererType;
+    @Override
+    public boolean isDeviceRumbleSupported() {
+        return AndroidHapticFeedback.isSupported(getVibrator());
+    }
+
+    @Override
+    public void rumble(float amountHigh, float amountLow, float duration) {
+        AndroidHapticFeedback.rumble(getVibrator(), amountHigh, amountLow, duration);
+    }
+
+    @Override
+    public void stopRumble() {
+        AndroidHapticFeedback.stop(getVibrator());
+    }
+
+    private static Vibrator getVibrator() {
+        if (vibrator != null) {
+            return vibrator;
+        }
+
+        View currentView = view;
+        if (currentView == null || currentView.getContext() == null) {
+            return null;
+        }
+        vibrator = (Vibrator) currentView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+        return vibrator;
     }
 
     @Override

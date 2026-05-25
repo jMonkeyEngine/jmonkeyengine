@@ -6,7 +6,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 
 plugins {
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '1.1.0'
 }
 
 ext.mainClassName = 'jme3test.TestChooser'
@@ -94,7 +94,6 @@ tasks.named('processResources') {
 }
 
 def androidProject = project(':jme3-android')
-def androidNativeProject = project(':jme3-android-native')
 
 task run(dependsOn: 'build', type:JavaExec) {
     mainClass = mainClassName
@@ -368,7 +367,7 @@ dependencies {
     implementation project(':jme3-plugins-json-gson')
     implementation project(':jme3-terrain')
     implementation project(':jme3-awt-dialogs')
-    runtimeOnly project(':jme3-testdata')
+    implementation project(':jme3-testdata')
     runtimeOnly libs.nifty.examples // for the "all/intro.xml" example GUI
 }
 
@@ -393,7 +392,7 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
+task dist (dependsOn: ['build', ':jme3-android:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
         configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
@@ -419,10 +418,17 @@ task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']
             into '../dist/opt/android'
             rename { androidProject.name + ".jar" }
         }
+        def androidNativeDependency = libs.jme3.android.natives.get()
+        def androidNativeArtifact = androidProject.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.find {
+            it.moduleVersion.id.group == androidNativeDependency.module.group && it.name == androidNativeDependency.module.name
+        }
+        if (androidNativeArtifact == null) {
+            throw new GradleException("Unable to resolve ${androidNativeDependency.module} for the distribution")
+        }
         copy {
-            from androidNativeProject.tasks.named('jar').flatMap { it.archiveFile }
+            from androidNativeArtifact.file
             into '../dist/opt/android'
-            rename { androidNativeProject.name + ".jar" }
+            rename { androidNativeArtifact.name + ".${androidNativeArtifact.extension}" }
         }
     }
 }

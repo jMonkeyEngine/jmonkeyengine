@@ -46,6 +46,8 @@ public interface Connector
 {
     /**
      *  Returns true if this connector is currently connected.
+     *
+     *  @return true if the connector is connected
      */
     public boolean isConnected();
 
@@ -60,6 +62,8 @@ public interface Connector
      *  reading.  Some connector implementations may not be able
      *  to answer this question accurately and will always return
      *  false.
+     *
+     *  @return true if data may be available to read without blocking
      */
     public boolean available();     
     
@@ -77,6 +81,8 @@ public interface Connector
     /**
      *  Writes a chunk of data to the connection from data.position()
      *  to data.limit().
+     *
+     *  @param data the bytes to write
      */
     public void write( ByteBuffer data );
 }

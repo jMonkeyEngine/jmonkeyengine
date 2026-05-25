@@ -47,6 +47,11 @@ import java.util.zip.GZIPOutputStream;
  * @author Lars Wesselius
  */
 public class GZIPSerializer extends Serializer {
+    /**
+     * Creates a gzip serializer.
+     */
+    public GZIPSerializer() {
+    }
 
     @SuppressWarnings("unchecked")
     @Override

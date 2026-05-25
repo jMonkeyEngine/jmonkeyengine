@@ -91,6 +91,14 @@ public class DefaultServer implements Server
     private HostedServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
     
+    /**
+     * Creates a server with the specified game name, version, and primary kernels.
+     *
+     * @param gameName the expected game name
+     * @param version the expected protocol version
+     * @param reliable the reliable kernel
+     * @param fast the optional fast kernel
+     */
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
         if( reliable == null )
@@ -109,6 +117,9 @@ public class DefaultServer implements Server
         }
     }   
 
+    /**
+     * Adds the default hosted services.
+     */
     protected void addStandardServices() {
         log.fine("Adding standard services...");
         services.addService(new ServerSerializerRegistrationsService());
@@ -163,6 +174,11 @@ public class DefaultServer implements Server
         } 
     } 
 
+    /**
+     * Validates an alternate server channel index.
+     *
+     * @param channel the channel index to validate
+     */
     protected void checkChannel( int channel )
     {
         if( channel < MessageConnection.CHANNEL_DEFAULT_RELIABLE 
@@ -326,6 +342,12 @@ public class DefaultServer implements Server
         messageListeners.removeMessageListener( listener, classes );
     }
  
+    /**
+     * Dispatches a received message to registered listeners.
+     *
+     * @param source the hosted connection that sent the message, or null
+     * @param m the received message
+     */
     protected void dispatch( HostedConnection source, Message m )
     {
         if( log.isLoggable(Level.FINER) ) {
@@ -345,6 +367,11 @@ public class DefaultServer implements Server
         }
     }
 
+    /**
+     * Notifies registered listeners that a connection was added.
+     *
+     * @param conn the added connection
+     */
     protected void fireConnectionAdded( HostedConnection conn )
     {
         for( ConnectionListener l : connectionListeners ) {
@@ -352,6 +379,11 @@ public class DefaultServer implements Server
         }
     }            
 
+    /**
+     * Notifies registered listeners that a connection was removed.
+     *
+     * @param conn the removed connection
+     */
     protected void fireConnectionRemoved( HostedConnection conn )
     {
         for( ConnectionListener l : connectionListeners ) {
@@ -359,11 +391,24 @@ public class DefaultServer implements Server
         }
     }            
 
+    /**
+     * Returns the internal channel index for the specified adapter or -1 if not found
+     *
+     * @param ka the kernel adapter
+     * @return the adapter index
+     */
     protected int getChannel( KernelAdapter ka )
     {
         return channels.indexOf(ka);
     }
 
+    /**
+     * Registers or completes registration for a connecting client.
+     *
+     * @param ka the adapter that received the registration
+     * @param p the endpoint that sent the registration
+     * @param m the registration message
+     */
     protected void registerClient( KernelAdapter ka, Endpoint p, ClientRegistrationMessage m )
     {
         Connection addedConnection = null;
@@ -457,11 +502,22 @@ public class DefaultServer implements Server
         }            
     }
 
+    /**
+     * Resolves a hosted connection from an endpoint.
+     *
+     * @param endpoint the endpoint to resolve
+     * @return the hosted connection, or null if none is mapped
+     */
     protected HostedConnection getConnection( Endpoint endpoint )
     {
         return endpointConnections.get(endpoint);       
     } 
 
+    /**
+     * Removes partially connected state associated with the specified endpoint.
+     *
+     * @param p the endpoint to remove
+     */
     protected void removeConnecting( Endpoint p ) 
     {
         // No easy lookup for connecting Connections
@@ -474,6 +530,11 @@ public class DefaultServer implements Server
         }
     }
 
+    /**
+     * Handles closure of an endpoint and removes any associated connection state.
+     *
+     * @param p the closed endpoint
+     */
     protected void connectionClosed( Endpoint p )
     {
         if( p.isConnected() ) {
@@ -516,6 +577,9 @@ public class DefaultServer implements Server
         }
     }
 
+    /**
+     * Hosted connection implementation backed by one or more endpoints.
+     */
     protected class Connection implements HostedConnection
     {
         private final int id;
@@ -525,6 +589,11 @@ public class DefaultServer implements Server
        
         private final Map<String,Object> sessionData = new ConcurrentHashMap<>();       
         
+        /**
+         * Creates a hosted connection state holder.
+         *
+         * @param channelCount the number of endpoint slots to allocate
+         */
         public Connection( int channelCount )
         {
             id = nextId.getAndIncrement();
@@ -600,6 +669,9 @@ public class DefaultServer implements Server
             channels[channel+CH_FIRST].send(buffer);
         }
  
+        /**
+         * Closes all endpoints associated with this hosted connection.
+         */
         protected void closeConnection()
         {
             if( closed ) 
@@ -668,8 +740,16 @@ public class DefaultServer implements Server
         }  
     } 
 
+    /**
+     * Bridges kernel adapter callbacks back into the server.
+     */
     protected class Redispatch implements MessageListener<HostedConnection>
     {
+        /**
+         * Creates the redispatch bridge.
+         */
+        public Redispatch() {
+        }
         @Override
         public void messageReceived( HostedConnection source, Message m )
         {
@@ -677,10 +757,18 @@ public class DefaultServer implements Server
         }
     }                                          
      
+    /**
+     * Adapts hosted-connection filters to endpoint filters.
+     */
     protected class FilterAdapter implements Filter<Endpoint>
     {
         private final Filter<? super HostedConnection> delegate;
         
+        /**
+         * Creates a filter adapter.
+         *
+         * @param delegate the hosted-connection filter to delegate to
+         */
         public FilterAdapter( Filter<? super HostedConnection> delegate )
         {
             this.delegate = delegate;

@@ -31,9 +31,10 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.pipeline.PipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -88,11 +89,13 @@ public class ViewPort {
     /**
      * Dedicated pipeline.
      */
-    protected RenderPipeline pipeline;
+    protected RenderPipeline<? extends PipelineContext> pipeline;
     /**
      * FrameBuffer for output.
      */
     protected FrameBuffer out = null;
+    protected int renderTargetWidth;
+    protected int renderTargetHeight;
 
     /**
      * Color applied when the color buffer is cleared.
@@ -309,6 +312,41 @@ public class ViewPort {
         this.out = out;
     }
 
+    void setRenderTargetSize(int width, int height) {
+        renderTargetWidth = Math.max(width, 1);
+        renderTargetHeight = Math.max(height, 1);
+    }
+
+    /**
+     * Returns the width of this ViewPort's current render target.
+     *
+     * @return the width in pixels
+     */
+    public int getRenderTargetWidth() {
+        if (out != null && out.getWidth() > 0) {
+            return out.getWidth();
+        }
+        if (renderTargetWidth > 0) {
+            return renderTargetWidth;
+        }
+        return cam.getWidth();
+    }
+
+    /**
+     * Returns the height of this ViewPort's current render target.
+     *
+     * @return the height in pixels
+     */
+    public int getRenderTargetHeight() {
+        if (out != null && out.getHeight() > 0) {
+            return out.getHeight();
+        }
+        if (renderTargetHeight > 0) {
+            return renderTargetHeight;
+        }
+        return cam.getHeight();
+    }
+
     /**
      * Returns the camera which renders the attached scenes.
      *
@@ -440,7 +478,7 @@ public class ViewPort {
      * 
      * @param pipeline pipeline, or null to use render manager's pipeline
      */
-    public void setPipeline(RenderPipeline pipeline) {
+    public void setPipeline(RenderPipeline<? extends PipelineContext> pipeline) {
         this.pipeline = pipeline;
     }
     
@@ -449,7 +487,7 @@ public class ViewPort {
      * 
      * @return 
      */
-    public RenderPipeline getPipeline() {
+    public RenderPipeline<? extends PipelineContext> getPipeline() {
         return pipeline;
     }
 

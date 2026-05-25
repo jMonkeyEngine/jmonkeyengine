@@ -52,12 +52,16 @@ public interface Client extends MessageConnection
     /**
      *  Returns true if this client is fully connected to the
      *  host.
+     *
+     *  @return true if the client is connected to the server
      */
     public boolean isConnected();     
 
     /**
      *  Returns true if this client has been started and is still
      *  running.
+     *
+     *  @return true if the client has been started and not yet closed
      */
     public boolean isStarted();
 
@@ -65,6 +69,8 @@ public interface Client extends MessageConnection
      *  Returns a unique ID for this client within the remote
      *  server or -1 if this client isn't fully connected to the
      *  server.
+     *
+     *  @return the server-assigned client id, or -1 if not connected
      */
     public int getId();     
  
@@ -72,18 +78,24 @@ public interface Client extends MessageConnection
      *  Returns the 'game name' for servers to which this client should be able
      *  to connect.  This should match the 'game name' set on the server or this
      *  client will be turned away.
+     *
+     *  @return the configured game name
      */
     public String getGameName();
  
     /**
      *  Returns the game-specific version of the server this client should
      *  be able to connect to.
+     *
+     *  @return the expected game protocol version
      */   
     public int getVersion();
 
     /**
      *  Returns the manager for client services.  Client services extend
      *  the functionality of the client.
+     *
+     *  @return the client service manager
      */
     public ClientServiceManager getServices();     
  
@@ -108,35 +120,49 @@ public interface Client extends MessageConnection
     /**
      *  Adds a listener that will be notified about connection
      *  state changes.
+     *
+     *  @param listener the listener to add
      */
     public void addClientStateListener( ClientStateListener listener ); 
 
     /**
      *  Removes a previously registered connection listener.
+     *
+     *  @param listener the listener to remove
      */
     public void removeClientStateListener( ClientStateListener listener ); 
 
     /**
      *  Adds a listener that will be notified when any message or object
      *  is received from the server.
+     *
+     *  @param listener the listener to add
      */
     public void addMessageListener( MessageListener<? super Client> listener ); 
 
     /**
      *  Adds a listener that will be notified when messages of the specified
      *  types are received.
+     *
+     *  @param listener the listener to add
+     *  @param classes the message classes the listener should receive
      */
     public void addMessageListener( MessageListener<? super Client> listener, Class... classes ); 
 
     /**
      *  Removes a previously registered wildcard listener.  This does
      *  not remove this listener from any type-specific registrations.
+     *
+     *  @param listener the listener to remove
      */
     public void removeMessageListener( MessageListener<? super Client> listener ); 
 
     /**
      *  Removes a previously registered type-specific listener from
      *  the specified types.
+     *
+     *  @param listener the listener to remove
+     *  @param classes the message classes to unregister
      */
     public void removeMessageListener( MessageListener<? super Client> listener, Class... classes ); 
     
@@ -146,13 +172,16 @@ public interface Client extends MessageConnection
      *  is to close the connection and provide an appropriate DisconnectInfo
      *  to any ClientStateListeners.  If the application adds its own error
      *  listeners then it must take care of closing the connection itself.
+     *
+     *  @param listener the listener to add
      */
     public void addErrorListener( ErrorListener<? super Client> listener ); 
 
     /**
      *  Removes a previously registered error listener.
+     *
+     *  @param listener the listener to remove
      */
     public void removeErrorListener( ErrorListener<? super Client> listener ); 
 }
-
 

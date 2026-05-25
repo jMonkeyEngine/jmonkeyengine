@@ -96,12 +96,7 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
 
         try {
             app = createApplication();
-
-            AppSettings settings = createSettings();
-            configureSettings(settings);
-            app.setSettings(settings);
             app.start();
-
             OGLESContext context = (OGLESContext) app.getContext();
             context.setSystemListener(this);
         } catch (Exception exception) {
@@ -117,25 +112,6 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
      */
     protected abstract LegacyApplication createApplication() throws Exception;
 
-    /**
-     * Creates the default Android settings. Subclasses can override this when
-     * they need to replace the settings object rather than adjust it.
-     *
-     * @return default settings for Android
-     */
-    protected AppSettings createSettings() {
-        AppSettings settings = new AppSettings(true);
-        settings.setAudioRenderer(AppSettings.ANDROID_OPENAL_SOFT);
-        return settings;
-    }
-
-    /**
-     * Customizes the settings before the application starts.
-     *
-     * @param settings the settings to customize
-     */
-    protected void configureSettings(AppSettings settings) {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -247,6 +223,11 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     @Override
     public void reshape(int width, int height) {
         app.reshape(width, height);
+    }
+
+    @Override
+    public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        app.reshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
     }
 
     @Override

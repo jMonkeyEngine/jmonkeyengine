@@ -428,6 +428,11 @@ public enum Caps {
     DepthTexture,
 
     /**
+     * Supports hardware depth texture comparison for shadow maps.
+     */
+    TextureShadowCompare,
+
+    /**
      * Supports 32-bit index buffers.
      */
     IntegerIndexBuffer,
@@ -654,7 +659,7 @@ public enum Caps {
             return false;
         }
 
-        RenderBuffer depthBuf = fb.getDepthBuffer();
+        RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             Format depthFmt = depthBuf.getFormat();
             if (!depthFmt.isDepthFormat()) {
@@ -681,8 +686,8 @@ public enum Caps {
                 }
             }
         }
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))) {
+        for (int i = 0; i < fb.getNumColorTargets(); i++) {
+            if (!supportsColorBuffer(caps, fb.getColorTarget(i))) {
                 return false;
             }
         }

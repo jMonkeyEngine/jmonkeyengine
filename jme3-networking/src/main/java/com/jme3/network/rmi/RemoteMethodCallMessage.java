@@ -42,6 +42,9 @@ import com.jme3.network.serializing.Serializable;
 @Serializable
 public class RemoteMethodCallMessage extends AbstractMessage {
 
+    /**
+     * Creates an empty remote method call message.
+     */
     public RemoteMethodCallMessage(){
         super(true);
     }

@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class IntSerializer extends Serializer {
+    /**
+     * Creates an integer serializer.
+     */
+    public IntSerializer() {
+    }
 
     @Override
     public Integer readObject(ByteBuffer data, Class c) throws IOException {

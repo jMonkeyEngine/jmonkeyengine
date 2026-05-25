@@ -1,6 +1,8 @@
 package com.jme3.input.ios;
 
 import com.jme3.input.RawInputListener;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.KeyInputEvent;
@@ -11,6 +13,7 @@ import com.jme3.system.AppSettings;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.ngengine.libjglios.core.LibJGLIOSInputBridge;
 
 public class IosInputHandler implements TouchInput {
     private static final Logger logger = Logger.getLogger(IosInputHandler.class.getName());
@@ -31,8 +34,23 @@ public class IosInputHandler implements TouchInput {
     private IosTouchHandler touchHandler;
     private float scaleX = 1f;
     private float scaleY = 1f;
+
+    private int toJmeMouseButton(int sdlButton) {
+        switch (sdlButton) {
+            case 1:
+                return MouseInput.BUTTON_LEFT;
+            case 2:
+                return MouseInput.BUTTON_MIDDLE;
+            case 3:
+                return MouseInput.BUTTON_RIGHT;
+            default:
+                return sdlButton;
+        }
+    }
     private int width = 0;
     private int height = 0;
+    private final int[] nativeIntData = new int[4];
+    private final float[] nativeFloatData = new float[4];
 
     public IosInputHandler() {
         touchHandler = new IosTouchHandler(this);
@@ -48,7 +66,12 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void update() {
-         logger.log(Level.FINE, "InputEvent update : {0}", listener);
+        pollLibJGLIOSInput();
+        dispatchQueuedEvents();
+    }
+
+    void dispatchQueuedEvents() {
+        logger.log(Level.FINE, "InputEvent update : {0}", listener);
        if (listener != null) {
             InputEvent inputEvent;
 
@@ -139,6 +162,15 @@ public class IosInputHandler implements TouchInput {
         }
     }
 
+    public void setFramebufferSize(int width, int height) {
+        if (width > 0) {
+            this.width = width;
+        }
+        if (height > 0) {
+            this.height = height;
+        }
+    }
+
     public boolean isMouseEventsInvertX() {
         return mouseEventsInvertX;
     }
@@ -196,5 +228,122 @@ public class IosInputHandler implements TouchInput {
         if (touchHandler != null) {
             touchHandler.actionMove(pointerId, time, x, y);
         }
+    }
+
+    private void pollLibJGLIOSInput() {
+        long time = getInputTimeNanos();
+        while (LibJGLIOSInputBridge.pollEvent(nativeIntData, nativeFloatData)) {
+            dispatchBridgeEvent(nativeIntData, nativeFloatData, time);
+        }
+    }
+
+    void dispatchBridgeEvent(int[] intData, float[] floatData, long time) {
+        int type = intData[0];
+        switch (type) {
+            case LibJGLIOSInputBridge.EVENT_TOUCH_DOWN:
+                injectTouchDown(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                break;
+            case LibJGLIOSInputBridge.EVENT_TOUCH_UP:
+                injectTouchUp(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                break;
+            case LibJGLIOSInputBridge.EVENT_TOUCH_MOVE:
+                injectTouchMove(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                break;
+            case LibJGLIOSInputBridge.EVENT_MOUSE_BUTTON:
+                MouseButtonEvent button = new MouseButtonEvent(
+                        toJmeMouseButton(intData[1]),
+                        intData[2] != 0,
+                        Math.round(mouseX(floatData[0])),
+                        Math.round(mouseY(floatData[1])));
+                button.setTime(time);
+                addEvent(button);
+                break;
+            case LibJGLIOSInputBridge.EVENT_MOUSE_MOTION:
+                MouseMotionEvent motion = new MouseMotionEvent(
+                        Math.round(mouseX(floatData[0])),
+                        Math.round(mouseY(floatData[1])),
+                        Math.round(mouseDeltaX(floatData[2])),
+                        Math.round(mouseDeltaY(floatData[3])),
+                        0,
+                        0);
+                motion.setTime(time);
+                addEvent(motion);
+                break;
+            case LibJGLIOSInputBridge.EVENT_KEY:
+                KeyInputEvent key = new KeyInputEvent(
+                        IosSdlKeyMap.toJmeKeyCode(intData[1]),
+                        '\0',
+                        intData[2] != 0,
+                        intData[3] != 0);
+                key.setTime(time);
+                addEvent(key);
+                break;
+            case LibJGLIOSInputBridge.EVENT_TEXT_INPUT:
+                if (!isSingleCharTextInput(intData[1])) {
+                    break;
+                }
+                KeyInputEvent text = new KeyInputEvent(
+                        KeyInput.KEY_UNKNOWN,
+                        (char) intData[1],
+                        true,
+                        false);
+                text.setTime(time);
+                addEvent(text);
+                break;
+            case LibJGLIOSInputBridge.EVENT_GAMEPAD_ADDED:
+            case LibJGLIOSInputBridge.EVENT_GAMEPAD_REMOVED:
+            case LibJGLIOSInputBridge.EVENT_GAMEPAD_AXIS:
+            case LibJGLIOSInputBridge.EVENT_GAMEPAD_BUTTON:
+                IosJoyInput.dispatchNativeEvent(intData, floatData);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private float nativeX(float value) {
+        return isNormalized(value) ? value * Math.max(width, 1) : value;
+    }
+
+    private float nativeY(float value) {
+        return isNormalized(value) ? value * Math.max(height, 1) : value;
+    }
+
+    private float nativeDeltaX(float value) {
+        return Math.abs(value) <= 1f ? value * Math.max(width, 1) : value;
+    }
+
+    private float nativeDeltaY(float value) {
+        return Math.abs(value) <= 1f ? value * Math.max(height, 1) : value;
+    }
+
+    private float mouseX(float value) {
+        float x = nativeX(value);
+        return mouseEventsInvertX ? invertX(x) : x;
+    }
+
+    private float mouseY(float value) {
+        float y = invertY(nativeY(value));
+        return mouseEventsInvertY ? invertY(y) : y;
+    }
+
+    private float mouseDeltaX(float value) {
+        float deltaX = nativeDeltaX(value);
+        return mouseEventsInvertX ? -deltaX : deltaX;
+    }
+
+    private float mouseDeltaY(float value) {
+        float deltaY = -nativeDeltaY(value);
+        return mouseEventsInvertY ? -deltaY : deltaY;
+    }
+
+    private boolean isNormalized(float value) {
+        return value >= 0f && value <= 1f;
+    }
+
+    private boolean isSingleCharTextInput(int codePoint) {
+        return codePoint > 0
+                && codePoint <= Character.MAX_VALUE
+                && !Character.isSurrogate((char) codePoint);
     }
 }

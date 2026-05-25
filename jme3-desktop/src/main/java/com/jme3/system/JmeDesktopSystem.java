@@ -257,18 +257,22 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         AL al;
         ALC alc;
         EFX efx;
-        if (settings.getAudioRenderer().startsWith("LWJGL")) {
+        String audioRenderer = settings.getAudioRenderer();
+        if (audioRenderer == null) {
+            return null;
+        }
+        if (audioRenderer.startsWith("LWJGL") || AppSettings.OPENAL.equals(audioRenderer)) {
             al = newObject("com.jme3.audio.lwjgl.LwjglAL");
             alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
             efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
-        } else if (settings.getAudioRenderer().startsWith("JOAL")) {
+        } else if (audioRenderer.startsWith("JOAL")) {
             al = newObject("com.jme3.audio.joal.JoalAL");
             alc = newObject("com.jme3.audio.joal.JoalALC");
             efx = newObject("com.jme3.audio.joal.JoalEFX");
         } else {
             throw new UnsupportedOperationException(
                     "Unrecognizable audio renderer specified: "
-                    + settings.getAudioRenderer());
+                    + audioRenderer);
         }
 
         if (al == null || alc == null || efx == null) {

@@ -45,6 +45,12 @@ import java.io.IOException;
  */
 public class NioKernelFactory implements KernelFactory
 {
+    /**
+     * Creates a TCP NIO kernel factory.
+     */
+    public NioKernelFactory() {
+    }
+
     @Override
     public Kernel createKernel( int channel, int port ) throws IOException
     {

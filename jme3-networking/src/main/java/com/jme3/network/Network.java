@@ -50,7 +50,13 @@ import java.net.InetAddress;
  */
 public class Network
 {
+    /**
+     * Default game name used by the convenience factory methods.
+     */
     public static final String DEFAULT_GAME_NAME = "Unnamed jME3 Game";
+    /**
+     * Default protocol version used by the convenience factory methods.
+     */
     public static final int DEFAULT_VERSION = 42;
 
     /**
@@ -63,6 +69,10 @@ public class Network
      *  Creates a Server that will utilize both reliable and fast
      *  transports to communicate with clients.  The specified port
      *  will be used for both TCP and UDP communication.
+     *
+     *  @param port the port used for both TCP and UDP communication
+     *  @return the created server
+     *  @throws IOException if the server cannot be created
      */
     public static Server createServer( int port ) throws IOException
     {   
@@ -73,6 +83,11 @@ public class Network
      *  Creates a Server that will utilize both reliable and fast
      *  transports to communicate with clients.  The specified port
      *  will be used for both TCP and UDP communication.
+     *
+     *  @param tcpPort the TCP listening port
+     *  @param udpPort the UDP listening port
+     *  @return the created server
+     *  @throws IOException if the server cannot be created
      */
     public static Server createServer( int tcpPort, int udpPort ) throws IOException
     {
@@ -92,6 +107,8 @@ public class Network
      *  @param udpPort  The port upon which the UDP hosting will listen for new 'fast' UDP 
      *                  messages.  Set to -1 if 'fast' traffic should go over TCP.  This will
      *                  completely disable UDP traffic for this server.
+     *  @return the created server
+     *  @throws IOException if the server cannot be created
      */
     public static Server createServer( String gameName, int version, int tcpPort, int udpPort ) throws IOException
     {
@@ -103,6 +120,8 @@ public class Network
     
     /**
      *  Creates a client that can be connected at a later time.
+     *
+     *  @return the created client
      */
     public static NetworkClient createClient()
     {
@@ -113,6 +132,10 @@ public class Network
      *  Creates a client that can be connected at a later time.  The specified
      *  game name and version must match the server or the client will be turned
      *  away.
+     *
+     *  @param gameName the expected game name
+     *  @param version the expected protocol version
+     *  @return the created client
      */
     public static NetworkClient createClient( String gameName, int version )
     {
@@ -122,6 +145,11 @@ public class Network
     /**
      *  Creates a Client that communicates with the specified host and port
      *  using both reliable and fast transports. 
+     *
+     *  @param host the remote host name or address
+     *  @param hostPort the remote TCP and UDP port
+     *  @return the connected client
+     *  @throws IOException if the client cannot connect
      */   
     public static Client connectToServer( String host, int hostPort ) throws IOException
     {
@@ -131,6 +159,12 @@ public class Network
     /**
      *  Creates a Client that communicates with the specified host and separate TCP and UDP ports
      *  using both reliable and fast transports.
+     *
+     *  @param host the remote host name or address
+     *  @param hostPort the remote TCP port
+     *  @param remoteUdpPort the remote UDP port
+     *  @return the connected client
+     *  @throws IOException if the client cannot connect
      */   
     public static Client connectToServer( String host, int hostPort, int remoteUdpPort ) throws IOException
     {
@@ -140,6 +174,13 @@ public class Network
     /**
      *  Creates a Client that communicates with the specified host and port
      *  using both reliable and fast transports.  
+     *
+     *  @param gameName the expected game name
+     *  @param version the expected protocol version
+     *  @param host the remote host name or address
+     *  @param hostPort the remote TCP and UDP port
+     *  @return the connected client
+     *  @throws IOException if the client cannot connect
      */   
     public static Client connectToServer( String gameName, int version, 
                                           String host, int hostPort ) throws IOException
@@ -156,12 +197,15 @@ public class Network
      *  @param version  This is a game-specific version that helps detect when out-of-date
      *                  clients have connected to an incompatible server.  This must match
      *                  the server's version of this client will be turned away.
+     *  @param host the remote host name or address
      *  @param hostPort  The remote TCP port on the server to which this client should
      *                  send reliable messages. 
      *  @param remoteUdpPort  The remote UDP port on the server to which this client should
      *                  send 'fast'/unreliable messages.   Set to -1 if 'fast' traffic should 
      *                  go over TCP.  This will completely disable UDP traffic for this
      *                  client.
+     *  @return the connected client
+     *  @throws IOException if the client cannot connect
      */   
     public static Client connectToServer( String gameName, int version, 
                                           String host, int hostPort, int remoteUdpPort ) throws IOException
@@ -174,8 +218,17 @@ public class Network
     }
  
  
+    /**
+     * Client implementation used by the convenience factory methods.
+     */
     protected static class NetworkClientImpl extends DefaultClient implements NetworkClient
     {
+        /**
+         * Creates a network client implementation.
+         *
+         * @param gameName the expected game name
+         * @param version the expected protocol version
+         */
         public NetworkClientImpl(String gameName, int version)
         {
             super( gameName, version );

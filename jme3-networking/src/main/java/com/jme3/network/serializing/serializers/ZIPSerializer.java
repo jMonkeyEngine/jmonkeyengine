@@ -48,6 +48,11 @@ import java.util.zip.ZipOutputStream;
  * @author Lars Wesselius
  */
 public class ZIPSerializer extends Serializer {
+    /**
+     * Creates a zip serializer.
+     */
+    public ZIPSerializer() {
+    }
 
     @SuppressWarnings("unchecked")
     @Override

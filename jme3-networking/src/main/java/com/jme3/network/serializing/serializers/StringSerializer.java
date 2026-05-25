@@ -43,7 +43,19 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class StringSerializer extends Serializer {
+    /**
+     * Creates a string serializer.
+     */
+    public StringSerializer() {
+    }
 
+    /**
+     * Writes a UTF-8 string with a compact length prefix.
+     *
+     * @param s the string to write
+     * @param buffer the target buffer
+     * @throws IOException if the string cannot be encoded
+     */
     public static void writeString( String s, ByteBuffer buffer ) throws IOException {
         if (s == null) {
             // Write that it's 0.
@@ -71,6 +83,13 @@ public class StringSerializer extends Serializer {
         }    
     }
 
+    /**
+     * Reads a UTF-8 string with a compact length prefix.
+     *
+     * @param data the source buffer
+     * @return the decoded string, or {@code null}
+     * @throws IOException if the encoded value is invalid
+     */
     public static String readString( ByteBuffer data ) throws IOException {
         int length = -1;
         byte type = data.get();

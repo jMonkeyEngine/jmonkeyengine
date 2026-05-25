@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class DoubleSerializer extends Serializer {
+    /**
+     * Creates a double serializer.
+     */
+    public DoubleSerializer() {
+    }
 
     @Override
     public Double readObject(ByteBuffer data, Class c) throws IOException {

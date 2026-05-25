@@ -36,11 +36,10 @@ import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
-import static com.jme3.input.event.TouchEvent.Type.DOWN;
-import static com.jme3.input.event.TouchEvent.Type.MOVE;
-import static com.jme3.input.event.TouchEvent.Type.UP;
 import com.jme3.math.Vector2f;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,8 +53,10 @@ public class IosTouchHandler {
     private static final Logger logger = Logger.getLogger(IosTouchHandler.class.getName());
     
     final private HashMap<Integer, Vector2f> lastPositions = new HashMap<>();
+    final private Set<Integer> activePointers = new HashSet<>();
+    private int mousePointerId = -1;
 
-    protected int numPointers = 1;
+    protected int numPointers = 0;
     
     protected IosInputHandler iosInput;
 
@@ -67,6 +68,10 @@ public class IosTouchHandler {
     }
     
     public void destroy() {
+        activePointers.clear();
+        lastPositions.clear();
+        mousePointerId = -1;
+        numPointers = 0;
     }
     
     public void actionDown(int pointerId, long time, float x, float y) {
@@ -76,6 +81,11 @@ public class IosTouchHandler {
         }
         float jmeX = iosInput.getJmeX(x);
         float jmeY = iosInput.invertY(iosInput.getJmeY(y));
+        if (activePointers.isEmpty()) {
+            mousePointerId = pointerId;
+        }
+        activePointers.add(pointerId);
+        numPointers = activePointers.size();
         TouchEvent touch = iosInput.getFreeTouchEvent();
         touch.set(TouchEvent.Type.DOWN, jmeX, jmeY, 0, 0);
         touch.setPointerId(pointerId);//TODO: pointer ID
@@ -100,6 +110,11 @@ public class IosTouchHandler {
         lastPositions.remove(pointerId);
 
         processEvent(touch);
+        activePointers.remove(pointerId);
+        numPointers = activePointers.size();
+        if (pointerId == mousePointerId) {
+            mousePointerId = -1;
+        }
     }
     
     public void actionMove(int pointerId, long time, float x, float y) {
@@ -130,7 +145,7 @@ public class IosTouchHandler {
         // Add the touch event
         iosInput.addEvent(event);
         // MouseEvents do not support multi-touch, so only evaluate 1 finger pointer events
-        if (iosInput.isSimulateMouse() && numPointers == 1) {
+        if (iosInput.isSimulateMouse() && event.getPointerId() == mousePointerId) {
             InputEvent mouseEvent = generateMouseEvent(event);
             if (mouseEvent != null) {
                 // Add the mouse event

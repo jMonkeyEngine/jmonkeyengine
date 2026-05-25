@@ -45,6 +45,8 @@ public interface Endpoint
     /**
      *  Returns an ID that is unique for this endpoint within its
      *  Kernel instance.
+     *
+     *  @return the endpoint id
      */
     public long getId();
 
@@ -52,22 +54,30 @@ public interface Endpoint
      *  Returns the transport specific remote address of this endpoint
      *  as a string.  This may or may not be unique per endpoint depending
      *  on the type of transport. 
+     *
+     *  @return the remote address string
      */
     public String getAddress();     
 
     /**
      *  Returns the kernel to which this endpoint belongs.
+     *
+     *  @return the owning kernel
      */
     public Kernel getKernel();    
 
     /**
      *  Returns true if this endpoint is currently connected.
+     *
+     *  @return true if the endpoint is connected
      */
     public boolean isConnected();
 
     /**
      *  Sends data to the other end of the connection represented
      *  by this endpoint.
+     *
+     *  @param data the bytes to send
      */
     public void send( ByteBuffer data );
 
@@ -82,6 +92,8 @@ public interface Endpoint
      *  data before closing.  As soon as this method is called,
      *  new send() calls will fail with an exception... even while
      *  close() is still flushing the earlier queued messages.
+     *
+     *  @param flushData true to flush queued data before closing
      */
     public void close(boolean flushData);
 }

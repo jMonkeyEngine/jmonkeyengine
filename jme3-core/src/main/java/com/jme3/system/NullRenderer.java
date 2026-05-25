@@ -145,6 +145,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
+    @Deprecated
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
     }
 

@@ -37,6 +37,7 @@ import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.Vector2f;
+import com.jme3.system.AppSettings;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
@@ -86,6 +87,8 @@ public class SdlMouseInput implements MouseInput {
     private int mouseWheel;
     private int currentWidth;
     private int currentHeight;
+    private float windowCoordWidth = 1f;
+    private float windowCoordHeight = 1f;
 
     private boolean cursorVisible = true;
     private boolean x11WarpGrabMode;
@@ -142,8 +145,6 @@ public class SdlMouseInput implements MouseInput {
                     return;
                 }
                 ignoreNextX11WarpEvent = false;
-                float logicalWidth = currentWidth / Math.max(inputScale.x, 1f);
-                float logicalHeight = currentHeight / Math.max(inputScale.y, 1f);
                 int centerX = currentWidth / 2;
                 int centerY = currentHeight / 2;
                 xDelta = Math.round(event.motion().xrel() * inputScale.x);
@@ -164,8 +165,8 @@ public class SdlMouseInput implements MouseInput {
                 x = mouseX;
                 y = mouseY;
             } else {
-                x = toPixelX(event.motion().x());
-                y = toPixelY(event.motion().y());
+                x = toInputX(event.motion().x());
+                y = toInputY(event.motion().y());
                 xDelta = x - mouseX;
                 yDelta = y - mouseY;
                 mouseX = x;
@@ -202,8 +203,8 @@ public class SdlMouseInput implements MouseInput {
                 return;
             }
             refreshWindowMetrics();
-            mouseX = toPixelX(event.button().x());
-            mouseY = toPixelY(event.button().y());
+            mouseX = toInputX(event.button().x());
+            mouseY = toInputY(event.button().y());
 
             int button = Byte.toUnsignedInt(event.button().button());
             MouseButtonEvent mouseButtonEvent =
@@ -214,9 +215,12 @@ public class SdlMouseInput implements MouseInput {
     }
 
     private void refreshWindowMetrics() {
-        currentWidth = Math.max(context.getFramebufferWidth(), 1);
-        currentHeight = Math.max(context.getFramebufferHeight(), 1);
-        context.getWindowContentScale(inputScale);
+        AppSettings settings = context.getSettings();
+        currentWidth = Math.max(settings.getWidth(), 1);
+        currentHeight = Math.max(settings.getHeight(), 1);
+        context.getMouseInputScale(inputScale);
+        windowCoordWidth = currentWidth / Math.max(inputScale.x, 0.0001f);
+        windowCoordHeight = currentHeight / Math.max(inputScale.y, 0.0001f);
     }
 
     private void initCurrentMousePosition() {
@@ -224,16 +228,16 @@ public class SdlMouseInput implements MouseInput {
             FloatBuffer x = stack.callocFloat(1);
             FloatBuffer y = stack.callocFloat(1);
             SDL_GetMouseState(x, y);
-            mouseX = toPixelX(x.get(0));
-            mouseY = toPixelY(y.get(0));
+            mouseX = toInputX(x.get(0));
+            mouseY = toInputY(y.get(0));
         }
     }
 
-    private int toPixelX(float x) {
+    private int toInputX(float x) {
         return Math.round(x * inputScale.x);
     }
 
-    private int toPixelY(float y) {
+    private int toInputY(float y) {
         return Math.round(currentHeight - (y * inputScale.y));
     }
 
@@ -352,9 +356,7 @@ public class SdlMouseInput implements MouseInput {
 
     private void warpMouseToWindowCenter() {
         refreshWindowMetrics();
-        float logicalWidth = currentWidth / Math.max(inputScale.x, 1f);
-        float logicalHeight = currentHeight / Math.max(inputScale.y, 1f);
-        SDL_WarpMouseInWindow(context.getWindowHandle(), logicalWidth * 0.5f, logicalHeight * 0.5f);
+        SDL_WarpMouseInWindow(context.getWindowHandle(), windowCoordWidth * 0.5f, windowCoordHeight * 0.5f);
     }
 
     private void centerVisibleCursor() {
@@ -370,10 +372,8 @@ public class SdlMouseInput implements MouseInput {
 
     private boolean isNearWindowCenter(float x, float y) {
         refreshWindowMetrics();
-        float logicalWidth = currentWidth / Math.max(inputScale.x, 1f);
-        float logicalHeight = currentHeight / Math.max(inputScale.y, 1f);
-        return Math.abs(x - (logicalWidth * 0.5f)) <= 1.5f
-                && Math.abs(y - (logicalHeight * 0.5f)) <= 1.5f;
+        return Math.abs(x - (windowCoordWidth * 0.5f)) <= 1.5f
+                && Math.abs(y - (windowCoordHeight * 0.5f)) <= 1.5f;
     }
 
     @Override

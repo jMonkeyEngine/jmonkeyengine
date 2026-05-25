@@ -63,6 +63,24 @@ public final class AppSettings extends HashMap<String, Object> {
     private static final AppSettings defaults = new AppSettings(false);
 
     /**
+     * Do not request display scaling support on platforms where the backend can
+     * opt out.
+     */
+    public static final float DISPLAY_SCALE_DISABLED = 0f;
+
+    /**
+     * Request the native-density framebuffer and expose physical framebuffer
+     * pixels as the application coordinate system.
+     */
+    public static final float DISPLAY_SCALE_NATIVE_PIXELS = -1f;
+
+    /**
+     * Request the native-density framebuffer while keeping cameras, GUI,
+     * picking, and input in DPI-aware logical coordinates.
+     */
+    public static final float DISPLAY_SCALE_DPI_AWARE = 1f;
+
+    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -217,10 +235,20 @@ public final class AppSettings extends HashMap<String, Object> {
      * Use the LWJGL OpenAL based renderer for audio capabilities.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String LWJGL_OPENAL = "LWJGL";
 
     public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
+    /**
+     * Use the default OpenAL renderer for the current platform.
+     *
+     * @see AppSettings#setAudioRenderer(java.lang.String)
+     */
+    public static final String OPENAL = "OPENAL";
+
 
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
@@ -228,8 +256,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * NOTE: Supports Android 2.2+ platforms.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations.
-     * use {@link #ANDROID_OPENAL_SOFT} instead.
+     * @deprecated This audio renderer has too many limitations. Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
@@ -237,11 +264,12 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
      * <p>
-     * This is the current default for Android platforms.
      * NOTE: Only to be used on Android 2.3+ platforms due to using OpenSL.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
 
     /**
@@ -250,7 +278,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
+    @Deprecated
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
 
     /**
@@ -259,7 +289,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
+    @Deprecated
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
 
     /**
@@ -268,7 +300,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String JOAL = "JOAL";
 
     /**
@@ -311,7 +345,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", ANGLE_GLES3);
-        defaults.put("AudioRenderer", LWJGL_OPENAL);
+        defaults.put("AudioRenderer", OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
         defaults.put("VSync", true);
@@ -330,6 +364,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("JoysticksTriggerToButtonThreshold", 0.5f);
         defaults.put("JoysticksAxisJitterThreshold", 0.0001f);
         defaults.put("SDLGameControllerDBResourcePath", "");
+        defaults.put("OnDeviceJoystickRumble", false);
         //  defaults.put("Icons", null);
     }
 
@@ -783,6 +818,15 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * @param enabled If true, joystick rumble requests may be redirected to
+     * the device rumble motor on supported platforms.
+     * (Default: false)
+     */
+    public void setOnDeviceJoystickRumble(boolean enabled) {
+        putBoolean("OnDeviceJoystickRumble", enabled);
+    }
+
+    /**
      * Set the graphics renderer to use, one of:<br>
      * <ul>
      * <li>AppSettings.LWJGL_OPENGL1 - Force OpenGL1.1 compatibility</li>
@@ -814,12 +858,13 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the audio renderer to use. One of:<br>
      * <ul>
-     * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>AppSettings.OPENAL - Default OpenAL renderer for the current platform</li>
+     * <li>AppSettings.LWJGL_OPENAL - Deprecated LWJGL OpenAL renderer identifier</li>
      * <li>AppSettings.JOAL</li>
      * <li>null - Disable audio</li>
      * </ul>
      * @param audioRenderer
-     * (Default: LWJGL)
+     * (Default: AppSettings.OPENAL)
      */
     public void setAudioRenderer(String audioRenderer) {
         putString("AudioRenderer", audioRenderer);
@@ -1252,9 +1297,19 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Get whether joystick rumble may be redirected to device rumble.
+     *
+     * @return true to redirect joystick rumble to device rumble when supported
+     * @see #setOnDeviceJoystickRumble(boolean)
+     */
+    public boolean isOnDeviceJoystickRumble() {
+        return getBoolean("OnDeviceJoystickRumble");
+    }
+
+    /**
      * Get the audio renderer
      *
-     * @return the audio renderer's name, for example "LWJGL"
+     * @return the audio renderer's name, for example "OPENAL"
      * @see #setAudioRenderer(java.lang.String)
      */
     public String getAudioRenderer() {
@@ -1476,19 +1531,66 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Returns the active display scale mode.
+     * <p>
+     * If {@link #setDisplayScaleMode(float)} was not called, this method
+     * returns {@link #DISPLAY_SCALE_DISABLED}.
+     * <p>
+     * Values greater than {@link #DISPLAY_SCALE_DPI_AWARE} mean emulated display
+     * scaling. For example, {@code 1.5f} keeps DPI-aware application coordinates
+     * while rendering on-screen content to an intermediate framebuffer sized
+     * {@code physicalFramebufferSize * 1.5}.
+     *
+     * @return the active display scale mode
+     */
+    public float getDisplayScaleMode() {
+        Object mode = get("DisplayScaleMode");
+        if (mode instanceof Float) {
+            return DisplayScaleUtils.normalizeDisplayScaleMode((Float) mode);
+        }
+        return DISPLAY_SCALE_DISABLED;
+    }
+
+    /**
+     * Sets the display scale mode. New applications should use this API
+     * instead of {@link #setUseRetinaFrameBuffer(boolean)}.
+     * <p>
+     * Use {@link #DISPLAY_SCALE_DISABLED},
+     * {@link #DISPLAY_SCALE_NATIVE_PIXELS}, or
+     * {@link #DISPLAY_SCALE_DPI_AWARE} for built-in modes. Values below
+     * {@code 1.0}, except {@link #DISPLAY_SCALE_NATIVE_PIXELS}, are normalized
+     * to {@link #DISPLAY_SCALE_DISABLED}. Values above
+     * {@link #DISPLAY_SCALE_DPI_AWARE} enable emulated display scaling above the
+     * physical framebuffer size.
+     *
+     * @param mode the desired mode
+     */
+    public void setDisplayScaleMode(float mode) {
+        if (!Float.isFinite(mode)) {
+            throw new IllegalArgumentException("DisplayScaleMode must be finite.");
+        }
+        putFloat("DisplayScaleMode", DisplayScaleUtils.normalizeDisplayScaleMode(mode));
+    }
+
+    /**
      * Determine whether to use full resolution framebuffers on Retina displays.
      *
      * @return whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #getDisplayScaleMode()} instead.
      */
+    @Deprecated
     public boolean isUseRetinaFrameBuffer() {
         return getBoolean("UseRetinaFrameBuffer");
     }
 
     /**
-     * Specifies whether to use full resolution framebuffers on Retina displays. This is ignored on other platforms.
+     * Specifies whether to use full resolution framebuffers on Retina/high-DPI
+     * displays where the backend supports requesting them.
      *
      * @param useRetinaFrameBuffer whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #setDisplayScaleMode(float)} instead.
      */
+    @Deprecated
     public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
         putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
     }

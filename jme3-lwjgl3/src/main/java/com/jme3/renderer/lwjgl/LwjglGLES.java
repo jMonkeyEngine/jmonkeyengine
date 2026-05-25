@@ -17,8 +17,8 @@ import java.nio.ShortBuffer;
 import org.lwjgl.opengles.GLES;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.opengles.GLES30;
-import org.lwjgl.opengles.GLES31;
 import org.lwjgl.opengles.EXTDisjointTimerQuery;
+import org.lwjgl.system.MemoryUtil;
 
 
 /**
@@ -45,31 +45,37 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
         }
     }
 
-    private static int getLimitBytes(ByteBuffer buffer) {
+    private static long getRemainingBytes(IntBuffer buffer) {
+        checkLimit(buffer);
+        return (long) buffer.remaining() * Integer.BYTES;
+    }
+
+    private static long getRemainingBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.remaining();
     }
 
-    private static int getLimitBytes(ShortBuffer buffer) {
-        checkLimit(buffer);
-        return buffer.remaining() * 2;
+    private static long getSyncHandle(Object sync) {
+        if (!(sync instanceof Long)) {
+            throw new IllegalArgumentException("Expected a sync object returned by glFenceSync");
+        }
+        return (Long) sync;
     }
 
-    private static int getLimitBytes(IntBuffer buffer) {
-        checkLimit(buffer);
-        return buffer.remaining() * 4;
-    }
+    private static void readMappedBuffer(int target, long offset, long byteCount, Buffer destination) {
+        long mappedAddress = GLES30.nglMapBufferRange(target, offset, byteCount, GLES30.GL_MAP_READ_BIT);
+        if (mappedAddress == MemoryUtil.NULL) {
+            throw new RendererException("Unable to map buffer for reading");
+        }
 
-    private static int getLimitBytes(FloatBuffer buffer) {
-        checkLimit(buffer);
-        return buffer.remaining() * 4;
+        try {
+            MemoryUtil.memCopy(mappedAddress, MemoryUtil.memAddress(destination), byteCount);
+        } finally {
+            if (!GLES30.glUnmapBuffer(target)) {
+                throw new RendererException("Mapped buffer data became corrupted while reading");
+            }
+        }
     }
-
-    private static int getLimitCount(Buffer buffer, int elementSize) {
-        checkLimit(buffer);
-        return buffer.remaining() / elementSize;
-    }
-
 
     @Override
     public void glActiveTexture(int texture) {
@@ -156,7 +162,7 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
-        throw new UnsupportedOperationException("OpenGL ES does not support glGetBufferSubData");
+        readMappedBuffer(target, offset, getRemainingBytes(data), data);
     }
 
     @Override
@@ -394,10 +400,7 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glShaderSource(int shader, String[] string, IntBuffer length) {
-        if (string == null || string.length != 1) {
-            throw new UnsupportedOperationException("Expected exactly one shader source string");
-        }
-        GLES20.glShaderSource(shader, string[0]);
+        GLES20.glShaderSource(shader, string);
     }
 
     @Override
@@ -610,6 +613,31 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
     }
 
     @Override
+    public int glGetUniformBlockIndex(int program, String uniformBlockName) {
+        return GLES30.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(int target, int index, int buffer) {
+        GLES30.glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding) {
+        GLES30.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
+
+    @Override
+    public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
+    }
+
+    @Override
     public void glDrawBuffers(IntBuffer bufs) {
         checkLimit(bufs);
         GLES30.glDrawBuffers(bufs);
@@ -706,15 +734,13 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        checkLimit(val);
-        GLES31.glGetMultisamplefv(pname, index, val);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
     @Override
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height,
             boolean fixedSampleLocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height,
-                fixedSampleLocations);
+        throw new UnsupportedOperationException("Multisample textures require OpenGL ES 3.1");
     }
 
 
@@ -805,17 +831,17 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public int glClientWaitSync(Object sync, int flags, long timeout) {
-        throw new UnsupportedOperationException("Sync fences not wired in this GLES wrapper yet");
+        return GLES30.glClientWaitSync(getSyncHandle(sync), flags, timeout);
     }
 
     @Override
     public void glDeleteSync(Object sync) {
-        throw new UnsupportedOperationException("Sync fences not wired in this GLES wrapper yet");
+        GLES30.glDeleteSync(getSyncHandle(sync));
     }
 
     @Override
     public Object glFenceSync(int condition, int flags) {
-        throw new UnsupportedOperationException("Sync fences not wired in this GLES wrapper yet");
+        return GLES30.glFenceSync(condition, flags);
     }
 
 
@@ -827,7 +853,6 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void glGetBufferSubData(int target, long offset, IntBuffer data) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'glGetBufferSubData'");
+        readMappedBuffer(target, offset, getRemainingBytes(data), data);
     }
 }

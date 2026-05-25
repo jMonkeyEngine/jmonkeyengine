@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 
 
 /**
- *
+ *  Maintains locally shared objects and remote proxies for the RMI service.
  *
  *  @author    Paul Speed
  */
@@ -75,10 +75,25 @@ public class RmiRegistry {
     // local RMI calls.
     private HostedConnection context;
     
+    /**
+     * Creates an RMI registry without a server-side connection context.
+     *
+     * @param rpc the backing RPC connection
+     * @param rmiId the registry RPC object id
+     * @param defaultChannel the default network channel for RMI traffic
+     */
     public RmiRegistry( RpcConnection rpc, short rmiId, byte defaultChannel ) {
         this(null, rpc, rmiId, defaultChannel);
     }
     
+    /**
+     * Creates an RMI registry.
+     *
+     * @param context the hosted connection currently associated with local RMI calls, or null
+     * @param rpc the backing RPC connection
+     * @param rmiId the registry RPC object id
+     * @param defaultChannel the default network channel for RMI traffic
+     */
     public RmiRegistry( HostedConnection context, RpcConnection rpc, short rmiId, byte defaultChannel ) {
         this.context = context;
         this.rpc = rpc;
@@ -91,6 +106,10 @@ public class RmiRegistry {
      *  Exposes the specified object to the other end of the connection as
      *  the specified interface type.  The object can be looked up by type
      *  on the other end.
+     *
+     *  @param <T> the shared object type
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( T object, Class<? super T> type ) {
         share(defaultChannel, object, type);       
@@ -102,6 +121,11 @@ public class RmiRegistry {
      *  The object can be looked up by type on the other end.
      *  The specified channel will be used for all network communication
      *  specific to this object. 
+     *
+     *  @param <T> the shared object type
+     *  @param channel the network channel to use
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( byte channel, T object, Class<? super T> type ) {
         share(channel, type.getName(), object, type);
@@ -112,6 +136,11 @@ public class RmiRegistry {
      *  the specified interface type and associates it with the specified name.  
      *  The object can be looked up by the associated name on the other end of
      *  the connection.
+     *
+     *  @param <T> the shared object type
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( String name, T object, Class<? super T> type ) {
         share(defaultChannel, name, object, type);
@@ -125,6 +154,12 @@ public class RmiRegistry {
      *  the connection.
      *  The specified channel will be used for all network communication
      *  specific to this object. 
+     *
+     *  @param <T> the shared object type
+     *  @param channel the network channel to use
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */
     public <T> void share( byte channel, String name, T object, Class<? super T> type ) {
         
@@ -182,6 +217,10 @@ public class RmiRegistry {
     /**
      *  Returns a local object that was previously registered with share() using
      *  just type registration.
+     *
+     *  @param <T> the requested object type
+     *  @param type the shared interface type
+     *  @return the shared local object
      */
     public <T> T getLocalObject( Class<T> type ) {
         return getLocalObject(type.getName(), type);
@@ -190,6 +229,11 @@ public class RmiRegistry {
     /**
      *  Returns a local object that was previously registered with share() using
      *  name registration.
+     *
+     *  @param <T> the requested object type
+     *  @param name the exported object name
+     *  @param type the shared interface type
+     *  @return the shared local object
      */
     public <T> T getLocalObject( String name, Class<T> type ) {
         local.lock.readLock().lock();
@@ -206,6 +250,10 @@ public class RmiRegistry {
      *  from a client then it is accessing a shared object registered on the server.  
      *  If this is called from the server then it is accessing a shared object registered 
      *  on the client.
+     *
+     *  @param <T> the requested proxy type
+     *  @param type the shared interface type
+     *  @return the remote object proxy
      */
     public <T> T getRemoteObject( Class<T> type ) {
         return getRemoteObject(type.getName(), type);
@@ -217,6 +265,11 @@ public class RmiRegistry {
      *  from a client then it is accessing a shared object registered on the server.  
      *  If this is called from the server then it is accessing a shared object registered 
      *  on the client.
+     *
+     *  @param <T> the requested proxy type
+     *  @param name the exported object name
+     *  @param type the shared interface type
+     *  @return the remote object proxy
      */
     public <T> T getRemoteObject( String name, Class<T> type ) {
         remote.lock.readLock().lock();
@@ -227,12 +280,22 @@ public class RmiRegistry {
         }       
     }
     
+    /**
+     * Registers remote class metadata announced by the far end.
+     *
+     * @param info the remote class metadata
+     */
     protected void addRemoteClass( ClassInfo info ) {
         if( remote.classes.put(info.getId(), info) != null ) {
             throw new RuntimeException("Error class already exists for ID:" + info.getId());
         }
     }
     
+    /**
+     * Removes a previously registered remote object.
+     *
+     * @param objectId the remote object id
+     */
     protected void removeRemoteObject( short objectId ) {
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "removeRemoteObject({0})", objectId);
@@ -240,6 +303,14 @@ public class RmiRegistry {
         throw new UnsupportedOperationException("Removal not yet implemented.");
     }  
   
+    /**
+     * Registers a remote object proxy from metadata received over the wire.
+     *
+     * @param channel the message channel used for method calls
+     * @param objectId the remote object id
+     * @param name the exported object name
+     * @param typeInfo the remote object type metadata
+     */
     protected void addRemoteObject( byte channel, short objectId, String name, ClassInfo typeInfo ) {
         if( log.isLoggable(Level.FINEST) ) {
             log.finest("addRemoveObject(" + objectId + ", " + name + ", " + typeInfo + ")");
@@ -264,6 +335,16 @@ public class RmiRegistry {
         } 
     } 
 
+    /**
+     * Invokes a remote procedure through the configured RPC layer.
+     *
+     * @param channel the message channel to use
+     * @param objectId the remote object id
+     * @param procId the remote procedure id
+     * @param callType the invocation mode
+     * @param args the invocation arguments
+     * @return the remote return value for synchronous calls, or {@code null} otherwise
+     */
     protected Object invokeRemote( byte channel, short objectId, short procId, CallType callType, Object[] args ) {
         if( log.isLoggable(Level.FINEST) ) {
             log.finest("invokeRemote(" + channel + ", " + objectId + ", " + procId + ", " 
@@ -291,6 +372,9 @@ public class RmiRegistry {
     
     /**
      *  Handle remote object registry updates from the other end.
+     *
+     *  @param procId the registry update procedure id
+     *  @param args the registry update arguments
      */
     protected void rmiUpdate( short procId, Object[] args ) {
         if( log.isLoggable(Level.FINEST) ) {
@@ -312,6 +396,11 @@ public class RmiRegistry {
  
     /**
      *  Handle the actual remote object method calls.
+     *
+     *  @param objectId the shared object id
+     *  @param procId the procedure id
+     *  @param args the invocation arguments
+     *  @return the invocation result
      */
     protected Object invokeLocal( short objectId, short procId, Object[] args ) {
         // Actually could use a regular concurrent map for this

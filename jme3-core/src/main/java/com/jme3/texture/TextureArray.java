@@ -99,6 +99,7 @@ public class TextureArray extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone() {
         TextureArray clone = new TextureArray();
         createSimpleClone(clone);
@@ -106,6 +107,7 @@ public class TextureArray extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone(Texture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);

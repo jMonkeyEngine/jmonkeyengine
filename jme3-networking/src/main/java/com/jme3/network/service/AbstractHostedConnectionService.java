@@ -72,6 +72,8 @@ public abstract class AbstractHostedConnectionService extends AbstractHostedServ
     /**
      *  Creates a new HostedService that will automatically host
      *  connections only if autoHost is true.
+     *
+     *  @param autoHost true to automatically host new connections
      */
     protected AbstractHostedConnectionService( boolean autoHost ) {
         this.autoHost = autoHost;
@@ -86,6 +88,8 @@ public abstract class AbstractHostedConnectionService extends AbstractHostedServ
      *  <p>Reasons for doing this vary but usually would be because
      *  the client shouldn't be allowed to perform any service-related calls until
      *  it has provided more information... for example, logging in.</p>
+     *
+     *  @param b true to auto-host new connections
      */
     public void setAutoHost( boolean b ) {
         this.autoHost = b;
@@ -94,6 +98,8 @@ public abstract class AbstractHostedConnectionService extends AbstractHostedServ
     /**
      *  Returns true if this service automatically attaches 
      *  hosting capabilities to new connections.
+     *
+     *  @return true if new connections are auto-hosted
      */   
     public boolean getAutoHost() {
         return autoHost;
@@ -106,6 +112,8 @@ public abstract class AbstractHostedConnectionService extends AbstractHostedServ
      *  attributes on the connection.  If autoHost is true then this
      *  method is called automatically during connectionAdded() 
      *  processing.
+     *
+     *  @param hc the hosted connection to initialize
      */
     public abstract void startHostingOnConnection( HostedConnection hc );
 
@@ -114,6 +122,8 @@ public abstract class AbstractHostedConnectionService extends AbstractHostedServ
      *  This will be called automatically when the connectionRemoved()
      *  event occurs... whether the application has already called it
      *  or not.
+     *
+     *  @param hc the hosted connection to tear down
      */
     public abstract void stopHostingOnConnection( HostedConnection hc );
 

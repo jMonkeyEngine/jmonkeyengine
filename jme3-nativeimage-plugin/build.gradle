@@ -41,8 +41,8 @@ java {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    compileOnly 'org.graalvm.sdk:nativeimage:23.1.2'
-    compileOnly 'org.graalvm.nativeimage:svm:23.1.2'
+    compileOnly 'org.graalvm.sdk:nativeimage:25.0.3'
+    compileOnly 'org.graalvm.nativeimage:svm:25.0.3'
 }
 
 gradlePlugin {

@@ -64,6 +64,8 @@ public class RpcClientService extends AbstractClientService {
      *  Returns the underlying RPC connection for use by other
      *  services that may require a more generic non-client/server
      *  specific RPC object with which to interact.
+     *
+     *  @return the underlying RPC connection
      */
     public RpcConnection getRpcConnection() {
         return rpc;
@@ -97,6 +99,12 @@ public class RpcClientService extends AbstractClientService {
      *  Performs a synchronous call on the server against the specified
      *  object using the specified procedure ID.  Both inbound and outbound
      *  communication is done on the specified channel.
+     *
+     *  @param channel the channel to use
+     *  @param objId the target object id
+     *  @param procId the target procedure id
+     *  @param args the invocation arguments
+     *  @return the invocation result
      */
     public Object callAndWait( byte channel, short objId, short procId, Object... args ) {
         return rpc.callAndWait(channel, objId, procId, args);
@@ -107,6 +115,11 @@ public class RpcClientService extends AbstractClientService {
      *  object using the specified procedure ID.  Communication is done
      *  over the specified channel.  No responses are received and none
      *  are waited for.
+     *
+     *  @param channel the channel to use
+     *  @param objId the target object id
+     *  @param procId the target procedure id
+     *  @param args the invocation arguments
      */
     public void callAsync( byte channel, short objId, short procId, Object... args ) {
         rpc.callAsync(channel, objId, procId, args);
@@ -118,6 +131,9 @@ public class RpcClientService extends AbstractClientService {
      *  Only one handler per object ID can be registered at any given time,
      *  though the same handler can be registered for multiple object
      *  IDs.
+     *
+     *  @param objId the target object id
+     *  @param handler the handler to register
      */    
     public void registerHandler( short objId, RpcHandler handler ) {
         rpc.registerHandler(objId, handler);
@@ -126,6 +142,9 @@ public class RpcClientService extends AbstractClientService {
     /**
      *  Removes a previously registered handler for the specified
      *  object ID.  
+     *
+     *  @param objId the target object id
+     *  @param handler the handler to remove
      */
     public void removeHandler( short objId, RpcHandler handler ) {
         rpc.removeHandler(objId, handler);

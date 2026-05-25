@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class FloatSerializer extends Serializer {
+    /**
+     * Creates a float serializer.
+     */
+    public FloatSerializer() {
+    }
 
     @Override
     public Float readObject(ByteBuffer data, Class c) throws IOException {

@@ -53,14 +53,29 @@ public class RpcResponseMessage extends AbstractMessage {
     private String error;
     private Object exception; // if it was serializable
 
+    /**
+     * Creates an empty RPC response message for serialization.
+     */
     public RpcResponseMessage() {
     }
     
+    /**
+     * Creates a successful RPC response message.
+     *
+     * @param msgId the response message id
+     * @param result the invocation result
+     */
     public RpcResponseMessage( long msgId, Object result ) {
         this.msgId = msgId;
         this.result = result;
     }
 
+    /**
+     * Creates a failed RPC response message.
+     *
+     * @param msgId the response message id
+     * @param t the error raised while processing the invocation
+     */
     public RpcResponseMessage( long msgId, Throwable t ) {
         this.msgId = msgId;
  
@@ -78,6 +93,12 @@ public class RpcResponseMessage extends AbstractMessage {
         }
     }
  
+    /**
+     * Returns whether the throwable chain can be serialized directly.
+     *
+     * @param error the throwable to inspect
+     * @return true if the throwable chain is serializable
+     */
     public static boolean isSerializable( Throwable error ) {
         if( error == null ) {
             return false;
@@ -90,18 +111,38 @@ public class RpcResponseMessage extends AbstractMessage {
         return true; 
     }
  
+    /**
+     * Returns the RPC response message id.
+     *
+     * @return the response message id
+     */
     public long getMessageId() {
         return msgId;
     }
     
+    /**
+     * Returns the invocation result.
+     *
+     * @return the invocation result, or {@code null}
+     */
     public Object getResult() {
         return result;
     }
         
+    /**
+     * Returns the serialized error text, if any.
+     *
+     * @return the serialized error text, or {@code null}
+     */
     public String getError() {
         return error;
     }
     
+    /**
+     * Returns the serialized throwable, if present.
+     *
+     * @return the serialized throwable, or {@code null}
+     */
     public Throwable getThrowable() {
         return (Throwable)exception;
     }
