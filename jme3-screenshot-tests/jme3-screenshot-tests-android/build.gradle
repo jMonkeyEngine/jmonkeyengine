@@ -45,7 +45,7 @@ dependencies {
     implementation libs.androidxConstraintlayout
 
     implementation project(":jme3-android")
-    implementation project(":jme3-android-native")
+    implementation libs.jme3.android.natives
 
     implementation libs.androidx.test.core
     implementation libs.androidx.test.ext.junit
