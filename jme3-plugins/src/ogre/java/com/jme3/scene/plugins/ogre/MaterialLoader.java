@@ -53,6 +53,13 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Loads Ogre3D material files.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
+ */
+@Deprecated
 public class MaterialLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MaterialLoader.class.getName());

@@ -169,7 +169,7 @@ public class HelloPicking extends SimpleApplication {
 
   private Spatial makeCharacter() {
     // load a character from jme3-testdata
-    Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+    Spatial golem = assetManager.loadModel("Models/Oto/Oto.j3o");
     golem.scale(0.5f);
     golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
 

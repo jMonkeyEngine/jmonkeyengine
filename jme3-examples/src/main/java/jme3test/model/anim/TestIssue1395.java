@@ -69,7 +69,7 @@ public class TestIssue1395 extends SimpleApplication {
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1f));
         rootNode.addLight(dl);
 
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.j3o");
         rootNode.attachChild(model);
         model.center();
 

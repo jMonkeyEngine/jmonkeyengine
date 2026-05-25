@@ -47,6 +47,13 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.custom.ArmatureDebugger;
 
+/**
+ * Example demonstrating complex Ogre model animations with armature masks and advanced blending.
+ * 
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
+ */
+@Deprecated
 public class TestOgreComplexAnim extends SimpleApplication {
 
     private SkinningControl skinningControl;

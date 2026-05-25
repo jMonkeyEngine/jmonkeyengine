@@ -170,7 +170,7 @@ public class TestBoneRagdoll
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager,
                 physicsSpace);
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.j3o");
         rootNode.attachChild(model);
 
         composer = model.getControl(AnimComposer.class);

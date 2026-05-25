@@ -56,7 +56,7 @@ public class TestLodStress extends SimpleApplication {
         dl.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
         rootNode.addLight(dl);
 
-        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.j3o");
         Geometry teapot = (Geometry) teapotNode.getChild(0);
         
 //        Sphere sph = new Sphere(16, 16, 4);

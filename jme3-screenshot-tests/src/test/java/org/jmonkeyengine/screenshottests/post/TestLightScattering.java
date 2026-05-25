@@ -76,7 +76,7 @@ public class TestLightScattering extends ScreenshotTestBase {
                 simpleApplication.getCamera().setRotation(new Quaternion(0.010414706f, 0.9874893f, 0.13880467f, -0.07409228f));
 
                 Material mat = simpleApplication.getAssetManager().loadMaterial("Textures/Terrain/Rocky/Rocky.j3m");
-                Spatial scene = simpleApplication.getAssetManager().loadModel("Models/Terrain/Terrain.mesh.xml");
+                Spatial scene = simpleApplication.getAssetManager().loadModel("Models/Terrain/Terrain.j3o");
                 MikktspaceTangentGenerator.generate(((Geometry) ((Node) scene).getChild(0)).getMesh());
                 scene.setMaterial(mat);
                 scene.setShadowMode(ShadowMode.CastAndReceive);
