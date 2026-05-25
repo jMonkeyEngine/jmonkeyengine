@@ -39,8 +39,8 @@ public class Matrix4fTest {
 
     /**
      * Builds an affine transform with translation, scale, and rotation via
-     * setTransform, inverts it, multiplies transform by inverse, and asserts
-     * the product is the identity matrix.
+     * setTransform, inverts it, and asserts transform * inverse and
+     * inverse * transform are both the identity matrix.
      */
     @Test
     public void testInvert_roundTripWithTranslationScaleAndRotation() {
@@ -54,8 +54,13 @@ public class Matrix4fTest {
                 rotation);
 
         final Matrix4f inverse = transform.invert();
-        final Matrix4f product = transform.mult(inverse);
 
-        assertTrue(product.isSimilar(Matrix4f.IDENTITY, 1e-4f));
+        final Matrix4f product = transform.mult(inverse);
+        assertTrue(product.isSimilar(Matrix4f.IDENTITY, 1e-4f),
+                () -> "transform * inverse should be identity, but was:\n" + product);
+
+        final Matrix4f inverseProduct = inverse.mult(transform);
+        assertTrue(inverseProduct.isSimilar(Matrix4f.IDENTITY, 1e-4f),
+                () -> "inverse * transform should be identity, but was:\n" + inverseProduct);
     }
 }
