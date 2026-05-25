@@ -94,6 +94,8 @@ public class ViewPort {
      * FrameBuffer for output.
      */
     protected FrameBuffer out = null;
+    protected int renderTargetWidth;
+    protected int renderTargetHeight;
 
     /**
      * Color applied when the color buffer is cleared.
@@ -308,6 +310,41 @@ public class ViewPort {
      */
     public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;
+    }
+
+    void setRenderTargetSize(int width, int height) {
+        renderTargetWidth = Math.max(width, 1);
+        renderTargetHeight = Math.max(height, 1);
+    }
+
+    /**
+     * Returns the width of this ViewPort's current render target.
+     *
+     * @return the width in pixels
+     */
+    public int getRenderTargetWidth() {
+        if (out != null && out.getWidth() > 0) {
+            return out.getWidth();
+        }
+        if (renderTargetWidth > 0) {
+            return renderTargetWidth;
+        }
+        return cam.getWidth();
+    }
+
+    /**
+     * Returns the height of this ViewPort's current render target.
+     *
+     * @return the height in pixels
+     */
+    public int getRenderTargetHeight() {
+        if (out != null && out.getHeight() > 0) {
+            return out.getHeight();
+        }
+        if (renderTargetHeight > 0) {
+            return renderTargetHeight;
+        }
+        return cam.getHeight();
     }
 
     /**

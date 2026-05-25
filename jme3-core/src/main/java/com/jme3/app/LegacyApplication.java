@@ -593,8 +593,13 @@ public class LegacyApplication implements Application, SystemListener {
      */
     @Override
     public void reshape(int w, int h) {
+        reshape(w, h, w, h);
+    }
+
+    @Override
+    public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
         if (renderManager != null) {
-            renderManager.notifyReshape(w, h);
+            renderManager.notifyReshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
         }
     }
 

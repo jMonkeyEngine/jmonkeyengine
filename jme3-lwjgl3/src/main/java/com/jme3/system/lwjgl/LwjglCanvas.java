@@ -38,7 +38,6 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.input.lwjgl.SdlJoystickInput;
-import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
 import com.jme3.system.JmeCanvasContext;
@@ -52,12 +51,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.geom.AffineTransform;
 
 import javax.swing.SwingUtilities;
 
@@ -412,8 +409,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /** Notify if there is a change in canvas dimensions. */
     private final AtomicBoolean needResize = new AtomicBoolean(false);
-    /** Notify if there are changes to the canvas scales. */
-    private final AtomicBoolean needRescale = new AtomicBoolean(false);
 
     /**
      * Flag that uses the context to check if it is initialized or not, this prevents
@@ -423,11 +418,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /** lock-object. */
     private final Object lock = new Object();
-
-    /** Scale of the component in {@code x}  */
-    private float xScale = 1;
-    /** Scale of the component in {@code y} */
-    private float yScale = 1;
 
     /** Framebuffer width. */
     private int framebufferWidth = 1;
@@ -534,11 +524,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         while (true) {
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
-                listener.reshape(framebufferWidth, framebufferHeight);
-            }
-
-            if (needRescale.getAndSet(false)) {
-                listener.rescale(xScale, yScale);
+                listener.reshape(framebufferWidth, framebufferHeight, framebufferWidth, framebufferHeight);
             }
 
             synchronized (lock) {
@@ -638,7 +624,9 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             throw new IllegalStateException();
         }
 
-        listener.update();
+        if (!renderFrameWithBlitFramebuffer()) {
+            listener.update();
+        }
 
         // Subclasses just call GLObjectManager. Clean up objects here.
         // It is safe ... for now.
@@ -838,9 +826,15 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override protected void showWindow() { }
     /** (non-Javadoc) */
     @Override protected void setWindowIcon(final AppSettings settings) { }
-    /**(non-Javadoc) */
-    @Override public Vector2f getWindowContentScale(Vector2f store) {
-        return store == null ? new Vector2f() : store;
+
+    @Override
+    protected int getRenderFramebufferWidth() {
+        return Math.max(framebufferWidth, 1);
+    }
+
+    @Override
+    protected int getRenderFramebufferHeight() {
+        return Math.max(framebufferHeight, 1);
     }
 
     /**
@@ -849,28 +843,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override
     protected void updateSizes() {
         synchronized (lock) {
-            GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
-            if (gc == null) {
-                return;
-            }
-
-            AffineTransform at = gc.getDefaultTransform();
-            float sx = (float) at.getScaleX(),
-                  sy = (float) at.getScaleY();
-
-            int fw = (int) (canvas.getWidth() * sx);
-            int fh = (int) (canvas.getHeight() * sy);
+            int fw = canvas.getWidth();
+            int fh = canvas.getHeight();
 
             if (fw != framebufferWidth || fh != framebufferHeight) {
                 framebufferWidth  = Math.max(fw, 1);
                 framebufferHeight = Math.max(fh, 1);
                 needResize.set(true);
-            }
-
-            if (xScale != sx || yScale != sy) {
-                xScale = sx;
-                yScale = sy;
-                needRescale.set(true);
             }
         }
     }
