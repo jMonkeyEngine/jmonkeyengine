@@ -73,7 +73,7 @@ public class VirtualJoystickTheme implements Savable {
         resetToDefault();
     }
 
-    public final void resetToDefault() {
+    public synchronized final void resetToDefault() {
         textures.clear();
         fontPath = DEFAULT_FONT;
         textures.put(TextureKey.BUTTON, "Common/VirtualJoystick/button_circle.png");
@@ -103,11 +103,11 @@ public class VirtualJoystickTheme implements Savable {
         markUpdateNeeded();
     }
 
-    public String getTexture(TextureKey key) {
+    public synchronized String getTexture(TextureKey key) {
         return textures.get(key);
     }
 
-    public void setTexture(TextureKey key, String texturePath) {
+    public synchronized void setTexture(TextureKey key, String texturePath) {
         if (key == null) {
             throw new IllegalArgumentException("Texture key cannot be null.");
         }
@@ -132,7 +132,7 @@ public class VirtualJoystickTheme implements Savable {
     }
 
     @Override
-    public void write(JmeExporter ex) throws IOException {
+    public synchronized void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(fontPath, "fontPath", DEFAULT_FONT);
         String[] keys = new String[textures.size()];
@@ -145,7 +145,7 @@ public class VirtualJoystickTheme implements Savable {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException {
+    public synchronized void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
         fontPath = capsule.readString("fontPath", DEFAULT_FONT);
         String[] keys = capsule.readStringArray("keys", null);

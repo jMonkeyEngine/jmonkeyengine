@@ -183,7 +183,7 @@ public class VirtualJoystickLayout implements Savable {
         markUpdateNeeded();
     }
 
-    public Vector2f getButtonPosition(String logicalId) {
+    public synchronized Vector2f getButtonPosition(String logicalId) {
         Element element = element(buttons, logicalId);
         return new Vector2f(element.positionX, element.positionY);
     }
@@ -194,7 +194,7 @@ public class VirtualJoystickLayout implements Savable {
         markUpdateNeeded();
     }
 
-    public boolean isButtonVisible(String logicalId) {
+    public synchronized boolean isButtonVisible(String logicalId) {
         return element(buttons, logicalId).visible;
     }
 
@@ -203,7 +203,7 @@ public class VirtualJoystickLayout implements Savable {
         markUpdateNeeded();
     }
 
-    public Vector2f getAxisPosition(String logicalId) {
+    public synchronized Vector2f getAxisPosition(String logicalId) {
         Element element = axisElement(logicalId);
         return new Vector2f(element.positionX, element.positionY);
     }
@@ -214,7 +214,7 @@ public class VirtualJoystickLayout implements Savable {
         markUpdateNeeded();
     }
 
-    public boolean isAxisVisible(String logicalId) {
+    public synchronized boolean isAxisVisible(String logicalId) {
         return axisElement(logicalId).visible;
     }
 
@@ -287,11 +287,11 @@ public class VirtualJoystickLayout implements Savable {
         return toggleElement;
     }
 
-    public Element getButtonElement(String logicalId) {
+    public synchronized Element getButtonElement(String logicalId) {
         return buttons.get(logicalId);
     }
 
-    public Element getAxisElement(String logicalId) {
+    public synchronized Element getAxisElement(String logicalId) {
         return findAxisElement(logicalId);
     }
 
@@ -386,11 +386,7 @@ public class VirtualJoystickLayout implements Savable {
         volatile float shortOffsetX;
         volatile float shortOffsetY;
         volatile boolean visible = true;
-        transient volatile float pixelX;
-        transient volatile float pixelY;
-        transient volatile float pixelSize;
-        transient volatile float pixelWidth;
-        transient volatile float pixelHeight;
+        private transient volatile Bounds bounds = Bounds.EMPTY;
         transient volatile float nubX;
         transient volatile float nubY;
         transient Node node;
@@ -465,18 +461,28 @@ public class VirtualJoystickLayout implements Savable {
         }
 
         boolean contains(float x, float y) {
-            return Math.abs(x - pixelX) <= pixelWidth * 0.5f
-                    && Math.abs(y - pixelY) <= pixelHeight * 0.5f;
+            Bounds current = bounds;
+            return Math.abs(x - current.x) <= current.width * 0.5f
+                    && Math.abs(y - current.y) <= current.height * 0.5f;
+        }
+
+        void copyBoundsTo(BoundsSnapshot target) {
+            Bounds current = bounds;
+            target.x = current.x;
+            target.y = current.y;
+            target.size = current.size;
+            target.width = current.width;
+            target.height = current.height;
         }
 
         void sync(int width, int height, float scale, boolean pressed) {
             float shortSide = Math.min(width, height);
             float scaledShortSide = shortSide * scale;
-            pixelSize = Math.max(scaledShortSide * size, 1f);
-            pixelWidth = pixelSize * aspect;
-            pixelHeight = pixelSize;
-            pixelX = positionX * width + shortOffsetX * scaledShortSide;
-            pixelY = positionY * height + shortOffsetY * scaledShortSide;
+            float pixelSize = Math.max(scaledShortSide * size, 1f);
+            float pixelWidth = pixelSize * aspect;
+            float pixelHeight = pixelSize;
+            float pixelX = positionX * width + shortOffsetX * scaledShortSide;
+            float pixelY = positionY * height + shortOffsetY * scaledShortSide;
             if (pixelWidth < width) {
                 pixelX = FastMath.clamp(pixelX, pixelWidth * 0.5f, width - pixelWidth * 0.5f);
             } else {
@@ -562,6 +568,11 @@ public class VirtualJoystickLayout implements Savable {
                 lastNodeY = pixelY;
                 nodePositionSynced = true;
             }
+            Bounds current = bounds;
+            if (current.x != pixelX || current.y != pixelY || current.size != pixelSize
+                    || current.width != pixelWidth || current.height != pixelHeight) {
+                publishBounds(pixelX, pixelY, pixelSize, pixelWidth, pixelHeight);
+            }
         }
 
         synchronized void clearVisuals() {
@@ -573,6 +584,7 @@ public class VirtualJoystickLayout implements Savable {
             nub = null;
             icon = null;
             text = null;
+            publishBounds(0f, 0f, 0f, 0f, 0f);
             clearSyncState();
         }
 
@@ -591,6 +603,38 @@ public class VirtualJoystickLayout implements Savable {
             textGeometrySynced = false;
             textColorSynced = false;
             nodePositionSynced = false;
+        }
+
+        private void publishBounds(float x, float y, float size, float width, float height) {
+            bounds = x == 0f && y == 0f && size == 0f && width == 0f && height == 0f
+                    ? Bounds.EMPTY
+                    : new Bounds(x, y, size, width, height);
+        }
+
+        private static final class Bounds {
+            static final Bounds EMPTY = new Bounds(0f, 0f, 0f, 0f, 0f);
+
+            final float x;
+            final float y;
+            final float size;
+            final float width;
+            final float height;
+
+            Bounds(float x, float y, float size, float width, float height) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.width = width;
+                this.height = height;
+            }
+        }
+
+        static final class BoundsSnapshot {
+            float x;
+            float y;
+            float size;
+            float width;
+            float height;
         }
 
         @Override

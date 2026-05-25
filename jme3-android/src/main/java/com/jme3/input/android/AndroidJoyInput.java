@@ -97,7 +97,7 @@ public class AndroidJoyInput implements JoyInput {
     private boolean useAndroidSensorJoystick = false;
     private boolean physicalJoystickAvailable = false;
     private boolean keyboardSuppressedAutoJoystick = false;
-    private VirtualJoystick virtualJoystick;
+    private volatile VirtualJoystick virtualJoystick;
     private GLSurfaceView view;
 
     public AndroidJoyInput(AndroidInputHandler inputHandler) {
@@ -222,7 +222,8 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     public boolean onTouch(MotionEvent event) {
-        if (virtualJoystick == null || inputHandler.getView() == null) {
+        VirtualJoystick joystick = virtualJoystick;
+        if (joystick == null || inputHandler.getView() == null) {
             return false;
         }
 
@@ -235,20 +236,20 @@ public class AndroidJoyInput implements JoyInput {
         switch (action) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
-                consumed = virtualJoystick.onPointerDown(event.getPointerId(pointerIndex),
+                consumed = joystick.onPointerDown(event.getPointerId(pointerIndex),
                         toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
                 break;
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-                consumed = virtualJoystick.onPointerUp(event.getPointerId(pointerIndex),
+                consumed = joystick.onPointerUp(event.getPointerId(pointerIndex),
                         toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
                 break;
             case MotionEvent.ACTION_CANCEL:
-                consumed = virtualJoystick.onPointerCancel(time);
+                consumed = joystick.onPointerCancel(time);
                 break;
             case MotionEvent.ACTION_MOVE:
                 for (int i = 0; i < event.getPointerCount(); i++) {
-                    consumed = virtualJoystick.onPointerMove(event.getPointerId(i),
+                    consumed = joystick.onPointerMove(event.getPointerId(i),
                             toJmeX(event.getX(i)), toJmeY(event.getY(i)), time) || consumed;
                 }
                 break;

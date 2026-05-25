@@ -74,11 +74,12 @@ public class VirtualJoystick extends AbstractJoystick {
     private final Map<String, JoystickAxis> axesByLogicalId = new HashMap<>();
     private final Map<String, JoystickButton> buttonsByLogicalId = new HashMap<>();
     private final Map<Integer, Capture> captures = new HashMap<>();
-    private final ArrayDeque<InputEvent> events = new ArrayDeque<>();
-    private final ArrayDeque<InputEvent> auxiliaryEvents = new ArrayDeque<>();
+    private ArrayDeque<InputEvent> events = new ArrayDeque<>();
+    private ArrayDeque<InputEvent> readyEvents = new ArrayDeque<>();
     private final float[] axisValues = new float[8];
     private final boolean[] buttonValues = new boolean[16];
     private final Object inputLock = new Object();
+    private final Element.BoundsSnapshot inputBounds = new Element.BoundsSnapshot();
 
     private JoystickAxis xAxis;
     private JoystickAxis yAxis;
@@ -189,8 +190,9 @@ public class VirtualJoystick extends AbstractJoystick {
      */
     public boolean onPointerDown(int pointerId, float x, float y, long time) {
         synchronized (inputLock) {
-            if (!enabled || captures.containsKey(pointerId)) {
-                return captures.containsKey(pointerId);
+            Capture existingCapture = captures.get(pointerId);
+            if (!enabled || existingCapture != null) {
+                return existingCapture != null;
             }
 
             Element toggleElement = layout.getToggleElement();
@@ -305,16 +307,14 @@ public class VirtualJoystick extends AbstractJoystick {
                 hasEvents = false;
                 return;
             }
-            auxiliaryEvents.clear();
-            InputEvent event;
-            while ((event = events.poll()) != null) {
-                auxiliaryEvents.add(event);
-            }
+            ArrayDeque<InputEvent> pendingEvents = events;
+            events = readyEvents;
+            readyEvents = pendingEvents;
             hasEvents = false;
         }
 
         InputEvent event;
-        while ((event = auxiliaryEvents.poll()) != null) {
+        while ((event = readyEvents.poll()) != null) {
             if (event instanceof JoyAxisEvent) {
                 listener.onJoyAxisEvent((JoyAxisEvent) event);
             } else if (event instanceof JoyButtonEvent) {
@@ -465,12 +465,13 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     private void updateAxisCapture(Element element, float x, float y, long time) {
-        float radius = element.pixelSize * 0.5f;
+        element.copyBoundsTo(inputBounds);
+        float radius = inputBounds.size * 0.5f;
         if (radius <= 0f) {
             return;
         }
-        float dx = x - element.pixelX;
-        float dy = y - element.pixelY;
+        float dx = x - inputBounds.x;
+        float dy = y - inputBounds.y;
         float length = FastMath.sqrt(dx * dx + dy * dy);
         if (length > radius && length > 0f) {
             dx *= radius / length;

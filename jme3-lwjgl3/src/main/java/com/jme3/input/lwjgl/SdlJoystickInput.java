@@ -42,7 +42,7 @@ public class SdlJoystickInput implements JoyInput {
     private float globalJitterThreshold;
     private boolean loadGamepads;
     private boolean loadRaw;
-    private VirtualJoystick virtualJoystick;
+    private volatile VirtualJoystick virtualJoystick;
 
     private RawInputListener listener;
 
@@ -274,21 +274,25 @@ public class SdlJoystickInput implements JoyInput {
     @Override
     public void update() {
         handleInputEvents();
-        if (virtualJoystick != null) {
-            virtualJoystick.dispatchEvents(listener);
+        VirtualJoystick joystick = virtualJoystick;
+        if (joystick != null) {
+            joystick.dispatchEvents(listener);
         }
     }
 
     public boolean onPointerDown(int pointerId, float x, float y, long time) {
-        return virtualJoystick != null && virtualJoystick.onPointerDown(pointerId, x, y, time);
+        VirtualJoystick joystick = virtualJoystick;
+        return joystick != null && joystick.onPointerDown(pointerId, x, y, time);
     }
 
     public boolean onPointerMove(int pointerId, float x, float y, long time) {
-        return virtualJoystick != null && virtualJoystick.onPointerMove(pointerId, x, y, time);
+        VirtualJoystick joystick = virtualJoystick;
+        return joystick != null && joystick.onPointerMove(pointerId, x, y, time);
     }
 
     public boolean onPointerUp(int pointerId, float x, float y, long time) {
-        return virtualJoystick != null && virtualJoystick.onPointerUp(pointerId, x, y, time);
+        VirtualJoystick joystick = virtualJoystick;
+        return joystick != null && joystick.onPointerUp(pointerId, x, y, time);
     }
 
     public void onSDLEvent(SDL_Event evt) {
@@ -407,8 +411,9 @@ public class SdlJoystickInput implements JoyInput {
 
     private Joystick[] currentJoysticks() {
         List<Joystick> current = new ArrayList<>(joysticks.values());
-        if (virtualJoystick != null) {
-            current.add(virtualJoystick);
+        VirtualJoystick joystick = virtualJoystick;
+        if (joystick != null) {
+            current.add(joystick);
         }
         return current.toArray(new Joystick[0]);
     }
