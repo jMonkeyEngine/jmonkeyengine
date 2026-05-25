@@ -54,7 +54,12 @@ import com.jme3.renderer.Camera;
  *  - WASD keys for moving forward/backward and strafing
  *  - QZ keys raise or lower the camera
  */
-public class FlyByCamera implements AnalogListener, ActionListener {
+public class FlyByCamera implements AnalogListener, ActionListener, JoystickConnectionListener {
+
+    private static final String FLYCAM_JOYSTICK_LEFT = "FLYCAM_JoystickLeft";
+    private static final String FLYCAM_JOYSTICK_RIGHT = "FLYCAM_JoystickRight";
+    private static final String FLYCAM_JOYSTICK_UP = "FLYCAM_JoystickUp";
+    private static final String FLYCAM_JOYSTICK_DOWN = "FLYCAM_JoystickDown";
 
     private static final String[] mappings = new String[]{
             CameraInput.FLYCAM_LEFT,
@@ -74,7 +79,12 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             CameraInput.FLYCAM_RISE,
             CameraInput.FLYCAM_LOWER,
 
-            CameraInput.FLYCAM_INVERTY
+            CameraInput.FLYCAM_INVERTY,
+
+            FLYCAM_JOYSTICK_LEFT,
+            FLYCAM_JOYSTICK_RIGHT,
+            FLYCAM_JOYSTICK_UP,
+            FLYCAM_JOYSTICK_DOWN
     };
     /**
      * camera controlled by this controller (not null)
@@ -295,6 +305,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
                 mapJoystick(j);
             }
         }
+        inputManager.addJoystickConnectionListener(this);
     }
 
     /**
@@ -304,34 +315,38 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param joystick The {@link Joystick} to map (not null).
      */
     protected void mapJoystick(Joystick joystick) {
-        // Map it differently if there are Z axis
-        if (joystick.getAxis(JoystickAxis.Z_ROTATION) != null
-                && joystick.getAxis(JoystickAxis.Z_AXIS) != null) {
+        JoystickAxis xAxis = joystick.getXAxis();
+        JoystickAxis yAxis = joystick.getYAxis();
+        JoystickAxis rightXAxis = joystick.getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_X);
+        JoystickAxis rightYAxis = joystick.getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_Y);
 
-            // Make the left stick move
-            joystick.getXAxis().assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
-            joystick.getYAxis().assignAxis(CameraInput.FLYCAM_BACKWARD, CameraInput.FLYCAM_FORWARD);
-
-            // And the right stick control the camera
-            joystick.getAxis(JoystickAxis.Z_ROTATION)
-                    .assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
-            joystick.getAxis(JoystickAxis.Z_AXIS)
-                    .assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
-
-            // And let the dpad be up and down
-            joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);
-
-            if (joystick.getButton("Button 8") != null) {
-                // Let the standard select button be the y invert toggle
-                joystick.getButton("Button 8").assignButton(CameraInput.FLYCAM_INVERTY);
-            }
-
-        } else {
-            joystick.getPovXAxis().assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
-            joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_FORWARD, CameraInput.FLYCAM_BACKWARD);
-            joystick.getXAxis().assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
-            joystick.getYAxis().assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
+        if (xAxis != null) {
+            xAxis.assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
         }
+        if (yAxis != null) {
+            yAxis.assignAxis(CameraInput.FLYCAM_BACKWARD, CameraInput.FLYCAM_FORWARD);
+        }
+        if (rightXAxis != null && rightYAxis != null && rightXAxis != xAxis && rightYAxis != yAxis) {
+            rightYAxis.assignAxis(FLYCAM_JOYSTICK_DOWN, FLYCAM_JOYSTICK_UP);
+            rightXAxis.assignAxis(FLYCAM_JOYSTICK_RIGHT, FLYCAM_JOYSTICK_LEFT);
+        }
+
+        JoystickButton backButton = joystick.getButton(JoystickButton.BUTTON_XBOX_BACK);
+        if (backButton != null) {
+            // Let the standard select button be the y invert toggle
+            backButton.assignButton(CameraInput.FLYCAM_INVERTY);
+        }
+    }
+
+    @Override
+    public void onConnected(Joystick joystick) {
+        if (inputManager != null) {
+            mapJoystick(joystick);
+        }
+    }
+
+    @Override
+    public void onDisconnected(Joystick joystick) {
     }
 
     /**
@@ -349,6 +364,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         }
 
         inputManager.removeListener(this);
+        inputManager.removeJoystickConnectionListener(this);
         inputManager.setCursorVisible(!dragToRotate);
 
         // Joysticks cannot be "unassigned" in the same way, but mappings are removed with listener.
@@ -363,7 +379,11 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param axis  The axis around which to rotate (a unit vector, unaffected).
      */
     protected void rotateCamera(float value, Vector3f axis) {
-        if (dragToRotate && !canRotate) {
+        rotateCamera(value, axis, false);
+    }
+
+    private void rotateCamera(float value, Vector3f axis, boolean forceRotate) {
+        if (!forceRotate && dragToRotate && !canRotate) {
             return; // In drag-to-rotate mode, only rotate if canRotate is true.
         }
 
@@ -479,6 +499,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             rotateCamera(-value * (invertY ? -1 : 1), cam.getLeft(tempLeft));
         } else if (name.equals(CameraInput.FLYCAM_DOWN)) {
             rotateCamera(value * (invertY ? -1 : 1), cam.getLeft(tempLeft));
+        } else if (name.equals(FLYCAM_JOYSTICK_LEFT)) {
+            rotateCamera(value, initialUpVec, true);
+        } else if (name.equals(FLYCAM_JOYSTICK_RIGHT)) {
+            rotateCamera(-value, initialUpVec, true);
+        } else if (name.equals(FLYCAM_JOYSTICK_UP)) {
+            rotateCamera(-value * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
+        } else if (name.equals(FLYCAM_JOYSTICK_DOWN)) {
+            rotateCamera(value * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
         } else if (name.equals(CameraInput.FLYCAM_FORWARD)) {
             moveCamera(value, false);
         } else if (name.equals(CameraInput.FLYCAM_BACKWARD)) {

@@ -32,6 +32,7 @@
 package com.jme3.input.android;
 
 import android.opengl.GLSurfaceView;
+import android.view.MotionEvent;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
@@ -39,6 +40,7 @@ import com.jme3.input.RawInputListener;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.virtual.VirtualJoystick;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ import java.util.logging.Logger;
 /**
  * Main class that manages various joystick devices.  Joysticks can be many forms
  * including a simulated joystick to communicate the device orientation as well
- * as physical gamepads. <br>
+ * as physical joysticks. <br>
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
@@ -67,7 +69,7 @@ import java.util.logging.Logger;
  *
  * MainActivity needs the following line to enable Joysticks on Android platforms
  *    joystickEventsEnabled = true;
- * This is done to allow for battery conservation when sensor data or gamepads
+ * This is done to allow for battery conservation when sensor data or joysticks
  * are not required by the application.
  *
  * {@code
@@ -92,6 +94,11 @@ public class AndroidJoyInput implements JoyInput {
     private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
     private boolean onDeviceJoystickRumble = false;
+    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
+    private boolean useJoysticks = true;
+    private boolean physicalJoystickAvailable = false;
+    private boolean keyboardSuppressedAutoJoystick = false;
+    private VirtualJoystick virtualJoystick;
 
     public AndroidJoyInput(AndroidInputHandler inputHandler) {
         this.inputHandler = inputHandler;
@@ -106,6 +113,8 @@ public class AndroidJoyInput implements JoyInput {
 
     public void loadSettings(AppSettings settings) {
         onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
+        virtualJoystickMode = settings.getVirtualJoystickMode();
+        useJoysticks = settings.useJoysticks();
     }
 
     boolean isOnDeviceJoystickRumble() {
@@ -126,6 +135,9 @@ public class AndroidJoyInput implements JoyInput {
         }
         if (onDeviceJoystickRumble) {
             JmeSystem.stopRumble();
+        }
+        if (virtualJoystick != null) {
+            virtualJoystick.onPointerCancel(0L);
         }
 
     }
@@ -191,10 +203,63 @@ public class AndroidJoyInput implements JoyInput {
         if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
         }
+        joystickList.clear();
         if (!disableSensors) {
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }
+        physicalJoystickAvailable = false;
+        if (shouldCreateVirtualJoystick()) {
+            virtualJoystick = new VirtualJoystick(inputManager, this, joystickList.size());
+            updateVirtualJoystickAutoVisibility();
+            joystickList.add(virtualJoystick);
+        } else {
+            virtualJoystick = null;
+        }
         return joystickList.toArray( new Joystick[joystickList.size()] );
+    }
+
+    public boolean onTouch(MotionEvent event) {
+        if (virtualJoystick == null || inputHandler.getView() == null) {
+            return false;
+        }
+
+        boolean consumed = false;
+        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        long time = event.getEventTime();
+
+        switch (action) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_DOWN:
+                consumed = virtualJoystick.onPointerDown(event.getPointerId(pointerIndex),
+                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_UP:
+                consumed = virtualJoystick.onPointerUp(event.getPointerId(pointerIndex),
+                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                consumed = virtualJoystick.onPointerCancel(time);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                for (int i = 0; i < event.getPointerCount(); i++) {
+                    consumed = virtualJoystick.onPointerMove(event.getPointerId(i),
+                            toJmeX(event.getX(i)), toJmeY(event.getY(i)), time) || consumed;
+                }
+                break;
+            default:
+                break;
+        }
+        return consumed;
+    }
+
+    public void onKeyboardInput() {
+        if (isAutoMode(virtualJoystickMode)) {
+            keyboardSuppressedAutoJoystick = true;
+            updateVirtualJoystickAutoVisibility();
+        }
     }
 
     @Override
@@ -214,7 +279,56 @@ public class AndroidJoyInput implements JoyInput {
                 }
             }
         }
+        if (virtualJoystick != null) {
+            virtualJoystick.dispatchEvents(listener);
+        }
 
+    }
+
+    private float toJmeX(float x) {
+        return inputHandler.touchInput.getJmeX(x);
+    }
+
+    private float toJmeY(float y) {
+        return inputHandler.touchInput.invertY(inputHandler.touchInput.getJmeY(y));
+    }
+
+    protected void setPhysicalJoystickAvailable(boolean available) {
+        physicalJoystickAvailable = available;
+        updateVirtualJoystickAutoVisibility();
+    }
+
+    private boolean shouldCreateVirtualJoystick() {
+        return useJoysticks && !AppSettings.VIRTUAL_JOYSTICK_DISABLED.equals(virtualJoystickMode);
+    }
+
+    private void updateVirtualJoystickAutoVisibility() {
+        if (virtualJoystick == null) {
+            return;
+        }
+        boolean active = isEnabledMode(virtualJoystickMode)
+                || (isAutoMode(virtualJoystickMode)
+                && !physicalJoystickAvailable
+                && !keyboardSuppressedAutoJoystick);
+        virtualJoystick.setEnabled(active);
+        if (active && isMinimizedMode(virtualJoystickMode)) {
+            virtualJoystick.setShown(false);
+        }
+    }
+
+    private static boolean isEnabledMode(String mode) {
+        return AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(mode)
+                || AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode);
+    }
+
+    private static boolean isAutoMode(String mode) {
+        return AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(mode)
+                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
+    }
+
+    private static boolean isMinimizedMode(String mode) {
+        return AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
+                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
     }
 
 }

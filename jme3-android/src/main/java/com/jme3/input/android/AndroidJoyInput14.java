@@ -93,7 +93,9 @@ public class AndroidJoyInput14 extends AndroidJoyInput {
         // load the simulated joystick for device orientation
         super.loadJoysticks(inputManager);
         // load physical gamepads/joysticks
+        int beforePhysicalJoysticks = joystickList.size();
         joystickList.addAll(joystickJoyInput.loadJoysticks(joystickList.size(), inputManager));
+        setPhysicalJoystickAvailable(joystickList.size() > beforePhysicalJoysticks);
         // return the list of joysticks back to InputManager
         return joystickList.toArray( new Joystick[joystickList.size()] );
     }

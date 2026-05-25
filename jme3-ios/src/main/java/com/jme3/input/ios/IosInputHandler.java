@@ -241,13 +241,19 @@ public class IosInputHandler implements TouchInput {
         int type = intData[0];
         switch (type) {
             case LibJGLIOSInputBridge.EVENT_TOUCH_DOWN:
-                injectTouchDown(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                if (!IosJoyInput.dispatchPointerDown(intData[1], nativeX(floatData[0]), touchY(floatData[1]), time)) {
+                    injectTouchDown(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                }
                 break;
             case LibJGLIOSInputBridge.EVENT_TOUCH_UP:
-                injectTouchUp(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                if (!IosJoyInput.dispatchPointerUp(intData[1], nativeX(floatData[0]), touchY(floatData[1]), time)) {
+                    injectTouchUp(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                }
                 break;
             case LibJGLIOSInputBridge.EVENT_TOUCH_MOVE:
-                injectTouchMove(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                if (!IosJoyInput.dispatchPointerMove(intData[1], nativeX(floatData[0]), touchY(floatData[1]), time)) {
+                    injectTouchMove(intData[1], time, nativeX(floatData[0]), nativeY(floatData[1]));
+                }
                 break;
             case LibJGLIOSInputBridge.EVENT_MOUSE_BUTTON:
                 MouseButtonEvent button = new MouseButtonEvent(
@@ -270,6 +276,7 @@ public class IosInputHandler implements TouchInput {
                 addEvent(motion);
                 break;
             case LibJGLIOSInputBridge.EVENT_KEY:
+                IosJoyInput.dispatchKeyboardInput();
                 KeyInputEvent key = new KeyInputEvent(
                         IosSdlKeyMap.toJmeKeyCode(intData[1]),
                         '\0',
@@ -282,6 +289,7 @@ public class IosInputHandler implements TouchInput {
                 if (!isSingleCharTextInput(intData[1])) {
                     break;
                 }
+                IosJoyInput.dispatchKeyboardInput();
                 KeyInputEvent text = new KeyInputEvent(
                         KeyInput.KEY_UNKNOWN,
                         (char) intData[1],
@@ -325,6 +333,10 @@ public class IosInputHandler implements TouchInput {
     private float mouseY(float value) {
         float y = invertY(nativeY(value));
         return mouseEventsInvertY ? invertY(y) : y;
+    }
+
+    private float touchY(float value) {
+        return invertY(nativeY(value));
     }
 
     private float mouseDeltaX(float value) {

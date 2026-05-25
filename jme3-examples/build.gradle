@@ -25,6 +25,7 @@ tasks.register('generateTestChooserClassList') {
     group = 'build'
     description = 'Generates a resource list of jme3test classes for TestChooserCli fallback discovery.'
     dependsOn 'compileJava'
+    inputs.files(sourceSets.main.output.classesDirs)
     outputs.files(testChooserClassListFile, testChooserReachabilityMetadataFile, testChooserReflectionConfigFile)
 
     doLast {
@@ -109,7 +110,7 @@ task run(dependsOn: 'build', type:JavaExec) {
 }
 
 
-task runExamples(dependsOn: 'build', type: JavaExec) {
+task runExamples(dependsOn: 'classes', type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     if (System.getProperty('os.name').toLowerCase().contains('mac')) {
         jvmArgs '-XstartOnFirstThread'

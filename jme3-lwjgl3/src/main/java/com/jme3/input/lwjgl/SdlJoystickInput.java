@@ -3,11 +3,14 @@ package com.jme3.input.lwjgl;
 import com.jme3.input.*;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.virtual.VirtualJoystick;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,9 +31,6 @@ import static org.lwjgl.sdl.SDLTimer.*;
 public class SdlJoystickInput implements JoyInput {
 
     private static final Logger LOGGER = Logger.getLogger(SdlJoystickInput.class.getName());
-    private static final int POV_X_AXIS_ID = 7;
-    private static final int POV_Y_AXIS_ID = 8;
-
     private final AppSettings settings;
     private final Map<Integer, SdlJoystick> joysticks = new HashMap<>();
     private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
@@ -42,6 +42,7 @@ public class SdlJoystickInput implements JoyInput {
     private float globalJitterThreshold;
     private boolean loadGamepads;
     private boolean loadRaw;
+    private VirtualJoystick virtualJoystick;
 
     private RawInputListener listener;
 
@@ -170,13 +171,17 @@ public class SdlJoystickInput implements JoyInput {
         }
 
         // Virtual POV axes for D-pad.
-        JoystickAxis povX = new DefaultJoystickAxis(inputManager, joystick, POV_X_AXIS_ID, JoystickAxis.POV_X,
+        int povXAxisId = joystick.getAxisCount();
+        JoystickAxis povX = new DefaultJoystickAxis(inputManager, joystick, povXAxisId, JoystickAxis.POV_X,
                 JoystickAxis.POV_X, true, false, 0.0f);
-        joystick.addAxis(POV_X_AXIS_ID, povX);
+        joystick.addAxis(povXAxisId, povX);
+        joystick.povAxisX = povX;
 
-        JoystickAxis povY = new DefaultJoystickAxis(inputManager, joystick, POV_Y_AXIS_ID, JoystickAxis.POV_Y,
+        int povYAxisId = joystick.getAxisCount();
+        JoystickAxis povY = new DefaultJoystickAxis(inputManager, joystick, povYAxisId, JoystickAxis.POV_Y,
                 JoystickAxis.POV_Y, true, false, 0.0f);
-        joystick.addAxis(POV_Y_AXIS_ID, povY);
+        joystick.addAxis(povYAxisId, povY);
+        joystick.povAxisY = povY;
 
         inputManager.fireJoystickConnectedEvent(joystick);
 
@@ -241,7 +246,7 @@ public class SdlJoystickInput implements JoyInput {
         }
 
         if (loadRaw) {
-            // load raw gamepads
+            // load raw joysticks
             IntBuffer joys = SDL_GetJoysticks();
             if (joys != null) {
                 try {
@@ -256,12 +261,34 @@ public class SdlJoystickInput implements JoyInput {
             }
         }
 
-        return joysticks.values().toArray(new Joystick[0]);
+        if (settings.useJoysticks() && isEnabledMode(settings.getVirtualJoystickMode())) {
+            virtualJoystick = new VirtualJoystick(inputManager, this, nextVirtualJoyId());
+            virtualJoystick.setShown(!isMinimizedMode(settings.getVirtualJoystickMode()));
+        } else {
+            virtualJoystick = null;
+        }
+
+        return currentJoysticks();
     }
 
     @Override
     public void update() {
         handleInputEvents();
+        if (virtualJoystick != null) {
+            virtualJoystick.dispatchEvents(listener);
+        }
+    }
+
+    public boolean onPointerDown(int pointerId, float x, float y, long time) {
+        return virtualJoystick != null && virtualJoystick.onPointerDown(pointerId, x, y, time);
+    }
+
+    public boolean onPointerMove(int pointerId, float x, float y, long time) {
+        return virtualJoystick != null && virtualJoystick.onPointerMove(pointerId, x, y, time);
+    }
+
+    public boolean onPointerUp(int pointerId, float x, float y, long time) {
+        return virtualJoystick != null && virtualJoystick.onPointerUp(pointerId, x, y, time);
     }
 
     public void onSDLEvent(SDL_Event evt) {
@@ -301,11 +328,11 @@ public class SdlJoystickInput implements JoyInput {
                 long gp = js.gamepad;
 
                 for (JoystickAxis axis : js.getAxes()) {
-                    int axisIndex = axis.getAxisId();
-                    if (isVirtualPovAxis(axisIndex)) {
+                    if (axis == js.getPovXAxis() || axis == js.getPovYAxis()) {
                         continue;
                     }
 
+                    int axisIndex = axis.getAxisId();
                     String jmeAxisId = axis.getLogicalId();
 
                     short v = SDL_GetGamepadAxis(gp, axisIndex);
@@ -336,14 +363,14 @@ public class SdlJoystickInput implements JoyInput {
                     boolean pressed = SDL_GetGamepadButton(gp, buttonId);
                     updateButton(button, pressed);
 
-                    if (JoystickButton.BUTTON_XBOX_DPAD_UP.equals(jmeButtonId)) {
-                        povYValue += pressed ? 1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(jmeButtonId)) {
-                        povYValue += pressed ? -1f : 0f;
-                    } else if (JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(jmeButtonId)) {
+                    if (JoystickButton.BUTTON_XBOX_DPAD_LEFT.equals(jmeButtonId)) {
                         povXValue += pressed ? -1f : 0f;
                     } else if (JoystickButton.BUTTON_XBOX_DPAD_RIGHT.equals(jmeButtonId)) {
                         povXValue += pressed ? 1f : 0f;
+                    } else if (JoystickButton.BUTTON_XBOX_DPAD_UP.equals(jmeButtonId)) {
+                        povYValue += pressed ? 1f : 0f;
+                    } else if (JoystickButton.BUTTON_XBOX_DPAD_DOWN.equals(jmeButtonId)) {
+                        povYValue += pressed ? -1f : 0f;
                     }
                 }
 
@@ -351,16 +378,16 @@ public class SdlJoystickInput implements JoyInput {
                 if (povXAxis != null) {
                     updateAxis(povXAxis, povXValue, povXValue);
                 }
-
                 JoystickAxis povYAxis = js.getPovYAxis();
                 if (povYAxis != null) {
                     updateAxis(povYAxis, povYValue, povYValue);
                 }
+
             } else {
                 long joy = js.joystick;
 
                 for (JoystickAxis axis : js.getAxes()) {
-                    if (isVirtualPovAxis(axis.getAxisId())) {
+                    if (axis == js.getPovXAxis() || axis == js.getPovYAxis()) {
                         continue;
                     }
 
@@ -378,8 +405,30 @@ public class SdlJoystickInput implements JoyInput {
         }
     }
 
-    private boolean isVirtualPovAxis(int axisId) {
-        return axisId == POV_X_AXIS_ID || axisId == POV_Y_AXIS_ID;
+    private Joystick[] currentJoysticks() {
+        List<Joystick> current = new ArrayList<>(joysticks.values());
+        if (virtualJoystick != null) {
+            current.add(virtualJoystick);
+        }
+        return current.toArray(new Joystick[0]);
+    }
+
+    private int nextVirtualJoyId() {
+        int id = 0;
+        for (Integer joystickId : joysticks.keySet()) {
+            id = Math.max(id, joystickId + 1);
+        }
+        return id;
+    }
+
+    private static boolean isEnabledMode(String mode) {
+        return AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(mode)
+                || AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode);
+    }
+
+    private static boolean isMinimizedMode(String mode) {
+        return AppSettings.VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
+                || AppSettings.VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode);
     }
 
     @Override
@@ -471,7 +520,7 @@ public class SdlJoystickInput implements JoyInput {
         }
     }
 
-    private String getAxisLabel(SdlJoystick gamepad, int sdlAxisIndex) {
+    private String getAxisLabel(SdlJoystick joystick, int sdlAxisIndex) {
         switch (sdlAxisIndex) {
             case SDL_GAMEPAD_AXIS_LEFTX:
                 return "LEFT THUMB STICK (X)";
@@ -621,8 +670,8 @@ public class SdlJoystickInput implements JoyInput {
         private JoystickAxis povAxisX;
         private JoystickAxis povAxisY;
 
-        long gamepad;
         long joystick;
+        long gamepad;
 
         SdlJoystick(InputManager inputManager, JoyInput joyInput, int joyId, String name, long gamepad,
                 long joystick) {
@@ -645,14 +694,6 @@ public class SdlJoystickInput implements JoyInput {
                 }
                 case SDL_GAMEPAD_AXIS_LEFTY: {
                     yAxis = axis;
-                    break;
-                }
-                case POV_X_AXIS_ID: {
-                    povAxisX = axis;
-                    break;
-                }
-                case POV_Y_AXIS_ID: {
-                    povAxisY = axis;
                     break;
                 }
             }

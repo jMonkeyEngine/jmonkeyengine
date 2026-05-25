@@ -249,6 +249,12 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public static final String OPENAL = "OPENAL";
 
+    public static final String VIRTUAL_JOYSTICK_DISABLED = "VirtualJoystickDisabled";
+    public static final String VIRTUAL_JOYSTICK_ENABLED_MINIMIZED = "VirtualJoystickEnabledMinimized";
+    public static final String VIRTUAL_JOYSTICK_ENABLED = "VirtualJoystickEnabled";
+    public static final String VIRTUAL_JOYSTICK_AUTO = "VirtualJoystickAuto";
+    public static final String VIRTUAL_JOYSTICK_AUTO_MINIMIZED = "VirtualJoystickAutoMinimized";
+
 
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
@@ -306,27 +312,27 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     /**
-     * Map gamepads to Xbox-like layout.
+     * Map joysticks to Xbox-like layout.
      */
     public static final String JOYSTICKS_XBOX_MAPPER = "JOYSTICKS_XBOX_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout, with fallback to raw if the gamepad is not recognized.
+     * Map joysticks to an Xbox-like layout, with fallback to raw if the joystick is not recognized.
      */
     public static final String JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER = "JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout using the legacy jME input
+     * Map joysticks to an Xbox-like layout using the legacy jME input
      */
     public static final String JOYSTICKS_XBOX_LEGACY_MAPPER = "JOYSTICKS_XBOX_LEGACY_MAPPER";
 
     /**
-     * Map gamepads using the legacy jME mapper and input.
+     * Map joysticks using the legacy jME mapper and input.
      */
     public static final String JOYSTICKS_LEGACY_MAPPER = "JOYSTICKS_LEGACY_MAPPER";
 
     /**
-     * Don't map gamepads, use raw events instead (ie. bring your own mapper)
+     * Don't map joysticks, use raw events instead (ie. bring your own mapper)
      */
     public static final String JOYSTICKS_RAW_MAPPER = "JOYSTICKS_RAW_MAPPER";
 
@@ -346,7 +352,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", OPENAL);
-        defaults.put("DisableJoysticks", true);
+        defaults.put("DisableJoysticks", false);
         defaults.put("UseInput", true);
         defaults.put("VSync", true);
         defaults.put("FrameRate", -1);
@@ -365,6 +371,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("JoysticksAxisJitterThreshold", 0.0001f);
         defaults.put("SDLGameControllerDBResourcePath", "");
         defaults.put("OnDeviceJoystickRumble", false);
+        defaults.put("VirtualJoystick", VIRTUAL_JOYSTICK_AUTO_MINIMIZED);
         //  defaults.put("Icons", null);
     }
 
@@ -824,6 +831,25 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setOnDeviceJoystickRumble(boolean enabled) {
         putBoolean("OnDeviceJoystickRumble", enabled);
+    }
+
+    /**
+     * Sets the on-screen virtual joystick mode.
+     *
+     * @param mode one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED_MINIMIZED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, {@link #VIRTUAL_JOYSTICK_AUTO}, or
+     * {@link #VIRTUAL_JOYSTICK_AUTO_MINIMIZED}
+     */
+    public void setVirtualJoystick(String mode) {
+        if (!VIRTUAL_JOYSTICK_DISABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equals(mode)
+                && !VIRTUAL_JOYSTICK_ENABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_AUTO.equals(mode)
+                && !VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equals(mode)) {
+            throw new IllegalArgumentException("Unsupported virtual joystick mode: " + mode);
+        }
+        putString("VirtualJoystick", mode);
     }
 
     /**
@@ -1304,6 +1330,56 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isOnDeviceJoystickRumble() {
         return getBoolean("OnDeviceJoystickRumble");
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystick() {
+        return !VIRTUAL_JOYSTICK_DISABLED.equals(getVirtualJoystickMode());
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystickEnabled() {
+        return isVirtualJoystick();
+    }
+
+    /**
+     * Gets the on-screen virtual joystick mode.
+     *
+     * @return one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED_MINIMIZED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, {@link #VIRTUAL_JOYSTICK_AUTO}, or
+     * {@link #VIRTUAL_JOYSTICK_AUTO_MINIMIZED}
+     */
+    public String getVirtualJoystickMode() {
+        Object value = get("VirtualJoystick");
+        if (value instanceof Boolean) {
+            return (Boolean) value ? VIRTUAL_JOYSTICK_ENABLED : VIRTUAL_JOYSTICK_DISABLED;
+        }
+        if (value instanceof String) {
+            String mode = (String) value;
+            if (VIRTUAL_JOYSTICK_DISABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_DISABLED;
+            } else if (VIRTUAL_JOYSTICK_ENABLED_MINIMIZED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_ENABLED_MINIMIZED;
+            } else if (VIRTUAL_JOYSTICK_ENABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_ENABLED;
+            } else if (VIRTUAL_JOYSTICK_AUTO.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_AUTO;
+            } else if (VIRTUAL_JOYSTICK_AUTO_MINIMIZED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
+            }
+        }
+        return VIRTUAL_JOYSTICK_AUTO_MINIMIZED;
     }
 
     /**
