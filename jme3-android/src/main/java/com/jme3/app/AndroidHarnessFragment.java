@@ -96,6 +96,7 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
 
         try {
             app = createApplication();
+
             AppSettings settings = createSettings();
             configureSettings(settings);
             app.setSettings(settings);
@@ -194,8 +195,6 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             stackTrace = writer.toString();
             title = throwable.toString();
         }
-
-        app.handleError(errorMsg, throwable);
 
         final String finalTitle = title;
         final String finalMessage = (errorMsg != null ? errorMsg : "Uncaught Exception")
