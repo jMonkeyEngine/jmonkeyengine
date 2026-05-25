@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jme3.app.state.AppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.TextureKey;
+import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
@@ -48,15 +48,14 @@ import org.jmonkeyengine.screenshottests.image.ImagePixelWrapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
@@ -234,9 +233,9 @@ public class ScreenshotTest{
 
                 String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
-                Path expectedImagePath = Paths.get("src/test/resources/" + thisFrameBaseImageFileName + ".png");
+                Enumeration<URL> expectedImageResources = ScreenshotTest.class.getClassLoader().getResources(thisFrameBaseImageFileName + ".png");
 
-                if(!Files.exists(expectedImagePath)){
+                if(!expectedImageResources.hasMoreElements()){
                     try{
                         Image otherGeneratedImage = readImage(generatedImagePath.toFile());
                         osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + ".png");
@@ -253,7 +252,7 @@ public class ScreenshotTest{
                 }
 
                 Image generatedImage = readImage(generatedImagePath.toFile());
-                Image expectedImage = readImage(expectedImagePath.toFile());
+                Image expectedImage = readImage(expectedImageResources.nextElement());
 
                 if(!imagesAreSameSize(generatedImage, expectedImage)){
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
@@ -298,6 +297,23 @@ public class ScreenshotTest{
         if(failureMessage!=null){
             osSpecificRunner.fail(failureMessage);
         }
+    }
+
+    private Image readImage(URL location) {
+        String path = location.getPath();
+        int separatorIndex = path.indexOf("!/");
+        String internalPath = separatorIndex != -1 ? path.substring(separatorIndex + 2) : path;
+        if (!internalPath.startsWith("/")) {
+            internalPath = "/" + internalPath;
+        }
+        return readImageFromClasspath(internalPath);
+    }
+
+    private Image readImageFromClasspath(String location) {
+        AssetManager assetManager = new DesktopAssetManager();
+        assetManager.registerLocator("", ClasspathLocator.class);
+        assetManager.registerLoader(StbImageLoader.class, "png", "jpg", "jpeg");
+        return assetManager.loadTexture(location).getImage();
     }
 
     private Image readImage(File file) {
