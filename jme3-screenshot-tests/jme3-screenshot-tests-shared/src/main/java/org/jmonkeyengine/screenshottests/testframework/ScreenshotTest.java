@@ -376,19 +376,11 @@ public class ScreenshotTest{
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
 
-                int r1 = image1Wrapper.getR(x,y);
-                int g1 = image1Wrapper.getG(x,y);
-                int b1 = image1Wrapper.getB(x,y);
+                int pixel1 = image1Wrapper.getARGB(x, y);
+                int pixel2 = image2Wrapper.getARGB(x, y);
 
-                int r2= image2Wrapper.getR(x,y);
-                int g2 = image2Wrapper.getG(x,y);
-                int b2 = image2Wrapper.getB(x,y);
+                int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
 
-                int dr = Math.abs(r1 - r2);
-                int dg = Math.abs(g1 - g2);
-                int db = Math.abs(b1 - b2);
-
-                double largestPixelValueDifference = Math.max(dr, Math.max(dg, db));
                 if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
                     return false;
                 }
