@@ -30,32 +30,24 @@ public class ImagePixelWrapper {
         return (a << 24) | (r << 16) | (g << 8) | b;
     }
 
-    public byte getR(int x, int y){
+    public int getR(int x, int y){
         int startIndex = getStartIndex(x,y);
-        return bytes.get(startIndex);
+        return bytes.get(startIndex) & 0xFF;
     }
 
-    public byte getG(int x, int y){
+    public int getG(int x, int y){
         int startIndex = getStartIndex(x,y);
-        return bytes.get(startIndex+1);
+        return bytes.get(startIndex+1) & 0xFF;
     }
 
-    public byte getB(int x, int y){
+    public int getB(int x, int y){
         int startIndex = getStartIndex(x,y);
-        return bytes.get(startIndex+2);
+        return bytes.get(startIndex+2) & 0xFF;
     }
 
-    public byte getA(int x, int y){
+    public int getA(int x, int y){
         int startIndex = getStartIndex(x,y);
-        return bytes.get(startIndex+3);
-    }
-
-    public void setRGBA(int x, int y, byte r, byte g, byte b, byte a) {
-        int idx = getStartIndex(x, y);
-        bytes.put(idx, r);
-        bytes.put(idx + 1, g);
-        bytes.put(idx + 2, b);
-        bytes.put(idx + 3, a);
+        return bytes.get(startIndex+3) & 0xFF;
     }
 
     public void setARGB(int x, int y, int packedColour) {
