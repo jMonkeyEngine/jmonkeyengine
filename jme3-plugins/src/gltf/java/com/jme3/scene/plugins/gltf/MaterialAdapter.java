@@ -47,7 +47,11 @@ import java.util.Map;
  * It maps each gltf parameter to its matching parameter in the JME material,
  * and allows for some conversion if the JME material model doesn't exactly match the gltf material model
  * Created by Nehon on 08/08/2017.
+ *
+ * @deprecated This will be removed in a future version of the engine. To migrate,
+ * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
  */
+@Deprecated
 public abstract class MaterialAdapter {
 
     private final Map<String, String> paramsMapping = new HashMap<>();

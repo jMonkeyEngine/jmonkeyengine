@@ -52,7 +52,15 @@ import java.util.Objects;
  */
 public class GltfModelKey extends ModelKey {
 
+    /**
+     * Enables or disables the legacy material adapter system.
+     * This should only be used in older projects for backward compatibility.
+     */
+    private boolean materialAdaptersEnabled = false;
+
+    @Deprecated
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
+
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
     private boolean keepSkeletonPose = false;
     private ExtrasLoader extrasLoader;
@@ -101,13 +109,31 @@ public class GltfModelKey extends ModelKey {
         return strictExtensionCheck;
     }
 
+    public boolean isMaterialAdaptersEnabled() {
+        return materialAdaptersEnabled;
+    }
+
+    /**
+     * Enables or disables the legacy material adapter system.
+     * This should only be used in older projects for backward compatibility.
+     *
+     * @param materialAdaptersEnabled The value to set.
+     */
+    public void setMaterialAdaptersEnabled(boolean materialAdaptersEnabled) {
+        this.materialAdaptersEnabled = materialAdaptersEnabled;
+    }
+
     /**
      * Registers a MaterialAdapter for the given materialName.
      * The materialName must be "pbrMetallicRoughness" or any name from KHR_materials glTF Extension (for example "pbrSpecularGlossiness" for "KHR_materials_pbrSpecularGlossiness" extension)
      *
      * @param gltfMaterialName the name of the gltf material
      * @param adapter          the material adapter
+     *
+     * @deprecated This will be removed in a future version of the engine. To migrate,
+     * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
      */
+    @Deprecated
     public void registerMaterialAdapter(String gltfMaterialName, MaterialAdapter adapter) {
         materialAdapters.put(gltfMaterialName, adapter);
     }
@@ -124,6 +150,7 @@ public class GltfModelKey extends ModelKey {
         extensionLoaders.put(extensionName, loader);
     }
 
+    @Deprecated
     public MaterialAdapter getAdapterForMaterial(String gltfMaterialName) {
         return materialAdapters.get(gltfMaterialName);
     }
@@ -169,15 +196,17 @@ public class GltfModelKey extends ModelKey {
                 || !Objects.equals(extrasLoader, other.extrasLoader)) {
             return false;
         }
-        return keepSkeletonPose == other.keepSkeletonPose;
+        return keepSkeletonPose == other.keepSkeletonPose
+                && materialAdaptersEnabled == other.materialAdaptersEnabled;
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 37 * hash + materialAdapters.hashCode();
-        hash = 37 * hash + Objects.hashCode(this.extrasLoader);
-        hash = 37 * hash + (this.keepSkeletonPose ? 1 : 0);
+        hash = 37 * hash + Objects.hashCode(extrasLoader);
+        hash = 37 * hash + (keepSkeletonPose ? 1 : 0);
+        hash = 37 * hash + (materialAdaptersEnabled ? 1 : 0);
         return hash;
     }
     
