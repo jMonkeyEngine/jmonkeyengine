@@ -372,9 +372,12 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     static IBLGLEnvBakerLight.SphericalHarmonicsMode readSphericalHarmonicsMode(String modeName) {
+        if (modeName == null) {
+            return IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
+        }
         try {
             return IBLGLEnvBakerLight.SphericalHarmonicsMode.valueOf(modeName);
-        } catch (IllegalArgumentException | NullPointerException ex) {
+        } catch (IllegalArgumentException ex) {
             // Legacy AUTO and unknown values now fall back to FAST.
             return IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
         }
