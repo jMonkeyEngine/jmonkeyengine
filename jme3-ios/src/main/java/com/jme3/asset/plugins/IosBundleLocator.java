@@ -104,9 +104,9 @@ public class IosBundleLocator implements AssetLocator {
         }
     }
 
-    private boolean isInsideRoot(File file) throws IOException {
-        String rootPath = root.getCanonicalPath();
-        String filePath = file.getCanonicalPath();
+    private boolean isInsideRoot(File file) {
+        String rootPath = root.getPath();
+        String filePath = file.getPath();
         return filePath.equals(rootPath) || filePath.startsWith(rootPath + File.separator);
     }
 
