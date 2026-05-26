@@ -86,7 +86,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     private String uuid = "none";
     private boolean enabled = true;
     private IBLGLEnvBakerLight.SphericalHarmonicsMode sphericalHarmonicsMode =
-            IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO;
+            IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
     private Predicate<Geometry> filter = (s) -> {
         return s.getUserData("tags.env") != null || s.getUserData("tags.env.env" + uuid) != null;
     };
@@ -371,6 +371,13 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         return spatial;
     }
 
+    static IBLGLEnvBakerLight.SphericalHarmonicsMode readSphericalHarmonicsMode(String modeName) {
+        if (IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY.name().equals(modeName)) {
+            return IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY;
+        }
+        return IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -384,7 +391,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         oc.write(frustumNear, "frustumNear", 0.001f);
         oc.write(uuid, "envProbeControlUUID", "none");
         oc.write(sphericalHarmonicsMode, "sphericalHarmonicsMode",
-                IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO);
+                IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST);
     }
 
     @Override
@@ -400,9 +407,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         frustumFar = ic.readFloat("frustumFar", 1000f);
         frustumNear = ic.readFloat("frustumNear", 0.001f);
         uuid = ic.readString("envProbeControlUUID", "none");
-        sphericalHarmonicsMode = ic.readEnum("sphericalHarmonicsMode",
-                IBLGLEnvBakerLight.SphericalHarmonicsMode.class,
-                IBLGLEnvBakerLight.SphericalHarmonicsMode.AUTO);
+        sphericalHarmonicsMode = readSphericalHarmonicsMode(
+                ic.readString("sphericalHarmonicsMode",
+                        IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST.name()));
     }
 
 }
