@@ -606,6 +606,20 @@ public class InputManager implements RawInputListener {
         return mappings.containsKey(mappingName);
     }
 
+
+
+    /**
+     * Returns true if at least one mapping is registered for the specified
+     * trigger hash.
+     *
+     * @param triggerHash hash returned by {@link Trigger#triggerHashCode()}
+     * @return true if the trigger hash is registered to at least one mapping
+     */
+    public boolean hasTriggerMapping(int triggerHash) {
+        ArrayList<Mapping> maps = bindings.get(triggerHash);
+        return maps != null && !maps.isEmpty();
+    }
+
     /**
      * Deletes a mapping from receiving trigger events.
      *
