@@ -61,6 +61,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -1135,6 +1136,7 @@ public class GltfLoader implements AssetLoader {
             assertNotNull(dataIndex, "No output accessor Provided for animation sampler");
 
             String interpolation = getAsString(sampler, "interpolation");
+            boolean cubicSpline = "CUBICSPLINE".equals(interpolation);
             if (interpolation == null || !interpolation.equals("LINEAR")) {
                 // JME anim system only supports Linear interpolation (will be possible with monkanim though)
                 // TODO rework this once monkanim is core,
@@ -1153,18 +1155,30 @@ public class GltfLoader implements AssetLoader {
             if (targetPath.equals("translation")) {
                 trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Translation));
                 Vector3f[] translations = readAccessorData(dataIndex, vector3fArrayPopulator);
+                if (cubicSpline) {
+                    translations = getCubicSplineValues(translations);
+                }
                 trackData.translations = translations;
             } else if (targetPath.equals("scale")) {
                 trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Scale));
                 Vector3f[] scales = readAccessorData(dataIndex, vector3fArrayPopulator);
+                if (cubicSpline) {
+                    scales = getCubicSplineValues(scales);
+                }
                 trackData.scales = scales;
             } else if (targetPath.equals("rotation")) {
                 trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Rotation));
                 Quaternion[] rotations = readAccessorData(dataIndex, quaternionArrayPopulator);
+                if (cubicSpline) {
+                    rotations = getCubicSplineValues(rotations);
+                }
                 trackData.rotations = rotations;
             } else {
                 trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Morph));
                 float[] weights = readAccessorData(dataIndex, floatArrayPopulator);
+                if (cubicSpline) {
+                    weights = getCubicSplineValues(weights, times.length);
+                }
                 trackData.weights = weights;
                 hasMorphTrack = true;
             }
@@ -1493,6 +1507,23 @@ public class GltfLoader implements AssetLoader {
         Geometry g = (Geometry) spatial;
         int nbMorph = g.getMesh().getMorphTargets().length;
         return new MorphTrack(g, data.times, data.weights, nbMorph);
+    }
+
+    private <T> T[] getCubicSplineValues(T[] data) {
+        T[] values = Arrays.copyOf(data, data.length / 3);
+        for (int i = 0; i < values.length; i++) {
+            values[i] = data[i * 3 + 1];
+        }
+        return values;
+    }
+
+    private float[] getCubicSplineValues(float[] data, int timesLength) {
+        int valuesPerTime = data.length / timesLength / 3;
+        float[] values = new float[timesLength * valuesPerTime];
+        for (int i = 0; i < timesLength; i++) {
+            System.arraycopy(data, (i * 3 + 1) * valuesPerTime, values, i * valuesPerTime, valuesPerTime);
+        }
+        return values;
     }
 
     public <T> T fetchFromCache(String name, int index, Class<T> type) {
