@@ -51,6 +51,13 @@ public class EnvironmentProbeControlTest {
     }
 
     @Test
+    public void keepsFastSphericalHarmonicsModeWhenReading() {
+        assertEquals(IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST,
+                EnvironmentProbeControl.readSphericalHarmonicsMode(
+                        IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST.name()));
+    }
+
+    @Test
     public void keepsQualitySphericalHarmonicsModeWhenReading() {
         assertEquals(IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY,
                 EnvironmentProbeControl.readSphericalHarmonicsMode(

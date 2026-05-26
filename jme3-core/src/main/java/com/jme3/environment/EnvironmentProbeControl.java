@@ -375,6 +375,10 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         if (IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY.name().equals(modeName)) {
             return IBLGLEnvBakerLight.SphericalHarmonicsMode.QUALITY;
         }
+        if (IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST.name().equals(modeName)) {
+            return IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
+        }
+        // Legacy AUTO and unknown values now fall back to FAST.
         return IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST;
     }
 
@@ -407,9 +411,15 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         frustumFar = ic.readFloat("frustumFar", 1000f);
         frustumNear = ic.readFloat("frustumNear", 0.001f);
         uuid = ic.readString("envProbeControlUUID", "none");
-        sphericalHarmonicsMode = readSphericalHarmonicsMode(
-                ic.readString("sphericalHarmonicsMode",
-                        IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST.name()));
+        try {
+            sphericalHarmonicsMode = ic.readEnum("sphericalHarmonicsMode",
+                    IBLGLEnvBakerLight.SphericalHarmonicsMode.class,
+                    IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST);
+        } catch (IllegalArgumentException ex) {
+            sphericalHarmonicsMode = readSphericalHarmonicsMode(
+                    ic.readString("sphericalHarmonicsMode",
+                            IBLGLEnvBakerLight.SphericalHarmonicsMode.FAST.name()));
+        }
     }
 
 }
