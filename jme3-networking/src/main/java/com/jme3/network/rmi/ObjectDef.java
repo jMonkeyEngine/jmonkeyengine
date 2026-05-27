@@ -35,8 +35,16 @@ package com.jme3.network.rmi;
 import com.jme3.network.serializing.Serializable;
 import java.lang.reflect.Method;
 
+/**
+ * Describes a remotely shared object and its callable methods.
+ */
 @Serializable
 public class ObjectDef {
+    /**
+     * Creates an empty object definition.
+     */
+    public ObjectDef() {
+    }
 
     /**
      * The object name, can be null if undefined.

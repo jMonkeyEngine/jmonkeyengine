@@ -42,7 +42,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 
+/**
+ * Serializes map implementations and their key/value entries.
+ */
 public class MapSerializer extends Serializer {
+    /**
+     * Creates a map serializer.
+     */
+    public MapSerializer() {
+    }
 
     /*
 

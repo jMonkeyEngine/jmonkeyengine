@@ -6,25 +6,23 @@ dependencies {
     }
 
     api libs.lwjgl3.base
-    api libs.lwjgl3.glfw
     api libs.lwjgl3.jawt
     api libs.lwjgl3.jemalloc
     api libs.lwjgl3.openal
-    api libs.lwjgl3.opencl
     api libs.lwjgl3.opengl
     api libs.lwjgl3.sdl
 
+    api libs.lwjgl3.opengles
+    api libs.lwjgl3.egl
+    api libs.angle
+
+
+    runtimeOnly libs.angle
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm64') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos-arm64') })
-
-    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows') })
-    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux') })
-    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm64') })
-    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos') })
-    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos-arm64') })
 
     runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux') })
@@ -44,16 +42,19 @@ dependencies {
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
 
+
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-macos-arm64') })
+ 
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-linux') })
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-linux-arm64') })
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-macos-arm64') })
-}
-
-javadoc {
-    // Disable doclint for JDK8+.
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
+ 
 }

@@ -42,6 +42,7 @@ import java.util.logging.Logger;
  *  and ClientServiceManager classes are derived.  This manages
  *  the underlying services and their life cycles.
  *
+ *  @param <T> the parent type exposed to managed services
  *  @author    Paul Speed
  */
 public abstract class ServiceManager<T> {
@@ -51,6 +52,9 @@ public abstract class ServiceManager<T> {
     private final List<Service<T>> services = new CopyOnWriteArrayList<>();
     private volatile boolean started = false;
     
+    /**
+     * Creates a service manager.
+     */
     protected ServiceManager() {
     }
 
@@ -58,6 +62,8 @@ public abstract class ServiceManager<T> {
      *  Retrieves the 'parent' of this service manager, usually
      *  a more specifically typed version of 'this' but it can be
      *  anything the services are expecting.
+     *
+     *  @return the parent object exposed to managed services
      */
     protected abstract T getParent();
  
@@ -65,6 +71,8 @@ public abstract class ServiceManager<T> {
      *  Returns the complete list of services managed by this
      *  service manager.  This list is thread safe following the
      *  CopyOnWriteArrayList semantics.
+     *
+     *  @return the managed services list
      */   
     protected List<Service<T>> getServices() {
         return services;
@@ -90,6 +98,8 @@ public abstract class ServiceManager<T> {
 
     /**
      *  Returns true if this service manager has been started.
+     *
+     *  @return true if the manager is started
      */
     public boolean isStarted() {
         return started;
@@ -114,6 +124,9 @@ public abstract class ServiceManager<T> {
     /**
      *  Adds the specified service and initializes it.  If the service manager
      *  has already been started then the service will also be started.
+     *
+     *  @param <S> the concrete service type
+     *  @param s the service to add
      */   
     public <S extends Service<T>> void addService( S s ) {
         if( log.isLoggable(Level.FINE) ) {
@@ -137,6 +150,9 @@ public abstract class ServiceManager<T> {
      *  and terminating it as required.  If this service manager is in a
      *  started state then the service will be stopped.  After removal,
      *  the service will be terminated.
+     *
+     *  @param <S> the concrete service type
+     *  @param s the service to remove
      */
     public <S extends Service<T>> void removeService( S s ) {
         if( log.isLoggable(Level.FINE) ) {
@@ -170,6 +186,10 @@ public abstract class ServiceManager<T> {
  
     /**
      *  Retrieves the first service of the specified type.
+     *
+     *  @param <S> the concrete service type
+     *  @param type the service class to look up
+     *  @return the first matching service, or null if none exists
      */    
     public <S extends Service<T>> S getService( Class<S> type ) {
         for( Service s : services ) {

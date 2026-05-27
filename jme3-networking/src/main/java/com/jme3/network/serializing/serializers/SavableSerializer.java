@@ -40,7 +40,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+/**
+ * Serializes {@link Savable} instances using the binary exporter/importer pipeline.
+ */
 public class SavableSerializer extends Serializer {
+    /**
+     * Creates a savable serializer.
+     */
+    public SavableSerializer() {
+    }
 
     private BinaryExporter exporter = new BinaryExporter();
     private BinaryImporter importer = new BinaryImporter();

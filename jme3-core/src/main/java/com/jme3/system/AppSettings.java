@@ -31,8 +31,6 @@
  */
 package com.jme3.system;
 
-import com.jme3.opencl.DefaultPlatformChooser;
-import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,6 +63,24 @@ public final class AppSettings extends HashMap<String, Object> {
     private static final AppSettings defaults = new AppSettings(false);
 
     /**
+     * Do not request display scaling support on platforms where the backend can
+     * opt out.
+     */
+    public static final float DISPLAY_SCALE_DISABLED = 0f;
+
+    /**
+     * Request the native-density framebuffer and expose physical framebuffer
+     * pixels as the application coordinate system.
+     */
+    public static final float DISPLAY_SCALE_NATIVE_PIXELS = -1f;
+
+    /**
+     * Request the native-density framebuffer while keeping cameras, GUI,
+     * picking, and input in DPI-aware logical coordinates.
+     */
+    public static final float DISPLAY_SCALE_DPI_AWARE = 1f;
+
+    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -72,6 +88,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
@@ -101,6 +118,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
 
     /**
@@ -114,6 +132,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
 
     /**
@@ -216,8 +235,57 @@ public final class AppSettings extends HashMap<String, Object> {
      * Use the LWJGL OpenAL based renderer for audio capabilities.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String LWJGL_OPENAL = "LWJGL";
+
+    public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
+    /**
+     * Use the default OpenAL renderer for the current platform.
+     *
+     * @see AppSettings#setAudioRenderer(java.lang.String)
+     */
+    public static final String OPENAL = "OPENAL";
+
+    /**
+     * Disable the on-screen virtual gamepad entirely.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_DISABLED = "VirtualJoystickDisabled";
+
+    /**
+     * Always display the full virtual gamepad, even on desktop and even when a
+     * hardware gamepad is detected.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_ENABLED = "VirtualJoystickEnabled";
+
+    /**
+     * Display the full virtual gamepad automatically on mobile when no
+     * hardware gamepad is detected.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_AUTO = "VirtualJoystickAuto";
+
+    /**
+     * Use the fixed Xbox-like virtual joystick layout.
+     *
+     * @see #setVirtualJoystickDefaultLayout(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_LAYOUT_XBOX = "Xbox";
+
+    /**
+     * Use a virtual joystick layout that only displays bound controls.
+     *
+     * @see #setVirtualJoystickDefaultLayout(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC = "Dynamic";
+
 
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
@@ -225,8 +293,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * NOTE: Supports Android 2.2+ platforms.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations.
-     * use {@link #ANDROID_OPENAL_SOFT} instead.
+     * @deprecated This audio renderer has too many limitations. Use {@link #OPENAL} instead.
      */
     @Deprecated
     public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
@@ -234,11 +301,12 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
      * <p>
-     * This is the current default for Android platforms.
      * NOTE: Only to be used on Android 2.3+ platforms due to using OpenSL.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
 
     /**
@@ -247,7 +315,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
+    @Deprecated
     public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
 
     /**
@@ -256,7 +326,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setRenderer(java.lang.String)
+     * @deprecated Use LWJGL 
      */
+    @Deprecated
     public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
 
     /**
@@ -265,51 +337,53 @@ public final class AppSettings extends HashMap<String, Object> {
      * N.B: This backend is EXPERIMENTAL
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated Use {@link #OPENAL} instead.
      */
+    @Deprecated
     public static final String JOAL = "JOAL";
 
     /**
-     * Map gamepads to Xbox-like layout.
+     * Map joysticks to Xbox-like layout.
      */
     public static final String JOYSTICKS_XBOX_MAPPER = "JOYSTICKS_XBOX_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout, with fallback to raw if the gamepad is not recognized.
+     * Map joysticks to an Xbox-like layout, with fallback to raw if the joystick is not recognized.
      */
     public static final String JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER = "JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout using the legacy jME input
+     * Map joysticks to an Xbox-like layout using the legacy jME input
      */
     public static final String JOYSTICKS_XBOX_LEGACY_MAPPER = "JOYSTICKS_XBOX_LEGACY_MAPPER";
 
     /**
-     * Map gamepads using the legacy jME mapper and input.
+     * Map joysticks using the legacy jME mapper and input.
      */
     public static final String JOYSTICKS_LEGACY_MAPPER = "JOYSTICKS_LEGACY_MAPPER";
 
     /**
-     * Don't map gamepads, use raw events instead (ie. bring your own mapper)
+     * Don't map joysticks, use raw events instead (ie. bring your own mapper)
      */
     public static final String JOYSTICKS_RAW_MAPPER = "JOYSTICKS_RAW_MAPPER";
 
     static {
         defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
-        defaults.put("Width", 640);
-        defaults.put("Height", 480);
+        defaults.put("Width", 1440);
+        defaults.put("Height", 900);
         defaults.put("WindowWidth", Integer.MIN_VALUE);
         defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
-        defaults.put("Frequency", 60);
+        defaults.put("Frequency", 0);
         defaults.put("DepthBits", 24);
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL32);
-        defaults.put("AudioRenderer", LWJGL_OPENAL);
-        defaults.put("DisableJoysticks", true);
+        defaults.put("Renderer", ANGLE_GLES3);
+        defaults.put("AudioRenderer", OPENAL);
+        defaults.put("DisableJoysticks", false);
         defaults.put("UseInput", true);
         defaults.put("VSync", true);
         defaults.put("FrameRate", -1);
@@ -317,10 +391,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
         defaults.put("GammaCorrection", true);
-        defaults.put("Resizable", false);
+        defaults.put("Resizable", true);
         defaults.put("SwapBuffers", true);
-        defaults.put("OpenCL", false);
-        defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         defaults.put("UseRetinaFrameBuffer", false);
         defaults.put("WindowYPosition", 0);
         defaults.put("WindowXPosition", 0);
@@ -329,6 +401,10 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("JoysticksTriggerToButtonThreshold", 0.5f);
         defaults.put("JoysticksAxisJitterThreshold", 0.0001f);
         defaults.put("SDLGameControllerDBResourcePath", "");
+        defaults.put("OnDeviceJoystickRumble", false);
+        defaults.put("UseAndroidSensorJoystick", false);
+        defaults.put("VirtualJoystick", VIRTUAL_JOYSTICK_AUTO);
+        defaults.put("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC);
         //  defaults.put("Icons", null);
     }
 
@@ -774,11 +850,76 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * @param use If true, the application will initialize and use joystick
-     * input. Set to false if no joystick input is desired.
-     * (Default: false)
+     * input, including hardware gamepads when available. Set to false if no
+     * joystick input is desired.
+     * (Default: true)
      */
     public void setUseJoysticks(boolean use) {
         putBoolean("DisableJoysticks", !use);
+    }
+
+    /**
+     * @param enabled If true, joystick rumble requests may be redirected to
+     * the device rumble motor on supported platforms.
+     * (Default: false)
+     */
+    public void setOnDeviceJoystickRumble(boolean enabled) {
+        putBoolean("OnDeviceJoystickRumble", enabled);
+    }
+
+    /**
+     * @param use If true, Android exposes device orientation sensors as a
+     * joystick. This is disabled by default because the sensor joystick reports
+     * movement from device rotation and can conflict with gamepad or virtual
+     * joystick mappings.
+     * (Default: false)
+     */
+    public void setUseAndroidSensorJoystick(boolean use) {
+        putBoolean("UseAndroidSensorJoystick", use);
+    }
+
+    /**
+     * Sets the on-screen virtual joystick mode.
+     * <p>
+     * The default mode is {@link #VIRTUAL_JOYSTICK_AUTO}, which displays the
+     * virtual joystick on mobile only when joystick mappings exist and no
+     * hardware gamepad is connected.
+     * <ul>
+     * <li>{@link #VIRTUAL_JOYSTICK_DISABLED}: disable the virtual gamepad
+     * entirely.</li>
+     * <li>{@link #VIRTUAL_JOYSTICK_ENABLED}: always display the virtual
+     * joystick, even on desktop and even when a hardware gamepad is detected.</li>
+     * <li>{@link #VIRTUAL_JOYSTICK_AUTO}: display the full virtual gamepad
+     * automatically on mobile when joystick mappings exist and no hardware
+     * gamepad is detected.</li>
+     * </ul>
+     *
+     * @param mode one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, or {@link #VIRTUAL_JOYSTICK_AUTO}
+     */
+    public void setVirtualJoystick(String mode) {
+        if (!VIRTUAL_JOYSTICK_DISABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_ENABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_AUTO.equals(mode)) {
+            throw new IllegalArgumentException("Unsupported virtual joystick mode: " + mode);
+        }
+        putString("VirtualJoystick", mode);
+    }
+
+    /**
+     * Sets the default virtual joystick layout used by supporting backends.
+     *
+     * @param layout one of {@link #VIRTUAL_JOYSTICK_LAYOUT_XBOX} or
+     * {@link #VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC}
+     */
+    public void setVirtualJoystickDefaultLayout(String layout) {
+        if (VIRTUAL_JOYSTICK_LAYOUT_XBOX.equalsIgnoreCase(layout)) {
+            putString("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_XBOX);
+        } else if (VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC.equalsIgnoreCase(layout)) {
+            putString("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC);
+        } else {
+            throw new IllegalArgumentException("Unsupported virtual joystick layout: " + layout);
+        }
     }
 
     /**
@@ -813,12 +954,13 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the audio renderer to use. One of:<br>
      * <ul>
-     * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>AppSettings.OPENAL - Default OpenAL renderer for the current platform</li>
+     * <li>AppSettings.LWJGL_OPENAL - Deprecated LWJGL OpenAL renderer identifier</li>
      * <li>AppSettings.JOAL</li>
      * <li>null - Disable audio</li>
      * </ul>
      * @param audioRenderer
-     * (Default: LWJGL)
+     * (Default: AppSettings.OPENAL)
      */
     public void setAudioRenderer(String audioRenderer) {
         putString("AudioRenderer", audioRenderer);
@@ -1251,9 +1393,92 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Get whether joystick rumble may be redirected to device rumble.
+     *
+     * @return true to redirect joystick rumble to device rumble when supported
+     * @see #setOnDeviceJoystickRumble(boolean)
+     */
+    public boolean isOnDeviceJoystickRumble() {
+        return getBoolean("OnDeviceJoystickRumble");
+    }
+
+    /**
+     * Get the Android sensor joystick state.
+     *
+     * @return true to expose Android device orientation sensors as a joystick
+     * @see #setUseAndroidSensorJoystick(boolean)
+     */
+    public boolean useAndroidSensorJoystick() {
+        return getBoolean("UseAndroidSensorJoystick");
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystick() {
+        return !VIRTUAL_JOYSTICK_DISABLED.equals(getVirtualJoystickMode());
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystickEnabled() {
+        return isVirtualJoystick();
+    }
+
+    /**
+     * Gets the on-screen virtual joystick mode.
+     *
+     * @return one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, or {@link #VIRTUAL_JOYSTICK_AUTO}
+     */
+    public String getVirtualJoystickMode() {
+        Object value = get("VirtualJoystick");
+        if (value instanceof Boolean) {
+            return (Boolean) value ? VIRTUAL_JOYSTICK_ENABLED : VIRTUAL_JOYSTICK_DISABLED;
+        }
+        if (value instanceof String) {
+            String mode = (String) value;
+            if (VIRTUAL_JOYSTICK_DISABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_DISABLED;
+            } else if (VIRTUAL_JOYSTICK_ENABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_ENABLED;
+            } else if (VIRTUAL_JOYSTICK_AUTO.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_AUTO;
+            } 
+        }
+        return VIRTUAL_JOYSTICK_AUTO;
+    }
+
+    /**
+     * Gets the default virtual joystick layout.
+     *
+     * @return one of {@link #VIRTUAL_JOYSTICK_LAYOUT_XBOX} or
+     * {@link #VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC}
+     */
+    public String getVirtualJoystickDefaultLayout() {
+        Object value = get("VirtualJoystickDefaultLayout");
+        if (value instanceof String) {
+            String layout = (String) value;
+            if (VIRTUAL_JOYSTICK_LAYOUT_XBOX.equalsIgnoreCase(layout)) {
+                return VIRTUAL_JOYSTICK_LAYOUT_XBOX;
+            } else if (VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC.equalsIgnoreCase(layout)) {
+                return VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
+            }
+        }
+        return VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
+    }
+
+    /**
      * Get the audio renderer
      *
-     * @return the audio renderer's name, for example "LWJGL"
+     * @return the audio renderer's name, for example "OPENAL"
      * @see #setAudioRenderer(java.lang.String)
      */
     public String getAudioRenderer() {
@@ -1353,32 +1578,45 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * True to enable the creation of an OpenCL context.
+     * OpenCL support has been removed from the engine.
      *
-     * @param support whether to create the context or not
+     * @param support ignored
+     * @deprecated OpenCL support has been removed.
      */
+    @Deprecated
     public void setOpenCLSupport(boolean support) {
-        putBoolean("OpenCL", support);
-    }
-
-    public boolean isOpenCLSupport() {
-        return getBoolean("OpenCL");
     }
 
     /**
-     * Sets a custom platform chooser. This chooser specifies which platform and
-     * which devices are used for the OpenCL context.
-     * <p>
-     * Default: an implementation defined one.
+     * OpenCL support has been removed from the engine.
      *
-     * @param chooser the class of the chooser, must have a default constructor
+     * @return false
+     * @deprecated OpenCL support has been removed.
      */
-    public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
-        putString("OpenCLPlatformChooser", chooser.getName());
+    @Deprecated
+    public boolean isOpenCLSupport() {
+        return false;
     }
 
+    /**
+     * OpenCL support has been removed from the engine.
+     *
+     * @param chooser ignored
+     * @deprecated OpenCL support has been removed.
+     */
+    @Deprecated
+    public void setOpenCLPlatformChooser(Class<?> chooser) {
+    }
+
+    /**
+     * OpenCL support has been removed from the engine.
+     *
+     * @return null
+     * @deprecated OpenCL support has been removed.
+     */
+    @Deprecated
     public String getOpenCLPlatformChooser() {
-        return getString("OpenCLPlatformChooser");
+        return null;
     }
 
     /**
@@ -1462,19 +1700,66 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Returns the active display scale mode.
+     * <p>
+     * If {@link #setDisplayScaleMode(float)} was not called, this method
+     * returns {@link #DISPLAY_SCALE_DISABLED}.
+     * <p>
+     * Values greater than {@link #DISPLAY_SCALE_DPI_AWARE} mean emulated display
+     * scaling. For example, {@code 1.5f} keeps DPI-aware application coordinates
+     * while rendering on-screen content to an intermediate framebuffer sized
+     * {@code physicalFramebufferSize * 1.5}.
+     *
+     * @return the active display scale mode
+     */
+    public float getDisplayScaleMode() {
+        Object mode = get("DisplayScaleMode");
+        if (mode instanceof Float) {
+            return DisplayScaleUtils.normalizeDisplayScaleMode((Float) mode);
+        }
+        return DISPLAY_SCALE_DISABLED;
+    }
+
+    /**
+     * Sets the display scale mode. New applications should use this API
+     * instead of {@link #setUseRetinaFrameBuffer(boolean)}.
+     * <p>
+     * Use {@link #DISPLAY_SCALE_DISABLED},
+     * {@link #DISPLAY_SCALE_NATIVE_PIXELS}, or
+     * {@link #DISPLAY_SCALE_DPI_AWARE} for built-in modes. Values below
+     * {@code 1.0}, except {@link #DISPLAY_SCALE_NATIVE_PIXELS}, are normalized
+     * to {@link #DISPLAY_SCALE_DISABLED}. Values above
+     * {@link #DISPLAY_SCALE_DPI_AWARE} enable emulated display scaling above the
+     * physical framebuffer size.
+     *
+     * @param mode the desired mode
+     */
+    public void setDisplayScaleMode(float mode) {
+        if (!Float.isFinite(mode)) {
+            throw new IllegalArgumentException("DisplayScaleMode must be finite.");
+        }
+        putFloat("DisplayScaleMode", DisplayScaleUtils.normalizeDisplayScaleMode(mode));
+    }
+
+    /**
      * Determine whether to use full resolution framebuffers on Retina displays.
      *
      * @return whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #getDisplayScaleMode()} instead.
      */
+    @Deprecated
     public boolean isUseRetinaFrameBuffer() {
         return getBoolean("UseRetinaFrameBuffer");
     }
 
     /**
-     * Specifies whether to use full resolution framebuffers on Retina displays. This is ignored on other platforms.
+     * Specifies whether to use full resolution framebuffers on Retina/high-DPI
+     * displays where the backend supports requesting them.
      *
      * @param useRetinaFrameBuffer whether to use full resolution framebuffers on Retina displays.
+     * @deprecated use {@link #setDisplayScaleMode(float)} instead.
      */
+    @Deprecated
     public void setUseRetinaFrameBuffer(boolean useRetinaFrameBuffer) {
         putBoolean("UseRetinaFrameBuffer", useRetinaFrameBuffer);
     }
@@ -1722,4 +2007,3 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SDLGameControllerDBResourcePath");
     }
 }
-

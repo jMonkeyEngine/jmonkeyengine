@@ -51,6 +51,14 @@ public class RemoteObjectHandler implements InvocationHandler {
     private final ClassInfo typeInfo;
     private final Map<Method, MethodInfo> methodIndex = new ConcurrentHashMap<>();
 
+    /**
+     * Creates a remote object invocation handler.
+     *
+     * @param rmi the owning registry
+     * @param channel the network channel to use
+     * @param objectId the remote object id
+     * @param typeInfo the shared type metadata
+     */
     public RemoteObjectHandler( RmiRegistry rmi, byte channel, short objectId, ClassInfo typeInfo ) {
         this.rmi = rmi;
         this.channel = channel;
@@ -58,6 +66,12 @@ public class RemoteObjectHandler implements InvocationHandler {
         this.typeInfo = typeInfo;
     } 
 
+    /**
+     * Resolves cached method metadata for a reflected method.
+     *
+     * @param method the reflected method
+     * @return the method metadata, or null if none matches
+     */
     protected MethodInfo getMethodInfo( Method method ) {
         MethodInfo mi = methodIndex.get(method);
         if( mi == null ) {

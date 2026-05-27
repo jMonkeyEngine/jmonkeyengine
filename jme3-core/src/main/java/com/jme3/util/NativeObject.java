@@ -167,6 +167,7 @@ public abstract class NativeObject implements Cloneable {
             obj.objectManager = null;
             obj.id = INVALID_ID;
             obj.updateNeeded = true;
+            obj.weakRef = null;
             return obj;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -244,6 +245,7 @@ public abstract class NativeObject implements Cloneable {
      * @param <T> the type
      * @return a weak reference (possibly a pre-existing one)
      */
+    @SuppressWarnings("unchecked")
     public <T> WeakReference<T> getWeakRef() {
         if (weakRef == null) {
             weakRef = new WeakReference<>(this);

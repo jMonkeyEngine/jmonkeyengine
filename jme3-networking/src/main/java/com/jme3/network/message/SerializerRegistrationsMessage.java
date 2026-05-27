@@ -68,6 +68,9 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
 
     private static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
 
+    /**
+     * Classes that are already built into serializer initialization and should not be re-sent.
+     */
     public static final Set<Class> ignore = new HashSet<Class>();
     static {
         // We could build this automatically, but then we
@@ -116,21 +119,38 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         ignore.add(SerializerRegistrationsMessage.Registration.class);        
     }
  
+    /**
+     * Cached compiled registration message used for new connections.
+     */
     public static SerializerRegistrationsMessage INSTANCE;   
+    /**
+     * Cached compiled registration entries.
+     */
     public static Registration[] compiled;
     private static final Serializer fieldSerializer = new FieldSerializer();
     
     private Registration[] registrations;    
 
+    /**
+     * Creates an empty registrations message for serialization.
+     */
     public SerializerRegistrationsMessage() {
         setReliable(true);
     }
 
+    /**
+     * Creates a registrations message containing the specified entries.
+     *
+     * @param registrations the registrations to send
+     */
     public SerializerRegistrationsMessage( Registration... registrations ) {
         setReliable(true);
         this.registrations = registrations;
     }
     
+    /**
+     * Compiles the current serializer registry into a transferable message.
+     */
     public static void compile() {
     
         // Let's just see what they are here
@@ -158,6 +178,9 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         Serializer.setReadOnly(true);                              
     }
  
+    /**
+     * Applies all registrations carried by this message to the local serializer registry.
+     */
     public void registerAll() {
 
         // See if we will have problems because our registry is locked        
@@ -185,6 +208,9 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         log.log(Level.FINE, "Done registering serializable classes.");
     }
     
+    /**
+     * Transfer object describing a single serializer registration.
+     */
     @Serializable
     public static final class Registration {
     
@@ -192,9 +218,17 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         private String className;
         private String serializerClassName;
         
+        /**
+         * Creates an empty transfer registration for serialization.
+         */
         public Registration() {
         }
         
+        /**
+         * Creates a transfer registration from a live serializer registration.
+         *
+         * @param reg the live registration to copy
+         */
         public Registration( SerializerRegistration reg ) {
         
             this.id = reg.getId();
@@ -204,6 +238,9 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             } 
         }
  
+        /**
+         * Registers this transfer entry with the local serializer registry.
+         */
         @SuppressWarnings("unchecked")
         public void register() {        
             try {

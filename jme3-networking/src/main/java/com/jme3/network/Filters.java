@@ -52,6 +52,10 @@ public class Filters
     /**
      *  Creates a filter that returns true for any value in the specified
      *  list of values and false for all other cases.
+     *
+     *  @param <T> the value type
+     *  @param values the accepted values
+     *  @return a membership filter for the provided values
      */
     @SuppressWarnings("unchecked")
     public static <T> Filter<T> in( T... values )
@@ -62,6 +66,10 @@ public class Filters
     /**
      *  Creates a filter that returns true for any value in the specified
      *  collection and false for all other cases.
+     *
+     *  @param <T> the value type
+     *  @param collection the accepted values
+     *  @return a membership filter for the provided collection
      */
     public static <T> Filter<T> in( Collection<? extends T> collection )
     {
@@ -72,6 +80,10 @@ public class Filters
      *  Creates a filter that returns true for any value NOT in the specified
      *  list of values and false for all other cases.  This is the equivalent
      *  of calling not(in(values)).
+     *
+     *  @param <T> the value type
+     *  @param values the rejected values
+     *  @return a negated membership filter for the provided values
      */
     @SuppressWarnings("unchecked")
     public static <T> Filter<T> notIn( T... values )
@@ -83,6 +95,10 @@ public class Filters
      *  Creates a filter that returns true for any value NOT in the specified
      *  collection and false for all other cases.  This is the equivalent
      *  of calling not(in(collection)).
+     *
+     *  @param <T> the value type
+     *  @param collection the rejected values
+     *  @return a negated membership filter for the provided collection
      */
     public static <T> Filter<T> notIn( Collection<? extends T> collection )
     {
@@ -92,6 +108,10 @@ public class Filters
     /**
      *  Creates a filter that returns true for inputs that are .equals()
      *  equivalent to the specified value.
+     *
+     *  @param <T> the value type
+     *  @param value the accepted value
+     *  @return an equality filter
      */
     public static <T> Filter<T> equalTo( T value )
     {
@@ -102,6 +122,10 @@ public class Filters
      *  Creates a filter that returns true for inputs that are NOT .equals()
      *  equivalent to the specified value.  This is the equivalent of calling
      *  not(equalTo(value)).
+     *
+     *  @param <T> the value type
+     *  @param value the rejected value
+     *  @return an inequality filter
      */
     public static <T> Filter<T> notEqualTo( T value )
     {
@@ -111,6 +135,10 @@ public class Filters
     /**
      *  Creates a filter that returns true when the specified delegate filter
      *  returns false, and vice versa.
+     *
+     *  @param <T> the value type
+     *  @param f the delegate filter
+     *  @return a negated filter
      */
     public static <T> Filter<T> not( Filter<T> f )
     {
@@ -165,5 +193,4 @@ public class Filters
         }
     } 
 }
-
 

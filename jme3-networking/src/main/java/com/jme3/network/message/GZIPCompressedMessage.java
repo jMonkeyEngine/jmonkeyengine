@@ -42,10 +42,18 @@ import com.jme3.network.serializing.Serializable;
  */
 @Serializable()
 public class GZIPCompressedMessage extends CompressedMessage {
+    /**
+     * Creates an empty gzip-compressed message for serialization.
+     */
     public GZIPCompressedMessage() {
         super();
     }
 
+    /**
+     * Creates a gzip-compressed wrapper for the specified message.
+     *
+     * @param msg the wrapped message
+     */
     public GZIPCompressedMessage(Message msg) {
         super(msg);
     }

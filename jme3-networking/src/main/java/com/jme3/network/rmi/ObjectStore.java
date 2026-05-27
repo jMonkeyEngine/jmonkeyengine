@@ -45,6 +45,9 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Legacy RMI object registry for exposing local objects and resolving remote proxies.
+ */
 public class ObjectStore {
 
     private static final Logger logger = Logger.getLogger(ObjectStore.class.getName());
@@ -84,8 +87,16 @@ public class ObjectStore {
 
     private final Object receiveObjectLock = new Object();
 
+    /**
+     * Handles server-side RMI message and connection callbacks.
+     */
     public class ServerEventHandler implements MessageListener<HostedConnection>,
                                                       ConnectionListener {
+        /**
+         * Creates the server-side event handler.
+         */
+        public ServerEventHandler() {
+        }
 
         @Override
         public void messageReceived(HostedConnection source, Message m) {
@@ -103,8 +114,16 @@ public class ObjectStore {
         
     } 
     
+    /**
+     * Handles client-side RMI message and connection callbacks.
+     */
     public class ClientEventHandler implements MessageListener,
                                                       ClientStateListener {
+        /**
+         * Creates the client-side event handler.
+         */
+        public ClientEventHandler() {
+        }
 
         @Override
         public void messageReceived(Object source, Message m) {
@@ -129,6 +148,11 @@ public class ObjectStore {
         Serializer.registerClass(RemoteMethodReturnMessage.class, s);
     }
 
+    /**
+     * Creates an object store bound to a client.
+     *
+     * @param client the client that owns the store
+     */
     @SuppressWarnings("unchecked")
     public ObjectStore(Client client) {
         this.client = client;
@@ -139,6 +163,11 @@ public class ObjectStore {
         client.addClientStateListener(clientEventHandler);
     }
 
+    /**
+     * Creates an object store bound to a server.
+     *
+     * @param server the server that owns the store
+     */
     public ObjectStore(Server server) {
         this.server = server;
         server.addMessageListener(serverEventHandler, 
@@ -156,6 +185,13 @@ public class ObjectStore {
         return def;
     }
 
+    /**
+     * Exposes a local object to the remote side under the specified name.
+     *
+     * @param name the exported object name
+     * @param obj the local object to expose
+     * @throws IOException if serialization or transport setup fails
+     */
     public void exposeObject(String name, Object obj) throws IOException{
         // Create a local object
         LocalObject localObj = new LocalObject();
@@ -188,6 +224,16 @@ public class ObjectStore {
         }
     }
 
+    /**
+     * Looks up an exposed remote object and returns a proxy implementing the requested type.
+     *
+     * @param <T> the requested proxy type
+     * @param name the exported object name
+     * @param type the interface the proxy should implement
+     * @param waitFor true to wait until the object appears
+     * @return the remote object proxy
+     * @throws InterruptedException if interrupted while waiting
+     */
     @SuppressWarnings("unchecked")
     public <T> T getExposedObject(String name, Class<T> type, boolean waitFor) throws InterruptedException{
         RemoteObject ro = remoteObjects.get(name);

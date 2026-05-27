@@ -43,6 +43,11 @@ import java.util.Date;
  */
 @SuppressWarnings("unchecked")
 public class DateSerializer extends Serializer {
+    /**
+     * Creates a date serializer.
+     */
+    public DateSerializer() {
+    }
 
     @Override
     public Date readObject(ByteBuffer data, Class c) throws IOException {

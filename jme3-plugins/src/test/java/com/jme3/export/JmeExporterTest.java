@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -227,26 +228,27 @@ public class JmeExporterTest {
         }
 
         // compare
-        Map<String, Object> userData[] = new Map[nodes.length];
+        List<Map<String, Object>> userData = new ArrayList<>(nodes.length);
         for (int i = 0; i < nodes.length; i++) {
             Node n = nodes[i];
-            userData[i] = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap<>();
             for (String k : n.getUserDataKeys()) {
-                userData[i].put(k, n.getUserData(k));
+                data.put(k, n.getUserData(k));
             }
+            userData.add(data);
         }
         compareMaps(userData);
     }
 
-    private static final void compareMaps(Map<String, Object>[] maps) {
-        String[] keys = maps[0].keySet().toArray(new String[0]);
+    private static final void compareMaps(List<Map<String, Object>> maps) {
+        String[] keys = maps.get(0).keySet().toArray(new String[0]);
         // check if all maps have the same keys and values for those keys
-        for (int i = 1; i < maps.length; i++) {
-            Map<String, Object> map = maps[i];
+        for (int i = 1; i < maps.size(); i++) {
+            Map<String, Object> map = maps.get(i);
             assertEquals(keys.length, map.size(), "Map " + i + " keys do not match");
             for (String key : keys) {
                 assertTrue(map.containsKey(key), "Missing key " + key + " in map " + i);
-                Object v1 = maps[0].get(key);
+                Object v1 = maps.get(0).get(key);
                 Object v2 = map.get(key);
                 if (v1.getClass().isArray()) {
                     boolean c = Arrays.equals((Object[]) v1, (Object[]) v2);

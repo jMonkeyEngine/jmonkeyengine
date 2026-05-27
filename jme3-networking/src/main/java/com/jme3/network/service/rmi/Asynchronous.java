@@ -50,6 +50,11 @@ import static java.lang.annotation.RetentionPolicy.*;
 @Retention(value=RUNTIME)
 @Target(value=METHOD)
 public @interface Asynchronous {
+    /**
+     * Indicates whether the asynchronous invocation should use reliable transport.
+     *
+     * @return true to send the invocation reliably
+     */
     boolean reliable() default true;
 }
 

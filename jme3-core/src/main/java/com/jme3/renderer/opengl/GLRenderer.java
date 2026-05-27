@@ -37,7 +37,6 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
-import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
@@ -188,7 +187,15 @@ public final class GLRenderer implements Renderer {
             gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
             int extensionCount = intBuf16.get(0);
             for (int i = 0; i < extensionCount; i++) {
-                String extension = gl3.glGetString(GL.GL_EXTENSIONS, i);
+                String extension = gl3.glGetString(GL3.GL_EXTENSIONS, i);
+                extensionSet.add(extension);
+            }
+        } else if (caps.contains(Caps.OpenGLES30)) {
+            GLES_30 gles = (GLES_30) gl;
+            gles.glGetInteger(GLES_30.GL_NUM_EXTENSIONS, intBuf16);
+            int extensionCount = intBuf16.get(0);
+            for (int i = 0; i < extensionCount; i++) {
+                String extension = gles.glGetString(GLES_30.GL_EXTENSIONS, i);
                 extensionSet.add(extension);
             }
         } else {
@@ -446,6 +453,10 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.DepthTexture);
         }
 
+        if (gl2 != null || caps.contains(Caps.OpenGLES30)) {
+            caps.add(Caps.TextureShadowCompare);
+        }
+
         if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30) || caps.contains(Caps.WebGL)
                 || hasExtension("GL_OES_depth24")) {
             caps.add(Caps.Depth24);
@@ -601,6 +612,7 @@ public final class GLRenderer implements Renderer {
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
+
             if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGL32)
                     || caps.contains(Caps.OpenGLES31)) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);
@@ -670,6 +682,13 @@ public final class GLRenderer implements Renderer {
             if (binaryFormats > 0) {
                 caps.add(Caps.BinaryShader);
             }
+        }
+
+        if (gl.supportsGpuTimerQuery()
+                && (caps.contains(Caps.OpenGL33)
+                || hasExtension("GL_ARB_timer_query")
+                || (caps.contains(Caps.OpenGLES20) && hasExtension("GL_EXT_disjoint_timer_query")))) {
+            caps.add(Caps.GpuTimerQuery);
         }
 
         if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
@@ -901,7 +920,6 @@ public final class GLRenderer implements Renderer {
     public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
-        OpenCLObjectManager.getInstance().deleteAllObjects();
         statistics.clearMemory();
         invalidateState();
     }
@@ -1386,7 +1404,6 @@ public final class GLRenderer implements Renderer {
     @Override
     public void postFrame() {
         objManager.deleteUnused(this);
-        OpenCLObjectManager.getInstance().deleteUnusedObjects();
         gl.resetStats();
     }
 
@@ -1956,6 +1973,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
+    @Deprecated
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         copyFrameBuffer(src, dst, true, copyDepth);
     }
@@ -2226,7 +2244,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void updateFrameBuffer(FrameBuffer fb) {
-        if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
+        if (fb.getNumColorTargets() == 0 && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
         }
@@ -2242,13 +2260,13 @@ public final class GLRenderer implements Renderer {
 
         bindFrameBuffer(fb);
 
-        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
+        FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf);
         }
 
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
+        for (int i = 0; i < fb.getNumColorTargets(); i++) {
+            FrameBuffer.RenderBuffer colorBuf = fb.getColorTarget(i);
             updateFrameBufferAttachment(fb, colorBuf);
         }
 
@@ -2309,13 +2327,13 @@ public final class GLRenderer implements Renderer {
 
         if (fb != null) {
           
-            if (fb.getNumColorBuffers() == 0) {
+            if (fb.getNumColorTargets() == 0) {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.                
                 gl2.glDrawBuffer(GL.GL_NONE);             
                 gl2.glReadBuffer(GL.GL_NONE);                 
             } else {
-                if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
+                if (fb.getNumColorTargets() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
                             + "attachments than are supported"
                             + " by the video hardware!");
@@ -2325,21 +2343,21 @@ public final class GLRenderer implements Renderer {
                         throw new RendererException("Multiple render targets "
                                 + " are not supported by the video hardware");
                     }
-                    if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferMrtAttachments)) {
+                    if (fb.getNumColorTargets() > limits.get(Limits.FrameBufferMrtAttachments)) {
                         throw new RendererException("Framebuffer has more"
                                 + " multi targets than are supported"
                                 + " by the video hardware!");
                     }
 
                     intBuf16.clear();
-                    for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+                    for (int i = 0; i < fb.getNumColorTargets(); i++) {
                         intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                     }
 
                     intBuf16.flip();
                     glext.glDrawBuffers(intBuf16);
                 } else {
-                    RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
+                    RenderBuffer rb = fb.getColorTarget(fb.getTargetIndex());
                     // select this draw buffer
                     gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     // select this read buffer
@@ -2373,8 +2391,8 @@ public final class GLRenderer implements Renderer {
         if (boundFB != null && (boundFB.getMipMapsGenerationHint() != null
                 ? boundFB.getMipMapsGenerationHint()
                 : generateMipmapsForFramebuffers)) {
-            for (int i = 0; i < boundFB.getNumColorBuffers(); i++) {
-                RenderBuffer rb = boundFB.getColorBuffer(i);
+            for (int i = 0; i < boundFB.getNumColorTargets(); i++) {
+                RenderBuffer rb = boundFB.getColorTarget(i);
                 Texture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()
                         && isMipmapGenerationSupported(tex.getImage().getFormat(),
@@ -2429,7 +2447,7 @@ public final class GLRenderer implements Renderer {
 
     private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
         if (fb != null) {
-            RenderBuffer rb = fb.getColorBuffer();
+            RenderBuffer rb = fb.getColorTarget();
             if (rb == null) {
                 throw new IllegalArgumentException("Specified framebuffer"
                         + " does not have a colorbuffer");
@@ -2464,11 +2482,11 @@ public final class GLRenderer implements Renderer {
                 context.boundFBO = 0;
             }
 
-            if (fb.getDepthBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getDepthBuffer());
+            if (fb.getDepthTarget() != null) {
+                deleteRenderBuffer(fb, fb.getDepthTarget());
             }
-            if (fb.getColorBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getColorBuffer());
+            if (fb.getColorTarget() != null) {
+                deleteRenderBuffer(fb, fb.getColorTarget());
             }
 
             intBuf1.put(0, fb.getId());
@@ -2660,7 +2678,7 @@ public final class GLRenderer implements Renderer {
         }
 
         ShadowCompareMode texCompareMode = tex.getShadowCompareMode();
-        if ( (gl2 != null || caps.contains(Caps.OpenGLES30)) && curState.shadowCompareMode != texCompareMode) {
+        if (caps.contains(Caps.TextureShadowCompare) && curState.shadowCompareMode != texCompareMode) {
             bindTextureAndUnit(target, image, unit);
             if (texCompareMode != ShadowCompareMode.Off) {
                 gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);
@@ -3819,6 +3837,9 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public int[] generateProfilingTasks(int numTasks) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         IntBuffer ids = BufferUtils.createIntBuffer(numTasks);
         gl.glGenQueries(numTasks, ids);
         return BufferUtils.getIntArray(ids);
@@ -3826,21 +3847,33 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void startProfiling(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glBeginQuery(GL.GL_TIME_ELAPSED, taskId);
     }
 
     @Override
     public void stopProfiling() {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         gl.glEndQuery(GL.GL_TIME_ELAPSED);
     }
 
     @Override
     public long getProfilingTime(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectui64(taskId, GL.GL_QUERY_RESULT);
     }
 
     @Override
     public boolean isTaskResultAvailable(int taskId) {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
     }
 

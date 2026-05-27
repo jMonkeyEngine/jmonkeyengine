@@ -42,6 +42,13 @@ public final class SerializerRegistration {
     private short id;
     private Class type;
 
+    /**
+     * Creates a serializer registration.
+     *
+     * @param serializer the serializer instance
+     * @param cls the registered type
+     * @param id the serializer id
+     */
     public SerializerRegistration(Serializer serializer, Class cls, short id) {
         this.serializer = serializer;
         type = cls;

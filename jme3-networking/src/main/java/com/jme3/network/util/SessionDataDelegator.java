@@ -64,6 +64,10 @@ public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnect
      *  </ul>
      *  Where S is the type of MessageConnection and SomeMessage is some
      *  specific concrete Message subclass.
+     *
+     *  @param delegateType the delegate class containing message handlers
+     *  @param attributeName the session attribute that stores the delegate
+     *  @param automap true to map methods automatically
      */   
     public SessionDataDelegator( Class delegateType, String attributeName, boolean automap ) {
         super(delegateType, automap);
@@ -73,6 +77,8 @@ public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnect
     /**
      *  Returns the attribute name that will be used to look up the 
      *  delegate object.
+     *
+     *  @return the session attribute name used to locate delegates
      */   
     public String getAttributeName() {
         return attributeName;
@@ -82,6 +88,8 @@ public class SessionDataDelegator extends AbstractMessageDelegator<HostedConnect
      *  Called internally when there is no session object
      *  for the current attribute name attached to the passed source
      *  HostConnection.  Default implementation logs a warning.
+     *
+     *  @param source the connection whose delegate lookup failed
      */
     protected void miss( HostedConnection source ) {
         log.log(Level.WARNING, "Session data is null for:{0} on connection:{1}", new Object[]{attributeName, source});

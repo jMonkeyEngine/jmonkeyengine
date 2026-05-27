@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class BooleanSerializer extends Serializer {
+    /**
+     * Creates a boolean serializer.
+     */
+    public BooleanSerializer() {
+    }
 
     @Override
     public Boolean readObject(ByteBuffer data, Class c) throws IOException {

@@ -48,6 +48,10 @@ public class Envelope
      *  Creates an incoming envelope holding the data from the specified
      *  source.  The 'reliable' flag further indicates on which mode of
      *  transport the data arrived.
+     *
+     *  @param source the endpoint that produced the data
+     *  @param data the received bytes
+     *  @param reliable true if the data arrived over a reliable transport
      */
     public Envelope( Endpoint source, byte[] data, boolean reliable )
     {
@@ -56,16 +60,31 @@ public class Envelope
         this.reliable = reliable;
     }
     
+    /**
+     * Returns the endpoint that produced the data.
+     *
+     * @return the source endpoint
+     */
     public Endpoint getSource()
     {
         return source;
     }
     
+    /**
+     * Returns the received bytes.
+     *
+     * @return the received data
+     */
     public byte[] getData()
     {
         return data;
     }
     
+    /**
+     * Returns whether the data arrived over a reliable transport.
+     *
+     * @return true if the envelope is reliable
+     */
     public boolean isReliable()
     {
         return reliable;

@@ -56,6 +56,10 @@ public class UdpConnector implements Connector
     /**
      *  Creates a new UDP connection that send datagrams to the
      *  specified address and port.
+     *
+     *  @param remote the remote address
+     *  @param remotePort the remote port
+     *  @throws IOException if the socket cannot be opened
      */
     public UdpConnector( InetAddress remote, int remotePort ) throws IOException
     {
@@ -69,6 +73,9 @@ public class UdpConnector implements Connector
         connected.set(true);
     }
  
+    /**
+     * Ensures the connector has not been closed.
+     */
     protected void checkClosed()
     {
         if( sock == null )
@@ -139,4 +146,3 @@ public class UdpConnector implements Connector
         }
     }    
 }
-

@@ -47,6 +47,11 @@ public interface NetworkClient extends Client
 {
     /**
      *  Connects this client to the specified remote server and ports.
+     *
+     *  @param host the remote host name or address
+     *  @param port the remote TCP port
+     *  @param remoteUdpPort the remote UDP port
+     *  @throws IOException if the client cannot connect
      */
     public void connectToServer( String host, int port, int remoteUdpPort ) throws IOException;
  
@@ -60,6 +65,7 @@ public interface NetworkClient extends Client
      *                  send 'fast'/unreliable messages.   Set to -1 if 'fast' traffic should 
      *                  go over TCP.  This will completely disable UDP traffic for this
      *                  client.
+     *  @throws IOException if the client cannot connect
      */                               
     public void connectToServer( InetAddress address, int port, int remoteUdpPort ) throws IOException;
     

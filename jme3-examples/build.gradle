@@ -1,7 +1,100 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
+
+import groovy.json.JsonOutput
+import java.nio.file.FileSystems
+import java.nio.file.Files
+
+plugins {
+    id 'org.graalvm.buildtools.native' version '1.1.0'
+}
+
 ext.mainClassName = 'jme3test.TestChooser'
+ext.nativeMainClassName = 'jme3test.TestChooserCli'
+ext.jmeNativeImageAdditionalResourceGlobs = []
+
+def generatedTestChooserResourcesDir = layout.buildDirectory.dir('generated/testchooser/resources')
+def testChooserClassListFile = generatedTestChooserResourcesDir.map { it.file('jme3test/test-classes.txt') }
+def testChooserReflectionConfigFile = layout.buildDirectory.file('generated/testchooser/reflect-config.json')
+def nativeImageBuildOutputJsonFile = layout.buildDirectory.file('reports/native-image/jme3-testchooser-build-output.json')
+def testChooserReachabilityMetadataFile = generatedTestChooserResourcesDir.map {
+    it.file('META-INF/native-image/org.jmonkeyengine/jme3-examples-testchooser/reachability-metadata.json')
+}
+
+tasks.register('generateTestChooserClassList') {
+    group = 'build'
+    description = 'Generates a resource list of jme3test classes for TestChooserCli fallback discovery.'
+    dependsOn 'compileJava'
+    inputs.files(sourceSets.main.output.classesDirs)
+    outputs.files(testChooserClassListFile, testChooserReachabilityMetadataFile, testChooserReflectionConfigFile)
+
+    doLast {
+        Set<String> allJme3TestClassNames = new TreeSet<String>()
+        Set<String> launcherClassNames = new TreeSet<String>()
+        sourceSets.main.output.classesDirs.files.findAll { it.exists() }.each { classesDir ->
+            fileTree(classesDir).matching {
+                include 'jme3test/**/*.class'
+                exclude '**/*$*'
+                exclude '**/module-info.class'
+                exclude '**/package-info.class'
+                exclude '**/TestChooser.class'
+                exclude '**/TestChooserCli.class'
+            }.files.each { classFile ->
+                String relativePath = classesDir.toPath().relativize(classFile.toPath()).toString().replace(File.separatorChar, (char) '/')
+                if (relativePath.endsWith('.class')) {
+                    String className = relativePath.substring(0, relativePath.length() - '.class'.length()).replace('/', '.')
+                    allJme3TestClassNames.add(className)
+                    if (relativePath.contains('Test')) {
+                        launcherClassNames.add(className)
+                    }
+                }
+            }
+        }
+
+        File classListFile = testChooserClassListFile.get().asFile
+        classListFile.parentFile.mkdirs()
+        classListFile.text = launcherClassNames.isEmpty()
+                ? ''
+                : launcherClassNames.join(System.lineSeparator()) + System.lineSeparator()
+
+        List<Map<String, Object>> reflectionEntries = allJme3TestClassNames.collect { className ->
+            [
+                    type                   : className,
+                    allDeclaredConstructors: true,
+                    allDeclaredMethods     : true,
+                    allPublicMethods       : true
+            ]
+        }
+        Map<String, Object> metadata = [
+                reflection: reflectionEntries,
+                resources : []
+        ]
+
+        File reachabilityFile = testChooserReachabilityMetadataFile.get().asFile
+        reachabilityFile.parentFile.mkdirs()
+        reachabilityFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(metadata)) + System.lineSeparator()
+
+        List<Map<String, Object>> reflectionConfigEntries = allJme3TestClassNames.collect { className ->
+            [
+                    name                   : className,
+                    allDeclaredConstructors: true,
+                    allDeclaredMethods     : true,
+                    allPublicMethods       : true
+            ]
+        }
+        File reflectionConfigFile = testChooserReflectionConfigFile.get().asFile
+        reflectionConfigFile.parentFile.mkdirs()
+        reflectionConfigFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(reflectionConfigEntries)) + System.lineSeparator()
+    }
+}
+
+sourceSets.main.resources.srcDir(generatedTestChooserResourcesDir)
+
+tasks.named('processResources') {
+    dependsOn 'generateTestChooserClassList'
+}
 
 def androidProject = project(':jme3-android')
-def androidNativeProject = project(':jme3-android-native')
 
 task run(dependsOn: 'build', type:JavaExec) {
     mainClass = mainClassName
@@ -17,8 +110,11 @@ task run(dependsOn: 'build', type:JavaExec) {
 }
 
 
-task runExamples(dependsOn: 'build', type: JavaExec) {
+task runExamples(dependsOn: 'classes', type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
+    if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+        jvmArgs '-XstartOnFirstThread'
+    }
 
     if (System.properties['java.util.logging.config.file'] != null) {
         systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']
@@ -34,6 +130,225 @@ task runExamples(dependsOn: 'build', type: JavaExec) {
             exampleClass = mainClassName
         }
         mainClass = exampleClass
+    }
+}
+
+def umuLauncherDownloadUrl = 'https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.0/umu-launcher-1.4.0-zipapp.tar'
+def umuLauncherArchive = layout.buildDirectory.file('tmp/umu-launcher-1.4.0-zipapp.tar')
+def umuLauncherExtractDir = layout.buildDirectory.dir('tools/umu-launcher')
+def protonToolchainVersion = java.toolchain.languageVersion.get().asInt()
+def protonJdkDownloadUrl = "https://api.adoptium.net/v3/binary/latest/${protonToolchainVersion}/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
+def protonJdkArchive = layout.buildDirectory.file("tmp/proton-jdk-${protonToolchainVersion}-windows.zip")
+def protonJdkExtractDir = layout.buildDirectory.dir('tools/proton-jdk')
+
+task downloadProtonRuntime {
+    description = 'Download and extract Proton runtime launcher into jme3-examples/build/tools/umu-launcher.'
+    outputs.dir(umuLauncherExtractDir)
+    inputs.property("url", umuLauncherDownloadUrl)
+
+    doLast {
+        def archiveFile = umuLauncherArchive.get().asFile
+        archiveFile.parentFile.mkdirs()
+
+        logger.lifecycle("Downloading umu-launcher from ${umuLauncherDownloadUrl}")
+
+        new URL(umuLauncherDownloadUrl).withInputStream { input ->
+            archiveFile.withOutputStream { output ->
+                output << input
+            }
+        }
+
+        def extractRoot = umuLauncherExtractDir.get().asFile
+        extractRoot.deleteDir()
+        extractRoot.mkdirs()
+
+        copy {
+            from tarTree(archiveFile)
+            into extractRoot
+        }
+
+        def extractedEntries = extractRoot.listFiles()
+        if (extractedEntries == null || extractedEntries.length == 0) {
+            throw new GradleException('umu-launcher archive extraction failed: build/tools/umu-launcher is empty')
+        }
+
+        logger.lifecycle("umu-launcher extracted to ${extractRoot.absolutePath}")
+    }
+}
+
+task downloadProtonJdk {
+    description = "Download and extract the Adoptium Java ${protonToolchainVersion} Windows JDK used to bootstrap Gradle inside Proton."
+    outputs.dir(protonJdkExtractDir)
+    inputs.property("url", protonJdkDownloadUrl)
+
+    doLast {
+        def archiveFile = protonJdkArchive.get().asFile
+        archiveFile.parentFile.mkdirs()
+
+        logger.lifecycle("Downloading Windows JDK from ${protonJdkDownloadUrl}")
+
+        new URL(protonJdkDownloadUrl).withInputStream { input ->
+            archiveFile.withOutputStream { output ->
+                output << input
+            }
+        }
+
+        def extractRoot = protonJdkExtractDir.get().asFile
+        extractRoot.deleteDir()
+        extractRoot.mkdirs()
+
+        copy {
+            from zipTree(archiveFile)
+            into extractRoot
+        }
+
+        def extractedEntries = extractRoot.listFiles()
+        if (extractedEntries == null || extractedEntries.length == 0) {
+            throw new GradleException('Windows JDK extraction failed: build/tools/proton-jdk is empty')
+        }
+
+        logger.lifecycle("Windows JDK extracted to ${extractRoot.absolutePath}")
+    }
+}
+
+task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downloadProtonJdk'], type: Exec) {
+    description = 'Run jme3 examples under Proton using the downloaded runtime launcher and Windows JDK.'
+    workingDir = rootProject.projectDir
+
+    doFirst {
+        def extractRoot = umuLauncherExtractDir.get().asFile
+        def umuRunScript = new File(extractRoot, 'umu-run')
+        if (!umuRunScript.exists()) {
+            def nestedUmuRun = extractRoot.listFiles()?.find { it.isDirectory() }?.toPath()?.resolve('umu-run')?.toFile()
+            if (nestedUmuRun != null && nestedUmuRun.exists()) {
+                umuRunScript = nestedUmuRun
+            }
+        }
+        if (!umuRunScript.exists()) {
+            throw new GradleException("Could not find umu-run script at ${umuRunScript.absolutePath}")
+        }
+
+        def protonJdkRoot = protonJdkExtractDir.get().asFile
+        def protonJdkDir = fileTree(protonJdkRoot).find { it.name == 'java.exe' }?.parentFile?.parentFile
+
+        def winePrefix = "${buildDir}/umu/wineprefix"
+        def gameId = 'jme3-examples'
+        def store = 'none'
+        def protonJavaHome = "Z:${protonJdkDir.absolutePath.replace('/', '\\\\')}"
+        def protonJavaExe = "${protonJavaHome}\\\\bin\\\\java.exe"
+        def exampleClass = project.findProperty('example')?.toString() ?: mainClassName
+        def runtimeClasspathFiles = sourceSets.main.runtimeClasspath.files as LinkedHashSet
+        def relevantRuntimeEntries = runtimeClasspathFiles.findAll { file ->
+            def name = file.name.toLowerCase()
+            name.contains('angle') || name.contains('saferalloc')
+        }
+        logger.lifecycle("Proton runtime entries: ${relevantRuntimeEntries*.name}")
+
+        def runtimeClasspath = runtimeClasspathFiles.collect { file ->
+            "Z:${file.absolutePath.replace('/', '\\\\')}"
+        }.join(';')
+        def jvmArgs = []
+
+        if (assertions == 'true') {
+            jvmArgs << '-ea'
+        }
+
+        if (System.properties['java.util.logging.config.file'] != null) {
+            def loggingConfig = System.properties['java.util.logging.config.file'].replace('/', '\\\\')
+            jvmArgs << "-Djava.util.logging.config.file=Z:${loggingConfig}"
+        }
+
+        executable = umuRunScript.absolutePath
+        args protonJavaExe
+        args jvmArgs
+        args '-cp', runtimeClasspath, exampleClass
+
+        environment 'WINEPREFIX', winePrefix
+        environment 'GAMEID', gameId
+        environment 'STORE', store
+        environment 'JAVA_HOME', protonJavaHome
+        environment 'JDK_HOME', protonJavaHome
+        environment 'PROTON_VERB', 'waitforexitandrun'
+
+        logger.lifecycle("Running ${exampleClass} with Proton via ${protonJavaExe}")
+    }
+}
+
+def graalLauncher = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(21)
+    vendor = JvmVendorSpec.GRAAL_VM
+    nativeImageCapable = true
+}
+
+graalvmNative {
+    testSupport = false
+    binaries {
+        named('main') {
+            imageName = 'jme3-testchooser'
+            mainClass = nativeMainClassName
+            sharedLibrary = false
+            javaLauncher = graalLauncher
+            project.ext.jmeApplyDefaultNativeImageResourceSettings(delegate)
+            buildArgs.add("-H:ReflectionConfigurationFiles=${testChooserReflectionConfigFile.get().asFile.absolutePath}")
+            buildArgs.add('-H:+BuildOutputBreakdowns')
+            buildArgs.add("-H:BuildOutputJSONFile=${nativeImageBuildOutputJsonFile.get().asFile.absolutePath}")
+        }
+    }
+}
+
+tasks.named('nativeCompile') {
+    dependsOn 'processResources'
+
+    doFirst {
+        // Gradle's Copy task cannot preserve symlinks in some provisioned toolchains.
+        // Recreate likely broken links in the GraalVM toolchain before native-image runs.
+        if (!FileSystems.getDefault().supportedFileAttributeViews().contains('posix')) {
+            logger.info("Skipping GraalVM toolchain symlink fixup on non-POSIX file system.")
+            return
+        }
+
+        File graalvmHomeDir = System.getenv('GRAALVM_HOME') ? file(System.getenv('GRAALVM_HOME')) : null
+        def nativeImageLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(21)
+            vendor = JvmVendorSpec.GRAAL_VM
+            nativeImageCapable = true
+        }
+
+        if (delegate.hasProperty('options') && delegate.options.hasProperty('javaLauncher')) {
+            delegate.options.javaLauncher.set(nativeImageLauncher)
+        }
+
+        File toolchainDir = graalvmHomeDir
+        if (toolchainDir == null) {
+            File executableParent = nativeImageLauncher.get().executablePath.asFile.parentFile
+            toolchainDir = executableParent.name == 'bin' ? executableParent.parentFile : executableParent
+        }
+
+        def toolchainFiles = project.fileTree(toolchainDir).files.findAll { it.isFile() }
+        def emptyFiles = toolchainFiles.findAll { it.length() == 0L }
+        Set<File> emptyFileSet = emptyFiles as Set<File>
+
+        toolchainFiles.groupBy { it.name }.each { ignoredName, sameNamedFiles ->
+            List<File> nonEmptyCandidates = sameNamedFiles.findAll { it.length() > 0L }
+            List<File> emptyCandidates = sameNamedFiles.findAll { emptyFileSet.contains(it) }
+            if (!nonEmptyCandidates.isEmpty() && !emptyCandidates.isEmpty()) {
+                File target = nonEmptyCandidates.first()
+                emptyCandidates.each { File link ->
+                    if (link != target) {
+                        logger.quiet("Fixing up '${link}' to link to '${target}'.")
+                        if (link.delete()) {
+                            try {
+                                Files.createSymbolicLink(link.toPath(), target.toPath())
+                            } catch (Exception ex) {
+                                logger.warn("Unable to create symlink '${link}' to '${target}'.", ex)
+                            }
+                        } else {
+                            logger.warn("Unable to delete '${link}'.")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -53,7 +368,7 @@ dependencies {
     implementation project(':jme3-plugins-json-gson')
     implementation project(':jme3-terrain')
     implementation project(':jme3-awt-dialogs')
-    runtimeOnly project(':jme3-testdata')
+    implementation project(':jme3-testdata')
     runtimeOnly libs.nifty.examples // for the "all/intro.xml" example GUI
 }
 
@@ -69,7 +384,7 @@ jar.doFirst{
 //                'Implementation-Vendor'  : vendor,
                 'Main-Class'             : getProperty('mainClassName'),
                 // Add dependencies to manifest, remove version
-                'Class-Path'             : configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.collect {
+                'Class-Path'             : configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
                                                         it.name +
                                                         (it.classifier != null ? '-' + it.classifier : '') +
@@ -78,10 +393,10 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']) {
+task dist (dependsOn: ['build', ':jme3-android:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
-        configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.file
                 into '../dist/lib'
@@ -104,10 +419,17 @@ task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']
             into '../dist/opt/android'
             rename { androidProject.name + ".jar" }
         }
+        def androidNativeDependency = libs.jme3.android.natives.get()
+        def androidNativeArtifact = androidProject.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.find {
+            it.moduleVersion.id.group == androidNativeDependency.module.group && it.name == androidNativeDependency.module.name
+        }
+        if (androidNativeArtifact == null) {
+            throw new GradleException("Unable to resolve ${androidNativeDependency.module} for the distribution")
+        }
         copy {
-            from androidNativeProject.tasks.named('jar').flatMap { it.archiveFile }
+            from androidNativeArtifact.file
             into '../dist/opt/android'
-            rename { androidNativeProject.name + ".jar" }
+            rename { androidNativeArtifact.name + ".${androidNativeArtifact.extension}" }
         }
     }
 }

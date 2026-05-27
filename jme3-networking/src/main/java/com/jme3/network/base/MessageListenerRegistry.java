@@ -45,6 +45,7 @@ import java.util.logging.Logger;
  *  Keeps track of message listeners registered to specific
  *  types or to any type.
  *
+ *  @param <S> the message source type
  *  @version   $Revision$
  *  @author    Paul Speed
  */
@@ -56,6 +57,9 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
     private final Map<Class,List<MessageListener<? super S>>> typeListeners 
                     = new ConcurrentHashMap<>(); 
 
+    /**
+     * Creates an empty listener registry.
+     */
     public MessageListenerRegistry()
     {
     }
@@ -87,6 +91,13 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
         }
     }
  
+    /**
+     * Returns the listeners registered for a specific message class.
+     *
+     * @param c the message class
+     * @param create true to create a listener list when absent
+     * @return the listeners registered for that class
+     */
     protected List<MessageListener<? super S>> getListeners( Class c, boolean create )
     {
         List<MessageListener<? super S>> result = typeListeners.get(c);
@@ -101,6 +112,11 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
         return result;   
     }
     
+    /**
+     * Adds a wildcard listener that receives all messages.
+     *
+     * @param listener the listener to add
+     */
     public void addMessageListener( MessageListener<? super S> listener )
     {
         if( listener == null )
@@ -108,11 +124,22 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
         listeners.add(listener);
     } 
 
+    /**
+     * Removes a wildcard listener.
+     *
+     * @param listener the listener to remove
+     */
     public void removeMessageListener( MessageListener<? super S> listener )
     {
         listeners.remove(listener);
     } 
 
+    /**
+     * Adds a listener for the specified message classes.
+     *
+     * @param listener the listener to add
+     * @param classes the message classes to listen for
+     */
     public void addMessageListener( MessageListener<? super S> listener, Class... classes )
     {
         if( listener == null )
@@ -122,6 +149,12 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
         }
     } 
 
+    /**
+     * Removes a listener from the specified message classes.
+     *
+     * @param listener the listener to remove
+     * @param classes the message classes to unregister
+     */
     public void removeMessageListener( MessageListener<? super S> listener, Class... classes )
     {
         for( Class c : classes ) {

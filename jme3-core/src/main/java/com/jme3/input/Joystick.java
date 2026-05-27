@@ -38,14 +38,8 @@ import java.util.List;
  *
  * @author Paul Speed, Kirill Vainer
  */
-public interface Joystick {
+public interface Joystick extends HapticDevice {
 
-    /**
-     * Rumbles the joystick for the given amount/magnitude.
-     *
-     * @param amount The amount to rumble. Should be between 0 and 1.
-     */
-    public void rumble(float amount);
 
     /**
      * Assign the mapping name to receive events from the given button index

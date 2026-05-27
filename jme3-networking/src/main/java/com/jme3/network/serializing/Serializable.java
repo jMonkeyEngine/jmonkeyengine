@@ -43,6 +43,16 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Serializable {
+    /**
+     * Returns the serializer class to use for the annotated type.
+     *
+     * @return the serializer class
+     */
     Class serializer() default FieldSerializer.class;
+    /**
+     * Returns the fixed serializer id for the annotated type, or {@code 0} for auto-assignment.
+     *
+     * @return the serializer id
+     */
     short id() default 0;
 }

@@ -12,9 +12,6 @@ import java.util.logging.LogManager;
  */
 public class JmeFragment extends AndroidHarnessFragment {
     private String appClass;
-    private boolean joystickEventsEnabled;
-    private boolean keyEventsEnabled = true;
-    private boolean mouseEventsEnabled = true;
 
     public JmeFragment() {
         finishOnAppStop = true;
@@ -27,13 +24,8 @@ public class JmeFragment extends AndroidHarnessFragment {
 
         appClass = bundle.getString(MainActivity.SELECTED_APP_CLASS);
 //        Log.d(this.getClass().getSimpleName(), "AppClass: " + appClass);
-        joystickEventsEnabled = bundle.getBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS);
-//        Log.d(this.getClass().getSimpleName(), "JoystickEventsEnabled: " + joystickEventsEnabled);
-        keyEventsEnabled = bundle.getBoolean(MainActivity.ENABLE_KEY_EVENTS);
-//        Log.d(this.getClass().getSimpleName(), "KeyEventsEnabled: " + keyEventsEnabled);
-        mouseEventsEnabled = bundle.getBoolean(MainActivity.ENABLE_MOUSE_EVENTS);
-//        Log.d(this.getClass().getSimpleName(), "MouseEventsEnabled: " + mouseEventsEnabled);
-        boolean verboseLogging = bundle.getBoolean(MainActivity.VERBOSE_LOGGING);
+        boolean verboseLogging = bundle.getBoolean(MainActivity.VERBOSE_LOGGING,
+                MainActivity.DEFAULT_VERBOSE_LOGGING);
 //        Log.d(this.getClass().getSimpleName(), "VerboseLogging: " + verboseLogging);
         if (verboseLogging) {
             // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)
@@ -49,21 +41,12 @@ public class JmeFragment extends AndroidHarnessFragment {
     @Override
     protected LegacyApplication createApplication() throws Exception {
         Class<?> clazz = Class.forName(appClass);
-        return (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        LegacyApplication application = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        AppSettings settings = new AppSettings(true);
+        settings.setEmulateMouse(true);
+        settings.setEmulateKeyboard(true);
+        application.setSettings(settings);
+        return application;
     }
 
-    @Override
-    protected void configureSettings(AppSettings settings) {
-        settings.setEmulateMouse(mouseEventsEnabled);
-        settings.setUseJoysticks(joystickEventsEnabled);
-        settings.setEmulateKeyboard(keyEventsEnabled);
-
-        settings.setBitsPerPixel(24);
-        settings.setAlphaBits(0);
-        settings.setGammaCorrection(true);
-        settings.setDepthBits(16);
-        settings.setSamples(4);
-        settings.setStencilBits(0);
-        settings.setFrameRate(-1);
-    }
 }

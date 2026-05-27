@@ -94,11 +94,13 @@ public class TextureCubeMap extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone() {
         return createSimpleClone(new TextureCubeMap());
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone(Texture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);

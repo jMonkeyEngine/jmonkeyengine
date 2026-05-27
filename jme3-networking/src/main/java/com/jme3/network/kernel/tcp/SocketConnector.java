@@ -60,6 +60,13 @@ public class SocketConnector implements Connector
     private byte[] buffer = new byte[65535];
     private AtomicBoolean connected = new AtomicBoolean(false);
 
+    /**
+     * Creates a TCP connector to the specified remote address.
+     *
+     * @param address the remote address
+     * @param port the remote port
+     * @throws IOException if the socket cannot be opened
+     */
     public SocketConnector( InetAddress address, int port ) throws IOException
     {
         this.sock = new Socket(address, port);
@@ -75,6 +82,9 @@ public class SocketConnector implements Connector
         connected.set(true);
     }
  
+    /**
+     * Ensures the connector has not been closed.
+     */
     protected void checkClosed()
     {
         if( sock == null )

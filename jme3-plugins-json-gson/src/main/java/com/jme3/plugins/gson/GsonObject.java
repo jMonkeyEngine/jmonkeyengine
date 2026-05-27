@@ -78,7 +78,8 @@ class GsonObject extends GsonElement implements JsonObject {
     @Override
     public Entry<String, JsonElement>[] entrySet() {
         Set<Entry<String, com.google.gson.JsonElement>> entrySet = obj().entrySet();
-        Entry<String, JsonElement>[] entries = new Entry[entrySet.size()];
+        @SuppressWarnings("unchecked")
+        Entry<String, JsonElement>[] entries = (Entry<String, JsonElement>[]) new Entry<?, ?>[entrySet.size()];
         int i = 0;
         for (Entry<String, com.google.gson.JsonElement> entry : entrySet) {
 

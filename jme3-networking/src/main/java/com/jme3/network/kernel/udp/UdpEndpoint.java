@@ -58,6 +58,14 @@ public class UdpEndpoint implements Endpoint
     private UdpKernel kernel;
     private boolean connected = true; // it's connectionless but we track logical state
 
+    /**
+     * Creates a UDP endpoint.
+     *
+     * @param kernel the owning kernel
+     * @param id the endpoint id
+     * @param address the remote socket address
+     * @param socket the datagram socket used for replies
+     */
     public UdpEndpoint( UdpKernel kernel, long id, SocketAddress address, DatagramSocket socket )
     {
         this.id = id;
@@ -72,6 +80,11 @@ public class UdpEndpoint implements Endpoint
         return kernel;
     }
 
+    /**
+     * Returns the remote socket address for this endpoint.
+     *
+     * @return the remote socket address
+     */
     protected SocketAddress getRemoteAddress()
     {
         return address;

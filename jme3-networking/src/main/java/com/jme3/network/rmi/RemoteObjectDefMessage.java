@@ -41,8 +41,14 @@ import com.jme3.network.serializing.Serializable;
 @Serializable
 public class RemoteObjectDefMessage extends AbstractMessage {
 
+    /**
+     * The object definitions being announced to the remote side.
+     */
     public ObjectDef[] objects;
     
+    /**
+     * Creates an empty remote object definition message.
+     */
     public RemoteObjectDefMessage(){
         super(true);
     }

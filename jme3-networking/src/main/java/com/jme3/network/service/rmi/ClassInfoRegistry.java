@@ -52,10 +52,19 @@ public class ClassInfoRegistry {
     private final AtomicInteger nextClassId = new AtomicInteger();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
  
+    /**
+     * Creates an empty registry for shared class metadata.
+     */
     public ClassInfoRegistry() {
         //this.cache = CacheBuilder.newBuilder().build(new ClassInfoLoader());  // Guava version
     }
 
+    /**
+     * Returns cached metadata for a shared type, creating it on first access.
+     *
+     * @param type the shared interface type
+     * @return the cached class metadata
+     */
     public ClassInfo getClassInfo( Class type ) {        
         //return cache.getUnchecked(type); // Guava version
  

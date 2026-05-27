@@ -77,6 +77,9 @@ public class RmiHostedService extends AbstractHostedService {
 
     private static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
     
+    /**
+     * Hosted connection attribute used to store the connection-specific RMI registry.
+     */
     public static final String ATTRIBUTE_NAME = "rmi";
 
     private RpcHostedService rpcService;
@@ -85,14 +88,29 @@ public class RmiHostedService extends AbstractHostedService {
     private boolean autoHost;
     private final Map<String, GlobalShare> globalShares = new ConcurrentHashMap<>();
 
+    /**
+     * Creates an RMI hosted service using the default object id and reliable channel.
+     */
     public RmiHostedService() {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE, true);
     }
 
+    /**
+     * Creates an RMI hosted service using the specified default channel.
+     *
+     * @param defaultChannel the default network channel for RMI traffic
+     */
     public RmiHostedService( byte defaultChannel ) {
         this((short)-1, defaultChannel, true);
     }
 
+    /**
+     * Creates an RMI hosted service.
+     *
+     * @param rmiId the shared RMI object id
+     * @param defaultChannel the default network channel for RMI traffic
+     * @param autoHost true to start hosting automatically for new connections
+     */
     public RmiHostedService( short rmiId, byte defaultChannel, boolean autoHost ) {
         this.rmiId = rmiId;
         this.defaultChannel = defaultChannel;
@@ -106,6 +124,10 @@ public class RmiHostedService extends AbstractHostedService {
      *  with RMI hosting started will have access to this shared object as soon as they 
      *  connect, and they will all share the same instance.  It is up to the shared object
      *  to handle any multithreading that might be required.
+     *
+     *  @param <T> the shared object type
+     *  @param object the object to share
+     *  @param type the shared interface type
      */     
     public <T> void shareGlobal( T object, Class<? super T> type ) {
         shareGlobal(defaultChannel, type.getName(), object, type);
@@ -116,6 +138,11 @@ public class RmiHostedService extends AbstractHostedService {
      *  with RMI hosting started will have access to this shared object as soon as they 
      *  connect, and they will all share the same instance.  It is up to the shared object
      *  to handle any multithreading that might be required.
+     *
+     *  @param <T> the shared object type
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */     
     public <T> void shareGlobal( String name, T object, Class<? super T> type ) {
         shareGlobal(defaultChannel, name, object, type);
@@ -128,6 +155,12 @@ public class RmiHostedService extends AbstractHostedService {
      *  to the shared object to handle any multithreading that might be required.
      *  All network communication associated with the shared object will be done over
      *  the specified channel. 
+     *
+     *  @param <T> the shared object type
+     *  @param channel the network channel to use
+     *  @param name the exported object name
+     *  @param object the object to share
+     *  @param type the shared interface type
      */     
     public <T> void shareGlobal( byte channel, String name, T object, Class<? super T> type ) {
         GlobalShare share = new GlobalShare(channel, object, type);
@@ -154,6 +187,8 @@ public class RmiHostedService extends AbstractHostedService {
      *  using shareGlobal().  One reasonable use-case is to shareGlobal() some kind of login
      *  service and nothing else.  All other shared objects would then be added as
      *  connection-specific objects during successful login processing.
+     *
+     *  @param b true to auto-host RMI on new connections
      */
     public void setAutoHost( boolean b ) {
         this.autoHost = b;
@@ -161,6 +196,8 @@ public class RmiHostedService extends AbstractHostedService {
  
     /**
      *  Returns true if RMI hosting is automatically started for all new connections. 
+     *
+     *  @return true if auto-hosting is enabled
      */
     public boolean getAutoHost() {
         return autoHost;
@@ -169,6 +206,9 @@ public class RmiHostedService extends AbstractHostedService {
     /**
      *  Returns the RMI registry for the specific HostedConnection.  Each connection
      *  has its own registry with its own connection-specific shared objects.
+     *
+     *  @param hc the hosted connection
+     *  @return the connection-specific RMI registry, or null if not started
      */
     public RmiRegistry getRmiRegistry( HostedConnection hc ) {
         return hc.getAttribute(ATTRIBUTE_NAME);
@@ -179,6 +219,8 @@ public class RmiHostedService extends AbstractHostedService {
      *  getRmiRegistry() to return a valid RmiRegistry object.
      *  This method is called automatically for all new connections if
      *  autohost is set to true.
+     *
+     *  @param hc the hosted connection to initialize
      */
     @SuppressWarnings("unchecked")
     public void startHostingOnConnection( HostedConnection hc ) {
@@ -202,6 +244,8 @@ public class RmiHostedService extends AbstractHostedService {
      *  this connection.  
      *  This method is called automatically for all leaving connections if
      *  autohost is set to true.
+     *
+     *  @param hc the hosted connection to stop hosting on
      */
     public void stopHostingOnConnection( HostedConnection hc ) {
         RmiRegistry rmi = hc.getAttribute(ATTRIBUTE_NAME);

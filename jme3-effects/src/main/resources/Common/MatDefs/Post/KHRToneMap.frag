@@ -1,5 +1,5 @@
-#extension GL_ARB_texture_multisample : enable
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
 #import "Common/ShaderLib/Hdr.glsllib"
 
 
@@ -23,7 +23,7 @@ vec4 applyToneMap() {
         hdrColor += texelFetch(m_Texture, iTexC, i);
     }
     hdrColor /= float(NUM_SAMPLES);
-    vec3 ldrColor = vec4(applyCurve(hdrColor.rgb), hdrColor.a);
+    vec4 ldrColor = vec4(applyCurve(hdrColor.rgb), hdrColor.a);
     return ldrColor;
 }
 

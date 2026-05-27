@@ -41,12 +41,23 @@ import java.io.IOException;
  */
 public class SerializerException extends IOException
 {
+    /**
+     * Creates a serializer exception with a message and cause.
+     *
+     * @param msg the failure message
+     * @param cause the underlying cause
+     */
     public SerializerException( String msg, Throwable cause )
     {
         super( msg );
         initCause(cause);
     }
 
+    /**
+     * Creates a serializer exception with a message.
+     *
+     * @param msg the failure message
+     */
     public SerializerException( String msg )
     {
         super( msg );

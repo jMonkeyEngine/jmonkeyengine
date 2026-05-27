@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import com.jme3.input.InputManager;
 import com.jme3.input.Joystick;
+import com.jme3.system.JmeSystem;
 import java.util.logging.Logger;
 
 /**
@@ -89,12 +90,32 @@ public class AndroidJoyInput14 extends AndroidJoyInput {
 
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
-        // load the simulated joystick for device orientation
+        // load virtual joystick if enabled
         super.loadJoysticks(inputManager);
         // load physical gamepads/joysticks
+        int beforePhysicalJoysticks = joystickList.size();
         joystickList.addAll(joystickJoyInput.loadJoysticks(joystickList.size(), inputManager));
+        setPhysicalJoystickAvailable(joystickList.size() > beforePhysicalJoysticks);
         // return the list of joysticks back to InputManager
         return joystickList.toArray( new Joystick[joystickList.size()] );
+    }
+
+    @Override
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
+            super.setJoyRumble(joyId, amountHigh, amountLow, duration);
+        } else {
+            joystickJoyInput.setJoyRumble(joyId, amountHigh, amountLow, duration);
+        }
+    }
+
+    @Override
+    public void stopJoyRumble(int joyId) {
+        if (isOnDeviceJoystickRumble() && JmeSystem.isDeviceRumbleSupported()) {
+            super.stopJoyRumble(joyId);
+        } else {
+            joystickJoyInput.stopJoyRumble(joyId);
+        }
     }
 
     public boolean onGenericMotion(MotionEvent event) {

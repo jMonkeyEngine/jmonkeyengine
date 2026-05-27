@@ -69,13 +69,17 @@ public interface MessageConnection
 
     /**
      *  Sends a message to the other end of the connection.
+     *
+     *  @param message the message to send
      */   
     public void send( Message message );
     
     /**
      *  Sends a message to the other end of the connection using
      *  the specified alternate channel.
+     *
+     *  @param channel the transport channel to use
+     *  @param message the message to send
      */   
     public void send( int channel, Message message );
 }    
-

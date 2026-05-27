@@ -37,10 +37,17 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
+ * Serializes {@link Vector3f} instances.
+ *
  * @author Kirill Vainer
  */
 @SuppressWarnings("unchecked")
 public class Vector3Serializer extends Serializer {
+    /**
+     * Creates a vector serializer.
+     */
+    public Vector3Serializer() {
+    }
 
     @Override
     public Vector3f readObject(ByteBuffer data, Class c) throws IOException {

@@ -72,6 +72,12 @@ public class RemoteObject implements InvocationHandler {
      */
     HostedConnection client;
 
+    /**
+     * Creates remote object metadata for a shared object proxy.
+     *
+     * @param store the owning object store
+     * @param client the hosting connection, or null for client-side usage
+     */
     public RemoteObject(ObjectStore store, HostedConnection client){
         this.store = store;
         this.client = client;

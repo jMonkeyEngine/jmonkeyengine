@@ -48,10 +48,27 @@ import com.jme3.network.Message;
  *  @author    Paul Speed
  */ 
 public interface MessageProtocol {
+    /**
+     * Serializes a message into a byte buffer.
+     *
+     * @param message the message to serialize
+     * @param target the optional target buffer to reuse
+     * @return a buffer containing the serialized message
+     */
     public ByteBuffer toByteBuffer( Message message, ByteBuffer target );
+    /**
+     * Deserializes a message from a byte buffer.
+     *
+     * @param bytes the serialized message bytes
+     * @return the decoded message
+     */
     public Message toMessage( ByteBuffer bytes );
+    /**
+     * Creates a rolling message buffer compatible with this protocol.
+     *
+     * @return a new message buffer
+     */
     public MessageBuffer createBuffer();
 }
-
 
 

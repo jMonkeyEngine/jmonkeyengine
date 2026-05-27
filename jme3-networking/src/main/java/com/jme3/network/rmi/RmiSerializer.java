@@ -52,6 +52,12 @@ public class RmiSerializer extends Serializer {
     // not good for multithreaded applications
     private char[] chrBuf = new char[256];
 
+    /**
+     * Creates an RMI serializer.
+     */
+    public RmiSerializer() {
+    }
+
     private void writeString(ByteBuffer buffer, String string) throws IOException{
         int length = string.length();
         if (length > 255){

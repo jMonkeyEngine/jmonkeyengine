@@ -41,11 +41,22 @@ package com.jme3.network.kernel;
  */
 public class KernelException extends RuntimeException
 {
+    /**
+     * Creates a kernel exception with a message and cause.
+     *
+     * @param message the exception message
+     * @param cause the underlying cause
+     */
     public KernelException( String message, Throwable cause )
     {
         super( message, cause );
     }
     
+    /**
+     * Creates a kernel exception with a message.
+     *
+     * @param message the exception message
+     */
     public KernelException( String message )
     {
         super( message );

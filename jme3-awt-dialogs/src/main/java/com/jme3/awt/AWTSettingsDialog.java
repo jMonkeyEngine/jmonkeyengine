@@ -129,6 +129,7 @@ public final class AWTSettingsDialog extends JFrame {
     private JComboBox<String> colorDepthCombo = null;
     private JComboBox<String> displayFreqCombo = null;
     private JComboBox<String> antialiasCombo = null;
+    private JComboBox<String> rendererCombo = null;
     private JLabel icon = null;
     private int selection = 0;
     private SelectionListener selectionListener = null;
@@ -463,6 +464,8 @@ public final class AWTSettingsDialog extends JFrame {
         displayFreqCombo.addKeyListener(aListener);
         antialiasCombo = new JComboBox<>();
         antialiasCombo.addKeyListener(aListener);
+        rendererCombo = setUpRendererChooser();
+        rendererCombo.addKeyListener(aListener);
         fullscreenBox = new JCheckBox(resourceBundle.getString("checkbox.fullscreen"));
         fullscreenBox.setSelected(source.isFullscreen());
         fullscreenBox.addActionListener(new ActionListener() {
@@ -549,6 +552,20 @@ public final class AWTSettingsDialog extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(antialiasCombo, gbc);
 
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.5;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.renderer")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(rendererCombo, gbc);
+
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
         ok.addActionListener(new ActionListener() {
@@ -583,14 +600,14 @@ public final class AWTSettingsDialog extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.EAST;
         mainPanel.add(ok, gbc);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 16, 4, 4);
         gbc.gridx = 2;
         gbc.gridwidth = 2;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cancel, gbc);
 
@@ -662,6 +679,7 @@ public final class AWTSettingsDialog extends JFrame {
         boolean fullscreen = fullscreenBox.isSelected();
         boolean vsync = vsyncBox.isSelected();
         boolean gamma = gammaBox.isSelected();
+        String renderer = (String) rendererCombo.getSelectedItem();
 
         String[] parts = display.split(" x ");
         int width = Integer.parseInt(parts[0]);
@@ -721,7 +739,7 @@ public final class AWTSettingsDialog extends JFrame {
             source.setFullscreen(fullscreen);
             source.setVSync(vsync);
             source.setGammaCorrection(gamma);
-            // source.setRenderer(renderer);
+            source.setRenderer(renderer);
             source.setSamples(multisample);
 
             String appTitle = source.getTitle();
@@ -760,6 +778,30 @@ public final class AWTSettingsDialog extends JFrame {
         });
 
         return resolutionBox;
+    }
+
+    private JComboBox<String> setUpRendererChooser() {
+        JComboBox<String> rendererBox = new JComboBox<>();
+        Set<String> renderers = new LinkedHashSet<>(Arrays.asList(
+                AppSettings.ANGLE_GLES3,
+                AppSettings.LWJGL_OPENGL32,
+                AppSettings.LWJGL_OPENGL33,
+                AppSettings.LWJGL_OPENGL40,
+                AppSettings.LWJGL_OPENGL41,
+                AppSettings.LWJGL_OPENGL42,
+                AppSettings.LWJGL_OPENGL43,
+                AppSettings.LWJGL_OPENGL44,
+                AppSettings.LWJGL_OPENGL45
+        ));
+        String currentRenderer = source.getRenderer();
+        if (currentRenderer != null) {
+            renderers.add(currentRenderer);
+        }
+        for (String renderer : renderers) {
+            rendererBox.addItem(renderer);
+        }
+        rendererBox.setSelectedItem(currentRenderer);
+        return rendererBox;
     }
 
     /**

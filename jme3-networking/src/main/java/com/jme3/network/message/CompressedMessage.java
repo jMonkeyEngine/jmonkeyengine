@@ -45,16 +45,34 @@ import com.jme3.network.serializing.Serializable;
 public class CompressedMessage extends AbstractMessage {
     private Message message;
 
+    /**
+     * Creates an empty compressed message for serialization.
+     */
     public CompressedMessage() { }
 
+    /**
+     * Creates a compressed wrapper for the specified message.
+     *
+     * @param msg the wrapped message
+     */
     public CompressedMessage(Message msg) {
         this.message = msg;
     }
 
+    /**
+     * Sets the wrapped message payload.
+     *
+     * @param message the wrapped message
+     */
     public void setMessage(Message message) {
         this.message = message;
     }
 
+    /**
+     * Returns the wrapped message payload.
+     *
+     * @return the wrapped message
+     */
     public Message getMessage() {
         return message;
     }
