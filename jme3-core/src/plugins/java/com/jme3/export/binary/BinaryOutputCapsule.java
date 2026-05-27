@@ -913,16 +913,10 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        int position = value.position();
-        try {
-            value.rewind();
-            int length = value.limit();
-            write(length);
-            for (int x = 0; x < length; x++) {
-                writeForBuffer(value.get());
-            }
-        } finally {
-            value.position(position);
+        int length = value.limit();
+        write(length);
+        for (int x = 0; x < length; x++) {
+            writeForBuffer(value.get(x));
         }
     }
 
@@ -933,17 +927,11 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        int position = value.position();
-        try {
-            value.rewind();
-            int length = value.limit();
-            write(length);
+        int length = value.limit();
+        write(length);
 
-            for (int x = 0; x < length; x++) {
-                writeForBuffer(value.get());
-            }
-        } finally {
-            value.position(position);
+        for (int x = 0; x < length; x++) {
+            writeForBuffer(value.get(x));
         }
     }
 
@@ -954,16 +942,10 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        int position = value.position();
-        try {
-            value.rewind();
-            int length = value.limit();
-            write(length);
-            for (int x = 0; x < length; x++) {
-                writeForBuffer(value.get());
-            }
-        } finally {
-            value.position(position);
+        int length = value.limit();
+        write(length);
+        for (int x = 0; x < length; x++) {
+            writeForBuffer(value.get(x));
         }
     }
 
@@ -974,16 +956,10 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        int position = value.position();
-        try {
-            value.rewind();
-            int length = value.limit();
-            write(length);
-            for (int x = 0; x < length; x++) {
-                writeForBuffer(value.get());
-            }
-        } finally {
-            value.position(position);
+        int length = value.limit();
+        write(length);
+        for (int x = 0; x < length; x++) {
+            writeForBuffer(value.get(x));
         }
     }
 
