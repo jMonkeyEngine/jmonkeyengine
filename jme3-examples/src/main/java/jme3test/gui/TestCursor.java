@@ -7,7 +7,10 @@ import com.jme3.texture.Image;
 import com.jme3.texture.image.ImageRaster;
 import com.jme3.texture.Texture2D;
 import com.jme3.math.ColorRGBA;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * This test class demonstrate how to change cursor in jME3.
@@ -58,16 +61,33 @@ public class TestCursor extends SimpleApplication {
          * Checking and following the licences restrictions in the process.
          */
 
-        Image[] textureCursors = {
+        Image[] staticCursors = {
             (Image) assetManager.loadAsset("Textures/Cursors/meme.png"),
             (Image) assetManager.loadAsset("Textures/Cursors/nyancat.png"),
-            (Image) assetManager.loadAsset("Textures/Cursors/monkey.png")
         };
 
-        for (Image cursor : textureCursors) {
+        for (Image cursor : staticCursors) {
             flipVertically(cursor);
             cursors.add(CursorConverter.fromTexture(new Texture2D(cursor)));
         }
+
+        int monkeyFramesDelay = 60;
+        String[] monkeyFramePaths = {
+            "Textures/Cursors/monkey/frame_0001.png",
+            "Textures/Cursors/monkey/frame_0002.png",
+            "Textures/Cursors/monkey/frame_0003.png",
+            "Textures/Cursors/monkey/frame_0004.png",
+            "Textures/Cursors/monkey/frame_0005.png",
+            "Textures/Cursors/monkey/frame_0006.png"
+        };
+
+        Texture2D[] monkeyFrames = Arrays.stream(monkeyFramePaths)
+          .map(framePath -> (Image) assetManager.loadAsset(framePath))
+          .peek(frameImage -> flipVertically(frameImage))
+          .map(frameImage -> new Texture2D(frameImage))
+          .toArray(Texture2D[]::new);
+        
+        cursors.add(CursorConverter.fromTextureFrames(monkeyFramesDelay, monkeyFrames));
 
         sysTime = System.currentTimeMillis();
         inputManager.setMouseCursor(cursors.get(count));

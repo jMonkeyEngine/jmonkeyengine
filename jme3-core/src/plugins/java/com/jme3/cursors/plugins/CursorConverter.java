@@ -1,6 +1,40 @@
+/*
+ * Copyright (c) 2009-2026 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.cursors.plugins;
 
 import java.nio.IntBuffer;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Image;
@@ -13,12 +47,10 @@ import com.jme3.util.BufferUtils;
  */
 public class CursorConverter {
     /**
-     * Convert a {@link Texture2D} to a {@link JmeCursor}.
-     * Doesn't support cursor animations.
-     * The coordinate system used is the same specified in {@link JmeCursor}. The start
-     * point is 0, 0 being lower left.
+     * Convert a {@link Texture2D} to a {@link JmeCursor}. The coordinate system used is the same specified
+     * in {@link JmeCursor}. The start point is 0, 0 being lower left.
      * 
-     * @param cursorImage The texture to convert. No modification will be done to the object.
+     * @param cursorImage The texture to convert. No modifications will be applyed.
      * 
      * @return The {@link JmeCursor} using a deep copy of {@link Texture2D.getImage}.
      */
@@ -71,5 +103,95 @@ public class CursorConverter {
         
         data.flip();
         return data;
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * The coordinate system used for each frame is the same specified in {@link JmeCursor}. The start point 
+     * is 0, 0 being lower left.
+     * 
+     * @param frameDelay The time delay that will take for a cursor to change from one frame to another.
+     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applyed.
+     * 
+     * @return A {@link JmeCursor} object that contains the data for an animated cursor.
+     */
+    public static JmeCursor fromTextureFrames(int frameDelay, Texture2D[] cursorFrames) {
+        int[] frameRates = new int[cursorFrames.length];
+        Arrays.fill(frameRates, frameDelay);
+        return fromTextureFrames(frameRates, cursorFrames);
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor, 
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * The coordinate system used for each frame is the same specified in {@link JmeCursor}. The start point 
+     * is 0, 0 being lower left.
+     * 
+     * @param frameDelays The time delay that will take each frame to change to the next frame. Because of it,
+     *                    it must contains as many delays as frames (lenghts of cursorFrames and frameDelays 
+     *                    arrays must be equals).
+     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applyed.
+     * 
+     * @return A {@link JmeCursor} object that contains the data for an animated cursor.
+     */
+    public static JmeCursor fromTextureFrames(int[] frameDelays, Texture2D[] cursorFrames) {
+        if (frameDelays.length != cursorFrames.length) {
+            throw new IllegalArgumentException("The lenghts of cursorFrames and frameDelays arrays must be equals");
+        }
+
+        List<Image> imageFrames = Arrays.stream(cursorFrames)
+          .map((frame) -> frame.getImage())
+          .collect(Collectors.toList());
+
+        boolean missingImage = imageFrames
+          .stream()
+          .anyMatch((frame) -> frame == null);
+
+        if (missingImage) {
+            throw new NullPointerException("Some Texture2D objects does not have a setted imaged");
+        }
+        
+        //Avoid working and accidentally modifying original values
+        imageFrames = imageFrames
+          .stream()
+          .map((image) -> image.clone())
+          .collect(Collectors.toList());
+
+        List<Integer> imageFrameHeights = imageFrames
+          .stream()
+          .map((image) -> image.getHeight())
+          .distinct()
+          .collect(Collectors.toList());
+        
+        List<Integer> imageFrameWidths = imageFrames
+          .stream()
+          .map((image) -> image.getWidth())
+          .distinct()
+          .collect(Collectors.toList());
+        
+        if (imageFrameHeights.size() > 1 || imageFrameWidths.size() > 1) {
+            throw new IllegalArgumentException("Some images from the Texture2D objects has different sizes");
+        }
+
+        int imageHeight = imageFrameHeights.get(0);
+        int imageWidth = imageFrameWidths.get(0);
+
+        IntBuffer framesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
+
+        framesData = imageFrames
+          .stream()
+          .map((image) -> getDataAsIntBuffer(image))
+          .reduce(framesData, (previous, next) -> previous.put(next));
+
+        JmeCursor jmeCursor = new JmeCursor();
+        jmeCursor.setWidth(imageWidth);
+        jmeCursor.setHeight(imageHeight);
+        jmeCursor.setxHotSpot(0);
+        jmeCursor.setyHotSpot(imageHeight);
+        jmeCursor.setNumImages(cursorFrames.length);
+        jmeCursor.setImagesDelay(BufferUtils.createIntBuffer(frameDelays));
+        jmeCursor.setImagesData(framesData);
+        return jmeCursor;
     }
 }
