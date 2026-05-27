@@ -913,13 +913,17 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
-        int length = value.limit();
-        write(length);
-        for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+        int position = value.position();
+        try {
+            value.rewind();
+            int length = value.limit();
+            write(length);
+            for (int x = 0; x < length; x++) {
+                writeForBuffer(value.get());
+            }
+        } finally {
+            value.position(position);
         }
-        value.rewind();
     }
 
     // int buffer
@@ -929,14 +933,18 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
-        int length = value.limit();
-        write(length);
+        int position = value.position();
+        try {
+            value.rewind();
+            int length = value.limit();
+            write(length);
 
-        for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+            for (int x = 0; x < length; x++) {
+                writeForBuffer(value.get());
+            }
+        } finally {
+            value.position(position);
         }
-        value.rewind();
     }
 
     // byte buffer
@@ -946,13 +954,17 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
-        int length = value.limit();
-        write(length);
-        for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+        int position = value.position();
+        try {
+            value.rewind();
+            int length = value.limit();
+            write(length);
+            for (int x = 0; x < length; x++) {
+                writeForBuffer(value.get());
+            }
+        } finally {
+            value.position(position);
         }
-        value.rewind();
     }
 
     // short buffer
@@ -962,13 +974,17 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
-        int length = value.limit();
-        write(length);
-        for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+        int position = value.position();
+        try {
+            value.rewind();
+            int length = value.limit();
+            write(length);
+            for (int x = 0; x < length; x++) {
+                writeForBuffer(value.get());
+            }
+        } finally {
+            value.position(position);
         }
-        value.rewind();
     }
 
     @Override
