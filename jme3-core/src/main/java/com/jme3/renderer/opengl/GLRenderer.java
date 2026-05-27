@@ -1754,7 +1754,14 @@ public final class GLRenderer implements Renderer {
         if (language.startsWith("GLSL")) {
             if (version > 100) {
                 stringBuf.append("#version ");
-                stringBuf.append(language.substring(4));
+
+                if (version >= 150 && version < 300 && gles3) {
+                    // upgrade to 300, since it's the minimum version for GLES3.
+                    version = 300;
+                }
+
+                stringBuf.append(String.valueOf(version));
+                
                 if (version >= 150) {
                     if(gles3) {
                         stringBuf.append(" es");
@@ -1763,12 +1770,15 @@ public final class GLRenderer implements Renderer {
                         stringBuf.append(" core");
                     }
                 }
+
                 stringBuf.append("\n");
             } else {
-                if (gles2 || gles3) {
+                if (gles3) {
+                    // request GLSL ES (3.00) when compiling under GLES3.
+                    stringBuf.append("#version 300 es\n");
+                } else if (gles2) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
-
                 } else {
                     // version 100 does not exist in desktop GLSL.
                     // put version 110 in that case to enable strict checking
