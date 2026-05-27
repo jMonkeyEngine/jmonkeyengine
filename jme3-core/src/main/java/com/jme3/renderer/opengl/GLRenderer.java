@@ -1760,7 +1760,7 @@ public final class GLRenderer implements Renderer {
                     version = 300;
                 }
 
-                stringBuf.append(String.valueOf(version));
+                stringBuf.append(version);
                 
                 if (version >= 150) {
                     if(gles3) {
