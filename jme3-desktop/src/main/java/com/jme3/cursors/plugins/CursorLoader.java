@@ -57,8 +57,7 @@ import javax.imageio.ImageIO;
  * @author MadJack
  * 
  * @deprecated This class is not cross-platform, and the supported file formats are no longer commonly used.
- * 
- * 
+ *             Use {@link com.jme3.cursors.plugins.CursorConverter} instead.
  */
 @Deprecated
 public class CursorLoader implements AssetLoader {
