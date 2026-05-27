@@ -1510,6 +1510,12 @@ public class GltfLoader implements AssetLoader {
     }
 
     private <T> T[] getCubicSplineValues(T[] data) {
+        if (data == null) {
+            throw new AssetLoadException("No output data defined for cubic spline animation sampler");
+        }
+        if (data.length % 3 != 0) {
+            throw new AssetLoadException("Cubic spline animation sampler output does not contain tangent/value triplets");
+        }
         T[] values = Arrays.copyOf(data, data.length / 3);
         for (int i = 0; i < values.length; i++) {
             values[i] = data[i * 3 + 1];
@@ -1518,6 +1524,12 @@ public class GltfLoader implements AssetLoader {
     }
 
     private float[] getCubicSplineValues(float[] data, int timesLength) {
+        if (data == null) {
+            throw new AssetLoadException("No output data defined for cubic spline animation sampler");
+        }
+        if (timesLength <= 0 || data.length % timesLength != 0 || (data.length / timesLength) % 3 != 0) {
+            throw new AssetLoadException("Cubic spline animation sampler output does not match input times");
+        }
         int valuesPerTime = data.length / timesLength / 3;
         float[] values = new float[timesLength * valuesPerTime];
         for (int i = 0; i < timesLength; i++) {
