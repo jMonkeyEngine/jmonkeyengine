@@ -17,7 +17,7 @@ plugins {
 rootProject.name = 'jmonkeyengine'
 
 def androidExamplesMinCompileSdk = 34
-def isMacOs = System.getProperty('os.name', '').toLowerCase(Locale.ROOT).contains('mac')
+def isMacOs = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('mac')
 
 def findAndroidSdk = {
     def sdkDirs = []
