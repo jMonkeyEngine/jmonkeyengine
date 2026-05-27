@@ -285,7 +285,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         disableNvidiaThreadedOptimizations();
         useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         configureVideoDriverHints(settings);
-        configureAngleHints(settings);
+        configureOpenGLDriverHints(settings);
 
         if (!SDL_InitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS)) {
             throw new IllegalStateException("Unable to initialize SDL video subsystem: " + SDL_GetError());
@@ -388,10 +388,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    private void configureAngleHints(AppSettings settings) {
+    private void configureOpenGLDriverHints(AppSettings settings) {
         final boolean angleGles = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         if (!angleGles) {
-            resetAngleHints();
+            resetAngleLibraries();
+            if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+                SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
+            } else {
+                SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
+            }
             return;
         }
 
@@ -412,11 +417,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
     }
 
-    private void resetAngleHints() {
+    private void resetAngleLibraries() {
         SDL_ResetHint(SDL_HINT_EGL_LIBRARY);
         SDL_ResetHint(SDL_HINT_OPENGL_LIBRARY);
         SDL_ResetHint(SDL_HINT_OPENGL_ES_DRIVER);
-        SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
         Configuration.OPENGLES_LIBRARY_NAME.set(null);
         Configuration.EGL_LIBRARY_NAME.set(null);
     }
@@ -426,7 +430,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
         RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
 
-        if (glesContext && org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
             if (settings.isX11PlatformPreferred()) {
                 SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_X11_EXT);
             } else if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"))) {
