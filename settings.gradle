@@ -32,6 +32,7 @@ def isIosExamplesTaskRequested = {
             || taskName == ':runIosExamples'
             || taskName == 'jme3-ios-examples'
             || taskName.startsWith(':jme3-ios-examples:')
+            || taskName.startsWith('jme3-ios-examples:')
     }
 }
 
