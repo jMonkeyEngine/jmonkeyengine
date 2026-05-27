@@ -392,7 +392,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final boolean angleGles = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         if (!angleGles) {
             resetAngleLibraries();
-            if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+            if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX && !settings.isX11PlatformPreferred()) {
                 SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
             } else {
                 SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
