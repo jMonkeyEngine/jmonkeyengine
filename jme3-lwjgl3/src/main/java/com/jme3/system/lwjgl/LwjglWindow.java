@@ -293,7 +293,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
         SDL_GL_ResetAttributes();
-        boolean srgbFramebufferRequested = configureGLAttributes(settings);
+        configureGLAttributes(settings);
 
         display = settings.isFullscreen() ? getDisplay(settings.getDisplay()) : SDL_GetPrimaryDisplay();
         SDL_DisplayMode videoMode = SDL_GetCurrentDisplayMode((int) display);
@@ -333,7 +333,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             windowFlags |= SDL_WINDOW_FULLSCREEN;
         }
 
-        window = createWindow(settings, requestWidth, requestHeight, windowFlags, srgbFramebufferRequested);
+        window = SDL_CreateWindow(settings.getTitle(), requestWidth, requestHeight, windowFlags);
         if (window == NULL) {
             throw new RuntimeException("Failed to create SDL window: " + SDL_GetError());
         }
@@ -421,30 +421,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         Configuration.EGL_LIBRARY_NAME.set(null);
     }
 
-    private long createWindow(AppSettings settings, int width, int height, long flags,
-            boolean srgbFramebufferRequested) {
-        long createdWindow = SDL_CreateWindow(settings.getTitle(), width, height, flags);
-        if (createdWindow != NULL || !srgbFramebufferRequested) {
-            return createdWindow;
-        }
-
-        String initialError = SDL_GetError();
-        LOGGER.log(Level.WARNING,
-                "Unable to create an sRGB-capable SDL window, retrying with a linear default framebuffer and shader sRGB conversion: {0}",
-                initialError);
-        SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
-
-        createdWindow = SDL_CreateWindow(settings.getTitle(), width, height, flags);
-        if (createdWindow == NULL) {
-            String retryError = SDL_GetError();
-            throw new RuntimeException("Failed to create SDL window: " + initialError
-                    + "; retry without sRGB default framebuffer also failed: " + retryError);
-        }
-
-        return createdWindow;
-    }
-
-    private boolean configureGLAttributes(AppSettings settings) {
+    private void configureGLAttributes(AppSettings settings) {
         final String renderer = settings.getRenderer();
         final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
         RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
@@ -473,7 +450,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings.getSamples() > 0 ? 1 : 0);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
 
-        boolean srgbFramebufferRequested = false;
         if (!SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0)) {
             throw new IllegalStateException("SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE) failed: "
                     + SDL_GetError());
@@ -489,7 +465,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
         }
 
-        return srgbFramebufferRequested;
     }
 
     protected void updateSizes() {
