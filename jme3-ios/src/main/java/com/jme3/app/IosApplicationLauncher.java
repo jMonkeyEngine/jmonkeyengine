@@ -70,6 +70,7 @@ public abstract class IosApplicationLauncher {
     public void update() {
         if (app == null)  return;
         JmeContext context = app.getContext();
+        if (context == null) return;
         if (context instanceof IGLESContext) {
             ((IGLESContext) context).runFrame();
         } else {
@@ -80,6 +81,7 @@ public abstract class IosApplicationLauncher {
     public void resize(int width, int height) {
         if (app == null)  return;
         JmeContext context = app.getContext();
+        if (context == null) return;
         if (context instanceof IGLESContext) {
             ((IGLESContext) context).resizeFramebuffer(width, height);
         } else {
