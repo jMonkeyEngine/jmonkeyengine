@@ -329,6 +329,10 @@ tasks.named('compileJava') {
     options.release = 11
 }
 
+tasks.named('javadoc') {
+    exclude('org/ngengine/libjglios/generated/**')
+}
+
 tasks.named('processResources') {
     dependsOn generateIosNativeImageMetadata, generateExamplesTestChooserClassList
 }
