@@ -135,6 +135,12 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+      VK_DRIVER_FILES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+      MESA_LOADER_DRIVER_OVERRIDE: zink
+      GALLIUM_DRIVER: zink
     permissions:
       contents: read
     steps:
