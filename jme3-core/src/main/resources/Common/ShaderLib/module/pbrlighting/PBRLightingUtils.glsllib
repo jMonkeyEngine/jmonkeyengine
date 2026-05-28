@@ -222,6 +222,13 @@
             l.invRadius = invRadius;
             l.spotAngleCos = spotAngleCos;
             l.spotDirection = spotDirection;
+            l.NdotL = 0.0;
+            l.NdotH = 0.0;
+            l.LdotH = 0.0;
+            l.HdotV = 0.0;
+            l.vector = vec3(0.0);
+            l.dir = vec3(0.0);
+            l.fallOff = 0.0;
             l.ready = false;
             return l;
         }
