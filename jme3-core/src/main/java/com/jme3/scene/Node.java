@@ -685,23 +685,22 @@ public class Node extends Spatial {
      /**
      * Returns flat list of Spatials implementing the specified class AND
      * with name matching the specified pattern.
-     *
+     * <P>
      * Note that we are <i>matching</i> the pattern, therefore the pattern
      * must match the entire pattern (i.e. it behaves as if it is sandwiched
      * between "^" and "$").
      * You can set regex modes, like case insensitivity, by using the (?X)
      * or (?X:Y) constructs.
-     *
-     * <p>By design, it is always safe to code loops like:</p>
-     * <PRE>
+     * </P> <P>
+     * By design, it is always safe to code loops like:<PRE>
      *     for (Spatial spatial : node.descendantMatches(AClass.class, "regex"))
      * </PRE>
-     *
+     * <P>
      * "Descendants" does not include self, per the definition of the word.
      * To test for descendants AND self, you must do a
      * <code>node.matches(aClass, aRegex)</code> +
      * <code>node.descendantMatches(aClass, aRegex)</code>.
-     *
+     * <P>
      *
      * @param <T> the type of Spatial returned
      * @param spatialSubclass Subclass which matching Spatials must implement.

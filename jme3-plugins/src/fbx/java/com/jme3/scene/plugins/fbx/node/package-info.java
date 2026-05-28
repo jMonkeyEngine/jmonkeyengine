@@ -32,7 +32,7 @@
 /**
  * Import nodes from an FBX asset.
  *
- * FBX support is deprecated and will be removed in a future release.
+ * @deprecated FBX support is deprecated and will be removed in a future release.
  * Prefer glTF assets instead.
  */
 @Deprecated
