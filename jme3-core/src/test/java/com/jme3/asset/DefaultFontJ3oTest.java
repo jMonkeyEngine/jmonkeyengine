@@ -3,11 +3,7 @@ package com.jme3.asset;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.export.binary.BinaryLoader;
 import com.jme3.font.BitmapFont;
-import com.jme3.font.plugins.BitmapFontLoader;
 import com.jme3.material.plugins.J3MLoader;
-import com.jme3.shader.plugins.GLSLLoader;
-import com.jme3.texture.plugins.DDSLoader;
-import com.jme3.texture.plugins.PFMLoader;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,13 +18,8 @@ public class DefaultFontJ3oTest {
     private static DesktopAssetManager createCoreOnlyAssetManager() {
         DesktopAssetManager assetManager = new DesktopAssetManager(false);
         assetManager.registerLocator("/", ClasspathLocator.class);
-        // Register only the loaders available in jme3-core (matching General.cfg, minus StbImageLoader/WebpImageLoader)
-        assetManager.registerLoader(BitmapFontLoader.class, "fnt");
-        assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
-        assetManager.registerLoader(DDSLoader.class, "dds");
-        assetManager.registerLoader(PFMLoader.class, "pfm");
         assetManager.registerLoader(BinaryLoader.class, "j3o", "j3f");
-        assetManager.registerLoader(GLSLLoader.class, "vert", "frag", "geom", "tsctrl", "tseval", "glsl", "glsllib", "comp");
+        assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
         return assetManager;
     }
 
