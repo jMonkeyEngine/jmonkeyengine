@@ -19,12 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class DefaultFontJ3oTest {
 
-    @Test
-    public void testDefaultFontJ3oLoadsWithoutPngLoader() {
-        // Create an AssetManager with only jme3-core loaders (no PNG loader)
+    private static DesktopAssetManager createCoreOnlyAssetManager() {
         DesktopAssetManager assetManager = new DesktopAssetManager(false);
         assetManager.registerLocator("/", ClasspathLocator.class);
-
         // Register only the loaders available in jme3-core (matching General.cfg, minus StbImageLoader/WebpImageLoader)
         assetManager.registerLoader(BitmapFontLoader.class, "fnt");
         assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
@@ -32,14 +29,28 @@ public class DefaultFontJ3oTest {
         assetManager.registerLoader(PFMLoader.class, "pfm");
         assetManager.registerLoader(BinaryLoader.class, "j3o", "j3f");
         assetManager.registerLoader(GLSLLoader.class, "vert", "frag", "geom", "tsctrl", "tseval", "glsl", "glsllib", "comp");
+        return assetManager;
+    }
 
-        // This should succeed: Default.j3o has embedded image data (no PNG loader needed)
-        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.j3o");
-        assertNotNull(font, "Default.j3o should load without a PNG loader");
-        assertNotNull(font.getPage(0), "Default.j3o should have at least one material page");
+    private static void assertFontLoaded(DesktopAssetManager assetManager, String path) {
+        BitmapFont font = assetManager.loadFont(path);
+        assertNotNull(font, path + " should load without a PNG loader");
+        assertNotNull(font.getPage(0), path + " should have at least one material page");
         assertNotNull(font.getPage(0).getTextureParam("ColorMap"),
-                "Default.j3o material page should have a ColorMap texture");
+                path + " material page should have a ColorMap texture");
         assertNotNull(font.getPage(0).getTextureParam("ColorMap").getTextureValue().getImage(),
-                "Default.j3o texture should have embedded image data (no key needed)");
+                path + " texture should have embedded image data (no key needed)");
+    }
+
+    @Test
+    public void testDefaultFontJ3oLoadsWithoutPngLoader() {
+        // This should succeed: Default.j3o has embedded image data (no PNG loader needed)
+        assertFontLoaded(createCoreOnlyAssetManager(), "Interface/Fonts/Default.j3o");
+    }
+
+    @Test
+    public void testConsoleFontJ3oLoadsWithoutPngLoader() {
+        // This should succeed: Console.j3o has embedded image data (no PNG loader needed)
+        assertFontLoaded(createCoreOnlyAssetManager(), "Interface/Fonts/Console.j3o");
     }
 }
