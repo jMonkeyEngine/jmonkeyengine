@@ -24,9 +24,9 @@ void main() {
     vec3 b = getColor(m_Texture, vec2(texCoord.x,         texCoord.y + 2.0*y)).rgb;
     vec3 c = getColor(m_Texture, vec2(texCoord.x + 2.0*x, texCoord.y + 2.0*y)).rgb;
 
-    vec3 d = getColor(m_Texture, vec2(texCoord.x - 2*x, texCoord.y)).rgb;
+    vec3 d = getColor(m_Texture, vec2(texCoord.x - 2.0*x, texCoord.y)).rgb;
     vec3 e = getColor(m_Texture, vec2(texCoord.x,       texCoord.y)).rgb;
-    vec3 f = getColor(m_Texture, vec2(texCoord.x + 2*x, texCoord.y)).rgb;
+    vec3 f = getColor(m_Texture, vec2(texCoord.x + 2.0*x, texCoord.y)).rgb;
 
     vec3 g = getColor(m_Texture, vec2(texCoord.x - 2.0*x, texCoord.y - 2.0*y)).rgb;
     vec3 h = getColor(m_Texture, vec2(texCoord.x,         texCoord.y - 2.0*y)).rgb;

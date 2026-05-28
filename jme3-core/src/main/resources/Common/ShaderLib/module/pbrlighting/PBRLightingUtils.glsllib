@@ -307,7 +307,6 @@
         surface.alpha = 1.0;
         surface.roughness = 1.0;
         surface.metallic = 0.0;
-        surface.alpha = 1.0;
         surface.exposure = 1.0;
         surface.diffuseColor = vec3(1.0);
         surface.specularColor = vec3(0.04);
@@ -515,7 +514,7 @@
         void PBRLightingUtils_calculatePreLightingValues(inout PBRSurface surface){
             surface.frontFacing = gl_FrontFacing;
             surface.depth = gl_FragCoord.z;
-            surface.NdotV = clamp(abs(dot(!surface.frontFacing ? -surface.normal : surface.normal, surface.viewDir)), 0.001, 1.0);
+            surface.NdotV = clamp(abs(dot(surface.normal, surface.viewDir)), 0.001, 1.0);
 
             #ifdef SPECGLOSSPIPELINE
                 float maxSpecular = max(max(surface.specularColor.r, surface.specularColor.g), surface.specularColor.b);
