@@ -291,7 +291,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         disableNvidiaThreadedOptimizations();
         useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         configureVideoDriverHints(settings);
-        configureAngleHints(settings);
+        configureOpenGLDriverHints(settings);
 
         if (!SDL_InitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS)) {
             throw new IllegalStateException("Unable to initialize SDL video subsystem: " + SDL_GetError());
@@ -299,7 +299,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
         SDL_GL_ResetAttributes();
-        boolean srgbFramebufferRequested = configureGLAttributes(settings);
+        configureGLAttributes(settings);
 
         display = settings.isFullscreen() ? getDisplay(settings.getDisplay()) : SDL_GetPrimaryDisplay();
         SDL_DisplayMode videoMode = SDL_GetCurrentDisplayMode((int) display);
@@ -339,7 +339,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (DisplayScaleUtils.requestsHighDensityFramebuffer(settings.getDisplayScaleMode())) {
             windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
         }
-        window = createWindow(settings, requestWidth, requestHeight, windowFlags, srgbFramebufferRequested);
+        window = SDL_CreateWindow(settings.getTitle(), requestWidth, requestHeight, windowFlags);
         if (window == NULL) {
             throw new RuntimeException("Failed to create SDL window: " + SDL_GetError());
         }
@@ -452,10 +452,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    private void configureAngleHints(AppSettings settings) {
+    private void configureOpenGLDriverHints(AppSettings settings) {
         final boolean angleGles = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         if (!angleGles) {
-            resetAngleHints();
+            resetAngleLibraries();
+            if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX && !settings.isX11PlatformPreferred()) {
+                SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
+            } else {
+                SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
+            }
             return;
         }
 
@@ -476,44 +481,20 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
     }
 
-    private void resetAngleHints() {
+    private void resetAngleLibraries() {
         SDL_ResetHint(SDL_HINT_EGL_LIBRARY);
         SDL_ResetHint(SDL_HINT_OPENGL_LIBRARY);
         SDL_ResetHint(SDL_HINT_OPENGL_ES_DRIVER);
-        SDL_ResetHint(SDL_HINT_VIDEO_FORCE_EGL);
         Configuration.OPENGLES_LIBRARY_NAME.set(null);
         Configuration.EGL_LIBRARY_NAME.set(null);
     }
 
-    private long createWindow(AppSettings settings, int width, int height, long flags,
-            boolean srgbFramebufferRequested) {
-        long createdWindow = SDL_CreateWindow(settings.getTitle(), width, height, flags);
-        if (createdWindow != NULL || !srgbFramebufferRequested) {
-            return createdWindow;
-        }
-
-        String initialError = SDL_GetError();
-        LOGGER.log(Level.WARNING,
-                "Unable to create an sRGB-capable SDL window, retrying with a linear default framebuffer and shader sRGB conversion: {0}",
-                initialError);
-        SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
-
-        createdWindow = SDL_CreateWindow(settings.getTitle(), width, height, flags);
-        if (createdWindow == NULL) {
-            String retryError = SDL_GetError();
-            throw new RuntimeException("Failed to create SDL window: " + initialError
-                    + "; retry without sRGB default framebuffer also failed: " + retryError);
-        }
-
-        return createdWindow;
-    }
-
-    private boolean configureGLAttributes(AppSettings settings) {
+    private void configureGLAttributes(AppSettings settings) {
         final String renderer = settings.getRenderer();
         final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
         RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
 
-        if (glesContext && org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
             if (settings.isX11PlatformPreferred()) {
                 SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_X11_EXT);
             } else if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"))) {
@@ -537,12 +518,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings.getSamples() > 0 ? 1 : 0);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
 
-        boolean srgbFramebufferRequested = false;
-        if (!SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0)) {
-            throw new IllegalStateException("SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE) failed: "
-                    + SDL_GetError());
-        }
-
         if (settings.getBitsPerPixel() == 24) {
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
             SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -553,7 +528,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
         }
 
-        return srgbFramebufferRequested;
     }
 
     protected void updateSizes() {
