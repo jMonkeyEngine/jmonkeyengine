@@ -130,7 +130,7 @@ public final class GLRenderer implements Renderer {
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
     }
-    
+
     /**
      * Enable/Disable default automatic generation of mipmaps for framebuffers
      * @param v  Default is true
@@ -161,14 +161,14 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    
+
 
     @Override
     public Statistics getStatistics() {
         return statistics;
     }
 
-    @Override 
+    @Override
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -250,7 +250,7 @@ public final class GLRenderer implements Renderer {
         String version = gl.glGetString(GL.GL_VERSION);
         int oglVer = extractVersion(version);
         if (isWebGL(version)) {
-            caps.add(Caps.WebGL);       
+            caps.add(Caps.WebGL);
         }
         caps.add(Caps.GLSL100);
         caps.add(Caps.OpenGLES20);
@@ -409,7 +409,7 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.IntegerIndexBuffer);
         }
 
-        if (hasAnyExtension("GL_OES_texture_buffer", "GL_EXT_texture_buffer") 
+        if (hasAnyExtension("GL_OES_texture_buffer", "GL_EXT_texture_buffer")
             || caps.contains(Caps.OpenGL31)
             || caps.contains(Caps.OpenGLES32)
         ) {
@@ -876,7 +876,7 @@ public final class GLRenderer implements Renderer {
             }else if(gl instanceof GLES_30){
                 ((GLES_30)gl).glGenVertexArrays(intBuf16);
                 int vaoId = intBuf16.get(0);
-                ((GLES_30)gl).glBindVertexArray(vaoId);                
+                ((GLES_30)gl).glBindVertexArray(vaoId);
             }   else{
                 throw new UnsupportedOperationException("Core profile not supported");
             }
@@ -1453,7 +1453,7 @@ public final class GLRenderer implements Renderer {
         }
         return true;
     }
-    
+
     private boolean isValidNumber(Vector2f v) {
         return isValidNumber(v.x) && isValidNumber(v.y);
     }
@@ -1618,7 +1618,7 @@ public final class GLRenderer implements Renderer {
 
         final BufferObject bufferObject = bufferBlock.getBufferObject();
         final BufferType bufferType = bufferBlock.getType();
-        
+
 
         if (bufferObject.isUpdateNeeded()) {
             if (bufferType == BufferType.ShaderStorageBufferObject) {
@@ -1648,7 +1648,7 @@ public final class GLRenderer implements Renderer {
                     }
                     if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
                         bindUniformBlock(shaderId, bufferBlock.getLocation(), bindingPoint);
-                    } 
+                    }
                 }
                 break;
             }
@@ -1754,7 +1754,14 @@ public final class GLRenderer implements Renderer {
         if (language.startsWith("GLSL")) {
             if (version > 100) {
                 stringBuf.append("#version ");
-                stringBuf.append(language.substring(4));
+
+                if (version >= 150 && version < 300 && gles3) {
+                    // upgrade to 300, since it's the minimum version for GLES3.
+                    version = 300;
+                }
+
+                stringBuf.append(version);
+
                 if (version >= 150) {
                     if(gles3) {
                         stringBuf.append(" es");
@@ -1763,12 +1770,15 @@ public final class GLRenderer implements Renderer {
                         stringBuf.append(" core");
                     }
                 }
+
                 stringBuf.append("\n");
             } else {
-                if (gles2 || gles3) {
+                if (gles3) {
+                    // request GLSL ES (3.00) when compiling under GLES3.
+                    stringBuf.append("#version 300 es\n");
+                } else if (gles2) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
-
                 } else {
                     // version 100 does not exist in desktop GLSL.
                     // put version 110 in that case to enable strict checking
@@ -1778,7 +1788,7 @@ public final class GLRenderer implements Renderer {
             }
 
         }
-        
+
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
@@ -1911,7 +1921,7 @@ public final class GLRenderer implements Renderer {
     public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
-        } else {            
+        } else {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
@@ -2326,12 +2336,12 @@ public final class GLRenderer implements Renderer {
         final int MRT_OFF = 100;
 
         if (fb != null) {
-          
+
             if (fb.getNumColorTargets() == 0) {
                 // make sure to select NONE as draw buf
-                // no color buffer attached.                
-                gl2.glDrawBuffer(GL.GL_NONE);             
-                gl2.glReadBuffer(GL.GL_NONE);                 
+                // no color buffer attached.
+                gl2.glDrawBuffer(GL.GL_NONE);
+                gl2.glReadBuffer(GL.GL_NONE);
             } else {
                 if (fb.getNumColorTargets() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
@@ -2454,7 +2464,7 @@ public final class GLRenderer implements Renderer {
             }
 
             setFrameBuffer(fb);
-         
+
 
         } else {
             setFrameBuffer(null);
@@ -3056,7 +3066,7 @@ public final class GLRenderer implements Renderer {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
-        
+
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || needsGeneratedMipmaps(image)) {
             // Check NPOT requirements
@@ -3087,7 +3097,7 @@ public final class GLRenderer implements Renderer {
             if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
         }
     }
-    
+
     @Override
     public void setTextureImage(int unit, TextureImage tex) throws TextureUnitException {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
@@ -3100,7 +3110,7 @@ public final class GLRenderer implements Renderer {
             tex.bindImage(gl4, texUtil, unit);
         }
     }
-    
+
     @Override
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
         if (bufferObject.isUpdateNeeded()) {
