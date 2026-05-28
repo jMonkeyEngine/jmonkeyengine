@@ -81,6 +81,20 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final float DISPLAY_SCALE_DPI_AWARE = 1f;
 
     /**
+     * Use borderless fullscreen desktop mode when fullscreen is enabled.
+     *
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public static final String FULLSCREEN_MODE_BORDERLESS_WINDOW = "BorderlessWindow";
+
+    /**
+     * Use an exclusive fullscreen display mode when fullscreen is enabled.
+     *
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public static final String FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN = "ExclusiveFullscreen";
+
+    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -380,6 +394,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
+        defaults.put("FullscreenMode", FULLSCREEN_MODE_BORDERLESS_WINDOW);
         defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", OPENAL);
@@ -1131,6 +1146,30 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Sets how supporting backends enter fullscreen when
+     * {@link #setFullscreen(boolean)} is enabled.
+     * <p>
+     * <ul>
+     * <li>{@link #FULLSCREEN_MODE_BORDERLESS_WINDOW}: borderless fullscreen
+     * desktop mode.</li>
+     * <li>{@link #FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN}: exclusive fullscreen
+     * using the closest display mode to the configured resolution and refresh
+     * rate.</li>
+     * </ul>
+     * Some backends may ignore this setting.
+     * (Default: {@link #FULLSCREEN_MODE_BORDERLESS_WINDOW})
+     *
+     * @param mode fullscreen mode
+     */
+    public void setFullscreenMode(String mode) {
+        if (!FULLSCREEN_MODE_BORDERLESS_WINDOW.equals(mode)
+                && !FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN.equals(mode)) {
+            throw new IllegalArgumentException("Unsupported fullscreen mode: " + mode);
+        }
+        putString("FullscreenMode", mode);
+    }
+
+    /**
      * Enable or disable vertical synchronization. If enabled, rendering will be
      * synchronized with the display's refresh interval.
      *
@@ -1380,6 +1419,21 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isFullscreen() {
         return getBoolean("Fullscreen");
+    }
+
+    /**
+     * Gets how supporting backends enter fullscreen.
+     *
+     * @return one of {@link #FULLSCREEN_MODE_BORDERLESS_WINDOW} or
+     * {@link #FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN}
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public String getFullscreenMode() {
+        String mode = getString("FullscreenMode", FULLSCREEN_MODE_BORDERLESS_WINDOW);
+        if (!FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN.equals(mode)) {
+            return FULLSCREEN_MODE_BORDERLESS_WINDOW;
+        }
+        return mode;
     }
 
     /**

@@ -21,7 +21,7 @@ public class IosInputHandler implements TouchInput {
     private final static int MAX_TOUCH_EVENTS = 1024;
 
     // Custom settings
-    private boolean mouseEventsEnabled = true;
+    private boolean mouseEventsEnabled = false;
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
@@ -143,7 +143,7 @@ public class IosInputHandler implements TouchInput {
     public void loadSettings(AppSettings settings) {
         // TODO: add simulate keyboard to settings
 //        keyboardEventsEnabled = true;
-        mouseEventsEnabled = true;//settings.isEmulateMouse();
+        mouseEventsEnabled = settings.isEmulateMouse();
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
 
