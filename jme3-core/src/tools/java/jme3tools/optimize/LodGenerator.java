@@ -89,7 +89,7 @@ import java.util.logging.Logger;
  *      lODGenerator.bakeLods(reductionMethod,reductionValue);
  * </pre> reductionMethod type is VertexReductionMethod described here
  * {@link TriangleReductionMethod} reduction value depends on the
- * reductionMethod.
+ * reductionMethod<p>
  *
  *
  * @author Nehon

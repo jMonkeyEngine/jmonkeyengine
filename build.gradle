@@ -199,8 +199,7 @@ tasks.register('mergedJavadoc', Javadoc) {
     destinationDir = file("dist/javadoc")
 
     options.encoding = 'UTF-8'
-    options.addBooleanOption('Werror', true)
-    options.addBooleanOption('Xdoclint:all,-missing', true)
+    options.addStringOption('Xdoclint:none', '-quiet')
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }

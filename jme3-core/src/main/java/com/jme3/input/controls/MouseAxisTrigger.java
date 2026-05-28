@@ -47,7 +47,7 @@ public class MouseAxisTrigger implements Trigger {
 
     /**
      * Create a new <code>MouseAxisTrigger</code>.
-     *
+     * <p>
      * @param mouseAxis Mouse axis. See AXIS_*** constants in {@link MouseInput}
      * @param negative True if listen to negative axis events, false if
      * listen to positive axis events.
