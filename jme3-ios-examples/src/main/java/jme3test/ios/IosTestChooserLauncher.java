@@ -2,11 +2,13 @@ package jme3test.ios;
 
 import com.jme3.app.Application;
 import com.jme3.app.IosApplicationLauncher;
+import com.jme3.system.AppSettings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,8 +122,17 @@ public final class IosTestChooserLauncher extends IosApplicationLauncher {
         }
         pendingClass = null;
         stopApplicationForHandoff();
-        app = instantiate(className);
-        app.start();
+        Application selected = instantiate(className);
+        AppSettings settings = new AppSettings(true);
+        settings.setUseJoysticks(true);
+        settings.setOnDeviceJoystickRumble(true);
+        invokeConfigureSettings(selected, settings);
+        selected.setSettings(settings);
+        try{
+            startApplication(selected);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to start selected iOS test: " + className, exception);
+        }
         return true;
     }
 
@@ -160,5 +171,18 @@ public final class IosTestChooserLauncher extends IosApplicationLauncher {
             ((IosTestChooser) previous).prepareForHandoff();
         }
         previous.stop(false);
+    }
+
+    private static void invokeConfigureSettings(Application application, AppSettings settings) {
+        try {
+            java.lang.reflect.Method method = application.getClass().getMethod("configureSettings", AppSettings.class);
+            Object target = Modifier.isStatic(method.getModifiers()) ? null : application;
+            method.invoke(target, settings);
+        } catch (NoSuchMethodException ignored) {
+            // Most examples rely on default settings.
+        } catch (IllegalAccessException | InvocationTargetException exception) {
+            throw new IllegalStateException("Could not configure iOS settings for "
+                    + application.getClass().getName(), exception);
+        }
     }
 }

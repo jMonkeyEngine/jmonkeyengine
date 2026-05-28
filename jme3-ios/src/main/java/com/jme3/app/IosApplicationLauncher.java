@@ -31,7 +31,8 @@
  */
 package com.jme3.app;
 
-import com.jme3.system.SystemListener;
+import com.jme3.system.JmeContext;
+import com.jme3.system.ios.IGLESContext;
 
 /**
  * Base iOS launcher for jME
@@ -44,14 +45,18 @@ public abstract class IosApplicationLauncher {
 
     public void start() {
         try {
-            app = createApplication();
-            if (app instanceof SimpleApplication) {
-                ((SimpleApplication) app).setShowSettings(false);
-            }
-            app.start();
+            startApplication(createApplication());
         } catch (Exception exception) {
             throw new IllegalStateException("jME application initialization failed", exception);
         }
+    }
+
+    protected void startApplication(Application application) throws Exception {
+        app = application;
+        if (app instanceof SimpleApplication) {
+            ((SimpleApplication) app).setShowSettings(false);
+        }
+        app.start();
     }
 
     /**
@@ -63,14 +68,22 @@ public abstract class IosApplicationLauncher {
     protected abstract Application createApplication() throws Exception;
 
     public void update() {
-        if (app instanceof SystemListener) {
-            ((SystemListener) app).update();
+        if (app == null)  return;
+        JmeContext context = app.getContext();
+        if (context instanceof IGLESContext) {
+            ((IGLESContext) context).runFrame();
+        } else {
+            throw new IllegalStateException("Application context is not an IGLESContext");
         }
     }
 
     public void resize(int width, int height) {
-        if (app instanceof SystemListener) {
-            ((SystemListener) app).reshape(width, height);
+        if (app == null)  return;
+        JmeContext context = app.getContext();
+        if (context instanceof IGLESContext) {
+            ((IGLESContext) context).resizeFramebuffer(width, height);
+        } else {
+            throw new IllegalStateException("Application context is not an IGLESContext");
         }
     }
 
