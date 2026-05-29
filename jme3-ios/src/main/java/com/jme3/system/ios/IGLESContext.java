@@ -68,6 +68,7 @@ public class IGLESContext implements JmeContext {
 
     private static final String BLIT_MATERIAL = "Common/MatDefs/Blit/Blit.j3md";
     private static final Logger logger = Logger.getLogger(IGLESContext.class.getName());
+    private static final String SAFER_BUFFER_ALLOCATOR_CLASS = "com.jme3.util.SaferBufferAllocator";
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
@@ -102,7 +103,20 @@ public class IGLESContext implements JmeContext {
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
 
         if (System.getProperty(implementation) == null) {
-            System.setProperty(implementation, LibJGLIOSNativeBufferAllocator.class.getName());
+            if (isClassPresent(SAFER_BUFFER_ALLOCATOR_CLASS)) {
+                System.setProperty(implementation, SAFER_BUFFER_ALLOCATOR_CLASS);
+            } else {
+                System.setProperty(implementation, LibJGLIOSNativeBufferAllocator.class.getName());
+            }
+        }
+    }
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, IGLESContext.class.getClassLoader());
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 
