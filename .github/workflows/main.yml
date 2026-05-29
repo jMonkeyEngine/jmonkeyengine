@@ -147,6 +147,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install ANGLE Vulkan software-rendering dependencies
         run: |
+          set -eux
           apt-get update
           apt-get install -y --no-install-recommends \
             libegl1-mesa \
