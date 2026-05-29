@@ -248,7 +248,7 @@ public abstract class SimpleApplication extends LegacyApplication {
      * @return the loaded BitmapFont
      */
     protected BitmapFont loadGuiFont() {
-        return assetManager.loadFont("Interface/Fonts/Default.fnt");
+        return assetManager.loadFont("Interface/Fonts/Default.j3o");
     }
 
     @Override
