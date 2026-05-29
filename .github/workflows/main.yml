@@ -157,6 +157,13 @@ jobs:
               libx11-6 \
               libx11-xcb1 \
               libxcb1 \
+              libxcb-dri3-0 \
+              libxcb-present0 \
+              libxcb-randr0 \
+              libxcb-shm0 \
+              libxcb-sync1 \
+              libxcb-xfixes0 \
+              libxshmfence1 \
               mesa-vulkan-drivers \
               vulkan-tools
           else
@@ -168,6 +175,13 @@ jobs:
               libx11-6 \
               libx11-xcb1 \
               libxcb1 \
+              libxcb-dri3-0 \
+              libxcb-present0 \
+              libxcb-randr0 \
+              libxcb-shm0 \
+              libxcb-sync1 \
+              libxcb-xfixes0 \
+              libxshmfence1 \
               mesa-vulkan-drivers \
               vulkan-tools
           fi
