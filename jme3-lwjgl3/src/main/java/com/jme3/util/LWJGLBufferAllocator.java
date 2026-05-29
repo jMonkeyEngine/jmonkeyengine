@@ -100,13 +100,16 @@ public class LWJGLBufferAllocator implements BufferAllocator {
      * Free unnecessary LWJGL byte buffers.
      */
     static void freeByteBuffers() {
-        try {
-            for (;;) {
+        for (;;) {
+            try {
                 final Deallocator deallocator = (Deallocator) DUMMY_QUEUE.remove();
                 deallocator.free();
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (final Throwable throwable) {
+                LOGGER.log(Level.SEVERE, "Error deallocating direct buffer", throwable);
             }
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -161,7 +164,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
 
     @Override
     public ByteBuffer allocate(final int size) {
-        final Long address = MemoryUtil.nmemCalloc(size, 1);
+        final Long address = MemoryUtil.nmemCallocChecked(size, 1);
         final ByteBuffer byteBuffer = MemoryUtil.memByteBuffer(address, size);
         DEALLOCATORS.put(address, createDeallocator(address, byteBuffer));
         return byteBuffer;

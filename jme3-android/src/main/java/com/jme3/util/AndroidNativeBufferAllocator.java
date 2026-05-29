@@ -77,23 +77,27 @@ public final class AndroidNativeBufferAllocator implements BufferAllocator {
     @Override
     public ByteBuffer allocate(int size) {
         ByteBuffer buffer = createDirectByteBuffer(size);
-        if (buffer != null) {
-            long address = directBufferAddress(buffer);
-            if (address != 0L) {
-                DEALLOCATORS.put(address, new Deallocator(buffer, address));
-            }
+        if (buffer == null) {
+            throw new OutOfMemoryError("Could not allocate " + size + " bytes through Android native allocator");
+        }
+        long address = directBufferAddress(buffer);
+        if (address != 0L) {
+            DEALLOCATORS.put(address, new Deallocator(buffer, address));
         }
         return buffer;
     }
 
     private static void freeCollectedBuffers() {
-        try {
-            for (;;) {
+        for (;;) {
+            try {
                 Deallocator deallocator = (Deallocator) REFERENCE_QUEUE.remove();
                 deallocator.freeNow();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (Throwable throwable) {
+                LOGGER.log(Level.SEVERE, "Error deallocating direct buffer", throwable);
             }
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
         }
     }
 

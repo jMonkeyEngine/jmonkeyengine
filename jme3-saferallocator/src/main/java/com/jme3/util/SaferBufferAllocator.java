@@ -200,7 +200,11 @@ public final class SaferBufferAllocator implements BufferAllocator {
     @Override
     public ByteBuffer allocate(int size) {
         SaferAllocMemoryGuard.beforeAlloc(size);
-        return register(SaferAlloc.calloc(1, size));
+        ByteBuffer buffer = SaferAlloc.calloc(1, size);
+        if (buffer == null) {
+            throw new OutOfMemoryError("Could not allocate " + size + " bytes through SaferAlloc");
+        }
+        return register(buffer);
     }
 
     @Override
