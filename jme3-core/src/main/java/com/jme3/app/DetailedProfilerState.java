@@ -108,8 +108,8 @@ public class DetailedProfilerState extends BaseAppState {
 
         ui.attachChild(darkenStats);
         ui.setLocalTranslation(app.getCamera().getWidth() - PANEL_WIDTH, app.getCamera().getHeight(), 0);
-        font = app.getAssetManager().loadFont("Interface/Fonts/Console.fnt");
-        bigFont = app.getAssetManager().loadFont("Interface/Fonts/Default.fnt");
+        font = app.getAssetManager().loadFont("Interface/Fonts/Console.j3o");
+        bigFont = app.getAssetManager().loadFont("Interface/Fonts/Default.j3o");
         prof.setRenderer(app.getRenderer());
         rootLine = new StatLineView("Frame");
         rootLine.attachTo(ui);
