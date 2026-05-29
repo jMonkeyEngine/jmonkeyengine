@@ -154,6 +154,9 @@ jobs:
               libegl1 \
               libgles2 \
               libvulkan1 \
+              libx11-6 \
+              libx11-xcb1 \
+              libxcb1 \
               mesa-vulkan-drivers \
               vulkan-tools
           else
@@ -162,6 +165,9 @@ jobs:
               libegl1 \
               libgles2 \
               libvulkan1 \
+              libx11-6 \
+              libx11-xcb1 \
+              libxcb1 \
               mesa-vulkan-drivers \
               vulkan-tools
           fi
