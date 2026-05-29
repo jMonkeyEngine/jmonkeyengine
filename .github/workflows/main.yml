@@ -148,9 +148,15 @@ jobs:
       - name: Install ANGLE Vulkan software-rendering dependencies
         run: |
           set -eux
-          if [ "$(id -u)" -ne 0 ] && ! command -v sudo >/dev/null 2>&1; then
-            echo "apt-get requires root privileges or sudo" >&2
-            exit 1
+          if [ "$(id -u)" -ne 0 ]; then
+            if ! command -v sudo >/dev/null 2>&1; then
+              echo "apt-get requires root privileges or sudo" >&2
+              exit 1
+            fi
+            if ! sudo -n true >/dev/null 2>&1; then
+              echo "sudo is present but not usable in non-interactive mode" >&2
+              exit 1
+            fi
           fi
           run_apt() {
             if [ "$(id -u)" -eq 0 ]; then
