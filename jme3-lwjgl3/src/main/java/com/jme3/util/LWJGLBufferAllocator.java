@@ -55,10 +55,10 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         /**
          * The address of LWJGL byte buffer.
          */
-        final Long address;
+        final long address;
         final AtomicBoolean freed = new AtomicBoolean(false);
 
-        Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final Long address) {
+        Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final long address) {
             super(referent, queue);
             this.address = address;
         }
