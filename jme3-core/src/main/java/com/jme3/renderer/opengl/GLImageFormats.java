@@ -169,12 +169,17 @@ public final class GLImageFormats {
                 format(formatToGL, Format.RGB565,           GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, opengl || opengles3 || webgl, false, true);
             }
             
-            // Additional desktop-specific formats.
+            // Additional byte-order formats supported directly on desktop GL.
             if (opengl) {
                 format(formatToGL, Format.BGR8,             GL2.GL_RGB8,     GL2.GL_BGR,  GL.GL_UNSIGNED_BYTE, true, false, true);
                 format(formatToGL, Format.ARGB8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
                 format(formatToGL, Format.BGRA8,            GLExt.GL_RGBA8,  GL2.GL_BGRA, GL.GL_UNSIGNED_BYTE, true, false, true);
                 format(formatToGL, Format.ABGR8,            GLExt.GL_RGBA8,  GL.GL_RGBA,  GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
+            } else if (opengles3) {
+                formatSwiz(formatToGL, Format.BGR8,         GL2.GL_RGB8,    GL.GL_RGB,  GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.ARGB8,        GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.BGRA8,        GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                formatSwiz(formatToGL, Format.ABGR8,        GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
             }
             
             // sRGB formats
@@ -193,6 +198,11 @@ public final class GLImageFormats {
                     formatSrgb(formatToGL, Format.ABGR8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
                     formatSrgb(formatToGL, Format.ARGB8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
                     formatSrgb(formatToGL, Format.BGRA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL.GL_UNSIGNED_BYTE, true, false, true);
+                } else if (opengles3) {
+                    formatSrgbSwiz(formatToGL, Format.BGR8,         GLExt.GL_SRGB8_EXT,        GL.GL_RGB,  GL.GL_UNSIGNED_BYTE, false, false, true);
+                    formatSrgbSwiz(formatToGL, Format.ARGB8,        GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                    formatSrgbSwiz(formatToGL, Format.BGRA8,        GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
+                    formatSrgbSwiz(formatToGL, Format.ABGR8,        GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
                 }
                 
                 if (caps.contains(Caps.TextureCompressionS3TC)) {

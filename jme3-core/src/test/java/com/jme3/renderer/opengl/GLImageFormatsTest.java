@@ -56,20 +56,29 @@ public class GLImageFormatsTest {
     }
 
     @Test
-    public void testGles3DoesNotExposeDesktopByteOrderFormats() {
+    public void testGles3ExposesByteOrderFormatsViaSwizzle() {
         EnumSet<Caps> caps = EnumSet.of(Caps.OpenGLES20, Caps.OpenGLES30,
                 Caps.CoreProfile, Caps.Srgb);
 
         GLImageFormat[][] formats = GLImageFormats.getFormatsForCaps(caps);
 
-        assertNull(formats[0][Image.Format.BGR8.ordinal()]);
-        assertNull(formats[0][Image.Format.ABGR8.ordinal()]);
-        assertNull(formats[0][Image.Format.ARGB8.ordinal()]);
-        assertNull(formats[0][Image.Format.BGRA8.ordinal()]);
-        assertNull(formats[1][Image.Format.BGR8.ordinal()]);
-        assertNull(formats[1][Image.Format.ABGR8.ordinal()]);
-        assertNull(formats[1][Image.Format.ARGB8.ordinal()]);
-        assertNull(formats[1][Image.Format.BGRA8.ordinal()]);
+        assertGles3SwizzledFormat(formats[0][Image.Format.BGR8.ordinal()],
+                GL2.GL_RGB8, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, true);
+        assertGles3SwizzledFormat(formats[0][Image.Format.ARGB8.ordinal()],
+                GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+        assertGles3SwizzledFormat(formats[0][Image.Format.BGRA8.ordinal()],
+                GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+        assertGles3SwizzledFormat(formats[0][Image.Format.ABGR8.ordinal()],
+                GLExt.GL_RGBA8, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+
+        assertGles3SwizzledFormat(formats[1][Image.Format.BGR8.ordinal()],
+                GLExt.GL_SRGB8_EXT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false);
+        assertGles3SwizzledFormat(formats[1][Image.Format.ARGB8.ordinal()],
+                GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+        assertGles3SwizzledFormat(formats[1][Image.Format.BGRA8.ordinal()],
+                GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+        assertGles3SwizzledFormat(formats[1][Image.Format.ABGR8.ordinal()],
+                GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
     }
 
     @Test
@@ -129,5 +138,15 @@ public class GLImageFormatsTest {
         formats = GLImageFormats.getFormatsForCaps(caps);
 
         assertNotNull(formats[0][Image.Format.Depth32.ordinal()]);
+    }
+
+    private static void assertGles3SwizzledFormat(GLImageFormat format, int internalFormat,
+            int glFormat, int dataType, boolean colorRenderable) {
+        assertNotNull(format);
+        assertEquals(internalFormat, format.internalFormat);
+        assertEquals(glFormat, format.format);
+        assertEquals(dataType, format.dataType);
+        assertEquals(colorRenderable, format.colorRenderable);
+        assertEquals(true, format.swizzleRequired);
     }
 }
