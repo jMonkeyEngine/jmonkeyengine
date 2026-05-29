@@ -159,11 +159,11 @@ jobs:
           else
             apt-get update
             apt-get install -y --no-install-recommends \
-            libegl1-mesa \
-            libgles2-mesa \
-            libvulkan1 \
-            mesa-vulkan-drivers \
-            vulkan-tools
+              libegl1-mesa \
+              libgles2-mesa \
+              libvulkan1 \
+              mesa-vulkan-drivers \
+              vulkan-tools
           fi
       - name: Setup the java environment
         uses: actions/setup-java@v5
