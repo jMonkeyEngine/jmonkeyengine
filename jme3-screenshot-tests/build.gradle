@@ -13,6 +13,7 @@ dependencies {
     implementation project(':jme3-terrain')
     implementation project(':jme3-lwjgl3')
     implementation project(':jme3-plugins')
+    implementation project(':jme3-saferallocator')
 
     implementation 'com.aventstack:extentreports:5.1.2'
     implementation platform('org.junit:junit-bom:5.9.1')

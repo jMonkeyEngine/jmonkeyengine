@@ -6,11 +6,11 @@ checkstyle = "13.3.0"
 jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
 angle = "2026-05-09"
-libjglios = "0.4"
-saferalloc = "0.0.8"
+libjglios = "0.6"
+saferalloc = "0.0.10"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
-jmeAndroidNatives = "3.10.0-xt16kb"
+jmeAndroidNatives = "3.10.0-xt16kb-alloc"
 
 [libraries]
 
@@ -73,9 +73,10 @@ saferalloc-natives-windows-aarch64 = { module = "org.ngengine:saferalloc-natives
 saferalloc-natives-macos-x8664 = { module = "org.ngengine:saferalloc-natives-macos-x86_64", version.ref = "saferalloc" }
 saferalloc-natives-macos-aarch64 = { module = "org.ngengine:saferalloc-natives-macos-aarch64", version.ref = "saferalloc" }
 saferalloc-natives-android = { module = "org.ngengine:saferalloc-natives-android", version.ref = "saferalloc" }
+saferalloc-natives-ios = { module = "org.ngengine:saferalloc-natives-ios", version.ref = "saferalloc" }
 
 [bundles]
-saferalloc = ["saferalloc", "saferalloc-natives-linux-x8664", "saferalloc-natives-linux-aarch64", "saferalloc-natives-windows-x8664", "saferalloc-natives-windows-aarch64", "saferalloc-natives-macos-x8664", "saferalloc-natives-macos-aarch64", "saferalloc-natives-android"]
+saferalloc = ["saferalloc", "saferalloc-natives-linux-x8664", "saferalloc-natives-linux-aarch64", "saferalloc-natives-windows-x8664", "saferalloc-natives-windows-aarch64", "saferalloc-natives-macos-x8664", "saferalloc-natives-macos-aarch64", "saferalloc-natives-android", "saferalloc-natives-ios"]
 
 [plugins]
 jacoco = { id = "jacoco", version.ref = "jacoco" }
