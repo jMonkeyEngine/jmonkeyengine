@@ -148,30 +148,23 @@ jobs:
       - name: Install ANGLE Vulkan software-rendering dependencies
         run: |
           set -eux
-          if [ "$(id -u)" -ne 0 ]; then
-            if ! command -v sudo >/dev/null 2>&1; then
-              echo "apt-get requires root privileges or sudo" >&2
-              exit 1
-            fi
-            if ! sudo -n true >/dev/null 2>&1; then
-              echo "sudo requires password authentication, which is unavailable in non-interactive mode" >&2
-              exit 1
-            fi
-          fi
-          run_apt() {
-            if [ "$(id -u)" -eq 0 ]; then
-              apt-get "$@"
-            else
-              sudo apt-get "$@"
-            fi
-          }
-          run_apt update
-          run_apt install -y --no-install-recommends \
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends \
+              libegl1-mesa \
+              libgles2-mesa \
+              libvulkan1 \
+              mesa-vulkan-drivers \
+              vulkan-tools
+          else
+            apt-get update
+            apt-get install -y --no-install-recommends \
             libegl1-mesa \
             libgles2-mesa \
             libvulkan1 \
             mesa-vulkan-drivers \
             vulkan-tools
+          fi
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
