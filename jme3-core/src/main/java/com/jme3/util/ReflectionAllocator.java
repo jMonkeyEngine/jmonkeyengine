@@ -41,7 +41,9 @@ import java.util.logging.Logger;
 /**
  * This class contains the reflection based way to remove DirectByteBuffers in
  * java, allocation is done via ByteBuffer.allocateDirect
+ * @deprecated This class relies on internal APIs that are not accessible in Java 9+, and is not thread-safe for allocation bookkeeping. Use {@link SaferBufferAllocator} instead.
  */
+@Deprecated
 public final class ReflectionAllocator implements BufferAllocator {
     private static Method cleanerMethod = null;
     private static Method cleanMethod = null;
