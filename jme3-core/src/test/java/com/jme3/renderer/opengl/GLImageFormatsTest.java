@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GLImageFormatsTest {
 
@@ -147,6 +148,6 @@ public class GLImageFormatsTest {
         assertEquals(glFormat, format.format);
         assertEquals(dataType, format.dataType);
         assertEquals(colorRenderable, format.colorRenderable);
-        assertEquals(true, format.swizzleRequired);
+        assertTrue(format.swizzleRequired);
     }
 }

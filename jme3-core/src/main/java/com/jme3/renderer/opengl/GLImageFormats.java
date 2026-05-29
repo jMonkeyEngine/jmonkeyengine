@@ -199,6 +199,7 @@ public final class GLImageFormats {
                     formatSrgb(formatToGL, Format.ARGB8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL2.GL_UNSIGNED_INT_8_8_8_8, true, false, true);
                     formatSrgb(formatToGL, Format.BGRA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL.GL_UNSIGNED_BYTE, true, false, true);
                 } else if (opengles3) {
+                    // Match GLES RGB8/sRGB8 renderability for the same internal format.
                     formatSrgbSwiz(formatToGL, Format.BGR8,         GLExt.GL_SRGB8_EXT,        GL.GL_RGB,  GL.GL_UNSIGNED_BYTE, false, false, true);
                     formatSrgbSwiz(formatToGL, Format.ARGB8,        GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
                     formatSrgbSwiz(formatToGL, Format.BGRA8,        GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true, false, true);
