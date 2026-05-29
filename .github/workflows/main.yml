@@ -148,8 +148,19 @@ jobs:
       - name: Install ANGLE Vulkan software-rendering dependencies
         run: |
           set -eux
-          apt-get update
-          apt-get install -y --no-install-recommends \
+          if [ "$(id -u)" -ne 0 ] && ! command -v sudo >/dev/null 2>&1; then
+            echo "apt-get requires root privileges or sudo" >&2
+            exit 1
+          fi
+          run_apt() {
+            if [ "$(id -u)" -eq 0 ]; then
+              apt-get "$@"
+            else
+              sudo apt-get "$@"
+            fi
+          }
+          run_apt update
+          run_apt install -y --no-install-recommends \
             libegl1-mesa \
             libgles2-mesa \
             libvulkan1 \
