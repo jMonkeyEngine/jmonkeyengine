@@ -35,7 +35,7 @@ public final class LibJGLIOSNativeBufferAllocator implements BufferAllocator {
             LOGGER.log(Level.WARNING, "Not found address of the {0}", toBeDestroyed);
             return;
         }
-        Deallocator deallocator = DEALLOCATORS.get(address);
+        Deallocator deallocator = DEALLOCATORS.remove(address);
         if (deallocator == null) {
             LOGGER.log(Level.WARNING, "Not found a deallocator for address {0}", address);
             return;

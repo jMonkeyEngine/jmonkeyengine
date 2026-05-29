@@ -7,7 +7,7 @@ import java.lang.ref.ReferenceQueue;
 import java.nio.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.StampedLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,45 +38,13 @@ public class LWJGLBufferAllocator implements BufferAllocator {
     private static final Map<Long, Deallocator> DEALLOCATORS = new ConcurrentHashMap<>();
 
     /**
-     * Threadsafe implementation of the {@link LWJGLBufferAllocator}.
+     * Deprecated compatibility alias for {@link LWJGLBufferAllocator}.
      *
      * @author JavaSaBr
+     * @deprecated {@link LWJGLBufferAllocator} is thread-safe for allocation bookkeeping.
      */
+    @Deprecated
     public static class ConcurrentLWJGLBufferAllocator extends LWJGLBufferAllocator {
-
-        /**
-         * The synchronizer.
-         */
-        private final StampedLock stampedLock;
-
-        public ConcurrentLWJGLBufferAllocator() {
-            this.stampedLock = new StampedLock();
-        }
-
-        @Override
-        public void destroyDirectBuffer(final Buffer buffer) {
-            final long stamp = stampedLock.writeLock();
-            try {
-                super.destroyDirectBuffer(buffer);
-            } finally {
-                stampedLock.unlockWrite(stamp);
-            }
-        }
-
-        @Override
-        public ByteBuffer allocate(final int size) {
-            final long stamp = stampedLock.writeLock();
-            try {
-                return super.allocate(size);
-            } finally {
-                stampedLock.unlockWrite(stamp);
-            }
-        }
-
-        @Override
-        Deallocator createDeallocator(final Long address, final ByteBuffer byteBuffer) {
-            return new ConcurrentDeallocator(byteBuffer, DUMMY_QUEUE, address, stampedLock);
-        }
     }
 
     /**
@@ -87,7 +55,8 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         /**
          * The address of LWJGL byte buffer.
          */
-        volatile Long address;
+        final Long address;
+        final AtomicBoolean freed = new AtomicBoolean(false);
 
         Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final Long address) {
             super(referent, queue);
@@ -95,47 +64,29 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         }
 
         /**
-         * @param address the address of LWJGL byte buffer.
+         * Retire this deallocator when the caller will free the memory itself.
+         *
+         * @return true if the caller now owns the native free
          */
-        void setAddress(final Long address) {
-            this.address = address;
+        boolean retireForExternalFree() {
+            if (!freed.compareAndSet(false, true)) {
+                return false;
+            }
+            DEALLOCATORS.remove(address, this);
+            clear();
+            return true;
         }
 
         /**
          * Free memory.
          */
         void free() {
-            if (address == null) return;
-            freeMemory();
-            DEALLOCATORS.remove(address);
-        }
-
-        void freeMemory() {
-            MemoryUtil.nmemFree(address);
-        }
-    }
-
-    /**
-     * The LWJGL byte buffer deallocator.
-     */
-    static class ConcurrentDeallocator extends Deallocator {
-
-        final StampedLock stampedLock;
-
-        ConcurrentDeallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue,
-                              final Long address, final StampedLock stampedLock) {
-            super(referent, queue, address);
-            this.stampedLock = stampedLock;
-        }
-
-        @Override
-        protected void freeMemory() {
-            final long stamp = stampedLock.writeLock();
-            try {
-                super.freeMemory();
-            } finally {
-                stampedLock.unlockWrite(stamp);
+            if (!freed.compareAndSet(false, true)) {
+                return;
             }
+            DEALLOCATORS.remove(address, this);
+            clear();
+            MemoryUtil.nmemFree(address);
         }
     }
 
@@ -169,7 +120,6 @@ public class LWJGLBufferAllocator implements BufferAllocator {
             return;
         }
 
-        // disable deallocator
         final Deallocator deallocator = DEALLOCATORS.remove(address);
 
         if (deallocator == null) {
@@ -177,9 +127,9 @@ public class LWJGLBufferAllocator implements BufferAllocator {
             return;
         }
 
-        deallocator.setAddress(null);
-
-        MemoryUtil.memFree(buffer);
+        if (deallocator.retireForExternalFree()) {
+            MemoryUtil.nmemFree(address);
+        }
     }
 
     /**
