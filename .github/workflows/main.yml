@@ -151,16 +151,16 @@ jobs:
           if command -v sudo >/dev/null 2>&1; then
             sudo apt-get update
             sudo apt-get install -y --no-install-recommends \
-              libegl1-mesa \
-              libgles2-mesa \
+              libegl1 \
+              libgles2 \
               libvulkan1 \
               mesa-vulkan-drivers \
               vulkan-tools
           else
             apt-get update
             apt-get install -y --no-install-recommends \
-              libegl1-mesa \
-              libgles2-mesa \
+              libegl1 \
+              libgles2 \
               libvulkan1 \
               mesa-vulkan-drivers \
               vulkan-tools
