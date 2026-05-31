@@ -300,6 +300,11 @@ public class ScreenshotTest{
     }
 
     private Image readImage(URL location) {
+        if ("file".equals(location.getProtocol())) {
+            return readImage(new File(location.getFile()));
+        }
+
+        // internal jar load
         String path = location.getPath();
         int separatorIndex = path.indexOf("!/");
         String internalPath = separatorIndex != -1 ? path.substring(separatorIndex + 2) : path;
