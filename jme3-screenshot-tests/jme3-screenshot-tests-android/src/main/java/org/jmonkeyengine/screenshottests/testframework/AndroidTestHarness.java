@@ -29,12 +29,6 @@ public class AndroidTestHarness extends AndroidHarnessFragment {
     }
 
     @Override
-    protected void configureSettings(AppSettings settings) {
-        super.configureSettings(settings);
-        settings.setAudioRenderer(null);
-    }
-
-    @Override
     public void handleError(String errorMsg, Throwable throwable) {
         logger.log(Level.WARNING, "Error in test application", throwable);
         applicationFinishedLatch.countDown();
