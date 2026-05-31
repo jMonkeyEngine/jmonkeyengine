@@ -85,6 +85,30 @@ tasks.register('run') {
     description = 'Run the jME3 examples'
 }
 
+tasks.register('runAndroidExamples') {
+    description = 'Run the Android examples selector'
+    def androidExamplesProject = findProject(':jme3-android-examples')
+    if (androidExamplesProject != null) {
+        dependsOn ':jme3-android-examples:runAndroidExamples'
+    } else {
+        doLast {
+            throw new GradleException('Android examples are not available. Request an Android examples task and configure an Android SDK.')
+        }
+    }
+}
+
+tasks.register('runIosExamples') {
+    description = 'Run the iOS examples selector'
+    def iosExamplesProject = findProject(':jme3-ios-examples')
+    if (iosExamplesProject != null) {
+        dependsOn ':jme3-ios-examples:runIosExamples'
+    } else {
+        doLast {
+            throw new GradleException('iOS examples are not available. Request an iOS examples task.')
+        }
+    }
+}
+
 defaultTasks 'run'
 
 def libDist = tasks.register('libDist') {
@@ -174,8 +198,15 @@ tasks.register('mergedJavadoc', Javadoc) {
     title = 'jMonkeyEngine3'
     destinationDir = file("dist/javadoc")
 
+    def javadocErrorsEnabled = findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
     options.encoding = 'UTF-8'
-    options.addStringOption('Xdoclint:none', '-quiet')
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }

@@ -70,7 +70,14 @@ jar {
 }
 
 javadoc {
-    failOnError = false
+    def javadocErrorsEnabled = rootProject.findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     options.docTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
     options.windowTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
@@ -79,7 +86,6 @@ javadoc {
     options.use = "true"
     options.charSet = "UTF-8"
     options.encoding = "UTF-8"
-    options.addStringOption('Xdoclint:none', '-quiet')
     source = sourceSets.main.allJava // main only, exclude tests
 }
 

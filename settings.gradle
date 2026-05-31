@@ -17,6 +17,24 @@ plugins {
 rootProject.name = 'jmonkeyengine'
 
 def androidExamplesMinCompileSdk = 34
+def isAndroidExamplesTaskRequested = {
+    gradle.startParameter.taskNames.any { taskName ->
+        taskName == 'runAndroidExamples'
+            || taskName == ':runAndroidExamples'
+            || taskName == 'jme3-android-examples'
+            || taskName.startsWith(':jme3-android-examples:')
+            || taskName.startsWith('jme3-android-examples:')
+    }
+}
+def isIosExamplesTaskRequested = {
+    gradle.startParameter.taskNames.any { taskName ->
+        taskName == 'runIosExamples'
+            || taskName == ':runIosExamples'
+            || taskName == 'jme3-ios-examples'
+            || taskName.startsWith(':jme3-ios-examples:')
+            || taskName.startsWith('jme3-ios-examples:')
+    }
+}
 
 def findAndroidSdk = {
     def sdkDirs = []
@@ -93,17 +111,20 @@ include 'jme3-testdata'
 include 'jme3-examples'
 include 'jme3-awt-dialogs'
 
+if (isAndroidExamplesTaskRequested()) {
+    def androidSdk = findAndroidSdk()
+    if (androidSdk != null) {
+        System.setProperty('android.home', androidSdk.dir.absolutePath)
+        gradle.ext.androidExamplesCompileSdk = androidSdk.compileSdk
+        include 'jme3-android-examples'
+    }
+}
+if (isIosExamplesTaskRequested()) {
+    include 'jme3-ios-examples'
+}
 include 'jme3-screenshot-tests'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-shared'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-desktop'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-android'
 include 'jme3-screenshot-tests:jme3-screenshot-tests-proto-report'
-
-def androidSdk = findAndroidSdk()
-if (androidSdk != null) {
-    System.setProperty('android.home', androidSdk.dir.absolutePath)
-    gradle.ext.androidExamplesCompileSdk = androidSdk.compileSdk
-    include 'jme3-android-examples'
-}
-include 'jme3-ios-examples'
 

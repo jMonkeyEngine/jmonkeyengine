@@ -30,6 +30,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,11 +50,25 @@ public class TestJoystick extends SimpleApplication {
     public static void main(String[] args){
         TestJoystick app = new TestJoystick();
         AppSettings settings = new AppSettings(true);
-        settings.setJoysticksMapper(AppSettings.JOYSTICKS_XBOX_MAPPER);
-        settings.setUseJoysticks(true);
-        settings.setX11PlatformPreferred(true);
+        configureSettings(settings);
         app.setSettings(settings);
         app.start();
+    }
+
+    public static void configureSettings(AppSettings settings) {
+        settings.setJoysticksMapper(AppSettings.JOYSTICKS_XBOX_MAPPER);
+        settings.setUseJoysticks(true);
+        settings.setVirtualJoystick(defaultVirtualJoystickMode());
+        settings.setVirtualJoystickDefaultLayout(AppSettings.VIRTUAL_JOYSTICK_LAYOUT_XBOX);
+        settings.setX11PlatformPreferred(true);
+    }
+
+    private static String defaultVirtualJoystickMode() {
+        Platform.Os os = JmeSystem.getPlatform().getOs();
+        if (os == Platform.Os.Android || os == Platform.Os.iOS) {
+            return AppSettings.VIRTUAL_JOYSTICK_ENABLED;
+        }
+        return AppSettings.VIRTUAL_JOYSTICK_AUTO;
     }
     
     @Override

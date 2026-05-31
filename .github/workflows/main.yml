@@ -107,6 +107,29 @@ jobs:
           path: |
             **/build/reports/spotbugs/**
 
+  JavadocDoclint:
+    name: Run Javadoc Doclint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.1.0
+      - name: Run Javadoc doclint
+        run: |
+          ./gradlew -PenableJavadocError=true javadoc mergedJavadoc --console=plain --stacktrace
+      - name: Report Javadoc doclint failure
+        if: failure()
+        run: |
+          echo "::notice title=Javadoc doclint failed::Javadoc warnings were found. Run ./gradlew -PenableJavadocError=true javadoc mergedJavadoc locally to reproduce."
+
   ScreenshotTests:
     name: Run Screenshot Tests
     runs-on: ubuntu-latest

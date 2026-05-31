@@ -81,6 +81,20 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final float DISPLAY_SCALE_DPI_AWARE = 1f;
 
     /**
+     * Use borderless fullscreen desktop mode when fullscreen is enabled.
+     *
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public static final String FULLSCREEN_MODE_BORDERLESS_WINDOW = "BorderlessWindow";
+
+    /**
+     * Use an exclusive fullscreen display mode when fullscreen is enabled.
+     *
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public static final String FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN = "ExclusiveFullscreen";
+
+    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -249,6 +263,43 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public static final String OPENAL = "OPENAL";
 
+    /**
+     * Disable the on-screen virtual gamepad entirely.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_DISABLED = "VirtualJoystickDisabled";
+
+    /**
+     * Always display the full virtual gamepad, even on desktop and even when a
+     * hardware gamepad is detected.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_ENABLED = "VirtualJoystickEnabled";
+
+    /**
+     * Display the full virtual gamepad automatically on mobile when no
+     * hardware gamepad is detected.
+     *
+     * @see #setVirtualJoystick(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_AUTO = "VirtualJoystickAuto";
+
+    /**
+     * Use the fixed Xbox-like virtual joystick layout.
+     *
+     * @see #setVirtualJoystickDefaultLayout(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_LAYOUT_XBOX = "Xbox";
+
+    /**
+     * Use a virtual joystick layout that only displays bound controls.
+     *
+     * @see #setVirtualJoystickDefaultLayout(String)
+     */
+    public static final String VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC = "Dynamic";
+
 
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
@@ -306,27 +357,27 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     /**
-     * Map gamepads to Xbox-like layout.
+     * Map joysticks to Xbox-like layout.
      */
     public static final String JOYSTICKS_XBOX_MAPPER = "JOYSTICKS_XBOX_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout, with fallback to raw if the gamepad is not recognized.
+     * Map joysticks to an Xbox-like layout, with fallback to raw if the joystick is not recognized.
      */
     public static final String JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER = "JOYSTICKS_XBOX_WITH_FALLBACK_MAPPER";
 
     /**
-     * Map gamepads to an Xbox-like layout using the legacy jME input
+     * Map joysticks to an Xbox-like layout using the legacy jME input
      */
     public static final String JOYSTICKS_XBOX_LEGACY_MAPPER = "JOYSTICKS_XBOX_LEGACY_MAPPER";
 
     /**
-     * Map gamepads using the legacy jME mapper and input.
+     * Map joysticks using the legacy jME mapper and input.
      */
     public static final String JOYSTICKS_LEGACY_MAPPER = "JOYSTICKS_LEGACY_MAPPER";
 
     /**
-     * Don't map gamepads, use raw events instead (ie. bring your own mapper)
+     * Don't map joysticks, use raw events instead (ie. bring your own mapper)
      */
     public static final String JOYSTICKS_RAW_MAPPER = "JOYSTICKS_RAW_MAPPER";
 
@@ -343,10 +394,11 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
+        defaults.put("FullscreenMode", FULLSCREEN_MODE_BORDERLESS_WINDOW);
         defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", OPENAL);
-        defaults.put("DisableJoysticks", true);
+        defaults.put("DisableJoysticks", false);
         defaults.put("UseInput", true);
         defaults.put("VSync", true);
         defaults.put("FrameRate", -1);
@@ -365,6 +417,9 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("JoysticksAxisJitterThreshold", 0.0001f);
         defaults.put("SDLGameControllerDBResourcePath", "");
         defaults.put("OnDeviceJoystickRumble", false);
+        defaults.put("UseAndroidSensorJoystick", false);
+        defaults.put("VirtualJoystick", VIRTUAL_JOYSTICK_AUTO);
+        defaults.put("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC);
         //  defaults.put("Icons", null);
     }
 
@@ -810,8 +865,9 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * @param use If true, the application will initialize and use joystick
-     * input. Set to false if no joystick input is desired.
-     * (Default: false)
+     * input, including hardware gamepads when available. Set to false if no
+     * joystick input is desired.
+     * (Default: true)
      */
     public void setUseJoysticks(boolean use) {
         putBoolean("DisableJoysticks", !use);
@@ -824,6 +880,61 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setOnDeviceJoystickRumble(boolean enabled) {
         putBoolean("OnDeviceJoystickRumble", enabled);
+    }
+
+    /**
+     * @param use If true, Android exposes device orientation sensors as a
+     * joystick. This is disabled by default because the sensor joystick reports
+     * movement from device rotation and can conflict with gamepad or virtual
+     * joystick mappings.
+     * (Default: false)
+     */
+    public void setUseAndroidSensorJoystick(boolean use) {
+        putBoolean("UseAndroidSensorJoystick", use);
+    }
+
+    /**
+     * Sets the on-screen virtual joystick mode.
+     * <p>
+     * The default mode is {@link #VIRTUAL_JOYSTICK_AUTO}, which displays the
+     * virtual joystick on mobile only when joystick mappings exist and no
+     * hardware gamepad is connected.
+     * <ul>
+     * <li>{@link #VIRTUAL_JOYSTICK_DISABLED}: disable the virtual gamepad
+     * entirely.</li>
+     * <li>{@link #VIRTUAL_JOYSTICK_ENABLED}: always display the virtual
+     * joystick, even on desktop and even when a hardware gamepad is detected.</li>
+     * <li>{@link #VIRTUAL_JOYSTICK_AUTO}: display the full virtual gamepad
+     * automatically on mobile when joystick mappings exist and no hardware
+     * gamepad is detected.</li>
+     * </ul>
+     *
+     * @param mode one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, or {@link #VIRTUAL_JOYSTICK_AUTO}
+     */
+    public void setVirtualJoystick(String mode) {
+        if (!VIRTUAL_JOYSTICK_DISABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_ENABLED.equals(mode)
+                && !VIRTUAL_JOYSTICK_AUTO.equals(mode)) {
+            throw new IllegalArgumentException("Unsupported virtual joystick mode: " + mode);
+        }
+        putString("VirtualJoystick", mode);
+    }
+
+    /**
+     * Sets the default virtual joystick layout used by supporting backends.
+     *
+     * @param layout one of {@link #VIRTUAL_JOYSTICK_LAYOUT_XBOX} or
+     * {@link #VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC}
+     */
+    public void setVirtualJoystickDefaultLayout(String layout) {
+        if (VIRTUAL_JOYSTICK_LAYOUT_XBOX.equalsIgnoreCase(layout)) {
+            putString("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_XBOX);
+        } else if (VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC.equalsIgnoreCase(layout)) {
+            putString("VirtualJoystickDefaultLayout", VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC);
+        } else {
+            throw new IllegalArgumentException("Unsupported virtual joystick layout: " + layout);
+        }
     }
 
     /**
@@ -1032,6 +1143,29 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setFullscreen(boolean value) {
         putBoolean("Fullscreen", value);
+    }
+
+    /**
+     * Sets how supporting backends enter fullscreen when
+     * {@link #setFullscreen(boolean)} is enabled.
+     * <ul>
+     * <li>{@link #FULLSCREEN_MODE_BORDERLESS_WINDOW}: borderless fullscreen
+     * desktop mode.</li>
+     * <li>{@link #FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN}: exclusive fullscreen
+     * using the closest display mode to the configured resolution and refresh
+     * rate.</li>
+     * </ul>
+     * Some backends may ignore this setting.
+     * (Default: {@link #FULLSCREEN_MODE_BORDERLESS_WINDOW})
+     *
+     * @param mode fullscreen mode
+     */
+    public void setFullscreenMode(String mode) {
+        if (!FULLSCREEN_MODE_BORDERLESS_WINDOW.equals(mode)
+                && !FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN.equals(mode)) {
+            throw new IllegalArgumentException("Unsupported fullscreen mode: " + mode);
+        }
+        putString("FullscreenMode", mode);
     }
 
     /**
@@ -1287,6 +1421,21 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Gets how supporting backends enter fullscreen.
+     *
+     * @return one of {@link #FULLSCREEN_MODE_BORDERLESS_WINDOW} or
+     * {@link #FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN}
+     * @see #setFullscreenMode(java.lang.String)
+     */
+    public String getFullscreenMode() {
+        String mode = getString("FullscreenMode", FULLSCREEN_MODE_BORDERLESS_WINDOW);
+        if (!FULLSCREEN_MODE_EXCLUSIVE_FULLSCREEN.equals(mode)) {
+            return FULLSCREEN_MODE_BORDERLESS_WINDOW;
+        }
+        return mode;
+    }
+
+    /**
      * Get the use joysticks state
      *
      * @return true to enable joystick input, false to disable it
@@ -1304,6 +1453,79 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isOnDeviceJoystickRumble() {
         return getBoolean("OnDeviceJoystickRumble");
+    }
+
+    /**
+     * Get the Android sensor joystick state.
+     *
+     * @return true to expose Android device orientation sensors as a joystick
+     * @see #setUseAndroidSensorJoystick(boolean)
+     */
+    public boolean useAndroidSensorJoystick() {
+        return getBoolean("UseAndroidSensorJoystick");
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystick() {
+        return !VIRTUAL_JOYSTICK_DISABLED.equals(getVirtualJoystickMode());
+    }
+
+    /**
+     * Get whether supporting backends should expose an on-screen virtual joystick.
+     *
+     * @return true to expose the on-screen virtual joystick
+     * @see #setVirtualJoystick(String)
+     */
+    public boolean isVirtualJoystickEnabled() {
+        return isVirtualJoystick();
+    }
+
+    /**
+     * Gets the on-screen virtual joystick mode.
+     *
+     * @return one of {@link #VIRTUAL_JOYSTICK_DISABLED},
+     * {@link #VIRTUAL_JOYSTICK_ENABLED}, or {@link #VIRTUAL_JOYSTICK_AUTO}
+     */
+    public String getVirtualJoystickMode() {
+        Object value = get("VirtualJoystick");
+        if (value instanceof Boolean) {
+            return (Boolean) value ? VIRTUAL_JOYSTICK_ENABLED : VIRTUAL_JOYSTICK_DISABLED;
+        }
+        if (value instanceof String) {
+            String mode = (String) value;
+            if (VIRTUAL_JOYSTICK_DISABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_DISABLED;
+            } else if (VIRTUAL_JOYSTICK_ENABLED.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_ENABLED;
+            } else if (VIRTUAL_JOYSTICK_AUTO.equalsIgnoreCase(mode)) {
+                return VIRTUAL_JOYSTICK_AUTO;
+            } 
+        }
+        return VIRTUAL_JOYSTICK_AUTO;
+    }
+
+    /**
+     * Gets the default virtual joystick layout.
+     *
+     * @return one of {@link #VIRTUAL_JOYSTICK_LAYOUT_XBOX} or
+     * {@link #VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC}
+     */
+    public String getVirtualJoystickDefaultLayout() {
+        Object value = get("VirtualJoystickDefaultLayout");
+        if (value instanceof String) {
+            String layout = (String) value;
+            if (VIRTUAL_JOYSTICK_LAYOUT_XBOX.equalsIgnoreCase(layout)) {
+                return VIRTUAL_JOYSTICK_LAYOUT_XBOX;
+            } else if (VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC.equalsIgnoreCase(layout)) {
+                return VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
+            }
+        }
+        return VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
     }
 
     /**

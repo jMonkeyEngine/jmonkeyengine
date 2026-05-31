@@ -208,6 +208,10 @@ public class AndroidInputHandler implements View.OnTouchListener,
 //        logger.log(Level.INFO, "onTouch source: {0}, isTouch: {1}",
 //                new Object[]{source, isTouch});
 
+        if (isTouch && joyInput != null && joyInput.onTouch(event)) {
+            return true;
+        }
+
         if (isTouch && touchInput != null) {
             // send the event to the touch processor
             consumed = touchInput.onTouch(event);
@@ -233,6 +237,10 @@ public class AndroidInputHandler implements View.OnTouchListener,
                 ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD);
 //        logger.log(Level.INFO, "onKey source: {0}, isTouch: {1}",
 //                new Object[]{source, isTouch});
+
+        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD && joyInput != null) {
+            joyInput.onKeyboardInput();
+        }
 
         if (touchInput != null) {
             consumed = touchInput.onKey(event);

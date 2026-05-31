@@ -32,6 +32,7 @@
 package com.jme3.input.lwjgl;
 
 import com.jme3.cursors.plugins.JmeCursor;
+import com.jme3.input.JoyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
@@ -174,6 +175,9 @@ public class SdlMouseInput implements MouseInput {
             }
 
             if (xDelta != 0 || yDelta != 0) {
+                if (onPointerMove(0, x, y, event.motion().timestamp())) {
+                    return;
+                }
                 MouseMotionEvent mouseMotionEvent =
                         new MouseMotionEvent(x, y, xDelta, yDelta, mouseWheel, 0);
                 mouseMotionEvent.setTime(event.motion().timestamp());
@@ -205,6 +209,9 @@ public class SdlMouseInput implements MouseInput {
             refreshWindowMetrics();
             mouseX = toInputX(event.button().x());
             mouseY = toInputY(event.button().y());
+            if (onPointerButton(0, event.button().down(), mouseX, mouseY, event.button().timestamp())) {
+                return;
+            }
 
             int button = Byte.toUnsignedInt(event.button().button());
             MouseButtonEvent mouseButtonEvent =
@@ -212,6 +219,25 @@ public class SdlMouseInput implements MouseInput {
             mouseButtonEvent.setTime(event.button().timestamp());
             mouseButtonEvents.add(mouseButtonEvent);
         }
+    }
+
+    private boolean onPointerButton(int pointerId, boolean pressed, float x, float y, long time) {
+        JoyInput joyInput = context.getJoyInput();
+        if (joyInput instanceof SdlJoystickInput) {
+            if (pressed) {
+                return ((SdlJoystickInput) joyInput).onPointerDown(pointerId, x, y, time);
+            }
+            return ((SdlJoystickInput) joyInput).onPointerUp(pointerId, x, y, time);
+        }
+        return false;
+    }
+
+    private boolean onPointerMove(int pointerId, float x, float y, long time) {
+        JoyInput joyInput = context.getJoyInput();
+        if (joyInput instanceof SdlJoystickInput) {
+            return ((SdlJoystickInput) joyInput).onPointerMove(pointerId, x, y, time);
+        }
+        return false;
     }
 
     private void refreshWindowMetrics() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,38 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetManager;
+import com.jme3.material.Material;
+
 /**
- * Adapter for converting GLTF emissive strength to JME emissive intensity.
- * 
- * @author codex
+ * A material factory creates {@link Material}s based on the data of a single material from a GLTF file.
+ * <p>
+ *   All material factories have bo be registered with the {@link GltfLoader} by using one of its
+ *   static register methods.
+ * </p>
  */
-public class PBREmissiveStrengthMaterialAdapter extends PBRMaterialAdapter {
-    
-    public PBREmissiveStrengthMaterialAdapter() {
-        super();
-        addParamMapping("emissiveStrength", "EmissiveIntensity");
-    }
-    
+public interface GltfMaterialFactory {
+
+	/**
+	 * Checks, if the factory is able to create a new material from the given material data.
+	 * If it accepts the material data, the {@link #createMaterial(AssetManager, AssetKey, GltfMaterialData)} method
+	 * can be used to create a new material.
+	 *
+	 * @param assetKey The {@link AssetKey} used for loading the GLTF model.
+	 * @param gltfMaterialData The {@link GltfMaterialData} containing all available GLTF material data.
+	 * @return true if the factory is able to create a material from the given material data, otherwise false.
+	 */
+	boolean accepts(AssetKey<?> assetKey, GltfMaterialData gltfMaterialData);
+
+	/**
+	 * Creates a new material from the given material data.
+	 *
+	 * @param assetManager     The {@link AssetManager} instance.
+	 * @param assetKey The {@link AssetKey} used for loading the GLTF model.
+	 * @param gltfMaterialData The {@link GltfMaterialData} containing all available GLTF material data.
+	 * @return The new created {@link Material}.
+	 */
+	Material createMaterial(AssetManager assetManager, AssetKey<?> assetKey, GltfMaterialData gltfMaterialData);
+
 }
