@@ -42,23 +42,25 @@ public class TestCursor extends SimpleApplication {
 
         /*
          * To make jME3 use a custom cursor it is as simple as putting the
-         * .cur/.ico/.ani file in an asset directory. Here we use
+         * image file in an asset directory. Here we use
          * "Textures/GUI/Cursors".
          *
-         * For the purpose of this demonstration we load 3 different cursors and add them
-         * into an array list and switch cursor every 8 seconds.
+         * For the purpose of this demonstration we load 3 different cursors and
+         * switch cursor every 8 seconds.
          *
-         * The first ico has been made by Sirea and the set can be found here:
+         * At date of 2026/06/01:
+         * 
+         * The nyan cat cursor has been made by Sirea. Under the Attribution Required (CC by) license:
          * http://www.rw-designer.com/icon-set/nyan-cat
          *
-         * The second cursor has been made by Virum64 and is Public Domain.
+         * The second cursor has been made by Virum64. Released to Public Domain.
          * http://www.rw-designer.com/cursor-set/memes-faces-v64
          *
-         * The animated cursor has been made by Pointer Adic and can be found here:
+         * The animated cursor has been made by Pointer Adic. Released to Public Domain:
          * http://www.rw-designer.com/cursor-set/monkey
          * 
-         * At date of 2026/05/22, the three cursor examples has been converter to png formats. 
-         * Checking and following the licences restrictions in the process.
+         * The three cursor examples have been converted to png format.
+         * Checking and following the license restrictions in the process.
          */
 
         Image[] staticCursors = {
@@ -71,6 +73,10 @@ public class TestCursor extends SimpleApplication {
             flipVertically(copyCursor);
             cursors.add(CursorConverter.fromTexture(new Texture2D(copyCursor)));
         }
+
+        /*
+         * For animated cursors. Each frame must be loaded.
+         */
 
         int monkeyFramesDelay = 60;
         String[] monkeyFramePaths = {
