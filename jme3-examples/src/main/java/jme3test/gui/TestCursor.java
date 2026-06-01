@@ -67,8 +67,9 @@ public class TestCursor extends SimpleApplication {
         };
 
         for (Image cursor : staticCursors) {
-            flipVertically(cursor);
-            cursors.add(CursorConverter.fromTexture(new Texture2D(cursor)));
+            Image copyCursor = cursor.clone();
+            flipVertically(copyCursor);
+            cursors.add(CursorConverter.fromTexture(new Texture2D(copyCursor)));
         }
 
         int monkeyFramesDelay = 60;
@@ -82,7 +83,7 @@ public class TestCursor extends SimpleApplication {
         };
 
         Texture2D[] monkeyFrames = Arrays.stream(monkeyFramePaths)
-          .map(framePath -> (Image) assetManager.loadAsset(framePath))
+          .map(framePath -> ((Image) assetManager.loadAsset(framePath)).clone())
           .peek(frameImage -> flipVertically(frameImage))
           .map(frameImage -> new Texture2D(frameImage))
           .toArray(Texture2D[]::new);
