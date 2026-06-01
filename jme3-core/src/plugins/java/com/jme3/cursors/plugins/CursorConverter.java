@@ -125,15 +125,15 @@ public class CursorConverter {
      * is 0, 0 being lower left.
      * 
      * @param frameDelays The time delay that will take each frame to change to the next frame. Because of it,
-     *                    it must contains as many delays as frames (lenghts of cursorFrames and frameDelays 
-     *                    arrays must be equals).
+     *                    it must contains as many delays as frames (lengths of cursorFrames and frameDelays 
+     *                    arrays must be equal).
      * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applied.
      * 
      * @return A {@link JmeCursor} object that contains the data for an animated cursor.
      */
     public static JmeCursor fromTextureFrames(int[] frameDelays, Texture2D[] cursorFrames) {
         if (frameDelays.length != cursorFrames.length) {
-            throw new IllegalArgumentException("The lenghts of cursorFrames and frameDelays arrays must be equals");
+            throw new IllegalArgumentException("The lengths of cursorFrames and frameDelays arrays must be equal");
         }
 
         List<Image> imageFrames = Arrays.stream(cursorFrames)
@@ -154,7 +154,7 @@ public class CursorConverter {
           .collect(Collectors.toList());
         
         if (imageFrameHeights.size() > 1 || imageFrameWidths.size() > 1) {
-            throw new IllegalArgumentException("Some images from the Texture2D objects has different sizes");
+            throw new IllegalArgumentException("Some images from the Texture2D objects have different sizes");
         }
 
         int imageHeight = imageFrameHeights.get(0);
