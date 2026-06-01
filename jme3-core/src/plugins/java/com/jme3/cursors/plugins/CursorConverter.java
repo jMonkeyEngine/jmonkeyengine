@@ -50,7 +50,7 @@ public class CursorConverter {
      * Convert a {@link Texture2D} to a {@link JmeCursor}. The coordinate system used is the same specified
      * in {@link JmeCursor}. The start point is 0, 0 being lower left.
      * 
-     * @param cursorImage The texture to convert. No modifications will be applyed.
+     * @param cursorImage The texture to convert. No modifications will be applied.
      * 
      * @return The {@link JmeCursor} using a deep copy of {@link Texture2D.getImage}.
      */
@@ -108,7 +108,7 @@ public class CursorConverter {
      * is 0, 0 being lower left.
      * 
      * @param frameDelay The time delay that will take for a cursor to change from one frame to another.
-     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applyed.
+     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applied.
      * 
      * @return A {@link JmeCursor} object that contains the data for an animated cursor.
      */
@@ -127,7 +127,7 @@ public class CursorConverter {
      * @param frameDelays The time delay that will take each frame to change to the next frame. Because of it,
      *                    it must contains as many delays as frames (lenghts of cursorFrames and frameDelays 
      *                    arrays must be equals).
-     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applyed.
+     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applied.
      * 
      * @return A {@link JmeCursor} object that contains the data for an animated cursor.
      */
