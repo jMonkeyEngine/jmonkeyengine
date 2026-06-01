@@ -244,6 +244,7 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     }
 
     @Override
+    @Deprecated
     public void rescale(float x, float y) {
         app.rescale(x, y);
     }

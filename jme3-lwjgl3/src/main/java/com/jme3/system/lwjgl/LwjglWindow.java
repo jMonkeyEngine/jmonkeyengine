@@ -229,7 +229,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private int oldFramebufferHeight;
     private int oldLogicalWidth;
     private int oldLogicalHeight;
-    private final Vector2f oldScale = new Vector2f(1, 1);
     private final Vector2f displayScale = new Vector2f(1, 1);
     private Material blitMaterial;
     private Picture blitGeometry;
@@ -586,10 +585,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 oldFramebufferHeight = framebufferHeight;
             }
 
-            if (oldScale.x != displayScale.x || oldScale.y != displayScale.y) {
-                listener.rescale(displayScale.x, displayScale.y);
-                oldScale.set(displayScale);
-            }
         }
     }
 
@@ -681,7 +676,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             oldFramebufferHeight = 0;
             oldLogicalWidth = 0;
             oldLogicalHeight = 0;
-            oldScale.set(1, 1);
         } catch (Exception ex) {
             if (failure == null) {
                 failure = ex;
