@@ -532,7 +532,7 @@ public class RenderManager {
                                   int surfaceWidth, int surfaceHeight) {
         for (ViewPort vp : viewPorts) {
             FrameBuffer frameBuffer = vp.getOutputFrameBuffer();
-            if (frameBuffer == null) {
+            if (vp.isResizeWithDefaultFramebuffer() || frameBuffer == null) {
                 Camera cam = vp.getCamera();
                 cam.resize(logicalWidth, logicalHeight, true);
                 notifyReshape(vp, surfaceWidth, surfaceHeight);

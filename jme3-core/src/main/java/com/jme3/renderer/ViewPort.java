@@ -94,6 +94,7 @@ public class ViewPort {
      * FrameBuffer for output.
      */
     protected FrameBuffer out = null;
+    private boolean resizeWithDefaultFramebuffer;
     protected int renderTargetWidth;
     protected int renderTargetHeight;
 
@@ -310,6 +311,29 @@ public class ViewPort {
      */
     public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;
+        resizeWithDefaultFramebuffer = false;
+    }
+
+    /**
+     * Determines whether reshape notifications for this viewport should follow
+     * the default framebuffer size.
+     *
+     * @return true if reshape should use the default framebuffer size, otherwise
+     *     false
+     */
+    public boolean isResizeWithDefaultFramebuffer() {
+        return resizeWithDefaultFramebuffer;
+    }
+
+    /**
+     * Sets whether reshape notifications for this viewport should follow the
+     * default framebuffer size.
+     *
+     * @param resizeWithDefaultFramebuffer true to use the default framebuffer size, false to
+     *     use the explicit output framebuffer size
+     */
+    public void setResizeWithDefaultFramebuffer(boolean resizeWithDefaultFramebuffer) {
+        this.resizeWithDefaultFramebuffer = resizeWithDefaultFramebuffer;
     }
 
     void setRenderTargetSize(int width, int height) {
