@@ -53,10 +53,10 @@ public class TestCursor extends SimpleApplication {
          * The nyan cat cursor has been made by Sirea. Under the Attribution Required (CC by) license:
          * http://www.rw-designer.com/icon-set/nyan-cat
          *
-         * The second cursor has been made by Virum64. Released to Public Domain.
+         * The meme face cursor has been made by Virum64. Released to Public Domain.
          * http://www.rw-designer.com/cursor-set/memes-faces-v64
          *
-         * The animated cursor has been made by Pointer Adic. Released to Public Domain:
+         * The animated monkey cursor has been made by Pointer Adic. Released to Public Domain:
          * http://www.rw-designer.com/cursor-set/monkey
          * 
          * The three cursor examples have been converted to png format.
