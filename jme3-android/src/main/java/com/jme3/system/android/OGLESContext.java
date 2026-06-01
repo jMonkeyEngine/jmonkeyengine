@@ -465,7 +465,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         if (renderable.get()) {
             logger.log(Level.FINE, "App already initialized, calling reshape");
             listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-            listener.rescale(displayScale.x, displayScale.y);
         }
     }
 
@@ -512,7 +511,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         updateDisplayScaleMetrics();
         if (renderable.get()) {
             listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-            listener.rescale(displayScale.x, displayScale.y);
         }
     }
 
@@ -531,7 +529,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 listener.initialize();
                 if (framebufferWidth > 0 && framebufferHeight > 0) {
                     listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-                    listener.rescale(displayScale.x, displayScale.y);
                 }
                 renderable.set(true);
             }

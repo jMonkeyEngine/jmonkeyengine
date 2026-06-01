@@ -319,7 +319,6 @@ public class IGLESContext implements JmeContext {
                 logger.log(Level.FINE, "iOS framebuffer resized, width: {0} height: {1}",
                         new Object[]{framebufferWidth, framebufferHeight});
                 listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-                listener.rescale(displayScale.x, displayScale.y);
             }
         }
     }
@@ -365,7 +364,6 @@ public class IGLESContext implements JmeContext {
         linearFrameBufferDirty = true;
         if (renderable.get() && listener != null) {
             listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-            listener.rescale(displayScale.x, displayScale.y);
         }
     }
 
