@@ -57,10 +57,6 @@ public class CursorConverter {
     public static JmeCursor fromTexture(Texture2D cursorImage) {
         Image image = cursorImage.getImage().clone();
 
-        if (image == null) {
-            throw new NullPointerException("There is not an image set to the Texture2D");
-        }
-
         int imageHeight = image.getHeight();
         int imageWidth = image.getWidth();
 
@@ -141,21 +137,8 @@ public class CursorConverter {
         }
 
         List<Image> imageFrames = Arrays.stream(cursorFrames)
-          .map((frame) -> frame.getImage())
-          .collect(Collectors.toList());
-
-        boolean missingImage = imageFrames
-          .stream()
-          .anyMatch((frame) -> frame == null);
-
-        if (missingImage) {
-            throw new NullPointerException("Some Texture2D objects does not have a setted imaged");
-        }
-        
-        //Avoid working and accidentally modifying original values
-        imageFrames = imageFrames
-          .stream()
-          .map((image) -> image.clone())
+          //Avoid working and accidentally modifying original values
+          .map((frame) -> frame.getImage().clone())
           .collect(Collectors.toList());
 
         List<Integer> imageFrameHeights = imageFrames
