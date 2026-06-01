@@ -160,12 +160,17 @@ public class CursorConverter {
         int imageHeight = imageFrameHeights.get(0);
         int imageWidth = imageFrameWidths.get(0);
 
-        IntBuffer framesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
+        IntBuffer imagesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
 
-        framesData = imageFrames
+        List<IntBuffer> framesData = imageFrames
           .stream()
           .map((image) -> getDataAsIntBuffer(image))
-          .reduce(framesData, (previous, next) -> previous.put(next));
+          .collect(Collectors.toList());
+
+        for (IntBuffer frameData : framesData) {
+            imagesData.put(frameData);
+        }
+        imagesData.flip();
 
         JmeCursor jmeCursor = new JmeCursor();
         jmeCursor.setWidth(imageWidth);
@@ -174,7 +179,7 @@ public class CursorConverter {
         jmeCursor.setyHotSpot(imageHeight);
         jmeCursor.setNumImages(cursorFrames.length);
         jmeCursor.setImagesDelay(BufferUtils.createIntBuffer(frameDelays));
-        jmeCursor.setImagesData(framesData);
+        jmeCursor.setImagesData(imagesData);
         return jmeCursor;
     }
 }
