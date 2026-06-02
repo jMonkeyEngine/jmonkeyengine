@@ -44,7 +44,7 @@ public abstract class ScreenshotTestBase{
 
     /**
      * Initialises a screenshot test. The resulting object should be configured (if neccessary) and then started
-     * by calling {@link ScreenshotTest#run()}.
+     * by calling {@link ScreenshotTest#run(AppRunner)} .
      * @param initialStates the states that will create the JME environment
      * @return
      */
