@@ -174,7 +174,7 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
-  BuildIOS:
+  TestIOSBuild:
     name: Build for iOS
     runs-on: macos-latest
     steps:
@@ -195,7 +195,7 @@ jobs:
       - name: Build iOS examples
         shell: bash
         run: |
-         ./gradlew buildIosSimulatorApp
+         ./gradlew :jme3-ios-examples:buildIosSimulatorApp
          
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
