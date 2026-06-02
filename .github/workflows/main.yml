@@ -175,7 +175,7 @@ jobs:
             **/build/test-results/**
 
   TestIOSBuild:
-    name: Build for iOS
+    name: Test iOS build
     runs-on: macos-latest
     steps:
       - name: Clone the repo
@@ -196,6 +196,7 @@ jobs:
         shell: bash
         run: |
          ./gradlew :jme3-ios-examples:buildIosSimulatorApp
+         ./gradlew :jme3-ios-examples:buildIosDebugApp
          
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
