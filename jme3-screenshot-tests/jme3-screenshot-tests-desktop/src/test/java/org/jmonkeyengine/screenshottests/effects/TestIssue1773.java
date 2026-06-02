@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.effects;
 
 import org.jmonkeyengine.screenshottests.scenarios.effects.ScenarioIssue1773;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -40,7 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestIssue1773 {
+public class TestIssue1773 extends ScreenshotTestDesktopBase {
 
     /**
      * Test case for Issue 1773 (Wrong particle position when using

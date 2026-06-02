@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.terrain;
 
 import org.jmonkeyengine.screenshottests.scenarios.terrain.ScenarioPBRTerrain;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -59,7 +60,7 @@ import java.util.stream.Stream;
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
 @SuppressWarnings("FieldCanBeLocal")
-public class TestPBRTerrain {
+public class TestPBRTerrain extends ScreenshotTestDesktopBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(

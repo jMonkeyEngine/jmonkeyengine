@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.post;
 
 import org.jmonkeyengine.screenshottests.scenarios.post.ScenarioLightScattering;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -44,7 +45,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestLightScattering {
+public class TestLightScattering extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a light scattering effect.

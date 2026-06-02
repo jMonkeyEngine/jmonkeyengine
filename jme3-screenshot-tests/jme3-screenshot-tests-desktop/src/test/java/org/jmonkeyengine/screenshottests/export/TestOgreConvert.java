@@ -33,12 +33,13 @@ package org.jmonkeyengine.screenshottests.export;
 
 import org.jmonkeyengine.screenshottests.scenarios.export.ScenarioOgreConvert;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestOgreConvert {
+public class TestOgreConvert extends ScreenshotTestDesktopBase {
 
     /**
      * This tests loads an Ogre model, converts it to binary, and then reloads it.

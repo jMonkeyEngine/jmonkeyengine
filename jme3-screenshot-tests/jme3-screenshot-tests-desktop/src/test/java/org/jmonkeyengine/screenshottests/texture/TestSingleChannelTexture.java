@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Screenshot test for single-channel PNG loading.
  */
-public class TestSingleChannelTexture  extends ScreenshotTestDesktopBase {
+public class TestSingleChannelTexture extends ScreenshotTestDesktopBase {
 
     private static final int TEXTURE_SIZE = 251;
 

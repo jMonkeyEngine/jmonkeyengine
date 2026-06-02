@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.post;
 
 import org.jmonkeyengine.screenshottests.scenarios.post.ScenarioFog;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -43,7 +44,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestFog {
+public class TestFog extends ScreenshotTestDesktopBase {
 
     @Test
     public void testFog() {

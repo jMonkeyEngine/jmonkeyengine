@@ -33,12 +33,13 @@ package org.jmonkeyengine.screenshottests.gui;
 
 import org.jmonkeyengine.screenshottests.scenarios.gui.ScenarioBitmapText3D;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestBitmapText3D {
+public class TestBitmapText3D extends ScreenshotTestDesktopBase {
 
     /**
      * This tests both that bitmap text is rendered correctly and that it is

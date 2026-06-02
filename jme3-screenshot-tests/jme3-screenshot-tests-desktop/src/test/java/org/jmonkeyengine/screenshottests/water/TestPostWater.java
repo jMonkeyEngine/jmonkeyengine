@@ -33,12 +33,13 @@ package org.jmonkeyengine.screenshottests.water;
 
 import org.jmonkeyengine.screenshottests.scenarios.water.ScenarioPostWater;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestPostWater {
+public class TestPostWater extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a terrain and post process water filter.

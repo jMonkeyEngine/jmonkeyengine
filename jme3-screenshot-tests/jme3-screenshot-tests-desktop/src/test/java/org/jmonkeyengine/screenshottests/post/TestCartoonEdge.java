@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.post;
 
 import org.jmonkeyengine.screenshottests.scenarios.post.ScenarioCartoonEdge;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -44,7 +45,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestCartoonEdge {
+public class TestCartoonEdge extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a cartoon-shaded monkey head model.

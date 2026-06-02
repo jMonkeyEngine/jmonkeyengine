@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.scene.instancing;
 
 import org.jmonkeyengine.screenshottests.scenarios.scene.instancing.ScenarioInstanceNodeWithPbr;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,7 +48,7 @@ import org.junit.jupiter.api.Test;
  * @author Ryan McDonough - original test
  * @author Richard Tingle (aka richtea) - screenshot test adaptation
  */
-public class TestInstanceNodeWithPbr {
+public class TestInstanceNodeWithPbr extends ScreenshotTestDesktopBase {
 
     @Test
     public void testInstanceNodeWithPbr() {

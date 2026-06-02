@@ -33,12 +33,13 @@ package org.jmonkeyengine.screenshottests.effects;
 
 import org.jmonkeyengine.screenshottests.scenarios.effects.ScenarioExplosionEffect;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Richard Tingle (aka richtea)
  */
-public class TestExplosionEffect {
+public class TestExplosionEffect extends ScreenshotTestDesktopBase {
 
     /**
      * This test's particle effects (using an explosion)

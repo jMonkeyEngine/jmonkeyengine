@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.material;
 
 import org.jmonkeyengine.screenshottests.scenarios.material.ScenarioSimpleBumps;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -44,7 +45,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestSimpleBumps {
+public class TestSimpleBumps extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a bump-mapped quad and an orbiting light.

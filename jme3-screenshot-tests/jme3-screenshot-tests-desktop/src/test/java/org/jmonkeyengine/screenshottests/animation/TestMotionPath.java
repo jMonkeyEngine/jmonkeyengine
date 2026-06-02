@@ -33,6 +33,7 @@ package org.jmonkeyengine.screenshottests.animation;
 
 import org.jmonkeyengine.screenshottests.scenarios.animation.ScenarioMotionPath;
 import org.jmonkeyengine.screenshottests.testframework.desktop.DesktopRunner;
+import org.jmonkeyengine.screenshottests.testframework.desktop.ScreenshotTestDesktopBase;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -44,7 +45,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Richard Tingle (screenshot test adaptation)
  */
-public class TestMotionPath {
+public class TestMotionPath extends ScreenshotTestDesktopBase {
 
     /**
      * This test creates a scene with a teapot following a motion path.
