@@ -304,11 +304,6 @@ dependencies {
     implementation project(':jme3-core')
     implementation project(':jme3-ios')
     implementation project(':jme3-saferallocator')
-    implementation libs.libjglios.core.ios
-    implementation libs.libjglios.gles.ios
-    implementation libs.libjglios.sdl3.ios
-    implementation libs.libjglios.openal.ios
-    implementation libs.libjglios.angle.ios
     implementation project(':jme3-effects')
     implementation project(':jme3-jbullet')
     implementation project(':jme3-jogg')
