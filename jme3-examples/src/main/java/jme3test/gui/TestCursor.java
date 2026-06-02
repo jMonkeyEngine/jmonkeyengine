@@ -69,7 +69,7 @@ public class TestCursor extends SimpleApplication {
         };
 
         for (Image cursor : staticCursors) {
-            Image copyCursor = cursor.clone();
+            Image copyCursor = cursor.deepClone();
             flipVertically(copyCursor);
             cursors.add(CursorConverter.fromTexture(new Texture2D(copyCursor)));
         }
@@ -89,7 +89,7 @@ public class TestCursor extends SimpleApplication {
         };
 
         Texture2D[] monkeyFrames = Arrays.stream(monkeyFramePaths)
-          .map(framePath -> ((Image) assetManager.loadAsset(framePath)).clone())
+          .map(framePath -> ((Image) assetManager.loadAsset(framePath)).deepClone())
           .peek(frameImage -> flipVertically(frameImage))
           .map(frameImage -> new Texture2D(frameImage))
           .toArray(Texture2D[]::new);

@@ -52,7 +52,7 @@ public class CursorConverter {
      * 
      * @param cursorImage The texture to convert. No modifications will be applied.
      * 
-     * @return The {@link JmeCursor} using a deep copy of {@link Texture2D.getImage}.
+     * @return The {@link JmeCursor} object that contains the data for a cursor.
      */
     public static JmeCursor fromTexture(Texture2D cursorImage) {
         Image image = cursorImage.getImage().clone();
