@@ -47,7 +47,7 @@ on:
       - v3.5
       - v3.4
       - v3.3
-      - ios-2024_2
+      - ios
   pull_request:
   release:
     types: [published]
@@ -174,6 +174,29 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
+  BuildIOS:
+    name: Build for iOS
+    runs-on: macos-latest
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.jdk }}
+          
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.1.0
+    
+      - name: Build iOS examples
+        shell: bash
+        run: |
+         ./gradlew buildIosSimulatorApp
+         
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
