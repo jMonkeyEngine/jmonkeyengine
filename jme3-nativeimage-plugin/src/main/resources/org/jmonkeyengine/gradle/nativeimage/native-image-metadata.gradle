@@ -3,6 +3,7 @@ import groovy.json.JsonSlurper
 import org.gradle.api.tasks.PathSensitivity
 
 def extraProperties = project.extensions.extraProperties
+def nativeImageExtension = project.extensions.findByName('jmeNativeImage')
 [
         'jmeNativeImageAdditionalTargetTypes',
         'jmeNativeImageAdditionalTargetAnnotations',
@@ -28,12 +29,23 @@ if (!extraProperties.has('jmeApplyDefaultNativeImageResourceSettings')) {
             return
         }
 
-        String includeResourcesPattern = project.ext.jmeNativeImageIncludeResourcesPattern?.toString() ?: '.*'
-        String excludeResourcesPattern = project.ext.jmeNativeImageExcludeResourcesPattern?.toString() ?: '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$'
+        String includeResourcesPattern = nativeImageExtension?.includeResourcesPattern?.isPresent()
+                ? nativeImageExtension.includeResourcesPattern.get()
+                : project.ext.jmeNativeImageIncludeResourcesPattern?.toString() ?: '.*'
+        String excludeResourcesPattern = nativeImageExtension?.excludeResourcesPattern?.isPresent()
+                ? nativeImageExtension.excludeResourcesPattern.get()
+                : project.ext.jmeNativeImageExcludeResourcesPattern?.toString() ?: '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$'
 
         nativeBinary.resources.autodetect()
-        nativeBinary.buildArgs.add("-H:IncludeResources=${includeResourcesPattern}")
-        nativeBinary.buildArgs.add("-H:ExcludeResources=${excludeResourcesPattern}")
+        List<String> currentBuildArgs = nativeBinary.buildArgs.getOrElse([])
+        String includeArg = "-H:IncludeResources=${includeResourcesPattern}".toString()
+        String excludeArg = "-H:ExcludeResources=${excludeResourcesPattern}".toString()
+        if (!currentBuildArgs.contains(includeArg)) {
+            nativeBinary.buildArgs.add(includeArg)
+        }
+        if (!currentBuildArgs.contains(excludeArg)) {
+            nativeBinary.buildArgs.add(excludeArg)
+        }
     })
 }
 
@@ -67,6 +79,7 @@ def defaultTargetTypes = [
 ]
 
 def defaultTargetAnnotations = [
+        'com.jme3.util.PreserveReflection',
         'com.jme3.network.serializing.Serializable'
 ]
 
@@ -120,6 +133,22 @@ def asStringMatrix = { Object value ->
     return outer.collect { entry ->
         asStringList(entry).findAll { !it.isEmpty() }
     }.findAll { !it.isEmpty() }
+}
+
+def extensionPropertyValue = { String propertyName ->
+    if (nativeImageExtension == null || !nativeImageExtension.hasProperty(propertyName)) {
+        return []
+    }
+    def property = nativeImageExtension[propertyName]
+    return property?.getOrElse([])
+}
+
+def configuredStringList = { String extraPropertyName, String extensionPropertyName ->
+    return asStringList(project.ext[extraPropertyName]) + asStringList(extensionPropertyValue(extensionPropertyName))
+}
+
+def configuredStringMatrix = { String extraPropertyName, String extensionPropertyName ->
+    return asStringMatrix(project.ext[extraPropertyName]) + asStringMatrix(extensionPropertyValue(extensionPropertyName))
 }
 
 def loadClassSafely = { ClassLoader loader, String className ->
@@ -332,27 +361,27 @@ def isJdkClassName = { String className ->
 }
 
 def normalizedTargetTypes = {
-    return (defaultTargetTypes + asStringList(project.ext.jmeNativeImageAdditionalTargetTypes))
+    return (defaultTargetTypes + configuredStringList('jmeNativeImageAdditionalTargetTypes', 'additionalTargetTypes'))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedTargetAnnotations = {
-    return (defaultTargetAnnotations + asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations))
+    return (defaultTargetAnnotations + configuredStringList('jmeNativeImageAdditionalTargetAnnotations', 'additionalTargetAnnotations'))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedProxyInterfaceSets = {
-    return (defaultProxyInterfaceSets + asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets)).collect { interfaceSet ->
+    return (defaultProxyInterfaceSets + configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets')).collect { interfaceSet ->
         new ArrayList<>(new LinkedHashSet<>(interfaceSet))
     }.findAll { !it.isEmpty() }
 }
 
 def normalizedResourceGlobs = {
-    return asStringList(project.ext.jmeNativeImageAdditionalResourceGlobs)
+    return configuredStringList('jmeNativeImageAdditionalResourceGlobs', 'additionalResourceGlobs')
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
@@ -535,9 +564,9 @@ project.afterEvaluate {
                     }
                 }
 
-                def additionalTargetTypes = asStringList(project.ext.jmeNativeImageAdditionalTargetTypes).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalTargetAnnotations = asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalProxyInterfaceSets = asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets).collect { interfaceSet ->
+                def additionalTargetTypes = configuredStringList('jmeNativeImageAdditionalTargetTypes', 'additionalTargetTypes').findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalTargetAnnotations = configuredStringList('jmeNativeImageAdditionalTargetAnnotations', 'additionalTargetAnnotations').findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalProxyInterfaceSets = configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets').collect { interfaceSet ->
                     new ArrayList<>(new LinkedHashSet<>(interfaceSet))
                 }.findAll { !it.isEmpty() }
                 def targetTypes = normalizedTargetTypes()
@@ -968,6 +997,9 @@ project.afterEvaluate {
                 List<String> currentJvmArgs = nativeBinary.jvmArgs.getOrElse([])
                 if (!currentJvmArgs.contains(nativeImageRuntimeSupportExportArg)) {
                     nativeBinary.jvmArgs.add(nativeImageRuntimeSupportExportArg)
+                }
+                if (nativeImageExtension?.defaultResourceSettings?.getOrElse(false)) {
+                    project.ext.jmeApplyDefaultNativeImageResourceSettings(nativeBinary)
                 }
             }
         }
