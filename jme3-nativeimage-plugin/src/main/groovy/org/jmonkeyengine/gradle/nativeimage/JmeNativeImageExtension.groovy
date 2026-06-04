@@ -39,7 +39,7 @@ class JmeNativeImageExtension {
     }
 
     void proxyInterfaceSet(Iterable<String> interfaceClassNames) {
-        additionalProxyInterfaceSets.add(new ArrayList<String>(interfaceClassNames))
+        additionalProxyInterfaceSets.add(interfaceClassNames.toList())
     }
 
     void resourceGlob(String glob) {

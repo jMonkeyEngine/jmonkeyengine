@@ -998,7 +998,9 @@ project.afterEvaluate {
                 if (!currentJvmArgs.contains(nativeImageRuntimeSupportExportArg)) {
                     nativeBinary.jvmArgs.add(nativeImageRuntimeSupportExportArg)
                 }
-                if (nativeImageExtension?.defaultResourceSettings?.getOrElse(false)) {
+                if (nativeImageExtension?.defaultResourceSettings?.getOrElse(false)
+                        || nativeImageExtension?.includeResourcesPattern?.isPresent()
+                        || nativeImageExtension?.excludeResourcesPattern?.isPresent()) {
                     project.ext.jmeApplyDefaultNativeImageResourceSettings(nativeBinary)
                 }
             }
