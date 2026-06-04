@@ -219,7 +219,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         key.setGenerateMips(false);
 
         Texture2D texture = (Texture2D) display.getAssetManager().loadTexture(key);
-        if (texture.getImage().getFormat() != Format.RGBA8) {
+        if (texture.getImage().getFormat() != Format.RGBA8 && ImageRaster.isSupported(texture.getImage().getFormat())) {
             com.jme3.texture.Image sourceImage = texture.getImage();
             int size = sourceImage.getWidth() * sourceImage.getHeight() * 4;
             ByteBuffer buffer = BufferUtils.createByteBuffer(size);
