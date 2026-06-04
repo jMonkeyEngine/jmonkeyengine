@@ -46,30 +46,213 @@ import com.jme3.util.BufferUtils;
  * Convert any image like object to a {@link JmeCursor}.
  */
 public class CursorConverter {
-    /**
-     * Convert a {@link Texture2D} to a {@link JmeCursor}. The coordinate system used is the same specified
-     * in {@link JmeCursor}. The start point is 0, 0 being lower left.
+     /**
+     * Convert a {@link Texture2D} to a {@link JmeCursor}.
      * 
-     * @param cursorImage The texture to convert. No modifications will be applied.
+     * The coordinate system used is the same specified in {@link JmeCursor}, the start point is 0, 0 being
+     * lower left.
      * 
-     * @return The {@link JmeCursor} object that contains the data for a cursor.
+     * The cursor's hot spot will be the top left of the texture's image.
+     * 
+     * {@param cursorTexture the texture to convert. No modifications will be applied.}
+     * {@return the {@link JmeCursor} object that contains the data for a cursor.}
      */
-    public static JmeCursor fromTexture(Texture2D cursorImage) {
-        Image image = cursorImage.getImage().clone();
+    public static JmeCursor fromTexture(Texture2D cursorTexture) {
+        return fromTexture(cursorTexture, 0, cursorTexture.getImage().getHeight());
+    }
+
+    /**
+     * Convert a {@link Texture2D} to a {@link JmeCursor}.
+     * 
+     * The coordinate system used is the same specified in {@link JmeCursor}, the start point is 0, 0 being
+     * lower left.
+     * 
+     * {@param cursorTexture the texture to convert. No modifications will be applied.}
+     * {@param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     *                  coordinate for its hotspot. Note that the coordinate system is the same as
+     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
+     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                  coordinate for its hotspot. Note that the coordinate system is the same as
+     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
+     * {@return the {@link JmeCursor} object that contains the data for a cursor.}
+     */
+    public static JmeCursor fromTexture(Texture2D cursorTexture, int xHotspot, int yHotspot) {
+        Image image = cursorTexture.getImage();
 
         int imageHeight = image.getHeight();
         int imageWidth = image.getWidth();
+
+        if (!hotspotInsideImageLimits(xHotspot, yHotspot, imageWidth, imageHeight)) {
+            throw new IllegalArgumentException(
+                "Cursor's hot spot must be inside image limits (width and height)"
+            );
+        }
 
         IntBuffer adaptedImageData = getDataAsIntBuffer(image);
 
         JmeCursor jmeCursor = new JmeCursor();
         jmeCursor.setWidth(imageWidth);
         jmeCursor.setHeight(imageHeight);
-        jmeCursor.setxHotSpot(0);
-        jmeCursor.setyHotSpot(imageHeight);
+        jmeCursor.setxHotSpot(xHotspot);
+        jmeCursor.setyHotSpot(yHotspot);
         jmeCursor.setNumImages(1);
         jmeCursor.setImagesDelay(null);
         jmeCursor.setImagesData(adaptedImageData);
+        return jmeCursor;
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * 
+     * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being
+     * lower left.
+     * 
+     * The cursor's hot spot will be the top left of the texture's image.
+     * 
+     * {@param cursorFrames the frames that will make up the cursor animation. 
+     *                      No modifications will be applied.}
+     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
+     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     */
+    public static JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
+        int yHotspot = 0;
+        if (cursorFrames.length > 0) {
+            yHotspot = cursorFrames[0].getImage().getHeight();
+        }
+        return fromTextureFrames(cursorFrames, frameDelay, 0, yHotspot);
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * 
+     * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being
+     * lower left.
+     * 
+     * The cursor's hot spot will be the top left of the texture's image.
+     * 
+     * {@param cursorFrames the frames that will make up the cursor animation. No modifications will be applied.}
+     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
+     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     */
+    public static JmeCursor  fromTextureFrames(Texture2D[] cursorFrames, int[] frameDelays) {
+        int yHotspot = 0;
+        if (cursorFrames.length > 0) {
+            yHotspot = cursorFrames[0].getImage().getHeight();
+        }
+        return fromTextureFrames(cursorFrames, frameDelays, 0, yHotspot);
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * 
+     * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being 
+     * lower left.
+     * 
+     * {@param cursorFrames the frames that will make up the cursor animation.
+     *                      No modifications will be applied.}
+     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
+     * {@param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     *                 coordinate for its hotspot. Note that the coordinate system is the same as
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
+     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                 coordinate for its hotspot. Note that the coordinate system is the same as
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
+     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     */
+    public static JmeCursor fromTextureFrames(
+            Texture2D[] cursorFrames, 
+            int frameDelay, 
+            int xHotspot, 
+            int yHotspot) {
+        int[] frameRates = new int[cursorFrames.length];
+        Arrays.fill(frameRates, frameDelay);
+        return fromTextureFrames(cursorFrames, frameRates, xHotspot, yHotspot);
+    }
+
+    /**
+     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
+     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
+     * 
+     * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being 
+     * lower left.
+     * 
+     * {@param cursorFrames the frames that will make up the cursor animation.
+     *                      No modifications will be applied.}
+     * {@param frameDelays the time delay that will take each frame to change to the next frame. Because of it,
+     *                    it must contains as many delays as frames (lengths of cursorFrames and frameDelays 
+     *                    arrays must be equal).}
+     * {@param xHotspot tame specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     *                 coordinate for its hotspot. Note that the coordinate system is the same as
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
+     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                 coordinate for its hotspot. Note that the coordinate system is the same as
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
+     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     */
+    public static JmeCursor fromTextureFrames(
+            Texture2D[] cursorFrames, 
+            int[] frameDelays, 
+            int xHotspot, 
+            int yHotspot) {
+        if (frameDelays.length != cursorFrames.length) {
+            throw new IllegalArgumentException(
+                    "The lengths of cursorFrames and frameDelays arrays must be equal"
+            );
+        }
+
+        List<Image> imageFrames = Arrays.stream(cursorFrames)
+                //Avoid working and accidentally modifying original values
+                .map((frame) -> frame.getImage())
+                .collect(Collectors.toList());
+
+        List<Integer> imageFrameHeights = imageFrames
+                .stream()
+                .map((image) -> image.getHeight())
+                .distinct()
+                .collect(Collectors.toList());
+        
+        List<Integer> imageFrameWidths = imageFrames
+                .stream()
+                .map((image) -> image.getWidth())
+                .distinct()
+                .collect(Collectors.toList());
+        
+        if (imageFrameHeights.size() > 1 || imageFrameWidths.size() > 1) {
+            throw new IllegalArgumentException("Some images from the Texture2D objects have different sizes");
+        }
+
+        int imageHeight = imageFrameHeights.get(0);
+        int imageWidth = imageFrameWidths.get(0);
+
+        if (!hotspotInsideImageLimits(xHotspot, yHotspot, imageWidth, imageHeight)) {
+            throw new IllegalArgumentException(
+                "Cursor's hot spot must be inside image limits (width and height)"
+            );
+        }
+
+        IntBuffer imagesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
+
+        List<IntBuffer> framesData = imageFrames
+                .stream()
+                .map((image) -> getDataAsIntBuffer(image))
+                .collect(Collectors.toList());
+
+        for (IntBuffer frameData : framesData) {
+            imagesData.put(frameData);
+        }
+        imagesData.flip();
+
+        JmeCursor jmeCursor = new JmeCursor();
+        jmeCursor.setWidth(imageWidth);
+        jmeCursor.setHeight(imageHeight);
+        jmeCursor.setxHotSpot(xHotspot);
+        jmeCursor.setyHotSpot(yHotspot);
+        jmeCursor.setNumImages(cursorFrames.length);
+        jmeCursor.setImagesDelay(BufferUtils.createIntBuffer(frameDelays));
+        jmeCursor.setImagesData(imagesData);
         return jmeCursor;
     }
 
@@ -101,85 +284,11 @@ public class CursorConverter {
         return data;
     }
 
-    /**
-     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor,
-     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
-     * The coordinate system used for each frame is the same specified in {@link JmeCursor}. The start point 
-     * is 0, 0 being lower left.
-     * 
-     * @param frameDelay The time delay that will take for a cursor to change from one frame to another.
-     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applied.
-     * 
-     * @return A {@link JmeCursor} object that contains the data for an animated cursor.
-     */
-    public static JmeCursor fromTextureFrames(int frameDelay, Texture2D[] cursorFrames) {
-        int[] frameRates = new int[cursorFrames.length];
-        Arrays.fill(frameRates, frameDelay);
-        return fromTextureFrames(frameRates, cursorFrames);
-    }
-
-    /**
-     * Convert a {@link Texture2D} array to a {@link JmeCursor} object that will represent an animated cursor, 
-     * interpreting each {@link Texture2D} object as a frame of the animated cursor.
-     * The coordinate system used for each frame is the same specified in {@link JmeCursor}. The start point 
-     * is 0, 0 being lower left.
-     * 
-     * @param frameDelays The time delay that will take each frame to change to the next frame. Because of it,
-     *                    it must contains as many delays as frames (lengths of cursorFrames and frameDelays 
-     *                    arrays must be equal).
-     * @param cursorFrames The frames that will make up the cursor animation. No modifications will be applied.
-     * 
-     * @return A {@link JmeCursor} object that contains the data for an animated cursor.
-     */
-    public static JmeCursor fromTextureFrames(int[] frameDelays, Texture2D[] cursorFrames) {
-        if (frameDelays.length != cursorFrames.length) {
-            throw new IllegalArgumentException("The lengths of cursorFrames and frameDelays arrays must be equal");
-        }
-
-        List<Image> imageFrames = Arrays.stream(cursorFrames)
-          //Avoid working and accidentally modifying original values
-          .map((frame) -> frame.getImage().clone())
-          .collect(Collectors.toList());
-
-        List<Integer> imageFrameHeights = imageFrames
-          .stream()
-          .map((image) -> image.getHeight())
-          .distinct()
-          .collect(Collectors.toList());
-        
-        List<Integer> imageFrameWidths = imageFrames
-          .stream()
-          .map((image) -> image.getWidth())
-          .distinct()
-          .collect(Collectors.toList());
-        
-        if (imageFrameHeights.size() > 1 || imageFrameWidths.size() > 1) {
-            throw new IllegalArgumentException("Some images from the Texture2D objects have different sizes");
-        }
-
-        int imageHeight = imageFrameHeights.get(0);
-        int imageWidth = imageFrameWidths.get(0);
-
-        IntBuffer imagesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
-
-        List<IntBuffer> framesData = imageFrames
-          .stream()
-          .map((image) -> getDataAsIntBuffer(image))
-          .collect(Collectors.toList());
-
-        for (IntBuffer frameData : framesData) {
-            imagesData.put(frameData);
-        }
-        imagesData.flip();
-
-        JmeCursor jmeCursor = new JmeCursor();
-        jmeCursor.setWidth(imageWidth);
-        jmeCursor.setHeight(imageHeight);
-        jmeCursor.setxHotSpot(0);
-        jmeCursor.setyHotSpot(imageHeight);
-        jmeCursor.setNumImages(cursorFrames.length);
-        jmeCursor.setImagesDelay(BufferUtils.createIntBuffer(frameDelays));
-        jmeCursor.setImagesData(imagesData);
-        return jmeCursor;
+    private static boolean hotspotInsideImageLimits(
+            int xHotspot, 
+            int yHotspot, 
+            int imageWidth, 
+            int imageHeight) {
+        return xHotspot >= 0 && xHotspot <= imageWidth && yHotspot >= 0 && yHotspot <= imageHeight;
     }
 }

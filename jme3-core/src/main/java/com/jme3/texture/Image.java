@@ -719,9 +719,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @return A shallow clone of this image. The data is not cloned.
-     *
      * @see #deepClone() Deep clone.
+     * @return a shallow clone of this image. The data is not cloned.
      */
     @Override
     public Image clone(){
@@ -734,9 +733,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * @return A deep clone of this image. The data is cloned.
-     *
      * @see #clone() Shallow clone.
+     * @return a deep clone of this image. The data is cloned.
      */
     public Image deepClone() {
         Image clone = (Image) super.clone();

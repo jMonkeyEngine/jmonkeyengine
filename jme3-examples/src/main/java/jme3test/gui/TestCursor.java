@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 /**
  * This test class demonstrate how to change cursor in jME3.
+ * 
+ * The different methods of {@link com.jme3.cursors.plugins.CursorConverter} will be tested.
  *
  * NOTE: This will not work on Android as it does not support cursors.
  *
@@ -46,7 +48,8 @@ public class TestCursor extends SimpleApplication {
          * "Textures/GUI/Cursors".
          *
          * For the purpose of this demonstration we load 3 different cursors and
-         * switch cursor every 8 seconds.
+         * switch cursor every 5 seconds, applying differents configurations with
+         * {@link com.jme3.cursors.plugins.CursorConverter}.
          *
          * At date of 2026/06/01:
          * 
@@ -63,22 +66,26 @@ public class TestCursor extends SimpleApplication {
          * Checking and following the license restrictions in the process.
          */
 
-        Image[] staticCursors = {
-            (Image) assetManager.loadAsset("Textures/Cursors/meme.png"),
-            (Image) assetManager.loadAsset("Textures/Cursors/nyancat.png"),
-        };
+        Image memeImage = ((Image) assetManager.loadAsset("Textures/Cursors/meme.png")).deepClone();
+        flipVertically(memeImage);
+        Texture2D memeTexture = new Texture2D(memeImage);
 
-        for (Image cursor : staticCursors) {
-            Image copyCursor = cursor.deepClone();
-            flipVertically(copyCursor);
-            cursors.add(CursorConverter.fromTexture(new Texture2D(copyCursor)));
-        }
+        Image nyancatImage = ((Image) assetManager.loadAsset("Textures/Cursors/nyancat.png")).deepClone();
+        flipVertically(nyancatImage);
+        Texture2D nyancatTexture = new Texture2D(nyancatImage);
+
+        //Shows a cursor with default hot spot.
+        cursors.add(CursorConverter.fromTexture(memeTexture));
+
+        //Shows a cursor with custom hot spot.
+        cursors.add(CursorConverter.fromTexture(nyancatTexture, 10, 10));
 
         /*
          * For animated cursors. Each frame must be loaded.
+         * 
+         * Differents configuration with the monkey animated cursor will be
+         * showed by changing the frame delays.
          */
-
-        int monkeyFramesDelay = 60;
         String[] monkeyFramePaths = {
             "Textures/Cursors/monkey/frame_0001.png",
             "Textures/Cursors/monkey/frame_0002.png",
@@ -94,7 +101,17 @@ public class TestCursor extends SimpleApplication {
           .map(frameImage -> new Texture2D(frameImage))
           .toArray(Texture2D[]::new);
         
-        cursors.add(CursorConverter.fromTextureFrames(monkeyFramesDelay, monkeyFrames));
+        //Shows monkey cursor with same frame delay for each frame and default hot spot.
+        cursors.add(CursorConverter.fromTextureFrames(monkeyFrames, 60));
+        
+        //Shows monkey cursor with custom frame delay for each frame and default hot spot.
+        cursors.add(CursorConverter.fromTextureFrames(monkeyFrames, new int[]{40, 40, 40, 200, 200, 200}));
+
+        //Shows monkey cursor with same frame delay for each frame and custom hot spot.
+        cursors.add(CursorConverter.fromTextureFrames(monkeyFrames, 150, 5, 7));
+
+        //Shows monkey cursor with custom frame delay for each frame and hot spot.
+        cursors.add(CursorConverter.fromTextureFrames(monkeyFrames, new int[]{40, 200, 40, 200, 40, 200}, 10, 20));
 
         sysTime = System.currentTimeMillis();
         inputManager.setMouseCursor(cursors.get(count));
@@ -119,7 +136,7 @@ public class TestCursor extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - sysTime > 8000) {
+        if (currentTime - sysTime > 5000) {
             count++;
             if (count >= cursors.size()) {
                 count = 0;
