@@ -79,6 +79,8 @@ public class MorphControl extends AbstractControl implements Savable {
     private float[] tmpNormArray;
     private float[] tmpTanArray;
 
+    private transient java.util.Map<MorphTarget, VertexBuffer[]> gpuBuffers = new java.util.HashMap<>();
+
     private static final VertexBuffer.Type bufferTypes[] = VertexBuffer.Type.values();
 
     @Override
@@ -238,16 +240,21 @@ public class MorphControl extends AbstractControl implements Savable {
 
     private int bindMorphTargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
         int start = VertexBuffer.Type.MorphTarget0.ordinal();
+        VertexBuffer[] cached = gpuBuffers.get(t);
+        if (cached == null) {
+            cached = new VertexBuffer[3];
+            gpuBuffers.put(t, cached);
+        }
         if (targetNumBuffers >= 1) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position), cached, 0);
             boundBufferIdx++;
         }
         if (targetNumBuffers >= 2) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Normal));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Normal), cached, 1);
             boundBufferIdx++;
         }
         if (!approximateTangents && targetNumBuffers == 3) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Tangent));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Tangent), cached, 2);
             boundBufferIdx++;
         }
         return boundBufferIdx;
@@ -268,6 +275,12 @@ public class MorphControl extends AbstractControl implements Savable {
             FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Tangent);
             dest.rewind();
             dest.put(tmpTanArray, 0, dest.capacity());
+        }
+        VertexBuffer[] cached = gpuBuffers.get(mt);
+        if (cached != null) {
+            if (targetNumBuffers >= 1 && cached[0] != null) cached[0].updateData(mt.getBuffer(VertexBuffer.Type.Position));
+            if (targetNumBuffers >= 2 && cached[1] != null) cached[1].updateData(mt.getBuffer(VertexBuffer.Type.Normal));
+            if (!approximateTangents && targetNumBuffers == 3 && cached[2] != null) cached[2].updateData(mt.getBuffer(VertexBuffer.Type.Tangent));
         }
     }
 
@@ -305,12 +318,25 @@ public class MorphControl extends AbstractControl implements Savable {
         }
     }
 
-    private void activateBuffer(Mesh mesh, int idx, int start, FloatBuffer b) {
+    private void activateBuffer(Mesh mesh, int idx, int start, FloatBuffer b, VertexBuffer[] cached, int cacheIdx) {
         VertexBuffer.Type t = bufferTypes[start + idx];
+        VertexBuffer cachedVb = cached[cacheIdx];
+        if (cachedVb == null) {
+            cachedVb = new VertexBuffer(t);
+            cachedVb.setupData(VertexBuffer.Usage.Dynamic, 3, VertexBuffer.Format.Float, b);
+            cached[cacheIdx] = cachedVb;
+        }
+
+        if (cachedVb.getBufferType() != t) {
+            cachedVb.setBufferType(t);
+        }
+
         VertexBuffer vb = mesh.getBuffer(t);
-        // only set the buffer if it's different
-        if (vb == null || vb.getData() != b) {
-            mesh.setBuffer(t, 3, b);
+        if (vb != cachedVb) {
+            if (vb != null) {
+                mesh.clearBuffer(t);
+            }
+            mesh.setBuffer(cachedVb);
         }
     }
 
@@ -415,6 +441,7 @@ public class MorphControl extends AbstractControl implements Savable {
         tmpPosArray = null;
         tmpNormArray = null;
         tmpTanArray = null;
+        gpuBuffers = new java.util.HashMap<>();
     }
 
     /**
@@ -446,6 +473,7 @@ public class MorphControl extends AbstractControl implements Savable {
         InputCapsule capsule = importer.getCapsule(this);
         approximateTangents = capsule.readBoolean(TAG_APPROXIMATE, true);
         targets.addAll(capsule.readSavableArrayList(TAG_TARGETS, null));
+        gpuBuffers = new java.util.HashMap<>();
     }
 
     /**

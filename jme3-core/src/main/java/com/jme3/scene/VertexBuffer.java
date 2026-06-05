@@ -590,6 +590,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     }
 
     /**
+     * @param bufType The type of information that this buffer has.
+     */
+    public void setBufferType(Type bufType) {
+        this.bufType = bufType;
+    }
+
+    /**
      * @return The {@link Format format}, or data type of the data.
      */
     public Format getFormat() {
