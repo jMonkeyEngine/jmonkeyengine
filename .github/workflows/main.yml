@@ -301,7 +301,7 @@ jobs:
       contents: read
     steps:
 
-      # We need to clone everything again for uploadToMaven.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -315,18 +315,21 @@ jobs:
           java-version: '25'
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToSNAPSHOTRepository \
-            -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-            -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            --console=plain --stacktrace
+            ./gradlew publishToSonatype --console=plain --stacktrace
           fi
 
 
@@ -338,7 +341,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
 
-      # We need to clone everything again for uploadToCentral.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
         uses: actions/checkout@v6
         with:
@@ -364,23 +367,24 @@ jobs:
           name: release
           path: dist/release
 
-      - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
+      - name: Rebuild the maven artifacts and close the Sonatype staging repository
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToCentralRepository \
-              -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-              -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            ./gradlew publishToSonatype closeSonatypeStagingRepository \
               -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
-            .github/actions/tools/uploadToCentral.sh \
-              -p '${{ secrets.CENTRAL_PASSWORD }}' \
-              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases
