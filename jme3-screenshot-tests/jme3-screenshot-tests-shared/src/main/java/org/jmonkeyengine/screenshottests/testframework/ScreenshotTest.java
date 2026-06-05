@@ -259,7 +259,7 @@ public class ScreenshotTest{
                 if(!imagesAreSameSize(generatedImage, expectedImage)){
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                     attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
-                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
 
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
@@ -273,7 +273,7 @@ public class ScreenshotTest{
                     }
                 } else {
                     //save the generated image to the build directory
-                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
 
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                     attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
