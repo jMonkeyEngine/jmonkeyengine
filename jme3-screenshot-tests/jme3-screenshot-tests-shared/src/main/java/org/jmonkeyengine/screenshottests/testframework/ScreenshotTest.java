@@ -263,7 +263,6 @@ public class ScreenshotTest{
 
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
-                    osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
                     if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                         failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
                     }
