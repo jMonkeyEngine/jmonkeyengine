@@ -205,6 +205,8 @@ public class ScreenshotTest{
                         String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
 
                         if(!imagesAreSameSize(primeGeneratedImage, otherGeneratedImage)){
+                            attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
+                            attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + primeScenarioName + " size : " + primeGeneratedImage.getWidth() + "x" + primeGeneratedImage.getHeight());
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + thisScenarioName + " size : " + otherGeneratedImage.getWidth() + "x" + otherGeneratedImage.getHeight());
                             osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
@@ -255,6 +257,10 @@ public class ScreenshotTest{
                 Image expectedImage = readImage(expectedImageResources.nextElement());
 
                 if(!imagesAreSameSize(generatedImage, expectedImage)){
+                    attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
+                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
+                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
+
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
                     osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
