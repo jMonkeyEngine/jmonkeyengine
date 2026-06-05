@@ -75,7 +75,8 @@ def defaultTargetTypes = [
         'com.jme3.opencl.PlatformChooser',
         'com.jme3.network.Message',
         'com.jme3.network.serializing.Serializer',
-        'com.jme3.app.Application'
+        'com.jme3.app.Application',
+        'com.jme3.app.IosApplicationLauncher'
 ]
 
 def defaultTargetAnnotations = [
