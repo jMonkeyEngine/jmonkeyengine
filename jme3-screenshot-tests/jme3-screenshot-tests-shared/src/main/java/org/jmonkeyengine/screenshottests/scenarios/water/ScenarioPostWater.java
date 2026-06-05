@@ -173,13 +173,13 @@ public class ScenarioPostWater {
                 matRock.setTexture("NormalMap_1", normalMap1);
                 matRock.setTexture("NormalMap_2", normalMap2);
 
-                AbstractHeightMap heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.3f);
+                AbstractHeightMap heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
                 heightmap.load();
 
                 TerrainQuad terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
                 terrain.setMaterial(matRock);
-                terrain.setLocalTranslation(0, -100, 0);
-                terrain.setLocalScale(1f, 1f, 1f);
+                terrain.setLocalTranslation(0, -30, 0);
+                terrain.setLocalScale(5f, 5f, 5f);
 
                 terrain.setShadowMode(ShadowMode.Receive);
                 rootNode.attachChild(terrain);
