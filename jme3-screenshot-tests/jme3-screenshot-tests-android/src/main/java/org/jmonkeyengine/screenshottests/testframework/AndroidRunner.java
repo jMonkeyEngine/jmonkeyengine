@@ -33,7 +33,6 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -49,7 +48,6 @@ import org.junit.Assert;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -134,8 +132,9 @@ public class AndroidRunner implements AppRunner {
 
     @Override
     public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
+        Image rgbaImage = TestReportCaptureBase.convertToRGBA8(generatedImage);
         try (OutputStream out = getPersistentFileOutputStream("changed-images/" + fileName)) {
-            JmeSystem.writeImageFile(out, "png",generatedImage.getData(0), generatedImage.getWidth(), generatedImage.getHeight());
+            JmeSystem.writeImageFile(out, "png",rgbaImage.getData(0), rgbaImage.getWidth(), rgbaImage.getHeight());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

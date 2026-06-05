@@ -35,8 +35,12 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
+import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
+import com.jme3.texture.image.DefaultImageRaster;
+import com.jme3.texture.image.ImageRaster;
 
 import org.jmonkeyengine.screenshottests.testframework.ExtentReportLogCapture;
 import org.jmonkeyengine.screenshottests.testframework.TestReportCaptureBase;
@@ -49,6 +53,7 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -112,9 +117,9 @@ public class ExtentReportExtensionJunitJupiter extends TestReportCaptureBase imp
     }
 
     @Override
-    public void attachImage(String title, String fileName, Image originalImage) {
+    public void attachImageInner(String title, String fileName, Image image) {
         try (FileOutputStream fileOutBuf = new FileOutputStream(reportFolderPath().toPath().resolve(fileName).toFile())) {
-            JmeSystem.writeImageFile(fileOutBuf, "png",originalImage.getData(0),originalImage.getWidth(), originalImage.getHeight());
+            JmeSystem.writeImageFile(fileOutBuf, "png",image.getData(0),image.getWidth(), image.getHeight());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -150,4 +155,5 @@ public class ExtentReportExtensionJunitJupiter extends TestReportCaptureBase imp
         // Initialize log capture to redirect console output to the report
         ExtentReportLogCapture.initialize();
     }
+
 }

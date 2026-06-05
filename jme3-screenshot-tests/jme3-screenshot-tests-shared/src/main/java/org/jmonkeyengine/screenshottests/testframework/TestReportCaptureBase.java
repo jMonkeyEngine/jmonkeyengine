@@ -31,7 +31,13 @@
  */
 package org.jmonkeyengine.screenshottests.testframework;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
+import com.jme3.texture.image.ImageRaster;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * This creates the Extent report and manages the test lifecycle
@@ -47,5 +53,38 @@ public abstract class TestReportCaptureBase {
 
     public abstract void warning(String logString);
 
-    public abstract void attachImage(String title, String fileName, Image originalImage);
+    public final void attachImage(String title, String fileName, Image image){
+        // image must be RBGA8 for writing
+        attachImageInner(title, fileName, convertToRGBA8(image));
+    }
+
+    public abstract void attachImageInner(String title, String fileName, Image image);
+
+    public static Image convertToRGBA8(Image image) {
+        if (image.getFormat() == Image.Format.RGBA8
+                && image.getColorSpace() == ColorSpace.sRGB
+                && image.getData(0).order() == ByteOrder.LITTLE_ENDIAN
+        ){
+            image.getData(0).rewind();
+            return image;
+        }
+
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4*image.getWidth() * image.getHeight());
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        Image rgbaImage = new Image(Image.Format.RGBA8, image.getWidth(), image.getHeight(), byteBuffer, null, ColorSpace.sRGB);
+        ImageRaster source = ImageRaster.create(image);
+        ImageRaster target = ImageRaster.create(rgbaImage);
+
+        ColorRGBA temp = new ColorRGBA();
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                ColorRGBA color = source.getPixel(x, y, temp);
+                color.a = 1.0f;
+                target.setPixel(x, y, color);
+            }
+        }
+
+        rgbaImage.getData(0).rewind();
+        return rgbaImage;
+    }
 }

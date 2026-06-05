@@ -37,15 +37,14 @@ import com.jme3.texture.Image;
 
 import org.jmonkeyengine.screenshottests.testframework.TestContainingApp;
 import org.jmonkeyengine.screenshottests.testframework.AppRunner;
+import org.jmonkeyengine.screenshottests.testframework.TestReportCaptureBase;
 import org.junit.jupiter.api.Assertions;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -105,11 +104,13 @@ public class DesktopRunner implements AppRunner {
 
     @Override
     public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
+        Image rgbaImage = TestReportCaptureBase.convertToRGBA8(generatedImage);
+
         Path savedImage = getChangedImagesDirectory().resolve(fileName);
         try {
             Files.createDirectories(savedImage.getParent());
             try (FileOutputStream fileOutBuf = new FileOutputStream(savedImage.toFile())) {
-                JmeSystem.writeImageFile(fileOutBuf, "png",generatedImage.getData(0), generatedImage.getWidth(), generatedImage.getHeight());
+                JmeSystem.writeImageFile(fileOutBuf, "png",rgbaImage.getData(0), rgbaImage.getWidth(), rgbaImage.getHeight());
             }catch (IOException e) {
                 throw new RuntimeException(e);
             }

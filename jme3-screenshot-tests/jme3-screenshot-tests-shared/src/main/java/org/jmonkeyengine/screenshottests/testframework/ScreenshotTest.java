@@ -38,12 +38,14 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.FileLocator;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.ImageRaster;
 import com.jme3.texture.plugins.StbImageLoader;
 
-import org.jmonkeyengine.screenshottests.image.ImagePixelWrapper;
+import com.jme3.texture.image.DefaultImageRaster;
 
 import java.io.File;
 import java.io.IOException;
@@ -380,14 +382,20 @@ public class ScreenshotTest{
      * Different sizes are so fatal that they will immediately fail the test.
      */
     private static boolean imagesAreVerySimilar(Image img1, Image img2) {
-        ImagePixelWrapper image1Wrapper = new ImagePixelWrapper(img1);
-        ImagePixelWrapper image2Wrapper = new ImagePixelWrapper(img2);
+        ImageRaster image1Wrapper = DefaultImageRaster.create(img1);
+        ImageRaster image2Wrapper = DefaultImageRaster.create(img2);
+
+        ColorRGBA color1 = new ColorRGBA();
+        ColorRGBA color2 = new ColorRGBA();
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
 
-                int pixel1 = image1Wrapper.getARGB(x, y);
-                int pixel2 = image2Wrapper.getARGB(x, y);
+                image1Wrapper.getPixel(x, y, color1);
+                image2Wrapper.getPixel(x, y, color2);
+
+                int pixel1 = color1.asIntARGB();
+                int pixel2 = color2.asIntARGB();
 
                 int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
 
@@ -406,32 +414,41 @@ public class ScreenshotTest{
      */
     private static Image createComparisonImage(Image img1, Image img2) {
         ByteBuffer buffer = ByteBuffer.allocateDirect(img1.getWidth() * img1.getHeight() * 4);
-        ImagePixelWrapper comparisonImage = new ImagePixelWrapper(new Image(Image.Format.RGBA8, img1.getWidth(), img1.getHeight(), buffer, img1.getColorSpace()));
-        ImagePixelWrapper image1Wrapped = new ImagePixelWrapper(img1);
-        ImagePixelWrapper image2Wrapped = new ImagePixelWrapper(img2);
+        Image comparisonImageResource = new Image(Image.Format.RGBA8, img1.getWidth(), img1.getHeight(), buffer, img1.getColorSpace());
+        ImageRaster comparisonImage = DefaultImageRaster.create(comparisonImageResource);
+        ImageRaster image1Wrapped = DefaultImageRaster.create(img1);
+        ImageRaster image2Wrapped = DefaultImageRaster.create(img2);
+
+        ColorRGBA color1 = new ColorRGBA();
+        ColorRGBA color2 = new ColorRGBA();
+        ColorRGBA tempColor = new ColorRGBA();
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                PixelSamenessDegree pixelSameness = categorisePixelDifference(image1Wrapped.getARGB(x, y),image2Wrapped.getARGB(x, y));
+                image1Wrapped.getPixel(x, y, color1);
+                image2Wrapped.getPixel(x, y, color2);
+
+                PixelSamenessDegree pixelSameness = categorisePixelDifference(color1.asIntARGB(), color2.asIntARGB());
 
                 if(pixelSameness == PixelSamenessDegree.SAME){
                     int washedOutPixel = getWashedOutPixel(image1Wrapped, x, y, 0.9f);
-                    //Color rawColor = new Color(img1.getRGB(x, y), true);
-                    comparisonImage.setARGB(x, y, washedOutPixel);
+                    tempColor.fromIntARGB(washedOutPixel);
+                    comparisonImage.setPixel(x, y, tempColor);
                 }else{
-                    comparisonImage.setARGB(x, y, pixelSameness.getColorInDebugImage().asIntARGB());
+                    comparisonImage.setPixel(x, y, pixelSameness.getColorInDebugImage());
                 }
             }
         }
-        return comparisonImage.getUnderlyingImage();
+        return comparisonImageResource;
     }
 
     /**
      * This produces the almost grey ghost of the original image, used when the differences are being highlighted
      */
-    public static int getWashedOutPixel(ImagePixelWrapper img, int x, int y, float alpha) {
+    public static int getWashedOutPixel(ImageRaster img, int x, int y, float alpha) {
         // Get the raw pixel value
-        int rgb = img.getARGB(x, y);
+        ColorRGBA color = img.getPixel(x, y, null);
+        int rgb = color.asIntARGB();
 
         // Extract the color components
         int a = (rgb >> 24) & 0xFF;

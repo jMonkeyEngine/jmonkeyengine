@@ -139,7 +139,7 @@ public class ExtentReportExtensionJunit4 extends TestReportCaptureBase implement
     }
 
     @Override
-    public void attachImage(String title, String fileName, Image image) {
+    public void attachImageInner(String title, String fileName, Image image) {
         try (OutputStream out = getPersistentFileOutputStream(REPORT_DIRECTORY + "/" + fileName)) {
             JmeSystem.writeImageFile(out, "png",image.getData(0), image.getWidth(), image.getHeight());
         } catch (IOException e) {
