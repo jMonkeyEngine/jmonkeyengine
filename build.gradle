@@ -13,6 +13,7 @@ buildscript {
 }
 
 plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'org.jmonkeyengine.nativeimage' apply false
 }
 
@@ -23,6 +24,20 @@ ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply from: file('version.gradle')
+
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://ossrh-staging-api.central.sonatype.com/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://central.sonatype.com/repository/maven-snapshots/'))
+            username = findProperty('sonatypeUsername') ?: findProperty('centralUsername') ?: 'Unknown user'
+            password = findProperty('sonatypePassword') ?: findProperty('centralPassword') ?: 'Unknown password'
+        }
+    }
+}
 
 allprojects {
     repositories {
@@ -71,7 +86,10 @@ def nativeImagePluginPublishTasks = [
         publishMavenPublicationToDistRepository     : ':publishAllPublicationsToDistRepository',
         publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
         publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
-        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository',
+        publishToSonatype                           : ':publishToSonatype',
+        closeSonatypeStagingRepository              : ':closeSonatypeStagingRepository',
+        closeStagingRepositories                    : ':closeStagingRepositories'
 ]
 
 subprojects {
@@ -79,6 +97,19 @@ subprojects {
         String includedTaskPath = nativeImagePluginPublishTasks[task.name]
         if (includedTaskPath != null) {
             task.dependsOn nativeImagePluginBuild.task(includedTaskPath)
+        }
+    }
+}
+
+gradle.projectsEvaluated {
+    [
+            publishToSonatype             : ':publishToSonatype',
+            closeSonatypeStagingRepository: ':closeSonatypeStagingRepository',
+            closeStagingRepositories      : ':closeStagingRepositories'
+    ].each { rootTaskName, includedTaskPath ->
+        def rootTask = tasks.findByName(rootTaskName)
+        if (rootTask != null) {
+            rootTask.dependsOn nativeImagePluginBuild.task(includedTaskPath)
         }
     }
 }
