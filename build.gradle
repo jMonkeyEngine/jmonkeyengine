@@ -66,6 +66,9 @@ def nativeImagePluginPublishTasks = [
         publish                                      : ':publish',
         publishToMavenLocal                         : ':publishToMavenLocal',
         install                                      : ':install',
+        publishMavenPublicationToCentralRepository  : ':publishAllPublicationsToCentralRepository',
+        publishMavenPublicationToSNAPSHOTRepository : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishMavenPublicationToDistRepository     : ':publishAllPublicationsToDistRepository',
         publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
         publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
         publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
