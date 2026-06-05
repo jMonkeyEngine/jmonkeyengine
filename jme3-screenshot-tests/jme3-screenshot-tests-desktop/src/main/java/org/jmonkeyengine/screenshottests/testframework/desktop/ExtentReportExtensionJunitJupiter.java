@@ -29,7 +29,11 @@ public class ExtentReportExtensionJunitJupiter extends TestReportCaptureBase imp
     private static ExtentTest currentTest;
 
     public File reportPath() {
-        return new File("build/reports/ScreenshotDiffReport.html");
+        return new File(reportFolderPath(), "ScreenshotDiffReport.html");
+    }
+
+    public File reportFolderPath() {
+        return new File("build/reports");
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ExtentReportExtensionJunitJupiter extends TestReportCaptureBase imp
 
     @Override
     public void attachImage(String title, String fileName, Image originalImage) {
-        try (FileOutputStream fileOutBuf = new FileOutputStream(reportPath().toPath().resolve(fileName).toFile())) {
+        try (FileOutputStream fileOutBuf = new FileOutputStream(reportFolderPath().toPath().resolve(fileName).toFile())) {
             JmeSystem.writeImageFile(fileOutBuf, "png",originalImage.getData(0),originalImage.getWidth(), originalImage.getHeight());
         } catch (IOException e) {
             throw new RuntimeException(e);
