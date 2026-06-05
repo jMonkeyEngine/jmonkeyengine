@@ -13,7 +13,7 @@ on:
   pull_request:
 
 jobs:
-  screenshot-test-adnroid:
+  screenshot-test-android:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
