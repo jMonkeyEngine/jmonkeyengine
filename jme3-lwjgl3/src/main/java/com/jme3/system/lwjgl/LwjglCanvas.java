@@ -466,7 +466,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 .append('.')
                 .append(canvas.data.minorVersion);
 
-        String driver = isWayland() ? "(XWayland|X11) GLX" : "X11 GLX";
+        String driver = JmeSystem.isWaylandSession() ? "(XWayland|X11) GLX" : "X11 GLX";
 
         Platform platform = Platform.get();
         if (null == platform) {
