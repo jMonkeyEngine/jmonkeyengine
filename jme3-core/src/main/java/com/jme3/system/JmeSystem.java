@@ -193,7 +193,7 @@ public class JmeSystem {
     /**
      * Detects if you are in a Wayland session.
      *
-     * @return {@code true} if you are in a Waylnad session, otherwise it will
+     * @return {@code true} if you are in a Wayland session, otherwise it will
      * be {@code false}
      */
     public static boolean isWaylandSession() {
