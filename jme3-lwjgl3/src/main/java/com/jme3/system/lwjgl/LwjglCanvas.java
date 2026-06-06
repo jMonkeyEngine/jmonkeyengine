@@ -704,14 +704,16 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     @Override
     protected void createContext(AppSettings settings) {
-        if (!settings.isX11PlatformPreferred() && JmeSystem.isWaylandSession()) {
+        boolean linux = Platform.get() == Platform.LINUX || 
+                        Platform.get() == Platform.FREEBSD;
+        if (!settings.isX11PlatformPreferred() && linux && JmeSystem.isWaylandSession()) {
             LOGGER.log(Level.WARNING, "LWJGLX and AWT/Swing only work with X11, so XWayland will be used for GLX.");
         }
 
         // HACK: For LWJGLX to work in Wyland, it is necessary to use GLX via
         //       XWayland, so LWJGL must be forced to load GLX as a native API.
         //       This is because LWJGLX does not provide an EGL context.
-        if (JmeSystem.isWaylandSession()) {
+        if (linux && JmeSystem.isWaylandSession()) {
             Configuration.OPENGL_CONTEXT_API.set("native");
         }
 
