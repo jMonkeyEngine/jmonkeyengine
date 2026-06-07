@@ -357,6 +357,11 @@ public class SdlJoystickInput implements JoyInput {
                     int buttonId = button.getButtonId();
                     String jmeButtonId = button.getLogicalId();
 
+                    if (JoystickButton.BUTTON_XBOX_LT.equals(jmeButtonId)
+                            || JoystickButton.BUTTON_XBOX_RT.equals(jmeButtonId)) {
+                        continue;
+                    }
+
                     boolean pressed = SDL_GetGamepadButton(gp, buttonId);
                     updateButton(button, pressed);
 
