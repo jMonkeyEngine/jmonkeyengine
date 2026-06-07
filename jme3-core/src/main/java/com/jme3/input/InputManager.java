@@ -673,11 +673,13 @@ public class InputManager implements RawInputListener {
 
         int hash = trigger.triggerHashCode();
         ArrayList<Mapping> maps = bindings.get(hash);
-        maps.remove(mapping);
-        if (maps.isEmpty()) {
-            bindings.remove(hash);
-            pressedButtons.remove(hash);
-            axisValues.remove(hash);
+        if (maps != null) {
+            maps.remove(mapping);
+            if (maps.isEmpty()) {
+                bindings.remove(hash);
+                pressedButtons.remove(hash);
+                axisValues.remove(hash);
+            }
         }
         mapping.triggers.remove((Integer) hash);
 
