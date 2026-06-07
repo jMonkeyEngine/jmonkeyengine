@@ -644,7 +644,14 @@ public class InputManager implements RawInputListener {
             int hash = triggers.get(i);
             ArrayList<Mapping> maps = bindings.get(hash);
             maps.remove(mapping);
+            if (maps.isEmpty()) {
+                bindings.remove(hash);
+                pressedButtons.remove(hash);
+                axisValues.remove(hash);
+            }
         }
+        mapping.triggers.clear();
+        mapping.listeners.clear();
     }
 
     /**
@@ -664,8 +671,15 @@ public class InputManager implements RawInputListener {
             throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
         }
 
-        ArrayList<Mapping> maps = bindings.get(trigger.triggerHashCode());
+        int hash = trigger.triggerHashCode();
+        ArrayList<Mapping> maps = bindings.get(hash);
         maps.remove(mapping);
+        if (maps.isEmpty()) {
+            bindings.remove(hash);
+            pressedButtons.remove(hash);
+            axisValues.remove(hash);
+        }
+        mapping.triggers.remove((Integer) hash);
 
     }
 
