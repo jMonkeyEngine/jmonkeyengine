@@ -98,4 +98,36 @@ public interface JsonElement {
      * @return the casted JsonElement
      */
     public <T extends JsonElement> T autoCast();
+
+    /**
+     * Check if this element is a JsonObject
+     * @return true if this element is a JsonObject, false otherwise
+     */
+    default boolean isJsonObject() {
+        return this instanceof JsonObject;
+    }
+
+    /**
+     * Check if this element is a JsonArray
+     * @return true if this element is a JsonArray, false otherwise
+     */
+    default boolean isJsonArray() {
+        return this instanceof JsonArray;
+    }
+
+    /**
+     * Check if this element is a JsonPrimitive
+     * @return true if this element is a JsonPrimitive, false otherwise
+     */
+    default boolean isJsonPrimitive() {
+        return this instanceof JsonPrimitive;
+    }
+
+    /**
+     * Check if this element is a JSON null
+     * @return true if this element represents a null value, false otherwise
+     */
+    default boolean isJsonNull() {
+        return false;
+    }
 }
