@@ -123,4 +123,8 @@ if (isIosExamplesTaskRequested()) {
     include 'jme3-ios-examples'
 }
 include 'jme3-screenshot-tests'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-shared'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-desktop'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-android'
+include 'jme3-screenshot-tests:jme3-screenshot-tests-proto-report'
 

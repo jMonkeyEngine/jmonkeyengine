@@ -129,6 +129,27 @@ public class SdlMouseInput implements MouseInput {
     public void onSDLEvent(SDL_Event event) {
         final int type = event.type();
 
+        if (type == SDL_EVENT_WINDOW_FOCUS_GAINED) {
+            if (event.window().windowID() == context.getWindowId()) {
+                setCursorVisible(cursorVisible);
+            }
+            return;
+        }
+
+        if (type == SDL_EVENT_WINDOW_FOCUS_LOST) {
+            if (event.window().windowID() == context.getWindowId()) {
+                x11WarpGrabMode = false;
+                ignoreNextX11WarpEvent = false;
+                SDL_CaptureMouse(false);
+                SDL_SetWindowMouseGrab(context.getWindowHandle(), false);
+                SDL_SetWindowRelativeMouseMode(context.getWindowHandle(), false);
+                if (!cursorVisible) {
+                    SDL_ShowCursor();
+                }
+            }
+            return;
+        }
+
         if (type == SDL_EVENT_MOUSE_MOTION) {
             if (event.motion().windowID() != context.getWindowId()) {
                 return;
