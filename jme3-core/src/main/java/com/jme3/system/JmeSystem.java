@@ -189,6 +189,17 @@ public class JmeSystem {
         checkDelegate();
         return systemDelegate.getPlatform();
     }
+    
+    /**
+     * Detects if you are in a Wayland session.
+     *
+     * @return {@code true} if you are in a Wayland session, otherwise it will
+     * be {@code false}
+     */
+    public static boolean isWaylandSession() {
+        checkDelegate();
+        return systemDelegate.isWaylandSession();
+    }
 
     public static JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
         checkDelegate();
