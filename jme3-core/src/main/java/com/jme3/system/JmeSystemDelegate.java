@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -307,14 +307,6 @@ public abstract class JmeSystemDelegate implements HapticDevice {
         } else {
             throw new UnsupportedOperationException("The specified platform: " + os + " is not supported.");
         }
-    }
-
-    public boolean isWaylandSession() {
-        // The following matches the test GLFW does to enable the Wayland backend.
-        if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE")) && System.getenv("WAYLAND_DISPLAY") != null) {
-            return true;
-        }
-        return false;
     }
 
     public String getBuildInfo() {

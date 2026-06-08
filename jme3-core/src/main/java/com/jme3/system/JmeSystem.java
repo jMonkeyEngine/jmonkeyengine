@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -188,17 +188,6 @@ public class JmeSystem {
     public static Platform getPlatform() {
         checkDelegate();
         return systemDelegate.getPlatform();
-    }
-
-    /**
-     * Detects if you are in a Wayland session.
-     *
-     * @return {@code true} if you are in a Wayland session, otherwise it will
-     * be {@code false}
-     */
-    public static boolean isWaylandSession() {
-        checkDelegate();
-        return systemDelegate.isWaylandSession();
     }
 
     public static JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
