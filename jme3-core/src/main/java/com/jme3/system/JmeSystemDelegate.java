@@ -317,15 +317,7 @@ public abstract class JmeSystemDelegate implements HapticDevice {
         sb.append(" * Build Date: ").append(JmeVersion.BUILD_DATE);
         return sb.toString();
     }
-
-    public boolean isWaylandSession() {
-        // The following matches the test GLFW does to enable the Wayland backend.
-        if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE")) && System.getenv("WAYLAND_DISPLAY") != null) {
-            return true;
-        }
-        return false;
-    }
-
+    
     public abstract URL getPlatformAssetConfigURL();
     
     public abstract JmeContext newContext(AppSettings settings, JmeContext.Type contextType);
