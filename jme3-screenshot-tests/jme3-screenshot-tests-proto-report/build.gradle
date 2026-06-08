@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    implementation libs.jackson
+    implementation libs.extent.reports
+    testImplementation libs.junit4
+}
+
+task upgradeProtoReport(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.jmonkeyengine.screenshottests.testframework.protoreport.UpgradeProtoReportToExtentReport'
+}
+
+test {
+    useJUnit()
+}

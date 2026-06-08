@@ -162,7 +162,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-test:screenshotTest
+          ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7.0.1
         if: always()
