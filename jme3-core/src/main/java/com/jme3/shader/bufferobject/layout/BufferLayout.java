@@ -128,6 +128,16 @@ public abstract class  BufferLayout {
     }
 
     /**
+     * Returns the alignment used for the end of a structure.
+     *
+     * @param maxMemberAlignment largest member alignment in the structure
+     * @return structure alignment
+     */
+    public int getStructureAlignment(int maxMemberAlignment) {
+        return maxMemberAlignment;
+    }
+
+    /**
      * Serialize an object accordingly with the std140 layout and write the
      * result to a BufferObject
      * 

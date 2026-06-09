@@ -131,7 +131,7 @@ public class StructUtils {
 
                 } else {
                     so.setDepth(depth);
-                    so.setGroup(struct.hashCode());
+                    so.setGroup(System.identityHashCode(struct));
                     expandedStructFields.add(so);
                 }
             }
@@ -156,8 +156,13 @@ public class StructUtils {
                                                                                                                               // List<Field>
                                                                                                                               // fieldList)
                                                                                                                               // {
+        return setBufferLayout(fields, serializer, out);
+    }
+
+    public static BufferObject setBufferLayout(List<StructField<?>> fields, BufferLayout serializer, BufferObject out) {
 
         int pos = -1;
+        int structMaxAlignment = 1;
 
         List<BufferRegion> regions = new ArrayList<BufferRegion>();
 
@@ -167,12 +172,14 @@ public class StructUtils {
 
             int basicAlignment = serializer.getBasicAlignment(v);
             int length = serializer.estimateSize(v);
+            structMaxAlignment = Math.max(structMaxAlignment, basicAlignment);
 
             int start = serializer.align(pos + 1, basicAlignment);
             int end = start + length - 1;
 
             if ((i == fields.size() - 1) || f.getGroup()!= fields.get(i + 1).getGroup()){// > fields.get(i + 1).getDepth()) {
-                end = (serializer.align(end, 16)) - 1;
+                end = (serializer.align(end + 1, serializer.getStructureAlignment(structMaxAlignment))) - 1;
+                structMaxAlignment = 1;
             }
 
             BufferRegion r = new BufferRegion(start, end);
