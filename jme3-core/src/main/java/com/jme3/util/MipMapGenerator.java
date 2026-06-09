@@ -220,7 +220,7 @@ public final class MipMapGenerator {
             totalSize += size;
         }
 
-        ByteBuffer combined = BufferUtils.createByteBuffer(totalSize);
+        ByteBuffer combined = BufferUtils.createByteBuffer(totalSize).order(levels.get(0).order());
 
         for (ByteBuffer level : levels) {
             ByteBuffer duplicate = ByteBufferUtils.duplicate(level);
@@ -246,7 +246,7 @@ public final class MipMapGenerator {
         validateImage(inputImage);
 
         int outputSize = levelSize(inputImage.getFormat(), outputWidth, outputHeight);
-        ByteBuffer outputBuffer = BufferUtils.createByteBuffer(outputSize);
+        ByteBuffer outputBuffer = BufferUtils.createByteBuffer(outputSize).order(inputImage.getData(inputSlice).order());
 
         Image outputImage = new Image(
                 inputImage.getFormat(),
@@ -523,7 +523,7 @@ public final class MipMapGenerator {
         duplicate.clear();
         duplicate.limit(baseLevelSize);
 
-        ByteBuffer copy = BufferUtils.createByteBuffer(baseLevelSize);
+        ByteBuffer copy = BufferUtils.createByteBuffer(baseLevelSize).order(source.order());
         copy.put(duplicate);
         copy.flip();
 
