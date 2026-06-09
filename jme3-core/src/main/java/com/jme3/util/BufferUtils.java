@@ -1060,6 +1060,7 @@ public final class BufferUtils {
         } else {
             copy = ByteBuffer.allocate(buf.limit());
         }
+        copy.order(buf.order());
         copy.put(buf);
 
         return copy;
