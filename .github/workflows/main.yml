@@ -166,7 +166,14 @@ jobs:
       - name: Report Screenshot Test failure
         if: failure()
         run: |
-          echo "::error title=Screenshot tests failed::Screenshot tests have failed. Download the 'screenshot-test-report' artifact from this run, then open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html to review the differences. If you did not intend to change any visuals, fix your changes so the tests pass. If you intended to change visuals, review the images in jme3-screenshot-tests/build/changed-images and commit replacements to jme3-screenshot-tests/src/test/resources. See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information."
+          echo "::error title=Screenshot tests failed::Screenshot tests have failed.%0A%0A"\
+          "To review the differences:%0A"\
+          "  1. Download the 'screenshot-test-report' artifact from this run.%0A"\
+          "  2. Open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html%0A%0A"\
+          "If you did not intend to change any visuals: fix your changes so the tests pass.%0A"\
+          "If you intended to change visuals: review jme3-screenshot-tests/build/changed-images"\
+          " and commit replacements to jme3-screenshot-tests/src/test/resources.%0A%0A"\
+          "See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information."
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7.0.1
         if: always()
