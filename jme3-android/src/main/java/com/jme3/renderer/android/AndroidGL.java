@@ -707,7 +707,19 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
+    public int glGetActiveUniformBlocki(int program, int uniformBlockIndex, int pname) {
+        IntBuffer buff = (IntBuffer) tmpBuff.clear();
+        GLES30.glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, buff);
+        return buff.get(0);
+    }
+
+    @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
+    }
+
+    @Override
+    public void glGetProgramResourceiv(int program, int programInterface, int index, IntBuffer props, IntBuffer length, IntBuffer params) {
         throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 

@@ -294,6 +294,18 @@ public interface GLExt {
     }
 
     /**
+     * Queries information about an active uniform block.
+     *
+     * @param program           the name of a program containing the uniform block
+     * @param uniformBlockIndex the index of the uniform block within program
+     * @param pname             the parameter to query
+     * @return the queried parameter value
+     */
+    public default int glGetActiveUniformBlocki(int program, int uniformBlockIndex, int pname) {
+        throw new UnsupportedOperationException("Uniform buffer objects are not supported");
+    }
+
+    /**
      * Retrieves the index of a named program resource.
      *
      * @param program          the name of a program object
@@ -302,6 +314,20 @@ public interface GLExt {
      * @return the resource index
      */
     public default int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        throw new UnsupportedOperationException("Shader storage buffer objects are not supported");
+    }
+
+    /**
+     * Retrieves values for properties of an active program resource.
+     *
+     * @param program          the name of a program object
+     * @param programInterface the program interface containing the resource
+     * @param index            the active resource index
+     * @param props            properties to query
+     * @param length           receives the number of values written to params
+     * @param params           receives the queried values
+     */
+    public default void glGetProgramResourceiv(int program, int programInterface, int index, IntBuffer props, IntBuffer length, IntBuffer params) {
         throw new UnsupportedOperationException("Shader storage buffer objects are not supported");
     }
 
