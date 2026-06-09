@@ -31,8 +31,15 @@
  */
 package com.jme3.util;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Allocates and destroys direct byte buffers using native code.
@@ -40,28 +47,88 @@ import java.nio.ByteBuffer;
  * @author pavl_g.
  */
 public final class AndroidNativeBufferAllocator implements BufferAllocator {
+    private static final Logger LOGGER = Logger.getLogger(AndroidNativeBufferAllocator.class.getName());
+    private static final ReferenceQueue<ByteBuffer> REFERENCE_QUEUE = new ReferenceQueue<>();
+    private static final Map<Long, Deallocator> DEALLOCATORS = new ConcurrentHashMap<>();
+    private static final Thread CLEAN_THREAD = new Thread(AndroidNativeBufferAllocator::freeCollectedBuffers);
 
     static {
         System.loadLibrary("bufferallocatorjme");
+        CLEAN_THREAD.setDaemon(true);
+        CLEAN_THREAD.setName("Android Native Buffer Deallocator");
+        CLEAN_THREAD.start();
     }
 
     @Override
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
-        releaseDirectByteBuffer(toBeDestroyed);
+        long address = directBufferAddress(toBeDestroyed);
+        if (address == 0L) {
+            LOGGER.log(Level.WARNING, "Not found address of the {0}", toBeDestroyed);
+            return;
+        }
+        Deallocator deallocator = DEALLOCATORS.remove(address);
+        if (deallocator == null) {
+            LOGGER.log(Level.WARNING, "Not found a deallocator for address {0}", address);
+            return;
+        }
+        deallocator.freeNow();
     }
 
     @Override
     public ByteBuffer allocate(int size) {
-        return createDirectByteBuffer(size);
+        ByteBuffer buffer = createDirectByteBuffer(size);
+        if (buffer == null) {
+            throw new OutOfMemoryError("Could not allocate " + size + " bytes through Android native allocator");
+        }
+        long address = directBufferAddress(buffer);
+        if (address != 0L) {
+            DEALLOCATORS.put(address, new Deallocator(buffer, address));
+        }
+        return buffer;
+    }
+
+    private static void freeCollectedBuffers() {
+        for (;;) {
+            try {
+                Deallocator deallocator = (Deallocator) REFERENCE_QUEUE.remove();
+                deallocator.freeNow();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (Throwable throwable) {
+                LOGGER.log(Level.SEVERE, "Error deallocating direct buffer", throwable);
+            }
+        }
+    }
+
+    private static final class Deallocator extends PhantomReference<ByteBuffer> {
+        private final long address;
+        private final AtomicBoolean freed = new AtomicBoolean(false);
+
+        private Deallocator(ByteBuffer referent, long address) {
+            super(referent, REFERENCE_QUEUE);
+            this.address = address;
+        }
+
+        private void freeNow() {
+            if (!freed.compareAndSet(false, true)) {
+                return;
+            }
+            DEALLOCATORS.remove(address, this);
+            clear();
+            releaseDirectByteBufferAddress(address);
+        }
     }
 
     /**
-     * Releases the memory of a direct buffer using a buffer object reference.
+     * Releases the memory of a direct buffer using its native address.
      *
-     * @param buffer the buffer reference to release its memory.
+     * @param address the native address to release
      * @see AndroidNativeBufferAllocator#destroyDirectBuffer(Buffer)
      */
-    private native void releaseDirectByteBuffer(Buffer buffer);
+    private static native void releaseDirectByteBufferAddress(long address);
+
+    private static native long directBufferAddress(Buffer buffer);
 
     /**
      * Creates a new direct byte buffer explicitly with a specific size.

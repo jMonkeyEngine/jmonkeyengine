@@ -13,6 +13,7 @@ buildscript {
 }
 
 plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'org.jmonkeyengine.nativeimage' apply false
 }
 
@@ -23,6 +24,20 @@ ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply from: file('version.gradle')
+
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://ossrh-staging-api.central.sonatype.com/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://central.sonatype.com/repository/maven-snapshots/'))
+            username = findProperty('sonatypeUsername') ?: findProperty('centralUsername') ?: 'Unknown user'
+            password = findProperty('sonatypePassword') ?: findProperty('centralPassword') ?: 'Unknown password'
+        }
+    }
+}
 
 allprojects {
     repositories {
@@ -36,10 +51,10 @@ allprojects {
 
 // This is applied to all sub projects
 subprojects {
-    if(!project.name.equals('jme3-android-examples')) {
-        apply from: rootProject.file('common.gradle')
-    } else {
+    if(project.name.equals('jme3-android-examples') || project.name.equals('jme3-screenshot-tests-android')) {
         apply from: rootProject.file('common-android-app.gradle')
+    } else {
+        apply from: rootProject.file('common.gradle')
     }
 
     def isAndroidApp = project.plugins.hasPlugin('com.android.application')
@@ -66,9 +81,15 @@ def nativeImagePluginPublishTasks = [
         publish                                      : ':publish',
         publishToMavenLocal                         : ':publishToMavenLocal',
         install                                      : ':install',
+        publishMavenPublicationToCentralRepository  : ':publishAllPublicationsToCentralRepository',
+        publishMavenPublicationToSNAPSHOTRepository : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishMavenPublicationToDistRepository     : ':publishAllPublicationsToDistRepository',
         publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
         publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
-        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository',
+        publishToSonatype                           : ':publishToSonatype',
+        closeSonatypeStagingRepository              : ':closeSonatypeStagingRepository',
+        closeStagingRepositories                    : ':closeStagingRepositories'
 ]
 
 subprojects {
@@ -80,9 +101,46 @@ subprojects {
     }
 }
 
+gradle.projectsEvaluated {
+    [
+            publishToSonatype             : ':publishToSonatype',
+            closeSonatypeStagingRepository: ':closeSonatypeStagingRepository',
+            closeStagingRepositories      : ':closeStagingRepositories'
+    ].each { rootTaskName, includedTaskPath ->
+        def rootTask = tasks.findByName(rootTaskName)
+        if (rootTask != null) {
+            rootTask.dependsOn nativeImagePluginBuild.task(includedTaskPath)
+        }
+    }
+}
+
 tasks.register('run') {
     dependsOn ':jme3-examples:run'
     description = 'Run the jME3 examples'
+}
+
+tasks.register('runAndroidExamples') {
+    description = 'Run the Android examples selector'
+    def androidExamplesProject = findProject(':jme3-android-examples')
+    if (androidExamplesProject != null) {
+        dependsOn ':jme3-android-examples:runAndroidExamples'
+    } else {
+        doLast {
+            throw new GradleException('Android examples are not available. Request an Android examples task and configure an Android SDK.')
+        }
+    }
+}
+
+tasks.register('runIosExamples') {
+    description = 'Run the iOS examples selector'
+    def iosExamplesProject = findProject(':jme3-ios-examples')
+    if (iosExamplesProject != null) {
+        dependsOn ':jme3-ios-examples:runIosExamples'
+    } else {
+        doLast {
+            throw new GradleException('iOS examples are not available. Request an iOS examples task.')
+        }
+    }
 }
 
 defaultTasks 'run'
@@ -174,8 +232,15 @@ tasks.register('mergedJavadoc', Javadoc) {
     title = 'jMonkeyEngine3'
     destinationDir = file("dist/javadoc")
 
+    def javadocErrorsEnabled = findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
     options.encoding = 'UTF-8'
-    options.addStringOption('Xdoclint:none', '-quiet')
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }

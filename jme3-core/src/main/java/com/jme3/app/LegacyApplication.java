@@ -603,7 +603,13 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
+    /**
+     * @deprecated Display scale changes are reported through
+     * {@link #reshape(int, int, int, int)}. Built-in contexts no longer call
+     * this method.
+     */
     @Override
+    @Deprecated
     public void rescale(float x, float y) {
         if (renderManager != null) {
             renderManager.notifyRescale(x, y);

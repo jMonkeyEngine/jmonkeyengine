@@ -155,7 +155,7 @@ public class StatsAppState extends AbstractAppState {
         }
 
         if (guiFont == null) {
-            guiFont = app.getAssetManager().loadFont("Interface/Fonts/Default.fnt");
+            guiFont = app.getAssetManager().loadFont("Interface/Fonts/Default.j3o");
         }
 
         loadFpsText();

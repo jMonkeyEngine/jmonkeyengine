@@ -13,9 +13,9 @@ void main() {
     vec4 texVal = vec4(color);
  
     texVal = pow(texVal, vec4(m_Gamma));
-    texVal = texVal * vec4(m_NumColors);
+    texVal = texVal * vec4(float(m_NumColors));
     texVal = floor(texVal);
-    texVal = texVal / vec4(m_NumColors);
+    texVal = texVal / vec4(float(m_NumColors));
     texVal = pow(texVal, vec4(1.0/m_Gamma));
  
     gl_FragColor = mix(color, texVal, m_Strength);

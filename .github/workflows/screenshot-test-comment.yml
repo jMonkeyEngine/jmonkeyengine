@@ -133,6 +133,6 @@ jobs:
 
             See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information
             
-            Contact @richardTingle (aka richtea) for guidance if required
+            Contact %40richardTingle (aka richtea) for guidance if required
           edit-mode: replace
           comment-id: ${{ steps.existingCommentId.outputs.comment-id }}

@@ -42,7 +42,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
-import com.jme3.input.android.AndroidSensorJoyInput;
+import com.jme3.input.android.AndroidJoyInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.JmeAndroidSystem;
@@ -66,6 +66,7 @@ import java.util.logging.Logger;
  */
 public abstract class AndroidHarnessFragment extends Fragment implements SystemListener {
     private static final Logger logger = Logger.getLogger(AndroidHarnessFragment.class.getName());
+    private static final String SAFER_BUFFER_ALLOCATOR_CLASS = "com.jme3.util.SaferBufferAllocator";
 
     protected GLSurfaceView view;
     protected LegacyApplication app;
@@ -90,9 +91,12 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
         logger.fine("onCreate");
         super.onCreate(savedInstanceState);
 
-        System.setProperty(
-                BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION,
-                AndroidNativeBufferAllocator.class.getName());
+        if (System.getProperty(BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION) == null) {
+            String allocator = isClassPresent(SAFER_BUFFER_ALLOCATOR_CLASS)
+                    ? SAFER_BUFFER_ALLOCATOR_CLASS
+                    : AndroidNativeBufferAllocator.class.getName();
+            System.setProperty(BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION, allocator);
+        }
 
         try {
             app = createApplication();
@@ -111,6 +115,15 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
      * @throws Exception if the application cannot be created
      */
     protected abstract LegacyApplication createApplication() throws Exception;
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, AndroidHarnessFragment.class.getClassLoader());
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
 
 
     @Override
@@ -231,6 +244,7 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     }
 
     @Override
+    @Deprecated
     public void rescale(float x, float y) {
         app.rescale(x, y);
     }
@@ -269,8 +283,8 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
-                ((AndroidSensorJoyInput) joyInput).resumeSensors();
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).resumeJoysticks();
             }
 
             app.gainFocus();
@@ -295,8 +309,8 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
-                ((AndroidSensorJoyInput) joyInput).pauseSensors();
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).pauseJoysticks();
             }
         }
     }

@@ -50,7 +50,7 @@ import java.io.IOException;
  * A camera that follows a spatial and can turn around it by dragging the mouse
  * @author nehon
  */
-public class ChaseCamera implements ActionListener, AnalogListener, Control, JmeCloneable {
+public class ChaseCamera implements ActionListener, AnalogListener, Control, JmeCloneable, JoystickConnectionListener {
 
     protected Spatial target = null;
     protected float minVerticalRotation = 0.00f;
@@ -136,6 +136,13 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      */
     @Deprecated
     public static final String ChaseCamToggleRotate = "ChaseCamToggleRotate";
+
+    private static final String CHASECAM_JOYDOWN = "ChaseCamJoyDown";
+    private static final String CHASECAM_JOYUP = "ChaseCamJoyUp";
+    private static final String CHASECAM_JOYMOVELEFT = "ChaseCamJoyMoveLeft";
+    private static final String CHASECAM_JOYMOVERIGHT = "ChaseCamJoyMoveRight";
+    private static final String CHASECAM_JOYZOOMIN = "ChaseCamJoyZoomIn";
+    private static final String CHASECAM_JOYZOOMOUT = "ChaseCamJoyZoomOut";
 
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;
@@ -225,6 +232,26 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 distanceLerpFactor = 0;
             }
             zoomin = false;
+        } else if (name.equals(CHASECAM_JOYMOVELEFT)) {
+            rotateCamera(-value, true);
+        } else if (name.equals(CHASECAM_JOYMOVERIGHT)) {
+            rotateCamera(value, true);
+        } else if (name.equals(CHASECAM_JOYUP)) {
+            vRotateCamera(value, true);
+        } else if (name.equals(CHASECAM_JOYDOWN)) {
+            vRotateCamera(-value, true);
+        } else if (name.equals(CHASECAM_JOYZOOMIN)) {
+            zoomCamera(-value);
+            if (zoomin == false) {
+                distanceLerpFactor = 0;
+            }
+            zoomin = true;
+        } else if (name.equals(CHASECAM_JOYZOOMOUT)) {
+            zoomCamera(+value);
+            if (zoomin == true) {
+                distanceLerpFactor = 0;
+            }
+            zoomin = false;
         }
     }
 
@@ -240,7 +267,13 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
             CameraInput.CHASECAM_MOVELEFT,
             CameraInput.CHASECAM_MOVERIGHT,
             CameraInput.CHASECAM_ZOOMIN,
-            CameraInput.CHASECAM_ZOOMOUT};
+            CameraInput.CHASECAM_ZOOMOUT,
+            CHASECAM_JOYDOWN,
+            CHASECAM_JOYUP,
+            CHASECAM_JOYMOVELEFT,
+            CHASECAM_JOYMOVERIGHT,
+            CHASECAM_JOYZOOMIN,
+            CHASECAM_JOYZOOMOUT};
 
         this.inputManager = inputManager;
         if (!invertYaxis) {
@@ -274,7 +307,62 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
         inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE,
                 new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
+        Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks != null) {
+            for (Joystick joystick : joysticks) {
+                mapJoystick(joystick);
+            }
+        }
+
         inputManager.addListener(this, inputs);
+        inputManager.addJoystickConnectionListener(this);
+    }
+
+    /**
+     * Configures joystick input mappings for the chase camera.
+     *
+     * @param joystick joystick to map
+     */
+    protected void mapJoystick(Joystick joystick) {
+        JoystickAxis xAxis = joystick.getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_X);
+        JoystickAxis yAxis = joystick.getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_Y);
+
+        if (xAxis == null) {
+            xAxis = joystick.getXAxis();
+        }
+        if (yAxis == null) {
+            yAxis = joystick.getYAxis();
+        }
+
+        if (xAxis != null) {
+            xAxis.assignAxis(CHASECAM_JOYMOVERIGHT, CHASECAM_JOYMOVELEFT);
+        }
+        if (yAxis != null) {
+            yAxis.assignAxis(CHASECAM_JOYDOWN, CHASECAM_JOYUP);
+        }
+
+        JoystickAxis leftTrigger = joystick.getAxis(JoystickAxis.AXIS_XBOX_LEFT_TRIGGER);
+        if (leftTrigger != null) {
+            inputManager.addMapping(CHASECAM_JOYZOOMOUT,
+                    new JoyAxisTrigger(joystick.getJoyId(), leftTrigger.getAxisId(), false));
+        }
+
+        JoystickAxis rightTrigger = joystick.getAxis(JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER);
+        if (rightTrigger != null) {
+            inputManager.addMapping(CHASECAM_JOYZOOMIN,
+                    new JoyAxisTrigger(joystick.getJoyId(), rightTrigger.getAxisId(), false));
+        }
+    }
+
+    @Override
+    public void onConnected(Joystick joystick) {
+        if (inputManager != null) {
+            mapJoystick(joystick);
+        }
+    }
+
+    @Override
+    public void onDisconnected(Joystick joystick) {
     }
 
     /**
@@ -290,7 +378,14 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
         mgr.deleteMapping(CameraInput.CHASECAM_MOVERIGHT);
         mgr.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
         mgr.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
+        mgr.deleteMapping(CHASECAM_JOYDOWN);
+        mgr.deleteMapping(CHASECAM_JOYUP);
+        mgr.deleteMapping(CHASECAM_JOYMOVELEFT);
+        mgr.deleteMapping(CHASECAM_JOYMOVERIGHT);
+        mgr.deleteMapping(CHASECAM_JOYZOOMIN);
+        mgr.deleteMapping(CHASECAM_JOYZOOMOUT);
         mgr.removeListener(this);
+        mgr.removeJoystickConnectionListener(this);
     }
 
     /**
@@ -342,7 +437,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     //rotate the camera around the target on the horizontal plane
     protected void rotateCamera(float value) {
-        if (!canRotate || !enabled) {
+        rotateCamera(value, false);
+    }
+
+    protected void rotateCamera(float value, boolean forceRotate) {
+        if ((!forceRotate && !canRotate) || !enabled) {
             return;
         }
         rotating = true;
@@ -374,7 +473,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     //rotate the camera around the target on the vertical plane
     protected void vRotateCamera(float value) {
-        if (!canRotate || !enabled) {
+        vRotateCamera(value, false);
+    }
+
+    protected void vRotateCamera(float value, boolean forceRotate) {
+        if ((!forceRotate && !canRotate) || !enabled) {
             return;
         }
         vRotating = true;

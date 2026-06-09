@@ -47,7 +47,7 @@ on:
       - v3.5
       - v3.4
       - v3.3
-      - ios-2024_2
+      - ios
   pull_request:
   release:
     types: [published]
@@ -60,7 +60,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
@@ -87,7 +87,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
@@ -107,6 +107,29 @@ jobs:
           path: |
             **/build/reports/spotbugs/**
 
+  JavadocDoclint:
+    name: Run Javadoc Doclint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.1.0
+      - name: Run Javadoc doclint
+        run: |
+          ./gradlew -PenableJavadocError=true javadoc mergedJavadoc --console=plain --stacktrace
+      - name: Report Javadoc doclint failure
+        if: failure()
+        run: |
+          echo "::notice title=Javadoc doclint failed::Javadoc warnings were found. Run ./gradlew -PenableJavadocError=true javadoc mergedJavadoc locally to reproduce."
+
   ScreenshotTests:
     name: Run Screenshot Tests
     runs-on: ubuntu-latest
@@ -115,7 +138,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
@@ -139,7 +162,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-test:screenshotTest
+          ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7.0.1
         if: always()
@@ -151,6 +174,29 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
+  TestIOSBuild:
+    name: Test iOS build
+    runs-on: macos-latest
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.1.0
+    
+      - name: Build iOS examples
+        shell: bash
+        run: |
+         ./gradlew :jme3-ios-examples:buildIosSimulatorApp
+         
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -173,7 +219,7 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
@@ -255,7 +301,7 @@ jobs:
       contents: read
     steps:
 
-      # We need to clone everything again for uploadToMaven.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -269,18 +315,21 @@ jobs:
           java-version: '25'
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToSNAPSHOTRepository \
-            -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-            -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            --console=plain --stacktrace
+            ./gradlew publishToSonatype --console=plain --stacktrace
           fi
 
 
@@ -292,9 +341,9 @@ jobs:
     if: github.event_name == 'release'
     steps:
 
-      # We need to clone everything again for uploadToCentral.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 1
 
@@ -318,23 +367,24 @@ jobs:
           name: release
           path: dist/release
 
-      - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
+      - name: Rebuild the maven artifacts and close the Sonatype staging repository
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToCentralRepository \
-              -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-              -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            ./gradlew publishToSonatype closeSonatypeStagingRepository \
               -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
-            .github/actions/tools/uploadToCentral.sh \
-              -p '${{ secrets.CENTRAL_PASSWORD }}' \
-              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases

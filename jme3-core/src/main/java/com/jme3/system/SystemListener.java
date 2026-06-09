@@ -66,9 +66,15 @@ public interface SystemListener {
 
     /**
      * Called to notify the application that the scale has changed.
+     *
+     * @deprecated Display scale changes are reported through
+     * {@link #reshape(int, int, int, int)}. Built-in contexts no longer call
+     * this method.
+     *
      * @param x the new horizontal scale of the display 
      * @param y the new vertical scale of the display
      */
+    @Deprecated
     public default void rescale(float x, float y){
 
     }

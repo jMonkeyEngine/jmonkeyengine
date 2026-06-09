@@ -1,68 +1,50 @@
 package jme3test.ios;
 
 import com.jme3.app.Application;
+import com.jme3.app.IosApplicationLauncher;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.SystemListener;
-import com.jme3.system.ios.IGLESContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class IosTestChooserLauncher {
+public final class IosTestChooserLauncher extends IosApplicationLauncher {
     private static final String CLASS_LIST_RESOURCE = "/jme3test/test-classes.txt";
     private static final String IOS_INITIAL_EXAMPLE_CLASS = "jme3test.ios.IosInitialExample";
     private static List<String> testClasses;
     private static IosTestChooserLauncher activeLauncher;
 
-    private Application delegate;
     private String pendingClass;
 
+    @Override
     public void start() {
         activeLauncher = this;
-        delegate = new IosTestChooser();
         pendingClass = initialExampleClass();
-        startDelegate(delegate);
+        super.start();
     }
 
-    public JmeContext getContext() {
-        return null;
+    @Override
+    protected Application createApplication() {
+        return new IosTestChooser();
     }
 
+    @Override
     public void update() {
         if (startPendingClass()) {
             return;
         }
-        runDelegateFrame();
+        super.update();
     }
 
-    public void reshape(int width, int height) {
-        if (delegate == null) {
-            return;
-        }
-        JmeContext context = delegate.getContext();
-        if (context instanceof IGLESContext) {
-            ((IGLESContext) context).resizeFramebuffer(width, height);
-            return;
-        }
-        if (delegate instanceof SystemListener) {
-            ((SystemListener) delegate).reshape(width, height);
-            return;
-        }
-        invokeIfPresent(delegate, "reshape", new Class<?>[]{int.class, int.class}, width, height);
-    }
-
+    @Override
     public void stop(boolean waitFor) {
-        if (delegate != null) {
-            delegate.stop(waitFor);
-            delegate = null;
-        }
+        super.stop(waitFor);
         if (activeLauncher == this) {
             activeLauncher = null;
         }
@@ -129,12 +111,6 @@ public final class IosTestChooserLauncher {
         }
     }
 
-    private void startDelegate(Application application) {
-        invokeSetShowSettings(application);
-        configureIosSettings(application);
-        application.start();
-    }
-
     private void selectForCurrentRun(String className) {
         pendingClass = className;
     }
@@ -145,9 +121,18 @@ public final class IosTestChooserLauncher {
             return false;
         }
         pendingClass = null;
-        stopDelegateForHandoff();
-        delegate = instantiate(className);
-        startDelegate(delegate);
+        stopApplicationForHandoff();
+        Application selected = instantiate(className);
+        AppSettings settings = new AppSettings(true);
+        settings.setUseJoysticks(true);
+        settings.setOnDeviceJoystickRumble(true);
+        invokeConfigureSettings(selected, settings);
+        selected.setSettings(settings);
+        try{
+            startApplication(selected);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to start selected iOS test: " + className, exception);
+        }
         return true;
     }
 
@@ -176,25 +161,9 @@ public final class IosTestChooserLauncher {
         }
     }
 
-    private void runDelegateFrame() {
-        if (delegate == null) {
-            return;
-        }
-        JmeContext context = delegate.getContext();
-        if (context instanceof IGLESContext) {
-            ((IGLESContext) context).runFrame();
-            return;
-        }
-        if (delegate instanceof SystemListener) {
-            ((SystemListener) delegate).update();
-            return;
-        }
-        invokeIfPresent(delegate, "update", new Class<?>[0]);
-    }
-
-    private void stopDelegateForHandoff() {
-        Application previous = delegate;
-        delegate = null;
+    private void stopApplicationForHandoff() {
+        Application previous = app;
+        app = null;
         if (previous == null) {
             return;
         }
@@ -204,37 +173,16 @@ public final class IosTestChooserLauncher {
         previous.stop(false);
     }
 
-    private static void invokeSetShowSettings(Application application) {
+    private static void invokeConfigureSettings(Application application, AppSettings settings) {
         try {
-            application.getClass().getMethod("setShowSettings", boolean.class).invoke(application, false);
+            java.lang.reflect.Method method = application.getClass().getMethod("configureSettings", AppSettings.class);
+            Object target = Modifier.isStatic(method.getModifiers()) ? null : application;
+            method.invoke(target, settings);
         } catch (NoSuchMethodException ignored) {
-            // Some Application subclasses do not expose settings dialogs.
+            // Most examples rely on default settings.
         } catch (IllegalAccessException | InvocationTargetException exception) {
-            throw new IllegalStateException("Could not disable settings dialog", exception);
+            throw new IllegalStateException("Could not configure iOS settings for "
+                    + application.getClass().getName(), exception);
         }
-    }
-
-    private static void configureIosSettings(Application application) {
-        AppSettings settings = new AppSettings(true);
-        settings.setUseJoysticks(true);
-        settings.setOnDeviceJoystickRumble(true);
-        application.setSettings(settings);
-    }
-
-    private static Object invokeIfPresent(Object target, String name, Class<?>[] parameterTypes, Object... args) {
-        if (target == null) {
-            return MissingMethod.INSTANCE;
-        }
-        try {
-            return target.getClass().getMethod(name, parameterTypes).invoke(target, args);
-        } catch (NoSuchMethodException ignored) {
-            return MissingMethod.INSTANCE;
-        } catch (IllegalAccessException | InvocationTargetException exception) {
-            throw new IllegalStateException("Could not invoke " + name, exception);
-        }
-    }
-
-    private enum MissingMethod {
-        INSTANCE
     }
 }

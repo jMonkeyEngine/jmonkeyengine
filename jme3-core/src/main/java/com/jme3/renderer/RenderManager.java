@@ -486,6 +486,7 @@ public class RenderManager {
         }
     }
 
+    @Deprecated
     private void notifyRescale(ViewPort vp, float x, float y) {
         List<SceneProcessor> processors = vp.getProcessors();
         for (SceneProcessor proc : processors) {
@@ -532,7 +533,7 @@ public class RenderManager {
                                   int surfaceWidth, int surfaceHeight) {
         for (ViewPort vp : viewPorts) {
             FrameBuffer frameBuffer = vp.getOutputFrameBuffer();
-            if (frameBuffer == null) {
+            if (vp.isResizeWithDefaultFramebuffer() || frameBuffer == null) {
                 Camera cam = vp.getCamera();
                 cam.resize(logicalWidth, logicalHeight, true);
                 notifyReshape(vp, surfaceWidth, surfaceHeight);
@@ -555,9 +556,14 @@ public class RenderManager {
      * Internal use only.
      * Updates the scale of all on-screen ViewPorts
      *
+     * @deprecated Display scale changes are handled by {@link #notifyReshape(int, int, int, int)}
+     * using logical and framebuffer sizes. Built-in contexts no longer call
+     * this method.
+     *
      * @param x the new horizontal scale
      * @param y the new vertical scale
      */
+    @Deprecated
     public void notifyRescale(float x, float y) {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
