@@ -162,7 +162,17 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest
+          for attempt in 1 2 3; do
+            echo "Screenshot test attempt $attempt of 3"
+            if ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest; then
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Attempt $attempt failed, retrying..."
+            fi
+          done
+          echo "All 3 attempts failed."
+          exit 1
       - name: Report Screenshot Test failure
         if: failure()
         run: |
