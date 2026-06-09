@@ -253,6 +253,19 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
 
+    @Override
+    public <T> T reloadAsset(AssetKey<T> key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null");
+        }
+        deleteFromCache(key);
+        T asset = loadAsset(key);
+        for (AssetEventListener listener : eventListeners) {
+            listener.assetReloaded(key);
+        }
+        return asset;
+    }
+
     /**
      * Loads an asset that has already been located.
      * @param <T> The asset type

@@ -427,4 +427,24 @@ public interface AssetManager {
      * Clears the asset cache.
      */
     public void clearCache();
+
+    /**
+     * Removes the asset for the given key from the cache (if present) and loads
+     * it again from the configured locators. Registered
+     * {@link AssetEventListener}s receive {@link AssetEventListener#assetReloaded(com.jme3.asset.AssetKey) }
+     * after a successful reload.
+     * <p>
+     * This method is intended for development workflows such as refreshing
+     * content after a file change on disk. It fires {@link AssetEventListener#assetRequested(com.jme3.asset.AssetKey) }
+     * and {@link AssetEventListener#assetLoaded(com.jme3.asset.AssetKey) } through
+     * the normal {@link #loadAsset(com.jme3.asset.AssetKey) } path in addition to
+     * {@code assetReloaded}.
+     *
+     * @param <T> The asset type
+     * @param key The asset key to reload (not null)
+     * @return The reloaded asset
+     * @throws IllegalArgumentException If the key is null or specifies no cache
+     * @throws AssetNotFoundException If the asset cannot be located
+     */
+    public <T> T reloadAsset(AssetKey<T> key);
 }

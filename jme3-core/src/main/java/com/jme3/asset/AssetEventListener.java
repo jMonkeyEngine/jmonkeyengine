@@ -35,8 +35,9 @@ package com.jme3.asset;
  * <code>AssetEventListener</code> is an interface for listening to various
  * events happening inside {@link AssetManager}. For now, it is possible
  * to receive an event when an asset has been requested
- * (one of the AssetManager.load***() methods were called), or when
- * an asset has been loaded.
+ * (one of the AssetManager.load***() methods were called), when
+ * an asset has been loaded, or when an asset has been reloaded via
+ * {@link AssetManager#reloadAsset(com.jme3.asset.AssetKey)}.
  * 
  * @author Kirill Vainer
  */
@@ -72,5 +73,17 @@ public interface AssetEventListener {
      * failed to load.
      */
     public void assetDependencyNotFound(AssetKey parentKey, AssetKey dependentAssetKey);
+
+    /**
+     * Called after {@link AssetManager#reloadAsset(com.jme3.asset.AssetKey) }
+     * has successfully reloaded an asset from its locators.
+     * <p>
+     * Default implementation is a no-op so existing listeners do not need to
+     * be updated.
+     *
+     * @param key the key of the reloaded asset
+     */
+    public default void assetReloaded(AssetKey<?> key) {
+    }
 
 }
