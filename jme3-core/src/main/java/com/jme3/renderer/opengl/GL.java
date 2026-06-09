@@ -891,6 +891,16 @@ public interface GL {
     public String glGetProgramInfoLog(int program, int maxSize);
 
     /**
+     * Returns whether this GL binding can execute elapsed-time timer queries
+     * and read their full 64-bit results.
+     *
+     * @return true if full GPU timer query support is exposed by the binding
+     */
+    public default boolean supportsGpuTimerQuery() {
+        return true;
+    }
+
+    /**
      * Unsigned version.
      *
      * @param query the name of a query object

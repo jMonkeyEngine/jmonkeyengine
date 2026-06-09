@@ -406,10 +406,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 // freezes the application.
                 // On Mac it freezes the application.
                 // On Linux it fixes a crash with X Window System.
-                if (
-                    JmeSystem.getPlatform() == Platform.Windows32 ||
-                    JmeSystem.getPlatform() == Platform.Windows64
-                ) {
+                if (JmeSystem.getPlatform() == Platform.Windows64) {
                     // Display.setParent(null);
                 }
                 // } catch (LWJGLException ex) {
@@ -439,11 +436,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     /**
      * This is called: 1) When the context thread starts 2) Any time the canvas becomes displayable
-     * again. In the first call of this method, OpenGL context is not ready yet. Therefore, OpenCL
-     * context cannot be created. The second call of this method is done after "simpleInitApp" is
-     * called. Therefore, OpenCL won't be available in "simpleInitApp" if Canvas/Swing is used. To use
-     * OpenCL with Canvas/Swing, you need to use OpenCL in the rendering loop "simpleUpdate" and check
-     * for "context.getOpenCLContext()!=null".
+     * again.
      */
     @Override
     protected void createContext(AppSettings settings) {
@@ -482,10 +475,6 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 } else {
                     Display.create(acquirePixelFormat(false));
                 }
-                if (settings.isOpenCLSupport()) {
-                    initOpenCL();
-                }
-
                 renderer.invalidateState();
             } else {
                 // First create the pbuffer, if it is needed.

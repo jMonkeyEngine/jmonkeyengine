@@ -46,15 +46,16 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * <code>TextureManager</code> provides static methods for building a
- * <code>Texture</code> object. Typically, the information supplied is the
- * filename and the texture properties.
+ * <code>TextureManager</code> provides static methods for building a <code>Texture</code> object. Typically,
+ * the information supplied is the filename and the texture properties.
  * 
  * @author Mark Powell
  * @author Joshua Slack - cleaned, commented, added ability to read 16bit true color and color-mapped TGAs.
  * @author Kirill Vainer - ported to jME3
  * @version $Id: TGALoader.java 4131 2009-03-19 20:15:28Z blaine.dev $
+ * @deprecated use {@code StbImageLoader} instead
  */
+@Deprecated
 public final class TGALoader implements AssetLoader {
 
     // 0 - no image data in file
@@ -71,6 +72,14 @@ public final class TGALoader implements AssetLoader {
     public static final int TYPE_TRUECOLOR_RLE = 10;
     // 11 - run-length encoded, black and white image
     public static final int TYPE_BLACKANDWHITE_RLE = 11;
+
+    private static void convertBGRtoRGB(byte[] data, int dl){
+        for (int i = 0; i < data.length; i += dl) {
+            byte tmp = data[i];
+            data[i] = data[i + 2];
+            data[i + 2] = tmp;
+        }
+    }
 
     @Override
     public Object load(AssetInfo info) throws IOException {
@@ -261,7 +270,8 @@ public final class TGALoader implements AssetLoader {
 //                        rawData[rawDataIndex++] = blue;
 //                    }
                 }
-                format = Format.BGR8;
+                convertBGRtoRGB(rawData, dl);
+                format = Format.RGB8;
             } else if (pixelDepth == 32) {
                 for (int i = 0; i <= (height - 1); i++) {
                     if (!flip) {

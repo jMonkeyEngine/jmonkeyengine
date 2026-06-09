@@ -49,32 +49,71 @@ import java.nio.ByteBuffer;
 @Serializable()
 public class ClientRegistrationMessage extends AbstractMessage {
 
+    /**
+     * Serializer id reserved for backwards-compatible client registration messages.
+     */
     public static final short SERIALIZER_ID = -44;
     
     private long id;
     private String gameName;
     private int version;
 
+    /**
+     * Creates an empty registration message for serialization.
+     */
+    public ClientRegistrationMessage() {
+    }
+
+    /**
+     * Returns the client identifier that couples reliable and unreliable channels.
+     *
+     * @return the client identifier
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Sets the client identifier that couples reliable and unreliable channels.
+     *
+     * @param id the client identifier
+     */
     public void setId(long id) {
         this.id = id;
     }
     
+    /**
+     * Sets the game name expected by the server.
+     *
+     * @param name the game name
+     */
     public void setGameName( String name ) {
         this.gameName = name;
     }
  
+    /**
+     * Returns the game name expected by the server.
+     *
+     * @return the game name
+     */
     public String getGameName() {
         return gameName;
     }
     
+    /**
+     * Sets the protocol or game version expected by the server.
+     *
+     * @param version the game version
+     */
     public void setVersion( int version ) {
         this.version = version;
     }
     
+    /**
+     * Returns the protocol or game version expected by the server.
+     *
+     * @return the game version
+     */
     public int getVersion() {
         return version;
     }
@@ -91,9 +130,14 @@ public class ClientRegistrationMessage extends AbstractMessage {
      *  SM serializer registrations... and now will be forever.
      */   
     public static class ClientRegistrationSerializer extends Serializer {
+        /**
+         * Creates the serializer used for client registration messages.
+         */
+        public ClientRegistrationSerializer() {
+        }
      
         @Override
-        public ClientRegistrationMessage readObject( ByteBuffer data, Class c ) throws IOException {
+        public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
     
             // Read the null/non-null marker
             if (data.get() == 0x0)
@@ -105,7 +149,7 @@ public class ClientRegistrationMessage extends AbstractMessage {
             msg.id = data.getLong();
             msg.version = data.getInt();
             
-            return msg;
+            return c.cast(msg);
         }
 
         @Override

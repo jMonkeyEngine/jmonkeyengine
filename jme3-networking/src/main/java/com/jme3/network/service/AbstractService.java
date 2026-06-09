@@ -39,18 +39,24 @@ package com.jme3.network.service;
  *  and getService(type).  Subclasses must at least override the
  *  onInitialize() method to handle service initialization.
  *
+ *  @param <S> the service manager type
  *  @author    Paul Speed
  */
 public abstract class AbstractService<S extends ServiceManager> implements Service<S> {
     
     private S serviceManager;
  
+    /**
+     * Creates an uninitialized service.
+     */
     protected AbstractService() {
     }
     
     /**
      *  Returns the ServiceManager that was passed to
      *  initialize() during service initialization.
+     *
+     *  @return the owning service manager, or null if not yet initialized
      */
     protected S getServiceManager() {
         return serviceManager;
@@ -59,6 +65,10 @@ public abstract class AbstractService<S extends ServiceManager> implements Servi
     /**
      *  Retrieves the first sibling service of the specified
      *  type.
+     *
+     *  @param <T> the requested service type
+     *  @param type the class of the service to look up
+     *  @return the first matching sibling service, or null if none is registered
      */   
     @SuppressWarnings("unchecked")
     protected <T extends Service<S>> T getService( Class<T> type ) {
@@ -78,6 +88,8 @@ public abstract class AbstractService<S extends ServiceManager> implements Servi
     /**
      *  Called during initialize() for the subclass to perform
      *  implementation specific initialization.
+     *
+     *  @param serviceManager the service manager initializing this service
      */   
     protected abstract void onInitialize( S serviceManager );
     

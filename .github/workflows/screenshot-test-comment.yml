@@ -24,7 +24,7 @@ jobs:
         run: sleep 120
 
       - name: Wait for Screenshot Tests to complete
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@9312864dfbc9fd208e9c0417843430751c042800 # v1.7.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: 'Run Screenshot Tests'
@@ -33,7 +33,7 @@ jobs:
           allowed-conclusions: success,skipped,failure
       - name: Check Screenshot Tests status
         id: check-status
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -49,8 +49,10 @@ jobs:
 
             // Find the ScreenshotTests job
             let screenshotTestRun = null;
+            let workflowRunId = null;
             for (const run of runs.data.workflow_runs) {
               if (run.name === 'Build jMonkeyEngine') {
+                workflowRunId = run.id;
                 const jobs = await github.rest.actions.listJobsForWorkflowRun({
                   owner,
                   repo,
@@ -73,14 +75,30 @@ jobs:
               return;
             }
 
+            core.setOutput('run_url', `https://github.com/${owner}/${repo}/actions/runs/${workflowRunId}`);
+
             // Check if the job failed
             if (screenshotTestRun.conclusion === 'failure') {
-              core.setOutput('failed', 'true');
+              // Now check if the changed images artifact exists
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner,
+                repo,
+                run_id: workflowRunId
+              });
+
+              const artifact = artifacts.data.artifacts.find(a => a.name === 'screenshot-test-report');
+              if (artifact) {
+                core.setOutput('failed', 'true');
+                core.setOutput('artifact_url', `https://github.com/${owner}/${repo}/actions/runs/${workflowRunId}/artifacts/${artifact.id}`);
+              } else {
+                console.log('Job failed but no changed images were generated.');
+                core.setOutput('failed', 'false');
+              }
             } else {
               core.setOutput('failed', 'false');
             }
       - name: Find Existing Comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4.0.0
         id: existingCommentId
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -89,7 +107,7 @@ jobs:
 
       - name: Comment on PR if tests fail
         if: steps.check-status.outputs.failed == 'true'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
@@ -98,7 +116,8 @@ jobs:
             The purpose of these tests is to ensure that changes introduced in this PR don't break visual features. They are visual unit tests.
 
             📄 **Where to find the report:**
-            - Go to the (failed run) > Summary > Artifacts > screenshot-test-report
+            - **[Direct Download: screenshot-test-report](${{ steps.check-status.outputs.artifact_url }})**
+            - Alternatively, go to the [failed run summary](${{ steps.check-status.outputs.run_url }}) > Artifacts > screenshot-test-report
             - Download the zip and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html
 
             ⚠️ **If you didn't expect to change anything visual:** 
@@ -114,6 +133,6 @@ jobs:
 
             See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information
             
-            Contact @richardTingle (aka richtea) for guidance if required
+            Contact %40richardTingle (aka richtea) for guidance if required
           edit-mode: replace
           comment-id: ${{ steps.existingCommentId.outputs.comment-id }}

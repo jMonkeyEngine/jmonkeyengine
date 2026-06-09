@@ -33,8 +33,8 @@ package com.jme3.cinematic;
 
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that the {@link MotionPath} class works.
@@ -59,17 +59,17 @@ public class MotionPathTest {
         MotionPath clone = Cloner.deepClone(original);
 
         // Verify that the clone is non-null and distinct from the original:
-        Assert.assertNotNull(clone);
-        Assert.assertTrue(clone != original);
+        Assertions.assertNotNull(clone);
+        Assertions.assertTrue(clone != original);
 
         // Compare the return values of various getters:
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 clone.getCurveTension(), original.getCurveTension(), 0f);
-        Assert.assertEquals(clone.getLength(), original.getLength(), 0f);
-        Assert.assertEquals(clone.getNbWayPoints(), original.getNbWayPoints());
-        Assert.assertEquals(
+        Assertions.assertEquals(clone.getLength(), original.getLength(), 0f);
+        Assertions.assertEquals(clone.getNbWayPoints(), original.getNbWayPoints());
+        Assertions.assertEquals(
                 clone.getPathSplineType(), original.getPathSplineType());
-        Assert.assertEquals(clone.getWayPoint(0), original.getWayPoint(0));
-        Assert.assertEquals(clone.isCycle(), original.isCycle());
+        Assertions.assertEquals(clone.getWayPoint(0), original.getWayPoint(0));
+        Assertions.assertEquals(clone.isCycle(), original.isCycle());
     }
 }

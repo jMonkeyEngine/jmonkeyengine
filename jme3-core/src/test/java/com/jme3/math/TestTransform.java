@@ -33,8 +33,8 @@ package com.jme3.math;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the Transform class using JUnit.
@@ -66,18 +66,18 @@ public class TestTransform {
         );
         Matcher matcher = pattern.matcher(result);
         boolean valid = matcher.matches();
-        Assert.assertTrue(valid);
+        Assertions.assertTrue(valid);
 
         String txText = matcher.group(1);
         float tx = Float.parseFloat(txText);
-        Assert.assertEquals(12f, tx, 1e-5f);
+        Assertions.assertEquals(12f, tx, 1e-5f);
 
         String rzText = matcher.group(6);
         float rz = Float.parseFloat(rzText);
-        Assert.assertEquals(-0.8f, rz, 1e-6f);
+        Assertions.assertEquals(-0.8f, rz, 1e-6f);
 
         String szText = matcher.group(10);
         float sz = Float.parseFloat(szText);
-        Assert.assertEquals(1.7f, sz, 2e-6f);
+        Assertions.assertEquals(1.7f, sz, 2e-6f);
     }
 }

@@ -150,13 +150,13 @@ public class TestGltfLoading extends SimpleApplication {
         // Test for normalized texture coordinates in draco
         //loadModelFromPath("Models/gltf/unitSquare11x11_unsignedShortTexCoords-draco.glb");
 
-        // Uses EXT_texture_webp - not supported yet 
-        //loadModelSample("SunglassesKhronos", "draco");
+        // Uses EXT_texture_webp
+        // loadModelSample("SunglassesKhronos", "draco");
+        // loadModelSample("CarConcept", "webp");
         
         // Probably invalid model
         // See https://github.com/KhronosGroup/glTF-Sample-Assets/issues/264
         // loadModelSample("VirtualCity", "draco");
-        
         probeNode.attachChild(assets.get(0));
 
         inputManager.addMapping("autorotate", new KeyTrigger(KeyInput.KEY_SPACE));
@@ -213,10 +213,15 @@ public class TestGltfLoading extends SimpleApplication {
                 path += "/glTF-Binary/";
                 ext = "glb";
                 break;
+            case "webp":
+                path += "/glTF-WEBP/";
+                ext = "gltf";
+                break;
             default:
                 path += "/glTF/";
                 ext = "gltf";
                 break;
+
         }
         path += name + "." + ext;
         loadModelFromPath(path);

@@ -8,10 +8,17 @@ vec3 Math_QuaternionMult(in vec4 quat, in vec3 vec){
 
 void Math_lengthAndNormalize(in vec3 vec,out float outLength,out vec3 outNormal){
     float dotv=dot(vec,vec);
+    if(dotv <= 0.0){
+        outNormal = vec3(0.0);
+        outLength = 0.0;
+        return;
+    }
     float invl=inversesqrt(dotv);
     outNormal=vec*invl;
     outLength=invl*dotv;
 }
 
-
+float Math_saturate(float value) {
+    return clamp(value, 0.0, 1.0);
+}
 #endif

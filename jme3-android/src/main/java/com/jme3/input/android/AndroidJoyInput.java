@@ -31,9 +31,8 @@
  */
 package com.jme3.input.android;
 
-import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Vibrator;
+import android.view.MotionEvent;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
@@ -41,7 +40,9 @@ import com.jme3.input.RawInputListener;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.virtual.VirtualJoystick;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -49,15 +50,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Main class that manages various joystick devices.  Joysticks can be many forms
- * including a simulated joystick to communicate the device orientation as well
- * as physical gamepads. <br>
+ * Main class that manages joystick devices. Joysticks can be physical gamepads,
+ * the on-screen virtual joystick, or an explicitly-enabled sensor joystick. <br>
  * This class manages all the joysticks and feeds the inputs from each back
  * to jME's InputManager.
  *
- * This handler also supports the joystick.rumble(rumbleAmount) method.  In this
- * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
- * if the device has a built-in vibrate motor.
+ * This handler also supports redirecting joystick.rumble(rumbleAmount) to the
+ * Android device vibrator if AppSettings#setOnDeviceJoystickRumble(boolean) is
+ * enabled and the device has a built-in vibrate motor.
  *
  * Because Android does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
@@ -68,7 +68,7 @@ import java.util.logging.Logger;
  *
  * MainActivity needs the following line to enable Joysticks on Android platforms
  *    joystickEventsEnabled = true;
- * This is done to allow for battery conservation when sensor data or gamepads
+ * This is done to allow for battery conservation when sensor data or joysticks
  * are not required by the application.
  *
  * {@code
@@ -80,7 +80,6 @@ import java.util.logging.Logger;
  */
 public class AndroidJoyInput implements JoyInput {
     private static final Logger logger = Logger.getLogger(AndroidJoyInput.class.getName());
-    public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
     protected List<Joystick> joystickList = new ArrayList<>();
@@ -92,33 +91,37 @@ public class AndroidJoyInput implements JoyInput {
     private RawInputListener listener = null;
     private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<>();
     private AndroidSensorJoyInput sensorJoyInput;
-    private Vibrator vibrator = null;
-    private boolean vibratorActive = false;
-    private long maxRumbleTime = 250;  // 250ms
+    private boolean onDeviceJoystickRumble = false;
+    private String virtualJoystickMode = AppSettings.VIRTUAL_JOYSTICK_AUTO;
+    private String virtualJoystickDefaultLayout = AppSettings.VIRTUAL_JOYSTICK_LAYOUT_DYNAMIC;
+    private boolean useJoysticks = true;
+    private boolean useAndroidSensorJoystick = false;
+    private boolean physicalJoystickAvailable = false;
+    private boolean keyboardSuppressedAutoJoystick = false;
+    private volatile VirtualJoystick virtualJoystick;
+    private GLSurfaceView view;
 
     public AndroidJoyInput(AndroidInputHandler inputHandler) {
         this.inputHandler = inputHandler;
-        sensorJoyInput = new AndroidSensorJoyInput(this);
     }
 
     public void setView(GLSurfaceView view) {
-        if (view == null) {
-            vibrator = null;
-        } else {
-            // Get instance of Vibrator from current Context
-            vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator == null) {
-                logger.log(Level.FINE, "Vibrator Service not found.");
-            }
-        }
-
+        this.view = view;
         if (sensorJoyInput != null) {
             sensorJoyInput.setView(view);
         }
     }
 
     public void loadSettings(AppSettings settings) {
+        onDeviceJoystickRumble = settings.isOnDeviceJoystickRumble();
+        virtualJoystickMode = settings.getVirtualJoystickMode();
+        virtualJoystickDefaultLayout = settings.getVirtualJoystickDefaultLayout();
+        useJoysticks = settings.useJoysticks();
+        useAndroidSensorJoystick = settings.useAndroidSensorJoystick();
+    }
 
+    boolean isOnDeviceJoystickRumble() {
+        return onDeviceJoystickRumble;
     }
 
     public void addEvent(InputEvent event) {
@@ -133,8 +136,11 @@ public class AndroidJoyInput implements JoyInput {
         if (sensorJoyInput != null) {
             sensorJoyInput.pauseSensors();
         }
-        if (vibrator != null && vibratorActive) {
-            vibrator.cancel();
+        if (onDeviceJoystickRumble) {
+            JmeSystem.stopRumble();
+        }
+        if (virtualJoystick != null) {
+            virtualJoystick.onPointerCancel(0L);
         }
 
     }
@@ -147,7 +153,6 @@ public class AndroidJoyInput implements JoyInput {
         if (sensorJoyInput != null) {
             sensorJoyInput.resumeSensors();
         }
-
     }
 
     @Override
@@ -163,12 +168,11 @@ public class AndroidJoyInput implements JoyInput {
     @Override
     public void destroy() {
         initialized = false;
-
         if (sensorJoyInput != null) {
             sensorJoyInput.destroy();
+            sensorJoyInput = null;
         }
-
-        setView(null);
+        view = null;
     }
 
     @Override
@@ -182,28 +186,16 @@ public class AndroidJoyInput implements JoyInput {
     }
 
     @Override
-    public void setJoyRumble(int joyId, float amount) {
-        // convert amount to pulses since Android doesn't allow intensity
-        if (vibrator != null) {
-            final long rumbleOnDur = (long)(amount * maxRumbleTime); // ms to pulse vibration on
-            final long rumbleOffDur = maxRumbleTime - rumbleOnDur; // ms to delay between pulses
-            final long[] rumblePattern = {
-                0, // start immediately
-                rumbleOnDur, // time to leave vibration on
-                rumbleOffDur // time to delay between vibrations
-            };
-            final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
+    public void setJoyRumble(int joyId, float amountHigh, float amountLow, float duration) {
+        if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
+            JmeSystem.rumble(amountHigh, amountLow, duration);
+        }
+    }
 
-//            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
-//                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
-
-            if (rumbleOnDur > 0) {
-                vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
-                vibratorActive = true;
-            } else {
-                vibrator.cancel();
-                vibratorActive = false;
-            }
+    @Override
+    public void stopJoyRumble(int joyId) {
+        if (onDeviceJoystickRumble && JmeSystem.isDeviceRumbleSupported()) {
+            JmeSystem.stopRumble();
         }
     }
 
@@ -212,10 +204,70 @@ public class AndroidJoyInput implements JoyInput {
         if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
         }
-        if (!disableSensors) {
+        joystickList.clear();
+        if (useJoysticks && useAndroidSensorJoystick) {
+            if (sensorJoyInput == null) {
+                sensorJoyInput = new AndroidSensorJoyInput(this);
+                sensorJoyInput.setView(view);
+            }
             joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
         }
+        physicalJoystickAvailable = false;
+        if (shouldCreateVirtualJoystick()) {
+            virtualJoystick = new VirtualJoystick(inputManager, this, joystickList.size());
+            virtualJoystick.setLayout(VirtualJoystick.createLayout(virtualJoystickDefaultLayout));
+            virtualJoystick.setEnabled(false);
+            updateVirtualJoystickAutoVisibility();
+            joystickList.add(virtualJoystick);
+        } else {
+            virtualJoystick = null;
+        }
         return joystickList.toArray( new Joystick[joystickList.size()] );
+    }
+
+    public boolean onTouch(MotionEvent event) {
+        VirtualJoystick joystick = virtualJoystick;
+        if (joystick == null || inputHandler.getView() == null) {
+            return false;
+        }
+
+        boolean consumed = false;
+        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        long time = event.getEventTime();
+
+        switch (action) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_DOWN:
+                consumed = joystick.onPointerDown(event.getPointerId(pointerIndex),
+                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_UP:
+                consumed = joystick.onPointerUp(event.getPointerId(pointerIndex),
+                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                consumed = joystick.onPointerCancel(time);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                for (int i = 0; i < event.getPointerCount(); i++) {
+                    consumed = joystick.onPointerMove(event.getPointerId(i),
+                            toJmeX(event.getX(i)), toJmeY(event.getY(i)), time) || consumed;
+                }
+                break;
+            default:
+                break;
+        }
+        return consumed;
+    }
+
+    public void onKeyboardInput() {
+        if (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)) {
+            keyboardSuppressedAutoJoystick = true;
+            updateVirtualJoystickAutoVisibility();
+        }
     }
 
     @Override
@@ -235,7 +287,43 @@ public class AndroidJoyInput implements JoyInput {
                 }
             }
         }
+        if (virtualJoystick != null) {
+            updateVirtualJoystickAutoVisibility();
+            virtualJoystick.dispatchEvents(listener);
+        }
 
+    }
+
+    private float toJmeX(float x) {
+        return inputHandler.touchInput.getJmeX(x);
+    }
+
+    private float toJmeY(float y) {
+        return inputHandler.touchInput.invertY(inputHandler.touchInput.getJmeY(y));
+    }
+
+    protected void setPhysicalJoystickAvailable(boolean available) {
+        physicalJoystickAvailable = available;
+        updateVirtualJoystickAutoVisibility();
+    }
+
+    private boolean shouldCreateVirtualJoystick() {
+        return useJoysticks && !AppSettings.VIRTUAL_JOYSTICK_DISABLED.equals(virtualJoystickMode);
+    }
+
+    private void updateVirtualJoystickAutoVisibility() {
+        if (virtualJoystick == null) {
+            return;
+        }
+        boolean wasEnabled = virtualJoystick.isEnabled();
+        boolean active = AppSettings.VIRTUAL_JOYSTICK_ENABLED.equals(virtualJoystickMode)
+                || (AppSettings.VIRTUAL_JOYSTICK_AUTO.equals(virtualJoystickMode)
+                && !physicalJoystickAvailable
+                && !keyboardSuppressedAutoJoystick
+                && virtualJoystick.hasInputBindings());
+        if (wasEnabled != active) {
+            virtualJoystick.setEnabled(active);
+        }
     }
 
 }

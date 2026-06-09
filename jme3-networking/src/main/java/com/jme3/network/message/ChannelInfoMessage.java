@@ -46,10 +46,19 @@ public class ChannelInfoMessage extends AbstractMessage {
     private long id;
     private int[] ports;
 
+    /**
+     * Creates an empty channel info message for serialization.
+     */
     public ChannelInfoMessage() {
         super( true );        
     }
 
+    /**
+     * Creates a message describing the server id and extra ports.
+     *
+     * @param id the server identifier
+     * @param ports the additional ports exposed by the server
+     */
     public ChannelInfoMessage( long id, List<Integer> ports ) {
         super( true );
         this.id = id;
@@ -59,10 +68,20 @@ public class ChannelInfoMessage extends AbstractMessage {
         }        
     }
 
+    /**
+     * Returns the server identifier associated with this message.
+     *
+     * @return the server identifier
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Returns the extra ports advertised by the server.
+     *
+     * @return the advertised ports
+     */
     public int[] getPorts() {
         return ports;
     }

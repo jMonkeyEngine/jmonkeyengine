@@ -412,7 +412,11 @@ public class BoundingBox extends BoundingVolume {
      * altered)
      * @return this box (with its components modified) or null if the second
      * volume is of some type other than AABB or Sphere
+     * @deprecated This method modifies the receiver in place, which is
+     *     inconsistent with {@link BoundingSphere#merge}. Use
+     *     {@link #mergeWith} instead.
      */
+    @Deprecated
     @Override
     public BoundingVolume merge(BoundingVolume volume) {
         return mergeLocal(volume);
@@ -956,47 +960,36 @@ public class BoundingBox extends BoundingVolume {
 
     @Override
     public float distanceToEdge(Vector3f point) {
-        // compute coordinates of point in box coordinate system
-        TempVars vars = TempVars.get();
-        Vector3f closest = vars.vect1;
-
-        point.subtract(center, closest);
-
-        // project test point onto box
         float sqrDistance = 0.0f;
         float delta;
+        float closestX = point.x - center.x;
 
-        if (closest.x < -xExtent) {
-            delta = closest.x + xExtent;
+        if (closestX < -xExtent) {
+            delta = closestX + xExtent;
             sqrDistance += delta * delta;
-            closest.x = -xExtent;
-        } else if (closest.x > xExtent) {
-            delta = closest.x - xExtent;
+        } else if (closestX > xExtent) {
+            delta = closestX - xExtent;
             sqrDistance += delta * delta;
-            closest.x = xExtent;
         }
 
-        if (closest.y < -yExtent) {
-            delta = closest.y + yExtent;
+        float closestY = point.y - center.y;
+        if (closestY < -yExtent) {
+            delta = closestY + yExtent;
             sqrDistance += delta * delta;
-            closest.y = -yExtent;
-        } else if (closest.y > yExtent) {
-            delta = closest.y - yExtent;
+        } else if (closestY > yExtent) {
+            delta = closestY - yExtent;
             sqrDistance += delta * delta;
-            closest.y = yExtent;
         }
 
-        if (closest.z < -zExtent) {
-            delta = closest.z + zExtent;
+        float closestZ = point.z - center.z;
+        if (closestZ < -zExtent) {
+            delta = closestZ + zExtent;
             sqrDistance += delta * delta;
-            closest.z = -zExtent;
-        } else if (closest.z > zExtent) {
-            delta = closest.z - zExtent;
+        } else if (closestZ > zExtent) {
+            delta = closestZ - zExtent;
             sqrDistance += delta * delta;
-            closest.z = zExtent;
         }
 
-        vars.release();
         return FastMath.sqrt(sqrDistance);
     }
 

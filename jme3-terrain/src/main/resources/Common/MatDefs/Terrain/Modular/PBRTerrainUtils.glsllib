@@ -61,6 +61,9 @@
         vec4 alphaBlend_0, alphaBlend_1, alphaBlend_2;
 
         void PBRTerrainUtils_readAlphaMaps(){
+            alphaBlend_0 = vec4(1.0, 0.0, 0.0, 0.0);
+            alphaBlend_1 = vec4(0.0);
+            alphaBlend_2 = vec4(0.0);
 
             #ifdef ALPHAMAP  
                 alphaBlend_0 = texture2D( m_AlphaMap, texCoord.xy );
@@ -75,12 +78,12 @@
 
         float PBRTerrainUtils_getAlphaBlendFromChannel(int layer){
             float finalAlphaBlendForLayer = 0.0;
-            vec4 alphaBlend;
-            if(layer <= 3.0){
+            vec4 alphaBlend = vec4(0.0);
+            if(layer <= 3){
                 alphaBlend = alphaBlend_0;       
-            }else if(layer <= 7.0){
+            }else if(layer <= 7){
                 alphaBlend = alphaBlend_1;
-            }else if(layer <= 11.0){
+            }else if(layer <= 11){
                 alphaBlend = alphaBlend_2;
             }
             int texChannelForAlphaBlending = int(mod(float(layer), 4.0)); //pick the correct channel (r g b or a) based on the layer's index

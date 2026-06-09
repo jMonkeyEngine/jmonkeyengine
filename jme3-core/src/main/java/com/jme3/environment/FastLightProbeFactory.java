@@ -75,7 +75,7 @@ public class FastLightProbeFactory {
      * @return The baked LightProbe
      */
     public static LightProbe makeProbe(RenderManager rm, AssetManager am, int size, Vector3f pos, float frustumNear, float frustumFar, Spatial scene) {
-        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(rm, am, Format.RGB16F, Format.Depth, size,
+        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(rm, am, null, null, size,
                         size);
 
         baker.setTexturePulling(true);

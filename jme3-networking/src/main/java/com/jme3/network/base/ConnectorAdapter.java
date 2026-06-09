@@ -76,6 +76,15 @@ public class ConnectorAdapter extends Thread
     // through this connector.
     private boolean reliable;
  
+    /**
+     * Creates an adapter for a connector and starts a background writer thread.
+     *
+     * @param connector the transport connector to wrap
+     * @param protocol the message protocol used to decode incoming messages
+     * @param dispatcher the listener that receives decoded messages
+     * @param errorHandler the error listener for connector failures
+     * @param reliable true if this adapter represents a reliable channel
+     */
     public ConnectorAdapter( Connector connector, MessageProtocol protocol, 
                              MessageListener<Object> dispatcher, 
                              ErrorListener<Object> errorHandler, boolean reliable )
@@ -116,6 +125,9 @@ public class ConnectorAdapter extends Thread
         writer.start();                                           
     }
  
+    /**
+     * Closes the adapter and its underlying connector.
+     */
     public void close()
     {
         go.set(false);
@@ -130,11 +142,21 @@ public class ConnectorAdapter extends Thread
             }
     }
  
+    /**
+     * Dispatches a decoded message to the configured listener.
+     *
+     * @param m the decoded message
+     */
     protected void dispatch( Message m )
     {
         dispatcher.messageReceived( null, m );                        
     }
  
+    /**
+     * Queues outbound bytes for writing on the background writer thread.
+     *
+     * @param data the bytes to write
+     */
     public void write( ByteBuffer data )
     {
         try {
@@ -144,6 +166,11 @@ public class ConnectorAdapter extends Thread
         }
     }
  
+    /**
+     * Reports an adapter or connector error if the adapter is still active.
+     *
+     * @param e the error to report
+     */
     protected void handleError( Exception e )
     {
         if( !go.get() )
@@ -183,13 +210,22 @@ public class ConnectorAdapter extends Thread
         }            
     }
  
+    /**
+     * Background writer thread that drains the outbound queue.
+     */
     protected class WriterThread extends Thread
     {
+        /**
+         * Creates the background writer thread.
+         */
         public WriterThread()
         {
             super( String.valueOf(connector) + "-writer" );
         }
 
+        /**
+         * Stops the writer thread by interrupting its blocking wait.
+         */
         public void shutdown()
         {
             interrupt();

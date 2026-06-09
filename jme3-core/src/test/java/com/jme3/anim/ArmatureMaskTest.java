@@ -31,8 +31,8 @@
  */
 package com.jme3.anim;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test constructors and modification methods of the ArmatureMask class.
@@ -81,7 +81,7 @@ public class ArmatureMaskTest {
 
         for (ArmatureMask testMask : maskArray) {
             for (Joint testJoint : jointList) {
-                Assert.assertTrue(testMask.contains(testJoint));
+                Assertions.assertTrue(testMask.contains(testJoint));
             }
         }
     }
@@ -104,7 +104,7 @@ public class ArmatureMaskTest {
 
         for (ArmatureMask testMask : maskArray) {
             for (Joint testJoint : jointList) {
-                Assert.assertFalse(testMask.contains(testJoint));
+                Assertions.assertFalse(testMask.contains(testJoint));
             }
         }
     }
@@ -132,9 +132,9 @@ public class ArmatureMaskTest {
         for (ArmatureMask testMask : maskArray) {
             for (Joint testJoint : jointList) {
                 if (testJoint == j1 || testJoint == j2) {
-                    Assert.assertTrue(testMask.contains(testJoint));
+                    Assertions.assertTrue(testMask.contains(testJoint));
                 } else {
-                    Assert.assertFalse(testMask.contains(testJoint));
+                    Assertions.assertFalse(testMask.contains(testJoint));
                 }
             }
         }

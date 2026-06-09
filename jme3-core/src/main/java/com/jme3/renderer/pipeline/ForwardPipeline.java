@@ -46,7 +46,7 @@ import java.util.List;
  * 
  * @author codex
  */
-public class ForwardPipeline implements RenderPipeline {
+public class ForwardPipeline implements RenderPipeline<PipelineContext> {
 
     private boolean rendered = false;
     

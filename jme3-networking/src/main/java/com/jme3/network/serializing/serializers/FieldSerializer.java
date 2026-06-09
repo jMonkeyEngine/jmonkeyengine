@@ -49,12 +49,22 @@ import java.util.logging.Logger;
  * @author Lars Wesselius, Nathan Sweet
  */
 public class FieldSerializer extends Serializer {
+    /**
+     * Creates a reflective field serializer.
+     */
+    public FieldSerializer() {
+    }
     
     private static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
 
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
 
+    /**
+     * Validates and caches the reflective access metadata for a class.
+     *
+     * @param clazz the class to inspect
+     */
     @SuppressWarnings("unchecked")
     protected void checkClass(Class clazz) {
     

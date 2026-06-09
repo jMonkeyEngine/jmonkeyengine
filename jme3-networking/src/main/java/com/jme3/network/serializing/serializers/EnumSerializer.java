@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  * @author Lars Wesselius
  */
 public class EnumSerializer extends Serializer {
+    /**
+     * Creates an enum serializer.
+     */
+    public EnumSerializer() {
+    }
     @Override
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         try {

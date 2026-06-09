@@ -40,6 +40,7 @@ import com.jme3.network.MessageConnection;
  *  of a specified delegate object.  These methods can be automapped or manually
  *  specified.  
  *
+ *  @param <S> the message connection type handled by this delegator
  *  @author    Paul Speed
  */
 public class ObjectMessageDelegator<S extends MessageConnection> extends AbstractMessageDelegator<S> {
@@ -58,6 +59,9 @@ public class ObjectMessageDelegator<S extends MessageConnection> extends Abstrac
      *  </ul>
      *  Where S is the type of MessageConnection and SomeMessage is some
      *  specific concrete Message subclass.
+     *
+     *  @param delegate the object that will receive forwarded calls
+     *  @param automap true to automatically map compatible methods on the delegate
      */   
     public ObjectMessageDelegator( Object delegate, boolean automap ) {
         super(delegate.getClass(), automap);

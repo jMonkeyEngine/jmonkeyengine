@@ -58,7 +58,6 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
-
 /**
  * Render the environment into a cubemap
  *
@@ -99,26 +98,43 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     protected TextureCubeMap envMap;
     protected Format depthFormat;
+    protected Format colorFormat;
 
     protected final RenderManager renderManager;
     protected final AssetManager assetManager;
     protected final Camera cam;
     protected boolean texturePulling = false;
     protected List<ByteArrayOutputStream> bos = new ArrayList<>();
+    private FrameBuffer[] envBakers;
 
     protected GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
         this.depthFormat = depthFormat;
+        this.colorFormat = colorFormat;
 
         renderManager = rm;
         assetManager = am;
 
         cam = new Camera(128, 128);
 
-        envMap = new TextureCubeMap(env_size, env_size, colorFormat);
+        envMap = new TextureCubeMap(env_size, env_size, getColorFormat());
         envMap.setMagFilter(MagFilter.Bilinear);
         envMap.setMinFilter(MinFilter.BilinearNoMipMaps);
         envMap.setWrap(WrapMode.EdgeClamp);
         envMap.getImage().setColorSpace(ColorSpace.Linear);
+    }
+
+    protected Format getColorFormat() {
+        if (colorFormat == null) {
+            this.colorFormat = renderManager.getRenderer().getBestColorTargetFormat(true, false, false, false);
+        }
+        return colorFormat;
+    }
+
+    protected Format getDepthFormat() {
+        if (depthFormat == null) {
+            this.depthFormat = renderManager.getRenderer().getBestDepthTargetFormat(false, false, false);
+        }
+        return depthFormat;
     }
 
     @Override
@@ -163,18 +179,35 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void clean() {
+        if (envBakers != null) {
+            for (FrameBuffer envBaker : envBakers) {
+                if (envBaker != null) {
+                    envBaker.dispose();
+                }
+            }
+            envBakers = null;
+        }
 
+    }
+
+    private FrameBuffer[] getEnvBakers() {
+        if (envBakers != null) {
+            return envBakers;
+        }
+
+        envBakers = new FrameBuffer[6];
+        for (int i = 0; i < 6; i++) {
+            envBakers[i] = new FrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
+            envBakers[i].setDepthTarget(FrameBufferTarget.newTarget(getDepthFormat()));
+            envBakers[i].setSrgb(false);
+            envBakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
+        }
+        return envBakers;
     }
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
-        FrameBuffer envbakers[] = new FrameBuffer[6];
-        for (int i = 0; i < 6; i++) {
-            envbakers[i] = new FrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
-            envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
-            envbakers[i].setSrgb(false);
-            envbakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
-        }
+        FrameBuffer envbakers[] = getEnvBakers();
 
         if (isTexturePulling()) {
             startPulling();
@@ -197,8 +230,11 @@ public abstract class GenericEnvBaker implements EnvBaker {
             Predicate<Geometry> ofilter = renderManager.getRenderFilter();
 
             renderManager.setRenderFilter(filter);
-            renderManager.renderViewPort(viewPort, 0.16f);
-            renderManager.setRenderFilter(ofilter);
+            try {
+                renderManager.renderViewPort(viewPort, 0.16f);
+            } finally {
+                renderManager.setRenderFilter(ofilter);
+            }
 
             if (isTexturePulling()) {
                 pull(envbaker, envMap, i);
@@ -211,10 +247,6 @@ public abstract class GenericEnvBaker implements EnvBaker {
         }
 
         envMap.getImage().clearUpdateNeeded();
-
-        for (int i = 0; i < 6; i++) {
-            envbakers[i].dispose();
-        }
     }
 
     /**

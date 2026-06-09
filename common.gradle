@@ -18,15 +18,19 @@ version = jmeFullVersion
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
 }
+
+apply plugin: 'org.jmonkeyengine.nativeimage'
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
-    options.compilerArgs << '-Xlint:unchecked'
+    options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:-options', '-Werror'])
     options.encoding = 'UTF-8'
-    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_1_10)) {
-        options.release = 8
-    }
+    options.release = 8
 }
 
 repositories {
@@ -38,9 +42,12 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testImplementation libs.junit4
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
     testImplementation libs.mokito.core
+    testImplementation libs.mokito.junit.jupiter
     testImplementation libs.groovy.test
+    testRuntimeOnly libs.junit.platform.launcher
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -63,7 +70,14 @@ jar {
 }
 
 javadoc {
-    failOnError = false
+    def javadocErrorsEnabled = rootProject.findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     options.docTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
     options.windowTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
@@ -76,6 +90,7 @@ javadoc {
 }
 
 test {
+    useJUnitPlatform()
     testLogging {
         exceptionFormat = 'full'
     }
@@ -92,35 +107,34 @@ task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from 
 }
 
 ext.pomConfig = {
-    name POM_NAME
-    description POM_DESCRIPTION
-    url POM_URL
-    inceptionYear POM_INCEPTION_YEAR
+    name = POM_NAME
+    description = POM_DESCRIPTION
+    url = POM_URL
+    inceptionYear = POM_INCEPTION_YEAR
     scm {
-        url POM_SCM_URL
-        connection POM_SCM_CONNECTION
-        developerConnection POM_SCM_DEVELOPER_CONNECTION
+        url = POM_SCM_URL
+        connection = POM_SCM_CONNECTION
+        developerConnection = POM_SCM_DEVELOPER_CONNECTION
     }
     licenses {
         license {
-            name POM_LICENSE_NAME
-            url POM_LICENSE_URL
-            distribution POM_LICENSE_DISTRIBUTION
+            name = POM_LICENSE_NAME
+            url = POM_LICENSE_URL
+            distribution = POM_LICENSE_DISTRIBUTION
         }
     }
     developers {
         developer {
-            name 'jMonkeyEngine Team'
-            id 'jMonkeyEngine'
+            name = 'jMonkeyEngine Team'
+            id = 'jMonkeyEngine'
         }
     }
 }
 
-artifacts {
-    archives jar
-    archives sourcesJar
+tasks.named('assemble') {
+    dependsOn sourcesJar
     if (buildJavaDoc == "true") {
-        archives javadocJar
+        dependsOn javadocJar
     }
 }
 
@@ -154,7 +168,7 @@ publishing {
                 }
                 url = POM_URL
             }
-            version project.version
+            version = project.version
         }
     }
 
@@ -201,16 +215,17 @@ signing {
     def signingPassword = gradle.rootProject.findProperty('signingPassword')
     useInMemoryPgpKeys(signingKey, signingPassword)
 
-    sign configurations.archives
     sign publishing.publications.maven
 }
 tasks.withType(Sign) {
     onlyIf { gradle.rootProject.hasProperty('signingKey') }
 }
 
+def checkstyleSupported = JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_21)
+
 checkstyle {
-    toolVersion libs.versions.checkstyle.get()
-    configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
+    toolVersion = libs.versions.checkstyle.get()
+    configFile = file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
 }
 
 checkstyleMain {
@@ -222,6 +237,7 @@ checkstyleTest {
 }
 
 tasks.withType(Checkstyle) {
+    enabled = checkstyleSupported
     reports {
         xml.required.set(false)
         html.required.set(true)

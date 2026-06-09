@@ -187,6 +187,7 @@ public class ParticleEmitter extends Geometry {
      *  The old clone() method that did not use the new Cloner utility.
      */
     @Override
+    @Deprecated
     public ParticleEmitter oldClone(boolean cloneMaterial) {
         ParticleEmitter clone = (ParticleEmitter) super.clone(cloneMaterial);
         clone.shape = shape.deepClone();

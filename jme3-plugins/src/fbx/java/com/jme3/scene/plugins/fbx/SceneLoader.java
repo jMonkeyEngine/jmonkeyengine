@@ -46,7 +46,11 @@ import com.jme3.scene.plugins.fbx.objects.FbxTexture;
  * <p> Loads scene meshes, materials, textures, skeleton and skeletal animation.
  * Multiple animations can be defined with {@link AnimationList} passing into {@link SceneKey}
  * or loaded from different animation layer.</p>
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
  */
+@Deprecated
 public class SceneLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
@@ -87,6 +91,7 @@ public class SceneLoader implements AssetLoader {
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
+        FbxDeprecationWarnings.log(logger);
         this.currentAssetInfo = assetInfo;
         this.assetManager = assetInfo.getManager();
         AssetKey<?> assetKey = assetInfo.getKey();

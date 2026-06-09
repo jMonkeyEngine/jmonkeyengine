@@ -155,12 +155,15 @@ public class StatsAppState extends AbstractAppState {
         }
 
         if (guiFont == null) {
-            guiFont = app.getAssetManager().loadFont("Interface/Fonts/Default.fnt");
+            guiFont = app.getAssetManager().loadFont("Interface/Fonts/Default.j3o");
         }
 
         loadFpsText();
         loadStatsView();
         loadDarken();
+
+        // Apply any enabled state set before initialization
+        setEnabled(isEnabled());
     }
 
     /**
@@ -216,6 +219,11 @@ public class StatsAppState extends AbstractAppState {
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
+
+        if (fpsText == null) {
+            // Not yet initialized; the enabled state will be applied in initialize()
+            return;
+        }
 
         if (enabled) {
             fpsText.setCullHint(showFps ? CullHint.Never : CullHint.Always);

@@ -41,12 +41,27 @@ package com.jme3.network.kernel;
  */
 public class EndpointEvent
 {
-    public enum Type { ADD, REMOVE };
+    /**
+     * Enumerates the supported endpoint event types.
+     */
+    public enum Type {
+        /** Endpoint added. */
+        ADD,
+        /** Endpoint removed. */
+        REMOVE
+    };
 
     private Kernel source;
     private Endpoint endpoint;
     private Type type;
 
+    /**
+     * Creates an endpoint event.
+     *
+     * @param source the kernel that produced the event
+     * @param p the endpoint involved in the event
+     * @param type the event type
+     */
     public EndpointEvent( Kernel source, Endpoint p, Type type )
     {
         this.source = source;
@@ -54,26 +69,55 @@ public class EndpointEvent
         this.type = type;
     }
     
+    /**
+     * Creates an endpoint-added event.
+     *
+     * @param source the kernel that produced the event
+     * @param p the added endpoint
+     * @return the created event
+     */
     public static EndpointEvent createAdd( Kernel source, Endpoint p )
     {
         return new EndpointEvent( source, p, Type.ADD );
     }
 
+    /**
+     * Creates an endpoint-removed event.
+     *
+     * @param source the kernel that produced the event
+     * @param p the removed endpoint
+     * @return the created event
+     */
     public static EndpointEvent createRemove( Kernel source, Endpoint p )
     {
         return new EndpointEvent( source, p, Type.REMOVE );
     }
     
+    /**
+     * Returns the kernel that produced the event.
+     *
+     * @return the source kernel
+     */
     public Kernel getSource()
     {
         return source;
     }
     
+    /**
+     * Returns the endpoint involved in the event.
+     *
+     * @return the event endpoint
+     */
     public Endpoint getEndpoint()
     {
         return endpoint;
     }
     
+    /**
+     * Returns the event type.
+     *
+     * @return the event type
+     */
     public Type getType()
     {
         return type;

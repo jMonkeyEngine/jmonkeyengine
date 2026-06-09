@@ -1,0 +1,5 @@
+dependencies {
+    api project(':jme3-core')
+
+    implementation libs.bundles.saferalloc
+}

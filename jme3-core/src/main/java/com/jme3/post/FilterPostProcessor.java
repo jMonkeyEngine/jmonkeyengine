@@ -102,6 +102,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private float top;
     private int originalWidth;
     private int originalHeight;
+    private boolean resizeWithDefaultFramebuffer;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
     private boolean multiView = false;
@@ -207,16 +208,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         // Determine optimal framebuffer format based on renderer capabilities
         if (fbFormat == null) {
-            fbFormat = Format.RGB111110F;
-            if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-                if (renderer.getCaps().contains(Caps.FloatColorBufferRGB)) {
-                    fbFormat = Format.RGB16F;
-                } else if (renderer.getCaps().contains(Caps.FloatColorBufferRGBA)) {
-                    fbFormat = Format.RGBA16F;
-                } else {
-                    fbFormat = Format.RGB8;
-                }
-            }
+            fbFormat = renderer.getBestColorTargetFormat(true, false, false);
         }
 
         Camera cam = vp.getCamera();
@@ -226,11 +218,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
         bottom = cam.getViewPortBottom();
-        originalWidth = cam.getWidth();
-        originalHeight = cam.getHeight();
+        originalWidth = vp.getRenderTargetWidth();
+        originalHeight = vp.getRenderTargetHeight();
 
         // First call to reshape to set up internal framebuffers and textures
-        reshape(vp, cam.getWidth(), cam.getHeight());
+        reshape(vp, originalWidth, originalHeight);
     }
 
     /**
@@ -543,20 +535,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
 
-            // Dispose of internal framebuffers and textures
-            if (renderFrameBuffer != null) {
-                renderFrameBuffer.dispose();
-            }
-            if (depthTexture != null) {
-                depthTexture.getImage().dispose();
-            }
-            filterTexture.getImage().dispose();
-            if (renderFrameBufferMS != null) {
-                renderFrameBufferMS.dispose();
-            }
-            for (Filter filter : filters.getArray()) {
-                filter.cleanup(renderer);
-            }
+            cleanupFilterResources();
+            cleanupFrameBuffers();
         }
     }
 
@@ -611,8 +591,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         cameraInit = true;
         computeDepth = false;
 
-        if (renderFrameBuffer == null && renderFrameBufferMS == null) {
+        boolean initialized = renderFrameBuffer != null || renderFrameBufferMS != null;
+        if (!initialized) {
             outputBuffer = viewPort.getOutputFrameBuffer();
+            resizeWithDefaultFramebuffer = outputBuffer == null;
+        } else {
+            viewPort.setOutputFrameBuffer(outputBuffer);
+            cleanupFilterResources();
+            cleanupFrameBuffers();
         }
 
         Collection<Caps> caps = renderer.getCaps();
@@ -659,6 +645,31 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             initFilter(filter, vp);
         }
         setupViewPortFrameBuffer();
+    }
+
+    private void cleanupFilterResources() {
+        for (Filter filter : filters.getArray()) {
+            filter.cleanup(renderer);
+        }
+    }
+
+    private void cleanupFrameBuffers() {
+        if (renderFrameBuffer != null) {
+            renderFrameBuffer.dispose();
+            renderFrameBuffer = null;
+        }
+        if (renderFrameBufferMS != null) {
+            renderFrameBufferMS.dispose();
+            renderFrameBufferMS = null;
+        }
+        if (filterTexture != null && filterTexture.getImage() != null) {
+            filterTexture.getImage().dispose();
+        }
+        filterTexture = null;
+        if (depthTexture != null && depthTexture.getImage() != null) {
+            depthTexture.getImage().dispose();
+        }
+        depthTexture = null;
     }
 
     /**
@@ -813,5 +824,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         } else {
             viewPort.setOutputFrameBuffer(renderFrameBuffer);
         }
+        viewPort.setResizeWithDefaultFramebuffer(resizeWithDefaultFramebuffer);
     }
 }

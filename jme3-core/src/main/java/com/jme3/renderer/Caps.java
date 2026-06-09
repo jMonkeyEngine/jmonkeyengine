@@ -223,19 +223,64 @@ public enum Caps {
     TextureBuffer,
 
     /**
-     * Supports floating point and half textures (Format.RGB16F).
+     * Supports 32-bit floating point textures.
      */
     FloatTexture,
 
     /**
-     * Supports rendering on RGB floating point textures
+     * Supports 16-bit floating point textures.
+     */
+    HalfFloatTexture,
+
+    /**
+     * Supports linear filtering of floating point textures.
+     */
+    FloatTextureFilter,
+
+    /**
+     * Supports linear filtering of half floating point textures.
+     */
+    HalfFloatTextureFilter,
+
+    /**
+     * Supports rendering on RGB 32-bit floating point textures.
      */
     FloatColorBufferRGB,
 
     /**
-     * Supports rendering on RGBA floating point textures
+     * Supports rendering on R 32-bit floating point textures.
+     */
+    FloatColorBufferR,
+
+    /**
+     * Supports rendering on RG 32-bit floating point textures.
+     */
+    FloatColorBufferRG,
+
+    /**
+     * Supports rendering on RGBA 32-bit floating point textures.
      */
     FloatColorBufferRGBA,
+
+    /**
+     * Supports rendering on R 16-bit floating point textures.
+     */
+    HalfFloatColorBufferR,
+
+    /**
+     * Supports rendering on RG 16-bit floating point textures.
+     */
+    HalfFloatColorBufferRG,
+
+    /**
+     * Supports rendering on RGB 16-bit floating point textures.
+     */
+    HalfFloatColorBufferRGB,
+
+    /**
+     * Supports rendering on RGBA 16-bit floating point textures.
+     */
+    HalfFloatColorBufferRGBA,
 
     /**
      * Supports integer textures.
@@ -243,8 +288,12 @@ public enum Caps {
     IntegerTexture,
 
     /**
-     * Supports floating point FBO color buffers (Format.RGB16F).
+     * Supports full floating point FBO color buffers.
+     *
+     * @deprecated use the format-specific FloatColorBuffer* and
+     * HalfFloatColorBuffer* caps.
      */
+    @Deprecated
     FloatColorBuffer,
     
 
@@ -252,6 +301,11 @@ public enum Caps {
      * Supports floating point depth buffer.
      */
     FloatDepthBuffer,
+
+    /**
+     * Supports FBO with Depth32 image format.
+     */
+    Depth32,
 
     /**
      * Supports Format.RGB111110F for textures.
@@ -312,6 +366,12 @@ public enum Caps {
     Srgb,
 
     /**
+     * Supports enabling and disabling linear-to-sRGB conversion for framebuffer
+     * writes using GL_FRAMEBUFFER_SRGB.
+     */
+    SrgbWriteControl,
+
+    /**
      * Supports blitting framebuffers.
      */
     FrameBufferBlit,
@@ -368,6 +428,11 @@ public enum Caps {
     DepthTexture,
 
     /**
+     * Supports hardware depth texture comparison for shadow maps.
+     */
+    TextureShadowCompare,
+
+    /**
      * Supports 32-bit index buffers.
      */
     IntegerIndexBuffer,
@@ -407,6 +472,12 @@ public enum Caps {
      * GPU support for binary shaders.
      */
     BinaryShader,
+
+    /**
+     * Supports GPU timer queries with full 64-bit elapsed-time results.
+     */
+    GpuTimerQuery,
+
     /**
      * Supporting working with UniformBufferObject.
      */
@@ -491,15 +562,34 @@ public enum Caps {
                 return caps.contains(Caps.PackedDepthStencilBuffer);
             case Depth32F:
                 return caps.contains(Caps.FloatDepthBuffer);
+            case Depth32:
+                return caps.contains(Caps.Depth32);
+            case Depth24:
+                return caps.contains(Caps.Depth24);
             case RGB16F_to_RGB111110F:
+                return caps.contains(Caps.HalfFloatTexture) && caps.contains(Caps.PackedFloatTexture);
             case RGB111110F:
                 return caps.contains(Caps.PackedFloatTexture);
             case RGB16F_to_RGB9E5:
+                return caps.contains(Caps.HalfFloatTexture) && caps.contains(Caps.SharedExponentTexture);
             case RGB9E5:
                 return caps.contains(Caps.SharedExponentTexture);
+            case Luminance16F:
+            case Luminance16FAlpha16F:
+            case RGB16F:
+            case RGBA16F:
+            case R16F:
+            case RG16F:
+                return caps.contains(Caps.HalfFloatTexture);
+            case Luminance32F:
+            case RGB32F:
+            case RGBA32F:
+            case R32F:
+            case RG32F:
+                return caps.contains(Caps.FloatTexture);
             default:
                 if (fmt.isFloatingPont()) {
-                    return caps.contains(Caps.FloatTexture);
+                    return caps.contains(Caps.FloatTexture) || caps.contains(Caps.HalfFloatTexture);
                 }
 
                 return true;
@@ -519,13 +609,32 @@ public enum Caps {
         switch (colorFmt) {
             case RGB111110F:
                 return caps.contains(Caps.PackedFloatColorBuffer);
+            case Luminance16F:
+            case R16F:
+                return caps.contains(Caps.HalfFloatColorBufferR);
+            case Luminance32F:
+            case R32F:
+                return caps.contains(Caps.FloatColorBufferR);
+            case Luminance16FAlpha16F:
+            case RG16F:
+                return caps.contains(Caps.HalfFloatColorBufferRG);
+            case RG32F:
+                return caps.contains(Caps.FloatColorBufferRG);
+            case RGB16F:
+                return caps.contains(Caps.HalfFloatColorBufferRGB);
+            case RGB32F:
+                return caps.contains(Caps.FloatColorBufferRGB);
+            case RGBA16F:
+                return caps.contains(Caps.HalfFloatColorBufferRGBA);
+            case RGBA32F:
+                return caps.contains(Caps.FloatColorBufferRGBA);
             case RGB16F_to_RGB111110F:
             case RGB16F_to_RGB9E5:
             case RGB9E5:
                 return false;
             default:
                 if (colorFmt.isFloatingPont()) {
-                    return caps.contains(Caps.FloatColorBuffer);
+                    return false;
                 }
 
                 return true;
@@ -550,7 +659,7 @@ public enum Caps {
             return false;
         }
 
-        RenderBuffer depthBuf = fb.getDepthBuffer();
+        RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             Format depthFmt = depthBuf.getFormat();
             if (!depthFmt.isDepthFormat()) {
@@ -565,10 +674,20 @@ public enum Caps {
                         && !caps.contains(Caps.PackedDepthStencilBuffer)) {
                     return false;
                 }
+
+                if (depthFmt == Format.Depth32
+                        && !caps.contains(Caps.Depth32)) {
+                    return false;
+                }
+
+                if (depthFmt == Format.Depth24
+                        && !caps.contains(Caps.Depth24)) {
+                    return false;
+                }
             }
         }
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))) {
+        for (int i = 0; i < fb.getNumColorTargets(); i++) {
+            if (!supportsColorBuffer(caps, fb.getColorTarget(i))) {
                 return false;
             }
         }

@@ -60,6 +60,11 @@ public class GreedyMessageBuffer implements MessageBuffer {
     private int size;
     private Byte carry;
     
+    /**
+     * Creates a greedy message buffer for the specified protocol.
+     *
+     * @param protocol the protocol used to deserialize complete messages
+     */
     public GreedyMessageBuffer( MessageProtocol protocol ) {
         this.protocol = protocol;
     }
@@ -104,6 +109,7 @@ public class GreedyMessageBuffer implements MessageBuffer {
                     
                     size = (high & 0xff) << 8 | (low & 0xff);
                     carry = null;
+                    validateSize(size);
                 }
                 else if( buffer.remaining() < 2 ) {
                     // It's possible that the supplied buffer only has one
@@ -119,7 +125,8 @@ public class GreedyMessageBuffer implements MessageBuffer {
                     // grab the size.
                     // Note: this is somewhat limiting... int would
                     // be better.
-                    size = buffer.getShort();
+                    size = buffer.getShort() & 0xffff;
+                    validateSize(size);
                 }               
  
                 // Allocate the buffer into which we'll feed the
@@ -154,6 +161,11 @@ public class GreedyMessageBuffer implements MessageBuffer {
         
         return hasMessages();        
     }
-}
 
+    private void validateSize(int size) {
+        if (size <= 0 || size > SerializerMessageProtocol.MAX_MESSAGE_SIZE) {
+            throw new IllegalArgumentException("Invalid message frame size: " + size);
+        }
+    }
+}
 

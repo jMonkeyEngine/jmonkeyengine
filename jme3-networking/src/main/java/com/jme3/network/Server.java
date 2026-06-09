@@ -47,23 +47,31 @@ public interface Server
     /**
      *  Returns the 'game name' for this server.  This should match the
      *  'game name' set on connecting clients or they will be turned away.
+     *
+     *  @return the server game name
      */
     public String getGameName();
  
     /**
      *  Returns the game-specific version of this server used for detecting
      *  mismatched clients.
+     *
+     *  @return the server protocol version
      */   
     public int getVersion();
 
     /**
      *  Returns the manager for hosted services.  Hosted services extend
      *  the functionality of the server.
+     *
+     *  @return the hosted service manager
      */
     public HostedServiceManager getServices();     
 
     /**
      *  Sends the specified message to all connected clients.
+     *
+     *  @param message the message to broadcast
      */ 
     public void broadcast( Message message );
 
@@ -80,6 +88,9 @@ public interface Server
      *    // Broadcast to all connections exception source
      *    server.broadcast( Filters.notEqualTo( source ), message );
      *  </pre>
+     *
+     *  @param filter the connection filter, or null to target all connections
+     *  @param message the message to broadcast
      */ 
     public void broadcast( Filter<? super HostedConnection> filter, Message message );
 
@@ -96,6 +107,10 @@ public interface Server
      *    // Broadcast to all connections exception source
      *    server.broadcast( Filters.notEqualTo( source ), message );
      *  </pre>
+     *
+     *  @param channel the alternate channel to use
+     *  @param filter the connection filter, or null to target all connections
+     *  @param message the message to broadcast
      */ 
     public void broadcast( int channel, Filter<? super HostedConnection> filter, Message message );
 
@@ -113,11 +128,16 @@ public interface Server
      *  Returns the ID of the created channel for use when specifying the channel in send or 
      *  broadcast calls.  The ID is returned entirely out of convenience since the IDs
      *  are predictably incremented.  The first channel is 0, second is 1, and so on.
+     *
+     *  @param port the port to bind for the new channel
+     *  @return the newly assigned channel id
      */
     public int addChannel( int port ); 
 
     /**
      *  Returns true if the server has been started.
+     *
+     *  @return true if the server is running
      */
     public boolean isRunning();     
  
@@ -129,28 +149,39 @@ public interface Server
  
     /**
      *  Retrieves a hosted connection by ID.
+     *
+     *  @param id the server-assigned connection id
+     *  @return the matching connection, or null if none exists
      */
     public HostedConnection getConnection( int id );     
  
     /**
      *  Retrieves a read-only collection of all currently connected connections.
+     *
+     *  @return the current hosted connections
      */
     public Collection<HostedConnection> getConnections(); 
  
     /**
      *  Returns true if the server has active connections at the time of this
      *  call.
+     *
+     *  @return true if at least one connection is active
      */
     public boolean hasConnections();
     
     /**
      *  Adds a listener that will be notified when new hosted connections
      *  arrive.
+     *
+     *  @param listener the listener to add
      */
     public void addConnectionListener( ConnectionListener listener );
  
     /**
      *  Removes a previously registered connection listener.
+     *
+     *  @param listener the listener to remove
      */   
     public void removeConnectionListener( ConnectionListener listener );     
     
@@ -167,27 +198,36 @@ public interface Server
      *  and the messages will always be delivered to that connection in the 
      *  order that they were delivered.  This is the only restriction placed
      *  upon server message dispatch pool implementations.</p>   
+     *
+     *  @param listener the listener to add
      */
     public void addMessageListener( MessageListener<? super HostedConnection> listener ); 
 
     /**
      *  Adds a listener that will be notified when messages of the specified
      *  types are received from one of the clients.
+     *
+     *  @param listener the listener to add
+     *  @param classes the message classes to match
      */
     public void addMessageListener( MessageListener<? super HostedConnection> listener, Class... classes ); 
 
     /**
      *  Removes a previously registered wildcard listener.  This does
      *  not remove this listener from any type-specific registrations.
+     *
+     *  @param listener the listener to remove
      */
     public void removeMessageListener( MessageListener<? super HostedConnection> listener ); 
 
     /**
      *  Removes a previously registered type-specific listener from
      *  the specified types.
+     *
+     *  @param listener the listener to remove
+     *  @param classes the message classes to unregister
      */
     public void removeMessageListener( MessageListener<? super HostedConnection> listener, Class... classes ); 
     
      
 }
-

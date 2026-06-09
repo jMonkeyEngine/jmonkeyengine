@@ -1,0 +1,24 @@
+MaterialDef Blit {
+
+    MaterialParameters {
+        Int BoundDrawBuffer
+        Int NumSamples
+        Boolean Srgb
+        Texture2D Texture
+    }
+
+    Technique {
+        VertexShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Blit/Blit.frag
+
+        WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER : BoundDrawBuffer
+            RESOLVE_MS : NumSamples
+            SRGB: Srgb
+        }
+    }
+
+}

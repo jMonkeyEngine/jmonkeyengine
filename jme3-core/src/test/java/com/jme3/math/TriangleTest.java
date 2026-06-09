@@ -31,8 +31,8 @@
  */
 package com.jme3.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that the {@link Triangle} class works correctly.
@@ -53,38 +53,38 @@ public class TriangleTest {
 
         // Verify that centroid and normal are calculated correctly.
         Vector3f c1 = triangle1.getCenter();
-        Assert.assertEquals(4f, c1.x, 1e-6f);
-        Assert.assertEquals(5f, c1.y, 1e-6f);
-        Assert.assertEquals(3f, c1.z, 1e-6f);
+        Assertions.assertEquals(4f, c1.x, 1e-6f);
+        Assertions.assertEquals(5f, c1.y, 1e-6f);
+        Assertions.assertEquals(3f, c1.z, 1e-6f);
 
         Vector3f n1 = triangle1.getNormal();
-        Assert.assertEquals(-0.408248, n1.x, 1e-6f);
-        Assert.assertEquals(0.408248, n1.y, 1e-6f);
-        Assert.assertEquals(0.816497, n1.z, 1e-6f);
+        Assertions.assertEquals(-0.408248, n1.x, 1e-6f);
+        Assertions.assertEquals(0.408248, n1.y, 1e-6f);
+        Assertions.assertEquals(0.816497, n1.z, 1e-6f);
 
         // Clone triangle1 and verify its vertices.
         Triangle triangle2 = triangle1.clone();
-        Assert.assertTrue(triangle1 != triangle2);
-        Assert.assertEquals(triangle1.get1(), triangle2.get1());
-        Assert.assertEquals(triangle1.get2(), triangle2.get2());
-        Assert.assertEquals(triangle1.get3(), triangle2.get3());
+        Assertions.assertTrue(triangle1 != triangle2);
+        Assertions.assertEquals(triangle1.get1(), triangle2.get1());
+        Assertions.assertEquals(triangle1.get2(), triangle2.get2());
+        Assertions.assertEquals(triangle1.get3(), triangle2.get3());
 
         // Modify triangle1 and verify its new centroid.
         triangle1.set1(new Vector3f(-2f, -1f, 0f));
         c1 = triangle1.getCenter();
-        Assert.assertEquals(3f, c1.x, 1e-6f);
-        Assert.assertEquals(4f, c1.y, 1e-6f);
-        Assert.assertEquals(2f, c1.z, 1e-6f);
+        Assertions.assertEquals(3f, c1.x, 1e-6f);
+        Assertions.assertEquals(4f, c1.y, 1e-6f);
+        Assertions.assertEquals(2f, c1.z, 1e-6f);
 
         // Verify that triangle2's centroid and normal are (still) correct.
         Vector3f c2 = triangle2.getCenter();
-        Assert.assertEquals(4f, c2.x, 1e-6f);
-        Assert.assertEquals(5f, c2.y, 1e-6f);
-        Assert.assertEquals(3f, c2.z, 1e-6f);
+        Assertions.assertEquals(4f, c2.x, 1e-6f);
+        Assertions.assertEquals(5f, c2.y, 1e-6f);
+        Assertions.assertEquals(3f, c2.z, 1e-6f);
 
         Vector3f n2 = triangle2.getNormal();
-        Assert.assertEquals(-0.408248, n2.x, 1e-6f);
-        Assert.assertEquals(0.408248, n2.y, 1e-6f);
-        Assert.assertEquals(0.816497, n2.z, 1e-6f);
+        Assertions.assertEquals(-0.408248, n2.x, 1e-6f);
+        Assertions.assertEquals(0.408248, n2.y, 1e-6f);
+        Assertions.assertEquals(0.816497, n2.z, 1e-6f);
     }
 }

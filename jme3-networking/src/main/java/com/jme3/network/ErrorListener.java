@@ -35,10 +35,17 @@ package com.jme3.network;
 /**
  *  Notified when errors happen on a connection.
  *
+ *  @param <S> the connection or endpoint type that produced the error
  *  @version   $Revision$
  *  @author    Paul Speed
  */
 public interface ErrorListener<S>
 {
+    /**
+     * Handles an error that occurred on the specified source.
+     *
+     * @param source the connection or endpoint that produced the error
+     * @param t the error that was raised
+     */
     public void handleError( S source, Throwable t );
 }

@@ -41,8 +41,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import javax.imageio.ImageIO;
 
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.StatsAppState;
@@ -64,7 +67,7 @@ import com.jme3.scene.shape.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.plugins.AWTLoader;
+import com.jme3.texture.plugins.StbImageLoader;
 
 /**
  *
@@ -152,8 +155,14 @@ public class TestBitmapFontLayout extends SimpleApplication {
         
         g2.dispose();
         
-        Image jmeImage = new AWTLoader().load(image, true);
-        return new Texture2D(jmeImage);
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            Image jmeImage = new StbImageLoader().load(new ByteArrayInputStream(baos.toByteArray()), true);
+            return new Texture2D(jmeImage);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to convert AWT image to jME Image", e);
+        }
     }
     
     private Node createVisual( TestConfig test ) {

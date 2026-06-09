@@ -64,21 +64,43 @@ public class UdpKernel extends AbstractKernel
     // can't really be NAT'ed.
     private Map<SocketAddress,UdpEndpoint> socketEndpoints = new ConcurrentHashMap<>();
 
+    /**
+     * Creates a UDP kernel for the specified host and port.
+     *
+     * @param host the local bind address
+     * @param port the local bind port
+     */
     public UdpKernel( InetAddress host, int port )
     {
         this( new InetSocketAddress(host, port) );
     }
 
+    /**
+     * Creates a UDP kernel bound to the specified port on the wildcard address.
+     *
+     * @param port the local bind port
+     * @throws IOException if the address cannot be prepared
+     */
     public UdpKernel( int port ) throws IOException
     {
         this( new InetSocketAddress(port) );
     }
 
+    /**
+     * Creates a UDP kernel for the specified socket address.
+     *
+     * @param address the local socket address
+     */
     public UdpKernel( InetSocketAddress address )
     {
         this.address = address;
     }
 
+    /**
+     * Creates the host thread implementation used by this kernel.
+     *
+     * @return the host thread
+     */
     protected HostThread createHostThread()
     {
         return new HostThread();
@@ -149,6 +171,13 @@ public class UdpKernel extends AbstractKernel
         }
     }
 
+    /**
+     * Returns the endpoint for the specified socket address, optionally creating it.
+     *
+     * @param address the remote socket address
+     * @param create true to create the endpoint if missing
+     * @return the existing or newly created endpoint
+     */
     protected Endpoint getEndpoint( SocketAddress address, boolean create )
     {
         UdpEndpoint p = socketEndpoints.get(address);
@@ -164,6 +193,9 @@ public class UdpKernel extends AbstractKernel
 
     /**
      *  Called by the endpoints when they need to be closed.
+     *
+     *  @param p the endpoint to close
+     *  @throws IOException if cleanup fails
      */
     protected void closeEndpoint( UdpEndpoint p ) throws IOException
     {
@@ -179,6 +211,11 @@ public class UdpKernel extends AbstractKernel
         wakeupReader();       
     }
 
+    /**
+     * Queues newly received datagram data as an envelope.
+     *
+     * @param packet the received packet
+     */
     protected void newData( DatagramPacket packet )
     {
         // So the tricky part here is figuring out the endpoint and
@@ -196,16 +233,31 @@ public class UdpKernel extends AbstractKernel
         addEnvelope( env );
     }
 
+    /**
+     * Queues a datagram for asynchronous sending.
+     *
+     * @param endpoint the source endpoint
+     * @param packet the packet to send
+     */
     protected void enqueueWrite( Endpoint endpoint, DatagramPacket packet )
     {
         writer.execute( new MessageWriter(endpoint, packet) );
     } 
 
+    /**
+     * Writes queued UDP packets on behalf of endpoints.
+     */
     protected class MessageWriter implements Runnable
     {
         private Endpoint endpoint;
         private DatagramPacket packet;
         
+        /**
+         * Creates a queued UDP packet writer.
+         *
+         * @param endpoint the source endpoint
+         * @param packet the packet to send
+         */
         public MessageWriter( Endpoint endpoint, DatagramPacket packet )
         {
             this.endpoint = endpoint;
@@ -231,6 +283,9 @@ public class UdpKernel extends AbstractKernel
         } 
     }
 
+    /**
+     * Host thread that receives UDP packets for this kernel.
+     */
     protected class HostThread extends Thread
     {
         private DatagramSocket socket;
@@ -238,23 +293,42 @@ public class UdpKernel extends AbstractKernel
 
         private byte[] buffer = new byte[65535]; // slightly bigger than needed.
 
+        /**
+         * Creates the host thread.
+         */
         public HostThread()
         {
             setName( "UDP Host@" + address );
             setDaemon(true);
         }
 
+        /**
+         * Returns the datagram socket used by the host thread.
+         *
+         * @return the datagram socket
+         */
         protected DatagramSocket getSocket()
         {
             return socket;
         }
 
+        /**
+         * Opens and binds the host datagram socket.
+         *
+         * @throws IOException if the socket cannot be opened
+         */
         public void connect() throws IOException
         {
             socket = new DatagramSocket( address );
             log.log( Level.FINE, "Hosting UDP connection:{0}.", address );
         }
 
+        /**
+         * Stops the host thread and closes its socket.
+         *
+         * @throws IOException if socket shutdown fails
+         * @throws InterruptedException if interrupted while waiting for shutdown
+         */
         public void close() throws IOException, InterruptedException
         {
             // Set the thread to stop

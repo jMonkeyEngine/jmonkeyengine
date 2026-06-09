@@ -32,8 +32,8 @@
 package com.jme3.anim;
 
 import com.jme3.util.clone.Cloner;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cloning a Joint.
@@ -49,11 +49,11 @@ public class JointCloneTest {
     @Test
     public void testInitialTransform() {
         Joint testJoint = new Joint("testJoint");
-        Assert.assertTrue(testJoint.getInitialTransform().isIdentity());
+        Assertions.assertTrue(testJoint.getInitialTransform().isIdentity());
 
         Joint clone = Cloner.deepClone(testJoint);
         clone.getInitialTransform().setScale(2f);
 
-        Assert.assertTrue(testJoint.getInitialTransform().isIdentity());
+        Assertions.assertTrue(testJoint.getInitialTransform().isIdentity());
     }
 }

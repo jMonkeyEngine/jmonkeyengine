@@ -238,6 +238,7 @@ MaterialDef Terrain Lighting {
             DIFFUSEMAP_11_SCALE : DiffuseMap_11_scale
             
             USE_ALPHA : useDiffuseAlpha
+            USE_SPECULARMAP_AS_SHININESS : useSpecularMapAsShininess
         }
     }
 

@@ -234,24 +234,18 @@ public class BulletDebugAppState extends AbstractAppState {
      */
     private void setupMaterials(Application app) {
         AssetManager manager = app.getAssetManager();
-        DEBUG_BLUE = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_BLUE.getAdditionalRenderState().setWireframe(true);
-        DEBUG_BLUE.setColor("Color", ColorRGBA.Blue);
-        DEBUG_GREEN = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_GREEN.getAdditionalRenderState().setWireframe(true);
-        DEBUG_GREEN.setColor("Color", ColorRGBA.Green);
-        DEBUG_RED = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_RED.getAdditionalRenderState().setWireframe(true);
-        DEBUG_RED.setColor("Color", ColorRGBA.Red);
-        DEBUG_YELLOW = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_YELLOW.getAdditionalRenderState().setWireframe(true);
-        DEBUG_YELLOW.setColor("Color", ColorRGBA.Yellow);
-        DEBUG_MAGENTA = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_MAGENTA.getAdditionalRenderState().setWireframe(true);
-        DEBUG_MAGENTA.setColor("Color", ColorRGBA.Magenta);
-        DEBUG_PINK = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        DEBUG_PINK.getAdditionalRenderState().setWireframe(true);
-        DEBUG_PINK.setColor("Color", ColorRGBA.Pink);
+        DEBUG_BLUE = createDebugMaterial(manager, ColorRGBA.Blue);
+        DEBUG_GREEN = createDebugMaterial(manager, ColorRGBA.Green);
+        DEBUG_RED = createDebugMaterial(manager, ColorRGBA.Red);
+        DEBUG_YELLOW = createDebugMaterial(manager, ColorRGBA.Yellow);
+        DEBUG_MAGENTA = createDebugMaterial(manager, ColorRGBA.Magenta);
+        DEBUG_PINK = createDebugMaterial(manager, ColorRGBA.Pink);
+    }
+
+    private static Material createDebugMaterial(AssetManager manager, ColorRGBA color) {
+        Material material = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setColor("Color", color);
+        return material;
     }
 
     private void updateRigidBodies() {

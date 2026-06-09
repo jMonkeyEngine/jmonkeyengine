@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
-import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.*;
 import java.util.ArrayList;
@@ -71,6 +70,7 @@ public class AwtPanelsContext implements JmeContext {
         }
 
         @Override
+        @Deprecated
         public void rescale(float x, float y) {
             logger.severe("rescale is not supported.");
         }
@@ -182,11 +182,6 @@ public class AwtPanelsContext implements JmeContext {
         return actualContext != null && actualContext.isRenderable();
     }
 
-    @Override
-    public Context getOpenCLContext() {
-        return actualContext.getOpenCLContext();
-    }
-
     public AwtPanelsContext() {}
 
     public AwtPanel createPanel(PaintMode paintMode) {
@@ -245,7 +240,7 @@ public class AwtPanelsContext implements JmeContext {
     @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
-        this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
+        this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         if (actualContext != null) {
             actualContext.setSettings(settings);
         }

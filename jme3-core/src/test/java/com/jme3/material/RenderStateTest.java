@@ -34,8 +34,10 @@ package com.jme3.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * Test cloning/saving/loading a RenderState. Related issues include #1718 and
@@ -66,42 +68,42 @@ public class RenderStateTest {
         // Test setFrontStencilMask invalidates hash
         state.setFrontStencilMask(0x12345678);
         int hash2 = state.contentHashCode();
-        Assert.assertNotEquals("setFrontStencilMask should invalidate hash", hash1, hash2);
+        assertNotEquals(hash1, hash2, "setFrontStencilMask should invalidate hash");
         
         // Test setBackStencilMask invalidates hash
         hash1 = state.contentHashCode();
         state.setBackStencilMask(0x87654321);
         hash2 = state.contentHashCode();
-        Assert.assertNotEquals("setBackStencilMask should invalidate hash", hash1, hash2);
+        assertNotEquals(hash1, hash2, "setBackStencilMask should invalidate hash");
         
         // Test setFrontStencilReference invalidates hash
         hash1 = state.contentHashCode();
         state.setFrontStencilReference(42);
         hash2 = state.contentHashCode();
-        Assert.assertNotEquals("setFrontStencilReference should invalidate hash", hash1, hash2);
+        assertNotEquals(hash1, hash2, "setFrontStencilReference should invalidate hash");
         
         // Test setBackStencilReference invalidates hash
         hash1 = state.contentHashCode();
         state.setBackStencilReference(99);
         hash2 = state.contentHashCode();
-        Assert.assertNotEquals("setBackStencilReference should invalidate hash", hash1, hash2);
+        assertNotEquals(hash1, hash2, "setBackStencilReference should invalidate hash");
         
         // Test flipFaceCull invalidates hash
         state.setFaceCullMode(RenderState.FaceCullMode.Back);
         hash1 = state.contentHashCode();
         state.flipFaceCull();
         hash2 = state.contentHashCode();
-        Assert.assertNotEquals("flipFaceCull should invalidate hash", hash1, hash2);
-        Assert.assertEquals("flipFaceCull should flip Back to Front", 
-                RenderState.FaceCullMode.Front, state.getFaceCullMode());
+        assertNotEquals(hash1, hash2, "flipFaceCull should invalidate hash");
+        assertEquals(RenderState.FaceCullMode.Front, state.getFaceCullMode(),
+                "flipFaceCull should flip Back to Front");
         
         // Test flipFaceCull again (Front to Back)
         hash1 = state.contentHashCode();
         state.flipFaceCull();
         hash2 = state.contentHashCode();
-        Assert.assertNotEquals("flipFaceCull should invalidate hash (Front to Back)", hash1, hash2);
-        Assert.assertEquals("flipFaceCull should flip Front to Back", 
-                RenderState.FaceCullMode.Back, state.getFaceCullMode());
+        assertNotEquals(hash1, hash2, "flipFaceCull should invalidate hash (Front to Back)");
+        assertEquals(RenderState.FaceCullMode.Back, state.getFaceCullMode(),
+                "flipFaceCull should flip Front to Back");
     }
 
     @Test
@@ -175,14 +177,14 @@ public class RenderStateTest {
          * Test a clone for equality.
          */
         RenderState clone = testObject.clone();
-        Assert.assertEquals(testObject, clone);
+        assertEquals(testObject, clone);
 
         if (testSerialization) {
             /*
              * Test a save-and-load copy for equality.
              */
             RenderState copy = BinaryExporter.saveAndLoad(assetManager, testObject);
-            Assert.assertEquals(testObject, copy);
+            assertEquals(testObject, copy);
         }
     }
 

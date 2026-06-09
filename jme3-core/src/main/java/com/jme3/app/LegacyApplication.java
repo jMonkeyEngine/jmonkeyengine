@@ -593,12 +593,23 @@ public class LegacyApplication implements Application, SystemListener {
      */
     @Override
     public void reshape(int w, int h) {
-        if (renderManager != null) {
-            renderManager.notifyReshape(w, h);
-        }
+        reshape(w, h, w, h);
     }
 
     @Override
+    public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        if (renderManager != null) {
+            renderManager.notifyReshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
+        }
+    }
+
+    /**
+     * @deprecated Display scale changes are reported through
+     * {@link #reshape(int, int, int, int)}. Built-in contexts no longer call
+     * this method.
+     */
+    @Override
+    @Deprecated
     public void rescale(float x, float y) {
         if (renderManager != null) {
             renderManager.notifyRescale(x, y);

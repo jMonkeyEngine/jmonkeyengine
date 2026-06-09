@@ -1,18 +1,41 @@
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
 buildscript {
     repositories {
         mavenCentral()
         google()
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url = "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
         classpath libs.android.build.gradle
-        classpath libs.gradle.retrolambda
         classpath libs.spotbugs.gradle.plugin
+    }
+}
+
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'org.jmonkeyengine.nativeimage' apply false
+}
+
+import org.gradle.api.file.RelativePath
+
+// Set the license for IDEs that understand this
+ext.license = file("$rootDir/source-file-header-template.txt")
+
+apply plugin: 'base'
+apply from: file('version.gradle')
+
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://ossrh-staging-api.central.sonatype.com/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://central.sonatype.com/repository/maven-snapshots/'))
+            username = findProperty('sonatypeUsername') ?: findProperty('centralUsername') ?: 'Unknown user'
+            password = findProperty('sonatypePassword') ?: findProperty('centralPassword') ?: 'Unknown password'
+        }
     }
 }
 
@@ -26,48 +49,106 @@ allprojects {
     }
 }
 
-// Set the license for IDEs that understand this
-ext.license = file("$rootDir/source-file-header-template.txt")
-
-apply plugin: 'base'
-apply plugin: 'com.github.spotbugs'
-apply from: file('version.gradle')
-
-apply plugin: 'me.tatarka.retrolambda'
-
 // This is applied to all sub projects
 subprojects {
-    if(!project.name.equals('jme3-android-examples')) {
-        apply from: rootProject.file('common.gradle')
-    } else {
+    if(project.name.equals('jme3-android-examples') || project.name.equals('jme3-screenshot-tests-android')) {
         apply from: rootProject.file('common-android-app.gradle')
+    } else {
+        apply from: rootProject.file('common.gradle')
     }
 
-    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
+    def isAndroidApp = project.plugins.hasPlugin('com.android.application')
+    if (!project.name.endsWith("-native") && !isAndroidApp && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
         spotbugs {
             ignoreFailures = true
-            toolVersion = '4.8.6'
+            toolVersion = libs.versions.spotbugs.get()
         }
 
         tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
             reports {
-                html.enabled = !project.hasProperty("xml-reports")
-                xml.enabled = project.hasProperty("xml-reports")
+                html.required = !project.hasProperty("xml-reports")
+                xml.required = project.hasProperty("xml-reports")
             }
         }
     }
 }
 
-task run(dependsOn: ':jme3-examples:run') {
+def nativeImagePluginBuild = gradle.includedBuild('jme3-nativeimage-plugin')
+def nativeImagePluginPublishTasks = [
+        publish                                      : ':publish',
+        publishToMavenLocal                         : ':publishToMavenLocal',
+        install                                      : ':install',
+        publishMavenPublicationToCentralRepository  : ':publishAllPublicationsToCentralRepository',
+        publishMavenPublicationToSNAPSHOTRepository : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishMavenPublicationToDistRepository     : ':publishAllPublicationsToDistRepository',
+        publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
+        publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository',
+        publishToSonatype                           : ':publishToSonatype',
+        closeSonatypeStagingRepository              : ':closeSonatypeStagingRepository',
+        closeStagingRepositories                    : ':closeStagingRepositories'
+]
+
+subprojects {
+    tasks.configureEach { task ->
+        String includedTaskPath = nativeImagePluginPublishTasks[task.name]
+        if (includedTaskPath != null) {
+            task.dependsOn nativeImagePluginBuild.task(includedTaskPath)
+        }
+    }
+}
+
+gradle.projectsEvaluated {
+    [
+            publishToSonatype             : ':publishToSonatype',
+            closeSonatypeStagingRepository: ':closeSonatypeStagingRepository',
+            closeStagingRepositories      : ':closeStagingRepositories'
+    ].each { rootTaskName, includedTaskPath ->
+        def rootTask = tasks.findByName(rootTaskName)
+        if (rootTask != null) {
+            rootTask.dependsOn nativeImagePluginBuild.task(includedTaskPath)
+        }
+    }
+}
+
+tasks.register('run') {
+    dependsOn ':jme3-examples:run'
     description = 'Run the jME3 examples'
+}
+
+tasks.register('runAndroidExamples') {
+    description = 'Run the Android examples selector'
+    def androidExamplesProject = findProject(':jme3-android-examples')
+    if (androidExamplesProject != null) {
+        dependsOn ':jme3-android-examples:runAndroidExamples'
+    } else {
+        doLast {
+            throw new GradleException('Android examples are not available. Request an Android examples task and configure an Android SDK.')
+        }
+    }
+}
+
+tasks.register('runIosExamples') {
+    description = 'Run the iOS examples selector'
+    def iosExamplesProject = findProject(':jme3-ios-examples')
+    if (iosExamplesProject != null) {
+        dependsOn ':jme3-ios-examples:runIosExamples'
+    } else {
+        doLast {
+            throw new GradleException('iOS examples are not available. Request an iOS examples task.')
+        }
+    }
 }
 
 defaultTasks 'run'
 
-task libDist(dependsOn: subprojects.build, description: 'Builds and copies the engine binaries, sources and javadoc to build/libDist') {
+def libDist = tasks.register('libDist') {
+    dependsOn(subprojects.collect { it.tasks.named('build') })
+    description = 'Builds and copies the engine binaries, sources and javadoc to build/libDist'
+
     doLast {
         File libFolder = mkdir("$buildDir/libDist/lib")
         File sourceFolder = mkdir("$buildDir/libDist/sources")
@@ -77,21 +158,22 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
                 project.tasks.withType(Jar).each {archiveTask ->
                     String classifier = archiveTask.archiveClassifier.get()
                     String ext = archiveTask.archiveExtension.get()
+                    File archiveFile = archiveTask.archiveFile.get().asFile
                     if (classifier == "sources") {
                         copy {
-                            from archiveTask.archivePath
+                            from archiveFile
                                 into sourceFolder
                                 rename {project.name + '-' + classifier + '.' + ext}
                         }
                     } else if (classifier == "javadoc") {
                         copy {
-                            from archiveTask.archivePath
+                            from archiveFile
                                 into javadocFolder
                                 rename {project.name + '-' + classifier + '.' + ext}
                         }
                     } else{
                         copy {
-                            from archiveTask.archivePath
+                            from archiveFile
                                 into libFolder
                                 rename {project.name + '.' + ext}
                         }
@@ -102,7 +184,9 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
     }
 }
 
-task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"Package the nightly zip distribution"){
+tasks.register('createZipDistribution', Zip) {
+    dependsOn(tasks.named('dist'), libDist)
+    description = 'Package the nightly zip distribution'
     archiveFileName = provider {
         "jME" + jmeFullVersion + ".zip"
     }
@@ -114,7 +198,7 @@ task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"P
     }
 }
 
-task copyLibs(type: Copy){
+tasks.register('copyLibs', Copy) {
 //    description 'Copies the engine dependencies to build/libDist'
     from {
         subprojects*.configurations*.implementation*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
@@ -123,8 +207,9 @@ task copyLibs(type: Copy){
     into "$buildDir/libDist/lib-ext" //buildDir.path + '/' + libsDirName + '/lib'
 }
 
-task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
-    description 'Creates a jME3 examples distribution with all jme3 binaries, sources, javadoc and external libraries under ./dist'
+tasks.register('dist') {
+    dependsOn ':jme3-examples:dist', tasks.named('mergedJavadoc')
+    description = 'Creates a jME3 examples distribution with all jme3 binaries, sources, javadoc and external libraries under ./dist'
 }
 
 def mergedJavadocSubprojects = [
@@ -142,14 +227,18 @@ def mergedJavadocSubprojects = [
         ":jme3-plugins",
         ":jme3-terrain",
 ]
-task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
+tasks.register('mergedJavadoc', Javadoc) {
+    description = 'Creates Javadoc from all the projects.'
     title = 'jMonkeyEngine3'
-    destinationDir = mkdir("dist/javadoc")
+    destinationDir = file("dist/javadoc")
 
+    def javadocErrorsEnabled = findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
     options.encoding = 'UTF-8'
-
-    // Allows Javadoc to be generated on Java 8 despite doclint errors.
-    if (JavaVersion.current().isJava8Compatible()) {
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
 
@@ -158,97 +247,12 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
 }
 
-clean.dependsOn('cleanMergedJavadoc')
-task cleanMergedJavadoc(type: Delete) {
+def cleanMergedJavadoc = tasks.register('cleanMergedJavadoc', Delete) {
     delete file('dist/javadoc')
 }
 
-task mergedSource(type: Copy){
-
+tasks.named('clean') {
+    dependsOn cleanMergedJavadoc
 }
 
-ext {
-    ndkCommandPath  = ""
-    ndkExists       = false
-}
-
-task configureAndroidNDK {
-    def ndkBuildFile = "ndk-build"
-    // if windows, use ndk-build.cmd instead
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        ndkBuildFile = "ndk-build.cmd"
-    }
-
-    // ndkPath is defined in the root project gradle.properties file
-    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
-    //Use the environment variable for the NDK location if defined
-    if (System.env.ANDROID_NDK != null) {
-        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
-    }
-
-    if (new File(ndkBuildPath).exists()) {
-        ndkExists = true
-        ndkCommandPath = ndkBuildPath
-    }
-}
-
-gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
-
-if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
-    String rootPath = rootProject.projectDir.absolutePath
-
-    Properties nativesSnapshotProp = new Properties()
-    File nativesSnapshotPropF = new File("${rootPath}/natives-snapshot.properties");
-
-    if (nativesSnapshotPropF.exists()) {
-
-        nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
-
-        String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot");
-        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot)
-        println "Use natives snapshot: " + nativesUrl
-
-        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnapshot + "-natives.zip"
-        String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
-
-
-        task getNativesZipFile {
-            outputs.file nativesZipFile
-            doFirst {
-                File target = file(nativesZipFile);
-                println("Download natives from " + nativesUrl + " to " + nativesZipFile);
-                target.getParentFile().mkdirs();
-                ant.get(src: nativesUrl, dest: target);
-            }
-        }
-
-        task extractPrebuiltNatives {
-            inputs.file nativesZipFile
-            outputs.dir nativesPath
-            dependsOn getNativesZipFile
-
-            doFirst {
-                for (File src : zipTree(nativesZipFile)) {
-                    String srcRel = src.getAbsolutePath().substring((int) (nativesZipFile.length() + 1));
-                    srcRel = srcRel.substring(srcRel.indexOf(File.separator) + 1);
-
-                    File dest = new File(nativesPath + File.separator + srcRel);
-                    boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
-                    if (doCopy) {
-                        println("Copy " + src + " " + dest);
-                        dest.getParentFile().mkdirs();
-                        Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
-        }
-
-        assemble.dependsOn extractPrebuiltNatives
-    }
-}
-
-retrolambda {
-  javaVersion JavaVersion.VERSION_1_7
-  incremental true
-    jvmArgs '-noverify'
-}
+apply from: 'gradle/jacoco.gradle'

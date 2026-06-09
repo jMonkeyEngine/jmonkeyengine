@@ -31,10 +31,6 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.renderer.pipeline.ForwardPipeline;
-import com.jme3.renderer.pipeline.DefaultPipelineContext;
-import com.jme3.renderer.pipeline.RenderPipeline;
-import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
@@ -44,11 +40,16 @@ import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
 import com.jme3.profile.VpStep;
+import com.jme3.renderer.pipeline.DefaultPipelineContext;
+import com.jme3.renderer.pipeline.ForwardPipeline;
+import com.jme3.renderer.pipeline.PipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -74,6 +75,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -86,6 +88,21 @@ public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
 
+    /**
+     * Number of vec4 fragment uniform vectors consumed per light in g_LightData (lightColor, lightData1,
+     * lightData2/spotDir).
+     */
+    private static final int VEC4_UNIFORMS_PER_LIGHT = 3;
+    /**
+     * Fraction of the total fragment uniform budget reserved for shader parameters other than g_LightData
+     * (material params, transforms, etc.). A value of 4 means one quarter is reserved.
+     */
+    private static final int RESERVED_UNIFORM_FRACTION = 4;
+    /**
+     * Hard upper limit for reserved uniform budget
+     */
+    private static final int RESERVED_UNIFORMS_MAX = 16;
+
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
@@ -96,6 +113,8 @@ public class RenderManager {
     private final LinkedList<RenderPipeline<? extends PipelineContext>> usedPipelines = new LinkedList<>();
     private RenderPipeline<? extends PipelineContext> defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
+    private int prevViewportWidth = -1;
+    private int prevViewportHeight = -1;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
@@ -106,8 +125,9 @@ public class RenderManager {
     private boolean handleTranslucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
-    private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
+    private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.SinglePass;
     private int singlePassLightBatchSize = 1;
+    private int maxSinglePassLightBatchSize = 16;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
@@ -123,6 +143,7 @@ public class RenderManager {
         this.forcedOverrides.add(boundDrawBufferId);
         // register default pipeline context
         contexts.put(PipelineContext.class, new DefaultPipelineContext());
+        setMaxSinglePassLightBatchSize(maxSinglePassLightBatchSize);
     }
 
     /**
@@ -454,6 +475,7 @@ public class RenderManager {
     }
 
     private void notifyReshape(ViewPort vp, int w, int h) {
+        vp.setRenderTargetSize(w, h);
         List<SceneProcessor> processors = vp.getProcessors();
         for (SceneProcessor proc : processors) {
             if (!proc.isInitialized()) {
@@ -464,6 +486,7 @@ public class RenderManager {
         }
     }
 
+    @Deprecated
     private void notifyRescale(ViewPort vp, float x, float y) {
         List<SceneProcessor> processors = vp.getProcessors();
         for (SceneProcessor proc : processors) {
@@ -484,36 +507,63 @@ public class RenderManager {
      * @param h the new height (in pixels)
      */
     public void notifyReshape(int w, int h) {
-        for (ViewPort vp : preViewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
-                Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
-            }
-            notifyReshape(vp, w, h);
-        }
+        notifyReshape(w, h, w, h);
+    }
+
+    /**
+     * Internal use only.
+     * Updates logical on-screen camera sizes while keeping the physical size of
+     * the default framebuffer available for viewport and post-processing work.
+     *
+     * @param logicalWidth the logical application width
+     * @param logicalHeight the logical application height
+     * @param framebufferWidth the physical default framebuffer width
+     * @param framebufferHeight the physical default framebuffer height
+     */
+    public void notifyReshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        prevCam = null;
+        int surfaceWidth = Math.max(framebufferWidth, 1);
+        int surfaceHeight = Math.max(framebufferHeight, 1);
+        reshapeViewPorts(preViewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+        reshapeViewPorts(viewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+        reshapeViewPorts(postViewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+    }
+
+    private void reshapeViewPorts(List<ViewPort> viewPorts, int logicalWidth, int logicalHeight,
+                                  int surfaceWidth, int surfaceHeight) {
         for (ViewPort vp : viewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
+            FrameBuffer frameBuffer = vp.getOutputFrameBuffer();
+            if (vp.isResizeWithDefaultFramebuffer() || frameBuffer == null) {
                 Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
+                cam.resize(logicalWidth, logicalHeight, true);
+                notifyReshape(vp, surfaceWidth, surfaceHeight);
+            } else {
+                notifyReshape(vp, getFrameBufferWidth(frameBuffer, logicalWidth),
+                        getFrameBufferHeight(frameBuffer, logicalHeight));
             }
-            notifyReshape(vp, w, h);
         }
-        for (ViewPort vp : postViewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
-                Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
-            }
-            notifyReshape(vp, w, h);
-        }
+    }
+
+    private int getFrameBufferWidth(FrameBuffer frameBuffer, int fallbackWidth) {
+        return frameBuffer.getWidth() > 0 ? frameBuffer.getWidth() : fallbackWidth;
+    }
+
+    private int getFrameBufferHeight(FrameBuffer frameBuffer, int fallbackHeight) {
+        return frameBuffer.getHeight() > 0 ? frameBuffer.getHeight() : fallbackHeight;
     }
 
     /**
      * Internal use only.
      * Updates the scale of all on-screen ViewPorts
      *
+     * @deprecated Display scale changes are handled by {@link #notifyReshape(int, int, int, int)}
+     * using logical and framebuffer sizes. Built-in contexts no longer call
+     * this method.
+     *
      * @param x the new horizontal scale
      * @param y the new vertical scale
      */
+    @Deprecated
     public void notifyRescale(float x, float y) {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
@@ -762,6 +812,20 @@ public class RenderManager {
     }
 
     /**
+     * Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to maxSinglePassLightBatchSize only
+     * when a tecnique needs it
+     * 
+     * @param tech
+     * @param nLights
+     */
+    private void maybeResizeLightBatch(TechniqueDef tech, int nLights) {
+        boolean isSPL = tech.getLightMode() == TechniqueDef.LightMode.SinglePass || tech.getLightMode() == TechniqueDef.LightMode.SinglePassAndImageBased;
+        if (isSPL && nLights > singlePassLightBatchSize && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
+        }
+    }
+
+    /**
      * Renders a single {@link Geometry} with a specific list of lights.
      * This method applies the world transform, handles forced materials and techniques,
      * and manages the `BoundDrawBuffer` parameter for multi-target frame buffers.
@@ -811,8 +875,12 @@ public class RenderManager {
                     //forcing forced technique renderState
                     forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
+                
                 // use geometry's material
                 material.render(geom, lightList, this);
+                
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
                 material.selectTechnique(previousTechniqueName, this);
 
                 //restoring forcedRenderState
@@ -824,12 +892,19 @@ public class RenderManager {
             } else if (forcedMaterial != null) {
                 // use forced material
                 forcedMaterial.render(geom, lightList, this);
+
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
             }
         } else if (forcedMaterial != null) {
             // use forced material
             forcedMaterial.render(geom, lightList, this);
+            // resize light batch if needed before rendering
+            maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
         } else {
             material.render(geom, lightList, this);
+            // resize light batch if needed before rendering
+            maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
         }
         this.renderer.popDebugGroup();
     }
@@ -1056,6 +1131,11 @@ public class RenderManager {
     /**
      * Returns the number of lights used for each pass when the light mode is single pass.
      *
+     * <p>
+     * This value is automatically scaled up (in powers of two, up to
+     * {@link #getMaxSinglePassLightBatchSize()}) during rendering whenever a geometry has more lights than
+     * the current batch size.
+     *
      * @return the number of lights.
      */
     public int getSinglePassLightBatchSize() {
@@ -1063,13 +1143,67 @@ public class RenderManager {
     }
 
     /**
-     * Sets the number of lights to use for each pass when the light mode is single pass.
+     * Sets the number of lights to use for each pass when the light mode is single pass, and simultaneously
+     * sets the maximum batch size to the same value.
      *
-     * @param singlePassLightBatchSize the number of lights.
+     * <p>
+     * This effectively pins the batch size and disables the automatic scaling, which is useful when you know
+     * in advance how many lights your scene uses.
+     *
+     * <p>
+     * To set only the upper limit while still allowing automatic scaling, use
+     * {@link #setMaxSinglePassLightBatchSize(int)} instead.
+     *
+     * @param singlePassLightBatchSize the number of lights (minimum 1).
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        // Ensure the batch size is no less than 1
         this.singlePassLightBatchSize = Math.max(singlePassLightBatchSize, 1);
+        this.maxSinglePassLightBatchSize = this.singlePassLightBatchSize;
+    }
+
+    /**
+     * Returns the maximum number of lights allowed in a single pass batch.
+     *
+     * <p>
+     * The batch size will never be auto-scaled beyond this value. 
+     *
+     * @return the maximum single pass light batch size.
+     */
+    public int getMaxSinglePassLightBatchSize() {
+        return maxSinglePassLightBatchSize;
+    }
+
+    /**
+     * Sets the maximum number of lights allowed in a single pass batch.
+     *
+     * <p>
+     * The requested value is clamped to a hardware-safe upper bound.
+     *
+     * <p>
+     * If the current {@link #getSinglePassLightBatchSize() batch size} exceeds the new maximum, it is clamped
+     * down to the new maximum. Otherwise the current batch size is left unchanged and will continue to
+     * auto-scale up to the new limit.
+     *
+     * @param maxSinglePassLightBatchSize    the maximum number of lights (minimum 1).
+     */
+    public void setMaxSinglePassLightBatchSize(int maxSinglePassLightBatchSize) {
+        this.maxSinglePassLightBatchSize = Math.max(maxSinglePassLightBatchSize, 1);
+        // Clamp to a hardware-safe value.
+        Integer fragUniformVecs = renderer.getLimits().get(Limits.FragmentUniformVectors);
+        if (fragUniformVecs != null && fragUniformVecs > 0) {
+            int reservedUniforms = Math.min(Math.max(fragUniformVecs / RESERVED_UNIFORM_FRACTION, 1), RESERVED_UNIFORMS_MAX);
+            int maxBatchForHardware = Math.max((fragUniformVecs - reservedUniforms) / VEC4_UNIFORMS_PER_LIGHT, 1);
+            if (this.maxSinglePassLightBatchSize > 16 && maxBatchForHardware < 16) {
+                logger.log(Level.WARNING,
+                        "setMaxSinglePassLightBatchSize({0}) was requested but hardware only supports"
+                                + " {1} lights per pass (FragmentUniformVectors={2}); clamping to {1}.",
+                        new Object[] { maxSinglePassLightBatchSize, maxBatchForHardware, fragUniformVecs });
+            }
+            this.maxSinglePassLightBatchSize = Math.min(this.maxSinglePassLightBatchSize, maxBatchForHardware);
+        }
+        if (singlePassLightBatchSize > this.maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = this.maxSinglePassLightBatchSize;
+        }
     }
 
     /**
@@ -1134,9 +1268,9 @@ public class RenderManager {
                 prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
             }
             renderer.setDepthRange(0, 0);
-            setCamera(cam, true);
+            setCamera(cam, true, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
             rq.renderQueue(Bucket.Gui, this, cam, flush);
-            setCamera(cam, false);
+            setCamera(cam, false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
             depthRangeChanged = true;
         }
 
@@ -1169,13 +1303,14 @@ public class RenderManager {
         }
     }
 
-    private void setViewPort(Camera cam) {
+    private void setViewPort(Camera cam, int surfaceWidth, int surfaceHeight) {
         // this will make sure to clearReservations viewport only if needed
-        if (cam != prevCam || cam.isViewportChanged()) {
-            int viewX  = (int) (cam.getViewPortLeft() * cam.getWidth());
-            int viewY  = (int) (cam.getViewPortBottom() * cam.getHeight());
-            int viewX2 = (int) (cam.getViewPortRight() * cam.getWidth());
-            int viewY2 = (int) (cam.getViewPortTop() * cam.getHeight());
+        if (cam != prevCam || cam.isViewportChanged()
+                || surfaceWidth != prevViewportWidth || surfaceHeight != prevViewportHeight) {
+            int viewX  = (int) (cam.getViewPortLeft() * surfaceWidth);
+            int viewY  = (int) (cam.getViewPortBottom() * surfaceHeight);
+            int viewX2 = (int) (cam.getViewPortRight() * surfaceWidth);
+            int viewY2 = (int) (cam.getViewPortTop() * surfaceHeight);
             int viewWidth  = viewX2 - viewX;
             int viewHeight = viewY2 - viewY;
             uniformBindingManager.setViewPort(viewX, viewY, viewWidth, viewHeight);
@@ -1183,6 +1318,8 @@ public class RenderManager {
             renderer.setClipRect(viewX, viewY, viewWidth, viewHeight);
             cam.clearViewportChanged();
             prevCam = cam;
+            prevViewportWidth = surfaceWidth;
+            prevViewportHeight = surfaceHeight;
 
 //            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
 //            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
@@ -1226,11 +1363,15 @@ public class RenderManager {
      *     false if to use the camera's view and projection matrices.
      */
     public void setCamera(Camera cam, boolean ortho) {
+        setCamera(cam, ortho, cam.getWidth(), cam.getHeight());
+    }
+
+    private void setCamera(Camera cam, boolean ortho, int targetWidth, int targetHeight) {
         // Tell the light filter which camera to use for filtering.
         if (lightFilter != null) {
             lightFilter.setCamera(cam);
         }
-        setViewPort(cam);
+        setViewPort(cam, targetWidth, targetHeight);
         setViewProjection(cam, ortho);
     }
 
@@ -1243,7 +1384,7 @@ public class RenderManager {
      * @see #renderViewPort(com.jme3.renderer.ViewPort, float)
      */
     public void renderViewPortRaw(ViewPort vp) {
-        setCamera(vp.getCamera(), false);
+        setCamera(vp.getCamera(), false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
         List<Spatial> scenes = vp.getScenes();
         for (int i = scenes.size() - 1; i >= 0; i--) {
             renderScene(scenes.get(i), vp);
@@ -1259,7 +1400,7 @@ public class RenderManager {
      */
     public void applyViewPort(ViewPort vp) {
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-        setCamera(vp.getCamera(), false);
+        setCamera(vp.getCamera(), false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
         if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
             if (vp.isClearColor()) {
                 renderer.setBackgroundColor(vp.getBackgroundColor());
@@ -1283,12 +1424,15 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }
-        RenderPipeline pipeline = vp.getPipeline();
+        RenderPipeline<? extends PipelineContext> pipeline = vp.getPipeline();
         if (pipeline == null) {
             pipeline = defaultPipeline;
         }
+        renderViewPort(vp, tpf, pipeline);
+    }
 
-        PipelineContext context = pipeline.fetchPipelineContext(this);
+    private <T extends PipelineContext> void renderViewPort(ViewPort vp, float tpf, RenderPipeline<T> pipeline) {
+        T context = pipeline.fetchPipelineContext(this);
         if (context == null) {
             throw new NullPointerException("Failed to fetch pipeline context.");
         }

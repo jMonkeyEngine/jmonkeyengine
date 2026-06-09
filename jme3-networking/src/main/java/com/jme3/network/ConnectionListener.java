@@ -44,12 +44,18 @@ public interface ConnectionListener
     /**
      *  Called when a connection has been added to the specified server and
      *  is fully setup.
+     *
+     *  @param server the server that accepted the connection
+     *  @param conn the newly connected client
      */
     public void connectionAdded( Server server, HostedConnection conn );
     
     /**
      *  Called when a connection has been removed from the specified
      *  server. 
+     *
+     *  @param server the server that removed the connection
+     *  @param conn the disconnected client
      */
     public void connectionRemoved( Server server, HostedConnection conn );
 }

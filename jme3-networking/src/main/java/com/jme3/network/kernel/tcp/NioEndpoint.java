@@ -50,6 +50,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class NioEndpoint implements Endpoint
 {
+    /**
+     * Marker queued to request endpoint closure after pending writes flush.
+     */
     protected static final ByteBuffer CLOSE_MARKER = ByteBuffer.allocate(0);
 
     private long id;
@@ -58,6 +61,13 @@ public class NioEndpoint implements Endpoint
     private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<>();
     private boolean closing = false;
 
+    /**
+     * Creates an endpoint backed by a socket channel.
+     *
+     * @param kernel the owning selector kernel
+     * @param id the endpoint id
+     * @param socket the socket channel
+     */
     public NioEndpoint( SelectorKernel kernel, long id, SocketChannel socket )
     {
         this.id = id;
@@ -122,6 +132,10 @@ public class NioEndpoint implements Endpoint
      *  The wakeup option is used internally when the kernel is
      *  broadcasting out to a bunch of endpoints and doesn't want to
      *  necessarily wakeup right away.
+     *
+     *  @param data the bytes to queue
+     *  @param copy true to copy the provided buffer
+     *  @param wakeup true to wake the selector after enqueueing
      */
     protected void send( ByteBuffer data, boolean copy, boolean wakeup )
     {
@@ -148,6 +162,8 @@ public class NioEndpoint implements Endpoint
     /**
      *  Called by the SelectorKernel to get the current top
      *  buffer for writing.
+     *
+     *  @return the current pending buffer, or null if none are queued
      */
     protected ByteBuffer peekPending()
     {
@@ -157,12 +173,19 @@ public class NioEndpoint implements Endpoint
     /**
      *  Called by the SelectorKernel when the top buffer
      *  has been exhausted.
+     *
+     *  @return the removed pending buffer, or null if none are queued
      */
     protected ByteBuffer removePending()
     {
         return outbound.poll();
     }
 
+    /**
+     * Returns true if outbound data is queued for this endpoint.
+     *
+     * @return true if pending outbound data exists
+     */
     protected boolean hasPending()
     {
         return !outbound.isEmpty();

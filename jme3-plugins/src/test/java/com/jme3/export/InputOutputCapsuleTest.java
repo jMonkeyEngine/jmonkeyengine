@@ -49,8 +49,7 @@ import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
 import java.util.Iterator;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.DesktopAssetManager;
@@ -67,6 +66,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Matrix4f;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test suite for implementations of the JmeExporter and JmeImporter interfaces.
@@ -149,7 +153,7 @@ public class InputOutputCapsuleTest {
                 exporter.save(savable, outStream);
                 exportedBytes = outStream.toByteArray();
             } catch (IOException e) {
-                Assert.fail(exporter.getClass().getSimpleName() + ": " + e.toString());
+                fail(exporter.getClass().getSimpleName() + ": " + e);
             }
 
             // write the xml into files for debugging.
@@ -176,7 +180,7 @@ public class InputOutputCapsuleTest {
                 };
                 importer.load(info);    // this is where assertions will fail if loaded data does not match saved data.
             } catch (IOException e) {
-                Assert.fail(exporter.getClass().getSimpleName() + ": " + e.toString());
+                fail(exporter.getClass().getSimpleName() + ": " + e);
             }
         }
     }
@@ -384,25 +388,25 @@ public class InputOutputCapsuleTest {
             InputCapsule capsule = ji.getCapsule(this);
 
             for (int i = 0; i < testByteArray.length; i++)
-                Assert.assertEquals("readByte()", testByteArray[i], capsule.readByte("test_byte_" + i, (byte) 0));
+                assertEquals(testByteArray[i], capsule.readByte("test_byte_" + i, (byte) 0), "readByte()");
 
             for (int i = 0; i < testShortArray.length; i++)
-                Assert.assertEquals("readShort()", testShortArray[i], capsule.readShort("test_short_" + i, (short) 0));
+                assertEquals(testShortArray[i], capsule.readShort("test_short_" + i, (short) 0), "readShort()");
 
             for (int i = 0; i < testIntArray.length; i++)
-                Assert.assertEquals("readInt()", testIntArray[i], capsule.readInt("test_int_" + i, 0));
+                assertEquals(testIntArray[i], capsule.readInt("test_int_" + i, 0), "readInt()");
 
             for (int i = 0; i < testLongArray.length; i++)
-                Assert.assertEquals("readLong()", testLongArray[i], capsule.readLong("test_long_" + i, 0l));
+                assertEquals(testLongArray[i], capsule.readLong("test_long_" + i, 0l), "readLong()");
 
             for (int i = 0; i < testFloatArray.length; i++)
-                Assert.assertEquals("readFloat()", testFloatArray[i], capsule.readFloat("test_float_" + i, 0f), 0f);
+                assertEquals(testFloatArray[i], capsule.readFloat("test_float_" + i, 0f), 0f, "readFloat()");
 
             for (int i = 0; i < testDoubleArray.length; i++)
-                Assert.assertEquals("readDouble()", testDoubleArray[i], capsule.readDouble("test_double_" + i, 0d), 0d);
+                assertEquals(testDoubleArray[i], capsule.readDouble("test_double_" + i, 0d), 0d, "readDouble()");
 
             for (int i = 0; i < testBooleanArray.length; i++)
-                Assert.assertEquals("readBoolean()", testBooleanArray[i], capsule.readBoolean("test_boolean_" + i, false));
+                assertEquals(testBooleanArray[i], capsule.readBoolean("test_boolean_" + i, false), "readBoolean()");
         }
     }
 
@@ -425,7 +429,7 @@ public class InputOutputCapsuleTest {
             InputCapsule capsule = ji.getCapsule(this);
 
             for (int i = 0; i < testStringArray.length; i++) {
-                Assert.assertEquals("readString()", testStringArray[i], capsule.readString("test_string_" + i, null));
+                assertEquals(testStringArray[i], capsule.readString("test_string_" + i, null), "readString()");
             }
         }
     }
@@ -449,7 +453,7 @@ public class InputOutputCapsuleTest {
             InputCapsule capsule = ji.getCapsule(this);
 
             for (int i = 0; i < testEnumArray.length; i++) {
-                Assert.assertEquals("readEnum()", testEnumArray[i], capsule.readEnum("test_enum_" + i, CullHint.class, null));
+                assertEquals(testEnumArray[i], capsule.readEnum("test_enum_" + i, CullHint.class, null), "readEnum()");
             }
         }
     }
@@ -473,7 +477,7 @@ public class InputOutputCapsuleTest {
             InputCapsule capsule = ji.getCapsule(this);
 
             for (int i = 0; i < testBitSetArray.length; i++) {
-                Assert.assertEquals("readBitSet()", testBitSetArray[i], capsule.readBitSet("test_bit_set_" + i, null));
+                assertEquals(testBitSetArray[i], capsule.readBitSet("test_bit_set_" + i, null), "readBitSet()");
             }
         }
     }
@@ -496,7 +500,7 @@ public class InputOutputCapsuleTest {
             InputCapsule capsule = ji.getCapsule(this);
 
             for(int i = 0; i < testSavableArray.length; i++)
-                Assert.assertEquals("readSavable()", testSavableArray[i], capsule.readSavable("test_savable_" + i, null));
+                assertEquals(testSavableArray[i], capsule.readSavable("test_savable_" + i, null), "readSavable()");
         }
     }
 
@@ -535,13 +539,14 @@ public class InputOutputCapsuleTest {
             Vector3f alsoV1 = (Vector3f) capsule.readSavable("also_v1", null);
             Vector3f notV1 = (Vector3f) capsule.readSavable("not_v1", null);
 
-            Assert.assertTrue("readSavable() savable duplicated, references not preserved.", v1 == alsoV1);
-            Assert.assertTrue("readSavable() unique savables merged, unexpected shared references.", v1 != notV1);
+            assertTrue(v1 == alsoV1, "readSavable() savable duplicated, references not preserved.");
+            assertTrue(v1 != notV1, "readSavable() unique savables merged, unexpected shared references.");
 
             Node n1 = (Node) capsule.readSavable("node_1", null);
             Node n2 = (Node) capsule.readSavable("node_2", null);
 
-            Assert.assertTrue("readSavable() reference loop not preserved.", n1.getUserData("node_2") == n2 && n2.getUserData("node_1") == n1);
+            assertTrue(n1.getUserData("node_2") == n2 && n2.getUserData("node_1") == n1,
+                    "readSavable() reference loop not preserved.");
         }
     }
 
@@ -589,35 +594,35 @@ public class InputOutputCapsuleTest {
         public void read(JmeImporter ji) throws IOException {
             InputCapsule capsule = ji.getCapsule(this);
 
-            Assert.assertArrayEquals("readByteArray()", testByteArray, capsule.readByteArray("testByteArray", null));
-            Assert.assertArrayEquals("readShortArray()", testShortArray, capsule.readShortArray("testShortArray", null));
-            Assert.assertArrayEquals("readIntArray()", testIntArray, capsule.readIntArray("testIntArray", null));
-            Assert.assertArrayEquals("readLongArray()", testLongArray, capsule.readLongArray("testLongArray", null));
-            Assert.assertArrayEquals("readFloatArray()", testFloatArray, capsule.readFloatArray("testFloatArray", null), 0f);
-            Assert.assertArrayEquals("readDoubleArray()", testDoubleArray, capsule.readDoubleArray("testDoubleArray", null), 0d);
-            Assert.assertArrayEquals("readBooleanArray()", testBooleanArray, capsule.readBooleanArray("testBooleanArray", null));
-            Assert.assertArrayEquals("readStringArray()", testStringArray, capsule.readStringArray("testStringArray", null));
-            Assert.assertArrayEquals("readSavableArray()", testSavableArray, capsule.readSavableArray("testSavableArray", null));
+            assertArrayEquals(testByteArray, capsule.readByteArray("testByteArray", null), "readByteArray()");
+            assertArrayEquals(testShortArray, capsule.readShortArray("testShortArray", null), "readShortArray()");
+            assertArrayEquals(testIntArray, capsule.readIntArray("testIntArray", null), "readIntArray()");
+            assertArrayEquals(testLongArray, capsule.readLongArray("testLongArray", null), "readLongArray()");
+            assertArrayEquals(testFloatArray, capsule.readFloatArray("testFloatArray", null), 0f, "readFloatArray()");
+            assertArrayEquals(testDoubleArray, capsule.readDoubleArray("testDoubleArray", null), 0d, "readDoubleArray()");
+            assertArrayEquals(testBooleanArray, capsule.readBooleanArray("testBooleanArray", null), "readBooleanArray()");
+            assertArrayEquals(testStringArray, capsule.readStringArray("testStringArray", null), "readStringArray()");
+            assertArrayEquals(testSavableArray, capsule.readSavableArray("testSavableArray", null), "readSavableArray()");
 
-            Assert.assertArrayEquals("readByteArray()", new byte[0], capsule.readByteArray("emptyByteArray", null));
-            Assert.assertArrayEquals("readShortArray()", new short[0], capsule.readShortArray("emptyShortArray", null));
-            Assert.assertArrayEquals("readIntArray()", new int[0], capsule.readIntArray("emptyIntArray", null));
-            Assert.assertArrayEquals("readLongArray()", new long[0], capsule.readLongArray("emptyLongArray", null));
-            Assert.assertArrayEquals("readFloatArray()", new float[0], capsule.readFloatArray("emptyFloatArray", null), 0f);
-            Assert.assertArrayEquals("readDoubleArray()", new double[0], capsule.readDoubleArray("emptyDoubleArray", null), 0d);
-            Assert.assertArrayEquals("readBooleanArray()", new boolean[0], capsule.readBooleanArray("emptyBooleanArray", null));
-            Assert.assertArrayEquals("readStringArray()", new String[0], capsule.readStringArray("emptyStringArray", null));
-            Assert.assertArrayEquals("readSavableArray()", new Savable[0], capsule.readSavableArray("emptySavableArray", null));
+            assertArrayEquals(new byte[0], capsule.readByteArray("emptyByteArray", null), "readByteArray()");
+            assertArrayEquals(new short[0], capsule.readShortArray("emptyShortArray", null), "readShortArray()");
+            assertArrayEquals(new int[0], capsule.readIntArray("emptyIntArray", null), "readIntArray()");
+            assertArrayEquals(new long[0], capsule.readLongArray("emptyLongArray", null), "readLongArray()");
+            assertArrayEquals(new float[0], capsule.readFloatArray("emptyFloatArray", null), 0f, "readFloatArray()");
+            assertArrayEquals(new double[0], capsule.readDoubleArray("emptyDoubleArray", null), 0d, "readDoubleArray()");
+            assertArrayEquals(new boolean[0], capsule.readBooleanArray("emptyBooleanArray", null), "readBooleanArray()");
+            assertArrayEquals(new String[0], capsule.readStringArray("emptyStringArray", null), "readStringArray()");
+            assertArrayEquals(new Savable[0], capsule.readSavableArray("emptySavableArray", null), "readSavableArray()");
 
-            Assert.assertArrayEquals("readByteArray2D()", testByteArray2D, capsule.readByteArray2D("testByteArray2D", null));
-            Assert.assertArrayEquals("readShortArray2D()", testShortArray2D, capsule.readShortArray2D("testShortArray2D", null));
-            Assert.assertArrayEquals("readIntArray2D()", testIntArray2D, capsule.readIntArray2D("testIntArray2D", null));
-            Assert.assertArrayEquals("readLongArray2D()", testLongArray2D, capsule.readLongArray2D("testLongArray2D", null));
-            Assert.assertArrayEquals("readFloatArray2D()", testFloatArray2D, capsule.readFloatArray2D("testFloatArray2D", null));
-            Assert.assertArrayEquals("readDoubleArray2D()", testDoubleArray2D, capsule.readDoubleArray2D("testDoubleArray2D", null));
-            Assert.assertArrayEquals("readBooleanArray2D()", testBooleanArray2D, capsule.readBooleanArray2D("testBooleanArray2D", null));
-            Assert.assertArrayEquals("readStringArray2D()", testStringArray2D, capsule.readStringArray2D("testStringArray2D", null));
-            Assert.assertArrayEquals("readSavableArray2D()", testSavableArray2D, capsule.readSavableArray2D("testSavableArray2D", null));
+            assertArrayEquals(testByteArray2D, capsule.readByteArray2D("testByteArray2D", null), "readByteArray2D()");
+            assertArrayEquals(testShortArray2D, capsule.readShortArray2D("testShortArray2D", null), "readShortArray2D()");
+            assertArrayEquals(testIntArray2D, capsule.readIntArray2D("testIntArray2D", null), "readIntArray2D()");
+            assertArrayEquals(testLongArray2D, capsule.readLongArray2D("testLongArray2D", null), "readLongArray2D()");
+            assertArrayEquals(testFloatArray2D, capsule.readFloatArray2D("testFloatArray2D", null), "readFloatArray2D()");
+            assertArrayEquals(testDoubleArray2D, capsule.readDoubleArray2D("testDoubleArray2D", null), "readDoubleArray2D()");
+            assertArrayEquals(testBooleanArray2D, capsule.readBooleanArray2D("testBooleanArray2D", null), "readBooleanArray2D()");
+            assertArrayEquals(testStringArray2D, capsule.readStringArray2D("testStringArray2D", null), "readStringArray2D()");
+            assertArrayEquals(testSavableArray2D, capsule.readSavableArray2D("testSavableArray2D", null), "readSavableArray2D()");
         }
     }
 
@@ -644,15 +649,15 @@ public class InputOutputCapsuleTest {
         public void read(JmeImporter ji) throws IOException {
             InputCapsule capsule = ji.getCapsule(this);
 
-            Assert.assertEquals("readByteBuffer()", testByteBuffer, capsule.readByteBuffer("testByteBuffer", null));
-            Assert.assertEquals("readShortBuffer()", testShortBuffer, capsule.readShortBuffer("testShortBuffer", null));
-            Assert.assertEquals("readIntBuffer()", testIntBuffer, capsule.readIntBuffer("testIntBuffer", null));
-            Assert.assertEquals("readFloatBuffer()", testFloatBuffer, capsule.readFloatBuffer("testFloatBuffer", null));
+            assertEquals(testByteBuffer, capsule.readByteBuffer("testByteBuffer", null), "readByteBuffer()");
+            assertEquals(testShortBuffer, capsule.readShortBuffer("testShortBuffer", null), "readShortBuffer()");
+            assertEquals(testIntBuffer, capsule.readIntBuffer("testIntBuffer", null), "readIntBuffer()");
+            assertEquals(testFloatBuffer, capsule.readFloatBuffer("testFloatBuffer", null), "readFloatBuffer()");
 
-            Assert.assertEquals("readByteBuffer()", BufferUtils.createByteBuffer(0), capsule.readByteBuffer("emptyByteBuffer", null));
-            Assert.assertEquals("readShortBuffer()", BufferUtils.createShortBuffer(0), capsule.readShortBuffer("emptyShortBuffer", null));
-            Assert.assertEquals("readIntBuffer()", BufferUtils.createIntBuffer(0), capsule.readIntBuffer("emptyIntBuffer", null));
-            Assert.assertEquals("readFloatBuffer()", BufferUtils.createFloatBuffer(0), capsule.readFloatBuffer("emptyFloatBuffer", null));
+            assertEquals(BufferUtils.createByteBuffer(0), capsule.readByteBuffer("emptyByteBuffer", null), "readByteBuffer()");
+            assertEquals(BufferUtils.createShortBuffer(0), capsule.readShortBuffer("emptyShortBuffer", null), "readShortBuffer()");
+            assertEquals(BufferUtils.createIntBuffer(0), capsule.readIntBuffer("emptyIntBuffer", null), "readIntBuffer()");
+            assertEquals(BufferUtils.createFloatBuffer(0), capsule.readFloatBuffer("emptyFloatBuffer", null), "readFloatBuffer()");
         }
     }
 
@@ -676,11 +681,15 @@ public class InputOutputCapsuleTest {
         public void read(JmeImporter ji) throws IOException {
             InputCapsule capsule = ji.getCapsule(this);
 
-            Assert.assertEquals("readByteBufferArrayList()", testByteBufferArrayList, capsule.readByteBufferArrayList("testByteBufferArrayList", null));
-            Assert.assertEquals("readFloatBufferArrayList()", testFloatBufferArrayList, capsule.readFloatBufferArrayList("testFloatBufferArrayList", null));
-            Assert.assertEquals("readSavableArrayList()", testSavableArrayList, capsule.readSavableArrayList("testSavableArrayList", null));
-            Assert.assertEquals("readSavableArrayListArray()", testSavableArrayListArray, capsule.readSavableArrayListArray("testSavableArrayListArray", null));
-            Assert.assertEquals("readSavableArrayListArray2D()", testSavableArrayListArray2D, capsule.readSavableArrayListArray2D("testSavableArrayListArray2D", null));
+            assertEquals(testByteBufferArrayList, capsule.readByteBufferArrayList("testByteBufferArrayList", null), "readByteBufferArrayList()");
+            assertEquals(testFloatBufferArrayList, capsule.readFloatBufferArrayList("testFloatBufferArrayList", null), "readFloatBufferArrayList()");
+            assertEquals(testSavableArrayList, capsule.readSavableArrayList("testSavableArrayList", null), "readSavableArrayList()");
+            assertArrayEquals(testSavableArrayListArray,
+                    capsule.readSavableArrayListArray("testSavableArrayListArray", null),
+                    "readSavableArrayListArray()");
+            assertArrayEquals(testSavableArrayListArray2D,
+                    capsule.readSavableArrayListArray2D("testSavableArrayListArray2D", null),
+                    "readSavableArrayListArray2D()");
         }
     }
 
@@ -702,15 +711,15 @@ public class InputOutputCapsuleTest {
         public void read(JmeImporter ji) throws IOException {
             InputCapsule capsule = ji.getCapsule(this);
 
-            Assert.assertEquals("readSavableMap()", testSavableMap, capsule.readSavableMap("testSavableMap", null));
-            Assert.assertEquals("readStringSavableMap()", testStringSavableMap, capsule.readStringSavableMap("testStringSavableMap", null));
+            assertEquals(testSavableMap, capsule.readSavableMap("testSavableMap", null), "readSavableMap()");
+            assertEquals(testStringSavableMap, capsule.readStringSavableMap("testStringSavableMap", null), "readStringSavableMap()");
 
             // IntMap does not implement equals() so we have to do it manually
             IntMap loadedIntMap = capsule.readIntSavableMap("testIntSavableMap", null);
             Iterator iterator = testIntSavableMap.iterator();
             while(iterator.hasNext()) {
                 IntMap.Entry entry = (IntMap.Entry) iterator.next();
-                Assert.assertEquals("readIntSavableMap()", entry.getValue(), loadedIntMap.get(entry.getKey()));
+                assertEquals(entry.getValue(), loadedIntMap.get(entry.getKey()), "readIntSavableMap()");
             }
         }
     }

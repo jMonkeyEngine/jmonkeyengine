@@ -66,7 +66,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected static Vector3f[] axisY = new Vector3f[6];
     protected static Vector3f[] axisZ = new Vector3f[6];
 
-    protected Image.Format imageFormat = Image.Format.RGB16F;
+    protected Image.Format imageFormat = null;
 
     public TextureCubeMap debugEnv;
 
@@ -174,23 +174,24 @@ public class EnvironmentCamera extends BaseAppState {
     public void render(final RenderManager renderManager) {
         if (isBusy()) {
             final SnapshotJob job = jobs.get(0);
+            final Image.Format format = getImageFormat(renderManager.getRenderer());
 
             for (int i = 0; i < 6; i++) {
                 viewports[i].clearScenes();
                 viewports[i].attachScene(job.scene);
                 renderManager.renderViewPort(viewports[i], 0.16f);
                 buffers[i] = BufferUtils.createByteBuffer(
-                        size * size * imageFormat.getBitsPerPixel() / 8);
+                        size * size * format.getBitsPerPixel() / 8);
                 renderManager.getRenderer().readFrameBufferWithFormat(
-                        framebuffers[i], buffers[i], imageFormat);
-                images[i] = new Image(imageFormat, size, size, buffers[i],
+                        framebuffers[i], buffers[i], format);
+                images[i] = new Image(format, size, size, buffers[i],
                         ColorSpace.Linear);
                 MipMapGenerator.generateMipMaps(images[i]);
             }
 
             final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0],
                     images[1], images[2], images[3], images[4], images[5],
-                    imageFormat);
+                    format);
             debugEnv = map;
             job.callback.done(map);
             map.getImage().dispose();
@@ -292,6 +293,8 @@ public class EnvironmentCamera extends BaseAppState {
     @Override
     protected void initialize(Application app) {
         this.backGroundColor = app.getViewPort().getBackgroundColor().clone();
+        final Renderer renderer = app.getRenderManager().getRenderer();
+        final Image.Format colorFormat = getImageFormat(renderer);
 
         final Camera[] cameras = new Camera[6];
         final Texture2D[] textures = new Texture2D[6];
@@ -305,8 +308,8 @@ public class EnvironmentCamera extends BaseAppState {
             cameras[i] = createOffCamera(size, position, axisX[i], axisY[i], axisZ[i]);
             viewports[i] = createOffViewPort("EnvView" + i, cameras[i]);
             framebuffers[i] = createOffScreenFrameBuffer(size, viewports[i]);
-            textures[i] = new Texture2D(size, size, imageFormat);
-            framebuffers[i].setColorTexture(textures[i]);
+            textures[i] = new Texture2D(size, size, colorFormat);
+            framebuffers[i].addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(textures[i]));
         }
     }
 
@@ -325,13 +328,27 @@ public class EnvironmentCamera extends BaseAppState {
         }
     }
 
+    protected Image.Format getImageFormat(Renderer renderer) {
+        if (this.imageFormat == null) {
+            this.imageFormat = renderer.getBestColorTargetFormat(true, false, false, false);
+        }
+        return this.imageFormat;
+    }
+
+    protected Image.Format getDepthFormat(Renderer renderer) {
+        return renderer.getBestDepthTargetFormat(false, false, false);
+    }
+
     /**
      * returns the images format used for the generated maps.
      *
      * @return the enum value
      */
     public Image.Format getImageFormat() {
-        return imageFormat;
+        if (this.imageFormat == null && getApplication() != null) {
+            return getImageFormat(getApplication().getRenderManager().getRenderer());
+        }
+        return this.imageFormat;
     }
 
     @Override
@@ -384,9 +401,22 @@ public class EnvironmentCamera extends BaseAppState {
      * @return a new instance
      */
     protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
+        Image.Format depthFormat = getDepthFormat(getApplication().getRenderManager().getRenderer());
+        return createOffScreenFrameBuffer(mapSize, offView, depthFormat);
+    }
+
+    /**
+     * create an off-screen framebuffer.
+     *
+     * @param mapSize the desired size (pixels per side)
+     * @param offView the off-screen viewport to be used (alias created)
+     * @param depthFormat the depth format to use
+     * @return a new instance
+     */
+    protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView, Image.Format depthFormat) {
         // create offscreen framebuffer
         final FrameBuffer offBuffer = new FrameBuffer(mapSize, mapSize, 1);
-        offBuffer.setDepthBuffer(Image.Format.Depth);
+        offBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depthFormat));
         offView.setOutputFrameBuffer(offBuffer);
         return offBuffer;
     }

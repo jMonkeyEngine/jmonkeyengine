@@ -32,6 +32,7 @@
 
 package com.jme3.export.xml;
 
+import com.jme3.util.xml.SecureXmlFactory;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.InputCapsule;
@@ -41,7 +42,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -99,7 +99,7 @@ public class XMLImporter implements JmeImporter {
 
     public Savable load(InputStream f) throws IOException {
         try {
-            domIn = new DOMInputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f), this);
+            domIn = new DOMInputCapsule(SecureXmlFactory.createDocumentBuilderFactory().newDocumentBuilder().parse(f), this);
             return domIn.readSavable(null, null);
         } catch (SAXException | ParserConfigurationException e) {
             IOException ex = new IOException();

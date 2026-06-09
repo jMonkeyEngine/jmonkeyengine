@@ -193,9 +193,6 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             }
         }
 
-        if (settings.isOpenCLSupport()) {
-            initOpenCL();
-        }
     }
 
     @Override

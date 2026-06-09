@@ -36,8 +36,8 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that tangents can be generated without an index buffer. This was
@@ -92,6 +92,6 @@ public class TestIssue1909 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNotNull(tangents);
+        Assertions.assertNotNull(tangents);
     }
 }

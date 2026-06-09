@@ -34,6 +34,7 @@ package com.jme3.system;
 import com.jme3.asset.AssetConfig;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.material.TechniqueDef;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 
@@ -63,6 +64,7 @@ public class TestUtil {
 
     public static RenderManager createRenderManager(Renderer renderer) {
         RenderManager rm = new RenderManager(renderer);
+        rm.setPreferredLightMode(TechniqueDef.LightMode.MultiPass);
         rm.setPassDrawBufferTargetIdToShaders(false);
         return rm;
     }

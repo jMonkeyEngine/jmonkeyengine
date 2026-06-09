@@ -44,6 +44,8 @@ public interface ClientStateListener
     /**
      *  Called when the specified client is fully connected to
      *  the remote server.
+     *
+     *  @param c the connected client
      */
     public void clientConnected( Client c );
  
@@ -52,6 +54,9 @@ public interface ClientStateListener
      *  server.  If info is null then the client shut down the
      *  connection normally, otherwise the info object contains
      *  additional information about the disconnect.
+     *
+     *  @param c the disconnected client
+     *  @param info extra disconnect information, or null for a normal close
      */   
     public void clientDisconnected( Client c, DisconnectInfo info );
  
@@ -61,8 +66,20 @@ public interface ClientStateListener
      */   
     public class DisconnectInfo
     {
+        /**
+         * A human-readable reason for the disconnect, if provided.
+         */
         public String reason;
+        /**
+         * The underlying disconnect cause, if one is available.
+         */
         public Throwable error;
+
+        /**
+         * Creates an empty disconnect information object.
+         */
+        public DisconnectInfo() {
+        }
         
         @Override
         public String toString() {

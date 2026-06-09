@@ -44,7 +44,18 @@ import java.io.IOException;
  */
 public interface KernelFactory
 {
+    /**
+     * Default kernel factory implementation.
+     */
     public static final KernelFactory DEFAULT = new NioKernelFactory();
 
+    /**
+     * Creates a kernel for the specified channel and port.
+     *
+     * @param channel the logical channel index
+     * @param port the bound port
+     * @return the created kernel
+     * @throws IOException if the kernel cannot be created
+     */
     public Kernel createKernel( int channel, int port ) throws IOException;
 }

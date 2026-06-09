@@ -42,6 +42,7 @@ import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
@@ -422,13 +423,15 @@ public interface Renderer {
      * <p>As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
      * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the
-     * {@link Caps#Srgb} is supported by the GPU.
+     * {@link Caps#Srgb} and {@link Caps#SrgbWriteControl} capabilities are
+     * supported by the GPU.
      *
      * @param srgb true for sRGB colorspace, false for linear colorspace
      * @throws RendererException If the GPU hardware does not support sRGB.
      *
      * @see FrameBuffer#setSrgb(boolean)
      * @see Caps#Srgb
+     * @see Caps#SrgbWriteControl
      */
     public void setMainFrameBufferSrgb(boolean srgb);
 
@@ -560,4 +563,91 @@ public interface Renderer {
      * Registers a NativeObject to be cleaned up by this renderer.
      */
     public void registerNativeObject(NativeObject nativeObject);
+
+    public default Format getBestColorTargetFormat(boolean floatingPoint) {
+        return getBestColorTargetFormat(floatingPoint, true, false);
+    }
+
+    /**
+     * Returns the best color target format based on the requested properties and renderer capabilities.
+     *
+     * @param floatingPoint true if a floating point format is required.
+     * @param highPrecision true if high precision (e.g. 16-bit or 32-bit) is preferred over packed formats.
+     * @param withAlpha true if an alpha channel is required.
+     * @return the best matching Image.Format.
+     */
+    public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha) {
+        return getBestColorTargetFormat(floatingPoint, highPrecision, withAlpha, true);
+    }
+
+    /**
+     * Returns the best color target format based on the requested properties and renderer capabilities.
+     *
+     * @param floatingPoint true if a floating point format is required.
+     * @param highPrecision true if high precision (e.g. 16-bit or 32-bit) is preferred over packed formats.
+     * @param withAlpha true if an alpha channel is required.
+     * @param supportPackedFloat true if packed float formats (e.g. RGB111110F) are allowed.
+     * @return the best matching Image.Format.
+     */
+    public default Format getBestColorTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withAlpha, boolean supportPackedFloat) {
+        if (!floatingPoint) {
+            return Format.RGBA8;
+        }
+
+        if (!highPrecision && !withAlpha) {
+            if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
+                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
+                return Format.RGB111110F;
+            }
+        }
+
+        if (withAlpha) {
+            if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGBA)) {
+                return Format.RGBA16F;
+            }
+        } else {
+            if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGB)) {
+                return Format.RGB16F;
+            } else if (getCaps().contains(Caps.HalfFloatTexture)
+                    && getCaps().contains(Caps.HalfFloatColorBufferRGBA)) {
+                return Format.RGBA16F;
+            } else if (supportPackedFloat && getCaps().contains(Caps.PackedFloatTexture)
+                    && getCaps().contains(Caps.PackedFloatColorBuffer)) {
+                return Format.RGB111110F;
+            } 
+        }
+
+        return Format.RGBA8;
+    }
+
+    public default Format getBestDepthTargetFormat() {
+        return getBestDepthTargetFormat(false, false, false);
+    }
+
+    public default Format getBestDepthTargetFormat(boolean floatingPoint, boolean highPrecision, boolean withStencil) {
+        if (withStencil) {
+            if (getCaps().contains(Caps.PackedDepthStencilBuffer)) {
+                return Format.Depth24Stencil8;
+            }
+        } else {
+            if (floatingPoint && getCaps().contains(Caps.FloatDepthBuffer)) {
+                return Format.Depth32F;
+            }
+            if (highPrecision) {
+                if (getCaps().contains(Caps.Depth32)) {
+                    return Format.Depth32;
+                }
+                if (getCaps().contains(Caps.FloatDepthBuffer)) {
+                    return Format.Depth32F;
+                }
+            }
+            if (getCaps().contains(Caps.Depth24)) {
+                return Format.Depth24;
+            }
+        }
+
+        return Format.Depth;
+    }
 }

@@ -44,6 +44,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class ArraySerializer extends Serializer {
+    /**
+     * Creates an array serializer.
+     */
+    public ArraySerializer() {
+    }
     private int[] getDimensions (Object array) {
         int depth = 0;
         Class nextClass = array.getClass().getComponentType();

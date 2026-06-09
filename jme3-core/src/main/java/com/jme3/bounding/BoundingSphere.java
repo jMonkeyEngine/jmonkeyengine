@@ -465,7 +465,9 @@ public class BoundingSphere extends BoundingVolume {
      * @param volume
      *            the sphere to combine with this sphere.
      * @return a new sphere
+     * @deprecated Use {@link #mergeWith} instead.
      */
+    @Deprecated
     @Override
     public BoundingVolume merge(BoundingVolume volume) {
         if (volume == null) {

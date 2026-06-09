@@ -44,11 +44,15 @@ public interface HostedConnection extends MessageConnection
 {
     /**
      *  Returns the Server instance that is hosting this connection.
+     *
+     *  @return the owning server
      */
     public Server getServer();     
 
     /**
      *  Returns the server-unique ID for this client.
+     *
+     *  @return the hosted connection id
      */
     public int getId();
 
@@ -57,12 +61,16 @@ public interface HostedConnection extends MessageConnection
      *  as a string.  This may or may not be unique per connection depending
      *  on the type of transport.  It is provided for information and filtering
      *  purposes. 
+     *
+     *  @return the remote address string
      */
     public String getAddress();
    
     /**
      *  Closes and removes this connection from the server
      *  sending the optional reason to the remote client.
+     *
+     *  @param reason the optional disconnect reason
      */
     public void close( String reason );
     
@@ -70,6 +78,8 @@ public interface HostedConnection extends MessageConnection
      *  Sets a session attribute specific to this connection.  If the value
      *  is set to null then the attribute is removed.
      *
+     *  @param name the attribute name
+     *  @param value the attribute value, or null to remove it
      *  @return The previous session value for this key or null
      *          if there was no previous value.
      */
@@ -78,12 +88,18 @@ public interface HostedConnection extends MessageConnection
     /**
      *  Retrieves a previously stored session attribute or
      *  null if no such attribute exists.
+     *
+     *  @param <T> the expected attribute type
+     *  @param name the attribute name
+     *  @return the stored attribute value, or null if none exists
      */
     public <T> T getAttribute( String name );
     
     /**
      *  Returns a read-only set of attribute names currently stored
      *  for this client session.
+     *
+     *  @return the current attribute names
      */
     public Set<String> attributeNames();     
 }

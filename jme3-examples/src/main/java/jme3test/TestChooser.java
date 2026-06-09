@@ -35,6 +35,7 @@ package jme3test;
 import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.JmeContext;
+import com.jme3.system.JmeSystem;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -497,6 +498,11 @@ public class TestChooser extends JFrame {
      *            command line parameters
      */
     public static void main(final String[] args) {
+        if (JmeSystem.getPlatform().isGraalVMNativeImage()) {
+            TestChooserCli.main(args);
+            return;
+        }
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {}

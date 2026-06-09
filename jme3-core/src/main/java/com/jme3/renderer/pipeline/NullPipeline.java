@@ -12,7 +12,7 @@ import com.jme3.renderer.ViewPort;
  * 
  * @author codex
  */
-public class NullPipeline implements RenderPipeline {
+public class NullPipeline implements RenderPipeline<PipelineContext> {
     
     private boolean rendered = false;
     

@@ -128,6 +128,24 @@ public final class TextureUtil {
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_GREEN);
                 break;
+            case BGR8:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_BLUE);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_GREEN);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_ONE);
+                break;
+            case ARGB8:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_GREEN);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_BLUE);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_ALPHA);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_RED);
+                break;
+            case BGRA8:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_BLUE);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_GREEN);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_ALPHA);
+                break;
             case ABGR8:
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_ALPHA);
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_BLUE);
@@ -394,10 +412,10 @@ public final class TextureUtil {
             }
         } else {
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
+                gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
             gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight, oglFormat.format, oglFormat.dataType, data);
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+                gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
         }
         data.position(cpos);
 

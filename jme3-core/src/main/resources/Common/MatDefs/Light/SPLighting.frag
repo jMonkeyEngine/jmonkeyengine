@@ -8,23 +8,8 @@
 
 // fog - jayfella
 #ifdef USE_FOG
-#import "Common/ShaderLib/MaterialFog.glsllib"
-varying float fog_distance;
-uniform vec4 m_FogColor;
-
-#ifdef FOG_LINEAR
-uniform vec2 m_LinearFog;
-#endif
-
-#ifdef FOG_EXP
-uniform float m_ExpFog;
-#endif
-
-#ifdef FOG_EXPSQ
-uniform float m_ExpSqFog;
-#endif
-
-#endif // end fog
+    #import "Common/ShaderLib/MaterialFog.glsllib"
+#endif 
 
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
@@ -38,6 +23,7 @@ varying vec3 SpecularSum;
 #ifndef VERTEX_LIGHTING
     uniform mat4 g_ViewMatrix;
     uniform vec4 g_LightData[NB_LIGHTS];
+    uniform int g_LightCount;
     varying vec3 vPos; 
 #endif
 
@@ -95,7 +81,10 @@ uniform float m_Shininess;
 void main(){
     #if !defined(VERTEX_LIGHTING)
         #if defined(NORMALMAP)
-             mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
+            vec3 tbnNormal = normalize(vNormal.xyz);
+            vec3 tbnTangent = normalize(vTangent.xyz - tbnNormal * dot(vTangent.xyz, tbnNormal));
+            vec3 tbnBinormal = normalize(cross(tbnNormal, tbnTangent)) * vTangent.w;
+            mat3 tbnMat = mat3(tbnTangent, tbnBinormal, tbnNormal);
 
             if (!gl_FrontFacing)
             {
@@ -197,6 +186,11 @@ void main(){
         #endif
 
         for( int i = 0;i < NB_LIGHTS; i+=3){
+            #if (defined(GL_ES) && __VERSION__ >= 300) || (!defined(GL_ES) && __VERSION__ >= 150)
+            if(i >= g_LightCount * 3){
+                break;
+            }
+            #endif
             vec4 lightColor = g_LightData[i];
             vec4 lightData1 = g_LightData[i+1];                
             vec4 lightDir;
@@ -250,16 +244,8 @@ void main(){
     // add fog after the lighting because shadows will cause the fog to darken
     // which just results in the geometry looking like it's changed color
     #ifdef USE_FOG
-        #ifdef FOG_LINEAR
-            gl_FragColor = getFogLinear(gl_FragColor, m_FogColor, m_LinearFog.x, m_LinearFog.y, fog_distance);
-        #endif
-        #ifdef FOG_EXP
-            gl_FragColor = getFogExp(gl_FragColor, m_FogColor, m_ExpFog, fog_distance);
-        #endif
-        #ifdef FOG_EXPSQ
-            gl_FragColor = getFogExpSquare(gl_FragColor, m_FogColor, m_ExpSqFog, fog_distance);
-        #endif
-    #endif // end fog
+        gl_FragColor = MaterialFog_calculateFogColor(vec4(gl_FragColor));
+    #endif
 
     gl_FragColor.a = alpha;
 }

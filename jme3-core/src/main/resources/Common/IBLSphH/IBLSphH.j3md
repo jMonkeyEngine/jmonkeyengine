@@ -3,9 +3,9 @@ MaterialDef IBLSphH {
     MaterialParameters {
         Int BoundDrawBuffer
         TextureCubeMap Texture -LINEAR
-        Int FaceId : 0
-        Texture2D ShCoef -LINEAR
         Vector2 Resolution
+        Int SampleCount
+        Boolean UseFastSphericalHarmonics
         Float RemapMaxValue
     }
 
@@ -26,8 +26,8 @@ MaterialDef IBLSphH {
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
+            FAST_SPHERICAL_HARMONICS: UseFastSphericalHarmonics
             REMAP_MAX_VALUE: RemapMaxValue
-            SH_COEF: ShCoef
         }
 
     }

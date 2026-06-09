@@ -64,6 +64,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
     private static final Logger LOGGER = Logger.getLogger(IBLHybridEnvBakerLight.class.getName());
     protected TextureCubeMap specular;
     protected Vector3f[] shCoef;
+    private FrameBuffer[][] specularBakers;
 
     /**
      * Create a new IBL env baker
@@ -85,7 +86,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
     public IBLHybridEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
         super(rm, am, format, depthFormat, env_size);
 
-        specular = new TextureCubeMap(specular_size, specular_size, format);
+        specular = new TextureCubeMap(specular_size, specular_size, getColorFormat());
         specular.setWrap(WrapMode.EdgeClamp);
         specular.setMagFilter(MagFilter.Bilinear);
         specular.setMinFilter(MinFilter.Trilinear);
@@ -105,8 +106,63 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
     }
 
     @Override
+    public void clean() {
+        super.clean();
+        if (specularBakers != null) {
+            for (FrameBuffer[] mipBakers : specularBakers) {
+                if (mipBakers == null) {
+                    continue;
+                }
+                for (FrameBuffer specularBaker : mipBakers) {
+                    if (specularBaker != null) {
+                        specularBaker.dispose();
+                    }
+                }
+            }
+            specularBakers = null;
+        }
+    }
+
+    @Override
     public boolean isTexturePulling() { // always pull textures from gpu
         return true;
+    }
+
+    /**
+     * Runtime samples the prefiltered map with sqrt(roughness) to recover a
+     * normalized mip coordinate. Bake-time therefore needs the inverse mapping:
+     * roughness = mipNorm^2.
+     */
+    private float roughnessFromMip(int mip) {
+        int mipCount = specular.getImage().getMipMapSizes().length;
+        if (mipCount <= 1) {
+            return 0f;
+        }
+        float mipNorm = (float) mip / (float) (mipCount - 1);
+        return mipNorm * mipNorm;
+    }
+
+    private FrameBuffer[] getSpecularBakers(int mip, int mipWidth, int mipHeight) {
+        if (specularBakers == null) {
+            specularBakers = new FrameBuffer[specular.getImage().getMipMapSizes().length][];
+        }
+
+        FrameBuffer[] specularbakers = specularBakers[mip];
+        if (specularbakers != null
+                && specularbakers[0].getWidth() == mipWidth
+                && specularbakers[0].getHeight() == mipHeight) {
+            return specularbakers;
+        }
+
+        specularbakers = new FrameBuffer[6];
+        for (int i = 0; i < 6; i++) {
+            specularbakers[i] = new FrameBuffer(mipWidth, mipHeight, 1);
+            specularbakers[i].setSrgb(false);
+            specularbakers[i].addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
+            specularbakers[i].setMipMapsGenerationHint(false);
+        }
+        specularBakers[mip] = specularbakers;
+        return specularbakers;
     }
 
     private void bakeSpecularIBL(int mip, float roughness, Material mat, Geometry screen) throws Exception {
@@ -115,13 +171,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));
         int mipHeight = (int) (specular.getImage().getHeight() * FastMath.pow(0.5f, mip));
 
-        FrameBuffer specularbakers[] = new FrameBuffer[6];
-        for (int i = 0; i < 6; i++) {
-            specularbakers[i] = new FrameBuffer(mipWidth, mipHeight, 1);
-            specularbakers[i].setSrgb(false);
-            specularbakers[i].addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
-            specularbakers[i].setMipMapsGenerationHint(false);
-        }
+        FrameBuffer specularbakers[] = getSpecularBakers(mip, mipWidth, mipHeight);
 
         for (int i = 0; i < 6; i++) {
             FrameBuffer specularbaker = specularbakers[i];
@@ -138,9 +188,6 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
                 pull(specularbaker, specular, i);
             }
 
-        }
-        for (int i = 0; i < 6; i++) {
-            specularbakers[i].dispose();
         }
     }
 
@@ -161,7 +208,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         int mip = 0;
         for (; mip < specular.getImage().getMipMapSizes().length; mip++) {
             try {
-                float roughness = (float) mip / (float) (specular.getImage().getMipMapSizes().length - 1);
+                float roughness = roughnessFromMip(mip);
                 bakeSpecularIBL(mip, roughness, mat, screen);
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Error while computing mip level " + mip, e);
@@ -177,7 +224,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
             specular.getImage().setMipmapsGenerated(true);
             if (sizes.length <= 1) {
                 try {
-                    LOGGER.log(Level.WARNING, "Workaround driver BUG: only one mip level available, regenerate it with higher roughness (shiny fix)");
+                    LOGGER.log(Level.WARNING, "Workaround driver BUG: only one mip level is usable, regenerate mip 0 with roughness 1 to avoid an overly shiny fallback");
                     bakeSpecularIBL(0, 1f, mat, screen);
                 } catch (Exception e) {
                     LOGGER.log(Level.FINE, "Error while recomputing mip level 0", e);

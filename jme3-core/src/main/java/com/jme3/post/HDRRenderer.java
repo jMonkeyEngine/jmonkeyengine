@@ -61,6 +61,7 @@ public class HDRRenderer implements SceneProcessor {
     private Renderer renderer;
     private RenderManager renderManager;
     private ViewPort viewPort;
+    private boolean resizeWithDefaultFramebuffer;
     private static final Logger logger = Logger.getLogger(HDRRenderer.class.getName());
     private Camera fbCam = new Camera(1, 1);
 
@@ -106,9 +107,9 @@ public class HDRRenderer implements SceneProcessor {
         Collection<Caps> caps = renderer.getCaps();
         if (caps.contains(Caps.PackedFloatColorBuffer))
             bufFormat = Format.RGB111110F;
-        else if (caps.contains(Caps.FloatColorBufferRGB))
+        else if (caps.contains(Caps.HalfFloatColorBufferRGB))
             bufFormat = Format.RGB16F;
-        else if (caps.contains(Caps.FloatColorBufferRGBA))
+        else if (caps.contains(Caps.HalfFloatColorBufferRGBA))
             bufFormat = Format.RGBA16F;
         else {
             enabled = false;
@@ -282,11 +283,13 @@ public class HDRRenderer implements SceneProcessor {
             msFB.setDepthBuffer(Format.Depth);
             msFB.setColorBuffer(bufFormat);
             vp.setOutputFrameBuffer(msFB);
+            vp.setResizeWithDefaultFramebuffer(resizeWithDefaultFramebuffer);
         } else {
             if (numSamples > 1)
                 logger.warning("FBO multisampling not supported on this GPU, request ignored.");
 
             vp.setOutputFrameBuffer(mainSceneFB);
+            vp.setResizeWithDefaultFramebuffer(resizeWithDefaultFramebuffer);
         }
 
         createLumShaders();
@@ -331,8 +334,10 @@ public class HDRRenderer implements SceneProcessor {
         tone.setFloat("White", 100);
 
         // load();
-        int w = vp.getCamera().getWidth();
-        int h = vp.getCamera().getHeight();
+        FrameBuffer outputBuffer = vp.getOutputFrameBuffer();
+        resizeWithDefaultFramebuffer = outputBuffer == null;
+        int w = vp.getRenderTargetWidth();
+        int h = vp.getRenderTargetHeight();
         reshape(vp, w, h);
     }
 

@@ -44,10 +44,17 @@ package com.jme3.network;
  *  and the messages will always be delivered to that connection in the 
  *  order that they were delivered.</p>   
  *
+ *  @param <S> the source connection type that delivers messages
  *  @version   $Revision$
  *  @author    Paul Speed
  */
 public interface MessageListener<S>
 {
+    /**
+     * Called when a message is received from a source.
+     *
+     * @param source the connection or endpoint that delivered the message
+     * @param m the received message
+     */
     public void messageReceived( S source, Message m );
 }

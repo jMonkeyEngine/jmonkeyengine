@@ -849,8 +849,9 @@ public class FrameBuffer extends NativeObject {
      *
      * The FrameBuffer must have an SRGB texture attached.
      *
-     * The Renderer must expose the {@link Caps#Srgb sRGB pipeline} capability
-     * for this option to take any effect.
+     * The Renderer must expose the {@link Caps#Srgb sRGB pipeline} and
+     * {@link Caps#SrgbWriteControl sRGB write control} capabilities for this
+     * option to take any effect.
      *
      * Rendering operations performed on this framebuffer shall undergo a linear
      * -&gt; sRGB color space conversion when this flag is enabled. If

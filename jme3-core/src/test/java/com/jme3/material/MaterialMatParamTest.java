@@ -42,8 +42,8 @@ import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import java.util.Arrays;
 import java.util.HashSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static com.jme3.scene.MPOTestUtils.*;
 import com.jme3.scene.Node;
@@ -54,8 +54,8 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Validates {@link MatParam}s.
@@ -432,7 +432,7 @@ public class MaterialMatParamTest {
     private final Node root = new Node("Root Node");
     private final LightList lightList = new LightList(geometry);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         root.attachChild(geometry);
     }
@@ -524,18 +524,18 @@ public class MaterialMatParamTest {
     }
 
     private void evaluateTechniqueDef() {
-        Assert.assertFalse(evaluated);
+        Assertions.assertFalse(evaluated);
         Material mat = geometry.getMaterial();
         mat.render(geometry, lightList, renderManager);
-        Assert.assertTrue(evaluated);
+        Assertions.assertTrue(evaluated);
     }
 
     private void outTextures(Texture... textures) {
         for (int i = 0; i < usedTextures.length; i++) {
             if (i < textures.length) {
-                Assert.assertSame(textures[i], usedTextures[i]);
+                Assertions.assertSame(textures[i], usedTextures[i]);
             } else {
-                Assert.assertNull(usedTextures[i]);
+                Assertions.assertNull(usedTextures[i]);
             }
         }
     }
@@ -578,7 +578,7 @@ public class MaterialMatParamTest {
         HashSet<Uniform> expectedUniforms = new HashSet<>(Arrays.asList(uniforms));
 
         if (!expectedUniforms.equals(actualUniforms)) {
-            Assert.fail("Uniform lists must match: " + expectedUniforms + " != " + actualUniforms);
+            Assertions.fail("Uniform lists must match: " + expectedUniforms + " != " + actualUniforms);
         }
     }
 }

@@ -48,18 +48,24 @@ public interface MessageBuffer {
     /**
      *  Returns the next message in the buffer or null if there are no more
      *  messages in the buffer.  
+     *
+     *  @return the next buffered message, or null if none are ready
      */
     public Message pollMessage();
     
     /**
      *  Returns true if there is a message waiting in the buffer.
+     *
+     *  @return true if a message can be polled immediately
      */
     public boolean hasMessages();
  
     /**
      *  Adds byte data to the message buffer.  Returns true if there is
      *  a message waiting after this call.
+     *
+     *  @param buffer the bytes to add
+     *  @return true if a complete message is now available
      */   
     public boolean addBytes( ByteBuffer buffer );
 }
-

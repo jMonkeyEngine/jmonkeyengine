@@ -43,7 +43,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.MockJmeSystemDelegate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify that collideWith() doesn't report collisions with phantom triangles.

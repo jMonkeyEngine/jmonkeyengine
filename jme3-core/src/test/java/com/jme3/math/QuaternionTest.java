@@ -31,19 +31,23 @@
  */
 package com.jme3.math;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies that the {@link Quaternion} class works correctly.
  *
  * @author Richard Tingle (aka Richtea)
  */
-public class QuaternionTest extends TestCase{
+public class QuaternionTest {
 
     /**
      * Verify that the {@link Quaternion#isValidQuaternion(com.jme3.math.Quaternion)} method works correctly. Testing
      * for NaNs and infinities (which are not "valid")
      */
+    @Test
     public void testIsValidQuaternion(){
         assertFalse(Quaternion.isValidQuaternion(new Quaternion(Float.NaN, 2.1f, 3.0f, 1.5f)));
         assertFalse(Quaternion.isValidQuaternion(new Quaternion(1f, Float.NaN, 3.0f, 1.5f)));

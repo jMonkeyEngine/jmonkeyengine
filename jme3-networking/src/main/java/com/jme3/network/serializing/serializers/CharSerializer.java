@@ -42,6 +42,11 @@ import java.nio.ByteBuffer;
  */
 @SuppressWarnings("unchecked")
 public class CharSerializer extends Serializer {
+    /**
+     * Creates a char serializer.
+     */
+    public CharSerializer() {
+    }
 
     @Override
     public Character readObject(ByteBuffer data, Class c) throws IOException {

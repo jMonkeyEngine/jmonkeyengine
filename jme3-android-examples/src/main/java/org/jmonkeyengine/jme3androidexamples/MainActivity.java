@@ -2,8 +2,8 @@ package org.jmonkeyengine.jme3androidexamples;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,6 +20,7 @@ import com.jme3.app.Application;
 import dalvik.system.DexFile;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -30,7 +31,7 @@ import java.util.List;
  * applications that are started via TestsHarness Activity.
  * @author iwgeric
  */
-public class MainActivity extends AppCompatActivity implements OnItemClickListener, View.OnClickListener, TextWatcher {
+public class MainActivity extends Activity implements OnItemClickListener, View.OnClickListener, TextWatcher {
     private static final String TAG = "MainActivity";
 
     /**
@@ -48,28 +49,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public static final String SELECTED_LIST_POSITION = "Selected_List_Position";
 
     /**
-     * Static String to pass the key for the setting for enabling mouse events to the
-     * savedInstanceState Bundle.
-     */
-    public static final String ENABLE_MOUSE_EVENTS = "Enable_Mouse_Events";
-
-    /**
-     * Static String to pass the key for the setting for enabling joystick events to the
-     * savedInstanceState Bundle.
-     */
-    public static final String ENABLE_JOYSTICK_EVENTS = "Enable_Joystick_Events";
-
-    /**
-     * Static String to pass the key for the setting for enabling key events to the
-     * savedInstanceState Bundle.
-     */
-    public static final String ENABLE_KEY_EVENTS = "Enable_Key_Events";
-
-    /**
      * Static String to pass the key for the setting for verbose logging to the
      * savedInstanceState Bundle.
      */
     public static final String VERBOSE_LOGGING = "Verbose_Logging";
+    public static final boolean DEFAULT_VERBOSE_LOGGING = false;
 
     /* Fields to contain the current position and display contents of the spinner */
     private int currentPosition = 0;
@@ -92,10 +76,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     EditText editFilterText;
 
     /* Custom settings for the test app */
-    private boolean enableMouseEvents = true;
-    private boolean enableJoystickEvents = false;
-    private boolean enableKeyEvents = true;
-    private boolean verboseLogging = false;
+    private boolean verboseLogging = DEFAULT_VERBOSE_LOGGING;
 
 
     /**
@@ -112,10 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             );
             currentPosition = savedInstanceState.getInt(SELECTED_LIST_POSITION, 0);
             currentSelection = savedInstanceState.getString(SELECTED_APP_CLASS);
-            enableMouseEvents = savedInstanceState.getBoolean(ENABLE_MOUSE_EVENTS, true);
-            enableJoystickEvents = savedInstanceState.getBoolean(ENABLE_JOYSTICK_EVENTS, false);
-            enableKeyEvents = savedInstanceState.getBoolean(ENABLE_KEY_EVENTS, true);
-            verboseLogging = savedInstanceState.getBoolean(VERBOSE_LOGGING, true);
+            verboseLogging = savedInstanceState.getBoolean(VERBOSE_LOGGING, DEFAULT_VERBOSE_LOGGING);
         }
 
 
@@ -127,13 +105,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         editFilterText = (EditText) findViewById(R.id.txtFilter);
 
 
-        /* Define the root package to start with */
+        /* Define the root package shared by the desktop and Android examples. */
         rootPackage = "jme3test";
 
         /* Create an array of Strings to define which classes to exclude */
         exclusions.add("$");  // inner classes
         exclusions.add("TestChooser");  // Desktop test chooser class
         exclusions.add("awt");  // Desktop test chooser class
+        exclusions.add("package-info");
 
 //        mExclusions.add("");
 
@@ -147,24 +126,25 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         ApplicationInfo ai = this.getApplicationInfo();
         String classPath = ai.sourceDir;
         DexFile dex = null;
-        Enumeration<String> apkClassNames = null;
         try {
             dex = new DexFile(classPath);
-            apkClassNames = dex.entries();
+            Enumeration<String> apkClassNames = dex.entries();
             while (apkClassNames.hasMoreElements()) {
                 String className = apkClassNames.nextElement();
-                if (checkClassName(className) && checkClassType(className)) {
+                if (checkClassName(className) && checkClassType(className) && !classNames.contains(className)) {
                     classNames.add(className);
                 }
-//            	classNames.add(className);
             }
+            Collections.sort(classNames);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                dex.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (dex != null) {
+                try {
+                    dex.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -221,24 +201,11 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             /* Get selected class, pack it in the intent and start the test app */
             Log.d(TAG, "User selected OK for class: " + currentSelection);
             Intent intent = new Intent(this, TestActivity.class);
-//            intent.putExtra(SELECTED_APP_CLASS, currentSelection);
-//            intent.putExtra(ENABLE_MOUSE_EVENTS, enableMouseEvents);
-//            intent.putExtra(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
-//            intent.putExtra(ENABLE_KEY_EVENTS, enableKeyEvents);
 
             Bundle args = new Bundle();
 
             args.putString(MainActivity.SELECTED_APP_CLASS, currentSelection);
 //            Log.d(this.getClass().getSimpleName(), "AppClass="+currentSelection);
-
-            args.putBoolean(MainActivity.ENABLE_MOUSE_EVENTS, enableMouseEvents);
-//            Log.d(TestActivity.class.getSimpleName(), "MouseEnabled="+enableMouseEvents);
-
-            args.putBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
-//            Log.d(TestActivity.class.getSimpleName(), "JoystickEnabled="+enableJoystickEvents);
-
-            args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, enableKeyEvents);
-//            Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+enableKeyEvents);
 
             args.putBoolean(MainActivity.VERBOSE_LOGGING, verboseLogging);
 //            Log.d(TestActivity.class.getSimpleName(), "VerboseLogging="+verboseLogging);
@@ -286,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private boolean checkClassType(String className) {
         boolean include = true;
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className, false, getClassLoader());
             if (Application.class.isAssignableFrom(clazz)) {
                 Log.d(TAG, "Class " + className + " is a jME Application");
             } else {
@@ -294,9 +261,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 Log.d(TAG, "Skipping Class " + className + ". Not a jME Application");
             }
 
-        } catch (NoClassDefFoundError ncdf) {
+        } catch (LinkageError ncdf) {
             include = false;
-            Log.d(TAG, "Skipping Class " + className + ". No Class Def found.");
+            Log.d(TAG, "Skipping Class " + className + ". Could not link class.");
         } catch (ClassNotFoundException cnfe) {
             include = false;
             Log.d(TAG, "Skipping Class " + className + ". Class not found.");
@@ -326,9 +293,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         Log.d(TAG, "Saving selections in onSaveInstanceState: "
                 + "position: " + currentPosition + ", "
                 + "class: " + currentSelection + ", "
-                + "mouseEvents: " + enableMouseEvents + ", "
-                + "joystickEvents: " + enableJoystickEvents + ", "
-                + "keyEvents: " + enableKeyEvents + ", "
                 + "VerboseLogging: " + verboseLogging + ", "
         );
         // Save current selections to the savedInstanceState.
@@ -336,9 +300,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         // killed and restarted.
         savedInstanceState.putString(SELECTED_APP_CLASS, currentSelection);
         savedInstanceState.putInt(SELECTED_LIST_POSITION, currentPosition);
-        savedInstanceState.putBoolean(ENABLE_MOUSE_EVENTS, enableMouseEvents);
-        savedInstanceState.putBoolean(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
-        savedInstanceState.putBoolean(ENABLE_KEY_EVENTS, enableKeyEvents);
         savedInstanceState.putBoolean(VERBOSE_LOGGING, verboseLogging);
     }
 
@@ -385,36 +346,6 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public boolean onPrepareOptionsMenu (Menu menu) {
         MenuItem item;
 
-        item = menu.findItem(R.id.optionMouseEvents);
-        if (item != null) {
-            Log.d(TAG, "Found EnableMouseEvents menu item");
-            if (enableMouseEvents) {
-                item.setTitle(R.string.strOptionDisableMouseEventsTitle);
-            } else {
-                item.setTitle(R.string.strOptionEnableMouseEventsTitle);
-            }
-        }
-
-        item = menu.findItem(R.id.optionJoystickEvents);
-        if (item != null) {
-            Log.d(TAG, "Found EnableJoystickEvents menu item");
-            if (enableJoystickEvents) {
-                item.setTitle(R.string.strOptionDisableJoystickEventsTitle);
-            } else {
-                item.setTitle(R.string.strOptionEnableJoystickEventsTitle);
-            }
-        }
-
-        item = menu.findItem(R.id.optionKeyEvents);
-        if (item != null) {
-            Log.d(TAG, "Found EnableKeyEvents menu item");
-            if (enableKeyEvents) {
-                item.setTitle(R.string.strOptionDisableKeyEventsTitle);
-            } else {
-                item.setTitle(R.string.strOptionEnableKeyEventsTitle);
-            }
-        }
-
         item = menu.findItem(R.id.optionVerboseLogging);
         if (item != null) {
             Log.d(TAG, "Found EnableVerboseLogging menu item");
@@ -430,25 +361,12 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.optionMouseEvents:
-                enableMouseEvents = !enableMouseEvents;
-                Log.d(TAG, "enableMouseEvents set to: " + enableMouseEvents);
-                break;
-            case R.id.optionJoystickEvents:
-                enableJoystickEvents = !enableJoystickEvents;
-                Log.d(TAG, "enableJoystickEvents set to: " + enableJoystickEvents);
-                break;
-            case R.id.optionKeyEvents:
-                enableKeyEvents = !enableKeyEvents;
-                Log.d(TAG, "enableKeyEvents set to: " + enableKeyEvents);
-                break;
-            case R.id.optionVerboseLogging:
-                verboseLogging = !verboseLogging;
-                Log.d(TAG, "verboseLogging set to: " + verboseLogging);
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        int itemId = item.getItemId();
+        if (itemId == R.id.optionVerboseLogging) {
+            verboseLogging = !verboseLogging;
+            Log.d(TAG, "verboseLogging set to: " + verboseLogging);
+        } else {
+            return super.onOptionsItemSelected(item);
         }
 
         return true;

@@ -606,6 +606,20 @@ public class InputManager implements RawInputListener {
         return mappings.containsKey(mappingName);
     }
 
+
+
+    /**
+     * Returns true if at least one mapping is registered for the specified
+     * trigger hash.
+     *
+     * @param triggerHash hash returned by {@link Trigger#triggerHashCode()}
+     * @return true if the trigger hash is registered to at least one mapping
+     */
+    public boolean hasTriggerMapping(int triggerHash) {
+        ArrayList<Mapping> maps = bindings.get(triggerHash);
+        return maps != null && !maps.isEmpty();
+    }
+
     /**
      * Deletes a mapping from receiving trigger events.
      *
@@ -629,8 +643,17 @@ public class InputManager implements RawInputListener {
         for (int i = triggers.size() - 1; i >= 0; i--) {
             int hash = triggers.get(i);
             ArrayList<Mapping> maps = bindings.get(hash);
-            maps.remove(mapping);
+            if (maps != null) {
+                maps.remove(mapping);
+                if (maps.isEmpty()) {
+                    bindings.remove(hash);
+                    pressedButtons.remove(hash);
+                    axisValues.remove(hash);
+                }
+            }
         }
+        mapping.triggers.clear();
+        mapping.listeners.clear();
     }
 
     /**
@@ -650,8 +673,17 @@ public class InputManager implements RawInputListener {
             throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
         }
 
-        ArrayList<Mapping> maps = bindings.get(trigger.triggerHashCode());
-        maps.remove(mapping);
+        int hash = trigger.triggerHashCode();
+        ArrayList<Mapping> maps = bindings.get(hash);
+        if (maps != null) {
+            maps.remove(mapping);
+            if (maps.isEmpty()) {
+                bindings.remove(hash);
+                pressedButtons.remove(hash);
+                axisValues.remove(hash);
+            }
+        }
+        mapping.triggers.remove((Integer) hash);
 
     }
 

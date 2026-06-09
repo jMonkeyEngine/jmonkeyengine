@@ -37,6 +37,8 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.scene.threadwarden.SceneGraphThreadWarden;
 import com.jme3.util.SafeArrayList;
@@ -126,12 +128,26 @@ public class Node extends Spatial {
     @Override
     protected void setLightListRefresh() {
         super.setLightListRefresh();
+        boolean hasGlobalLights = false;
         for (Spatial child : children.getArray()) {
             if ((child.refreshFlags & RF_LIGHTLIST) != 0) {
+                if( !hasGlobalLights && (child.refreshFlags & RF_GLOBAL_LIGHTS) != 0){
+                    hasGlobalLights = true;
+                }
                 continue;
             }
-
             child.setLightListRefresh();
+        }
+        if(hasGlobalLights){
+            refreshFlags |= RF_GLOBAL_LIGHTS;
+            Node p = this.parent;
+            while (p != null) {
+                if ((p.refreshFlags & RF_GLOBAL_LIGHTS) != 0) {
+                    break;
+                }
+                p.refreshFlags |= RF_GLOBAL_LIGHTS;
+                p = p.parent;
+            }
         }
     }
 
@@ -242,6 +258,26 @@ public class Node extends Spatial {
         }
     }
 
+    private void findGlobalLights(Spatial sp, LightList list) {
+        LightList lights = sp.getLocalLightList();
+        for (Light l : lights) {
+            if (l.isGlobal()) {
+                list.add(l);
+            }
+        }
+
+        if(sp instanceof Node){
+            Node n = (Node) sp;
+            List<Spatial> children = n.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Spatial child = children.get(i);
+                if ((child.refreshFlags & RF_GLOBAL_LIGHTS)!= 0) {
+                    findGlobalLights(child, list);
+                }
+            }
+        }
+    }
+
     @Override
     public void updateGeometricState() {
         if (refreshFlags == 0) {
@@ -251,6 +287,16 @@ public class Node extends Spatial {
         if ((refreshFlags & RF_LIGHTLIST) != 0) {
             updateWorldLightList();
         }
+
+        boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
+        if (updateGlobalLights){
+            // if root node, we collect the global lights
+            if (getParent() == null){ 
+                findGlobalLights(this, worldLights);
+            }
+            refreshFlags &= ~RF_GLOBAL_LIGHTS;
+        }
+
         if ((refreshFlags & RF_TRANSFORM) != 0) {
             // combine with parent transforms- same for all spatial
             // subclasses.
@@ -268,6 +314,13 @@ public class Node extends Spatial {
             // NOTE 9/19/09
             // Although it does save a round trip,
             for (Spatial child : children.getArray()) {
+                if (updateGlobalLights){
+                    // we might have new global lights coming from a different
+                    // branch of the scene graph, so we need to propagate the
+                    // refresh flags down to all the children of every branch
+                    child.refreshFlags |= RF_LIGHTLIST;
+                    child.refreshFlags |= RF_GLOBAL_LIGHTS;
+                }
                 child.updateGeometricState();
             }
         }
@@ -632,22 +685,23 @@ public class Node extends Spatial {
      /**
      * Returns flat list of Spatials implementing the specified class AND
      * with name matching the specified pattern.
-     * <P>
+     *
      * Note that we are <i>matching</i> the pattern, therefore the pattern
      * must match the entire pattern (i.e. it behaves as if it is sandwiched
      * between "^" and "$").
      * You can set regex modes, like case insensitivity, by using the (?X)
      * or (?X:Y) constructs.
-     * </P> <P>
-     * By design, it is always safe to code loops like:<PRE>
+     *
+     * <p>By design, it is always safe to code loops like:</p>
+     * <PRE>
      *     for (Spatial spatial : node.descendantMatches(AClass.class, "regex"))
      * </PRE>
-     * <P>
+     *
      * "Descendants" does not include self, per the definition of the word.
      * To test for descendants AND self, you must do a
      * <code>node.matches(aClass, aRegex)</code> +
      * <code>node.descendantMatches(aClass, aRegex)</code>.
-     * <P>
+     *
      *
      * @param <T> the type of Spatial returned
      * @param spatialSubclass Subclass which matching Spatials must implement.

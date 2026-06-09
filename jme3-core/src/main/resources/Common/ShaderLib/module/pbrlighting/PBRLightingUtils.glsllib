@@ -57,6 +57,11 @@
             uniform sampler2D m_BaseColorMap;
         #endif
 
+        #ifdef HSV_OFFSET
+            #import "Common/ShaderLib/HSVUtils.glsllib"
+            uniform vec3 m_HSVOffset;
+        #endif
+
         #ifdef USE_PACKED_MR
             uniform sampler2D m_MetallicRoughnessMap;
         #else
@@ -217,6 +222,13 @@
             l.invRadius = invRadius;
             l.spotAngleCos = spotAngleCos;
             l.spotDirection = spotDirection;
+            l.NdotL = 0.0;
+            l.NdotH = 0.0;
+            l.LdotH = 0.0;
+            l.HdotV = 0.0;
+            l.vector = vec3(0.0);
+            l.dir = vec3(0.0);
+            l.fallOff = 0.0;
             l.ready = false;
             return l;
         }
@@ -224,49 +236,52 @@
 
 
     #if  defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_computeLightInWorldSpace)
-        void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos,vec3 worldNormal, vec3 viewDir, inout Light light){
+        void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos, vec3 worldNormal, vec3 viewDir, inout Light light){
             if(light.ready) return;
 
-            // lightComputeDir
-            float posLight = step(0.5, light.type);     
-            light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight); //tempVec lightVec
+            float posLight = step(0.5, light.type);
+            light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
 
-            vec3 L; // lightDir
+            vec3 L;
             float dist;
-            Math_lengthAndNormalize(light.vector,dist,L);
+            Math_lengthAndNormalize(light.vector, dist, L);
 
-            float invRange=light.invRadius; // position.w
-            const float light_threshold = 0.01;
+            if (posLight > 0.5) {
+                float clampedDist = max(dist, 0.00001);
+                float invSq = 1.0 / (clampedDist * clampedDist);
 
-            #ifdef SRGB
-                light.fallOff = (1.0 - invRange * dist) / (1.0 + invRange * dist * dist); // lightDir.w
-                light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
-            #else
-                light.fallOff = clamp(1.0 - invRange * dist * posLight, 0.0, 1.0);
-            #endif
+                float radius = 1.0 / light.invRadius;
+                float rangeAtt = 1.0;
 
-            // computeSpotFalloff
-            if(light.type>1.){
-                vec3 spotdir = normalize(light.spotDirection);
-                float curAngleCos = dot(-L, spotdir);    
-                float innerAngleCos = floor(light.spotAngleCos) * 0.001;
-                float outerAngleCos = fract(light.spotAngleCos);
-                float innerMinusOuter = innerAngleCos - outerAngleCos;
-                float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-                #ifdef SRGB
-                    // Use quadratic falloff (notice the ^4)
-                    falloff = pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
-                #endif
-                light.fallOff*=falloff;
+                if (radius > 0.0) {
+                    float x = dist / radius;
+                    rangeAtt = clamp(1.0 - pow(x, 4.0), 0.0, 1.0);
+                }
+
+                light.fallOff = invSq * rangeAtt;
+            } else {
+                light.fallOff = 1.0;
             }
 
+            if (light.type > 1.0) {
+                float innerAngleCos = floor(light.spotAngleCos) * 0.001;
+                float outerAngleCos = fract(light.spotAngleCos);
 
-            vec3 h=normalize(L+viewDir);
-            light.dir=L;
+                vec3 spotDir = normalize(light.spotDirection);
+                float cosA = dot(-L, spotDir);
+                float denom = max(innerAngleCos - outerAngleCos, 0.0001);
+                float spotAtten = clamp((cosA - outerAngleCos) / denom, 0.0, 1.0);
+
+                light.fallOff *= spotAtten;
+            }
+
+            vec3 h = normalize(L + viewDir);
+            light.dir = L;
             light.NdotL = max(dot(worldNormal, L), 0.0);
             light.NdotH = max(dot(worldNormal, h), 0.0);
             light.LdotH = max(dot(L, h), 0.0);
-            light.HdotV = max(dot(viewDir,h), 0.);
+            light.HdotV = max(dot(viewDir, h), 0.0);
+            light.ready = true;
         }
     #endif
 
@@ -279,6 +294,9 @@
         surface.geometryNormal = normalize(wNormal);
 
         //set default values
+        surface.frontFacing = true;
+        surface.depth = 0.0;
+        surface.tbnMat = mat3(1.0);
         surface.hasTangents = false;
         surface.hasBasicLightMap = false;        
         surface.albedo = vec3(1.0);
@@ -289,8 +307,15 @@
         surface.alpha = 1.0;
         surface.roughness = 1.0;
         surface.metallic = 0.0;
-        surface.alpha = 1.0;
-        surface.exposure = 1.0;        
+        surface.exposure = 1.0;
+        surface.diffuseColor = vec3(1.0);
+        surface.specularColor = vec3(0.04);
+        surface.fZero = vec3(0.04);
+        surface.NdotV = 1.0;
+        surface.bakedLightContribution = vec3(0.0);
+        surface.directLightContribution = vec3(0.0);
+        surface.envLightContribution = vec3(0.0);
+        surface.brightestNonGlobalLightStrength = 0.0;        
         
         return surface;
     }
@@ -305,31 +330,45 @@
             surface.envLightContribution = vec3(0.0);
 
             #ifdef ENABLE_PBRLightingUtils_getWorldTangent
-                vec3 tan = normalize(wTangent.xyz); 
-                surface.tbnMat = mat3(tan, wTangent.w * cross( surface.geometryNormal, tan), surface.geometryNormal);
-                surface.hasTangents = true;
+                vec3 n = normalize(surface.geometryNormal);
+                vec3 tangent = wTangent.xyz - n * dot(wTangent.xyz, n);
+                float tangentLen2 = dot(tangent, tangent);
+                if (tangentLen2 > 1e-8) {
+                    vec3 tan = tangent * inversesqrt(tangentLen2);
+                    vec3 bitangent = cross(n, tan);
+                    float bitangentLen2 = dot(bitangent, bitangent);
+                    if (bitangentLen2 > 1e-8) {
+                        vec3 bitan = bitangent * (wTangent.w * inversesqrt(bitangentLen2));
+                        surface.tbnMat = mat3(tan, bitan, n);
+                        surface.hasTangents = true;
+                    }
+                }
             #endif
 
             
             #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
-                vec3 vViewDir =  surface.viewDir * surface.tbnMat;  
-                #ifdef STEEP_PARALLAX
-                    #ifdef NORMALMAP_PARALLAX
-                        //parallax map is stored in the alpha channel of the normal map         
-                        newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+                if (surface.hasTangents) {
+                    vec3 vViewDir =  surface.viewDir * surface.tbnMat;  
+                    #ifdef STEEP_PARALLAX
+                        #ifdef NORMALMAP_PARALLAX
+                            //parallax map is stored in the alpha channel of the normal map         
+                            newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+                        #else
+                            //parallax map is a texture
+                            newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
+                        #endif
                     #else
+                        #ifdef NORMALMAP_PARALLAX
+                            //parallax map is stored in the alpha channel of the normal map         
+                            newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+                        #else
                         //parallax map is a texture
-                        newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
+                        newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
+                        #endif
                     #endif
-                #else
-                    #ifdef NORMALMAP_PARALLAX
-                        //parallax map is stored in the alpha channel of the normal map         
-                        newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
-                    #else
-                    //parallax map is a texture
-                    newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
-                #endif
-            #endif
+                } else {
+                    newTexCoord = texCoord;
+                }
             #else
             newTexCoord = texCoord;    
             #endif
@@ -342,6 +381,10 @@
 
             #ifdef DISCARD_ALPHA
                 if( baseColor.a < m_AlphaDiscardThreshold) discard;        
+            #endif
+
+            #ifdef HSV_OFFSET
+                baseColor.rgb = alterColorWithHsvOffset(baseColor.rgb, m_HSVOffset);
             #endif
 
             surface.albedo = baseColor.rgb;
@@ -365,18 +408,24 @@
                     surface.metallic =  max(m_Metallic, 0.0);
                 #endif
             #endif
+            surface.roughness = clamp(surface.roughness, 1e-4, 1.0);
+            surface.metallic = clamp(surface.metallic, 0.0, 1.0);
 
 
 
             #if defined(NORMALMAP)
-                vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-                // Note we invert directx style normal maps to opengl style
-                #ifdef NORMALSCALE
-                    vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
-                #else
-                    vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
-                #endif
-                surface.normal = normalize(surface.tbnMat * normal);
+                if (surface.hasTangents) {
+                    vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
+                    // Note we invert directx style normal maps to opengl style
+                    #ifdef NORMALSCALE
+                        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
+                    #else
+                        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+                    #endif
+                    surface.normal = normalize(surface.tbnMat * normal);
+                } else {
+                    surface.normal = surface.geometryNormal;
+                }
             #else
                 surface.normal = surface.geometryNormal;
             #endif
@@ -400,7 +449,7 @@
                 #endif
                 specularColor *= m_Specular;
                 surface.specularColor = specularColor.rgb;
-                surface.roughness = 1.0 - glossiness;
+                surface.roughness = clamp(1.0 - glossiness, 1e-4, 1.0);
             #endif
 
             vec3 ao = vec3(1.0);
@@ -463,21 +512,25 @@
     
 
         void PBRLightingUtils_calculatePreLightingValues(inout PBRSurface surface){
+            surface.frontFacing = gl_FrontFacing;
+            surface.depth = gl_FragCoord.z;
+            surface.NdotV = clamp(abs(dot(surface.normal, surface.viewDir)), 0.001, 1.0);
 
-            if(surface.hasBasicLightMap == true){ 
-                surface.bakedLightContribution += surface.diffuseColor.rgb * surface.lightMapColor;
-                surface.specularColor.rgb *= surface.lightMapColor;
-            }        
-            surface.specularColor.rgb *= surface.ao;     
-
-            #ifdef SPECGLOSSPIPELINE      
-                surface.diffuseColor = surface.albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+            #ifdef SPECGLOSSPIPELINE
+                float maxSpecular = max(max(surface.specularColor.r, surface.specularColor.g), surface.specularColor.b);
+                surface.diffuseColor = surface.albedo * (1.0 - clamp(maxSpecular, 0.0, 1.0));
                 surface.fZero = surface.specularColor.xyz;
             #else
                 surface.specularColor = (0.04 - 0.04 * surface.metallic) + surface.albedo * surface.metallic;  // 0.04 is the standard base specular reflectance for non-metallic surfaces in PBR. While values like 0.08 can be used for different implementations, 0.04 aligns with Khronos' PBR specification.
                 surface.diffuseColor = surface.albedo - surface.albedo * surface.metallic;
                 surface.fZero = mix(vec3(0.04), surface.albedo.rgb, surface.metallic);        
             #endif
+
+            if(surface.hasBasicLightMap == true){ 
+                // The basic light map path is diffuse baked lighting, not baked
+                // indirect specular. Keep it out of the specular/F0 terms.
+                surface.bakedLightContribution += surface.diffuseColor.rgb * surface.lightMapColor;
+            }
         }
 
         void PBRLightingUtils_computeDirectLight(in Light light, in PBRSurface surface, inout vec3 directDiffuse, inout vec3 directSpecular, out float hdotv){
@@ -637,12 +690,12 @@
                 #if NB_PROBES >= 2
                     float invNdf =  max(1.0 - ndf,0.0);
                     float invNdf2 =  max(1.0 - ndf2,0.0);
-                    float sumNdf = ndf + ndf2;
-                    float sumInvNdf = invNdf + invNdf2;
+                    float sumNdf = max(ndf + ndf2, 1e-4);
+                    float sumInvNdf = max(invNdf + invNdf2, 1e-4);
                     #if NB_PROBES == 3
                         float invNdf3 = max(1.0 - ndf3,0.0);
-                        sumNdf += ndf3;
-                        sumInvNdf += invNdf3;
+                        sumNdf = max(sumNdf + ndf3, 1e-4);
+                        sumInvNdf = max(sumInvNdf + invNdf3, 1e-4);
                         weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
                     #endif
 
@@ -650,10 +703,15 @@
                     weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
 
                     float weightSum = weight1 + weight2 + weight3;
-
-                    weight1 /= weightSum;
-                    weight2 /= weightSum;
-                    weight3 /= weightSum;
+                    if (weightSum > 1e-4) {
+                        weight1 /= weightSum;
+                        weight2 /= weightSum;
+                        weight3 /= weightSum;
+                    } else {
+                        weight1 = 1.0 / float(NB_PROBES);
+                        weight2 = 1.0 / float(NB_PROBES);
+                        weight3 = 1.0 / float(NB_PROBES);
+                    }
                 #endif
                 
                 #ifdef USE_AMBIENT_LIGHT

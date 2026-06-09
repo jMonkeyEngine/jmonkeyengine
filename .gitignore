@@ -5,6 +5,7 @@
 **/.vscode/**
 **/out/
 /.gradle/
+**/.gradle/
 /.nb-gradle/
 /.idea/
 /dist/
@@ -46,3 +47,8 @@ javadoc_deploy.pub
 !.vscode/JME_style.xml
 !.vscode/extensions.json
 joysticks-*.txt
+/jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/
+/jme3-screenshot-tests/jme3-screenshot-tests-android/build/
+/jme3-screenshot-tests/jme3-screenshot-tests-shared/build/
+
+/jme3-screenshot-tests/jme3-screenshot-tests-proto-report/build/

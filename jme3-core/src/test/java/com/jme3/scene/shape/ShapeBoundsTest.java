@@ -37,8 +37,10 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.VertexBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests that all shapes have had a world bound calculated, and that vertices are within those bounds. Test
@@ -103,7 +105,7 @@ public class ShapeBoundsTest {
         BoundingVolume bv = geometry.getWorldBound();
         BoundingBox bb = (BoundingBox) bv;
         //Quad z extent 0 is normal, so not using testBounds() here.
-        Assert.assertTrue(bb.getXExtent() > 0 && bb.getYExtent() > 0);
+        assertTrue(bb.getXExtent() > 0 && bb.getYExtent() > 0);
         testVertices(geometry);
     }
 
@@ -133,10 +135,10 @@ public class ShapeBoundsTest {
 
         if (bv instanceof BoundingBox) {
             BoundingBox bb = (BoundingBox) bv;
-            Assert.assertTrue(bb.getXExtent() > 0 && bb.getYExtent() > 0 && bb.getZExtent() > 0);
+            assertTrue(bb.getXExtent() > 0 && bb.getYExtent() > 0 && bb.getZExtent() > 0);
         } else if (bv instanceof BoundingSphere) {
             BoundingSphere bs = (BoundingSphere) bv;
-            Assert.assertTrue(bs.getRadius() > 1f);
+            assertTrue(bs.getRadius() > 1f);
         }
 
         testVertices(geometry);
@@ -144,14 +146,14 @@ public class ShapeBoundsTest {
 
     private void testVertices(Geometry geometry) {
         BoundingVolume bv = geometry.getWorldBound();
-        Assert.assertNotNull(bv);
+        assertNotNull(bv);
 
         for (int e = 0; e < geometry.getVertexCount(); e++) {
             float x = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 0);
             float y = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 1);
             float z = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 2);
             Vector3f vertex = new Vector3f(x, y, z);
-            Assert.assertTrue("Vertex outside world bound: " + vertex, bv.intersects(vertex));
+            assertTrue(bv.intersects(vertex), "Vertex outside world bound: " + vertex);
         }
     }
 }

@@ -36,6 +36,7 @@ package com.jme3.network.service;
 /**
  *  The base interface for managed services.
  *
+ *  @param <S> the service manager type that owns the service
  *  @author    Paul Speed
  */
 public interface Service<S> {
@@ -43,6 +44,8 @@ public interface Service<S> {
     /**
      *  Called when the service is first attached to the service
      *  manager.
+     *
+     *  @param serviceManager the manager that is initializing this service
      */
     public void initialize( S serviceManager );
     
@@ -62,6 +65,8 @@ public interface Service<S> {
     /**
      *  The service manager is fully shutting down.  All services
      *  have been stopped and related connections closed.
+     *
+     *  @param serviceManager the manager that is terminating this service
      */
     public void terminate( S serviceManager ); 
 }

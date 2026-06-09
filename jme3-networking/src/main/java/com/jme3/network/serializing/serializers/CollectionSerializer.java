@@ -46,6 +46,11 @@ import java.util.logging.Level;
  * @author Lars Wesselius
  */
 public class CollectionSerializer extends Serializer {
+    /**
+     * Creates a collection serializer.
+     */
+    public CollectionSerializer() {
+    }
 
     @SuppressWarnings("unchecked")
     @Override
