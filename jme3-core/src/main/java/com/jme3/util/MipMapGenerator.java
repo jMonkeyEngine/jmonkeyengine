@@ -223,7 +223,7 @@ public final class MipMapGenerator {
         ByteBuffer combined = BufferUtils.createByteBuffer(totalSize);
 
         for (ByteBuffer level : levels) {
-            ByteBuffer duplicate = level.duplicate();
+            ByteBuffer duplicate = ByteBufferUtils.duplicate(level);
             duplicate.clear();
             combined.put(duplicate);
         }
@@ -519,7 +519,7 @@ public final class MipMapGenerator {
             );
         }
 
-        ByteBuffer duplicate = source.duplicate();
+        ByteBuffer duplicate = ByteBufferUtils.duplicate(source);
         duplicate.clear();
         duplicate.limit(baseLevelSize);
 

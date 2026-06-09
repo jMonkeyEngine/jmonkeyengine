@@ -42,6 +42,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.renderer.Renderer;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 
@@ -172,7 +173,7 @@ public class BufferObject extends NativeObject implements Savable {
             }
             return;
         }
-        ByteBuffer source = data == this.data ? data.duplicate() : data;
+        ByteBuffer source = data == this.data ? ByteBufferUtils.duplicate(data) : data;
         ByteBuffer oldData = this.data;
 
         this.data = BufferUtils.createByteBuffer(source.limit() - source.position());
