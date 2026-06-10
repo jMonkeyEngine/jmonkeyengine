@@ -87,11 +87,14 @@ public class StructTest {
         Std140Layout layout = new Std140Layout();
         BufferObject bo = new BufferObject();
         StructUtils.setStd140BufferLayout(fields, layout, bo);
-        System.out.println(bo.getData().getInt());
+        ByteBuffer debugData = bo.getByteData().duplicate();
+        debugData.clear();
+        System.out.println(debugData.getInt());
         
         StructUtils.updateBufferData(fields, false, layout, bo);
 
-        ByteBuffer bbf = bo.getData();
+        ByteBuffer bbf = bo.getByteData().duplicate();
+        bbf.clear();
 
         String expectedData = "100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 0 0 0 0 0 0 72 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -106 67 0 0 0 0 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
         String actualData = "";
@@ -110,9 +113,9 @@ public class StructTest {
 
         java.util.List<StructField<?>> fields = StructUtils.getFields(test);
         StructUtils.setStd140BufferLayout(fields, layout, bo);
-        int bolength = bo.getData().limit();
+        int bolength = bo.getByteData().limit();
         assertEquals(128, bolength);
-        assertEquals(128, bo.getData().capacity());
+        assertEquals(128, bo.getByteData().capacity());
         
         int nUpdated;
 
@@ -256,7 +259,7 @@ public class StructTest {
 
         BufferObject std140Bo = new BufferObject();
         StructUtils.setBufferLayout(fields, new Std140Layout(), std140Bo);
-        assertEquals(64, std140Bo.getData().limit());
+        assertEquals(64, std140Bo.getByteData().limit());
         assertEquals(0, std140Bo.getRegion(0).getStart());
         assertEquals(47, std140Bo.getRegion(0).getEnd());
         assertEquals(48, std140Bo.getRegion(1).getStart());
@@ -264,14 +267,14 @@ public class StructTest {
 
         BufferObject std430Bo = new BufferObject();
         StructUtils.setBufferLayout(fields, new Std430Layout(), std430Bo);
-        assertEquals(16, std430Bo.getData().limit());
+        assertEquals(16, std430Bo.getByteData().limit());
         assertEquals(0, std430Bo.getRegion(0).getStart());
         assertEquals(11, std430Bo.getRegion(0).getEnd());
         assertEquals(12, std430Bo.getRegion(1).getStart());
         assertEquals(15, std430Bo.getRegion(1).getEnd());
 
         StructUtils.updateBufferData(fields, false, new Std430Layout(), std430Bo);
-        ByteBuffer data = std430Bo.getData();
+        ByteBuffer data = std430Bo.getByteData();
         assertEquals(1f, data.getFloat(0));
         assertEquals(2f, data.getFloat(4));
         assertEquals(3f, data.getFloat(8));
@@ -287,7 +290,7 @@ public class StructTest {
         StructStd430BufferObject copy = (StructStd430BufferObject) BinaryImporter.getInstance()
                 .load(new ByteArrayInputStream(output.toByteArray()));
 
-        assertEquals(16, copy.getData().limit());
+        assertEquals(16, copy.getByteData().limit());
         assertEquals(0, copy.getRegion(0).getStart());
         assertEquals(11, copy.getRegion(0).getEnd());
         assertEquals(12, copy.getRegion(1).getStart());

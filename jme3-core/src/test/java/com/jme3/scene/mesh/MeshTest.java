@@ -33,10 +33,15 @@
 package com.jme3.scene.mesh;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
 
 import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.util.BufferUtils;
 
 /**
  * Tests selected methods of the Mesh class.
@@ -53,5 +58,31 @@ public class MeshTest {
         final Mesh mesh = new Mesh();
 
         assertEquals(-1, mesh.getVertexCount());
+    }
+
+    /**
+     * Tests interleaving half-float vertex buffers, which are byte-backed.
+     */
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testInterleavedHalfBuffer() {
+        final Mesh mesh = new Mesh();
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, VertexBuffer.Format.Float,
+                BufferUtils.createFloatBuffer(0f, 0f, 0f, 1f, 1f, 1f));
+
+        ByteBuffer halfTexCoords = BufferUtils.createByteBuffer(8);
+        halfTexCoords.putShort((short) 0);
+        halfTexCoords.putShort((short) 0);
+        halfTexCoords.putShort((short) 0x3c00);
+        halfTexCoords.putShort((short) 0x3c00);
+        halfTexCoords.clear();
+        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, VertexBuffer.Format.Half, halfTexCoords);
+
+        mesh.setInterleaved();
+
+        VertexBuffer interleaved = mesh.getBuffer(VertexBuffer.Type.InterleavedData);
+        assertNotNull(interleaved);
+        assertEquals(VertexBuffer.Format.UnsignedByte, interleaved.getFormat());
+        assertEquals(32, interleaved.getData().limit());
     }
 }

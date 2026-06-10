@@ -49,6 +49,8 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <code>Mesh</code> is used to store rendering data.
@@ -175,6 +177,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<>();
+    private HashMap<String, VertexBuffer> customBuffers = new HashMap<>();
     private VertexBuffer[] lodLevels;
     
     private float pointSize = DEFAULT_POINT_SIZE;
@@ -215,6 +218,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
+            clone.customBuffers = new HashMap<>(customBuffers);
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
             clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             if (elementLengths != null) {
@@ -246,10 +250,15 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.collisionTree = DEFAULT_COLLISION_TREE; // it will get re-generated in any case
 
             clone.buffers = new IntMap<>();
+            clone.customBuffers = new HashMap<>();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
             for (VertexBuffer vb : buffersList.getArray()) {
                 VertexBuffer bufClone = vb.clone();
-                clone.buffers.put(vb.getBufferType().ordinal(), bufClone);
+                if (bufClone.getBufferType() == Type.Custom) {
+                    clone.customBuffers.put(bufClone.getShaderAttributeName(), bufClone);
+                } else {
+                    clone.buffers.put(vb.getBufferType().ordinal(), bufClone);
+                }
                 clone.buffersList.add(bufClone);
             }
 
@@ -331,6 +340,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         this.meshBound = cloner.clone(meshBound);
         this.buffersList = cloner.clone(buffersList);
         this.buffers = cloner.clone(buffers);
+        this.customBuffers = cloner.clone(customBuffers);
         this.lodLevels = cloner.clone(lodLevels);
         this.elementLengths = cloner.clone(elementLengths);
         this.modeStart = cloner.clone(modeStart);
@@ -752,6 +762,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                         }
                         break;
                     case Half:
+                        ByteBuffer hb = (ByteBuffer) vb.getData();
+                        for (int comp = 0; comp < vb.components; comp++) {
+                            dataBuf.putShort(hb.getShort());
+                        }
+                        break;
                     case Short:
                     case UnsignedShort:
                         ShortBuffer sb = (ShortBuffer) vb.getData();
@@ -1065,6 +1080,16 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @throws IllegalArgumentException If the buffer type is already set
      */
     public void setBuffer(VertexBuffer vb) {
+        if (vb.getBufferType() == Type.Custom) {
+            String attributeName = vb.getShaderAttributeName();
+            if (customBuffers.containsKey(attributeName)) {
+                throw new IllegalArgumentException("Custom buffer attribute already set: " + attributeName);
+            }
+            customBuffers.put(attributeName, vb);
+            buffersList.add(vb);
+            updateCounts();
+            return;
+        }
         if (buffers.containsKey(vb.getBufferType().ordinal())) {
             throw new IllegalArgumentException("Buffer type already set: " + vb.getBufferType());
         }
@@ -1082,7 +1107,23 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @param type The buffer type to remove
      */
     public void clearBuffer(VertexBuffer.Type type) {
+        if (type == Type.Custom) {
+            throw new IllegalArgumentException("Use clearBuffer(String) for custom vertex buffers");
+        }
         VertexBuffer vb = buffers.remove(type.ordinal());
+        if (vb != null) {
+            buffersList.remove(vb);
+            updateCounts();
+        }
+    }
+
+    /**
+     * Unsets the custom vertex buffer bound to the given shader attribute name.
+     *
+     * @param attributeName the shader attribute name
+     */
+    public void clearBuffer(String attributeName) {
+        VertexBuffer vb = customBuffers.remove(attributeName);
         if (vb != null) {
             buffersList.remove(vb);
             updateCounts();
@@ -1102,6 +1143,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * incompatible with the parameters given.
      */
     public void setBuffer(Type type, int components, Format format, Buffer buf) {
+        if (type == Type.Custom) {
+            throw new IllegalArgumentException("Use setBuffer(String, int, Format, Buffer) for custom vertex buffers");
+        }
         VertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null) {
             vb = new VertexBuffer(type);
@@ -1110,6 +1154,32 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         } else {
             if (vb.getNumComponents() != components || vb.getFormat() != format) {
                 throw new UnsupportedOperationException("The buffer already set "
+                        + "is incompatible with the given parameters");
+            }
+            vb.updateData(buf);
+            updateCounts();
+        }
+    }
+
+    /**
+     * Creates or updates a custom vertex buffer bound to the specified shader
+     * attribute name.
+     *
+     * @param attributeName the exact attribute name in the shader
+     * @param components Number of components
+     * @param format Data format
+     * @param buf The buffer data
+     */
+    public void setBuffer(String attributeName, int components, Format format, Buffer buf) {
+        VertexBuffer vb = customBuffers.get(attributeName);
+        if (vb == null) {
+            vb = new VertexBuffer(Type.Custom);
+            vb.setAttributeName(attributeName);
+            vb.setupData(Usage.Dynamic, components, format, buf);
+            setBuffer(vb);
+        } else {
+            if (vb.getNumComponents() != components || vb.getFormat() != format) {
+                throw new UnsupportedOperationException("The custom buffer already set "
                         + "is incompatible with the given parameters");
             }
             vb.updateData(buf);
@@ -1168,7 +1238,21 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @return the VertexBuffer data, or null if not set
      */
     public VertexBuffer getBuffer(Type type) {
+        if (type == Type.Custom) {
+            throw new IllegalArgumentException("Use getBuffer(String) for custom vertex buffers");
+        }
         return buffers.get(type.ordinal());
+    }
+
+    /**
+     * Get the custom {@link VertexBuffer} stored on this mesh with the given
+     * shader attribute name.
+     *
+     * @param attributeName the shader attribute name
+     * @return the VertexBuffer data, or null if not set
+     */
+    public VertexBuffer getBuffer(String attributeName) {
+        return customBuffers.get(attributeName);
     }
 
     /**
@@ -1663,6 +1747,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         }
 
         out.writeIntSavableMap(buffers, "buffers", null);
+        out.writeStringSavableMap(customBuffers, "customBuffers", null);
 
         //restoring Hw skinning buffers.
         if (hwBoneIndex != null) {
@@ -1699,6 +1784,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         buffers = (IntMap<VertexBuffer>) in.readIntSavableMap("buffers", null);
         for (Entry<VertexBuffer> entry : buffers) {
             buffersList.add(entry.getValue());
+        }
+        Map<String, VertexBuffer> readCustomBuffers = (Map<String, VertexBuffer>) in.readStringSavableMap("customBuffers", null);
+        if (readCustomBuffers != null) {
+            customBuffers.putAll(readCustomBuffers);
+            buffersList.addAll(customBuffers.values());
         }
 
         //creating hw animation buffers empty so that they are put in the cache

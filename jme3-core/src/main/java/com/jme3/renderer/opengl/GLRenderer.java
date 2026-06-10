@@ -72,6 +72,7 @@ import com.jme3.util.NativeObjectManager;
 import jme3tools.shader.ShaderDebug;
 
 import java.lang.ref.WeakReference;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -3445,29 +3446,125 @@ public final class GLRenderer implements Renderer {
         }
 
         int usage = convertUsage(vb.getUsage());
-        vb.getData().rewind();
+        Buffer data = vb.getData();
+        data.rewind();
 
+        if (created || vb.hasDataSizeChanged() || !vb.hasRegions()) {
+            updateVertexBufferData(target, vb, data, usage);
+            vb.unsetRegions();
+        } else {
+            DirtyRegionsIterator it = vb.getDirtyRegions();
+            BufferRegion reg;
+            int bufferSize = getVertexBufferSizeBytes(vb);
+            while ((reg = it.next()) != null) {
+                if (reg.getStart() == 0 && reg.length() == bufferSize) {
+                    updateVertexBufferData(target, vb, data, usage);
+                    break;
+                }
+                updateVertexBufferSubData(target, vb, data, reg);
+                reg.clearDirty();
+            }
+            vb.unsetRegions();
+        }
+
+        vb.clearUpdateNeeded();
+    }
+
+    private void updateVertexBufferData(int target, VertexBuffer vb, Buffer data, int usage) {
+        data.rewind();
         switch (vb.getFormat()) {
             case Byte:
             case UnsignedByte:
-                gl.glBufferData(target, (ByteBuffer) vb.getData(), usage);
+            case Half:
+                gl.glBufferData(target, (ByteBuffer) data, usage);
                 break;
             case Short:
             case UnsignedShort:
-                gl.glBufferData(target, (ShortBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (ShortBuffer) data, usage);
                 break;
             case Int:
             case UnsignedInt:
-                glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
+                glext.glBufferData(target, (IntBuffer) data, usage);
                 break;
             case Float:
-                gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (FloatBuffer) data, usage);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
         }
+    }
 
-        vb.clearUpdateNeeded();
+    private void updateVertexBufferSubData(int target, VertexBuffer vb, Buffer data, BufferRegion reg) {
+        Buffer slice = sliceVertexBuffer(vb, data, reg.getStart(), reg.length());
+        switch (vb.getFormat()) {
+            case Byte:
+            case UnsignedByte:
+            case Half:
+                gl.glBufferSubData(target, reg.getStart(), (ByteBuffer) slice);
+                break;
+            case Short:
+            case UnsignedShort:
+                gl.glBufferSubData(target, reg.getStart(), (ShortBuffer) slice);
+                break;
+            case Int:
+            case UnsignedInt:
+                glext.glBufferSubData(target, reg.getStart(), (IntBuffer) slice);
+                break;
+            case Float:
+                gl.glBufferSubData(target, reg.getStart(), (FloatBuffer) slice);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown buffer format.");
+        }
+    }
+
+    private Buffer sliceVertexBuffer(VertexBuffer vb, Buffer data, int byteOffset, int byteLength) {
+        int componentSize = vb.getFormat().getComponentSize();
+        if (byteOffset % componentSize != 0 || byteLength % componentSize != 0) {
+            throw new IllegalArgumentException("Dirty vertex buffer range is not aligned to " + vb.getFormat());
+        }
+        int start = byteOffset / componentSize;
+        int end = start + byteLength / componentSize;
+        switch (vb.getFormat()) {
+            case Byte:
+            case UnsignedByte:
+            case Half: {
+                ByteBuffer view = ((ByteBuffer) data).duplicate();
+                view.position(byteOffset);
+                view.limit(byteOffset + byteLength);
+                return view.slice().order(((ByteBuffer) data).order());
+            }
+            case Short:
+            case UnsignedShort: {
+                ShortBuffer view = ((ShortBuffer) data).duplicate();
+                view.position(start);
+                view.limit(end);
+                return view.slice();
+            }
+            case Int:
+            case UnsignedInt: {
+                IntBuffer view = ((IntBuffer) data).duplicate();
+                view.position(start);
+                view.limit(end);
+                return view.slice();
+            }
+            case Float: {
+                FloatBuffer view = ((FloatBuffer) data).duplicate();
+                view.position(start);
+                view.limit(end);
+                return view.slice();
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown buffer format.");
+        }
+    }
+
+    private int getVertexBufferSizeBytes(VertexBuffer vb) {
+        Buffer data = vb.getData();
+        if (data instanceof ByteBuffer) {
+            return data.limit();
+        }
+        return data.limit() * vb.getFormat().getComponentSize();
     }
 
     private int resolveUsageHint(BufferObject.AccessHint ah, BufferObject.NatureHint nh) {
@@ -3545,7 +3642,8 @@ public final class GLRenderer implements Renderer {
         while ((reg = it.next()) != null) {
             gl.glBindBuffer(type, bufferId);
             if (reg.isFullBufferRegion()) {
-                ByteBuffer bbf = bo.getData();
+                ByteBuffer bbf = bo.getByteData().duplicate();
+                bbf.clear();
                 if (logger.isLoggable(java.util.logging.Level.FINER)) {
                     logger.log(java.util.logging.Level.FINER, "Update full buffer {0} with {1} bytes", new Object[] { bo, bbf.remaining() });
                 }
@@ -3622,13 +3720,14 @@ public final class GLRenderer implements Renderer {
             throw new IllegalStateException("Cannot render mesh without shader bound");
         }
 
-        Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
+        String attributeName = vb.getShaderAttributeName();
+        Attribute attrib = context.boundShader.getAttribute(attributeName);
         int loc = attrib.getLocation();
         if (loc == -1) {
             return; // not defined
         }
         if (loc == -2) {
-            loc = gl.glGetAttribLocation(context.boundShaderProgram, "in" + vb.getBufferType().name());
+            loc = gl.glGetAttribLocation(context.boundShaderProgram, attributeName);
 
             // not really the name of it in the shader (inPosition) but
             // the internal name of the enum (Position).

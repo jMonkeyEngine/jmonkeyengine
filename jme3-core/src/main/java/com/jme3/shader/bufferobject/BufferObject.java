@@ -32,7 +32,9 @@
 package com.jme3.shader.bufferobject;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,9 +104,10 @@ public class BufferObject extends NativeObject implements Savable {
     private transient int binding = -1;
     protected transient DirtyRegionsIterator dirtyRegionsIterator;
 
-    protected ByteBuffer data = null;
+    protected Buffer data = null;
+    protected transient boolean ownsData = true;
     protected ArrayList<BufferRegion> regions = new ArrayList<BufferRegion>();
-    private String name;
+    protected String name;
 
     public BufferObject() {
         super();
@@ -152,70 +155,151 @@ public class BufferObject extends NativeObject implements Savable {
      * @param length expected length of the buffer object
      */
     public void initializeEmpty(int length) {
-        if (data != null) {
+        if (data != null && ownsData) {
             BufferUtils.destroyDirectBuffer(data);
         }
         this.data = BufferUtils.createByteBuffer(length);
+        ownsData = true;
         setUpdateNeeded();
     }
 
 
     /**
      * Transfer remaining bytes of passed buffer to the internal buffer of this buffer object
-     * 
+     *
+     * @param data ByteBuffer containing the data to pass
+     */
+    public void setByteData(ByteBuffer data) {
+        if (data == null) {
+            if (this.data != null) {
+                if (ownsData) {
+                    BufferUtils.destroyDirectBuffer(this.data);
+                }
+                this.data = null;
+            }
+            ownsData = true;
+            setUpdateNeeded();
+            return;
+        }
+        ByteBuffer source = data.duplicate().order(data.order());
+        ByteBuffer oldData = (ByteBuffer) this.data;
+        boolean oldOwnsData = ownsData;
+
+        this.data = BufferUtils.createByteBuffer(source.remaining());
+        ((ByteBuffer) this.data).order(source.order());
+        ((ByteBuffer) this.data).put(source);
+        ((ByteBuffer) this.data).clear();
+        ownsData = true;
+
+        if (oldData != null && oldOwnsData) {
+            BufferUtils.destroyDirectBuffer(oldData);
+        }
+        setUpdateNeeded();
+    }
+
+    /**
+     * Sets byte-addressable data for this buffer object.
+     *
      * @param data ByteBuffer containing the data to pass
      */
     public void setData(ByteBuffer data) {
-        if (data == null) {
-            if (this.data != null) {
-                BufferUtils.destroyDirectBuffer(this.data);
-                this.data = null;
-                setUpdateNeeded();
-            }
-            return;
-        }
-        ByteBuffer source = data == this.data ? data.duplicate() : data;
-        ByteBuffer oldData = this.data;
+        setByteData(data);
+    }
 
-        this.data = BufferUtils.createByteBuffer(source.limit() - source.position());
-        this.data.put(source);
-
-        if (oldData != null) {
-            BufferUtils.destroyDirectBuffer(oldData);
+    /**
+     * Sets byte-addressable data from pointer storage without copying it.
+     * <p>
+     * The passed buffer is installed as the current internal backing buffer.
+     * It remains owned by the caller and will not be destroyed by this buffer
+     * object. Use {@link #setByteData(ByteBuffer)} when this object should own
+     * a mutable copy.
+     * <p>
+     * This is not a permanent synchronization contract. Later operations may
+     * replace the internal backing buffer with object-owned storage, for
+     * example when layout regions require a larger mutable buffer. After that
+     * replacement, mutations to the original pointer buffer are no longer
+     * reflected by this buffer object.
+     * <p>
+     * Read-only buffers are allowed, but their limit must already cover all
+     * layout regions because this object cannot resize read-only referenced
+     * storage in place.
+     *
+     * @param data ByteBuffer to use directly
+     */
+    public void setByteDataPointer(ByteBuffer data) {
+        if (data != null && !data.isDirect()) {
+            throw new IllegalArgumentException("BufferObject data must be direct.");
         }
+        if (this.data != null && this.data != data && ownsData) {
+            BufferUtils.destroyDirectBuffer(this.data);
+        }
+        this.data = data;
+        ownsData = false;
         setUpdateNeeded();
     }
 
 
   
     /**
-     * Rewind and return buffer data
-     * 
-     * @return
+     * Return buffer data.
+     *
+     * @return buffer data
      */
-    public ByteBuffer getData() {
+    @SuppressWarnings("unchecked")
+    public <T extends Buffer> T getData() {
+        return (T) getByteData();
+    }
+
+    /**
+     * Return byte-addressable buffer data.
+     * <p>
+     * The returned buffer is the internal backing buffer. Do not mutate its
+     * position or limit directly. Use {@link ByteBuffer#duplicate()} before
+     * changing cursor state for reads, writes, or uploads.
+     * <p>
+     * When layout regions exist, this method ensures the backing buffer can
+     * cover the last region. If the current backing buffer is read-only and too
+     * small, this method throws because it cannot resize the referenced storage
+     * without replacing it. Provide a correctly sized buffer to
+     * {@link #setByteDataPointer(ByteBuffer)} or use {@link #setByteData(ByteBuffer)}
+     * to let this object own a mutable copy.
+     *
+     * @return byte buffer data
+     */
+    public ByteBuffer getByteData() {
         if (regions.size() == 0) {
             if (data == null) data = BufferUtils.createByteBuffer(0);
         } else {
             int regionsEnd = regions.get(regions.size() - 1).getEnd();
             if (data == null) {
                 data = BufferUtils.createByteBuffer(regionsEnd + 1);
+                ownsData = true;
             } else if (data.limit() <= regionsEnd) {
+                if (data.isReadOnly()) {
+                    throw new IllegalStateException("Read-only BufferObject data is too small for its regions. "
+                            + "Provide a direct ByteBuffer whose limit covers the last region, or use setByteData() "
+                            + "so the BufferObject can own a mutable copy.");
+                }
                 // new buffer
                 ByteBuffer newData = BufferUtils.createByteBuffer(regionsEnd + 1);
+                newData.order(((ByteBuffer) data).order());
 
                 // copy old buffer in new buffer
-                if (newData.limit() < data.limit()) data.limit(newData.limit());
-                newData.put(data);
+                ByteBuffer oldData = ((ByteBuffer) data).duplicate();
+                oldData.clear();
+                if (newData.limit() < oldData.limit()) oldData.limit(newData.limit());
+                newData.put(oldData);
 
                 // destroy old buffer
-                BufferUtils.destroyDirectBuffer(data);
+                if (ownsData) {
+                    BufferUtils.destroyDirectBuffer(data);
+                }
 
                 data = newData;
+                ownsData = true;
             }
         }
-        data.rewind();
-        return data;
+        return (ByteBuffer) data;
     }
 
     /**
@@ -238,6 +322,39 @@ public class BufferObject extends NativeObject implements Savable {
     }
 
     /**
+     * Returns true when this buffer has explicit dirty/layout regions.
+     *
+     * @return true if regions are defined
+     */
+    public boolean hasRegions() {
+        return !regions.isEmpty();
+    }
+
+    /**
+     * Adds a byte range that needs to be uploaded.
+     *
+     * @param start byte offset of the first dirty byte
+     * @param length number of dirty bytes
+     */
+    public void addDirtyRegion(int start, int length) {
+        if (start < 0) {
+            throw new IllegalArgumentException("Region start cannot be negative");
+        }
+        if (length <= 0) {
+            return;
+        }
+        BufferRegion region = new BufferRegion(start, start + length - 1);
+        region.bo = this;
+        region.markDirty();
+        int insertIndex = 0;
+        while (insertIndex < regions.size() && regions.get(insertIndex).getStart() <= start) {
+            insertIndex++;
+        }
+        regions.add(insertIndex, region);
+        updateNeeded = true;
+    }
+
+    /**
      * Add a region at the end of the layout
      * 
      * @param lr
@@ -245,6 +362,7 @@ public class BufferObject extends NativeObject implements Savable {
     public void setRegions(List<BufferRegion> lr) {
         regions.clear();
         regions.addAll(lr);
+        regions.sort((a, b) -> Integer.compare(a.getStart(), b.getStart()));
         regions.trimToSize();
         setUpdateNeeded();
     }
@@ -272,12 +390,13 @@ public class BufferObject extends NativeObject implements Savable {
     @Override
     public void resetObject() {
         this.id = -1;
+        setUpdateNeeded();
     }
 
     @Override
     protected void deleteNativeBuffers() {
         super.deleteNativeBuffers();
-        if (data != null) BufferUtils.destroyDirectBuffer(data);
+        if (data != null && ownsData) BufferUtils.destroyDirectBuffer(data);
     }
 
     @Override
@@ -340,7 +459,12 @@ public class BufferObject extends NativeObject implements Savable {
         oc.write(accessHint.ordinal(), "accessHint", 0);
         oc.write(natureHint.ordinal(), "natureHint", 0);
         oc.writeSavableArrayList(regions, "regions", null);
-        oc.write(data, "data", null);
+        ByteBuffer writeData = null;
+        if (data != null) {
+            writeData = ((ByteBuffer) data).duplicate();
+            writeData.clear();
+        }
+        oc.write(writeData, "data", null);
     }
 
     @Override
@@ -361,7 +485,23 @@ public class BufferObject extends NativeObject implements Savable {
     public BufferObject clone() {
         BufferObject clone = (BufferObject) super.clone();
         clone.binding = -1;
-        clone.data = BufferUtils.clone(data);
+        if (data instanceof ByteBuffer) {
+            ByteOrder order = ((ByteBuffer) data).order();
+            ByteBuffer cloneSource = ((ByteBuffer) data).duplicate();
+            cloneSource.order(order);
+            cloneSource.clear();
+            clone.data = BufferUtils.clone(cloneSource);
+            ((ByteBuffer) clone.data).order(order);
+            clone.data.clear();
+            clone.ownsData = true;
+        } else if (data != null) {
+            clone.data = BufferUtils.clone(data);
+            clone.data.clear();
+            clone.ownsData = true;
+        } else {
+            clone.data = null;
+            clone.ownsData = true;
+        }
         clone.regions = new ArrayList<BufferRegion>();
         assert clone.regions != regions;
         for (BufferRegion r : regions) {

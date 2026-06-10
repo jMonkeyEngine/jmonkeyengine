@@ -65,12 +65,12 @@ public class BufferRegion implements Savable, Cloneable {
     }
 
     /**
-     * Rewind and get a ByteBuffer pointing to this region of the main buffer
-     * 
+     * Get a ByteBuffer slice pointing to this region of the main buffer.
+     *
      * @return ByteBuffer
      */
     public ByteBuffer getData() {
-        ByteBuffer source = bo.getData();
+        ByteBuffer source = bo.getByteData();
         assert end < source.capacity() : "Can't set limit at " + end + " on capacity " + source.capacity();
 
         ByteBuffer view = source.duplicate();
