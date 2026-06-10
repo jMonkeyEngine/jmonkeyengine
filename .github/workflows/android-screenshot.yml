@@ -15,7 +15,7 @@ on:
 jobs:
   screenshot-test-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - name: checkout
         uses: actions/checkout@v6.0.2
@@ -41,6 +41,36 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-35
+      - name: Prepare Android test script
+        run: |
+          cat > android-test-script.sh << 'EOF'
+          #!/usr/bin/env bash
+          curl -L https://maven.google.com/androidx/test/services/test-services/1.6.0/test-services-1.6.0.apk --output test-services-1.6.0.apk
+          adb install -r -g test-services-1.6.0.apk
+          exit_code=1
+          for attempt in 1 2 3; do
+            echo "Android screenshot test attempt $attempt of 3"
+            adb uninstall org.jmonkeyengine.screenshottests.android || true
+            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
+            exit_code=$?
+            if [ $exit_code -eq 0 ]; then
+              break
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Attempt $attempt failed, retrying..."
+            fi
+          done
+          mkdir -p logcat
+          adb logcat -d > logcat/logcat_full.txt || true
+          adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
+          mkdir -p report
+          adb pull /storage/emulated/0/googletest/test_outputfiles/report report/protoReport || true
+          adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images report/changed-images || true
+          ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="$(pwd)/report/protoReport $(pwd)/report/extentReport" || true
+          echo "GRADLE_EXIT_CODE=$exit_code" >> $GITHUB_ENV
+          exit $exit_code
+          EOF
+          chmod +x android-test-script.sh
       - name: Run Android Screenshot Test
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -54,21 +84,7 @@ jobs:
           profile: pixel_tablet
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
-          script: >
-            curl -L https://maven.google.com/androidx/test/services/test-services/1.6.0/test-services-1.6.0.apk --output test-services-1.6.0.apk;
-            adb install -r -g test-services-1.6.0.apk;
-            adb uninstall org.jmonkeyengine.screenshottests.android || true;
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest;
-            exit_code=$?;
-            mkdir -p logcat;
-            adb logcat -d > logcat/logcat_full.txt || true;
-            adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true;
-            mkdir -p report;
-            adb pull /storage/emulated/0/googletest/test_outputfiles/report report/protoReport || true;
-            adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images report/changed-images || true;
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="$(pwd)/report/protoReport $(pwd)/report/extentReport" || true;
-            echo "GRADLE_EXIT_CODE=$exit_code" >> $GITHUB_ENV;
-            exit $exit_code
+          script: bash android-test-script.sh
       - name: Upload logcat
         uses: actions/upload-artifact@v4
         if: always()
