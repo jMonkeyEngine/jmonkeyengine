@@ -45,8 +45,11 @@ public final class LwjglxDefaultGLPlatform {
     /**
      * Detects if you are in a Wayland session.
      *
+     * @deprecated Use {@link com.jme3.system.JmeSystem#isWaylandSession() }
+     *
      * @return boolean
      */
+    @Deprecated
     public static boolean isWayland() {
         Platform platform = Platform.get();
         if (platform == LINUX || platform == FREEBSD) {
