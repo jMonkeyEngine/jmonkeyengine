@@ -1122,7 +1122,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private void dispatchSDLEvent(SDL_Event event) {
         for (SdlEventListener listener : sdlEventListeners.getArray()) {
-            listener.onSDLEvent(event);
+            try {
+                listener.onSDLEvent(event);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error handling SDL event", e);
+            }
         }
         if (keyInput instanceof SdlEventListener) {
             ((SdlEventListener) keyInput).onSDLEvent(event);
