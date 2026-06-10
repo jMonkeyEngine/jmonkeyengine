@@ -1,0 +1,15 @@
+MaterialDef MatParamUBO {
+    MaterialParameters {
+        Vector4 Color
+        Float Offset
+    }
+
+    Technique {
+        VertexShader GLSL300 GLSL150 : jme3test/matparamubo/MatParamUBO.vert
+        FragmentShader GLSL300 GLSL150 : jme3test/matparamubo/MatParamUBO.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}

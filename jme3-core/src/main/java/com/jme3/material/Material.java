@@ -100,6 +100,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
+    private transient MatParamUniformBuffer matParamUniformBuffer;
 
     /**
      * Manages and tracks texture and buffer binding units for rendering.
@@ -247,6 +248,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 Map.Entry<String, MatParam> entry = paramValues.getEntry(i);
                 mat.paramValues.put(entry.getKey(), entry.getValue().clone());
             }
+            mat.matParamUniformBuffer = null;
 
             mat.sortingId = -1;
             
@@ -853,7 +855,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
+    private MatParamUniformBuffer getMatParamUniformBuffer() {
+        if (matParamUniformBuffer == null) {
+            matParamUniformBuffer = new MatParamUniformBuffer();
+        }
+        return matParamUniformBuffer;
+    }
+
+    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides,
+                                BindUnits bindUnits, MatParamUniformBuffer matParamBuffer) {
         for (MatParamOverride override : overrides.getArray()) {
             VarType type = override.getVarType();
 
@@ -863,17 +873,20 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 continue;
             }
 
-            Uniform uniform = shader.getUniform(override.getPrefixedName());
-
             if (override.getValue() != null) {
-                updateShaderMaterialParameter(renderer, type, shader, override, bindUnits, true);
+                updateShaderMaterialParameter(renderer, type, shader, override, bindUnits, true, matParamBuffer);
+            } else if (matParamBuffer.clear(override)) {
+                // The override intentionally clears a parameter stored in the UBO.
             } else {
+                Uniform uniform = shader.getUniform(override.getPrefixedName());
                 uniform.clearValue();
             }
         }
     }
 
-    private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param, BindUnits unit, boolean override) {
+    private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param,
+                                               BindUnits unit, boolean override,
+                                               MatParamUniformBuffer matParamBuffer) {
         if (type == VarType.UniformBufferObject || type == VarType.ShaderStorageBufferObject) {
             ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
             BufferObject bufferObject = (BufferObject) param.getValue();
@@ -886,6 +899,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             }
             bufferBlock.setBufferObject(btype, bufferObject);
         } else {
+            if (matParamBuffer.set(param, override)) {
+                return;
+            }
+
             Uniform uniform = shader.getUniform(param.getPrefixedName());
             if (!override && uniform.isSetByCurrentMaterial())
                 return;
@@ -915,19 +932,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         bindUnits.textureUnit = 0;
         bindUnits.bufferUnit = 0;
+        MatParamUniformBuffer matParamBuffer = getMatParamUniformBuffer();
+        matParamBuffer.begin(shader);
 
         if (worldOverrides != null) {
-            applyOverrides(renderer, shader, worldOverrides, bindUnits);
+            applyOverrides(renderer, shader, worldOverrides, bindUnits, matParamBuffer);
         }
         if (forcedOverrides != null) {
-            applyOverrides(renderer, shader, forcedOverrides, bindUnits);
+            applyOverrides(renderer, shader, forcedOverrides, bindUnits, matParamBuffer);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
-            updateShaderMaterialParameter(renderer, type, shader, param, bindUnits, false);
+            updateShaderMaterialParameter(renderer, type, shader, param, bindUnits, false, matParamBuffer);
         }
+        matParamBuffer.finish(shader);
 
         // TODO: HACKY HACK remove this when texture unit is handled by the uniform.
         return bindUnits;
