@@ -37,6 +37,7 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.lwjgl.SdlEventListener;
 import com.jme3.input.lwjgl.SdlJoystickInput;
 import com.jme3.input.lwjgl.SdlKeyInput;
 import com.jme3.input.lwjgl.SdlMouseInput;
@@ -204,6 +205,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private final JmeContext.Type type;
     private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(WindowSizeListener.class);
+    private final SafeArrayList<SdlEventListener> sdlEventListeners = new SafeArrayList<>(SdlEventListener.class);
     private final AtomicBoolean windowCloseRequested = new AtomicBoolean(false);
 
     private Thread mainThread;
@@ -253,6 +255,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public void removeWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.remove(listener);
+    }
+
+    public void registerSdlEventListener(SdlEventListener listener) {
+        sdlEventListeners.add(listener);
+    }
+
+    public void removeSdlEventListener(SdlEventListener listener) {
+        sdlEventListeners.remove(listener);
     }
 
     private static void disableNvidiaThreadedOptimizations() {
@@ -1111,14 +1121,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     private void dispatchSDLEvent(SDL_Event event) {
-        if (keyInput instanceof SdlKeyInput) {
-            ((SdlKeyInput) keyInput).onSDLEvent(event);
+        for (SdlEventListener listener : sdlEventListeners.getArray()) {
+            listener.onSDLEvent(event);
         }
-        if (mouseInput instanceof SdlMouseInput) {
-            ((SdlMouseInput) mouseInput).onSDLEvent(event);
+        if (keyInput instanceof SdlEventListener) {
+            ((SdlEventListener) keyInput).onSDLEvent(event);
         }
-        if (joyInput instanceof SdlJoystickInput) {
-            ((SdlJoystickInput) joyInput).onSDLEvent(event);
+        if (mouseInput instanceof SdlEventListener) {
+            ((SdlEventListener) mouseInput).onSDLEvent(event);
+        }
+        if (joyInput instanceof SdlEventListener) {
+            ((SdlEventListener) joyInput).onSDLEvent(event);
         }
     }
 
