@@ -608,6 +608,11 @@ public class Std140Layout extends BufferLayout {
     }
 
     @Override
+    public int getStructureAlignment(int maxMemberAlignment) {
+        return Math.max(16, maxMemberAlignment);
+    }
+
+    @Override
     public String getId() {
         return "std140";
     }

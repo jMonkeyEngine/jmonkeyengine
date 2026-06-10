@@ -1,0 +1,17 @@
+MaterialDef SSBOExplicitBindings {
+
+    MaterialParameters {
+        ShaderStorageBufferObject RedBlock
+        ShaderStorageBufferObject GreenBlock
+        ShaderStorageBufferObject BlueBlock
+    }
+
+    Technique {
+        VertexShader   GLSL430 :   TestSSBOBinding/SSBOBinding.vert
+        FragmentShader GLSL430 :   TestSSBOBinding/SSBOExplicitBindings.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}

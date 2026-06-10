@@ -326,6 +326,22 @@ public interface Renderer {
      * @param bo the buffer object to upload.
      */
     public void updateUniformBufferObjectData(BufferObject bo);
+
+    /**
+     * Reads data from a GPU shader storage buffer object.
+     *
+     * @param bo the buffer object to read from
+     * @param store destination buffer
+     */
+    public void readShaderStorageBufferObjectData(BufferObject bo, ByteBuffer store);
+
+    /**
+     * Reads data from a GPU uniform buffer object.
+     *
+     * @param bo the buffer object to read from
+     * @param store destination buffer
+     */
+    public void readUniformBufferObjectData(BufferObject bo, ByteBuffer store);
     
     /**
      * Deletes a vertex buffer from the GPU.

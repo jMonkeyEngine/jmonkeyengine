@@ -68,6 +68,7 @@ public final class Shader extends NativeObject {
      * Maps attribute name to the location of the attribute in the shader.
      */
     private final IntMap<Attribute> attribs;
+    private final ListMap<String, Attribute> namedAttribs;
 
     /**
      * Type of shader. The shader will control the pipeline of its type.
@@ -232,6 +233,7 @@ public final class Shader extends NativeObject {
         uniforms = new ListMap<>();
         bufferBlocks = new ListMap<>();
         attribs = new IntMap<>();
+        namedAttribs = new ListMap<>();
         boundUniforms = new ArrayList<>();
     }
 
@@ -254,6 +256,7 @@ public final class Shader extends NativeObject {
         bufferBlocks = null;
         boundUniforms = null;
         attribs = null;
+        namedAttribs = null;
     }
 
     /**
@@ -309,7 +312,7 @@ public final class Shader extends NativeObject {
      */
     public ShaderBufferBlock getBufferBlock(final String name) {
 
-        assert name.startsWith("m_");
+        assert name != null;
 
         ShaderBufferBlock block = bufferBlocks.get(name);
 
@@ -342,6 +345,16 @@ public final class Shader extends NativeObject {
             attrib = new Attribute();
             attrib.name = attribType.name();
             attribs.put(ordinal, attrib);
+        }
+        return attrib;
+    }
+
+    public Attribute getAttribute(String attribName){
+        Attribute attrib = namedAttribs.get(attribName);
+        if (attrib == null){
+            attrib = new Attribute();
+            attrib.name = attribName;
+            namedAttribs.put(attribName, attrib);
         }
         return attrib;
     }
@@ -427,6 +440,11 @@ public final class Shader extends NativeObject {
         if (attribs != null) {
             for (Entry<Attribute> entry : attribs) {
                 entry.getValue().location = ShaderVariable.LOC_UNKNOWN;
+            }
+        }
+        if (namedAttribs != null) {
+            for (Attribute attrib : namedAttribs.values()) {
+                attrib.location = ShaderVariable.LOC_UNKNOWN;
             }
         }
     }

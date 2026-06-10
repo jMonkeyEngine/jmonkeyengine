@@ -34,6 +34,7 @@ package com.jme3.scene;
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Renderer;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
@@ -53,7 +54,7 @@ import java.nio.*;
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
  */
-public class VertexBuffer extends NativeObject implements Savable, Cloneable {
+public class VertexBuffer extends BufferObject implements Savable, Cloneable {
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */
@@ -226,6 +227,11 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         MorphTarget11,
         MorphTarget12,
         MorphTarget13,
+        /**
+         * Application-defined vertex attribute. Custom buffers must provide
+         * an explicit shader attribute name with {@link #setAttributeName(String)}.
+         */
+        Custom,
     }
 
     /**
@@ -325,14 +331,14 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected Buffer data = null;
     protected Usage usage;
     protected Type bufType;
     protected Format format;
     protected boolean normalized = false;
     protected int instanceSpan = 0;
     protected transient boolean dataSizeChanged = false;
-    protected String name;
+    protected transient ByteBuffer dataBytes;
+    protected String attributeName;
 
     /**
      * Creates an empty, uninitialized buffer.
@@ -403,7 +409,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             throw new AssertionError();
         } else if (data instanceof ShortBuffer && format != Format.Short && format != Format.UnsignedShort) {
             throw new AssertionError();
-        } else if (data instanceof ByteBuffer && format != Format.Byte && format != Format.UnsignedByte) {
+        } else if (data instanceof ByteBuffer && format != Format.Byte && format != Format.UnsignedByte
+                && format != Format.Half) {
             throw new AssertionError();
         }
         return true;
@@ -458,6 +465,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      *
      * @return A native buffer, in the specified {@link Format format}.
      */
+    @SuppressWarnings("unchecked")
     public Buffer getData() {
         return data;
     }
@@ -484,7 +492,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         // does not have an asReadOnlyBuffer() method.
         Buffer result;
         if (data instanceof ByteBuffer) {
-            result = ((ByteBuffer) data).asReadOnlyBuffer();
+            ByteBuffer source = (ByteBuffer) data;
+            result = source.asReadOnlyBuffer().order(source.order());
         } else if (data instanceof FloatBuffer) {
             result = ((FloatBuffer) data).asReadOnlyBuffer();
         } else if (data instanceof ShortBuffer) {
@@ -520,6 +529,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 //            throw new UnsupportedOperationException("Data has already been sent. Cannot set usage.");
 
         this.usage = usage;
+        unsetRegions();
         this.setUpdateNeeded();
     }
 
@@ -587,6 +597,45 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      */
     public Type getBufferType() {
         return bufType;
+    }
+
+    /**
+     * Sets the shader attribute name used to bind this vertex buffer.
+     * Setting an explicit attribute name turns this buffer into a custom
+     * vertex attribute.
+     *
+     * @param attributeName the exact attribute name in the shader
+     */
+    public void setAttributeName(String attributeName) {
+        if (attributeName == null || attributeName.isEmpty()) {
+            throw new IllegalArgumentException("Attribute name cannot be null or empty");
+        }
+        this.attributeName = attributeName;
+        this.bufType = Type.Custom;
+    }
+
+    /**
+     * Returns the explicit shader attribute name, or null for built-in types.
+     *
+     * @return the custom attribute name
+     */
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    /**
+     * Returns the shader attribute name used by the renderer.
+     *
+     * @return shader attribute name
+     */
+    public String getShaderAttributeName() {
+        if (attributeName != null) {
+            return attributeName;
+        }
+        if (bufType == Type.Custom) {
+            throw new IllegalStateException("Custom vertex buffers require an attribute name");
+        }
+        return "in" + bufType.name();
     }
 
     /**
@@ -666,11 +715,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         }
 
         this.data = data;
+        this.dataBytes = null;
         this.components = components;
         this.usage = usage;
         this.format = format;
         this.componentsLength = components * format.getComponentSize();
         this.lastLimit = data.limit();
+        unsetRegions();
         setUpdateNeeded();
     }
 
@@ -707,7 +758,240 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         }
 
         this.data = data;
+        this.dataBytes = null;
+        unsetRegions();
         setUpdateNeeded();
+    }
+
+    /**
+     * Updates this vertex buffer from byte-addressable data while preserving
+     * the existing vertex layout metadata.
+     * <p>
+     * This method converts the supplied bytes into the buffer type implied by
+     * {@link #getFormat()}, which may allocate and copy data. Prefer
+     * {@link #updateData(Buffer)} for vertex-buffer data.
+     *
+     * @param data the new byte-addressable data
+     */
+    @Deprecated
+    @Override
+    public void setByteData(ByteBuffer data) {
+        if (data == null) {
+            updateData(null);
+            ownsData = true;
+            return;
+        }
+        ByteBuffer source = data.duplicate().order(data.order());
+        updateData(createTypedDataCopy(source));
+        ownsData = true;
+    }
+
+    /**
+     * Sets data from a byte buffer.
+     * <p>
+     * This method converts the supplied bytes into the buffer type implied by
+     * {@link #getFormat()}, which may allocate and copy data. Prefer
+     * {@link #updateData(Buffer)} for vertex-buffer data.
+     *
+     * @param data the new byte-addressable data
+     */
+    @Deprecated
+    @Override
+    public void setData(ByteBuffer data) {
+        setByteData(data);
+    }
+
+    /**
+     * Sets byte-addressable vertex data without copying it.
+     * <p>
+     * This is only valid for byte-backed vertex formats. For typed vertex
+     * formats, use {@link #updateData(Buffer)} with the matching typed buffer.
+     * Prefer {@link #updateData(Buffer)} for vertex-buffer data, including
+     * byte-backed vertex data, because it is the regular VertexBuffer API for
+     * installing caller-owned backing storage.
+     * <p>
+     * This installs the passed buffer as the current backing buffer, but it is
+     * not a permanent synchronization contract. Later operations may replace
+     * the backing buffer with a new internal buffer, after which mutations to
+     * the original pointer buffer are no longer reflected by this vertex buffer.
+     *
+     * @param data ByteBuffer to use directly
+     */
+    @Deprecated
+    @Override
+    public void setByteDataPointer(ByteBuffer data) {
+        if (data != null && format != Format.Byte && format != Format.UnsignedByte && format != Format.Half) {
+            throw new UnsupportedOperationException("Use updateData(Buffer) for non-byte vertex buffer data");
+        }
+        if (data != null && !data.isDirect()) {
+            throw new IllegalArgumentException("VertexBuffer data must be direct.");
+        }
+        if (data == null) {
+            updateData(null);
+            ownsData = false;
+            return;
+        }
+        if (this.data.getClass() != data.getClass() || data.limit() != lastLimit) {
+            dataSizeChanged = true;
+            lastLimit = data.limit();
+        }
+        this.data = data;
+        ownsData = false;
+        this.dataBytes = null;
+        unsetRegions();
+        setUpdateNeeded();
+    }
+
+    private Buffer createTypedDataCopy(ByteBuffer source) {
+        int componentSize = format.getComponentSize();
+        if (source.remaining() % componentSize != 0) {
+            throw new IllegalArgumentException("Byte data is not aligned to " + format);
+        }
+        switch (format) {
+            case Byte:
+            case UnsignedByte:
+            case Half: {
+                ByteBuffer copy = BufferUtils.createByteBuffer(source.remaining());
+                copy.order(source.order());
+                copy.put(source);
+                copy.clear();
+                return copy;
+            }
+            case Short:
+            case UnsignedShort: {
+                ShortBuffer view = source.asShortBuffer();
+                ShortBuffer copy = BufferUtils.createShortBuffer(view.remaining());
+                copy.put(view);
+                copy.clear();
+                return copy;
+            }
+            case Int:
+            case UnsignedInt: {
+                IntBuffer view = source.asIntBuffer();
+                IntBuffer copy = BufferUtils.createIntBuffer(view.remaining());
+                copy.put(view);
+                copy.clear();
+                return copy;
+            }
+            case Float: {
+                FloatBuffer view = source.asFloatBuffer();
+                FloatBuffer copy = BufferUtils.createFloatBuffer(view.remaining());
+                copy.put(view);
+                copy.clear();
+                return copy;
+            }
+            default:
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
+        }
+    }
+
+    /**
+     * Returns byte-addressable data for this vertex buffer.
+     * <p>
+     * For byte-backed vertex buffers, this returns the underlying data. For
+     * typed vertex buffers, this method creates and caches a byte copy. Prefer
+     * {@link #getData()} when working with vertex-buffer data directly.
+     * Do not mutate the returned buffer's position or limit directly; use
+     * {@link ByteBuffer#duplicate()} first when cursor state needs to change.
+     *
+     * @return byte-backed vertex data
+     */
+    @Deprecated
+    @Override
+    public ByteBuffer getByteData() {
+        if (data == null) {
+            throw new IllegalStateException("VertexBuffer data has not been initialized");
+        }
+        if (data instanceof ByteBuffer) {
+            return super.getByteData();
+        }
+        if (dataBytes == null) {
+            dataBytes = createByteDataCopy(data);
+        }
+        return dataBytes;
+    }
+
+    private ByteBuffer createByteDataCopy(Buffer source) {
+        if (source instanceof FloatBuffer) {
+            FloatBuffer fb = (FloatBuffer) source;
+            ByteBuffer result = BufferUtils.createByteBuffer(fb.limit() * Float.BYTES);
+            for (int i = 0; i < fb.limit(); i++) {
+                result.putFloat(fb.get(i));
+            }
+            result.clear();
+            return result;
+        } else if (source instanceof ShortBuffer) {
+            ShortBuffer sb = (ShortBuffer) source;
+            ByteBuffer result = BufferUtils.createByteBuffer(sb.limit() * Short.BYTES);
+            for (int i = 0; i < sb.limit(); i++) {
+                result.putShort(sb.get(i));
+            }
+            result.clear();
+            return result;
+        } else if (source instanceof IntBuffer) {
+            IntBuffer ib = (IntBuffer) source;
+            ByteBuffer result = BufferUtils.createByteBuffer(ib.limit() * Integer.BYTES);
+            for (int i = 0; i < ib.limit(); i++) {
+                result.putInt(ib.get(i));
+            }
+            result.clear();
+            return result;
+        }
+        throw new UnsupportedOperationException("Use getData() for unsupported vertex buffer data type: " + source);
+    }
+
+    /**
+     * Marks a byte range in this vertex buffer for partial GPU upload.
+     *
+     * @param byteOffset first dirty byte
+     * @param byteLength number of dirty bytes
+     */
+    public void markBytesDirty(int byteOffset, int byteLength) {
+        if (byteLength <= 0) {
+            return;
+        }
+        if (data == null) {
+            throw new IllegalStateException("VertexBuffer data has not been initialized");
+        }
+        if (byteOffset < 0) {
+            throw new IllegalArgumentException("Byte offset cannot be negative");
+        }
+        int componentSize = format.getComponentSize();
+        if (byteOffset % componentSize != 0 || byteLength % componentSize != 0) {
+            throw new IllegalArgumentException("Dirty range is not aligned to " + format);
+        }
+        int byteEnd = byteOffset + byteLength;
+        if (byteEnd < byteOffset || byteEnd > getDataSizeBytes()) {
+            throw new IllegalArgumentException("Dirty range exceeds vertex buffer data");
+        }
+        addDirtyRegion(byteOffset, byteLength);
+    }
+
+    /**
+     * Marks a range of vertex elements for partial GPU upload.
+     *
+     * @param firstElement first dirty element
+     * @param elementCount number of dirty elements
+     */
+    public void markElementsDirty(int firstElement, int elementCount) {
+        if (firstElement < 0) {
+            throw new IllegalArgumentException("First element cannot be negative");
+        }
+        if (elementCount <= 0) {
+            return;
+        }
+        int elementEnd = firstElement + elementCount;
+        if (elementEnd < firstElement || elementEnd > getNumElements()) {
+            throw new IllegalArgumentException("Dirty element range exceeds vertex buffer data");
+        }
+        markBytesDirty(firstElement * componentsLength, elementCount * componentsLength);
+    }
+
+    private int getDataSizeBytes() {
+        if (data instanceof ByteBuffer) {
+            return data.limit();
+        }
+        return data.limit() * format.getComponentSize();
     }
 
     /**
@@ -754,6 +1038,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             halfData.putShort(half);
         }
         this.data = halfData;
+        this.dataBytes = null;
         setUpdateNeeded();
         dataSizeChanged = true;
     }
@@ -773,10 +1058,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             case UnsignedByte:
             case Half:
                 ByteBuffer bbuf = (ByteBuffer) data;
-                bbuf.limit(total);
-                ByteBuffer bnewBuf = BufferUtils.createByteBuffer(total);
+                int byteTotal = total * format.getComponentSize();
+                bbuf.limit(byteTotal);
+                ByteBuffer bnewBuf = BufferUtils.createByteBuffer(byteTotal);
+                bnewBuf.order(bbuf.order());
                 bnewBuf.put(bbuf);
                 data = bnewBuf;
+                dataBytes = null;
                 break;
             case Short:
             case UnsignedShort:
@@ -785,6 +1073,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 ShortBuffer snewBuf = BufferUtils.createShortBuffer(total);
                 snewBuf.put(sbuf);
                 data = snewBuf;
+                dataBytes = null;
                 break;
             case Int:
             case UnsignedInt:
@@ -793,6 +1082,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 IntBuffer inewBuf = BufferUtils.createIntBuffer(total);
                 inewBuf.put(ibuf);
                 data = inewBuf;
+                dataBytes = null;
                 break;
             case Float:
                 FloatBuffer fbuf = (FloatBuffer) data;
@@ -800,11 +1090,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 FloatBuffer fnewBuf = BufferUtils.createFloatBuffer(total);
                 fnewBuf.put(fbuf);
                 data = fnewBuf;
+                dataBytes = null;
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
         data.clear();
+        unsetRegions();
         setUpdateNeeded();
         dataSizeChanged = true;
     }
@@ -831,9 +1123,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         data.clear();
 
         switch (format) {
+            case Half:
+                ByteBuffer hbin = (ByteBuffer) data;
+                hbin.putShort(inPos + elementPos, (Short) val);
+                break;
             case Byte:
             case UnsignedByte:
-            case Half:
                 ByteBuffer bin = (ByteBuffer) data;
                 bin.put(inPos + elementPos, (Byte) val);
                 break;
@@ -854,6 +1149,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             default:
                 throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
+        dataBytes = null;
+        markBytesDirty((elementIndex * components + componentIndex) * format.getComponentSize(), format.getComponentSize());
     }
 
     /**
@@ -876,9 +1173,11 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         Buffer srcData = getDataReadOnly();
 
         switch (format) {
+            case Half:
+                ByteBuffer hbin = (ByteBuffer) srcData;
+                return hbin.getShort(inPos + elementPos);
             case Byte:
             case UnsignedByte:
-            case Half:
                 ByteBuffer bin = (ByteBuffer) srcData;
                 return bin.get(inPos + elementPos);
             case Short:
@@ -954,6 +1253,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 bin.position(inPos).limit(inPos + elementSz * len);
                 bout.position(outPos).limit(outPos + elementSz * len);
                 bout.put(bin);
+                outVb.dataBytes = null;
                 break;
             case Short:
             case UnsignedShort:
@@ -962,6 +1262,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 sin.position(inPos).limit(inPos + elementSz * len);
                 sout.position(outPos).limit(outPos + elementSz * len);
                 sout.put(sin);
+                outVb.dataBytes = null;
                 break;
             case Int:
             case UnsignedInt:
@@ -970,6 +1271,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 iin.position(inPos).limit(inPos + elementSz * len);
                 iout.position(outPos).limit(outPos + elementSz * len);
                 iout.put(iin);
+                outVb.dataBytes = null;
                 break;
             case Float:
                 FloatBuffer fin = (FloatBuffer) srcData;
@@ -977,6 +1279,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 fin.position(inPos).limit(inPos + elementSz * len);
                 fout.position(outPos).limit(outPos + elementSz * len);
                 fout.put(fin);
+                outVb.dataBytes = null;
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
@@ -985,6 +1288,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         // Clear the output buffer to rewind it and reset its
         // limit from where we shortened it above.
         outVb.data.clear();
+        outVb.markElementsDirty(outIndex, len);
     }
 
     /**
@@ -1066,11 +1370,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         // reading thread during cloning (and vice versa) since this is
         // a purely read-only operation.
         vb.data = BufferUtils.clone(getDataReadOnly());
+        vb.dataBytes = null;
         vb.format = format;
         vb.handleRef = new Object();
         vb.id = -1;
         vb.normalized = normalized;
         vb.instanceSpan = instanceSpan;
+        vb.attributeName = overrideType == Type.Custom ? attributeName : null;
         vb.offset = offset;
         vb.stride = stride;
         vb.updateNeeded = true;
@@ -1094,6 +1400,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     public void resetObject() {
 //        assert this.id != -1;
         this.id = -1;
+        unsetRegions();
         setUpdateNeeded();
     }
 
@@ -1104,9 +1411,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
     @Override
     protected void deleteNativeBuffers() {
-        if (data != null) {
-            BufferUtils.destroyDirectBuffer(data);
-        }
+        super.deleteNativeBuffers();
     }
 
     @Override
@@ -1131,6 +1436,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
         oc.write(name, "name", null);
+        oc.write(attributeName, "attributeName", null);
 
         String dataName = "data" + format.name();
         Buffer roData = getDataReadOnly();
@@ -1168,6 +1474,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         stride = ic.readInt("stride", 0);
         instanceSpan = ic.readInt("instanceSpan", 0);
         name = ic.readString("name", null);
+        attributeName = ic.readString("attributeName", null);
 
         componentsLength = components * format.getComponentSize();
 
@@ -1175,19 +1482,23 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         switch (format) {
             case Float:
                 data = ic.readFloatBuffer(dataName, null);
+                dataBytes = null;
                 break;
             case Short:
             case UnsignedShort:
                 data = ic.readShortBuffer(dataName, null);
+                dataBytes = null;
                 break;
             case UnsignedByte:
             case Byte:
             case Half:
                 data = ic.readByteBuffer(dataName, null);
+                dataBytes = null;
                 break;
             case Int:
             case UnsignedInt:
                 data = ic.readIntBuffer(dataName, null);
+                dataBytes = null;
                 break;
             default:
                 throw new IOException("Unsupported import buffer format: " + format);

@@ -628,7 +628,17 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
     }
 
     @Override
+    public int glGetActiveUniformBlocki(int program, int uniformBlockIndex, int pname) {
+        return GLES30.glGetActiveUniformBlocki(program, uniformBlockIndex, pname);
+    }
+
+    @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
+    }
+
+    @Override
+    public void glGetProgramResourceiv(int program, int programInterface, int index, IntBuffer props, IntBuffer length, IntBuffer params) {
         throw new UnsupportedOperationException("Shader storage buffer objects require OpenGL ES 3.1");
     }
 

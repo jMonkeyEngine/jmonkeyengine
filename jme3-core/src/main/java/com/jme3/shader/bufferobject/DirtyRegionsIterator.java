@@ -48,7 +48,7 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
 
         @Override
         public ByteBuffer getData() {
-            ByteBuffer source = bo.getData();
+            ByteBuffer source = bo.getByteData();
             ByteBuffer view = source.duplicate();
             view.position(start);
             view.limit(end + 1);
@@ -78,7 +78,12 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
         if (bufferObject.regions.size() == 0) {
             return pos == 0 && bufferObject.isUpdateNeeded();
         }
-        return pos < bufferObject.regions.size();
+        for (int i = pos; i < bufferObject.regions.size(); i++) {
+            if (bufferObject.regions.get(i).isDirty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public BufferRegion next() {
@@ -89,7 +94,7 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
         if (bufferObject.regions.size() == 0) {
             if (!bufferObject.isUpdateNeeded()) return null;
             dirtyRegion.fullBufferRegion = true;
-            dirtyRegion.end = bufferObject.getData().limit() - 1;
+            dirtyRegion.end = bufferObject.getByteData().limit() - 1;
             dirtyRegion.start = 0;
             pos = 1;
             return dirtyRegion;

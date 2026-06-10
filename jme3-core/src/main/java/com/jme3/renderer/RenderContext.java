@@ -56,11 +56,6 @@ public class RenderContext {
     public static final int maxTextureUnits = 16;
 
     /**
-     * Number of buffer object units that JME supports.
-     */
-    public static final int maxBufferObjectUnits = 8;
-
-    /**
      * Criteria for culling faces.
      *
      * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
@@ -274,12 +269,29 @@ public class RenderContext {
 
 
     /**
-     * Current bound buffer object IDs for each buffer object unit.
+     * Current bound uniform buffer objects for each UBO binding point.
      *
-     * @see Renderer#setUniformBufferObject(int, com.jme3.shader.BufferObject)
-     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.BufferObject)
+     * @see Renderer#setUniformBufferObject(int, com.jme3.shader.bufferobject.BufferObject)
      */
-    public final WeakReference<BufferObject>[] boundBO = newWeakReferenceArray(maxBufferObjectUnits);
+    public WeakReference<BufferObject>[] boundUniformBuffers = newWeakReferenceArray(0);
+
+    /**
+     * Current bound shader storage buffer objects for each SSBO binding point.
+     *
+     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.bufferobject.BufferObject)
+     */
+    public WeakReference<BufferObject>[] boundShaderStorageBuffers = newWeakReferenceArray(0);
+
+    /**
+     * Resizes buffer object binding caches from runtime GL limits.
+     *
+     * @param uniformBufferBindings number of UBO binding points
+     * @param shaderStorageBufferBindings number of SSBO binding points
+     */
+    public void resetBufferObjectBindings(int uniformBufferBindings, int shaderStorageBufferBindings) {
+        boundUniformBuffers = newWeakReferenceArray(Math.max(0, uniformBufferBindings));
+        boundShaderStorageBuffers = newWeakReferenceArray(Math.max(0, shaderStorageBufferBindings));
+    }
 
     /**
      * IDList for texture units.

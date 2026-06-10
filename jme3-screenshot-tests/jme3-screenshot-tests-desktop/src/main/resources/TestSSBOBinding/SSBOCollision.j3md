@@ -1,0 +1,17 @@
+MaterialDef SSBOCollision {
+
+    MaterialParameters {
+        ShaderStorageBufferObject RedBlock
+        ShaderStorageBufferObject GreenBlock
+        ShaderStorageBufferObject BlueBlock
+    }
+
+    Technique {
+        VertexShader   GLSL430 :   TestSSBOBinding/SSBOBinding.vert
+        FragmentShader GLSL430 :   TestSSBOBinding/SSBOCollision.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}

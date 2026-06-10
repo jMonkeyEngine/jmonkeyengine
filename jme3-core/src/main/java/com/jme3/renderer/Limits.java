@@ -101,6 +101,10 @@ public enum Limits {
 
     // UBO
     /**
+     * Maximum number of UBO binding points.
+     */
+    UniformBufferObjectMaxBindings,
+    /**
      * Maximum number of UBOs that may be accessed by a vertex shader.
      */
     UniformBufferObjectMaxVertexBlocks,
@@ -118,6 +122,10 @@ public enum Limits {
     UniformBufferObjectMaxBlockSize,
 
     // SSBO
+    /**
+     * Maximum number of SSBO binding points.
+     */
+    ShaderStorageBufferObjectMaxBindings,
     /**
      * Maximum size of an SSBO.
      */

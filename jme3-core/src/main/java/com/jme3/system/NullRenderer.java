@@ -315,6 +315,16 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
+    public void readShaderStorageBufferObjectData(BufferObject bo, ByteBuffer store) {
+
+    }
+
+    @Override
+    public void readUniformBufferObjectData(BufferObject bo, ByteBuffer store) {
+
+    }
+
+    @Override
     public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) {
 
     }

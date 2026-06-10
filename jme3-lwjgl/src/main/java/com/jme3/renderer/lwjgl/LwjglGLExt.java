@@ -90,8 +90,18 @@ public final class LwjglGLExt implements GLExt {
     }
 
     @Override
+    public int glGetActiveUniformBlocki(int program, int uniformBlockIndex, int pname) {
+        return ARBUniformBufferObject.glGetActiveUniformBlocki(program, uniformBlockIndex, pname);
+    }
+
+    @Override
     public int glGetProgramResourceIndex(int program, int programInterface, String name) {
         return ARBProgramInterfaceQuery.glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glGetProgramResourceiv(int program, int programInterface, int index, IntBuffer props, IntBuffer length, IntBuffer params) {
+        ARBProgramInterfaceQuery.glGetProgramResource(program, programInterface, index, props, length, params);
     }
 
     @Override

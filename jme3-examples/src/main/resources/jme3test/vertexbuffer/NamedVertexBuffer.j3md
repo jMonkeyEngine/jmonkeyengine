@@ -1,0 +1,11 @@
+MaterialDef NamedVertexBuffer {
+
+    Technique {
+        VertexShader GLSL150 GLSL100:   jme3test/vertexbuffer/NamedVertexBuffer.vert
+        FragmentShader GLSL150 GLSL100: jme3test/vertexbuffer/NamedVertexBuffer.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}
