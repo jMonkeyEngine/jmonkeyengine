@@ -915,25 +915,28 @@ public class VertexBuffer extends BufferObject implements Savable, Cloneable {
         if (source instanceof FloatBuffer) {
             FloatBuffer fb = (FloatBuffer) source;
             ByteBuffer result = BufferUtils.createByteBuffer(fb.limit() * Float.BYTES);
-            for (int i = 0; i < fb.limit(); i++) {
-                result.putFloat(fb.get(i));
-            }
+            FloatBuffer copySource = fb.duplicate();
+            copySource.position(0);
+            copySource.limit(fb.limit());
+            result.asFloatBuffer().put(copySource);
             result.clear();
             return result;
         } else if (source instanceof ShortBuffer) {
             ShortBuffer sb = (ShortBuffer) source;
             ByteBuffer result = BufferUtils.createByteBuffer(sb.limit() * Short.BYTES);
-            for (int i = 0; i < sb.limit(); i++) {
-                result.putShort(sb.get(i));
-            }
+            ShortBuffer copySource = sb.duplicate();
+            copySource.position(0);
+            copySource.limit(sb.limit());
+            result.asShortBuffer().put(copySource);
             result.clear();
             return result;
         } else if (source instanceof IntBuffer) {
             IntBuffer ib = (IntBuffer) source;
             ByteBuffer result = BufferUtils.createByteBuffer(ib.limit() * Integer.BYTES);
-            for (int i = 0; i < ib.limit(); i++) {
-                result.putInt(ib.get(i));
-            }
+            IntBuffer copySource = ib.duplicate();
+            copySource.position(0);
+            copySource.limit(ib.limit());
+            result.asIntBuffer().put(copySource);
             result.clear();
             return result;
         }

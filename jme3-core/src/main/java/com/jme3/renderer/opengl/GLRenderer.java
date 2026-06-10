@@ -1918,6 +1918,7 @@ public final class GLRenderer implements Renderer {
 
     private static final Pattern BINDING_ZERO_PATTERN = Pattern.compile(
             "layout\\s*\\([^)]*binding\\s*=\\s*0[^)]*\\)\\s*(buffer|uniform)\\s+\\w+");
+    private static final Pattern GLSL_COMMENT_PATTERN = Pattern.compile("(?s)/\\*.*?\\*/|//.*?(?=\\R|$)");
 
     /**
      * Checks that layout(binding=0) is not used on a non-first buffer block,
@@ -1928,8 +1929,12 @@ public final class GLRenderer implements Renderer {
      * @param sourceName the name of the shader source for error messages.
      */
     private void validateBufferBlockBindings(String source, String sourceName) {
-        Matcher allBlocks = BUFFER_BLOCK_PATTERN.matcher(source);
-        Matcher binding0Blocks = BINDING_ZERO_PATTERN.matcher(source);
+        if (source == null) {
+            return;
+        }
+        String cleanSource = GLSL_COMMENT_PATTERN.matcher(source).replaceAll("");
+        Matcher allBlocks = BUFFER_BLOCK_PATTERN.matcher(cleanSource);
+        Matcher binding0Blocks = BINDING_ZERO_PATTERN.matcher(cleanSource);
 
         // Find positions of all buffer/uniform block declarations
         List<Integer> allPositions = new ArrayList<>();
@@ -3496,6 +3501,11 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void updateBufferData(VertexBuffer vb) {
+        Buffer data = vb.getData();
+        if (data == null) {
+            return;
+        }
+
         int bufId = vb.getId();
         boolean created = false;
         if (bufId == -1) {
@@ -3533,7 +3543,6 @@ public final class GLRenderer implements Renderer {
         }
 
         int usage = convertUsage(vb.getUsage());
-        Buffer data = vb.getData();
         data.rewind();
 
         if (created || vb.hasDataSizeChanged() || !vb.hasRegions()) {

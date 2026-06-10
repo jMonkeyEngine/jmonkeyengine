@@ -82,6 +82,7 @@ final class MatParamUniformBuffer {
     private Shader shader;
     private Object[] values;
     private boolean[] set;
+    private ByteBuffer tempBuffer;
 
     /**
      * Creates the reusable material-parameter UBO owned by one material
@@ -202,7 +203,7 @@ final class MatParamUniformBuffer {
             return;
         }
 
-        ByteBuffer data = BufferUtils.createByteBuffer(layout.size);
+        ByteBuffer data = getTempBuffer(layout.size);
         for (Member member : layout.members) {
             Object value = set[member.index] ? values[member.index] : member.zeroValue();
             data.position(member.offset);
@@ -227,6 +228,15 @@ final class MatParamUniformBuffer {
      */
     BufferObject getBufferObject() {
         return bufferObject;
+    }
+
+    private ByteBuffer getTempBuffer(int size) {
+        if (tempBuffer == null || tempBuffer.capacity() < size) {
+            tempBuffer = BufferUtils.createByteBuffer(size);
+        }
+        tempBuffer.clear();
+        tempBuffer.limit(size);
+        return tempBuffer;
     }
 
     /**
@@ -348,19 +358,14 @@ final class MatParamUniformBuffer {
      * position or limit of either buffer.
      */
     private static boolean contentEquals(ByteBuffer current, ByteBuffer next) {
+        if (current == null || next == null) {
+            return current == next;
+        }
         ByteBuffer a = current.duplicate();
         ByteBuffer b = next.duplicate();
         a.clear();
         b.clear();
-        if (a.remaining() != b.remaining()) {
-            return false;
-        }
-        for (int i = 0; i < a.remaining(); i++) {
-            if (a.get(i) != b.get(i)) {
-                return false;
-            }
-        }
-        return true;
+        return a.equals(b);
     }
 
     /**
