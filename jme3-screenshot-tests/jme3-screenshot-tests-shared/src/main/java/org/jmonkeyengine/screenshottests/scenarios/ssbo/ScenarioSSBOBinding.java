@@ -29,7 +29,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.jmonkeyengine.screenshottests.ssbo;
+package org.jmonkeyengine.screenshottests.scenarios.ssbo;
+
+import static org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase.screenshotTest;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -41,49 +43,19 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.util.BufferUtils;
-import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
-import org.jmonkeyengine.screenshottests.testframework.TestType;
-import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import java.nio.ByteBuffer;
-import java.util.stream.Stream;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
 
 /**
- * Tests that SSBO binding points are correctly resolved when buffers are
- * set via the material system. Each test variant uses a different combination
- * of layout(binding=N) qualifiers in the fragment shader.
- *
- * <p>Three SSBOs are created, each containing a vec4 color:
- * <ul>
- *   <li>RedBlock: (1, 0, 0, 0)</li>
- *   <li>GreenBlock: (0, 1, 0, 0)</li>
- *   <li>BlueBlock: (0, 0, 1, 0)</li>
- * </ul>
- * The shader reads redColor.r, greenColor.g, blueColor.b and outputs them
- * as a single color. If all bindings are correct, the result is white.
+ * Tests SSBO binding point resolution with different layout(binding=N) combinations.
  */
-@SuppressWarnings("OptionalGetWithoutIsPresent")
-public class TestSSBOBinding extends ScreenshotTestBase {
+public final class ScenarioSSBOBinding {
 
-    private static Stream<Arguments> testParameters() {
-        return Stream.of(
-                Arguments.of("NoBindings", "TestSSBOBinding/SSBONoBindings.j3md", TestType.MUST_PASS),
-                Arguments.of("ExplicitBindings", "TestSSBOBinding/SSBOExplicitBindings.j3md", TestType.MUST_PASS),
-                Arguments.of("MixedBindings", "TestSSBOBinding/SSBOMixedBindings.j3md", TestType.MUST_PASS),
-                Arguments.of("Collision", "TestSSBOBinding/SSBOCollision.j3md", TestType.MUST_PASS)
-        );
+    private ScenarioSSBOBinding() {
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("testParameters")
-    public void testSSBOBinding(String testName, String matDefPath, TestType testType, TestInfo testInfo) {
-        String imageName = testInfo.getTestClass().get().getName() + "."
-                + testInfo.getTestMethod().get().getName() + "_" + testName;
-
-        screenshotTest(new BaseAppState() {
+    public static ScreenshotTest testSSBOBinding(String matDefPath) {
+        return screenshotTest(new BaseAppState() {
             @Override
             protected void initialize(Application app) {
                 SimpleApplication simpleApp = (SimpleApplication) app;
@@ -93,7 +65,6 @@ public class TestSSBOBinding extends ScreenshotTestBase {
                 simpleApp.getViewPort().setBackgroundColor(ColorRGBA.Black);
 
                 Material mat = new Material(simpleApp.getAssetManager(), matDefPath);
-
                 mat.setShaderStorageBufferObject("RedBlock", createColorBuffer(1f, 0f, 0f, 0f));
                 mat.setShaderStorageBufferObject("GreenBlock", createColorBuffer(0f, 1f, 0f, 0f));
                 mat.setShaderStorageBufferObject("BlueBlock", createColorBuffer(0f, 0f, 1f, 0f));
@@ -105,23 +76,22 @@ public class TestSSBOBinding extends ScreenshotTestBase {
             }
 
             @Override
-            protected void cleanup(Application app) {}
+            protected void cleanup(Application app) {
+            }
 
             @Override
-            protected void onEnable() {}
+            protected void onEnable() {
+            }
 
             @Override
-            protected void onDisable() {}
-        })
-        .setBaseImageFileName(imageName)
-        .setTestType(testType)
-        .setFramesToTakeScreenshotsOn(1)
-        .run();
+            protected void onDisable() {
+            }
+        }).setFramesToTakeScreenshotsOn(1);
     }
 
     private static BufferObject createColorBuffer(float r, float g, float b, float a) {
         BufferObject bo = new BufferObject();
-        ByteBuffer buf = BufferUtils.createByteBuffer(16); // vec4 = 4 floats
+        ByteBuffer buf = BufferUtils.createByteBuffer(16);
         buf.putFloat(r).putFloat(g).putFloat(b).putFloat(a);
         buf.flip();
         bo.setData(buf);

@@ -20,8 +20,8 @@ import java.nio.FloatBuffer;
 
 public class TestVertexBufferParticleBenchmark extends SimpleApplication implements ActionListener {
 
-    private static final int DEFAULT_PARTICLES = 250_000;
-    private static final int DEFAULT_MOVING_PARTICLES = 25_000;
+    private static final int DEFAULT_PARTICLES = 2_000_000;
+    private static final int DEFAULT_MOVING_PARTICLES = 200_000;
 
     private final int particleCount = Integer.getInteger("particle.count", DEFAULT_PARTICLES);
     private final int movingCount = Math.min(Integer.getInteger("particle.moving", DEFAULT_MOVING_PARTICLES), particleCount);
