@@ -36,6 +36,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.RendererException;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 
@@ -197,6 +198,20 @@ public class ComputeShader extends NativeObject {
 
     public void bindShaderStorageBuffer(int location, ShaderStorageBufferObject ssbo) {
         gl.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, location, ssbo.getId());
+    }
+
+    /**
+     * Binds a renderer-managed shader storage buffer.
+     * The buffer must have been uploaded through the renderer before calling this method.
+     *
+     * @param location shader storage buffer binding point
+     * @param bufferObject uploaded buffer object
+     */
+    public void bindShaderStorageBuffer(int location, BufferObject bufferObject) {
+        if (bufferObject.getId() == NativeObject.INVALID_ID) {
+            throw new RendererException("BufferObject must be uploaded before binding it to a compute shader");
+        }
+        gl.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, location, bufferObject.getId());
     }
 
     @Override

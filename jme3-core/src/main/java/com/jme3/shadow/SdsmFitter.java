@@ -40,9 +40,12 @@ import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.opengl.ComputeShader;
 import com.jme3.renderer.opengl.GL4;
 import com.jme3.renderer.opengl.GLFence;
-import com.jme3.renderer.opengl.ShaderStorageBufferObject;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.Texture;
+import com.jme3.util.BufferUtils;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -228,16 +231,14 @@ public class SdsmFitter {
      * Internal holder for in-flight fit operations.
      */
     private class SdsmResultHolder {
-        ShaderStorageBufferObject minMaxDepthSsbo;
-        ShaderStorageBufferObject fitFrustumSsbo;
+        BufferObject minMaxDepthSsbo;
+        BufferObject fitFrustumSsbo;
         FitParameters parameters;
         GLFence fence;
 
         SdsmResultHolder() {
-            this.minMaxDepthSsbo = new ShaderStorageBufferObject(gl4);
-            renderer.registerNativeObject(this.minMaxDepthSsbo);
-            this.fitFrustumSsbo = new ShaderStorageBufferObject(gl4);
-            renderer.registerNativeObject(this.fitFrustumSsbo);
+            this.minMaxDepthSsbo = createStorageBuffer("SDSM MinMax Depth");
+            this.fitFrustumSsbo = createStorageBuffer("SDSM Fit Frustum");
         }
 
         boolean isReady(boolean wait) {
@@ -258,8 +259,7 @@ public class SdsmFitter {
         }
 
         private SplitFit extractFit() {
-            if(fitFrustumSsbo.isUpdateNeeded()){ return null; }
-            int[] uintFit = fitFrustumSsbo.read(32);
+            int[] uintFit = readIntStorageBuffer(fitFrustumSsbo, 32);
             float[] fitResult = new float[32];
             for(int i=0;i<fitResult.length;i++) {
                 fitResult[i] = uintFlip(uintFit[i]);
@@ -305,8 +305,8 @@ public class SdsmFitter {
         }
 
         void cleanup() {
-            minMaxDepthSsbo.deleteObject(renderer);
-            fitFrustumSsbo.deleteObject(renderer);
+            renderer.deleteBuffer(minMaxDepthSsbo);
+            renderer.deleteBuffer(fitFrustumSsbo);
             fence = null;
         }
     }
@@ -398,7 +398,7 @@ public class SdsmFitter {
         }
 
         // Initialize SSBOs
-        holder.minMaxDepthSsbo.initialize(new int[]{-1, 0}); // max uint, 0
+        holder.minMaxDepthSsbo.setData(intBuffer(-1, 0)); // max uint, 0
 
         // Pass 1: Reduce depth to find min/max
         depthReduceShader.makeActive();
@@ -409,12 +409,12 @@ public class SdsmFitter {
         }
         int loc = depthReduceShader.getUniformLocation("m_NumSamplesDepth");
         depthReduceShader.setUniform(loc, depthMultiSamples);
-        depthReduceShader.bindShaderStorageBuffer(1, holder.minMaxDepthSsbo);
+        renderer.setShaderStorageBufferObject(1, holder.minMaxDepthSsbo);
         depthReduceShader.dispatch(xGroups, yGroups, 1);
         gl4.glMemoryBarrier(GL4.GL_SHADER_STORAGE_BARRIER_BIT);
 
         // Pass 2: Fit cascade frustums
-        holder.fitFrustumSsbo.initialize(FIT_FRUSTUM_INIT);
+        holder.fitFrustumSsbo.setData(intBuffer(FIT_FRUSTUM_INIT));
 
         fitFrustumsShader.makeActive();
         try {
@@ -424,8 +424,8 @@ public class SdsmFitter {
         }
         loc = fitFrustumsShader.getUniformLocation("m_NumSamplesDepth");
         fitFrustumsShader.setUniform(loc, depthMultiSamples);
-        fitFrustumsShader.bindShaderStorageBuffer(1, holder.minMaxDepthSsbo);
-        fitFrustumsShader.bindShaderStorageBuffer(2, holder.fitFrustumSsbo);
+        renderer.setShaderStorageBufferObject(1, holder.minMaxDepthSsbo);
+        renderer.setShaderStorageBufferObject(2, holder.fitFrustumSsbo);
 
         fitFrustumsShader.setUniform(3, cameraToLight);
         fitFrustumsShader.setUniform(4, splitCount);
@@ -517,6 +517,31 @@ public class SdsmFitter {
 
     private static int divRoundUp(int value, int divisor) {
         return (value + divisor - 1) / divisor;
+    }
+
+    private static BufferObject createStorageBuffer(String name) {
+        BufferObject buffer = new BufferObject();
+        buffer.setName(name);
+        buffer.setAccessHint(BufferObject.AccessHint.Dynamic);
+        buffer.setNatureHint(BufferObject.NatureHint.Copy);
+        return buffer;
+    }
+
+    private static ByteBuffer intBuffer(int... values) {
+        ByteBuffer bytes = BufferUtils.createByteBuffer(values.length * Integer.BYTES);
+        IntBuffer ints = bytes.asIntBuffer();
+        ints.put(values);
+        bytes.clear();
+        return bytes;
+    }
+
+    private int[] readIntStorageBuffer(BufferObject buffer, int count) {
+        ByteBuffer bytes = BufferUtils.createByteBuffer(count * Integer.BYTES);
+        renderer.readShaderStorageBufferObjectData(buffer, bytes);
+
+        int[] data = new int[count];
+        bytes.asIntBuffer().get(data);
+        return data;
     }
 
     /**
