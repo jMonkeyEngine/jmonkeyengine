@@ -34,6 +34,7 @@ package com.jme3.util;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
@@ -73,5 +74,19 @@ public class MipMapGeneratorTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> MipMapGenerator.generateMipMaps(image, true, false));
+    }
+
+    @Test
+    public void testGenerateMipMapsPreservesDataOrder() {
+        ByteBuffer data = BufferUtils.createByteBuffer(2 * 2 * 4).order(ByteOrder.BIG_ENDIAN);
+        for (int i = 0; i < data.capacity(); i++) {
+            data.put((byte) i);
+        }
+        data.flip();
+
+        Image image = new Image(Image.Format.RGBA8, 2, 2, data, ColorSpace.Linear);
+        MipMapGenerator.generateMipMaps(image, true, false);
+
+        assertEquals(ByteOrder.BIG_ENDIAN, image.getData(0).order());
     }
 }

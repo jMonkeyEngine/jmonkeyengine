@@ -34,6 +34,7 @@ package com.jme3.scene;
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Renderer;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
@@ -452,9 +453,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Returns the raw internal data buffer used by this VertexBuffer.
      * This buffer is not safe to call from multiple threads since buffers
      * have their own internal position state that cannot be shared.
-     * Call getData().duplicate(), getData().asReadOnlyBuffer(), or
-     * the more convenient getDataReadOnly() if the buffer may be accessed
-     * from multiple threads.
+     * Call getData().duplicate() for typed buffers, {@link ByteBufferUtils#duplicate(java.nio.ByteBuffer)}
+     * for ByteBuffers, getData().asReadOnlyBuffer(), or the more convenient
+     * getDataReadOnly() if the buffer may be accessed from multiple threads.
      *
      * @return A native buffer, in the specified {@link Format format}.
      */

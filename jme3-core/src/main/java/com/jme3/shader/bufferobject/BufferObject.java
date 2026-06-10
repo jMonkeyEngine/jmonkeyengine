@@ -42,6 +42,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.renderer.Renderer;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 
@@ -172,10 +173,10 @@ public class BufferObject extends NativeObject implements Savable {
             }
             return;
         }
-        ByteBuffer source = data == this.data ? data.duplicate() : data;
+        ByteBuffer source = data == this.data ? ByteBufferUtils.duplicate(data) : data;
         ByteBuffer oldData = this.data;
 
-        this.data = BufferUtils.createByteBuffer(source.limit() - source.position());
+        this.data = BufferUtils.createByteBuffer(source.limit() - source.position()).order(source.order());
         this.data.put(source);
 
         if (oldData != null) {
@@ -199,7 +200,7 @@ public class BufferObject extends NativeObject implements Savable {
                 data = BufferUtils.createByteBuffer(regionsEnd + 1);
             } else if (data.limit() <= regionsEnd) {
                 // new buffer
-                ByteBuffer newData = BufferUtils.createByteBuffer(regionsEnd + 1);
+                ByteBuffer newData = BufferUtils.createByteBuffer(regionsEnd + 1).order(data.order());
 
                 // copy old buffer in new buffer
                 if (newData.limit() < data.limit()) data.limit(newData.limit());

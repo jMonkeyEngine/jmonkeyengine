@@ -34,6 +34,7 @@ package com.jme3.renderer.android;
 import android.opengl.*;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.*;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 
 import java.nio.Buffer;
@@ -233,7 +234,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         try {
             ByteBuffer source = (ByteBuffer) mapped;
             source.limit(byteCount);
-            data.duplicate().put(source);
+            ByteBufferUtils.duplicate(data).put(source);
         } finally {
             unmapBufferAfterRead(target);
         }
@@ -414,7 +415,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         boolean[] values = new boolean[count];
         GLES20.glGetBooleanv(pname, values, 0);
 
-        ByteBuffer destination = params.duplicate();
+        ByteBuffer destination = ByteBufferUtils.duplicate(params);
         for (boolean value : values) {
             destination.put((byte) (value ? GLES20.GL_TRUE : GLES20.GL_FALSE));
         }

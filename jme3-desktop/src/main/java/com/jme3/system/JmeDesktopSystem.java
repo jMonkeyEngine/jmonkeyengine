@@ -39,6 +39,7 @@ import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.res.Resources;
 
 import jme3tools.converters.ImageToAwt;
@@ -102,7 +103,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData.duplicate(), ColorSpace.Linear), false, true, 0);
+        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, ByteBufferUtils.duplicate(imageData), ColorSpace.Linear), false, true, 0);
         awtImage = verticalFlip(awtImage);
 
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
