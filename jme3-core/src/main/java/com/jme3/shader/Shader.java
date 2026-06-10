@@ -312,7 +312,7 @@ public final class Shader extends NativeObject {
      */
     public ShaderBufferBlock getBufferBlock(final String name) {
 
-        assert name.startsWith("m_");
+        assert name != null;
 
         ShaderBufferBlock block = bufferBlocks.get(name);
 
