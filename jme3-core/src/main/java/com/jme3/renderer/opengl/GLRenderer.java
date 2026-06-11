@@ -2868,6 +2868,10 @@ public final class GLRenderer implements Renderer {
                             cpuMipmapsGenerated = true;
                             scaleToPot = false;
                             img.setMipmapsGenerated(true);
+                            logger.log(Level.WARNING,
+                                    "Texture " + img + " requires mipmaps, but the format " + img.getFormat()
+                                            + " does not support hardware mipmap generation."
+                                            + " Falling back to CPU mipmap generation.");
                         }
                     } catch (RuntimeException exception) {
                         cpuMipmapFallbackFailed = true;
