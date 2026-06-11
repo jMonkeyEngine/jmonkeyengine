@@ -244,6 +244,7 @@ tasks.register('mergedJavadoc', Javadoc) {
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
+    source += fileTree("jme3-android/src/androidx-stubs/java")
     classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
 }
 
