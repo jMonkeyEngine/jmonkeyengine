@@ -54,8 +54,8 @@ public class CursorConverter {
      * 
      * The cursor's hot spot will be the top left of the texture's image.
      * 
-     * {@param cursorTexture the texture to convert. No modifications will be applied.}
-     * {@return the {@link JmeCursor} object that contains the data for a cursor.}
+     * @param cursorTexture the texture to convert. No modifications will be applied.
+     * @return the {@link JmeCursor} object that contains the data for a cursor.
      */
     public static JmeCursor fromTexture(Texture2D cursorTexture) {
         return fromTexture(cursorTexture, 0, cursorTexture.getImage().getHeight());
@@ -67,14 +67,14 @@ public class CursorConverter {
      * The coordinate system used is the same specified in {@link JmeCursor}, the start point is 0, 0 being
      * lower left.
      * 
-     * {@param cursorTexture the texture to convert. No modifications will be applied.}
-     * {@param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     * @param cursorTexture the texture to convert. No modifications will be applied.
+     * @param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
      *                  coordinate for its hotspot. Note that the coordinate system is the same as
-     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
-     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image width.
+     * @param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
      *                  coordinate for its hotspot. Note that the coordinate system is the same as
-     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
-     * {@return the {@link JmeCursor} object that contains the data for a cursor.}
+     *                  OpenGL. 0, 0 being lower left. Must be between 0 and image height.
+     * @return the {@link JmeCursor} object that contains the data for a cursor.
      */
     public static JmeCursor fromTexture(Texture2D cursorTexture, int xHotspot, int yHotspot) {
         Image image = cursorTexture.getImage();
@@ -110,10 +110,10 @@ public class CursorConverter {
      * 
      * The cursor's hot spot will be the top left of the texture's image.
      * 
-     * {@param cursorFrames the frames that will make up the cursor animation. 
-     *                      No modifications will be applied.}
-     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
-     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     * @param cursorFrames the frames that will make up the cursor animation.
+     *                     No modifications will be applied.
+     * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
+     * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      */
     public static JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
         int yHotspot = 0;
@@ -132,9 +132,10 @@ public class CursorConverter {
      * 
      * The cursor's hot spot will be the top left of the texture's image.
      * 
-     * {@param cursorFrames the frames that will make up the cursor animation. No modifications will be applied.}
-     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
-     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     * @param cursorFrames the frames that will make up the cursor animation.
+     *                     No modifications will be applied.
+     * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
+     * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      */
     public static JmeCursor  fromTextureFrames(Texture2D[] cursorFrames, int[] frameDelays) {
         int yHotspot = 0;
@@ -151,16 +152,16 @@ public class CursorConverter {
      * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being 
      * lower left.
      * 
-     * {@param cursorFrames the frames that will make up the cursor animation.
-     *                      No modifications will be applied.}
-     * {@param frameDelay the time delay that will take for a cursor to change from one frame to another.}
-     * {@param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     * @param cursorFrames the frames that will make up the cursor animation.
+     *                     No modifications will be applied.
+     * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
+     * @param xHotspot same specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
-     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
-     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.
+     * @param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
-     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
-     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
+     * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      */
     public static JmeCursor fromTextureFrames(
             Texture2D[] cursorFrames, 
@@ -179,18 +180,18 @@ public class CursorConverter {
      * The coordinate system used is the same specified in {@link JmeCursor}. The start point is 0, 0 being 
      * lower left.
      * 
-     * {@param cursorFrames the frames that will make up the cursor animation.
-     *                      No modifications will be applied.}
-     * {@param frameDelays the time delay that will take each frame to change to the next frame. Because of it,
+     * @param cursorFrames the frames that will make up the cursor animation.
+     *                     No modifications will be applied.
+     * @param frameDelays the time delay that will take each frame to change to the next frame. Because of it,
      *                    it must contains as many delays as frames (lengths of cursorFrames and frameDelays 
-     *                    arrays must be equal).}
-     * {@param xHotspot tame specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
+     *                    arrays must be equal).
+     * @param xHotspot tame specification as {@link JmeCursor#setxHotSpot(int)}: the cursor's X axis
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
-     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.}
-     * {@param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image width.
+     * @param yHotspot same specification as {@link JmeCursor#setyHotSpot(int)}: the cursor's Y axis
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
-     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.}
-     * {@return a {@link JmeCursor} object that contains the data for an animated cursor.}
+     *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
+     * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      */
     public static JmeCursor fromTextureFrames(
             Texture2D[] cursorFrames, 
