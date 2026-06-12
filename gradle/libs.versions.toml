@@ -33,7 +33,7 @@ androidx-fragment-testing = { module ="androidx.fragment:fragment-testing", vers
 androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "androidx-fragment-testing"}
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 androidx-test-runner = "androidx.test:runner:1.7.0"
-groovy-test = "org.apache.groovy:groovy-test:4.0.31"
+groovy-test = "org.apache.groovy:groovy-test:5.0.6"
 gson = "com.google.code.gson:gson:2.14.0"
 googleMaterial = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
