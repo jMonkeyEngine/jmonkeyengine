@@ -44,6 +44,7 @@ import java.io.IOException;
  * Stores info about one wheel of a PhysicsVehicle
  * @author normenhansen
  */
+@Deprecated
 public class VehicleWheel implements Savable {
 
     protected com.bulletphysics.dynamics.vehicle.WheelInfo wheelInfo;
@@ -114,10 +115,12 @@ public class VehicleWheel implements Savable {
         }
     }
 
+    @Deprecated
     public com.bulletphysics.dynamics.vehicle.WheelInfo getWheelInfo() {
         return wheelInfo;
     }
 
+    @Deprecated
     public void setWheelInfo(com.bulletphysics.dynamics.vehicle.WheelInfo wheelInfo) {
         this.wheelInfo = wheelInfo;
         applyInfo();

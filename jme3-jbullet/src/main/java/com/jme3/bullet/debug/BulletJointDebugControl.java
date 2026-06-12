@@ -49,6 +49,7 @@ import com.jme3.scene.debug.Arrow;
  *
  * @author normenhansen
  */
+@Deprecated
 public class BulletJointDebugControl extends AbstractPhysicsDebugControl {
 
     protected final PhysicsJoint body;

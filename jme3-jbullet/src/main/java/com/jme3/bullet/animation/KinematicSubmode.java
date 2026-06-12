@@ -38,6 +38,7 @@ package com.jme3.bullet.animation;
  *
  * @author Stephen Gold sgold@sonic.net
  */
+@Deprecated
 public enum KinematicSubmode {
     /**
      * driven by animation (if any)

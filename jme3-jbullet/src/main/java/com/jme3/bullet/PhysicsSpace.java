@@ -101,6 +101,7 @@ import java.util.logging.Logger;
  * <p>PhysicsSpace - The central jbullet-jme physics space</p>
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsSpace {
 
     /**
