@@ -25,8 +25,8 @@ androidx-test-services = { module = "androidx.test.services:test-services", vers
 androidx-storage = { module = "androidx.test.services:storage" }  # used for peristent android test result storage, file version from androidx-fragment-testing-manifest
 androidxAppcompat = { module = "androidx.appcompat:appcompat", version = "1.4.0" }
 androidxConstraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.1.1" }
-androidx-test-core = "androidx.test:core:1.6.1"
-androidx-test-rules = "androidx.test:rules:1.6.1"
+androidx-test-core = "androidx.test:core:1.7.0"
+androidx-test-rules = "androidx.test:rules:1.7.0"
 androidx-test-ext-junit = "androidx.test.ext:junit:1.2.1"
 androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.6.1"
 androidx-fragment-testing = { module ="androidx.fragment:fragment-testing", version.ref = "androidx-fragment-testing"}
