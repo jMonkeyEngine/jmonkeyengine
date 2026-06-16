@@ -28,7 +28,7 @@ androidxConstraintlayout = { module = "androidx.constraintlayout:constraintlayou
 androidx-test-core = "androidx.test:core:1.6.1"
 androidx-test-rules = "androidx.test:rules:1.6.1"
 androidx-test-ext-junit = "androidx.test.ext:junit:1.2.1"
-androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.6.1"
+androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.7.0"
 androidx-fragment-testing = { module ="androidx.fragment:fragment-testing", version.ref = "androidx-fragment-testing"}
 androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "androidx-fragment-testing"}
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
