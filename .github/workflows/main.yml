@@ -72,7 +72,7 @@ jobs:
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
       - name: Upload Checkstyle Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: checkstyle-report
@@ -99,7 +99,7 @@ jobs:
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
       - name: Upload SpotBugs Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: spotbugs-report
@@ -164,7 +164,7 @@ jobs:
         run: |
           ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest
       - name: Upload Test Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: screenshot-test-report
@@ -271,14 +271,14 @@ jobs:
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: maven
           path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: javadoc
           path: dist/javadoc
@@ -286,7 +286,7 @@ jobs:
       # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: release
           path: dist/release
