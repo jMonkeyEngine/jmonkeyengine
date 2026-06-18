@@ -579,6 +579,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     || framebufferWidth != oldFramebufferWidth || framebufferHeight != oldFramebufferHeight) {
                 settings.setResolution(logicalWidth, logicalHeight);
                 listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
+                listener.reshape(logicalWidth, logicalHeight);
                 oldLogicalWidth = logicalWidth;
                 oldLogicalHeight = logicalHeight;
                 oldFramebufferWidth = framebufferWidth;

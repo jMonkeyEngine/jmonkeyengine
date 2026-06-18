@@ -590,10 +590,14 @@ public class LegacyApplication implements Application, SystemListener {
 
     /**
      * Internal use only.
+     *
+     * @deprecated Display size changes are reported through
+     * {@link #reshape(int, int, int, int)}. Use this new method instead.
+     * This one is kept only for backward compatibility.
      */
     @Override
+    @Deprecated
     public void reshape(int w, int h) {
-        reshape(w, h, w, h);
     }
 
     @Override
