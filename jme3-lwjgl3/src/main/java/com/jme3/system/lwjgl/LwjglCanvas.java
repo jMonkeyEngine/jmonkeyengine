@@ -525,6 +525,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight, framebufferWidth, framebufferHeight);
+                listener.reshape(framebufferWidth, framebufferHeight);
             }
 
             synchronized (lock) {
