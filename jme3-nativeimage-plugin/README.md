@@ -77,7 +77,14 @@ public class MyNiftyController {
 ```
 
 Classes annotated with `@PreserveReflection` are included by default when this
-plugin generates metadata. 
+plugin generates metadata. They are also marked as unsafe-allocatable by default.
+Disable that when a reflected type must always be constructed normally:
+
+```java
+@PreserveReflection(allowUnsafeAllocation = false)
+public class ConstructorOnlyEntryPoint {
+}
+```
 
 
 ## Default Resource Settings
@@ -131,6 +138,32 @@ jmeNativeImage {
     resourceGlob 'Textures/**'
     resourceGlob 'Models/**/*.j3o'
     resourceGlob 'com/example/external-runtime-config.properties'
+}
+```
+
+### Unsafe Allocation
+
+The plugin automatically detects direct construction of known unsafe allocation
+container types, such as `SafeArrayList(SomeType.class)`, in compiled classes and
+adds unsafe allocation metadata for the corresponding `SomeType[]` array storage.
+By default, the container list contains `com.jme3.util.SafeArrayList`.
+
+You can also add explicit unsafe allocation entries:
+
+```groovy
+jmeNativeImage {
+    unsafeAllocatedType 'org.example.Foo'
+    unsafeAllocatedType 'org.example.Bar[]'
+    unsafeAllocatedType '[Lorg.example.Baz;'
+}
+```
+
+If a project has another container type with the same `Class`-first constructor
+pattern, add it to the detector:
+
+```groovy
+jmeNativeImage {
+    unsafeAllocationContainerType 'org.example.MyArrayStore'
 }
 ```
 

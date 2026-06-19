@@ -8,6 +8,8 @@ def nativeImageExtension = project.extensions.findByName('jmeNativeImage')
         'jmeNativeImageAdditionalTargetTypes',
         'jmeNativeImageAdditionalTargetAnnotations',
         'jmeNativeImageAdditionalProxyInterfaceSets',
+        'jmeNativeImageAdditionalUnsafeAllocatedTypes',
+        'jmeNativeImageAdditionalUnsafeAllocationContainerTypes',
         'jmeNativeImageAdditionalResourceGlobs',
         'jmeNativeImageIncludeResourcesPattern',
         'jmeNativeImageExcludeResourcesPattern'
@@ -108,6 +110,10 @@ def defaultProxyInterfaceSets = [
         [
                 'com.jme3.renderer.opengl.GLFbo'
         ]
+]
+
+def defaultUnsafeAllocationContainerTypes = [
+        'com.jme3.util.SafeArrayList'
 ]
 
 def asStringList = { Object value ->
@@ -272,6 +278,123 @@ def collectDescriptorClassReferences = { String descriptor ->
     return references
 }
 
+def unsafeAllocatedArrayTypeName = { String className ->
+    if (className == null || className.isEmpty()) {
+        return null
+    }
+    return "[L${className.replace('/', '.')};".toString()
+}
+
+def normalizeUnsafeAllocatedTypeName = { String value ->
+    if (value == null) {
+        return null
+    }
+    String raw = value.trim()
+    if (raw.isEmpty()) {
+        return null
+    }
+    if (raw.endsWith('[]')) {
+        String elementType = raw.substring(0, raw.length() - 2).trim()
+        if (elementType.isEmpty()) {
+            return null
+        }
+        return unsafeAllocatedArrayTypeName(elementType)
+    }
+    if (raw.startsWith('[L') && raw.endsWith(';')) {
+        return "[L${raw.substring(2, raw.length() - 1).replace('/', '.')};".toString()
+    }
+    if (raw.startsWith('[')) {
+        return raw.replace('/', '.')
+    }
+    return raw.replace('/', '.')
+}
+
+def opcodeOperandLength = { int opcode, byte[] code, int offset ->
+    switch (opcode) {
+        case 0x10: return 1
+        case 0x11: return 2
+        case 0x12: return 1
+        case 0x13:
+        case 0x14: return 2
+        case 0x15:
+        case 0x16:
+        case 0x17:
+        case 0x18:
+        case 0x19:
+        case 0x36:
+        case 0x37:
+        case 0x38:
+        case 0x39:
+        case 0x3a:
+        case 0xa9:
+        case 0xbc: return 1
+        case 0x84: return 2
+        case 0x99:
+        case 0x9a:
+        case 0x9b:
+        case 0x9c:
+        case 0x9d:
+        case 0x9e:
+        case 0x9f:
+        case 0xa0:
+        case 0xa1:
+        case 0xa2:
+        case 0xa3:
+        case 0xa4:
+        case 0xa5:
+        case 0xa6:
+        case 0xa7:
+        case 0xa8:
+        case 0xc6:
+        case 0xc7: return 2
+        case 0xb2:
+        case 0xb3:
+        case 0xb4:
+        case 0xb5:
+        case 0xb6:
+        case 0xb7:
+        case 0xb8:
+        case 0xbb:
+        case 0xbd:
+        case 0xc0:
+        case 0xc1: return 2
+        case 0xb9:
+        case 0xba: return 4
+        case 0xc5: return 3
+        case 0xc8:
+        case 0xc9: return 4
+        case 0xaa: {
+            int padding = (4 - ((offset + 1) % 4)) % 4
+            int cursor = offset + 1 + padding
+            if (cursor + 12 > code.length) {
+                return -1
+            }
+            int low = ((code[cursor + 4] & 0xff) << 24) | ((code[cursor + 5] & 0xff) << 16) | ((code[cursor + 6] & 0xff) << 8) | (code[cursor + 7] & 0xff)
+            int high = ((code[cursor + 8] & 0xff) << 24) | ((code[cursor + 9] & 0xff) << 16) | ((code[cursor + 10] & 0xff) << 8) | (code[cursor + 11] & 0xff)
+            int count = high >= low ? high - low + 1 : 0
+            return padding + 12 + count * 4
+        }
+        case 0xab: {
+            int padding = (4 - ((offset + 1) % 4)) % 4
+            int cursor = offset + 1 + padding
+            if (cursor + 8 > code.length) {
+                return -1
+            }
+            int pairs = ((code[cursor + 4] & 0xff) << 24) | ((code[cursor + 5] & 0xff) << 16) | ((code[cursor + 6] & 0xff) << 8) | (code[cursor + 7] & 0xff)
+            return padding + 8 + pairs * 8
+        }
+        case 0xc4: {
+            if (offset + 1 >= code.length) {
+                return -1
+            }
+            int widenedOpcode = code[offset + 1] & 0xff
+            return widenedOpcode == 0x84 ? 5 : 3
+        }
+        default:
+            return 0
+    }
+}
+
 def collectClassReferencesFromStream = { InputStream input ->
     SortedSet<String> references = new TreeSet<>()
     try {
@@ -341,10 +464,210 @@ def collectClassReferencesFromStream = { InputStream input ->
     return references
 }
 
+def collectUnsafeAllocatedTypesFromStream = { InputStream input, Set<String> unsafeAllocationContainerTypes ->
+    SortedSet<String> unsafeAllocatedTypes = new TreeSet<>()
+    try {
+        new DataInputStream(new BufferedInputStream(input)).withCloseable { stream ->
+            if (stream.readInt() != -889275714) {
+                return unsafeAllocatedTypes
+            }
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            int constantPoolCount = stream.readUnsignedShort()
+            String[] utf8Entries = new String[constantPoolCount]
+            int[] classNameIndices = new int[constantPoolCount]
+            int[] methodClassIndices = new int[constantPoolCount]
+            int[] methodNameAndTypeIndices = new int[constantPoolCount]
+            int[] nameAndTypeNameIndices = new int[constantPoolCount]
+            int[] nameAndTypeDescriptorIndices = new int[constantPoolCount]
+            for (int i = 1; i < constantPoolCount; i++) {
+                int tag = stream.readUnsignedByte()
+                switch (tag) {
+                    case 1:
+                        utf8Entries[i] = stream.readUTF()
+                        break
+                    case 3:
+                    case 4:
+                        stream.readInt()
+                        break
+                    case 5:
+                    case 6:
+                        stream.readLong()
+                        i++
+                        break
+                    case 7:
+                        classNameIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 8:
+                    case 16:
+                    case 19:
+                    case 20:
+                        stream.readUnsignedShort()
+                        break
+                    case 9:
+                    case 11:
+                    case 17:
+                    case 18:
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        break
+                    case 10:
+                        methodClassIndices[i] = stream.readUnsignedShort()
+                        methodNameAndTypeIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 12:
+                        nameAndTypeNameIndices[i] = stream.readUnsignedShort()
+                        nameAndTypeDescriptorIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 15:
+                        stream.readUnsignedByte()
+                        stream.readUnsignedShort()
+                        break
+                    default:
+                        return unsafeAllocatedTypes
+                }
+            }
+
+            def classNameAt = { int cpIndex ->
+                int nameIndex = cpIndex > 0 && cpIndex < classNameIndices.length ? classNameIndices[cpIndex] : 0
+                return nameIndex > 0 && nameIndex < utf8Entries.length ? normalizeClassReference(utf8Entries[nameIndex]) : null
+            }
+            def isUnsafeAllocationContainerConstructor = { int cpIndex ->
+                if (cpIndex <= 0 || cpIndex >= methodClassIndices.length) {
+                    return false
+                }
+                String owner = classNameAt(methodClassIndices[cpIndex])
+                int nameAndTypeIndex = methodNameAndTypeIndices[cpIndex]
+                if (!unsafeAllocationContainerTypes.contains(owner) || nameAndTypeIndex <= 0 || nameAndTypeIndex >= nameAndTypeNameIndices.length) {
+                    return false
+                }
+                String methodName = utf8Entries[nameAndTypeNameIndices[nameAndTypeIndex]]
+                String descriptor = utf8Entries[nameAndTypeDescriptorIndices[nameAndTypeIndex]]
+                return methodName == '<init>' && descriptor != null && descriptor.startsWith('(Ljava/lang/Class;')
+            }
+
+            def skipAttributes = { int count ->
+                for (int i = 0; i < count; i++) {
+                    stream.readUnsignedShort()
+                    int length = stream.readInt()
+                    long skipped = 0
+                    while (skipped < length) {
+                        long justSkipped = stream.skip(length - skipped)
+                        if (justSkipped <= 0) {
+                            stream.readUnsignedByte()
+                            justSkipped = 1
+                        }
+                        skipped += justSkipped
+                    }
+                }
+            }
+
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            int interfacesCount = stream.readUnsignedShort()
+            for (int i = 0; i < interfacesCount; i++) {
+                stream.readUnsignedShort()
+            }
+            int fieldsCount = stream.readUnsignedShort()
+            for (int i = 0; i < fieldsCount; i++) {
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                skipAttributes(stream.readUnsignedShort())
+            }
+            int methodsCount = stream.readUnsignedShort()
+            for (int i = 0; i < methodsCount; i++) {
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                int attributesCount = stream.readUnsignedShort()
+                for (int j = 0; j < attributesCount; j++) {
+                    int attributeNameIndex = stream.readUnsignedShort()
+                    int attributeLength = stream.readInt()
+                    String attributeName = attributeNameIndex > 0 && attributeNameIndex < utf8Entries.length ? utf8Entries[attributeNameIndex] : null
+                    if (attributeName != 'Code') {
+                        long skipped = 0
+                        while (skipped < attributeLength) {
+                            long justSkipped = stream.skip(attributeLength - skipped)
+                            if (justSkipped <= 0) {
+                                stream.readUnsignedByte()
+                                justSkipped = 1
+                            }
+                            skipped += justSkipped
+                        }
+                        continue
+                    }
+
+                    stream.readUnsignedShort()
+                    stream.readUnsignedShort()
+                    int codeLength = stream.readInt()
+                    byte[] code = new byte[codeLength]
+                    stream.readFully(code)
+                    String recentClassLiteral = null
+                    int recentClassLiteralInstruction = -1
+                    int instructionIndex = 0
+                    int offset = 0
+                    while (offset < code.length) {
+                        int opcode = code[offset] & 0xff
+                        if (opcode == 0x12 || opcode == 0x13) {
+                            int cpIndex = opcode == 0x12
+                                    ? (code[offset + 1] & 0xff)
+                                    : (((code[offset + 1] & 0xff) << 8) | (code[offset + 2] & 0xff))
+                            String className = classNameAt(cpIndex)
+                            if (className != null) {
+                                recentClassLiteral = className
+                                recentClassLiteralInstruction = instructionIndex
+                            }
+                        } else if (opcode == 0xb7) {
+                            int cpIndex = ((code[offset + 1] & 0xff) << 8) | (code[offset + 2] & 0xff)
+                            if (recentClassLiteral != null && instructionIndex - recentClassLiteralInstruction <= 8 && isUnsafeAllocationContainerConstructor(cpIndex)) {
+                                String arrayType = unsafeAllocatedArrayTypeName(recentClassLiteral)
+                                if (arrayType != null) {
+                                    unsafeAllocatedTypes.add(arrayType)
+                                }
+                            }
+                            recentClassLiteral = null
+                            recentClassLiteralInstruction = -1
+                        }
+                        int operandLength = opcodeOperandLength(opcode, code, offset)
+                        if (operandLength < 0) {
+                            break
+                        }
+                        offset += 1 + operandLength
+                        instructionIndex++
+                    }
+
+                    int exceptionTableLength = stream.readUnsignedShort()
+                    for (int k = 0; k < exceptionTableLength; k++) {
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                    }
+                    skipAttributes(stream.readUnsignedShort())
+                }
+            }
+        }
+    } catch (Throwable ignored) {
+    }
+    return unsafeAllocatedTypes
+}
+
 def collectClassReferences = { File classFile ->
     try {
         return classFile.withInputStream { input ->
             collectClassReferencesFromStream(input)
+        }
+    } catch (Throwable ignored) {
+        return new TreeSet<String>()
+    }
+}
+
+def collectUnsafeAllocatedTypes = { File classFile, Set<String> unsafeAllocationContainerTypes ->
+    try {
+        return classFile.withInputStream { input ->
+            collectUnsafeAllocatedTypesFromStream(input, unsafeAllocationContainerTypes)
         }
     } catch (Throwable ignored) {
         return new TreeSet<String>()
@@ -379,6 +702,22 @@ def normalizedProxyInterfaceSets = {
     return (defaultProxyInterfaceSets + configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets')).collect { interfaceSet ->
         new ArrayList<>(new LinkedHashSet<>(interfaceSet))
     }.findAll { !it.isEmpty() }
+}
+
+def normalizedAdditionalUnsafeAllocatedTypes = {
+    return configuredStringList('jmeNativeImageAdditionalUnsafeAllocatedTypes', 'additionalUnsafeAllocatedTypes')
+            .collect { normalizeUnsafeAllocatedTypeName(it) }
+            .findAll { it != null && !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def normalizedUnsafeAllocationContainerTypes = {
+    return (defaultUnsafeAllocationContainerTypes + configuredStringList('jmeNativeImageAdditionalUnsafeAllocationContainerTypes', 'additionalUnsafeAllocationContainerTypes'))
+            .collect { it == null ? null : it.trim().replace('/', '.') }
+            .findAll { it != null && !it.isEmpty() }
+            .toSorted()
+            .unique()
 }
 
 def normalizedResourceGlobs = {
@@ -514,8 +853,10 @@ project.afterEvaluate {
         inputs.property('jmeNativeImageTargetTypes', normalizedTargetTypes())
         inputs.property('jmeNativeImageTargetAnnotations', normalizedTargetAnnotations())
         inputs.property('jmeNativeImageProxyInterfaceSets', normalizedProxyInterfaceSets())
+        inputs.property('jmeNativeImageAdditionalUnsafeAllocatedTypes', normalizedAdditionalUnsafeAllocatedTypes())
+        inputs.property('jmeNativeImageUnsafeAllocationContainerTypes', normalizedUnsafeAllocationContainerTypes())
         inputs.property('jmeNativeImageAdditionalResourceGlobs', normalizedResourceGlobs())
-        inputs.property('jmeNativeImageGeneratorVersion', 3)
+        inputs.property('jmeNativeImageGeneratorVersion', 5)
         outputs.file(metadataFile)
         outputs.file(reflectConfigFile)
 
@@ -570,12 +911,25 @@ project.afterEvaluate {
                 def additionalProxyInterfaceSets = configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets').collect { interfaceSet ->
                     new ArrayList<>(new LinkedHashSet<>(interfaceSet))
                 }.findAll { !it.isEmpty() }
+                def additionalUnsafeAllocatedTypes = normalizedAdditionalUnsafeAllocatedTypes()
+                def unsafeAllocationContainerTypes = normalizedUnsafeAllocationContainerTypes() as Set<String>
                 def targetTypes = normalizedTargetTypes()
                 def targetAnnotations = normalizedTargetAnnotations()
                 def proxyInterfaceSets = normalizedProxyInterfaceSets()
                 SortedSet<String> candidateClassNames = new TreeSet<>()
                 candidateClassNames.addAll(discoveredClassNames)
                 candidateClassNames.addAll(referencedClassNames)
+                SortedSet<String> unsafeAllocatedTypes = new TreeSet<>()
+                unsafeAllocatedTypes.addAll(additionalUnsafeAllocatedTypes)
+                mainSourceSet.output.classesDirs.files.findAll { it.exists() }.sort { it.absolutePath }.each { classesDir ->
+                    project.fileTree(classesDir).matching {
+                        include '**/*.class'
+                        exclude '**/module-info.class'
+                        exclude '**/package-info.class'
+                    }.files.sort { it.absolutePath }.each { classFile ->
+                        unsafeAllocatedTypes.addAll(collectUnsafeAllocatedTypes(classFile, unsafeAllocationContainerTypes))
+                    }
+                }
 
                 Map<String, Class<?>> loadedTargetTypes = new LinkedHashMap<>()
                 targetTypes.each { targetType ->
@@ -596,9 +950,10 @@ project.afterEvaluate {
                     throw new GradleException("${project.path}: configured native-image target annotations are not annotations: ${invalidAdditionalTargetAnnotations.join(', ')}")
                 }
                 List<Class<?>> targetAnnotationClasses = loadedTargetAnnotations.values().findAll { it != null && it.isAnnotation() }
+                Class<?> preserveReflectionAnnotationClass = loadedTargetAnnotations['com.jme3.util.PreserveReflection']
 
                 Map<String, Map<String, Object>> classEntries = new TreeMap<>()
-                def updateClassEntry = { String className, boolean includeConstructors, boolean includeFields, boolean includeMethods ->
+                def updateClassEntry = { String className, boolean includeConstructors, boolean includeFields, boolean includeMethods, boolean unsafeAllocated = false ->
                     Map<String, Object> entry = classEntries[className]
                     if (entry == null) {
                         entry = new LinkedHashMap<>()
@@ -614,6 +969,9 @@ project.afterEvaluate {
                     if (includeMethods) {
                         entry.allDeclaredMethods = true
                         entry.allPublicMethods = true
+                    }
+                    if (unsafeAllocated) {
+                        entry.unsafeAllocated = true
                     }
                 }
                 def addMethodEntry = { String className, String methodName, List<String> parameterTypes ->
@@ -646,10 +1004,24 @@ project.afterEvaluate {
                     }
                 }
 
+                unsafeAllocatedTypes.each { unsafeAllocatedType ->
+                    updateClassEntry(unsafeAllocatedType, false, false, false, true)
+                }
+
                 candidateClassNames.each { className ->
                     Class<?> clazz = loadClassSafely(scanLoader, className)
                     if (clazz == null) {
                         return
+                    }
+                    boolean preserveReflectionUnsafeAllocation = false
+                    if (preserveReflectionAnnotationClass != null && safeAnnotationPresent(clazz, preserveReflectionAnnotationClass)) {
+                        try {
+                            def annotation = clazz.getAnnotation(preserveReflectionAnnotationClass)
+                            def method = preserveReflectionAnnotationClass.getMethod('allowUnsafeAllocation')
+                            preserveReflectionUnsafeAllocation = Boolean.TRUE.equals(method.invoke(annotation))
+                        } catch (Throwable ignored) {
+                            preserveReflectionUnsafeAllocation = true
+                        }
                     }
 
                     boolean regularMatch =
@@ -663,6 +1035,9 @@ project.afterEvaluate {
                             }
                             current = safeSuperclass(current)
                         }
+                    }
+                    if (preserveReflectionUnsafeAllocation) {
+                        updateClassEntry(clazz.name, false, false, false, true)
                     }
 
                     if (targetTypeClasses.any { it == Cloneable.class || it.name == 'java.lang.Cloneable' }
@@ -686,6 +1061,9 @@ project.afterEvaluate {
                     }
                     if (entry.allPublicMethods == true) {
                         orderedEntry.allPublicMethods = true
+                    }
+                    if (entry.unsafeAllocated == true) {
+                        orderedEntry.unsafeAllocated = true
                     }
                     if (entry.methods instanceof List && !entry.methods.isEmpty()) {
                         orderedEntry.methods = entry.methods.collect { method ->
@@ -775,6 +1153,9 @@ project.afterEvaluate {
                     if (entry.allPublicMethods == true) {
                         reflectEntry.allPublicMethods = true
                     }
+                    if (entry.unsafeAllocated == true) {
+                        reflectEntry.unsafeAllocated = true
+                    }
                     if (entry.methods instanceof List && !entry.methods.isEmpty()) {
                         reflectEntry.methods = entry.methods.collect { method ->
                             [
@@ -835,7 +1216,7 @@ project.afterEvaluate {
                 } else {
                     throw new GradleException("Reflection entry ${index} must have a string type or proxy type in ${metadataFile}")
                 }
-                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods', 'unsafeAllocated'].each { flagName ->
                     if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
                         throw new GradleException("Reflection flag '${flagName}' must be boolean at entry ${index} in ${metadataFile}")
                     }
@@ -884,7 +1265,7 @@ project.afterEvaluate {
                 if (!reflectConfigNames.add(entry.name.toString())) {
                     throw new GradleException("Duplicate reflect-config entry '${entry.name}' in ${reflectConfigFile}")
                 }
-                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods', 'unsafeAllocated'].each { flagName ->
                     if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
                         throw new GradleException("Reflect-config flag '${flagName}' must be boolean at entry ${index} in ${reflectConfigFile}")
                     }
