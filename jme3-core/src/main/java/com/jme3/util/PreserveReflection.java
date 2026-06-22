@@ -43,4 +43,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface PreserveReflection {
+    /**
+     * When true, metadata generators should also allow this type to be allocated
+     * without invoking a constructor.
+     *
+     * @return true to include unsafe allocation metadata
+     */
+    boolean allowUnsafeAllocation() default true;
 }
