@@ -293,6 +293,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         useAngle = AppSettings.ANGLE_GLES3.equals(settings.getRenderer());
         configureVideoDriverHints(settings);
         configureOpenGLDriverHints(settings);
+        SDL_SetHint(SDL_HINT_MAC_PRESS_AND_HOLD, "0");
 
         if (!SDL_InitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS)) {
             throw new IllegalStateException("Unable to initialize SDL video subsystem: " + SDL_GetError());
