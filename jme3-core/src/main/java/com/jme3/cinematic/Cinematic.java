@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,14 @@
  */
 package com.jme3.cinematic;
 
+import com.jme3.anim.AnimComposer;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
 import com.jme3.cinematic.events.AbstractCinematicEvent;
+import com.jme3.cinematic.events.AnimEvent;
 import com.jme3.cinematic.events.CameraEvent;
 import com.jme3.cinematic.events.CinematicEvent;
 import com.jme3.export.*;
@@ -43,8 +46,10 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,9 +92,14 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
-public class Cinematic extends AbstractCinematicEvent implements AppState {
+public class Cinematic extends AbstractCinematicEvent implements AppState, CinematicHandler {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
+    
+    private static final String CINEMATIC_REF_PREFIX = "Cinematic:Refs:";
+    private static final String CINEMATIC_REF_VALUE = "jme3:Cinematic";
+
+    private Application app;
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
@@ -109,14 +119,30 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         super();
     }
 
+    /**
+     * Creates a cinematic with a specific duration.
+     *
+     * @param initialDuration The total duration of the cinematic in seconds.
+     */
     public Cinematic(float initialDuration) {
         super(initialDuration);
     }
 
+    /**
+     * Creates a cinematic that loops based on the provided loop mode.
+     *
+     * @param loopMode The loop mode. See {@link LoopMode}.
+     */
     public Cinematic(LoopMode loopMode) {
         super(loopMode);
     }
 
+    /**
+     * Creates a cinematic with a specific duration and loop mode.
+     *
+     * @param initialDuration The total duration of the cinematic in seconds.
+     * @param loopMode The loop mode. See {@link LoopMode}.
+     */
     public Cinematic(float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
     }
@@ -211,6 +237,46 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 
+    // HACK: null set the composer and cinematic references
+    // this is used to make this appstate deserializable without
+    // breaking the scene graph
+    private void applySerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
+        Object store[] = null;
+        
+        if (event instanceof AbstractCinematicEvent) {
+            store = map.computeIfAbsent(event, k -> new Object[2]);
+            store[0] = ((AbstractCinematicEvent) event).getCinematic();
+            ((AbstractCinematicEvent) event).setCinematic(null);
+        }
+        
+        if (event instanceof AnimEvent) {
+            AnimEvent animEvent = (AnimEvent) event;
+            store[1] = animEvent.getComposer();
+
+            // set ref id that will be used to relink the composer after deserialization
+            String refId = animEvent.getAnimRef();
+            AnimComposer composer = animEvent.getComposer();
+            setModelRefId(composer.getSpatial(), refId);
+
+            animEvent.setComposer(null);
+        }
+    }
+
+    /**
+     * Restores previously removed references after serialization.
+     */
+    private void undoSerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
+        Object store[] = map.get(event);
+        if (store == null) return;
+        
+        if (event instanceof AbstractCinematicEvent) {
+            ((AbstractCinematicEvent) event).setCinematic((CinematicHandler) store[0]);
+        }
+        if (event instanceof AnimEvent) {
+            ((AnimEvent) event).setComposer((AnimComposer) store[1]);
+        }
+    }
+
     /**
      * used internally for serialization
      *
@@ -221,10 +287,25 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents", null);
-        oc.writeStringSavableMap(cameras, "cameras", null);
-        oc.write(timeLine, "timeLine", null);
-
+    
+        Map<CinematicEvent, Object[]> tmp = new HashMap<>();
+    
+        try {
+            // Temporarily detach non‑serializable references
+            for (CinematicEvent event : cinematicEvents) {
+                applySerializationHack(event, tmp);
+            }
+    
+            oc.write(cinematicEvents.toArray(new CinematicEvent[0]), "cinematicEvents", null);
+            oc.writeStringSavableMap(cameras, "cameras", null);
+            oc.write(timeLine, "timeLine", null);
+    
+        } finally {
+            // Restore references after serialization
+            for (CinematicEvent event : cinematicEvents) {
+                undoSerializationHack(event, tmp);
+            }
+        }
     }
 
     /**
@@ -241,7 +322,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
         Savable[] events = ic.readSavableArray("cinematicEvents", null);
         for (Savable c : events) {
-//            addCinematicEvent(((CinematicEvent) c).getTime(), (CinematicEvent) c)
+            relinkCinematic((CinematicEvent) c);
             cinematicEvents.add((CinematicEvent) c);
         }
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
@@ -262,7 +343,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             CinematicEvent ce = cinematicEvents.get(i);
             ce.setSpeed(speed);
         }
-
     }
 
     /**
@@ -273,16 +353,68 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        this.app = app;
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
+            relinkAnimComposer(cinematicEvent);
+            relinkCinematic(cinematicEvent);
             cinematicEvent.initEvent(app, this);
         }
+
         if (!cameras.isEmpty()) {
             for (CameraNode n : cameras.values()) {
                 n.setCamera(app.getCamera());
             }
         }
         initialized = true;
+    }
+
+    private void relinkAnimComposer(CinematicEvent cinematicEvent) {
+        if (cinematicEvent instanceof AnimEvent) {
+            AnimEvent animEvent = (AnimEvent) cinematicEvent;
+            AnimComposer composer = animEvent.getComposer();
+            
+            if (composer == null) {
+                String ref = animEvent.getAnimRef();
+                Spatial sp = findModelByRef(scene, ref);
+                
+                if (sp == null) {
+                    throw new IllegalStateException(
+                            "Cannot find model with ref id " + ref + " for AnimEvent");
+                }
+                composer = sp.getControl(AnimComposer.class);
+                animEvent.setComposer(composer);
+            }
+        }
+    }
+
+    private void relinkCinematic(CinematicEvent cinematicEvent) {
+        if (cinematicEvent instanceof AbstractCinematicEvent) {
+            AbstractCinematicEvent ace = (AbstractCinematicEvent) cinematicEvent;
+            ace.setCinematic(this);
+        }
+    }
+
+    private Spatial findModelByRef(Spatial sp, String spatialRef) {
+        String keyToSearch = CINEMATIC_REF_PREFIX + spatialRef;
+        Object refObj = sp.getUserData(keyToSearch);
+        if (CINEMATIC_REF_VALUE.equals(refObj)) {
+            return sp;
+        }
+        if (sp instanceof Node) {
+            for (Spatial child : ((Node) sp).getChildren()) {
+                Spatial model = findModelByRef(child, spatialRef);
+                if (model != null) {
+                    return model;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void setModelRefId(Spatial sp, String spatialRef) {
+        String key = CINEMATIC_REF_PREFIX + spatialRef;
+        sp.setUserData(key, CINEMATIC_REF_VALUE);
     }
 
     /**
@@ -342,6 +474,11 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void stateAttached(AppStateManager stateManager) {
+        for (CameraNode n : cameras.values()) {
+            if (n.getParent() == null) {
+                scene.attachChild(n);
+            }
+        }
     }
 
     /**
@@ -352,6 +489,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     @Override
     public void stateDetached(AppStateManager stateManager) {
         stop();
+
+        for (CameraNode n : cameras.values()) {
+            if (n.getParent() != null) {
+                scene.detachChild(n);
+            }
+        }
     }
 
     /**
@@ -434,6 +577,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematic event
      * @return the keyFrame for that event.
      */
+    @Override
     public KeyFrame addCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         if (keyFrame == null) {
@@ -443,7 +587,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         keyFrame.cinematicEvents.add(cinematicEvent);
         cinematicEvents.add(cinematicEvent);
         if (isInitialized()) {
-            cinematicEvent.initEvent(null, this);
+            cinematicEvent.initEvent(app, this);
         }
         return keyFrame;
     }
@@ -455,6 +599,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematic event to enqueue
      * @return the timestamp the event was scheduled.
      */
+    @Override
     public float enqueueCinematicEvent(CinematicEvent cinematicEvent) {
         float scheduleTime = nextEnqueue;
         addCinematicEvent(scheduleTime, cinematicEvent);
@@ -468,6 +613,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(CinematicEvent cinematicEvent) {
         cinematicEvent.dispose();
         cinematicEvents.remove(cinematicEvent);
@@ -487,8 +633,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
-        cinematicEvent.dispose();
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         return removeCinematicEvent(keyFrame, cinematicEvent);
     }
@@ -501,6 +647,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(KeyFrame keyFrame, CinematicEvent cinematicEvent) {
         cinematicEvent.dispose();
         boolean ret = keyFrame.cinematicEvents.remove(cinematicEvent);
@@ -536,6 +683,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void cleanup() {
+        initialized = false;
     }
 
     /**
@@ -586,6 +734,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * Cinematic#bindCamera())
      * @return the cameraNode for this name
      */
+    @Override
     public CameraNode getCamera(String cameraName) {
         return cameras.get(cameraName);
     }
@@ -608,6 +757,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
+    @Override
     public void setActiveCamera(String cameraName) {
         setEnableCurrentCam(false);
         currentCam = cameras.get(cameraName);
@@ -624,6 +774,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
+    @Override
     public void activateCamera(final float timeStamp, final String cameraName) {
         addCinematicEvent(timeStamp, new CameraEvent(this, cameraName));
     }
@@ -647,6 +798,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param key the key
      * @param object the data
      */
+    @Override
     public void putEventData(String type, Object key, Object object) {
         Map<String, Map<Object, Object>> data = getEventsData();
         Map<Object, Object> row = data.get(type);
@@ -664,6 +816,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param key the key
      * @return the pre-existing object, or null
      */
+    @Override
     public Object getEventData(String type, Object key) {
         if (eventsData != null) {
             Map<Object, Object> row = eventsData.get(type);
@@ -680,6 +833,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param type the type of data
      * @param key the key of the data
      */
+    @Override
     public void removeEventData(String type, Object key) {
         if (eventsData != null) {
             Map<Object, Object> row = eventsData.get(type);
@@ -713,6 +867,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         return scene;
     }
 
+
     /**
      * Remove all events from the Cinematic.
      */
@@ -726,6 +881,17 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
+     * Clears all camera nodes bound to the cinematic from the scene node. This method removes all previously
+     * bound CameraNodes and clears the internal camera map, effectively detaching all cameras from the scene.
+     */
+    public void clearCameras() {
+        for (CameraNode cameraNode : cameras.values()) {
+            scene.detachChild(cameraNode);
+        }
+        cameras.clear();
+    }
+
+    /**
      * used internally to clean up the cinematic. Called when the clear() method
      * is called
      */
@@ -735,4 +901,10 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             event.dispose();
         }
     }
+
+    @Override
+    public AssetManager getAssetManager() {
+        return app.getAssetManager();
+    }
 }
+
