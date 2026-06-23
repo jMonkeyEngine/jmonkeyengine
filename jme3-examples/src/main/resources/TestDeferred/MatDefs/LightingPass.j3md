@@ -1,0 +1,20 @@
+MaterialDef LightingPass {
+    MaterialParameters {
+        Texture2D Albedo
+        Texture2D Normal
+        Texture2D WorldPosition
+        Vector3 ViewPosition
+        Vector4Array PointLight_Position
+        Vector4Array PointLight_Color
+    }
+
+    Technique {
+        VertexShader GLSL150 : Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL330 : TestDeferred/MatDefs/LightingPass.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+    }
+}
