@@ -1,0 +1,20 @@
+dependencies {
+    implementation project(':jme3-core')
+    implementation libs.jmh.core
+    annotationProcessor libs.jmh.generator.annprocess
+}
+
+tasks.register('jmh', JavaExec) {
+    dependsOn tasks.named('classes')
+    description = 'Run jME JMH benchmarks. Pass JMH options with -PjmhArgs="...".'
+    group = 'verification'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'org.openjdk.jmh.Main'
+
+    def rawArgs = providers.gradleProperty('jmhArgs').orElse('').map { it.trim() }
+    doFirst {
+        if (rawArgs.get()) {
+            args rawArgs.get().split(/\s+/)
+        }
+    }
+}

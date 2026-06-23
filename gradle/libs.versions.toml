@@ -4,6 +4,7 @@
 
 checkstyle = "13.3.0"
 jacoco = "0.8.12"
+jmh = "1.37"
 lwjgl3 = "3.4.1"
 angle = "2026-05-09"
 libjglios = "0.6"
@@ -42,6 +43,8 @@ jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.18.1"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 junit-bom = "org.junit:junit-bom:5.13.4"
 junit4 = "junit:junit:4.13.2"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
