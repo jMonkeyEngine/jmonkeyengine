@@ -39,6 +39,7 @@ import java.io.IOException;
  * Base class for collision objects (PhysicsRigidBody, PhysicsGhostObject)
  * @author normenhansen
  */
+@Deprecated
 public abstract class PhysicsCollisionObject implements Savable {
 
     protected CollisionShape collisionShape;

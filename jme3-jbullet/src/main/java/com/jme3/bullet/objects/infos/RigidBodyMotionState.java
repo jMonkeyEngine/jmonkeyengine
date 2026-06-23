@@ -45,6 +45,7 @@ import com.jme3.scene.Spatial;
  * allow multithreaded access from the jme scenegraph and the bullet physics space
  * @author normenhansen
  */
+@Deprecated
 public class RigidBodyMotionState extends MotionState {
     //stores the bullet transform
 

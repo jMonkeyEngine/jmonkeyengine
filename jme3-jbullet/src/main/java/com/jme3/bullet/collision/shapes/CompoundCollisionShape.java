@@ -53,6 +53,7 @@ import java.util.logging.Logger;
  * to generate a more sophisticated shape.
  * @author normenhansen
  */
+@Deprecated
 public class CompoundCollisionShape extends CollisionShape {
 
     protected ArrayList<ChildCollisionShape> children = new ArrayList<>();

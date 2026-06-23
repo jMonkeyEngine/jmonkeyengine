@@ -42,6 +42,7 @@ import com.jme3.bullet.collision.PhysicsCollisionObject;
  *
  * @author Nehon
  */
+@Deprecated
 public interface RagdollCollisionListener {
 
     /**

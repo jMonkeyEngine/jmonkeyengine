@@ -58,6 +58,7 @@ import java.util.LinkedList;
  * include free and/or limited angular degrees of freedom are undefined.
  * @author normenhansen
  */
+@Deprecated
 public class SixDofJoint extends PhysicsJoint {
 
     private boolean useLinearReferenceFrameA = true;

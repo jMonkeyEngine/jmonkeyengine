@@ -49,6 +49,7 @@ import java.io.IOException;
  * The user can specify limits and motor for the hinge.
  * @author normenhansen
  */
+@Deprecated
 public class HingeJoint extends PhysicsJoint {
 
     protected Vector3f axisA;

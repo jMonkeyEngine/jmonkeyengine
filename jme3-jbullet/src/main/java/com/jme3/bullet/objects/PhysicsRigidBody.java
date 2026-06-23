@@ -57,6 +57,7 @@ import java.util.List;
  * <p>PhysicsRigidBody - Basic physics object</p>
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     protected RigidBodyConstructionInfo constructionInfo;

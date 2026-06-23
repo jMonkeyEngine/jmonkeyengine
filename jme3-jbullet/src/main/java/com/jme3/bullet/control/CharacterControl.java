@@ -52,6 +52,7 @@ import java.io.IOException;
  * You might want to try <code>BetterCharacterControl</code> as well.
  * @author normenhansen
  */
+@Deprecated
 public class CharacterControl extends PhysicsCharacter implements PhysicsControl, JmeCloneable {
 
     protected Spatial spatial;
