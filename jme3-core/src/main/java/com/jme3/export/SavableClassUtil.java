@@ -246,6 +246,9 @@ public class SavableClassUtil {
         String newClassName = remapClass(className);
         synchronized (loaders) {
             for (ClassLoader classLoader : loaders) {
+                if (classLoader == null) {
+                    continue;
+                }
                 final Class<?> loadedClass;
                 try {
                     loadedClass = classLoader.loadClass(newClassName);
@@ -278,6 +281,9 @@ public class SavableClassUtil {
         } catch (ClassNotFoundException e) {
             if (additionalClassLoaders != null) {
                 for (ClassLoader classLoader : additionalClassLoaders) {
+                    if (classLoader == null) {
+                        continue;
+                    }
                     try {
                         clazz = Class.forName(className, true, classLoader);
                         break;
