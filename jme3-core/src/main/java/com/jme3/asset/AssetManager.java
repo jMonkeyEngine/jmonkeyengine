@@ -46,7 +46,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -122,7 +122,7 @@ public interface AssetManager {
      */
     @Deprecated
     public default List<ClassLoader> getClassLoaders() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
     
     /**
