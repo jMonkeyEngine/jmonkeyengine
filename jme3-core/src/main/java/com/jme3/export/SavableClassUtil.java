@@ -40,6 +40,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -198,9 +199,13 @@ public class SavableClassUtil {
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
      * @throws SecurityException thrown if the filter rejects the class name.
      */
-    public static Savable fromName(String className, SavableClassFilter classFilter)
-            throws ClassNotFoundException, IllegalAccessException,
-            InstantiationException, InvocationTargetException {
+    public static Savable fromName(String className, SavableClassFilter classFilter) 
+        throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        return fromName(className, classFilter, null);
+    }
+
+    public static Savable fromName(String className, SavableClassFilter classFilter, Collection<ClassLoader> additionalClassLoaders) 
+        throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
         className = remapClass(className);
         if (classFilter == null) {
             throw new NullPointerException("classFilter");
@@ -209,7 +214,7 @@ public class SavableClassUtil {
             throw new SecurityException("Savable class rejected by filter: " + className);
         }
 
-        Constructor noArgConstructor = findNoArgConstructor(className);
+        Constructor noArgConstructor = findNoArgConstructor(className, additionalClassLoaders);
         noArgConstructor.setAccessible(true);
         try {
             return (Savable) noArgConstructor.newInstance();
@@ -225,6 +230,7 @@ public class SavableClassUtil {
             throw e;
         }
     }
+
 
     /**
      * @deprecated use {@link #fromName(java.lang.String)} instead 
@@ -263,12 +269,32 @@ public class SavableClassUtil {
      * @return the pre-existing constructor (not null)
      */
     @SuppressWarnings("unchecked")
-    private static Constructor findNoArgConstructor(String className)
+    private static Constructor findNoArgConstructor(String className, Collection<ClassLoader> additionalClassLoaders)
             throws ClassNotFoundException, InstantiationException {
-        Class clazz = Class.forName(className);
+        Class clazz = null;
+        
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            if (additionalClassLoaders != null) {
+                for (ClassLoader classLoader : additionalClassLoaders) {
+                    try {
+                        clazz = Class.forName(className, true, classLoader);
+                        break;
+                    } catch (ClassNotFoundException ex) {
+                        // ignore
+                    }
+                }
+            }
+            if (clazz == null) {
+                throw e;
+            }
+        }
+
         if (!SavableClassUtil.isImplementingSavable(clazz)) {
             throw new InstantiationException("Class " + className + " does not implement Savable.");
         }
+
         Constructor result;
         try {
             result = clazz.getDeclaredConstructor();
