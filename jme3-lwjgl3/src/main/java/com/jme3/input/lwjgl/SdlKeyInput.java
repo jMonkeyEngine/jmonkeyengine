@@ -68,8 +68,6 @@ public class SdlKeyInput implements KeyInput {
         if (!context.isRenderable()) {
             return;
         }
-        // Text input events are delivered through SDL_EVENT_TEXT_INPUT.
-        SDL_StartTextInput(context.getWindowHandle());
         initialized = true;
         LOGGER.fine("SDL keyboard created.");
     }
@@ -78,7 +76,8 @@ public class SdlKeyInput implements KeyInput {
         if (!context.isRenderable()) {
             return;
         }
-        SDL_StartTextInput(context.getWindowHandle());
+        // nothing to do here
+
     }
 
     public void onSDLEvent(SDL_Event event) {
@@ -90,34 +89,13 @@ public class SdlKeyInput implements KeyInput {
             }
 
             final int jmeKey = SdlKeyMap.toJmeKeyCode(key.scancode());
-            final KeyInputEvent keyEvent = new KeyInputEvent(jmeKey, '\0', key.down(), key.repeat());
+            final int sdlKey = SDL_GetKeyFromScancode(key.scancode(), key.mod(), true);
+            final char keyChar = sdlKey > 0 && sdlKey <= Character.MAX_VALUE && !Character.isISOControl((char) sdlKey)
+                    ? (char) sdlKey
+                    : '\0';
+            final KeyInputEvent keyEvent = new KeyInputEvent(jmeKey, keyChar, key.down(), key.repeat());
             keyEvent.setTime(key.timestamp());
             keyInputEvents.add(keyEvent);
-            return;
-        }
-
-        if (type == SDL_EVENT_TEXT_INPUT) {
-            if (event.text().windowID() != context.getWindowId()) {
-                return;
-            }
-
-            final String text = event.text().textString();
-            if (text == null || text.isEmpty()) {
-                return;
-            }
-
-            for (int i = 0; i < text.length(); i++) {
-                final char keyChar = text.charAt(i);
-                final long time = event.text().timestamp();
-
-                KeyInputEvent pressed = new KeyInputEvent(KeyInput.KEY_UNKNOWN, keyChar, true, false);
-                pressed.setTime(time);
-                keyInputEvents.add(pressed);
-
-                KeyInputEvent released = new KeyInputEvent(KeyInput.KEY_UNKNOWN, keyChar, false, false);
-                released.setTime(time);
-                keyInputEvents.add(released);
-            }
         }
     }
 
@@ -146,9 +124,6 @@ public class SdlKeyInput implements KeyInput {
 
     @Override
     public void destroy() {
-        if (context.isRenderable()) {
-            SDL_StopTextInput(context.getWindowHandle());
-        }
         keyInputEvents.clear();
         initialized = false;
         LOGGER.fine("SDL keyboard destroyed.");
