@@ -2,6 +2,7 @@ package com.jme3.vulkan.pipeline.state;
 
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.material.DepthBias;
+import com.jme3.vulkan.material.experimental.ShaderBindingLayout;
 import com.jme3.vulkan.material.experimental.ShaderBindingSet;
 import com.jme3.vulkan.material.shader.ShaderModule;
 import com.jme3.vulkan.mesh.VertexInput;
@@ -20,6 +21,7 @@ public class GraphicsState implements Cloneable {
     private final Map<ShaderType, ShaderModule> shaders = new EnumMap<>(ShaderType.class);
     private final Map<Integer, ColorBlendAttachment> blendOverrides = new HashMap<>();
     private final Map<String, Integer> attributeMappings = new HashMap<>();
+    private final Map<Integer, ShaderBindingSet> bindings = new HashMap<>();
     private final Set<DynamicState> dynamic = EnumSet.noneOf(DynamicState.class);
     private VertexInput vertexInput;
     private boolean depthTest = true;
@@ -37,8 +39,7 @@ public class GraphicsState implements Cloneable {
     private FaceWinding faceWinding = FaceWinding.CounterClockwise;
     private Flag<CullMode> cullMode = CullMode.Back;
     private LogicOp blendLogic;
-    
-    private GraphicsState base;
+
     private final DynamicKey key = new DynamicKey(this);
 
     @Override

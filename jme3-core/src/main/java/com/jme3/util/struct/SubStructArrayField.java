@@ -1,9 +1,8 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.alloc.MappingArena;
 import com.jme3.vulkan.alloc.StructArray;
-
-import java.nio.ByteBuffer;
+import com.jme3.vulkan.buffer.BufferMapping;
+import com.jme3.vulkan.buffer.EngineBuffer;
 
 public class SubStructArrayField <T extends Struct> implements StructField<StructArray<T>> {
 
@@ -30,29 +29,22 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
             a.bind(struct.getLayout());
         }
         alignment = Math.max(alias.getStruct().getAlignment(), struct.getLayout().getMinStructAlignment());
-        return this.offset = offset + alias.getAlignedSize();
+        return this.offset = offset + alias.getByteSize();
     }
 
     @Override
-    public ByteBuffer map(MappingArena arena) {
-        ByteBuffer buf = struct.map(arena);
-        return buf.position(buf.position() + offset);
+    public BufferMapping map() {
+        return struct.map().offset(offset);
     }
 
     @Override
-    public ByteBuffer map() {
-        ByteBuffer buf = struct.map();
-        return buf.position(buf.position() + offset);
+    public EngineBuffer getSourceBuffer() {
+        return struct.getSourceBuffer();
     }
 
     @Override
-    public void stage(long offset, long size) {
-        struct.stage(this.offset + offset, size);
-    }
-
-    @Override
-    public void stage() {
-        struct.stage(offset, struct.getAlignedSize());
+    public int size() {
+        return alias.size();
     }
 
     @Override
@@ -85,7 +77,7 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
 
     @Override
     public int getSize() {
-        return alias.getAlignedSize();
+        return alias.getByteSize();
     }
 
     @Override

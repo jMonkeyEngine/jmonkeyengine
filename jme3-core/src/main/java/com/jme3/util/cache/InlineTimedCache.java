@@ -1,6 +1,7 @@
 package com.jme3.util.cache;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,8 +20,12 @@ public class InlineTimedCache<K, E> implements Cache<K, E> {
         this.duration = durationMillis;
     }
 
-    public static <K, E> InlineTimedCache<K, E> identityCache(long durationMillis) {
+    public static <K, E> InlineTimedCache<K, E> identity(long durationMillis) {
         return new InlineTimedCache<>(new IdentityHashMap<>(), durationMillis);
+    }
+
+    public static <K, E> InlineTimedCache<K, E> concurrent(long durationMillis) {
+        return new InlineTimedCache<>(new ConcurrentHashMap<>(), durationMillis);
     }
 
     @Override

@@ -20,7 +20,7 @@ import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.texture.ImageView;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;

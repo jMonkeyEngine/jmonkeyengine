@@ -1,31 +1,4 @@
 
-Rendering functionality that should be compatible with all backends are:
+This is the core idea: all objects that interact with native memory (NIO buffers, vulkan buffers, etc.) are simply memory addresses. A memory address in this context holds a) the address of the first byte pointed to and b) the size of the addressed region. Importantly, memory addresses contain a method that emits a similar address but offset by a specific number of bytes. Some memory addresses are relative to another memory address, and thus defer address queries to the parent address.
 
-* Render viewport
-    * location: anywhere
-* Technique implementation
-* Specify render state
-    * shaders (technique)
-    * macro definitions (material, technique)
-    * shader binding sets (engine, technique)
-        * translation from set/binding to binding required for opengl
-    * attribute locations (shader reflection)
-    * topology (mesh)
-    * primitive restart (mesh)
-    * depth test (material, technique)
-    * depth write (material, technique)
-    * depth bounds test (material, technique)
-    * stencil test (material, technique)
-    * depth compare (material, technique)
-    * polygon mode (material, technique)
-    * cull mode (material, technique)
-    * face winding (mesh)
-    * line width (material, technique)
-    * rasterizer discard (material, technique)
-    * depth bias (material, technique)
-        * slope
-        * constant
-    * rasterization samples (framebuffer)
-    * blending (framebuffer, material, technique)
-        * logic
-        * blend attachments
+So take a struct bound to a buffer. When a field within the struct needs to interact with the buffer's memory, it queries for the address of its struct, which in turn queries for the address of its buffer. The returned address object is opaque.

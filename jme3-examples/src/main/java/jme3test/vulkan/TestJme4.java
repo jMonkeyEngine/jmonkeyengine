@@ -17,12 +17,15 @@ import com.jme3.scene.shape.Box;
 import com.jme3.vulkan.commands.StandardRenderSettings;
 import com.jme3.vulkan.material.exp2.RenderSession;
 import com.jme3.vulkan.material.experimental.PBR;
+import com.jme3.vulkan.material.experimental.PBRTechnique;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.sun.tools.javac.util.List;
 
 public class TestJme4 extends SimpleApplication {
 
     private Engine engine;
     private ViewPort mainView;
+    private final PBRTechnique pbrTech = new PBRTechnique();
 
     public static void main(String[] args) {
         TestJme4 app = new TestJme4();
@@ -35,30 +38,19 @@ public class TestJme4 extends SimpleApplication {
         engine = new SimpleVulkanEngine(this, 3);
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
-        Material mat = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setInterface(PBR.class, PBR::new);
-        try (PBR u = mat.getInterface(PBR.class)) {
-            u.setColor(ColorRGBA.White);
-            u.setColorMap(null);
-        }
+        Material mat = new Material();
+        PBR pbr = mat.setInterface(PBR.class, new PBR(engine));
+        pbr.setColor(ColorRGBA.White);
+        pbr.setMetallic(1f);
+        pbr.setRoughness(0.2f);
+        pbr.setNormalMap(assetManager.loadTexture("Textures/mat_normal.jpg"));
         g.setMaterial(mat);
         rootNode.attachChild(g);
 
         Camera cam = new PerspectiveCamera();
         mainView = new ViewPort(cam, new ViewPortArea(1024, 1024));
         mainView.addGeometryBucket("Opaque", new GeometryBucket(new OpaqueComparator()));
-        mainView.addGeometryBucket("Sky", new GeometryBucket(new OpaqueComparator()) {
-            @Override
-            public void setupRender(ViewPort vp, StandardRenderSettings settings) {
-                super.setupRender(vp, settings);
-                settings.pushViewPort(vp.getArea().clone().toMaxDepth());
-            }
-            @Override
-            public void cleanupRender(ViewPort vp, StandardRenderSettings settings) {
-                super.cleanupRender(vp, settings);
-                settings.popViewPort();
-            }
-        });
+        mainView.addGeometryBucket("Sky", new SkyBucket());
         mainView.addGeometryBucket("Transparent", new GeometryBucket(new TransparentComparator()));
         mainView.addGeometryBucket("Translucent", new GeometryBucket(new TransparentComparator()));
 
@@ -66,9 +58,7 @@ public class TestJme4 extends SimpleApplication {
 
     @Override
     public void simpleRender(RenderManager rm) {
-        try (RenderSession r = engine.createRenderSession(tpf)) {
-            r.ren
-        }
+        engine.renderViewPorts(List.of(mainView), List.of(pbrTech));
     }
 
     @Override

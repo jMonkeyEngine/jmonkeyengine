@@ -20,13 +20,13 @@ public class StructLayout {
     public static final StructLayout packed = new StructLayout("packed", Byte.BYTES);
     private static final Map<String, StructLayout> layouts = new HashMap<>();
 
-    private static void addToAllLayouts(FieldDesc desc, Class... types) {
+    private static void addToAllLayouts(FieldDescription desc, Class... types) {
         std140.addFieldDescription(desc, types);
         std430.addFieldDescription(desc, types);
         packed.addFieldDescription(desc, types);
     }
 
-    private static void addToLayouts(FieldDesc desc, StructLayout[] layouts, Class... types) {
+    private static void addToLayouts(FieldDescription desc, StructLayout[] layouts, Class... types) {
         for (StructLayout l : layouts) {
             l.addFieldDescription(desc, types);
         }
@@ -309,7 +309,7 @@ public class StructLayout {
     
     private final String identifier;
     private final int minStructAlignment;
-    private final Map<Class, FieldDesc> fields = new HashMap<>();
+    private final Map<Class, FieldDescription> fields = new HashMap<>();
     private final Map<Class, Class> typeRemappings = new HashMap<>();
 
     public StructLayout(String identifier, int minStructAlignment) {
@@ -324,7 +324,7 @@ public class StructLayout {
         return identifier;
     }
 
-    public void addFieldDescription(FieldDesc desc, Class... types) {
+    public void addFieldDescription(FieldDescription desc, Class... types) {
         for (Class t : types) {
             if (fields.putIfAbsent(t, desc) != null) {
                 throw new IllegalArgumentException(t + " is already described.");
@@ -340,21 +340,21 @@ public class StructLayout {
         return minStructAlignment;
     }
 
-    public FieldDesc getFieldDescription(Class type) {
+    public FieldDescription getFieldDescription(Class type) {
         return getFieldDescription(type, type);
     }
 
-    protected FieldDesc getFieldDescription(Class origin, Class type) {
+    protected FieldDescription getFieldDescription(Class origin, Class type) {
         if (type == null) {
             throw new NullPointerException(origin + " is not described.");
         }
         type = typeRemappings.getOrDefault(type, type);
-        FieldDesc d = fields.get(type);
+        FieldDescription d = fields.get(type);
         if (d != null) return d;
         else return getFieldDescription(type.getSuperclass());
     }
 
-    public static abstract class ObjectDesc <T> implements FieldDesc<T> {
+    public static abstract class ObjectDesc <T> implements FieldDescription<T> {
 
         private final int size, alignment;
 
@@ -375,12 +375,12 @@ public class StructLayout {
 
     }
 
-    public static abstract class DirectArrayDesc <T, E> implements FieldDesc<T> {
+    public static abstract class DirectArrayDesc <T, E> implements FieldDescription<T> {
 
-        private final FieldDesc<E> elementDesc;
+        private final FieldDescription<E> elementDesc;
         private final int alignment, stride;
 
-        public DirectArrayDesc(FieldDesc<E> elementDesc, int size, int alignment) {
+        public DirectArrayDesc(FieldDescription<E> elementDesc, int size, int alignment) {
             this.elementDesc = elementDesc;
             this.alignment = alignment;
             this.stride = FastMath.toMultipleOf(size, alignment);
@@ -426,33 +426,33 @@ public class StructLayout {
 
     }
 
-    public static class ArrayDesc implements FieldDesc<Object[]> {
+    public static class ArrayDesc implements FieldDescription<Object[]> {
 
-        private final FieldDesc elementDesc;
+        private final FieldDescription elementDesc;
         private final int minAlignment;
 
-        public ArrayDesc(FieldDesc elementDesc, int minAlignment) {
+        public ArrayDesc(FieldDescription elementDesc, int minAlignment) {
             this.elementDesc = elementDesc;
             this.minAlignment = minAlignment;
         }
 
         @Override
         public int getSize(StructLayout layout, Object[] value) {
-            FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
+            FieldDescription d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
             int stride = getStride(layout, d, value[0]);
             return stride * value.length;
         }
 
         @Override
         public int getAlignment(StructLayout layout, Object[] value) {
-            FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
+            FieldDescription d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
             return Math.max(minAlignment, d.getAlignment(layout, value[0]));
         }
 
         @Override
         public void write(StructLayout layout, ByteBuffer buffer, Object[] value) {
             assert value.length != 0 : "Struct array must contain at least one element.";
-            FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
+            FieldDescription d = elementDesc != null ? elementDesc : layout.getFieldDescription(value[0].getClass());
             int stride = getStride(layout, d, value[0]);
             for (Object v : value) {
                 d.write(layout, buffer, v);
@@ -463,7 +463,7 @@ public class StructLayout {
         @Override
         public Object[] read(StructLayout layout, ByteBuffer buffer, Object[] store) {
             assert store.length != 0 : "Struct array must contain at least one element.";
-            FieldDesc d = elementDesc != null ? elementDesc : layout.getFieldDescription(store[0].getClass());
+            FieldDescription d = elementDesc != null ? elementDesc : layout.getFieldDescription(store[0].getClass());
             int stride = getStride(layout, d, store[0]);
             for (int i = 0; i < store.length; i++) {
                 store[i] = d.read(layout, buffer, store[i]);
@@ -472,13 +472,13 @@ public class StructLayout {
             return store;
         }
 
-        private int getStride(StructLayout layout, FieldDesc d, Object v) {
+        private int getStride(StructLayout layout, FieldDescription d, Object v) {
             return FastMath.toMultipleOf(d.getSize(layout, v), Math.max(minAlignment, d.getAlignment(layout, v)));
         }
 
     }
 
-    public static class ListDesc implements FieldDesc<List> {
+    public static class ListDesc implements FieldDescription<List> {
 
         private final int minAlignment;
 
@@ -489,7 +489,7 @@ public class StructLayout {
         @Override
         public int getSize(StructLayout layout, List value) {
             Object first = value.getFirst();
-            FieldDesc d = layout.getFieldDescription(first.getClass());
+            FieldDescription d = layout.getFieldDescription(first.getClass());
             int stride = getStride(layout, d, first);
             return stride * value.size();
         }
@@ -497,14 +497,14 @@ public class StructLayout {
         @Override
         public int getAlignment(StructLayout layout, List value) {
             Object first = value.getFirst();
-            FieldDesc d = layout.getFieldDescription(first.getClass());
+            FieldDescription d = layout.getFieldDescription(first.getClass());
             return Math.max(minAlignment, d.getAlignment(layout, first));
         }
 
         @Override
         public void write(StructLayout layout, ByteBuffer buffer, List value) {
             Object first = value.getFirst();
-            FieldDesc d = layout.getFieldDescription(first.getClass());
+            FieldDescription d = layout.getFieldDescription(first.getClass());
             int stride = getStride(layout, d, first);
             for (Object v : value) {
                 d.write(layout, buffer, v);
@@ -515,7 +515,7 @@ public class StructLayout {
         @Override
         public List read(StructLayout layout, ByteBuffer buffer, List store) {
             Object first = store.getFirst();
-            FieldDesc d = layout.getFieldDescription(first.getClass());
+            FieldDescription d = layout.getFieldDescription(first.getClass());
             int stride = getStride(layout, d, first);
             for (ListIterator it = store.listIterator(); it.hasNext();) {
                 Object oldVal = it.next();
@@ -528,7 +528,7 @@ public class StructLayout {
             return store;
         }
 
-        private int getStride(StructLayout layout, FieldDesc d, Object v) {
+        private int getStride(StructLayout layout, FieldDescription d, Object v) {
             return FastMath.toMultipleOf(d.getSize(layout, v), Math.max(minAlignment, d.getAlignment(layout, v)));
         }
 

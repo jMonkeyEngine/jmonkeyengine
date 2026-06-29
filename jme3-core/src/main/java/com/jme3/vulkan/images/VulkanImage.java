@@ -1,7 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.DisposableReference;
-import com.jme3.vulkan.buffers.SharingMode;
+import com.jme3.vulkan.buffer.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.EnumInterpreter;

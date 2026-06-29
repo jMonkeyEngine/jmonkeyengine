@@ -12,7 +12,7 @@ import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.VulkanLogger;
-import com.jme3.vulkan.buffers.stream.BufferStream;
+import com.jme3.vulkan.buffer.BufferStream;
 import com.jme3.vulkan.commands.*;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.BufferBinding;
@@ -33,7 +33,7 @@ import com.jme3.vulkan.pipeline.framebuffer.*;
 import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
-import com.jme3.vulkan.render.bucket.RenderElement;
+import com.jme3.vulkan.render.bucket.GraphicsElement;
 import com.jme3.vulkan.render.bucket.VulkanRenderElement;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
@@ -105,6 +105,7 @@ public class SimpleVulkanEngine implements Engine {
             d.addFilter(surface);
             d.addFilter(DeviceFilter.swapchain(surface));
             d.addCriticalExtension(Swapchain.EXTENSION_NAME);
+            d.addCriticalExtension(EXTMemoryBudget.VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
             d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f);
             d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
             d.addFeature(DeviceFeature.anisotropy(1f));
@@ -259,7 +260,7 @@ public class SimpleVulkanEngine implements Engine {
         }
 
         @Override
-        public RenderElement createRenderElement(ViewPort vp, Geometry g, GraphicsState state) {
+        public GraphicsElement createRenderElement(ViewPort vp, Geometry g, GraphicsState state) {
             return new EngineRenderElement(graphics, vp.getOutputFrameBuffer(), vp.getCamera(), g, state);
         }
 

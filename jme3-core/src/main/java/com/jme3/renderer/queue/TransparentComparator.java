@@ -31,14 +31,14 @@
  */
 package com.jme3.renderer.queue;
 
-import com.jme3.vulkan.render.bucket.RenderElement;
+import com.jme3.vulkan.render.bucket.GraphicsElement;
 
 import java.util.Comparator;
 
-public class TransparentComparator implements Comparator<RenderElement> {
+public class TransparentComparator implements Comparator<GraphicsElement> {
 
     @Override
-    public int compare(RenderElement o1, RenderElement o2) {
+    public int compare(GraphicsElement o1, GraphicsElement o2) {
         return Float.compare(o2.computeDistanceSq(), o1.computeDistanceSq());
     }
 

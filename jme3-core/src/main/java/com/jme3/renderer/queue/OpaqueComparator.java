@@ -31,14 +31,14 @@
  */
 package com.jme3.renderer.queue;
 
-import com.jme3.vulkan.render.bucket.RenderElement;
+import com.jme3.vulkan.render.bucket.GraphicsElement;
 
 import java.util.Comparator;
 
-public class OpaqueComparator implements Comparator<RenderElement> {
+public class OpaqueComparator implements Comparator<GraphicsElement> {
 
     @Override
-    public int compare(RenderElement o1, RenderElement o2) {
+    public int compare(GraphicsElement o1, GraphicsElement o2) {
         int result = Long.compare(o1.getPipelineSortPosition(), o1.getPipelineSortPosition());
         if (result == 0) {
             result = Long.compare(o1.getMaterialSortPosition(), o2.getMaterialSortPosition());

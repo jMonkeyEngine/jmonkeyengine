@@ -2,7 +2,7 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.export.*;
 import com.jme3.math.*;
-import com.jme3.util.struct.FieldDesc;
+import com.jme3.util.struct.FieldDescription;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
 import com.jme3.vulkan.formats.Format;
@@ -41,7 +41,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
 
     private T alias;
     private Struct struct;
-    private FieldDesc<T> description;
+    private FieldDescription<T> description;
     private int offset;
 
     @SerializationOnly

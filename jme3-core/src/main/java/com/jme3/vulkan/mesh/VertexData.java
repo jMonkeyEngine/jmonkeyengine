@@ -28,7 +28,7 @@ public class VertexData extends ArrayList<VertexBuffer> {
                 Integer loc = pipeline.getAttributeLocation(a.getName());
                 if (loc != null && filledAttrLoc.add(loc)) {
                     VulkanBuffer buffer = (VulkanBuffer)vb.getBuffer();
-                    verts.put(buffer.getBufferId(cmd.getPool().getDevice()));
+                    verts.put(buffer.getBufferHandle(cmd.getPool().getDevice()));
                     offsets.put(buffer.size().getOffset());
                     break;
                 }

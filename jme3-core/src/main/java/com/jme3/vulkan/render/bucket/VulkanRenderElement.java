@@ -5,7 +5,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.mesh.VulkanMesh;
-import com.jme3.vulkan.pipeline.VertexPipeline;
 
 public abstract class VulkanRenderElement implements RenderElement {
 

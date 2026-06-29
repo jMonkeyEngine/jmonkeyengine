@@ -1,7 +1,7 @@
 package com.jme3.vulkan;
 
 import com.jme3.backend.Engine;
-import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.BufferAllocator;
 import com.jme3.vulkan.buffers.saving.UpdateHint;

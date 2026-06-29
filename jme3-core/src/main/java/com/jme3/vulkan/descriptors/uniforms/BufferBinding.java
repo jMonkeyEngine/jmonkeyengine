@@ -8,7 +8,6 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
@@ -39,7 +38,7 @@ public class BufferBinding extends UniformBinding<VulkanBuffer> {
         @Override
         public void populateWrite(MemoryStack stack, LogicalDevice<?> device, VkWriteDescriptorSet write) {
             write.pBufferInfo(VkDescriptorBufferInfo.calloc(1, stack)
-                .buffer(buffer.getBufferId(device))
+                .buffer(buffer.getBufferHandle(device))
                 .offset(size.getOffset()).range(size.getBytes()));
             write.descriptorType(getType().getEnum())
                 .descriptorCount(1)

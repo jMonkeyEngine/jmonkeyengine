@@ -1,14 +1,14 @@
 package com.jme3.vulkan.renderexp;
 
 import com.jme3.scene.Geometry;
-import com.jme3.vulkan.render.bucket.RenderElement;
+import com.jme3.vulkan.render.bucket.GraphicsElement;
 
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class GeometryRenderBuffer <T extends RenderElement> {
+public abstract class GeometryRenderBuffer <T extends GraphicsElement> {
 
     private final List<T> elements = new LinkedList<>();
 

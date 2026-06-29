@@ -40,7 +40,7 @@ import com.jme3.vulkan.pipeline.state.GraphicsState;
  */
 public interface Material {
 
-    <T extends ShadingInterface> void setInterface(Class<T> type, T shaderInterface);
+    <T extends ShadingInterface> T setInterface(Class<T> type, T shaderInterface);
 
     <T extends ShadingInterface> T getInterface(Class<T> type);
 

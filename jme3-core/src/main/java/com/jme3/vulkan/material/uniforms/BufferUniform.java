@@ -72,7 +72,7 @@ public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T
 
         private Writer(LogicalDevice<?> device, UniformBinding binding, VulkanBuffer data) {
             super(binding, 0, 1);
-            this.id = data.getBufferId(device);
+            this.id = data.getBufferHandle(device);
             this.offset = data.size().getOffset();
             this.bytes = data.size().getBytes();
         }

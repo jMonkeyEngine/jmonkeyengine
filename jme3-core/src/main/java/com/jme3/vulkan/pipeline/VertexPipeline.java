@@ -1,14 +1,11 @@
 package com.jme3.vulkan.pipeline;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.VertexAttr;
 import com.jme3.vulkan.mesh.VertexBuffer;
-import com.jme3.vulkan.mesh.VertexInput;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 
 import java.nio.LongBuffer;
 import java.util.Collection;
@@ -31,7 +28,7 @@ public interface VertexPipeline extends Pipeline {
                     Integer loc = getAttributeLocation(a.getName());
                     if (loc != null && filledAttrLoc.add(loc)) {
                         VulkanBuffer buffer = (VulkanBuffer) vb.getBuffer();
-                        verts.put(buffer.getBufferId(cmd.getPool().getDevice()));
+                        verts.put(buffer.getBufferHandle(cmd.getPool().getDevice()));
                         offsets.put(buffer.size().getOffset());
                         break;
                     }

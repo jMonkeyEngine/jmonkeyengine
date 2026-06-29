@@ -56,31 +56,15 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DynamicGraphicsPipeline that = (DynamicGraphicsPipeline) o;
-        return layout == that.layout
-                && subpass == that.subpass
-                && primitiveRestart == that.primitiveRestart
-                && topology == that.topology
+        return state.dynamicEquals(that.state)
                 && depthFormat == that.depthFormat
                 && usingStencilAtt == that.usingStencilAtt
-                && Flag.equals(createFlags, that.createFlags)
-                && IntEnum.is(faceWinding, that.faceWinding)
-                && Objects.equals(vertexInput, that.vertexInput)
-                && Objects.equals(attributeLocations, that.attributeLocations)
-                && (isDynamic(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
-                && (isDynamic(DynamicState.DepthBias) || depthBias == that.depthBias)
-                && ((isDynamic(DynamicState.ViewPort) && viewports.size() == that.viewports.size()) || Objects.equals(viewports, that.viewports))
-                && ((isDynamic(DynamicState.Scissor) && scissors.size() == that.scissors.size()) || Objects.equals(scissors, that.scissors))
-                && Objects.equals(dynamicStates, that.dynamicStates)
                 && Arrays.equals(colorFormats, that.colorFormats);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subpass, parent, createFlags, shaders, vertexInput, attributeLocations, topology, primitiveRestart,
-                dynamicStates, Arrays.hashCode(colorFormats), depthFormat, usingStencilAtt,
-                (isDynamic(DynamicState.ViewPort) ? viewports.size() : viewports),
-                (isDynamic(DynamicState.Scissor) ? scissors.size() : scissors),
-                (isDynamic(DynamicState.DepthBias) ? 0 : depthBias));
+        return Objects.hash(state.dynamicHashCode(), Arrays.hashCode(colorFormats), depthFormat, usingStencilAtt);
     }
 
     public void setDynamicLineWidth(CommandBuffer cmd, float lineWidth) {
@@ -230,7 +214,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
 
     @Override
     public Integer getAttributeLocation(String attributeName) {
-        return attributeLocations.get(attributeName);
+        return state.getAttributeMappings().get(attributeName);
     }
 
     @Override

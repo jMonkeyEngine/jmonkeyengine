@@ -7,7 +7,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
@@ -23,12 +22,10 @@ import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 import com.jme3.vulkan.tmp.FinalWriter;
 import com.jme3.vulkan.tmp.SerializationOnly;
-import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -65,7 +62,7 @@ public class AdaptiveMesh implements VulkanMesh, GlMesh, Mesh {
         }
         if (activeIndex != null) {
             vkCmdBindIndexBuffer(cmd.getBuffer(),
-                    ((VulkanBuffer)activeIndex.getBuffer()).getBufferId(cmd.getPool().getDevice()),
+                    ((VulkanBuffer)activeIndex.getBuffer()).getBufferHandle(cmd.getPool().getDevice()),
                     0, activeIndex.getType().getEnum(VulkanEnums.instance));
             vkCmdDrawIndexed(cmd.getBuffer(), activeIndex.getElements(), instances, 0, 0, 0);
         } else {

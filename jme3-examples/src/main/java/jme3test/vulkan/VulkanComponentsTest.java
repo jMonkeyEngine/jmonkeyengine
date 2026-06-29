@@ -13,7 +13,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.buffers.stream.BufferStream;
+import com.jme3.vulkan.buffer.BufferStream;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.UniformBinding;

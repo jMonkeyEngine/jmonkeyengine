@@ -12,6 +12,7 @@ import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
 import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.function.BiFunction;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK11.*;
@@ -76,13 +77,14 @@ public class CommandPool extends AbstractNative<Long> {
      *
      * @param level level of the allocated buffers
      * @param n number of buffers to allocate
+     * @param factory generates a wrapper for the vulkan command buffer handle
      * @return allocated buffers
      */
-    public CommandBuffer[] allocate(IntEnum<CommandBuffer.Level> level, int n) {
+    public <T extends CommandBuffer> T[] allocate(IntEnum<CommandBuffer.Level> level, int n, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
         if (n <= 0) {
             throw new IllegalArgumentException("Must allocate at least one command buffer.");
         }
-        CommandBuffer[] buffers = new CommandBuffer[n];
+        T[] buffers = (T[])new CommandBuffer[n];
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandBufferAllocateInfo allocate = VkCommandBufferAllocateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
@@ -93,10 +95,34 @@ public class CommandPool extends AbstractNative<Long> {
             check(vkAllocateCommandBuffers(queue.getDevice().getNativeObject(), allocate, ptrs),
                     "Failed to allocate command buffers");
             for (int i = 0; i < buffers.length; i++) {
-                buffers[i] = new CommandBuffer(this, new VkCommandBuffer(ptrs.get(), queue.getDevice().getNativeObject()));
+                buffers[i] = factory.apply(this, new VkCommandBuffer(ptrs.get(), queue.getDevice().getNativeObject()));
             }
         }
         return buffers;
+    }
+
+    /**
+     * Allocates {@code n} command buffers from this pool.
+     *
+     * @param level level of the allocated buffers
+     * @param n number of buffers to allocate
+     * @return allocated buffers
+     * @see #allocate(IntEnum, int, BiFunction)
+     */
+    public CommandBuffer[] allocate(IntEnum<CommandBuffer.Level> level, int n) {
+        return allocate(level, n, CommandBuffer::new);
+    }
+
+    /**
+     * Allocates a command buffer from this pool.
+     *
+     * @param level level of the allocated buffer
+     * @param factory generates a wrapper for the vulkan command buffer handle
+     * @return allocated buffer
+     * @see #allocate(IntEnum, int, BiFunction)
+     */
+    public <T extends CommandBuffer> T allocate(IntEnum<CommandBuffer.Level> level, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
+        return allocate(level, 1, factory)[0];
     }
 
     /**
@@ -104,10 +130,10 @@ public class CommandPool extends AbstractNative<Long> {
      *
      * @param level level of the allocated buffer
      * @return allocated buffer
-     * @see #allocate(IntEnum, int)
+     * @see #allocate(IntEnum, int, BiFunction)
      */
     public CommandBuffer allocate(IntEnum<CommandBuffer.Level> level) {
-        return allocate(level, 1)[0];
+        return allocate(level, 1, CommandBuffer::new)[0];
     }
 
     public LogicalDevice<?> getDevice() {

@@ -31,6 +31,13 @@
  */
 package com.jme3.util.functional;
 
+/**
+ *
+ * @param <R> result type
+ * @param <T> input type
+ * @deprecated use {@link java.util.function.Function} instead
+ */
+@Deprecated
 public interface Function<R,T> {
     R eval(T t);
 }

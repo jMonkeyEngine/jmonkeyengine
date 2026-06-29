@@ -1,10 +1,9 @@
 package com.jme3.util.struct;
 
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.alloc.MappingArena;
-import com.jme3.vulkan.alloc.Memory;
-
-import java.nio.ByteBuffer;
+import com.jme3.vulkan.alloc.MemoryAddress;
+import com.jme3.vulkan.buffer.BufferMapping;
+import com.jme3.vulkan.buffer.EngineBuffer;
 
 public class SubStructField <T extends Struct> implements StructField<T> {
 
@@ -31,25 +30,18 @@ public class SubStructField <T extends Struct> implements StructField<T> {
     }
 
     @Override
-    public ByteBuffer map(MappingArena arena) {
-        ByteBuffer buf = struct.map(arena);
-        return buf.position(buf.position() + offset);
+    public BufferMapping map() {
+        return struct.map().region(offset, struct.getSize());
     }
 
     @Override
-    public ByteBuffer map() {
-        ByteBuffer buf = struct.map();
-        return buf.position(buf.position() + offset);
+    public EngineBuffer getSourceBuffer() {
+        return struct.getSourceBuffer();
     }
 
     @Override
-    public void stage(long offset, long size) {
-        struct.stage(this.offset + offset, size);
-    }
-
-    @Override
-    public void stage() {
-        struct.stage(offset, alias.getSize());
+    public int size() {
+        return struct.getSize();
     }
 
     @Override
@@ -60,7 +52,7 @@ public class SubStructField <T extends Struct> implements StructField<T> {
     @Override
     public void setAlias(T value) {
         assert value != null : "Alias cannot be null.";
-        this.alias.bind((Memory)null);
+        this.alias.bind((MemoryAddress)null);
         this.alias = value;
         this.alias.bind(struct.getLayout());
         this.alias.bind(this);

@@ -1,8 +1,10 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.util.cache.Cache;
 import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.util.natives.*;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.material.experimental.ShaderBindingLayout;
 import com.jme3.vulkan.material.experimental.ShaderSetBuilder;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
@@ -16,9 +18,9 @@ import java.util.function.Consumer;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DescriptorSetLayout {
+public class DescriptorSetLayout implements ShaderBindingLayout {
 
-    public static final InlineTimedCache<DescriptorSetLayout, Handle> cache = new InlineTimedCache<>(TimeUnit.SECONDS.toMillis(2));
+    public static final Cache<DescriptorSetLayout, Handle> cache = new InlineTimedCache<>(TimeUnit.SECONDS.toMillis(2));
 
     private final Map<Integer, UniformBinding> bindings = new HashMap<>();
     private Handle handle;

@@ -36,7 +36,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.vulkan.JmePlatform;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.IndexType;

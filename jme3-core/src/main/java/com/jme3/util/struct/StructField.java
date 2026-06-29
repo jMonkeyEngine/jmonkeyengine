@@ -1,7 +1,6 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.alloc.Memory;
-import com.jme3.vulkan.alloc.MemoryPointer;
+import com.jme3.vulkan.alloc.MemoryAddress;
 
 import java.util.Objects;
 
@@ -11,7 +10,7 @@ import java.util.Objects;
  *
  * @param <T>
  */
-public interface StructField <T> extends Memory {
+public interface StructField <T> extends MemoryAddress {
 
     /**
      * Binds this field to the struct and memory offset.
@@ -83,6 +82,12 @@ public interface StructField <T> extends Memory {
         set(alias());
     }
 
+    /**
+     * Gets the name of this field.
+     *
+     * @return field name
+     * @throws NullPointerException if the name is null
+     */
     default String requireName() {
         String n = getName();
         if (n == null) {
@@ -91,6 +96,13 @@ public interface StructField <T> extends Memory {
         return n;
     }
 
+    /**
+     * Compares {@code value} against the value returned by {@link #get()}. If they are
+     * not {@link Objects#equals(Object, Object) equal}, then {@code value} is {@link #set(Object)}.
+     *
+     * @param value value to compare and set
+     * @return true if the value was set
+     */
     default boolean compareAndSet(T value) {
         T current = get();
         if (!Objects.equals(current, value)) {

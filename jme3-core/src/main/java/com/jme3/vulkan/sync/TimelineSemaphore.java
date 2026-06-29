@@ -115,10 +115,10 @@ public class TimelineSemaphore extends AbstractNative<Long> implements Semaphore
         }
 
         /**
-         * Blocks for the specified amount of time until this event is signaled. Note that
-         * if the time is set to zero, this method returns immediately.
+         * Blocks for the specified amount of time until this event is signaled.
+         * If {@code waitMillis} is zero, this method returns immediately.
          *
-         * @param waitMillis milliseconds to wait before a timeout occurs
+         * @param waitMillis milliseconds to wait before a timeout occurs (unless set to zero)
          * @return true if the event was signaled inside the specified wait time
          * @see #awaitSignal(MemoryStack, long)
          */
@@ -145,8 +145,15 @@ public class TimelineSemaphore extends AbstractNative<Long> implements Semaphore
                     .sType(VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO)
                     .pSemaphores(sem)
                     .pValues(vals);
-            return check(vkWaitSemaphores(device.getNativeObject(), wait, TimeUnit.MICROSECONDS.toNanos(waitTime)),
-                    "Error on semaphore wait.") == VK_SUCCESS;
+            int result = vkWaitSemaphores(device.getNativeObject(), wait, TimeUnit.MICROSECONDS.toNanos(waitTime));
+            if (waitTime == 0) {
+                return result == VK_SUCCESS;
+            }
+            if (result == VK_TIMEOUT) {
+                throw new RuntimeException("Semaphore wait timed out.");
+            }
+            check(result, "Error on semaphore wait.");
+            return true;
         }
 
     }

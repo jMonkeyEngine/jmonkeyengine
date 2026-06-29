@@ -2,12 +2,12 @@ package com.jme3.util.struct;
 
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.alloc.MappingArena;
-import com.jme3.vulkan.alloc.Memory;
-import com.jme3.vulkan.alloc.MemoryPointer;
+import com.jme3.vulkan.alloc.MemoryAddress;
+import com.jme3.vulkan.alloc.RelativeAddress;
+import com.jme3.vulkan.buffer.BufferMapping;
+import com.jme3.vulkan.buffer.EngineBuffer;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,54 +22,46 @@ import java.util.logging.Logger;
  * <p>Struct fields are expected to be added sometime during initialization through {@link #addFields(StructField[])}
  * and at no other point. Adding or altering fields post-initialization can result in undefined behavior.</p>
  *
- * <p>The precise layout represented by a Struct is determined by assigning {@link FieldDesc} to each
+ * <p>The precise layout represented by a Struct is determined by assigning {@link FieldDescription} to each
  * member field depending on their type from a specific {@link StructLayout}. Structs (unless otherwise
  * stated by an implementation) are initialized without a StructLayout assigned. Attempting to access
  * statistics or fields of a struct without a layout results in undefined behavior.</p>
  *
  * @param <T> field type accepted by the struct
  */
-public abstract class Struct <T extends StructField> implements MemoryPointer, Savable {
+public abstract class Struct <T extends StructField> implements RelativeAddress, Savable {
 
     protected static final Logger logger = Logger.getLogger(Struct.class.getName());
 
     private final List<T> fields = new LinkedList<>();
     protected StructLayout layout;
-    private Memory source;
+    private MemoryAddress parent;
     private int size, alignment;
 
     @Override
-    public void bind(Memory memory) {
-        this.source = memory;
+    public void bind(MemoryAddress parent) {
+        this.parent = parent;
     }
 
     @Override
-    public ByteBuffer map(MappingArena arena) {
-        assert source != null : "No memory bound.";
-        return source.map(arena);
+    public BufferMapping map() {
+        assert parent != null : "No memory bound.";
+        return parent.map().size(size);
     }
 
     @Override
-    public ByteBuffer map() {
-        assert source != null : "No memory bound.";
-        return source.map();
+    public EngineBuffer getSourceBuffer() {
+        return parent.getSourceBuffer();
     }
 
     @Override
-    public void stage(long offset, long size) {
-        assert source != null : "No memory bound.";
-        source.stage(offset, size);
+    public int size() {
+        return 0;
     }
 
     @Override
-    public void stage() {
-        assert source != null : "No memory bound.";
-        source.stage();
-    }
-
-    @Override
-    public Memory getBoundMemory() {
-        return source;
+    public MemoryAddress getParentAddress() {
+        return parent;
     }
 
     @Override
@@ -220,7 +212,7 @@ public abstract class Struct <T extends StructField> implements MemoryPointer, S
         private final String name;
         private T alias;
         private Struct struct;
-        private FieldDesc<T> description;
+        private FieldDescription<T> description;
         private int offset;
 
         public Field(T alias) {
@@ -241,31 +233,26 @@ public abstract class Struct <T extends StructField> implements MemoryPointer, S
         }
 
         @Override
-        public ByteBuffer map(MappingArena arena) {
-            ByteBuffer buf = struct.map(arena);
-            return buf.position(buf.position() + offset);
+        public BufferMapping map() {
+            return struct.map().region(offset, description.getSize(struct.getLayout(), alias));
         }
 
         @Override
-        public ByteBuffer map() {
-            ByteBuffer buf = struct.map();
-            return buf.position(buf.position() + offset);
+        public EngineBuffer getSourceBuffer() {
+            return null;
         }
 
         @Override
-        public void stage(long offset, long size) {
-            struct.stage(this.offset + offset, size);
-        }
-
-        @Override
-        public void stage() {
-            struct.stage(offset, description.getSize(struct.getLayout(), alias));
+        public int size() {
+            return 0;
         }
 
         @Override
         public void set(T value) {
             assert description != null : "Field not bound: unable to write.";
-            description.write(struct.getLayout(), struct.map(), value);
+            BufferMapping map = map();
+            description.write(struct.getLayout(), map.getBuffer(), value);
+            map.stage();
         }
 
         @Override
@@ -277,7 +264,7 @@ public abstract class Struct <T extends StructField> implements MemoryPointer, S
         @Override
         public T get() {
             assert description != null : "Field not bound: unable to read.";
-            return alias = description.read(struct.getLayout(), struct.map(), alias);
+            return alias = description.read(struct.getLayout(), map().getBuffer(), alias);
         }
 
         @Override
@@ -302,7 +289,7 @@ public abstract class Struct <T extends StructField> implements MemoryPointer, S
             return description.getAlignment(struct.getLayout(), alias);
         }
 
-        public FieldDesc<T> getDescription() {
+        public FieldDescription<T> getDescription() {
             return description;
         }
 

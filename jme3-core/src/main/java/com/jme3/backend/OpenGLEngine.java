@@ -10,7 +10,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;

@@ -43,7 +43,7 @@ public class MemoryRegion extends AbstractNative<Long> {
     }
 
     public void bind(VulkanBuffer buffer, long offset) {
-        check(vkBindBufferMemory(device.getNativeObject(), buffer.getBufferId(device), object, offset),
+        check(vkBindBufferMemory(device.getNativeObject(), buffer.getBufferHandle(device), object, offset),
                 "Failed to bind buffer memory.");
     }
 
@@ -105,7 +105,7 @@ public class MemoryRegion extends AbstractNative<Long> {
 
     public static MemoryRegion buildBufferMemory(MemoryStack stack, LogicalDevice<?> device, VulkanBuffer buffer, Consumer<Builder> config) {
         VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
-        vkGetBufferMemoryRequirements(device.getNativeObject(), buffer.getBufferId(device), memReq);
+        vkGetBufferMemoryRequirements(device.getNativeObject(), buffer.getBufferHandle(device), memReq);
         MemoryRegion mem = build(device, buffer.size().getBytes(), b -> {
             b.setUsableMemoryTypes(memReq.memoryTypeBits());
             config.accept(b);

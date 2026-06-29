@@ -4,7 +4,7 @@ import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.BasicVulkanBuffer;
-import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
