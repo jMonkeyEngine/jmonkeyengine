@@ -309,6 +309,17 @@ public abstract class JmeSystemDelegate implements HapticDevice {
         }
     }
 
+    public boolean isWaylandSession() {
+        Platform platform = getPlatform();
+        if (platform.getOs() == Platform.Os.Linux) {
+            // The following matches the test GLFW does to enable the Wayland backend.
+            if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE")) && System.getenv("WAYLAND_DISPLAY") != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public String getBuildInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("Running on ").append(getFullName()).append("\n");

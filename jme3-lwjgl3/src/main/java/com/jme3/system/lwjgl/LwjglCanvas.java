@@ -41,6 +41,7 @@ import com.jme3.input.lwjgl.SdlJoystickInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
 import com.jme3.system.JmeCanvasContext;
+import com.jme3.system.JmeSystem;
 import com.jme3.system.lwjglx.LwjglxGLPlatform;
 
 import java.awt.AWTException;
@@ -465,7 +466,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 .append('.')
                 .append(canvas.data.minorVersion);
 
-        String driver = isWayland() ? "(XWayland|X11) GLX" : "X11 GLX";
+        String driver = JmeSystem.isWaylandSession() ? "(XWayland|X11) GLX" : "X11 GLX";
 
         Platform platform = Platform.get();
         if (null == platform) {
@@ -704,14 +705,16 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     @Override
     protected void createContext(AppSettings settings) {
-        if (!settings.isX11PlatformPreferred() && isWayland()) {
+        boolean linux = Platform.get() == Platform.LINUX || 
+                        Platform.get() == Platform.FREEBSD;
+        if (!settings.isX11PlatformPreferred() && linux && JmeSystem.isWaylandSession()) {
             LOGGER.log(Level.WARNING, "LWJGLX and AWT/Swing only work with X11, so XWayland will be used for GLX.");
         }
 
         // HACK: For LWJGLX to work in Wyland, it is necessary to use GLX via
         //       XWayland, so LWJGL must be forced to load GLX as a native API.
         //       This is because LWJGLX does not provide an EGL context.
-        if (isWayland()) {
+        if (linux && JmeSystem.isWaylandSession()) {
             Configuration.OPENGL_CONTEXT_API.set("native");
         }
 
