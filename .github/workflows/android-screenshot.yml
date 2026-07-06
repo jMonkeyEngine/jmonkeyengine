@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v6.0.3
       - name: Setup the java environment
         uses: actions/setup-java@v5
         with:
