@@ -72,7 +72,7 @@ jobs:
           EOF
           chmod +x android-test-script.sh
       - name: Run Android Screenshot Test
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.37.0
         with:
           api-level: 35
           avd-name: test_avd
