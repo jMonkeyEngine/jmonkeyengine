@@ -67,7 +67,7 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
       - name: Run Checkstyle
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
@@ -94,7 +94,7 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
       - name: Run SpotBugs
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
@@ -121,7 +121,7 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
       - name: Run Javadoc doclint
         run: |
           ./gradlew -PenableJavadocError=true javadoc mergedJavadoc --console=plain --stacktrace
@@ -159,7 +159,7 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
       - name: Test with Gradle Wrapper
         run: |
           for attempt in 1 2 3; do
@@ -211,7 +211,7 @@ jobs:
           java-version: 25
           
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
     
       - name: Build iOS examples
         shell: bash
@@ -251,7 +251,7 @@ jobs:
           java-version: ${{ matrix.jdk }}
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.2.0
       - name: Build Engine
         shell: bash
         run: |
