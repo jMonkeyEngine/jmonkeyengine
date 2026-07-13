@@ -91,7 +91,7 @@ saferalloc-natives-ios = { module = "org.ngengine:saferalloc-natives-ios", versi
 
 extent-reports = { module = "com.aventstack:extentreports", version = "5.1.2"}
 
-jackson = {module = "tools.jackson.core:jackson-databind", version ="3.1.3"}
+jackson = {module = "tools.jackson.core:jackson-databind", version ="3.2.0"}
 
 [bundles]
 saferalloc = ["saferalloc", "saferalloc-natives-linux-x8664", "saferalloc-natives-linux-aarch64", "saferalloc-natives-windows-x8664", "saferalloc-natives-windows-aarch64", "saferalloc-natives-macos-x8664", "saferalloc-natives-macos-aarch64", "saferalloc-natives-android", "saferalloc-natives-ios"]
