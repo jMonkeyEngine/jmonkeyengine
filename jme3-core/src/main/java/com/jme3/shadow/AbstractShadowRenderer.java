@@ -48,6 +48,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -289,6 +290,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             throw new IllegalArgumentException("Shadow compare mode cannot be null");
         }
 
+        compareMode = resolveShadowCompareMode(compareMode);
         this.shadowCompareMode = compareMode;
         for (Texture2D shadowMap : shadowMaps) {
             if (compareMode == CompareMode.Hardware) {
@@ -307,6 +309,14 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             }
         }
         postshadowMat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
+    }
+
+    private CompareMode resolveShadowCompareMode(CompareMode requestedMode) {
+        if (requestedMode == CompareMode.Hardware && renderManager != null
+                && !renderManager.getRenderer().getCaps().contains(Caps.TextureShadowCompare)) {
+            return CompareMode.Software;
+        }
+        return requestedMode;
     }
 
     /**
@@ -368,6 +378,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
+        setShadowCompareMode(shadowCompareMode);
         postTechniqueName = "PostShadow";
         if (zFarOverride > 0 && frustumCam == null) {
             initFrustumCam();
