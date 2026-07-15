@@ -265,6 +265,11 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
+    @Override
+    public AppSettings getSettings() {
+        return settings;
+    }
+
     /**
      * Sets the Timer implementation that will be used for calculating
      * frame times.  By default, Application will use the Timer as returned

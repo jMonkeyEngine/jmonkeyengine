@@ -89,7 +89,9 @@ public class IGLESContext implements JmeContext {
     protected SystemListener listener;
     protected IosInputHandler input;
     protected IosJoyInput joyInput;
-    protected int minFrameDuration = 0; // No FPS cap
+    protected long minFrameDurationNanos;
+    protected long lastFrameTimeNanos;
+    private boolean allowSwapBuffers = true;
     private Application application;
     private Material blitMaterial;
     private Picture blitGeometry;
@@ -135,6 +137,11 @@ public class IGLESContext implements JmeContext {
     public void setSettings(AppSettings settings) {
         logger.log(Level.FINE, "IGLESContext setSettings");
         this.settings.copyFrom(settings);
+        allowSwapBuffers = settings.isSwapBuffers();
+        minFrameDurationNanos = settings.getFrameRate() > 0
+                ? 1_000_000_000L / settings.getFrameRate()
+                : 0;
+        lastFrameTimeNanos = 0;
         if (input != null) {
             input.loadSettings(settings);
         }
@@ -229,13 +236,24 @@ public class IGLESContext implements JmeContext {
         if (listener instanceof Application) {
             application = (Application) listener;
         }
-        IosGL gl = new IosGL();
+        GL gl = new IosGL();
 
-        if (settings.getBoolean("GraphicsDebug")) {
-            gl = (IosGL) GLDebug.createProxy(gl, gl, GL.class, GLExt.class, GLFbo.class);
+        if (settings.isGraphicsDebug()) {
+            gl = (GL) GLDebug.createProxy(
+                    gl, gl, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
+        }
+        if (settings.isGraphicsTiming()) {
+            GLTimingState timingState = new GLTimingState();
+            gl = (GL) GLTiming.createGLTiming(
+                    gl, timingState, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
+        }
+        if (settings.isGraphicsTrace()) {
+            gl = (GL) GLTracer.createGlesTracer(
+                    gl, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
         }
 
-        renderer = new GLRenderer(gl, gl, gl);
+        renderer = new GLRenderer(gl, (GLExt) gl, (GLFbo) gl);
+        renderer.setDebugEnabled(settings.isGraphicsDebug());
         renderer.initialize();
         // ANGLE/Metal currently reports GLES3 but cannot reliably use hardware
         // shadow comparison through jME's shadow pipeline.
@@ -276,6 +294,9 @@ public class IGLESContext implements JmeContext {
         if (!created.get() || listener == null) {
             return;
         }
+        if (!isFrameDue()) {
+            return;
+        }
         if (!LibJGLIOSEglBridge.makeCurrent()) {
             throw new IllegalStateException("Unable to make iOS EGL context current: " + LibJGLIOSEglBridge.lastError());
         }
@@ -284,12 +305,24 @@ public class IGLESContext implements JmeContext {
         if (!renderFrameWithBlitSrgbConversion()) {
             listener.update();
         }
-        if (autoFlush) {
+        if (autoFlush && allowSwapBuffers) {
             LibJGLIOSEglBridge.swapBuffers();
         }
         if (renderer != null) {
             renderer.postFrame();
         }
+    }
+
+    private boolean isFrameDue() {
+        if (minFrameDurationNanos <= 0) {
+            return true;
+        }
+        long now = System.nanoTime();
+        if (lastFrameTimeNanos != 0 && now - lastFrameTimeNanos < minFrameDurationNanos) {
+            return false;
+        }
+        lastFrameTimeNanos = now;
+        return true;
     }
 
     public void resizeFramebuffer(int width, int height) {
@@ -427,9 +460,9 @@ public class IGLESContext implements JmeContext {
     }
 
     private boolean useBlitFrameBuffer() {
-        float mode = settings.getDisplayScaleMode();
         return application != null && (useBlitSrgbConversion()
-                || DisplayScaleUtils.isDisabledMode(mode) || DisplayScaleUtils.isEmulatedScaleMode(mode));
+                || getRenderFramebufferWidth() != framebufferWidth
+                || getRenderFramebufferHeight() != framebufferHeight);
     }
 
     private int getRenderFramebufferWidth() {

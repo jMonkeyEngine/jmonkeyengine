@@ -315,10 +315,17 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                     GLExt.class
                 );
         }
+        if (settings.getBoolean("GraphicsTiming")) {
+            GLTimingState timingState = new GLTimingState();
+            gl = (GL) GLTiming.createGLTiming(
+                    gl, timingState, GL.class, GL2.class, GLES_30.class, GLFbo.class, GLExt.class);
+        }
         if (settings.getBoolean("GraphicsTrace")) {
-            gl = (GL) GLTracer.createGlesTracer(gl, GL.class, GLES_30.class, GLFbo.class, GLExt.class);
+            gl = (GL) GLTracer.createGlesTracer(
+                    gl, GL.class, GL2.class, GLES_30.class, GLFbo.class, GLExt.class);
         }
         renderer = new GLRenderer(gl, (GLExt) gl, (GLFbo) gl);
+        renderer.setDebugEnabled(settings.isGraphicsDebug());
         renderer.initialize();
 
         boolean blitSrgbConversion = useBlitSrgbConversion();
@@ -607,9 +614,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     private boolean useBlitFrameBuffer() {
-        float mode = settings.getDisplayScaleMode();
         return application != null && (useBlitSrgbConversion()
-                || DisplayScaleUtils.isDisabledMode(mode) || DisplayScaleUtils.isEmulatedScaleMode(mode));
+                || getRenderFramebufferWidth() != framebufferWidth
+                || getRenderFramebufferHeight() != framebufferHeight);
     }
 
     private int getRenderFramebufferWidth() {
