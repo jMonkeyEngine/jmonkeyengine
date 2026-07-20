@@ -2,10 +2,13 @@ package com.jme3.util.struct;
 
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.alloc.MemoryAddress;
-import com.jme3.vulkan.alloc.RelativeAddress;
-import com.jme3.vulkan.buffer.BufferMapping;
+import com.jme3.vulkan.alloc.RelativeBuffer;
+import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,39 +32,75 @@ import java.util.logging.Logger;
  *
  * @param <T> field type accepted by the struct
  */
-public abstract class Struct <T extends StructField> implements RelativeAddress, Savable {
+public abstract class Struct <T extends StructField> implements RelativeBuffer, Savable {
 
     protected static final Logger logger = Logger.getLogger(Struct.class.getName());
 
     private final List<T> fields = new LinkedList<>();
     protected StructLayout layout;
-    private MemoryAddress parent;
-    private int size, alignment;
+    protected int size, alignment;
+    private EngineBuffer parent;
 
     @Override
-    public void bind(MemoryAddress parent) {
+    public void update(CommandBuffer cmd) {
+        if (parent != null) {
+            parent.update(cmd);
+        }
+    }
+
+    @Override
+    public DataBuffer cache() {
+        return parent.cache();
+    }
+
+    @Override
+    public void bind(EngineBuffer parent) {
         this.parent = parent;
     }
 
     @Override
-    public BufferMapping map() {
-        assert parent != null : "No memory bound.";
-        return parent.map().size(size);
+    public void flushCache() {
+        parent.flushCache();
     }
 
     @Override
-    public EngineBuffer getSourceBuffer() {
-        return parent.getSourceBuffer();
+    public void invalidateCache() {
+        parent.invalidateCache();
     }
 
     @Override
-    public int size() {
-        return 0;
+    public int capacity() {
+        return size;
     }
 
     @Override
-    public MemoryAddress getParentAddress() {
-        return parent;
+    public int getInternalOffset() {
+        return parent.getInternalOffset();
+    }
+
+    @Override
+    public long getHandle() {
+        return parent.getHandle();
+    }
+
+    @Override
+    public long getDeviceAddress() {
+        return parent.getDeviceAddress();
+    }
+
+    @Override
+    public Flag<BufferRole> getRoles() {
+        return parent.getRoles();
+    }
+
+    @Override
+    public Flag<MemoryProp> getMemoryProperties() {
+        return parent.getMemoryProperties();
+    }
+
+    @Override
+    public boolean isDeviceAccessible() {
+        return parent.isDeviceAccessible();
     }
 
     @Override
@@ -86,9 +125,26 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         }
     }
 
+    /**
+     * Adds fields to this struct in order. This should only be performed during initialization.
+     *
+     * @param fields fields to add
+     */
     @SafeVarargs
     protected final void addFields(T... fields) {
         this.fields.addAll(Arrays.asList(fields));
+    }
+
+    /**
+     * Adds a field to this struct in order. This should only be performed during initialization.
+     *
+     * @param field field to add
+     * @return added field
+     * @param <F> field type
+     */
+    protected final <F extends T> F addField(F field) {
+        fields.add(field);
+        return field;
     }
 
     /**
@@ -97,13 +153,11 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
      *
      * @param layout layout
      */
-    public <E extends Struct> E bind(StructLayout layout) {
-        if (this.layout == layout) {
-            return (E)this;
+    public void bind(StructLayout layout) {
+        if (this.layout != layout) {
+            this.layout = layout;
+            computeOffsets();
         }
-        this.layout = layout;
-        computeOffsets();
-        return (E)this;
     }
 
     /**
@@ -132,23 +186,25 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         this.size = 0;
         this.alignment = layout.getMinStructAlignment();
         for (T f : fields) {
-            size = f.bind(this, size) + f.getSize();
+            size = f.bind(this, size) + f.capacity();
             alignment = Math.max(alignment, f.getAlignment());
         }
         size = FastMath.toMultipleOf(size, alignment);
     }
 
+    @SuppressWarnings("unchecked")
     public void set(Struct struct) {
-        ListIterator<T> dst = fields.listIterator();
-        ListIterator<StructField> src = struct.getFields().listIterator();
+        Iterator<T> dst = fields.iterator();
+        Iterator<StructField> src = struct.getFields().iterator();
         while (dst.hasNext() && src.hasNext()) {
             dst.next().set(src.next().get());
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void setFromAlias(Struct struct) {
-        ListIterator<T> dst = fields.listIterator();
-        ListIterator<StructField> src = struct.getFields().listIterator();
+        Iterator<T> dst = fields.iterator();
+        Iterator<StructField> src = struct.getFields().iterator();
         while (dst.hasNext() && src.hasNext()) {
             dst.next().set(src.next().alias());
         }
@@ -226,6 +282,11 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         }
 
         @Override
+        public DataBuffer cache() {
+            return struct.cache().offset(offset);
+        }
+
+        @Override
         public int bind(Struct struct, int offset) {
             this.struct = struct;
             this.description = struct.getLayout().getFieldDescription(alias.getClass());
@@ -233,30 +294,28 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         }
 
         @Override
-        public BufferMapping map() {
-            return struct.map().region(offset, description.getSize(struct.getLayout(), alias));
+        public Struct getBoundStruct() {
+            return struct;
         }
 
         @Override
-        public EngineBuffer getSourceBuffer() {
-            return null;
+        public int capacity() {
+            return description.getSize();
         }
 
         @Override
-        public int size() {
-            return 0;
+        public int getInternalOffset() {
+            return struct.getInternalOffset() + offset;
         }
 
         @Override
         public void set(T value) {
             assert description != null : "Field not bound: unable to write.";
-            BufferMapping map = map();
-            description.write(struct.getLayout(), map.getBuffer(), value);
-            map.stage();
+            description.write(cache(), value);
         }
 
         @Override
-        public void setAlias(T value) {
+        public void alias(T value) {
             assert alias != null : "Alias cannot be null.";
             this.alias = value;
         }
@@ -264,7 +323,7 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         @Override
         public T get() {
             assert description != null : "Field not bound: unable to read.";
-            return alias = description.read(struct.getLayout(), map().getBuffer(), alias);
+            return alias = description.read(cache(), alias);
         }
 
         @Override
@@ -278,15 +337,14 @@ public abstract class Struct <T extends StructField> implements RelativeAddress,
         }
 
         @Override
-        public int getSize() {
-            assert description != null : "Struct not bound to a layout: size unknown.";
-            return description.getSize(struct.getLayout(), alias);
+        public int getAlignment() {
+            assert description != null : "Struct not bound to a layout: alignment unknown.";
+            return description.getAlignment();
         }
 
         @Override
-        public int getAlignment() {
-            assert description != null : "Struct not bound to a layout: alignment unknown.";
-            return description.getAlignment(struct.getLayout(), alias);
+        public boolean isDeviceAccessible() {
+            return struct.isDeviceAccessible();
         }
 
         public FieldDescription<T> getDescription() {

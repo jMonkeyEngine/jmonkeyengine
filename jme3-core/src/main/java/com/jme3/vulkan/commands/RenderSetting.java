@@ -3,6 +3,7 @@ package com.jme3.vulkan.commands;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+@Deprecated
 public abstract class RenderSetting<T> {
 
     private final Deque<T> states = new ArrayDeque<>();

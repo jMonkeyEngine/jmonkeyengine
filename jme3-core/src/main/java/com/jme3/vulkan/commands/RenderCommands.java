@@ -1,18 +1,30 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.renderer.ScissorArea;
-import com.jme3.renderer.ViewPortArea;
-import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
+import com.jme3.vulkan.buffer.BufferTracker;
+import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.EngineBuffer;
 
-import java.util.function.Consumer;
+import java.nio.ByteBuffer;
 
+@Deprecated
 public interface RenderCommands {
 
-    void cmdSetViewPort(ViewPortArea area);
+    OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, int size, OpLocation location);
 
-    void cmdSetScissor(ScissorArea area);
+    OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, OpLocation location);
+
+    OpLocation cmdFlatCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, boolean flatten, OpLocation location);
+
+    void cmdStreamToRemote(ByteBuffer src, EngineBuffer dst, BufferTracker regions);
+
+    default void cmdStreamToRemote(DataBuffer src, EngineBuffer dst) {
+        cmdStreamToRemote(src.getBytes(), dst, src.getTracker());
+    }
+
+    void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst, Runnable callback);
+
+    default void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst) {
+        cmdStreamFromRemote(src, dst, null);
+    }
 
 }

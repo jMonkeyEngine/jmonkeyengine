@@ -39,7 +39,7 @@ import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferUsage;
+import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -59,7 +59,7 @@ public class JointShape extends AdaptiveMesh {
         shape.setVertexCount(4, 0);
         shape.setInstanceCount(1, 0);
         VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
         shape.addVertexBuffer(buffer);
         float width = 1;
         float height = 1;
@@ -87,7 +87,7 @@ public class JointShape extends AdaptiveMesh {
             v.color.set(ColorRGBA.White);
         }
         IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                6L * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+                6L * Short.BYTES, BufferRole.Index, UpdateHint.Static));
         shape.setBaseIndexBuffer(index);
         try (BufferMapping m = index.map()) {
             m.getShorts().put(new short[]{0, 1, 2, 0, 2, 3});

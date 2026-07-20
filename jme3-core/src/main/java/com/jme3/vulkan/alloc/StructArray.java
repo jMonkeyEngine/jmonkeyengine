@@ -2,45 +2,101 @@ package com.jme3.vulkan.alloc;
 
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
-import com.jme3.vulkan.buffer.BufferMapping;
+import com.jme3.util.struct.StructuredArray;
+import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-public class StructArray <T extends Struct> implements RelativeAddress, Iterable<T> {
+public class StructArray <T extends Struct> implements StructuredArray<T>, RelativeBuffer, Iterable<T> {
 
-    private final IndexedStruct<T> sharedStruct;
+    private final int length;
+    private final Index<T> sharedStruct;
     private final int stride;
-    private int length;
-    private MemoryAddress source;
+    private int currentIndex = 0;
+    private EngineBuffer source;
 
-    public StructArray(T struct, int length) {
+    public StructArray(int length, T struct) {
         this.length = length;
-        sharedStruct = new IndexedStruct<>(struct);
+        sharedStruct = new Index<>(struct);
         sharedStruct.getPointer().bind(this);
         stride = sharedStruct.getStruct().getAlignedSize();
     }
 
-    public StructArray(T struct, int length, MemoryAddress source) {
-        this(struct, length);
+    public StructArray(int length, T struct, EngineBuffer source) {
+        this(length, struct);
         bind(source);
     }
 
-    @Override
-    public BufferMapping map() {
-        assert source != null : "No memory bound.";
-        return source.map().region(0, length * stride);
+    public static <T extends Struct> StructArray<T> directBuffer(int length, T struct) {
+        return new StructArray<>(length, struct, new DataBuffer(ByteBuffer.wrap(new byte[length * struct.getAlignedSize()])));
     }
 
     @Override
-    public void bind(MemoryAddress parent) {
+    public void update(CommandBuffer cmd) {
+        source.update(cmd);
+    }
+
+    @Override
+    public boolean isDeviceAccessible() {
+        return source.isDeviceAccessible();
+    }
+
+    @Override
+    public DataBuffer cache() {
+        return source.cache();
+    }
+
+    @Override
+    public void bind(EngineBuffer parent) {
         this.source = parent;
     }
 
     @Override
-    public MemoryAddress getParentAddress() {
-        return source;
+    public void flushCache() {
+        source.flushCache();
+    }
+
+    @Override
+    public void invalidateCache() {
+        source.invalidateCache();
+    }
+
+    @Override
+    public int capacity() {
+        return length * stride;
+    }
+
+    @Override
+    public int getInternalOffset() {
+        return source.getInternalOffset();
+    }
+
+    @Override
+    public long getHandle() {
+        return source.getHandle();
+    }
+
+    @Override
+    public long getDeviceAddress() {
+        return source.getDeviceAddress();
+    }
+
+    @Override
+    public Flag<BufferRole> getRoles() {
+        return source.getRoles();
+    }
+
+    @Override
+    public Flag<MemoryProp> getMemoryProperties() {
+        return source.getMemoryProperties();
     }
 
     @Override
@@ -48,17 +104,8 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
         return new SharedIteratorImpl();
     }
 
-    protected IndexedStruct<T> getSharedStruct() {
+    protected Index<T> getSharedStruct() {
         return sharedStruct;
-    }
-
-    /**
-     * Resizes this array to the specified length.
-     *
-     * @param length length in structs to resize to
-     */
-    public void setLength(int length) {
-        this.length = length;
     }
 
     /**
@@ -71,13 +118,22 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
      * @param index index to bind at
      * @return shared indexed struct
      */
+    @Override
     public T index(int index) {
-        if (index >= length) {
-            throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + length);
-        }
-        IndexedStruct<T> i = getSharedStruct();
+        Index<T> i = getSharedStruct();
         i.getPointer().setOffset(index * stride);
+        this.currentIndex = index;
         return i.getStruct();
+    }
+
+    @Override
+    public int getIndex() {
+        return currentIndex;
+    }
+
+    @Override
+    public int getLength() {
+        return length;
     }
 
     /**
@@ -89,9 +145,6 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
      * @param <E> struct type
      */
     public <E extends Struct> E index(int index, E struct) {
-        if (index >= length) {
-            throw new IndexOutOfBoundsException("Index " + index + " out of bounds for length " + length);
-        }
         OffsetPointer ptr = new OffsetPointer(index * stride);
         ptr.bind(this);
         struct.bind(ptr);
@@ -123,24 +176,6 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
     }
 
     /**
-     * Gets the length of this array.
-     *
-     * @return array length in structs
-     */
-    public int length() {
-        return length;
-    }
-
-    /**
-     * Gets the size of this array in bytes.
-     *
-     * @return array size in bytes
-     */
-    public int getByteSize() {
-        return stride * length;
-    }
-
-    /**
      * Gets the byte offset at the specified index.
      *
      * @param index index
@@ -159,9 +194,9 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
         return stride;
     }
 
-    public static class Field <F extends StructField> implements MemoryAddress, Iterable<F> {
+    public static class Field <F extends StructField> implements EngineBuffer, Iterable<F> {
 
-        private final StructArray array;
+        private final StructArray<?> array;
         private final IntFunction<F> field;
 
         protected Field(StructArray array, IntFunction<F> field) {
@@ -170,8 +205,58 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
         }
 
         @Override
-        public BufferMapping map() {
-            return array.map();
+        public void update(CommandBuffer cmd) {
+            array.update(cmd);
+        }
+
+        @Override
+        public boolean isDeviceAccessible() {
+            return array.isDeviceAccessible();
+        }
+
+        @Override
+        public DataBuffer cache() {
+            return array.cache();
+        }
+
+        @Override
+        public void flushCache() {
+            array.flushCache();
+        }
+
+        @Override
+        public void invalidateCache() {
+            array.flushCache();
+        }
+
+        @Override
+        public int capacity() {
+            return array.capacity();
+        }
+
+        @Override
+        public int getInternalOffset() {
+            return array.getInternalOffset();
+        }
+
+        @Override
+        public long getHandle() {
+            return array.getHandle();
+        }
+
+        @Override
+        public long getDeviceAddress() {
+            return array.getDeviceAddress();
+        }
+
+        @Override
+        public Flag<BufferRole> getRoles() {
+            return array.getRoles();
+        }
+
+        @Override
+        public Flag<MemoryProp> getMemoryProperties() {
+            return array.getMemoryProperties();
         }
 
         @Override
@@ -193,7 +278,7 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
 
             @Override
             public boolean hasNext() {
-                return index < array.length();
+                return index < array.getLength();
             }
 
             @Override
@@ -205,15 +290,20 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
 
     }
 
-    protected static class IndexedStruct <T extends Struct> {
+    protected static class Index <T extends Struct> {
 
         private final T struct;
         private final OffsetPointer ptr;
 
-        public IndexedStruct(T struct) {
+        public Index(T struct) {
             this.struct = struct;
             this.ptr = new OffsetPointer(0);
             this.struct.bind(ptr);
+        }
+
+        public Index(T struct, int offset) {
+            this(struct);
+            ptr.setOffset(offset);
         }
 
         public T getStruct() {
@@ -229,6 +319,7 @@ public class StructArray <T extends Struct> implements RelativeAddress, Iterable
     private class SharedIteratorImpl implements Iterator<T> {
 
         private int index = 0;
+        private final int length = getLength();
 
         @Override
         public boolean hasNext() {

@@ -1,7 +1,8 @@
 
 package com.jme3.backend;
 
-import com.jme3.vulkan.buffer.BufferUsage;
+import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.descriptors.UniformBinding;
@@ -19,7 +20,7 @@ public interface Engine {
 
     RenderSession createRenderSession(float tpf);
 
-    MappableBuffer createBuffer(long bytes, Flag<BufferUsage> usage, UpdateHint update);
+    EngineBuffer createBuffer(long bytes, Flag<BufferRole> usage, UpdateHint update);
 
     ShaderBindingSet createShaderSet(Map<Integer, UniformBinding> bindings);
 

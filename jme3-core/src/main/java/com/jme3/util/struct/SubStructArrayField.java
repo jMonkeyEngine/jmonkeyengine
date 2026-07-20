@@ -1,10 +1,9 @@
 package com.jme3.util.struct;
 
 import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.BufferMapping;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.DataBuffer;
 
-public class SubStructArrayField <T extends Struct> implements StructField<StructArray<T>> {
+public class SubStructArrayField <T extends Struct> implements StructField<StructArray<T>>, StructuredArray<T> {
 
     private final String name;
     private StructArray<T> alias;
@@ -29,31 +28,26 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
             a.bind(struct.getLayout());
         }
         alignment = Math.max(alias.getStruct().getAlignment(), struct.getLayout().getMinStructAlignment());
-        return this.offset = offset + alias.getByteSize();
+        return this.offset = offset + alias.capacity();
     }
 
     @Override
-    public BufferMapping map() {
-        return struct.map().offset(offset);
+    public Struct getBoundStruct() {
+        return struct;
     }
 
     @Override
-    public EngineBuffer getSourceBuffer() {
-        return struct.getSourceBuffer();
-    }
-
-    @Override
-    public int size() {
-        return alias.size();
+    public DataBuffer cache() {
+        return struct.cache().offset(offset);
     }
 
     @Override
     public void set(StructArray<T> value) {
-        setAlias(value);
+        alias(value);
     }
 
     @Override
-    public void setAlias(StructArray<T> value) {
+    public void alias(StructArray<T> value) {
         assert alias != null : "Alias cannot be null.";
         alias.bind(null);
         alias = value;
@@ -76,8 +70,8 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
     }
 
     @Override
-    public int getSize() {
-        return alias.getByteSize();
+    public int capacity() {
+        return alias.capacity();
     }
 
     @Override
@@ -85,8 +79,24 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
         return alignment;
     }
 
+    @Override
+    public int getInternalOffset() {
+        return struct.getInternalOffset() + offset;
+    }
+
+    @Override
     public T index(int index) {
         return alias.index(index);
+    }
+
+    @Override
+    public int getIndex() {
+        return alias.getIndex();
+    }
+
+    @Override
+    public int getLength() {
+        return alias.getLength();
     }
 
     public <E extends Struct> E index(int index, E struct) {

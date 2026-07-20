@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK14.*;
 
 public class CommandQueue {
 

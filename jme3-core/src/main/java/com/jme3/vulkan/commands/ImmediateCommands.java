@@ -8,14 +8,14 @@ import org.lwjgl.vulkan.VkCommandBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class ImmediateCommandStream {
+public class ImmediateCommands {
 
     private final CommandPool pool;
     private final int maxAlloc;
     private final Deque<CachedCmdBuffer> buffers = new LinkedList<>();
     private int numAllocs = 0;
 
-    public ImmediateCommandStream(CommandPool pool) {
+    public ImmediateCommands(CommandPool pool) {
         this(pool, 64);
     }
 
@@ -24,7 +24,7 @@ public class ImmediateCommandStream {
      * @param pool allocating command pool
      * @param maxAlloc maximum number of buffers that may be allocated (unbounded if not positive)
      */
-    public ImmediateCommandStream(CommandPool pool, int maxAlloc) {
+    public ImmediateCommands(CommandPool pool, int maxAlloc) {
         assert pool.getFlags().contains(CommandPool.Create.ResetCommandBuffer) : "Command pool must allow buffers to be reset.";
         this.pool = pool;
         this.maxAlloc = maxAlloc;
@@ -41,7 +41,9 @@ public class ImmediateCommandStream {
     public CommandBuffer acquire() {
         CachedCmdBuffer cmd = buffers.peek();
         if (cmd == null || (!cmd.event.signaled() && (maxAlloc <= 0 || numAllocs < maxAlloc))) {
-            cmd = pool.allocate(CommandBuffer.Level.Primary, CachedCmdBuffer::new);
+            synchronized (pool) {
+                cmd = pool.allocate(CommandBuffer.Level.Primary, CachedCmdBuffer::new);
+            }
             numAllocs++;
         } else {
             (cmd = buffers.poll()).event.awaitSignal(TimeUnit.SECONDS.toMillis(5));
@@ -60,22 +62,20 @@ public class ImmediateCommandStream {
 
     private class CachedCmdBuffer extends CommandBuffer {
 
-        private final TimelineSemaphore signal;
         private TimelineSemaphore.SignalEvent event;
 
         public CachedCmdBuffer(CommandPool pool, VkCommandBuffer handle) {
             super(pool, handle);
-            this.signal = new TimelineSemaphore(pool.getDevice(), 0);
         }
 
         @Override
         public void submit(Fence fence) {
-            event = signalEvent(signal);
             if (!buffers.isEmpty()) {
-                await(buffers.peekLast().signal, PipelineStage.AllCommands);
+                await(buffers.peekLast().getCompletionSignal(), PipelineStage.AllCommands);
             }
             buffers.add(this);
             super.submit(fence);
+            event = getCompletionSignal().createEvent();
         }
 
     }

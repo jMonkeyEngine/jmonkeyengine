@@ -41,6 +41,7 @@ import com.jme3.vulkan.sync.BinarySemaphore;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
+import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
@@ -107,9 +108,11 @@ public class SimpleVulkanEngine implements Engine {
             d.addCriticalExtension(Swapchain.EXTENSION_NAME);
             d.addCriticalExtension(EXTMemoryBudget.VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
             d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f);
-            d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
             d.addFeature(DeviceFeature.anisotropy(1f));
+            d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
             d.addFeature(DeviceFeature.nullDescriptor(1f));
+            d.addFeatureContainer(p -> VkPhysicalDeviceBufferAddressFeaturesEXT.calloc().pNext(p));
+            d.addFeature(DeviceFeature.bufferAddressing(null));
             if (instance.getApiVersion().getEnum() < VulkanInstance.Version.v13.getEnum()) {
                 d.addFeatureContainer(p -> VkPhysicalDeviceDynamicRenderingFeatures.calloc().pNext(p));
                 d.addFeature(DeviceFeature.dynamicRendering(null));
@@ -245,7 +248,7 @@ public class SimpleVulkanEngine implements Engine {
                     //b.setupRender(vp, settings);
                     //settings.applySettings();
                     for (ShadingTechnique t : techniques) {
-                        t.render(this, vp, b);
+                        t.update(this, vp, b);
                         if (b.isEmpty()) {
                             break;
                         }

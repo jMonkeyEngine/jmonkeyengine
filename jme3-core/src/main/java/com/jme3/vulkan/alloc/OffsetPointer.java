@@ -3,9 +3,9 @@ package com.jme3.vulkan.alloc;
 import com.jme3.vulkan.buffer.BufferMapping;
 import com.jme3.vulkan.buffer.EngineBuffer;
 
-public class OffsetPointer implements RelativeAddress {
+public class OffsetPointer implements RelativeBuffer {
 
-    private MemoryAddress parent;
+    private Memory parent;
     private int offset;
 
     public OffsetPointer(int offset) {
@@ -23,12 +23,12 @@ public class OffsetPointer implements RelativeAddress {
     }
 
     @Override
-    public void bind(MemoryAddress parent) {
+    public void bind(Memory parent) {
         this.parent = parent;
     }
 
     @Override
-    public MemoryAddress getParentAddress() {
+    public Memory getParentAddress() {
         return parent;
     }
 

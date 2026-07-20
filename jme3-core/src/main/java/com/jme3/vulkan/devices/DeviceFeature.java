@@ -1,9 +1,7 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.util.PNextChain;
-import org.lwjgl.vulkan.VkPhysicalDeviceDynamicRenderingFeatures;
-import org.lwjgl.vulkan.VkPhysicalDeviceFeatures2;
-import org.lwjgl.vulkan.VkPhysicalDeviceRobustness2FeaturesEXT;
+import org.lwjgl.vulkan.*;
 
 public interface DeviceFeature {
 
@@ -48,6 +46,20 @@ public interface DeviceFeature {
             @Override
             public void enableFeature(PNextChain features) {
                 features.get(VkPhysicalDeviceDynamicRenderingFeatures.class, f -> f.dynamicRendering(true));
+            }
+        };
+    }
+
+    static DeviceFeature bufferAddressing(Float pass) {
+        return new BooleanDeviceFeature(pass) {
+            @Override
+            protected boolean isFeatureSupported(PNextChain features) {
+                return features.get(VkPhysicalDeviceBufferAddressFeaturesEXT.class, false,
+                        VkPhysicalDeviceBufferDeviceAddressFeaturesEXT::bufferDeviceAddress);
+            }
+            @Override
+            public void enableFeature(PNextChain features) {
+                features.get(VkPhysicalDeviceBufferAddressFeaturesEXT.class, f -> f.bufferDeviceAddress(true));
             }
         };
     }

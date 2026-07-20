@@ -20,7 +20,7 @@ import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.texture.ImageView;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.buffer.BufferUsage;
+import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
@@ -255,7 +255,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 s -> new OldPersistentBuffer(device, s));
         for (OldPersistentBuffer buf : transformBuffer) {
             try (OldPersistentBuffer.Builder b = buf.build()) {
-                b.setUsage(BufferUsage.Uniform);
+                b.setUsage(BufferRole.Uniform);
             }
         }
         t.getTransforms().set(transformBuffer);

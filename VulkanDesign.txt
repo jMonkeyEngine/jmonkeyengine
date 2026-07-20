@@ -1,4 +1,49 @@
 
-This is the core idea: all objects that interact with native memory (NIO buffers, vulkan buffers, etc.) are simply memory addresses. A memory address in this context holds a) the address of the first byte pointed to and b) the size of the addressed region. Importantly, memory addresses contain a method that emits a similar address but offset by a specific number of bytes. Some memory addresses are relative to another memory address, and thus defer address queries to the parent address.
+function update:
+    await: previous render on same frame
+    reset command pool
+    for each appstate:
+        update appstate
+    for each spatial:
+        update controls
+        update geometric state
+    acquire render workers
+    await: acquire swapchain image
+    parallel for each viewport:
+        renderViewPort
+    submit rendering command buffers
 
-So take a struct bound to a buffer. When a field within the struct needs to interact with the buffer's memory, it queries for the address of its struct, which in turn queries for the address of its buffer. The returned address object is opaque.
+function renderViewPort:
+    cull geometries1
+    async: compile globals
+    parallel: for each geometry:
+        render controls
+        compile geometry settings to pipeline state
+            * RenderState
+            * shaders
+            * uniform layout
+            * push constants layout
+            * specialization constants
+            * dynamic states
+        batch geometry by pipeline state
+    for each batch: async: build pipeline
+    sort batches
+    allocate sequential batches evenly to workers
+    parallel: for each worker:
+        for each allocated batch (unordered):
+            for each geometry: update descriptor sets
+            sort batch
+        start command buffer
+        for each allocated batch (ordered):
+            await: get globals
+            await: get pipeline
+            bind pipeline
+            for each geometry (ordered):
+                bind globals
+                bind descriptor sets
+                bind vertex buffers
+                set push constants
+                set dynamic properties
+                render mesh
+        end command buffer
+        add semaphores to command buffer

@@ -1,9 +1,7 @@
 package com.jme3.util.struct;
 
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.alloc.MemoryAddress;
-import com.jme3.vulkan.buffer.BufferMapping;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.DataBuffer;
 
 public class SubStructField <T extends Struct> implements StructField<T> {
 
@@ -30,29 +28,19 @@ public class SubStructField <T extends Struct> implements StructField<T> {
     }
 
     @Override
-    public BufferMapping map() {
-        return struct.map().region(offset, struct.getSize());
-    }
-
-    @Override
-    public EngineBuffer getSourceBuffer() {
-        return struct.getSourceBuffer();
-    }
-
-    @Override
-    public int size() {
-        return struct.getSize();
+    public DataBuffer cache() {
+        return struct.cache().offset(offset);
     }
 
     @Override
     public void set(T value) {
-        setAlias(value);
+        alias(value);
     }
 
     @Override
-    public void setAlias(T value) {
+    public void alias(T value) {
         assert value != null : "Alias cannot be null.";
-        this.alias.bind((MemoryAddress)null);
+        this.alias.bind((Memory)null);
         this.alias = value;
         this.alias.bind(struct.getLayout());
         this.alias.bind(this);

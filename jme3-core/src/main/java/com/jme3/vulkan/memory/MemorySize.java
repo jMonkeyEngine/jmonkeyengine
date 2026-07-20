@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.*;
 import java.util.Objects;
 
+@Deprecated
 public class MemorySize implements Savable {
 
     public static final MemorySize ZERO = new MemorySize(0, 0);

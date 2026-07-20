@@ -4,7 +4,7 @@ import com.jme3.vulkan.util.Flag;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum BufferUsage implements Flag<BufferUsage> {
+public enum BufferRole implements Flag<BufferRole> {
 
     Uniform(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT),
     Index(VK_BUFFER_USAGE_INDEX_BUFFER_BIT),
@@ -18,7 +18,7 @@ public enum BufferUsage implements Flag<BufferUsage> {
 
     private final int vkEnum;
 
-    BufferUsage(int vkEnum) {
+    BufferRole(int vkEnum) {
         this.vkEnum = vkEnum;
     }
 

@@ -1,61 +1,103 @@
 package com.jme3.vulkan.buffer;
 
-import com.jme3.vulkan.alloc.MemoryAddress;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.Commandable;
+import com.jme3.vulkan.commands.RenderCommands;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 
-public interface EngineBuffer extends MemoryAddress {
-
-    void copyToPreferOptimal(EngineBuffer dst);
-
-    void copyToPreferHost(EngineBuffer dst);
-
-    void copyToPreferDevice(EngineBuffer dst);
+public interface EngineBuffer extends Commandable {
 
     /**
-     * Resizes this buffer to at least the specified size in bytes.
+     * Updates this buffer. If {@link #flushCache()} has been called since the last update,
+     * the {@link #cache()} is flushed to the device, otherwise if {@link #invalidateCache()} has been
+     * called since the last update, the {@link #cache()} is updated from the device.
      *
-     * @param size size in bytes to resize to
-     * @throws UnsupportedOperationException if resizing to at least the requested size is not
-     * supported by the implementation
+     * @param cmd rendering commands
      */
-    void resize(int size) throws UnsupportedOperationException;
+    void update(CommandBuffer cmd);
 
     /**
-     * Stages a section of this buffer to be interacted with by various buffer operations.
-     * Implementations are required to stage at least the given region, but are free to stage
-     * more if necessary.
+     * Gets the CPU cache of this buffer as long as it is {@link #isDeviceAccessible() device accessible}.
      *
-     * @param offset region offset from the start of this buffer in bytes
-     * @param size region size in bytes
+     * @return host-side cache
+     * @throws UnsupportedOperationException if this buffer is not {@link #isHostAccessible()
+     * device accessible}
      */
-    void stage(int offset, int size);
+    DataBuffer cache();
 
     /**
-     * Makes all staged sections of this buffer available externally.
+     * Submits a cache flush to be performed on the next {@link #update(CommandBuffer)}. Flushing the
+     * cache updates the device memory with the cache's memory based on what sections of the cache
+     * were written to since the last flush or {@link #invalidateCache() invalidation}.
      */
-    void pushStaged();
+    void flushCache();
 
     /**
-     * Pulls external updates for all staged sections of this buffer.
+     * Submits a cache invalidation to be performed on the next {@link #update(CommandBuffer)}.
+     * Invalidating makes changes on device visible in the {@link #cache()} on the host.
      */
-    void pullStaged();
+    void invalidateCache();
 
     /**
-     * Clears all staging information of this buffer so that no sections of this buffer are staged.
-     */
-    void clearStaging();
-
-    /**
-     * Gets the size of this buffer in bytes.
+     * Gets the capacity in bytes of this buffer.
      *
-     * @return size in bytes
+     * @return capacity in bytes
      */
-    int size();
+    int capacity();
 
     /**
-     * Stages this entire buffer
+     * Gets the internal offset in bytes of this buffer. This is used if this buffer
+     * defers to another buffer and applies an offset. Make sure that whenever
+     * an EngineBuffer is interacted with using the graphics API to apply this offset.
+     *
+     * @return internal offset in bytes
      */
-    default void stageAll() {
-        stage(0, size());
+    int getInternalOffset();
+
+    /**
+     * Gets the graphics API handle of this buffer.
+     *
+     * @return graphics API handle
+     */
+    long getHandle();
+
+    /**
+     * Gets the address of this buffer on the device.
+     *
+     * @return device address
+     */
+    long getDeviceAddress();
+
+    /**
+     * Gets the abilities of this buffer. This buffer may only perform tasks allowed
+     * by its abilities.
+     *
+     * @return buffer abilities
+     */
+    Flag<BufferRole> getRoles();
+
+    /**
+     * Gets properties of the memory backing this buffer.
+     *
+     * @return memory properties
+     */
+    Flag<MemoryProp> getMemoryProperties();
+
+    /**
+     * Returns true if this buffer is accessible by the device through {@link #getHandle()} and {@link #getDeviceAddress()}.
+     *
+     * @return true if device accessible
+     */
+    boolean isDeviceAccessible();
+
+    /**
+     * Returns true if the memory backing this buffer is accessible by the host.
+     *
+     * @return true if host accessible
+     */
+    default boolean isHostAccessible() {
+        return getMemoryProperties().contains(MemoryProp.HostVisible);
     }
 
 }

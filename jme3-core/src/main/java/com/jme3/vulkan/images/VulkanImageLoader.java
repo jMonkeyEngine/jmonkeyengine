@@ -4,7 +4,7 @@ import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.BasicVulkanBuffer;
-import com.jme3.vulkan.buffer.BufferUsage;
+import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -156,7 +156,7 @@ public class VulkanImageLoader implements AssetLoader {
             BasicVulkanBuffer staging = new BasicVulkanBuffer(
                     transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()));
             try (BasicVulkanBuffer.Builder s = staging.build()) {
-                s.setUsage(BufferUsage.TransferSrc);
+                s.setUsage(BufferRole.TransferSrc);
                 s.setMemFlags(Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent));
             }
             staging.copy(data.getBuffer());

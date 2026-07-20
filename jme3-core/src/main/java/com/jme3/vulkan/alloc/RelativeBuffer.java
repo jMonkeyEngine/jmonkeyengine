@@ -6,36 +6,28 @@ import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.SubStructArrayField;
 import com.jme3.util.struct.SubStructField;
 import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
 
-public interface RelativeAddress extends MemoryAddress {
+public interface RelativeBuffer extends EngineBuffer {
 
     /**
      * Binds this address to a parent address to which this address is relative to.
      *
      * @param parent memory to bind
      */
-    void bind(MemoryAddress parent);
-
-    /**
-     * Gets the address this address is relative to.
-     *
-     * @return parent address
-     */
-    MemoryAddress getParentAddress();
+    void bind(EngineBuffer parent);
 
     // todo: remove api test code
     @Deprecated
-    public static void exp() {
+    public static void exp(CommandBuffer cmd, EngineBuffer data) {
 
         StructArray<MyStruct> array = new StructArray<>(new MyStruct(), 100);
-        EngineBuffer data = null;
 
         // bind array to data so that mappings/reads/writes will draw from data
         array.bind(data);
 
         // pull outside changes
-        array.getSourceBuffer().stageAll();
-        array.getSourceBuffer().pullStaged();
+        array.invalidateCache();
 
         // iterate over struct array using a shared struct
         for (MyStruct s : array) {

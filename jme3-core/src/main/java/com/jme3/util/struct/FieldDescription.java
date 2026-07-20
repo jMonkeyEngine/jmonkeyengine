@@ -1,15 +1,15 @@
 package com.jme3.util.struct;
 
-import java.nio.ByteBuffer;
+import com.jme3.vulkan.buffer.DataBuffer;
 
 public interface FieldDescription <T> {
 
-    int getSize(StructLayout layout, T value);
+    int getSize();
 
-    int getAlignment(StructLayout layout, T value);
+    int getAlignment();
 
-    void write(StructLayout layout, ByteBuffer buffer, T value);
+    void write(DataBuffer buffer, T value);
 
-    T read(StructLayout layout, ByteBuffer buffer, T store);
+    T read(DataBuffer buffer, T store);
 
 }

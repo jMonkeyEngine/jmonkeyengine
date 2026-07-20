@@ -38,6 +38,11 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         else return add(flag);
     }
 
+    default Flag<T> addNonNull(Flag flag) {
+        if (flag == null) return this;
+        else return add(flag);
+    }
+
     default Flag<T> remove(Flag flag) {
         if (containsAny(flag)) {
             return new FlagImpl<>(bits() & ~flag.bits());

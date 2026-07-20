@@ -1,84 +1,94 @@
 package com.jme3.vulkan.buffer;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffers.newbuf.AbstractVulkanBuffer;
-import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
+import com.jme3.vulkan.buffer.alloc.BufferAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.commands.CommandCycleListener;
+import com.jme3.vulkan.commands.OpLocation;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkBufferCopy;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static org.lwjgl.vulkan.VK10.*;
 
 /**
  * Streams changes from
  */
 public class BufferStream {
 
-    private final LogicalDevice<?> device;
+    private final BufferAllocator allocator;
     private final Collection<StreamingPage> pages = new ConcurrentLinkedQueue<>();
     private final int pageByteSize;
 
-    public BufferStream(LogicalDevice<?> device, int pageByteSize) {
-        this.device = device;
+    public BufferStream(BufferAllocator allocator, int pageByteSize) {
+        this.allocator = allocator;
         this.pageByteSize = pageByteSize;
     }
 
+    public void streamToRemote(CommandBuffer cmd, DataBuffer local, EngineBuffer remote) {
+        streamToRemote(cmd, local.getBytes(), remote, local.getTracker());
+    }
+
     /**
-     * Streams the specified regions from {@code src} to {@code dst} through an intermediate
+     * Streams the specified regions from {@code local} to {@code remote} through an intermediate
      * streaming page partition.
      *
-     * @param src buffer to stream from
-     * @param dst vulkan buffer to stream to (must be created with the {@link BufferUsage#TransferDst} flag set)
-     * @param tracker regions that should be streamed between the buffers
-     * @throws IllegalArgumentException if {@code dst} to not a transfer destination
+     * @param local buffer to stream from
+     * @param remote vulkan buffer to stream to (must be created with the {@link BufferRole#TransferDst} flag set)
+     * @throws IllegalArgumentException if {@code remote} to not a transfer destination
      * @throws IllegalStateException if {@code regions} gives a region not fully within {@code src}
      */
-    public void stream(CommandBuffer cmd, MappableBuffer src, VulkanBuffer dst, BufferTracker tracker) {
-        if (tracker.isEmpty()) {
-            return;
+    public void streamToRemote(CommandBuffer cmd, ByteBuffer local, EngineBuffer remote, BufferTracker regions) {
+        if (!remote.getRoles().contains(BufferRole.TransferDst)) {
+            throw new IllegalArgumentException("Cannot stream to " + remote + ": not a transfer destination.");
         }
-        if (!dst.getUsage().contains(BufferUsage.TransferDst)) {
-            throw new IllegalArgumentException("Cannot stream to " + dst + ": not a transfer destination.");
-        }
-        long coverage = 0;
-        int count = 0;
-        for (BufferTracker.Island i : tracker) {
-            coverage += i.getSize();
-            count++;
-        }
-        if (coverage == 0 || count == 0) {
-            return;
-        }
-        PagePartition partition = allocatePartition(coverage);
+        if (regions.isEmpty()) return;
+        Partition partition = allocatePartition(regions.getCoveredBytes());
         if (partition == null) {
             throw new NullPointerException("Failed to allocate streaming page partition.");
         }
         long partitionOffset = 0;
-        try (MemoryStack stack = MemoryStack.stackPush(); BufferMapping srcMap = src.map(); BufferMapping pMap = partition.map()) {
-            VkBufferCopy.Buffer copy = VkBufferCopy.malloc(count, stack);
-            for (BufferTracker.Island i : tracker) {
-                if (i.getEnd() > srcMap.getBytes().capacity()) {
-                    throw new IllegalStateException("Buffer region extends outside source buffer.");
-                }
-                MemoryUtil.memCopy(srcMap.getAddress() + i.getStart(), pMap.getAddress() + partitionOffset, i.getSize());
+        long localAddress = MemoryUtil.memAddress(local);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkBufferCopy.Buffer copy = VkBufferCopy.malloc(regions.getNumIslands(), stack);
+            for (BufferTracker.Island i : regions) {
+                MemoryUtil.memCopy(localAddress + i.getStart(),
+                        partition.getCache().getAddress() + partitionOffset, i.getSize());
                 copy.get().set(partitionOffset, i.getStart(), i.getSize());
                 partitionOffset += i.getSize();
             }
-            long pId = partition.page.getBuffer().getBufferHandle(device);
-            vkCmdCopyBuffer(cmd.getBuffer(), pId, dst.getBufferHandle(device), copy.flip());
         }
-        cmd.onExecutionComplete(partition);
-        tracker.clear();
+        cmd.cmdFlatCopy(partition.page, partition.start, remote, 0, regions, false, OpLocation.PreferDevice);
+        cmd.addListener(partition);
+    }
+
+    public void streamFromRemote(CommandBuffer cmd, EngineBuffer remote, ByteBuffer local) {
+        streamFromRemote(cmd, remote, local, null);
+    }
+
+    public void streamFromRemote(CommandBuffer cmd, EngineBuffer remote, ByteBuffer local, Runnable callback) {
+        if (!remote.getRoles().contains(BufferRole.TransferSrc)) {
+            throw new IllegalArgumentException("Cannot stream from " + remote + ": not a transfer source.");
+        }
+        Partition partition = allocatePartition(Math.min(remote.capacity(), local.remaining()));
+        if (partition == null) {
+            throw new NullPointerException("Failed to allocate streaming page partition.");
+        }
+        cmd.cmdCopy(remote, 0, partition, 0, Integer.MAX_VALUE, OpLocation.PreferDevice);
+        ByteBuffer localDup = local.duplicate();
+        cmd.addListener(new CommandCycleListener() {
+            @Override
+            public void onCmdSubmit() {}
+            @Override
+            public void onCmdComplete() {
+                MemoryUtil.memCopy(partition.getCache().getBytes(), localDup);
+                partition.onCmdComplete();
+                if (callback != null) callback.run();
+            }
+        });
     }
 
     /**
@@ -89,249 +99,214 @@ public class BufferStream {
      * @param bytes consecutive bytes to allocate
      * @return allocated page partition
      */
-    private PagePartition allocatePartition(long bytes) {
+    private Partition allocatePartition(int bytes) {
         for (StreamingPage s : pages) {
-            PagePartition p = s.allocatePartition(bytes);
+            Partition p = s.allocatePartition(bytes);
             if (p != null) return p;
         }
-        StreamingPage s = new StreamingPage(Math.max(bytes, pageByteSize));
+        StreamingPage s = new StreamingPage(allocator.createStagingBuffer(
+                Math.max(bytes, pageByteSize),
+                Flag.of(BufferRole.TransferSrc, BufferRole.TransferDst)));
         pages.add(s);
         return s.allocatePartition(bytes);
     }
 
-    private static class StreamingPage extends PersistentBuffer<VulkanBuffer> {
+    private static class StreamingPage implements EngineBuffer {
 
-        private final AllocatedRegion head = new AllocatedRegion(this, 0, 0);
+        private final EngineBuffer buffer;
+        private final BufferTracker allocated = new ExactBufferTracker();
 
-        public StreamingPage(long bytes) {
-            super(create(bytes));
+        public StreamingPage(EngineBuffer buffer) {
+            this.buffer = buffer;
         }
 
-        private static VulkanBuffer create(long bytes) {
-            return HostVisibleBuffer.build(bytes, (AbstractVulkanBuffer.Builder b) -> {
-                b.setUsage(BufferUsage.TransferSrc);
-                b.setSharingMode(SharingMode.Concurrent);
-            });
+        @Override
+        public long getHandle() {
+            return buffer.getHandle();
         }
 
-        public PagePartition allocatePartition(long bytes) {
-            for (AllocatedRegion r = head, prev = null; r != null; r = r.next) {
-                PagePartition p = r.allocateBytesAfter(bytes);
-                if (p != null) {
-                    return p;
+        @Override
+        public void flushCache() {
+            buffer.flushCache();
+        }
+
+        @Override
+        public void invalidateCache() {
+            buffer.invalidateCache();
+        }
+
+        @Override
+        public int getInternalOffset() {
+            return buffer.getInternalOffset();
+        }
+
+        @Override
+        public long getDeviceAddress() {
+            return buffer.getDeviceAddress() + getInternalOffset();
+        }
+
+        @Override
+        public Flag<BufferRole> getRoles() {
+            return buffer.getRoles();
+        }
+
+        @Override
+        public Flag<MemoryProp> getMemoryProperties() {
+            return buffer.getMemoryProperties();
+        }
+
+        @Override
+        public DataBuffer cache() {
+            return buffer.cache();
+        }
+
+        @Override
+        public int capacity() {
+            return buffer.capacity();
+        }
+
+        @Override
+        public void update(CommandBuffer cmd) {
+            buffer.update(cmd);
+        }
+
+        @Override
+        public boolean isDeviceAccessible() {
+            return buffer.isDeviceAccessible();
+        }
+
+        @Override
+        public void acquireControl() {
+            buffer.acquireControl();
+        }
+
+        @Override
+        public void releaseControl() {
+            buffer.releaseControl();
+        }
+
+        public Partition allocatePartition(int bytes) {
+            if (bytes > buffer.capacity()) {
+                return null;
+            }
+            if (allocated.isEmpty()) {
+                return createPartition(0, bytes);
+            }
+            for (BufferTracker.Island i : allocated) {
+                if (i.getAvailableBytesAfter(buffer.capacity()) > bytes) {
+                    return createPartition(i.getStart(), bytes);
                 }
-                if (prev != null && r.start == r.end) {
-                    prev.next = r.next;
-                    continue;
-                }
-                prev = r;
             }
             return null;
         }
 
-        public boolean releasePartition(PagePartition partition) {
-            for (AllocatedRegion r = head; r != null; r = r.next) {
-                if (r.release(partition)) {
-                    return true;
-                }
-            }
-            return false;
+        private Partition createPartition(int start, int size) {
+            Partition p = new Partition(this, start, size);
+            allocated.add(start, size);
+            return p;
+        }
+
+        public void releasePartition(Partition partition) {
+            allocated.remove(partition.getStart(), partition.getSize());
         }
 
     }
 
-    private static class PagePartition implements MappableBuffer, Runnable {
+    private static class Partition implements EngineBuffer, CommandCycleListener {
 
-        public final StreamingPage page;
-        private final MemorySize size;
+        private final StreamingPage page;
+        private final DataBuffer cache;
+        private final int start;
 
-        public PagePartition(StreamingPage page, MemorySize size) {
+        public Partition(StreamingPage page, int start, int size) {
             this.page = page;
-            this.size = size;
+            this.start = start;
+            this.cache = page.cache().slice(start, start + size);
         }
 
         @Override
-        public void run() {
+        public void update(CommandBuffer cmd) {
+
+        }
+
+        @Override
+        public boolean isDeviceAccessible() {
+            return page.isDeviceAccessible();
+        }
+
+        @Override
+        public void onCmdSubmit() {}
+
+        @Override
+        public void onCmdComplete() {
             page.releasePartition(this);
         }
 
         @Override
-        public BufferMapping map(long offset, long size) {
-            return page.map(this.size.getOffset() + offset, size);
+        public void acquireControl() {
+            page.acquireControl();
         }
 
         @Override
-        public void stage(int offset, int size) {
-            page.stage(this.size.getOffset() + offset, size);
+        public void releaseControl() {
+            page.releaseControl();
         }
 
         @Override
-        public void flush() {
-            page.flush();
+        public long getHandle() {
+            return page.getHandle();
         }
 
         @Override
-        public void resize(long bytes) {
-
+        public void flushCache() {
+            page.flushCache();
         }
 
         @Override
-        public MemorySize size() {
-            return size;
+        public void invalidateCache() {
+            page.invalidateCache();
         }
 
         @Override
-        public void write(JmeExporter ex) throws IOException {
-            throw new UnsupportedOperationException("Cannot be written.");
+        public long getDeviceAddress() {
+            return page.getDeviceAddress() + getInternalOffset();
         }
 
         @Override
-        public void read(JmeImporter im) throws IOException {
-            throw new UnsupportedOperationException("Cannot be read.");
-        }
-
-    }
-
-    private static class AllocatedRegion {
-
-        private final StreamingPage stream;
-        private long start, end;
-        private AllocatedRegion next;
-
-        public AllocatedRegion(StreamingPage stream, long start, long end) {
-            this.stream = stream;
-            this.start = Math.min(start, stream.size().getBytes());
-            this.end = Math.min(end, stream.size().getBytes());
-        }
-
-        public PagePartition allocateBytesAfter(long bytes) {
-            if (availableBytesAfter() >= bytes) synchronized (this) {
-                if (next == null) {
-                    // create next island so other concurrent allocation requests won't all pile
-                    // up trying to allocate after this island
-                    next = new AllocatedRegion(stream, end + bytes, end + bytes);
-                }
-                long a = availableBytesAfter();
-                if (a >= bytes) {
-                    long pStart = end;
-                    if (a == bytes) {
-                        next.start = start;
-                        end = start; // collapse island
-                    } else {
-                        end += bytes;
-                    }
-                    return new PagePartition(stream, MemorySize.bytes(pStart, bytes));
-                }
-            }
-            return null;
-        }
-
-        public boolean release(PagePartition partition) {
-            if (start == end) {
-                return false;
-            }
-            long pEnd = partition.size().getEnd();
-            if (pEnd <= start || partition.size().getOffset() >= end) {
-                return false;
-            }
-            synchronized (this) {
-                if (partition.size().getOffset() > start && pEnd < end) {
-                    AllocatedRegion r = new AllocatedRegion(stream, pEnd, end);
-                    r.next = next;
-                    next = r;
-                    end = partition.size().getOffset();
-                } else if (partition.size().getOffset() <= start) {
-                    start = pEnd;
-                } else {
-                    end = partition.size().getOffset();
-                }
-            }
-            return true;
-        }
-
-        public long availableBytesAfter() {
-            if (next == null) return stream.size().getBytes() - end;
-            else return next.start - end;
-        }
-
-    }
-
-    private interface CopyCmd {
-
-        VulkanBuffer getSrc();
-
-        VulkanBuffer getDst();
-
-        VkBufferCopy.Buffer getParameters();
-
-        void release();
-
-    }
-
-    private static class StreamCopy implements CopyCmd {
-
-        public final PagePartition src;
-        public final VulkanBuffer dst;
-        public final VkBufferCopy.Buffer data;
-
-        public StreamCopy(PagePartition src, VulkanBuffer dst, int regions) {
-            this.src = src;
-            this.dst = dst;
-            this.data = VkBufferCopy.calloc(regions);
+        public Flag<BufferRole> getRoles() {
+            return page.getRoles();
         }
 
         @Override
-        public VulkanBuffer getSrc() {
-            return src.page.getBuffer();
+        public Flag<MemoryProp> getMemoryProperties() {
+            return page.getMemoryProperties();
         }
 
         @Override
-        public VulkanBuffer getDst() {
-            return dst;
+        public DataBuffer cache() {
+            return cache;
         }
 
         @Override
-        public VkBufferCopy.Buffer getParameters() {
-            return data;
+        public int capacity() {
+            return cache.capacity();
         }
 
         @Override
-        public void release() {
-            MemoryUtil.memFree(data);
-            src.page.releasePartition(src);
+        public int getInternalOffset() {
+            return start;
         }
 
-    }
-
-    private static class DirectCopy implements CopyCmd {
-
-        private final VulkanBuffer src, dst;
-        private final VkBufferCopy.Buffer data;
-
-        public DirectCopy(VulkanBuffer src, VulkanBuffer dst, int regions) {
-            this.src = src;
-            this.dst = dst;
-            this.data = VkBufferCopy.calloc(regions);
+        public DataBuffer getCache() {
+            return cache;
         }
 
-        @Override
-        public VulkanBuffer getSrc() {
-            return src;
+        public int getStart() {
+            return start;
         }
 
-        @Override
-        public VulkanBuffer getDst() {
-            return dst;
-        }
-
-        @Override
-        public VkBufferCopy.Buffer getParameters() {
-            return data;
-        }
-
-        @Override
-        public void release() {
-            MemoryUtil.memFree(data);
+        public int getSize() {
+            return cache.capacity();
         }
 
     }

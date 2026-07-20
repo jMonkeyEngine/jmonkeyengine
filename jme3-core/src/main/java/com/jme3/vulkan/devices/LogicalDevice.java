@@ -4,15 +4,11 @@ import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.buffer.BufferUsage;
 import com.jme3.vulkan.buffers.PersistentVulkanBuffer;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.buffers.stream.StreamingBuffer;
-import com.jme3.vulkan.commands.CommandPool;
-import com.jme3.vulkan.commands.CommandQueue;
-import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.Struct;
@@ -21,7 +17,6 @@ import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.LongFunction;
@@ -34,20 +29,11 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
-    private final Map<Thread, Collection<CommandPool>> pools = new ConcurrentHashMap<>();
     private PNextChain enabledFeatures;
     private T physical;
 
     protected LogicalDevice(VulkanInstance instance) {
         this.instance = instance;
-    }
-
-    public VulkanBuffer allocate(long bytes, Flag<BufferUsage> usage, UpdateHint update) {
-        switch (update) {
-            case Stream: return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(bytes, b -> b.setUsage(usage)));
-            case Dynamic: case Static: return new StreamingBuffer(bytes, b -> b.setUsage(usage));
-            default: throw new UnsupportedOperationException("Update hint not supported: " + update);
-        }
     }
 
     @Override
@@ -96,33 +82,6 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
     public PNextChain getEnabledFeatures() {
         return enabledFeatures.getReadOnly();
-    }
-
-    @Deprecated
-    public CommandPool getShortTermPool(CommandQueue queue) {
-        return getPool(queue, CommandPool.Create.Transient);
-    }
-
-    @Deprecated
-    public CommandPool getLongTermPool(CommandQueue queue) {
-        return getPool(queue, CommandPool.Create.ResetCommandBuffer);
-    }
-
-    @Deprecated
-    public CommandPool getPool(CommandQueue queue, Flag<CommandPool.Create> flags) {
-        if (queue.getDevice() != this) {
-            throw new IllegalArgumentException("Queue must belong to this device.");
-        }
-        Collection<CommandPool> p = pools.computeIfAbsent(Thread.currentThread(),
-                t -> new ArrayList<>());
-        for (CommandPool pool : p) {
-            if (pool.getQueue() == queue && pool.getFlags().contains(flags)) {
-                return pool;
-            }
-        }
-        CommandPool pool = new CommandPool(queue, flags);
-        p.add(pool);
-        return pool;
     }
 
     public static <T extends PhysicalDevice> LogicalDevice<T> build(VulkanInstance instance, Function<Long, T> deviceFactory, Consumer<LogicalDevice<T>.Builder> config) {

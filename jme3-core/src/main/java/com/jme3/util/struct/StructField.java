@@ -1,6 +1,11 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.alloc.MemoryAddress;
+import com.jme3.math.FastMath;
+import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 
 import java.util.Objects;
 
@@ -10,15 +15,22 @@ import java.util.Objects;
  *
  * @param <T>
  */
-public interface StructField <T> extends MemoryAddress {
+public interface StructField <T> extends EngineBuffer {
 
     /**
      * Binds this field to the struct and memory offset.
      *
      * @param struct struct
-     * @param offset memory offset from {@code struct}'s bound memory address
+     * @param offset memory offset from {@code struct}'s bound memory address of this field
      */
     int bind(Struct struct, int offset);
+
+    /**
+     * Gets the struct that this field is bound to.
+     *
+     * @return bound struct
+     */
+    Struct getBoundStruct();
 
     /**
      * Serializes {@code value} to the proper memory address through the
@@ -33,7 +45,7 @@ public interface StructField <T> extends MemoryAddress {
      *
      * @param value value to assign to the alias
      */
-    void setAlias(T value);
+    void alias(T value);
 
     /**
      * Deserializes from the proper memory address to the {@link #alias() alias}
@@ -59,14 +71,6 @@ public interface StructField <T> extends MemoryAddress {
     String getName();
 
     /**
-     * Gets the size in bytes of this field. The managing struct
-     * must be bound.
-     *
-     * @return size in bytes
-     */
-    int getSize();
-
-    /**
      * Gets the alignment in bytes of this field. The managing struct
      * must be bound.
      *
@@ -80,6 +84,16 @@ public interface StructField <T> extends MemoryAddress {
      */
     default void set() {
         set(alias());
+    }
+
+    /**
+     * {@link #set(Object) Sets} {@code value} and assigns it to the alias.
+     *
+     * @param value value to assign
+     */
+    default void aliasAndSet(T value) {
+        set(value);
+        alias(value);
     }
 
     /**
@@ -112,4 +126,53 @@ public interface StructField <T> extends MemoryAddress {
         return false;
     }
 
+    /**
+     * Gets the aligned size of this field, which is {@link #capacity()}
+     * rounded up to the nearest multiple of {@link #getAlignment()}.
+     *
+     * @return aligned size in bytes
+     */
+    default int getAlignedSize() {
+        return FastMath.toMultipleOf(capacity(), getAlignment());
+    }
+
+    @Override
+    default void update(CommandBuffer cmd) {
+        getBoundStruct().update(cmd);
+    }
+
+    @Override
+    default void flushCache() {
+        getBoundStruct().flushCache();
+    }
+
+    @Override
+    default void invalidateCache() {
+        getBoundStruct().flushCache();
+    }
+
+    @Override
+    default long getHandle() {
+        return getBoundStruct().getHandle();
+    }
+
+    @Override
+    default long getDeviceAddress() {
+        return getBoundStruct().getDeviceAddress();
+    }
+
+    @Override
+    default Flag<BufferRole> getRoles() {
+        return getBoundStruct().getRoles();
+    }
+
+    @Override
+    default Flag<MemoryProp> getMemoryProperties() {
+        return getBoundStruct().getMemoryProperties();
+    }
+
+    @Override
+    default boolean isDeviceAccessible() {
+        return getBoundStruct().isDeviceAccessible();
+    }
 }

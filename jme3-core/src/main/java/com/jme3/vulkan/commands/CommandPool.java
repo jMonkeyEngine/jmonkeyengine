@@ -12,12 +12,14 @@ import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
 import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK11.*;
+import static org.lwjgl.vulkan.VK14.*;
 
-public class CommandPool extends AbstractNative<Long> {
+public class CommandPool extends AbstractNative<Long> implements CommandAllocator {
 
     public enum Create implements Flag<Create> {
 
@@ -38,8 +40,25 @@ public class CommandPool extends AbstractNative<Long> {
 
     }
 
+    public enum Reset implements Flag<Reset> {
+
+        ReleaseResources(VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+
+        private final int bits;
+
+        Reset(int bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public int bits() {
+            return bits;
+        }
+    }
+
     private final CommandQueue queue;
     private final Flag<Create> flags;
+    private final Lock allocLock = new ReentrantLock();
 
     public CommandPool(CommandQueue queue) {
         this(queue, Create.ResetCommandBuffer);
@@ -80,7 +99,8 @@ public class CommandPool extends AbstractNative<Long> {
      * @param factory generates a wrapper for the vulkan command buffer handle
      * @return allocated buffers
      */
-    public <T extends CommandBuffer> T[] allocate(IntEnum<CommandBuffer.Level> level, int n, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
+    @SuppressWarnings("unchecked")
+    public <T extends CommandBuffer> T[] allocate(CommandBuffer.Level level, int n, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
         if (n <= 0) {
             throw new IllegalArgumentException("Must allocate at least one command buffer.");
         }
@@ -92,8 +112,10 @@ public class CommandPool extends AbstractNative<Long> {
                     .level(level.getEnum())
                     .commandBufferCount(buffers.length);
             PointerBuffer ptrs = stack.mallocPointer(buffers.length);
+            allocLock.lock();
             check(vkAllocateCommandBuffers(queue.getDevice().getNativeObject(), allocate, ptrs),
                     "Failed to allocate command buffers");
+            allocLock.unlock();
             for (int i = 0; i < buffers.length; i++) {
                 buffers[i] = factory.apply(this, new VkCommandBuffer(ptrs.get(), queue.getDevice().getNativeObject()));
             }
@@ -109,8 +131,9 @@ public class CommandPool extends AbstractNative<Long> {
      * @return allocated buffers
      * @see #allocate(IntEnum, int, BiFunction)
      */
-    public CommandBuffer[] allocate(IntEnum<CommandBuffer.Level> level, int n) {
-        return allocate(level, n, CommandBuffer::new);
+    @Override
+    public CommandBuffer[] allocate(CommandBuffer.Level level, int n) {
+        return allocate(level, n, VulkanCommandBuffer::new);
     }
 
     /**
@@ -121,19 +144,19 @@ public class CommandPool extends AbstractNative<Long> {
      * @return allocated buffer
      * @see #allocate(IntEnum, int, BiFunction)
      */
-    public <T extends CommandBuffer> T allocate(IntEnum<CommandBuffer.Level> level, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
+    public <T extends CommandBuffer> T allocate(CommandBuffer.Level level, BiFunction<CommandPool, VkCommandBuffer, T> factory) {
         return allocate(level, 1, factory)[0];
     }
 
     /**
-     * Allocates a command buffer from this pool.
+     * Resets this pool and all command buffers allocated by this pool.
+     * This is a more performant alternative to {@link CommandBuffer#reset() individually resetting}
+     * each command buffer.
      *
-     * @param level level of the allocated buffer
-     * @return allocated buffer
-     * @see #allocate(IntEnum, int, BiFunction)
+     * @param releaseResources true to release resources consumed by this pool back to the system
      */
-    public CommandBuffer allocate(IntEnum<CommandBuffer.Level> level) {
-        return allocate(level, 1, CommandBuffer::new)[0];
+    public void reset(boolean releaseResources) {
+        vkResetCommandPool(queue.getDevice().getNativeObject(), object, Flag.empty().addIf(releaseResources, Reset.ReleaseResources).bits());
     }
 
     public LogicalDevice<?> getDevice() {
