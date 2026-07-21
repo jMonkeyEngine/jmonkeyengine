@@ -97,6 +97,8 @@ public class ScreenshotTest{
 
     TestResolution resolution = new TestResolution(500, 400);
 
+    float displayScaleMode = AppSettings.DISPLAY_SCALE_DISABLED;
+
     String baseImageFileName = null;
 
     private AppRunner osSpecificRunner;
@@ -133,6 +135,21 @@ public class ScreenshotTest{
     }
 
     /**
+     * Sets the display-scale mode used by the test context.
+     *
+     * <p>A value greater than {@link AppSettings#DISPLAY_SCALE_DPI_AWARE}
+     * enables deterministic emulated display scaling, independent of the
+     * monitor attached to the test machine.</p>
+     *
+     * @param displayScaleMode the desired display-scale mode
+     * @return this test configuration
+     */
+    public ScreenshotTest setDisplayScaleMode(float displayScaleMode) {
+        this.displayScaleMode = displayScaleMode;
+        return this;
+    }
+
+    /**
      * Sets the file name to be used (as the first part) of saved images in both the resources directory and
      * the generated image. Note that you only have to call this if you want to override the default behaviour which is
      * to use the calling class and method name, like org.jmonkeyengine.screenshottests.water.TestPostWater.testPostWater
@@ -146,6 +163,7 @@ public class ScreenshotTest{
         this.osSpecificRunner = osSpecificRunner;
         AppSettings settings = new AppSettings(true);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
+        settings.setDisplayScaleMode(displayScaleMode);
         settings.setAudioRenderer(null); // Disable audio (for headless)
         settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
         settings.setRenderer(AppSettings.LWJGL_OPENGL45);
