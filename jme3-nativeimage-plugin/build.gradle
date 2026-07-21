@@ -140,12 +140,12 @@ tasks.register('install') {
 }
 
 signing {
-    def signingKey = findProperty('signingKey')
-    def signingPassword = findProperty('signingPassword')
+    def signingKey = gradle.rootProject.findProperty('signingKey')
+    def signingPassword = gradle.rootProject.findProperty('signingPassword')
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications
 }
 
 tasks.withType(Sign).configureEach {
-    onlyIf { hasProperty('signingKey') }
+    onlyIf { gradle.rootProject.hasProperty('signingKey') }
 }
