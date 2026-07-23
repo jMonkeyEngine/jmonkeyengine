@@ -72,7 +72,7 @@ public class MeshTest {
             1f, 1f, 0f,
             0f, 1f, 0f
         });
-        mesh.setBuffer(VertexBuffer.Type.Index, 4, new short[]{0, 1, 2, 3});
+        mesh.setBuffer(VertexBuffer.Type.Index, 1, new short[]{0, 1, 2, 3});
 
         CollisionResults results = new CollisionResults();
         int collisions = mesh.collideWith(new Ray(new Vector3f(0.5f, 0.5f, 1f),
