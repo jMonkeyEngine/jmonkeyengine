@@ -89,7 +89,7 @@ public class SdlKeyInput implements KeyInput {
             }
 
             final int jmeKey = SdlKeyMap.toJmeKeyCode(key.scancode());
-            final int sdlKey = SDL_GetKeyFromScancode(key.scancode(), key.mod(), true);
+            final int sdlKey = SDL_GetKeyFromScancode(key.scancode(), key.mod(), false);
             final char keyChar = sdlKey > 0 && sdlKey <= Character.MAX_VALUE && !Character.isISOControl((char) sdlKey)
                     ? (char) sdlKey
                     : '\0';
