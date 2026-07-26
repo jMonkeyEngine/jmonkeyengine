@@ -34,7 +34,7 @@ package com.jme3.cinematic.events;
 import com.jme3.animation.AnimationUtils;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.InputCapsule;
@@ -197,8 +197,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
-        super.initEvent(app, cinematic);
+    public void initEvent(CinematicHandler cinematic) {
+        super.initEvent(cinematic);
         isControl = false;
     }
 
