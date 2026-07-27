@@ -34,6 +34,7 @@ package com.jme3.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
@@ -45,8 +46,10 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -151,6 +154,31 @@ public class MaterialTest {
         mat.setTexture("ColorMap",tx2);  
         assertTrue(tx2.getImage().getColorSpace()==ColorSpace.Linear);       
     
+    }
+
+    @Test
+    public void testBackwardNormalsDoNotMutateTechniqueRenderState() throws Exception {
+        Material material = new Material(new MaterialDef(TestUtil.createAssetManager(), "test"));
+        Geometry geometry = new Geometry("Geometry", new Box(1, 1, 1));
+        geometry.setLocalScale(-1, 1, 1);
+        TechniqueDef techniqueDef = new TechniqueDef("test", 0);
+        RenderState techniqueState = new RenderState();
+        techniqueDef.setRenderState(techniqueState);
+        AtomicReference<RenderState> appliedState = new AtomicReference<>();
+        RenderManager renderManager = new RenderManager(new NullRenderer() {
+            @Override
+            public void applyRenderState(RenderState state) {
+                appliedState.set(state);
+            }
+        });
+
+        Method updateRenderState = Material.class.getDeclaredMethod("updateRenderState",
+                Geometry.class, RenderManager.class, Renderer.class, TechniqueDef.class);
+        updateRenderState.setAccessible(true);
+        updateRenderState.invoke(material, geometry, renderManager, renderManager.getRenderer(), techniqueDef);
+
+        assertEquals(RenderState.FaceCullMode.Back, techniqueState.getFaceCullMode());
+        assertEquals(RenderState.FaceCullMode.Front, appliedState.get().getFaceCullMode());
     }
 
     @Test
