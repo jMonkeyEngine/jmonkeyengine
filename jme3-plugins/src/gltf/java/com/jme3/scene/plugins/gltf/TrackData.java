@@ -221,7 +221,8 @@ public class TrackData {
             } else {
                 //interpolation between the previous transform and the next one.
                 KeyFrame lastKeyFrame = keyFrames.get(transformIndices.last);
-                float ratio = currentKeyFrame.time / (nextKeyFrame.time - lastKeyFrame.time);
+                float ratio = (currentKeyFrame.time - lastKeyFrame.time)
+                        / (nextKeyFrame.time - lastKeyFrame.time);
                 interpolate(type, ratio, lastKeyFrame, nextKeyFrame, index);
             }
 
