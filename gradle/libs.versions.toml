@@ -18,7 +18,7 @@ androidx-fragment-testing = "1.8.9"
 
 androidx-annotation = "androidx.annotation:annotation:1.10.0"
 androidx-fragment = "androidx.fragment:fragment:1.8.9"
-androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
+androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.11.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
 androidx-test-services = { module = "androidx.test.services:test-services", version = "1.6.0" }
