@@ -705,8 +705,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     @Override
     protected void createContext(AppSettings settings) {
-        boolean linux = Platform.get() == Platform.LINUX || 
-                        Platform.get() == Platform.FREEBSD;
+        boolean linux = Platform.get() == Platform.LINUX
+                || Platform.get() == Platform.FREEBSD;
         if (!settings.isX11PlatformPreferred() && linux && JmeSystem.isWaylandSession()) {
             LOGGER.log(Level.WARNING, "LWJGLX and AWT/Swing only work with X11, so XWayland will be used for GLX.");
         }

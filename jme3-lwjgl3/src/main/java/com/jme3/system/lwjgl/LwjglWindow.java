@@ -438,12 +438,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private void configureVideoDriverHints(AppSettings settings) {
         if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
-
-            /*
-             * Determine whether you want to use X11 or Wayland platform drivers. 
-             * This only works if you are in a Wayland session and want to force
-             * the use of X11 drivers through XWayland.
-             */
             if (settings.isX11PlatformPreferred()) {
                 SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11");
             } else if (JmeSystem.isWaylandSession()) {
