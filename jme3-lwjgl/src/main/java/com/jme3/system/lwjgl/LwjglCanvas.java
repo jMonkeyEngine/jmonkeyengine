@@ -210,6 +210,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 width = newWidth;
                 height = newHeight;
                 if (listener != null) {
+                    listener.reshape(width, height, width, height);
                     listener.reshape(width, height);
                 }
             }

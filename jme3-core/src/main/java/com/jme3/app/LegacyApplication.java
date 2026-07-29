@@ -265,6 +265,11 @@ public class LegacyApplication implements Application, SystemListener {
         }
     }
 
+    @Override
+    public AppSettings getSettings() {
+        return settings;
+    }
+
     /**
      * Sets the Timer implementation that will be used for calculating
      * frame times.  By default, Application will use the Timer as returned
@@ -590,10 +595,14 @@ public class LegacyApplication implements Application, SystemListener {
 
     /**
      * Internal use only.
+     *
+     * @deprecated Display size changes are reported through
+     * {@link #reshape(int, int, int, int)}. Use this new method instead.
+     * This one is kept only for backward compatibility.
      */
     @Override
+    @Deprecated
     public void reshape(int w, int h) {
-        reshape(w, h, w, h);
     }
 
     @Override

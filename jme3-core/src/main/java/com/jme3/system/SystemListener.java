@@ -48,8 +48,13 @@ public interface SystemListener {
      * Called to notify the application that the resolution has changed.
      * @param width the new logical width of the display (&ge;0)
      * @param height the new logical height of the display (&ge;0)
+     *
+     * @deprecated Implement {@link #reshape(int, int, int, int)} instead.
+     * This one is kept only for backward compatibility.
      */
-    public void reshape(int width, int height);
+    @Deprecated
+    public default void reshape(int width, int height) {
+    }
 
     /**
      * Called to notify the application that logical application size and
@@ -61,7 +66,6 @@ public interface SystemListener {
      * @param framebufferHeight the physical framebuffer height in pixels
      */
     public default void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
-        reshape(logicalWidth, logicalHeight);
     }
 
     /**

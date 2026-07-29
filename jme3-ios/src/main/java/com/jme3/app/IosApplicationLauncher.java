@@ -32,7 +32,10 @@
 package com.jme3.app;
 
 import com.jme3.system.JmeContext;
+import com.jme3.system.AppSettings;
+import com.jme3.system.DisplayScaleUtils;
 import com.jme3.system.ios.IGLESContext;
+import org.ngengine.libjglios.core.LibJGLIOSEglBridge;
 
 /**
  * Base iOS launcher for jME
@@ -43,12 +46,57 @@ public abstract class IosApplicationLauncher {
 
     protected Application app;
 
+    /**
+     * Creates the application early enough to configure the native iOS window
+     * and default framebuffer before libJGLIOS initializes graphics.
+     *
+     * @throws Exception if the application or native configuration fails
+     */
+    public void configure() throws Exception {
+        Application application = getOrCreateApplication();
+        AppSettings settings = application.getSettings();
+        if (settings == null) {
+            settings = new AppSettings(true);
+            application.setSettings(settings);
+        }
+
+        configureWindow(DisplayScaleUtils.requestsHighDensityFramebuffer(settings.getDisplayScaleMode()));
+
+        int bitsPerPixel = settings.getBitsPerPixel();
+        boolean rgba888 = settings.isGammaCorrection() || bitsPerPixel >= 24;
+        configureDefaultFramebuffer(
+                rgba888 ? 8 : 5,
+                rgba888 ? 8 : 6,
+                rgba888 ? 8 : 5,
+                Math.max(settings.getAlphaBits(), 0),
+                Math.max(settings.getDepthBits(), 0),
+                Math.max(settings.getStencilBits(), 0),
+                Math.max(settings.getSamples(), 0));
+    }
+
     public void start() {
         try {
-            startApplication(createApplication());
+            startApplication(getOrCreateApplication());
         } catch (Exception exception) {
             throw new IllegalStateException("jME application initialization failed", exception);
         }
+    }
+
+    private Application getOrCreateApplication() throws Exception {
+        if (app == null) {
+            app = createApplication();
+        }
+        return app;
+    }
+
+    protected void configureWindow(boolean highPixelDensity) {
+        LibJGLIOSEglBridge.configureWindow(highPixelDensity);
+    }
+
+    protected void configureDefaultFramebuffer(int redBits, int greenBits, int blueBits,
+            int alphaBits, int depthBits, int stencilBits, int samples) {
+        LibJGLIOSEglBridge.configureDefaultFramebuffer(
+                redBits, greenBits, blueBits, alphaBits, depthBits, stencilBits, samples);
     }
 
     protected void startApplication(Application application) throws Exception {

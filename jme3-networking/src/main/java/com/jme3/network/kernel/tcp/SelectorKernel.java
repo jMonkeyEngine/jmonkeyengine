@@ -33,6 +33,7 @@ package com.jme3.network.kernel.tcp;
 
 import com.jme3.network.Filter;
 import com.jme3.network.kernel.*;
+import com.jme3.util.ByteBufferUtils;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -161,7 +162,7 @@ public class SelectorKernel extends AbstractKernel
             // Give it the data... but let each endpoint track their
             // own completion over the shared array of bytes by
             // duplicating it
-            p.send( data.duplicate(), false, false );
+            p.send( ByteBufferUtils.duplicate(data), false, false );
         }
 
         // Wake up the selector so it can reinitialize its

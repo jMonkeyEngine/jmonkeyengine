@@ -386,6 +386,11 @@ public abstract class LwjglContext implements JmeContext {
 
     @Override
     public void setSettings(AppSettings settings) {
+        if (AppSettings.ANGLE_GLES3.equals(settings.getRenderer())) {
+            logger.log(Level.WARNING, "LWJGL2 does not support ANGLE_GLES3. "
+                    + "Defaulting to OpenGL 3.2 ({0}).", AppSettings.LWJGL_OPENGL32);
+            settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        }
         this.settings.copyFrom(settings);
     }
 

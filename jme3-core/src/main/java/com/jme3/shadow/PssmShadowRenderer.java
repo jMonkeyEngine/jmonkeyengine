@@ -42,6 +42,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -296,6 +297,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             throw new IllegalArgumentException("compareMode cannot be null");
         }
 
+        compareMode = resolveCompareMode(compareMode);
         if (this.compareMode == compareMode) {
             return;
         }
@@ -319,6 +321,14 @@ public class PssmShadowRenderer implements SceneProcessor {
         }
         postshadowMat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
         applyHWShadows = true;
+    }
+
+    private CompareMode resolveCompareMode(CompareMode requestedMode) {
+        if (requestedMode == CompareMode.Hardware && renderManager != null
+                && !renderManager.getRenderer().getCaps().contains(Caps.TextureShadowCompare)) {
+            return CompareMode.Software;
+        }
+        return requestedMode;
     }
 
     //debug function that create a displayable frustum
@@ -356,6 +366,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
+        setCompareMode(compareMode);
         postTechniqueName = "PostShadow";
     }
 

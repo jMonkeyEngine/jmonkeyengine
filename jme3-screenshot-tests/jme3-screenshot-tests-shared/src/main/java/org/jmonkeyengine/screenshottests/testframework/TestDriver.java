@@ -38,6 +38,7 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
+import com.jme3.system.DisplayScaleUtils;
 import com.jme3.system.JmeContext;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -129,6 +130,11 @@ public class TestDriver extends BaseAppState{
         AppSettings settings = app.getContext().getSettings();
         int width = settings.getWidth();
         int height = settings.getHeight();
+        float displayScaleMode = settings.getDisplayScaleMode();
+        if (DisplayScaleUtils.isEmulatedScaleMode(displayScaleMode)) {
+            width = Math.max(Math.round(app.getContext().getFramebufferWidth() * displayScaleMode), 1);
+            height = Math.max(Math.round(app.getContext().getFramebufferHeight() * displayScaleMode), 1);
+        }
         Texture2D renderTexture = new Texture2D(width, height, Image.Format.RGBA8);
         renderTexture.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
         renderTexture.setMagFilter(Texture.MagFilter.Bilinear);

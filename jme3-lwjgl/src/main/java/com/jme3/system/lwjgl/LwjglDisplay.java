@@ -226,6 +226,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             } catch (LWJGLException ex) {
                 logger.log(Level.SEVERE, "Failed to set display settings!", ex);
             }
+            listener.reshape(settings.getWidth(), settings.getHeight(), settings.getWidth(), settings.getHeight());
             listener.reshape(settings.getWidth(), settings.getHeight());
             if (renderable.get()) {
                 reinitContext();
@@ -237,6 +238,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             int newWidth = Display.getWidth();
             int newHeight = Display.getHeight();
             settings.setResolution(newWidth, newHeight);
+            listener.reshape(newWidth, newHeight, newWidth, newHeight);
             listener.reshape(newWidth, newHeight);
         }
 

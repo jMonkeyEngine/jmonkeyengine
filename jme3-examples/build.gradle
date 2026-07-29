@@ -6,7 +6,7 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 
 plugins {
-    id 'org.graalvm.buildtools.native' version '1.1.0'
+    id 'org.graalvm.buildtools.native' version '1.1.2'
 }
 
 ext.mainClassName = 'jme3test.TestChooser'

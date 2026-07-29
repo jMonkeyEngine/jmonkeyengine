@@ -40,6 +40,7 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 
@@ -155,7 +156,7 @@ public class EnvMapUtils {
         Image cubeImage = new Image(srcImg.getFormat(), srcImg.getWidth(), srcImg.getHeight(), null, srcImg.getColorSpace());
 
         for (ByteBuffer d : srcImg.getData()) {
-            cubeImage.addData(d.duplicate());
+            cubeImage.addData(ByteBufferUtils.duplicate(d));
         }
 
         cubeImage.setMipMapSizes(srcImg.getMipMapSizes());
@@ -748,6 +749,4 @@ public class EnvMapUtils {
         return pem;
     }
 }
-
-
 

@@ -17,6 +17,7 @@ import com.jme3.export.binary.ByteUtils;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 
 public class StbImageLoader implements AssetLoader {
@@ -124,8 +125,7 @@ public class StbImageLoader implements AssetLoader {
     private ByteBuffer convertImageData(StbImageResult imgData, Image.Format jmeFormat) {
         int outputSize = jmeFormat.getBitsPerPixel() / 8 * imgData.getWidth() * imgData.getHeight();
         ByteBuffer jmeImageBuffer = BufferUtils.createByteBuffer(outputSize);
-        ByteBuffer source = imgData.getData().duplicate();
-        source.order(imgData.getData().order());
+        ByteBuffer source = ByteBufferUtils.duplicate(imgData.getData());
         source.position(0).limit(imgData.getDataSize());
 
         if (!imgData.is16Bit() && !imgData.isFloat()) {
