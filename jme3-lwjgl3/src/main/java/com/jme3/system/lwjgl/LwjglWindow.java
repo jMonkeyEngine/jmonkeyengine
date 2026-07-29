@@ -438,10 +438,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private void configureVideoDriverHints(AppSettings settings) {
         if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
-            boolean isWaylandSession = "wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"));
             if (settings.isX11PlatformPreferred()) {
                 SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11");
-            } else if (isWaylandSession) {
+            } else if (JmeSystem.isWaylandSession()) {
                 SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
             }
         }
@@ -498,7 +497,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
             if (settings.isX11PlatformPreferred()) {
                 SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_X11_EXT);
-            } else if ("wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"))) {
+            } else if (JmeSystem.isWaylandSession()) {
                 SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_WAYLAND_EXT);
             }
         }
