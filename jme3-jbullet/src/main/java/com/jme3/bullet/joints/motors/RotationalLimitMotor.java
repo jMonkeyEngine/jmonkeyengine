@@ -32,17 +32,19 @@
 package com.jme3.bullet.joints.motors;
 
 /**
- *
  * @author normenhansen
  */
+@Deprecated
 public class RotationalLimitMotor {
 
     private com.bulletphysics.dynamics.constraintsolver.RotationalLimitMotor motor;
 
+    @Deprecated
     public RotationalLimitMotor(com.bulletphysics.dynamics.constraintsolver.RotationalLimitMotor motor) {
         this.motor = motor;
     }
 
+    @Deprecated
     public com.bulletphysics.dynamics.constraintsolver.RotationalLimitMotor getMotor() {
         return motor;
     }

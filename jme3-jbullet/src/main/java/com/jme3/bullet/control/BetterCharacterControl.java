@@ -69,6 +69,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
+@Deprecated
 public class BetterCharacterControl extends AbstractPhysicsControl implements PhysicsTickListener, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(BetterCharacterControl.class.getName());

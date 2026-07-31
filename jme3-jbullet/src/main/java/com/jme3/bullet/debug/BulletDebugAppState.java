@@ -61,6 +61,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
+@Deprecated
 public class BulletDebugAppState extends AbstractAppState {
 
     /**

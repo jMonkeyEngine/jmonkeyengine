@@ -52,6 +52,7 @@ import java.io.IOException;
  * Basic Bullet Character
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsCharacter extends PhysicsCollisionObject {
 
     protected KinematicCharacterController character;
