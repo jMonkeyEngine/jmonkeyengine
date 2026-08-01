@@ -10,6 +10,7 @@ def nativeImageExtension = project.extensions.findByName('jmeNativeImage')
         'jmeNativeImageAdditionalProxyInterfaceSets',
         'jmeNativeImageAdditionalUnsafeAllocatedTypes',
         'jmeNativeImageAdditionalUnsafeAllocationContainerTypes',
+        'jmeNativeImageAdditionalRuntimeInitializedTypes',
         'jmeNativeImageAdditionalResourceGlobs',
         'jmeNativeImageIncludeResourcesPattern',
         'jmeNativeImageExcludeResourcesPattern'
@@ -115,6 +116,8 @@ def defaultProxyInterfaceSets = [
 def defaultUnsafeAllocationContainerTypes = [
         'com.jme3.util.SafeArrayList'
 ]
+
+def defaultRuntimeInitializedTypes = []
 
 def asStringList = { Object value ->
     if (value == null) {
@@ -720,6 +723,20 @@ def normalizedUnsafeAllocationContainerTypes = {
             .unique()
 }
 
+def normalizedRuntimeInitializedTypes = {
+    return (defaultRuntimeInitializedTypes + configuredStringList('jmeNativeImageAdditionalRuntimeInitializedTypes', 'additionalRuntimeInitializedTypes'))
+            .collect { it == null ? null : it.trim().replace('/', '.') }
+            .findAll { it != null && !it.isEmpty() }
+            .collect { String classOrPackageName ->
+                if (!(classOrPackageName ==~ /[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*/)) {
+                    throw new GradleException("Invalid Native Image runtime-initialization type or package '${classOrPackageName}'")
+                }
+                return classOrPackageName
+            }
+            .toSorted()
+            .unique()
+}
+
 def normalizedResourceGlobs = {
     return configuredStringList('jmeNativeImageAdditionalResourceGlobs', 'additionalResourceGlobs')
             .findAll { !it.isEmpty() }
@@ -805,9 +822,13 @@ project.afterEvaluate {
     }
 
     File generatedResourcesRoot = project.layout.buildDirectory.dir('generated/native-image-metadata/resources').get().asFile
-    File nativeImageMetadataDir = new File(generatedResourcesRoot, "META-INF/native-image/${project.group}/${project.name}")
+    String nativeImageMetadataRelativeDir = "META-INF/native-image/${project.group}/${project.name}"
+    File nativeImageMetadataDir = new File(generatedResourcesRoot, nativeImageMetadataRelativeDir)
     File metadataFile = new File(nativeImageMetadataDir, 'reachability-metadata.json')
     File reflectConfigFile = new File(nativeImageMetadataDir, 'reflect-config.json')
+    String runtimeInitializationPropertiesRelativePath = "${nativeImageMetadataRelativeDir}/jme-runtime-initialization/native-image.properties"
+    File nativeImagePropertiesFile = new File(generatedResourcesRoot, runtimeInitializationPropertiesRelativePath)
+    File legacyNativeImagePropertiesFile = new File(nativeImageMetadataDir, 'native-image.properties')
     File nativeRuntimeLibsDir = project.layout.buildDirectory.dir('native/nativeCompile/lib').get().asFile
     Set<File> originalResourceDirs = mainSourceSet.resources.srcDirs.collect { it.absoluteFile } as LinkedHashSet<File>
     File projectBuildDir = project.layout.buildDirectory.get().asFile.absoluteFile
@@ -855,10 +876,12 @@ project.afterEvaluate {
         inputs.property('jmeNativeImageProxyInterfaceSets', normalizedProxyInterfaceSets())
         inputs.property('jmeNativeImageAdditionalUnsafeAllocatedTypes', normalizedAdditionalUnsafeAllocatedTypes())
         inputs.property('jmeNativeImageUnsafeAllocationContainerTypes', normalizedUnsafeAllocationContainerTypes())
+        inputs.property('jmeNativeImageRuntimeInitializedTypes', normalizedRuntimeInitializedTypes())
         inputs.property('jmeNativeImageAdditionalResourceGlobs', normalizedResourceGlobs())
-        inputs.property('jmeNativeImageGeneratorVersion', 5)
+        inputs.property('jmeNativeImageGeneratorVersion', 7)
         outputs.file(metadataFile)
         outputs.file(reflectConfigFile)
+        outputs.file(nativeImagePropertiesFile)
 
         [mainSourceSet.compileJavaTaskName, 'compileGroovy', 'compileKotlin'].each { taskName ->
             def compileTask = project.tasks.findByName(taskName)
@@ -872,6 +895,23 @@ project.afterEvaluate {
 
         doLast {
             metadataFile.parentFile.mkdirs()
+            if (legacyNativeImagePropertiesFile.isFile() && !legacyNativeImagePropertiesFile.delete()) {
+                throw new GradleException("Could not remove legacy generated Native Image properties ${legacyNativeImagePropertiesFile}")
+            }
+            List<File> conflictingSourceProperties = metadataResourceDirs.collect { File resourceDir ->
+                new File(resourceDir, runtimeInitializationPropertiesRelativePath)
+            }.findAll { it.isFile() }
+            if (!conflictingSourceProperties.isEmpty()) {
+                throw new GradleException(
+                        "The Native Image resource path ${runtimeInitializationPropertiesRelativePath} is reserved by the jME Native Image plugin; " +
+                                "move ${conflictingSourceProperties.join(', ')} to another META-INF/native-image subdirectory."
+                )
+            }
+            nativeImagePropertiesFile.parentFile.mkdirs()
+            List<String> runtimeInitializedTypes = normalizedRuntimeInitializedTypes()
+            nativeImagePropertiesFile.text = runtimeInitializedTypes.isEmpty()
+                    ? '# No additional runtime-initialized classes configured.' + System.lineSeparator()
+                    : "Args = --initialize-at-run-time=${runtimeInitializedTypes.join(',')}" + System.lineSeparator()
 
             Set<File> scanPathFiles = new LinkedHashSet<>()
             scanPathFiles.addAll(mainSourceSet.output.classesDirs.files.findAll { it.exists() })
@@ -1179,6 +1219,7 @@ project.afterEvaluate {
         dependsOn(generateTaskProvider)
         inputs.file(metadataFile)
         inputs.file(reflectConfigFile)
+        inputs.file(nativeImagePropertiesFile)
 
         doLast {
             def parsed = new JsonSlurper().parse(metadataFile)
@@ -1188,6 +1229,15 @@ project.afterEvaluate {
             def parsedReflectConfig = new JsonSlurper().parse(reflectConfigFile)
             if (!(parsedReflectConfig instanceof List)) {
                 throw new GradleException("Malformed reflect-config metadata in ${reflectConfigFile}")
+            }
+            Properties nativeImageProperties = new Properties()
+            nativeImagePropertiesFile.withInputStream { nativeImageProperties.load(it) }
+            List<String> runtimeInitializedTypes = normalizedRuntimeInitializedTypes()
+            String expectedRuntimeInitializationArg = runtimeInitializedTypes.isEmpty()
+                    ? null
+                    : "--initialize-at-run-time=${runtimeInitializedTypes.join(',')}"
+            if (nativeImageProperties.getProperty('Args') != expectedRuntimeInitializationArg) {
+                throw new GradleException("Malformed runtime-initialization configuration in ${nativeImagePropertiesFile}")
             }
 
             Set<String> seenReflectionEntries = new LinkedHashSet<>()
