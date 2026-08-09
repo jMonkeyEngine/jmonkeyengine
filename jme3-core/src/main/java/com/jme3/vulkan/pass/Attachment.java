@@ -2,7 +2,7 @@ package com.jme3.vulkan.pass;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import org.lwjgl.vulkan.VkAttachmentDescription;
 
 public class Attachment {
@@ -10,12 +10,12 @@ public class Attachment {
     private final int position;
     private final Format format;
     private final int samples;
-    private VulkanImage.Load load = VulkanImage.Load.DontCare;
-    private VulkanImage.Store store = VulkanImage.Store.DontCare;
-    private VulkanImage.Load stencilLoad = VulkanImage.Load.DontCare;
-    private VulkanImage.Store stencilStore = VulkanImage.Store.DontCare;
-    private VulkanImage.Layout initialLayout = VulkanImage.Layout.Undefined;
-    private VulkanImage.Layout finalLayout = VulkanImage.Layout.General;
+    private EngineImage.Load load = EngineImage.Load.DontCare;
+    private EngineImage.Store store = EngineImage.Store.DontCare;
+    private EngineImage.Load stencilLoad = EngineImage.Load.DontCare;
+    private EngineImage.Store stencilStore = EngineImage.Store.DontCare;
+    private EngineImage.Layout initialLayout = EngineImage.Layout.Undefined;
+    private EngineImage.Layout finalLayout = EngineImage.Layout.General;
     private final ColorRGBA clearColor = ColorRGBA.Black.clone();
     private float clearDepth = 1f;
     private int clearStencil = 0;
@@ -38,7 +38,7 @@ public class Attachment {
         this.finalLayout = base.finalLayout;
     }
 
-    public AttachmentReference createReference(VulkanImage.Layout layout) {
+    public AttachmentReference createReference(EngineImage.Layout layout) {
         return new AttachmentReference(this, layout);
     }
 
@@ -53,27 +53,27 @@ public class Attachment {
                 .finalLayout(finalLayout.getEnum());
     }
 
-    public void setLoad(VulkanImage.Load load) {
+    public void setLoad(EngineImage.Load load) {
         this.load = load;
     }
 
-    public void setStencilLoad(VulkanImage.Load stencilLoad) {
+    public void setStencilLoad(EngineImage.Load stencilLoad) {
         this.stencilLoad = stencilLoad;
     }
 
-    public void setStore(VulkanImage.Store store) {
+    public void setStore(EngineImage.Store store) {
         this.store = store;
     }
 
-    public void setStencilStore(VulkanImage.Store stencilStore) {
+    public void setStencilStore(EngineImage.Store stencilStore) {
         this.stencilStore = stencilStore;
     }
 
-    public void setInitialLayout(VulkanImage.Layout initialLayout) {
+    public void setInitialLayout(EngineImage.Layout initialLayout) {
         this.initialLayout = initialLayout;
     }
 
-    public void setFinalLayout(VulkanImage.Layout finalLayout) {
+    public void setFinalLayout(EngineImage.Layout finalLayout) {
         this.finalLayout = finalLayout;
     }
 
@@ -101,27 +101,27 @@ public class Attachment {
         return samples;
     }
 
-    public VulkanImage.Load getLoad() {
+    public EngineImage.Load getLoad() {
         return load;
     }
 
-    public VulkanImage.Load getStencilLoad() {
+    public EngineImage.Load getStencilLoad() {
         return stencilLoad;
     }
 
-    public VulkanImage.Store getStore() {
+    public EngineImage.Store getStore() {
         return store;
     }
 
-    public VulkanImage.Store getStencilStore() {
+    public EngineImage.Store getStencilStore() {
         return stencilStore;
     }
 
-    public VulkanImage.Layout getInitialLayout() {
+    public EngineImage.Layout getInitialLayout() {
         return initialLayout;
     }
 
-    public VulkanImage.Layout getFinalLayout() {
+    public EngineImage.Layout getFinalLayout() {
         return finalLayout;
     }
 

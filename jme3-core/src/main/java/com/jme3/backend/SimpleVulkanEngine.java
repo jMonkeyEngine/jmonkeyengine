@@ -22,6 +22,7 @@ import com.jme3.vulkan.devices.GeneralPhysicalDevice;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.*;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.material.exp2.RenderSession;
 import com.jme3.vulkan.material.experimental.*;
 import com.jme3.vulkan.material.shader.ShaderModule;
@@ -141,7 +142,7 @@ public class SimpleVulkanEngine implements Engine {
         VulkanImageView renderDepth = createPresentDepth();
         CommandBuffer initCmds = transientGraphicsPool.allocate(CommandBuffer.Level.Primary);
         initCmds.beginRecording();
-        renderDepth.getImage().transitionLayout(initCmds, VulkanImage.Layout.DepthStencilAttachmentOptimal);
+        renderDepth.getImage().transitionLayout(initCmds, EngineImage.Layout.DepthStencilAttachmentOptimal);
         TimelineSemaphore.SignalEvent initEvent = initCmds.signalEvent(new TimelineSemaphore(device));
         initCmds.endRecording();
         initCmds.submit();
@@ -173,17 +174,17 @@ public class SimpleVulkanEngine implements Engine {
     }
 
     private VulkanImageView createPresentDepth() {
-        VulkanImage depth = BasicVulkanImage.build(device, GpuImage.Type.TwoDemensional, i -> {
+        VulkanImage depth = BasicVulkanImage.build(device, EngineImage.Type.TwoDemensional, i -> {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(device.getPhysicalDevice().findSupportedFormat(
-                    VulkanImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
+                    EngineImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                     Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt));
-            i.setTiling(VulkanImage.Tiling.Optimal);
+            i.setTiling(EngineImage.Tiling.Optimal);
             i.setUsage(ImageRoles.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         });
         return VulkanImageView.build(depth, ImageView.Type.TwoDemensional, v -> {
-            v.setAspect(VulkanImage.Aspect.Depth);
+            v.setAspect(EngineImage.Aspect.Depth);
         });
     }
 
@@ -230,7 +231,7 @@ public class SimpleVulkanEngine implements Engine {
         public void close() {
             if (!outputAvailable) return;
             Swapchain.PresentImage present = outFrameBuffer.getCurrentImage();
-            present.transitionLayout(graphics, VulkanImage.Layout.PresentSrc);
+            present.transitionLayout(graphics, EngineImage.Layout.PresentSrc);
             graphics.await(imageAcquired, PipelineStage.ColorAttachmentOutput);
             graphics.signal(renderComplete);
             graphics.endRecording();
@@ -252,8 +253,8 @@ public class SimpleVulkanEngine implements Engine {
                 }
                 VulkanFrameBuffer fbo = (VulkanFrameBuffer)vp.getOutputFrameBuffer();
                 fbo.beginDynamicRender(graphics,
-                        VulkanImage.Load.DontCare, VulkanImage.Store.Store,
-                        VulkanImage.Load.DontCare, VulkanImage.Store.DontCare);
+                        EngineImage.Load.DontCare, EngineImage.Store.Store,
+                        EngineImage.Load.DontCare, EngineImage.Store.DontCare);
                 //settings.pushViewPort(vp.getArea());
                 //settings.pushScissor(vp.getArea().toScissor(null));
                 for (GeometryBucket b : vp.gatherGeometry(s -> s.runControlRender(SimpleVulkanEngine.this, vp))) {
@@ -301,7 +302,7 @@ public class SimpleVulkanEngine implements Engine {
             VulkanImageView depth = createPresentDepth();
             CommandBuffer cmd = transientGraphicsPool.allocate(CommandBuffer.Level.Primary);
             cmd.beginRecording();
-            depth.getImage().transitionLayout(cmd, VulkanImage.Layout.DepthStencilAttachmentOptimal);
+            depth.getImage().transitionLayout(cmd, EngineImage.Layout.DepthStencilAttachmentOptimal);
             TimelineSemaphore.SignalEvent event = cmd.signalEvent(wait);
             cmd.endRecording();
             cmd.submit();

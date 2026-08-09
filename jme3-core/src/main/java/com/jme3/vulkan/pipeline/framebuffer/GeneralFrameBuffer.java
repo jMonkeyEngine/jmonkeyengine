@@ -6,8 +6,8 @@ import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -127,7 +127,7 @@ public class GeneralFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget>
     }
 
     @Override
-    public void beginDynamicRender(CommandBuffer cmd, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore, Flag<Render> flags) {
+    public void beginDynamicRender(CommandBuffer cmd, EngineImage.Load colorLoad, EngineImage.Store colorStore, EngineImage.Load depthLoad, EngineImage.Store depthStore, Flag<Render> flags) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkRenderingInfo render = VkRenderingInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDERING_INFO)
@@ -147,7 +147,7 @@ public class GeneralFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget>
             if (depthTarget != null) {
                 VkRenderingAttachmentInfo att = depthTarget.fill(VkRenderingAttachmentInfo.calloc(stack).sType(VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO), colorLoad, colorStore);
                 render.pDepthAttachment(att);
-                if (depthTarget.getView().getAspect().contains(VulkanImage.Aspect.Stencil)) {
+                if (depthTarget.getView().getAspect().contains(EngineImage.Aspect.Stencil)) {
                     render.pStencilAttachment(att);
                 }
                 depthTarget.transition(cmd);
@@ -162,7 +162,7 @@ public class GeneralFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget>
 
     @Override
     public boolean isUsingStencil() {
-        return depthTarget != null && depthTarget.getView().getAspect().contains(VulkanImage.Aspect.Stencil);
+        return depthTarget != null && depthTarget.getView().getAspect().contains(EngineImage.Aspect.Stencil);
     }
 
     @Override

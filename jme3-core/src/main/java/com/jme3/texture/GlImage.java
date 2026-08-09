@@ -43,6 +43,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.natives.GlNative;
 import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.IntEnum;
 
 import java.io.IOException;
@@ -64,8 +65,8 @@ import java.util.List;
 public class GlImage extends GlNative implements GpuImage, Savable /*, Cloneable*/ {
 
     @Override
-    public IntEnum<Type> getType() {
-        return Type.TwoDemensional;
+    public IntEnum<EngineImage.Type> getType() {
+        return EngineImage.Type.TwoDemensional;
     }
 
     public enum Format {

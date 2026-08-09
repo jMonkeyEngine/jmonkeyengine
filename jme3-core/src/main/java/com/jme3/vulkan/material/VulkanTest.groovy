@@ -8,7 +8,7 @@ import com.jme3.vulkan.buffers.stream.StreamingBuffer
 import com.jme3.vulkan.descriptors.DescriptorType
 import com.jme3.vulkan.descriptors.UniformBinding
 import com.jme3.vulkan.devices.LogicalDevice
-import com.jme3.vulkan.images.VulkanImage
+import com.jme3.vulkan.images.newimage.EngineImage
 import com.jme3.vulkan.material.shader.ShaderStage
 import com.jme3.vulkan.material.technique.VulkanTechnique
 import com.jme3.vulkan.material.uniforms.TextureUniform
@@ -22,7 +22,7 @@ mat = engine.createMaterial()
 mat.setUniform "PBR", new BufferUniform<>(StructLayout.std140, new LightData(), (MemorySize size) -> {
     return new StreamingBuffer(device, size, BufferRole.Uniform)
 })
-mat.setUniform "ColorMap", new TextureUniform(VulkanImage.Layout.ShaderReadOnlyOptimal)
+mat.setUniform "ColorMap", new TextureUniform(EngineImage.Layout.ShaderReadOnlyOptimal)
 
 technique = new VulkanTechnique()
 technique.setShaderSource ShaderStage.Vertex, "Test/VulkanTest.vert"

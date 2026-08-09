@@ -4,6 +4,9 @@ import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.images.BufferImageCopy;
+import com.jme3.vulkan.images.ImageCopy;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -49,6 +52,16 @@ public interface CommandBuffer {
     default void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst) {
         cmdStreamFromRemote(src, dst, null);
     }
+
+    void cmdTransitionLayout(EngineImage image, EngineImage.Layout srcLayout, EngineImage.Layout dstLayout);
+
+    void cmdCopy(EngineImage src, EngineImage dst, ImageCopy copy);
+
+    void cmdCopy(EngineBuffer src, EngineImage dst, BufferImageCopy copy);
+
+    void cmdCopy(EngineImage src, EngineBuffer dst, BufferImageCopy copy);
+
+    void cmdResolveMultisampled(EngineImage src, EngineImage dst, ImageCopy copy);
 
     void beginRecording();
 

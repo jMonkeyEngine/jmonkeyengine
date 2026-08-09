@@ -2,7 +2,7 @@ package com.jme3.vulkan;
 
 import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.shaderc.ShaderType;
@@ -76,7 +76,7 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
-    public int getImageLoadEnum(VulkanImage.Load load) {
+    public int getImageLoadEnum(EngineImage.Load load) {
         switch (load) {
             case Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
             case Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -86,7 +86,7 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
-    public int getImageStoreEnum(VulkanImage.Store store) {
+    public int getImageStoreEnum(EngineImage.Store store) {
         switch (store) {
             case Store: return VK_ATTACHMENT_STORE_OP_STORE;
             case DontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;

@@ -4,9 +4,9 @@ import com.jme3.texture.ImageView;
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
-import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.Swizzle;
 import com.jme3.vulkan.VulkanEnums;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
@@ -26,7 +26,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
     private IntEnum<Swizzle> swizzleG = Swizzle.G;
     private IntEnum<Swizzle> swizzleB = Swizzle.B;
     private IntEnum<Swizzle> swizzleA = Swizzle.A;
-    private Flag<VulkanImage.Aspect> aspect = VulkanImage.Aspect.Color;
+    private Flag<EngineImage.Aspect> aspect = EngineImage.Aspect.Color;
     private int baseMipmap = 0;
     private int mipmapCount = 1;
     private int baseLayer = 0;
@@ -93,7 +93,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return swizzleA;
     }
 
-    public Flag<VulkanImage.Aspect> getAspect() {
+    public Flag<EngineImage.Aspect> getAspect() {
         return aspect;
     }
 
@@ -153,7 +153,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
             VulkanImageView.this.swizzleA = swizzleA;
         }
 
-        public void setAspect(Flag<VulkanImage.Aspect> aspect) {
+        public void setAspect(Flag<EngineImage.Aspect> aspect) {
             VulkanImageView.this.aspect = aspect;
         }
 

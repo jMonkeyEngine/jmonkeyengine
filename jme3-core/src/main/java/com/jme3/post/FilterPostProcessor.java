@@ -43,7 +43,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.commands.RenderCommands;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 
 import java.io.IOException;
@@ -340,7 +340,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         FrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL32)) {
             //renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true, true);
-            commands.blitFrameBuffer(renderFrameBufferMS, renderFrameBuffer, VulkanImage.Aspect.Color.add(VulkanImage.Aspect.DepthStencil));
+            commands.blitFrameBuffer(renderFrameBufferMS, renderFrameBuffer, EngineImage.Aspect.Color.add(EngineImage.Aspect.DepthStencil));
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }

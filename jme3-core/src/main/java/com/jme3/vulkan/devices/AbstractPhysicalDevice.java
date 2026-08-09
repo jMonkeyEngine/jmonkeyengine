@@ -7,7 +7,7 @@ import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.util.Flag;
@@ -90,12 +90,12 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
     }
 
     @Override
-    public Format findSupportedFormat(VulkanImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates) {
+    public Format findSupportedFormat(EngineImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
         for (Format f : candidates) {
             vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getEnum(), props);
-            if ((tiling == VulkanImage.Tiling.Linear && features.contains(props.linearTilingFeatures()))
-                    || (tiling == VulkanImage.Tiling.Optimal && features.contains(props.optimalTilingFeatures()))) {
+            if ((tiling == EngineImage.Tiling.Linear && features.contains(props.linearTilingFeatures()))
+                    || (tiling == EngineImage.Tiling.Optimal && features.contains(props.optimalTilingFeatures()))) {
                 return f;
             }
         }

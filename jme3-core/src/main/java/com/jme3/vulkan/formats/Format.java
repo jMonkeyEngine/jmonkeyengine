@@ -1,9 +1,8 @@
 package com.jme3.vulkan.formats;
 
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.Flag;
 
-import static org.lwjgl.vulkan.VK10.*;
 import static com.jme3.vulkan.formats.GlComponent.*;
 
 public enum Format {
@@ -50,14 +49,14 @@ public enum Format {
 
     public enum Aspects {
 
-        Color(true, false, false, VulkanImage.Aspect.Color),
-        Depth(false, true, false, VulkanImage.Aspect.Depth),
-        DepthStencil(false, true, true, VulkanImage.Aspect.DepthStencil);
+        Color(true, false, false, EngineImage.Aspect.Color),
+        Depth(false, true, false, EngineImage.Aspect.Depth),
+        DepthStencil(false, true, true, EngineImage.Aspect.DepthStencil);
 
         private final boolean color, depth, stencil;
-        private final Flag<VulkanImage.Aspect> imageAspect;
+        private final Flag<EngineImage.Aspect> imageAspect;
 
-        Aspects(boolean color, boolean depth, boolean stencil, Flag<VulkanImage.Aspect> imageAspect) {
+        Aspects(boolean color, boolean depth, boolean stencil, Flag<EngineImage.Aspect> imageAspect) {
             this.color = color;
             this.depth = depth;
             this.stencil = stencil;
@@ -76,7 +75,7 @@ public enum Format {
             return stencil;
         }
 
-        public Flag<VulkanImage.Aspect> getImageAspect() {
+        public Flag<EngineImage.Aspect> getImageAspect() {
             return imageAspect;
         }
     }

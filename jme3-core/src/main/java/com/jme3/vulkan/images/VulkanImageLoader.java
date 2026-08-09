@@ -5,6 +5,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.BasicVulkanBuffer;
 import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -160,22 +161,22 @@ public class VulkanImageLoader implements AssetLoader {
                 s.setMemFlags(Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent));
             }
             staging.copy(data.getBuffer());
-            BasicVulkanImage image = new BasicVulkanImage(transferPool.getDevice(), VulkanImage.Type.TwoDemensional);
+            BasicVulkanImage image = new BasicVulkanImage(transferPool.getDevice(), EngineImage.Type.TwoDemensional);
             try (BasicVulkanImage.Builder i = image.build()) {
                 i.setSize(data.getWidth(), data.getHeight());
                 i.setFormat(data.getFormat());
-                i.setTiling(VulkanImage.Tiling.Optimal);
+                i.setTiling(EngineImage.Tiling.Optimal);
                 i.setUsage(Flag.of(ImageRoles.TransferDst, ImageRoles.Sampled));
                 i.setMemoryProps(MemoryProp.DeviceLocal);
             }
             CommandBuffer commands = transferPool.allocateTransientCommandBuffer();
             commands.beginRecording();
-            image.transitionLayout(commands, VulkanImage.Layout.TransferDstOptimal);
+            image.transitionLayout(commands, EngineImage.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
                     .bufferOffset(0)
                     .bufferRowLength(0) // padding bytes
                     .bufferImageHeight(0); // padding bytes
-            region.imageSubresource().aspectMask(VulkanImage.Aspect.Color.bits())
+            region.imageSubresource().aspectMask(EngineImage.Aspect.Color.bits())
                     .mipLevel(0)
                     .baseArrayLayer(0)
                     .layerCount(1);
@@ -183,7 +184,7 @@ public class VulkanImageLoader implements AssetLoader {
             region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
             vkCmdCopyBufferToImage(commands.getBuffer(), staging.getId(),
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-            image.transitionLayout(commands, VulkanImage.Layout.ShaderReadOnlyOptimal);
+            image.transitionLayout(commands, EngineImage.Layout.ShaderReadOnlyOptimal);
             commands.endAndSubmit(SyncGroup.ASYNC);
             transferPool.getQueue().waitIdle();
             return image;

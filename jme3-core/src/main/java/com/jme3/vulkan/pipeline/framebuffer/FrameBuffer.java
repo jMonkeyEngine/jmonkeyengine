@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pipeline.framebuffer;
 
 import com.jme3.texture.ImageView;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class FrameBuffer <T extends ImageView> {
     }
 
     public boolean isUsingStencil() {
-        return isUsingDepth() && depthStencilTarget.getAspects().containsAny(VulkanImage.Aspect.Stencil);
+        return isUsingDepth() && depthStencilTarget.getAspects().containsAny(EngineImage.Aspect.Stencil);
     }
 
     public Point getArea() {

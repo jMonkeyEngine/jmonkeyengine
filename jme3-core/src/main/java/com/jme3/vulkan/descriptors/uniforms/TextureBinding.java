@@ -8,6 +8,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -25,15 +26,15 @@ public class TextureBinding extends UniformBinding<Texture<VulkanImageView, Vulk
 
     @Override
     public DescriptorSetWriter createWriter(Texture<VulkanImageView, VulkanImage> value) {
-        return new Writer(value, VulkanImage.Layout.ShaderReadOnlyOptimal);
+        return new Writer(value, EngineImage.Layout.ShaderReadOnlyOptimal);
     }
 
     private class Writer implements DescriptorSetWriter {
 
         private final Texture<VulkanImageView, ? extends GpuImage> texture;
-        private final IntEnum<VulkanImage.Layout> layout;
+        private final IntEnum<EngineImage.Layout> layout;
 
-        public Writer(Texture<VulkanImageView, ? extends GpuImage> texture, IntEnum<VulkanImage.Layout> layout) {
+        public Writer(Texture<VulkanImageView, ? extends GpuImage> texture, IntEnum<EngineImage.Layout> layout) {
             this.texture = texture;
             this.layout = layout;
         }

@@ -2,8 +2,8 @@ package com.jme3.vulkan.pipeline.framebuffer;
 
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.vulkan.EXTLegacyDithering;
 import org.lwjgl.vulkan.KHRMaintenance7;
@@ -33,11 +33,11 @@ public interface VulkanFrameBuffer <T extends RenderTarget<VulkanImageView>> ext
 
     }
 
-    void beginDynamicRender(CommandBuffer cmd, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore, Flag<Render> flags);
+    void beginDynamicRender(CommandBuffer cmd, EngineImage.Load colorLoad, EngineImage.Store colorStore, EngineImage.Load depthLoad, EngineImage.Store depthStore, Flag<Render> flags);
 
     long getBufferId(LogicalDevice<?> device);
 
-    default void beginDynamicRender(CommandBuffer cmd, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore) {
+    default void beginDynamicRender(CommandBuffer cmd, EngineImage.Load colorLoad, EngineImage.Store colorStore, EngineImage.Load depthLoad, EngineImage.Store depthStore) {
         beginDynamicRender(cmd, colorLoad, colorStore, depthLoad, depthStore, Flag.empty());
     }
 

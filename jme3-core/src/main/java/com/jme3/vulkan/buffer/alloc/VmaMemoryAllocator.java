@@ -1,5 +1,6 @@
 package com.jme3.vulkan.buffer.alloc;
 
+import com.jme3.math.Vector3i;
 import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
@@ -103,8 +104,8 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
                     .mipLevels(mipLevels)
                     .arrayLayers(arrayLayers)
                     .usage(roles.bits())
-                    .tiling(VulkanImage.Tiling.Optimal.getEnum())
-                    .initialLayout(VulkanImage.Layout.Undefined.getEnum())
+                    .tiling(EngineImage.Tiling.Optimal.getEnum())
+                    .initialLayout(EngineImage.Layout.Undefined.getEnum())
                     .sharingMode(SharingMode.Exclusive.getEnum());
             imgCreate.extent().set(width, height, depth);
             VmaAllocationCreateInfo allocCreate = VmaAllocationCreateInfo.calloc(stack)
@@ -244,6 +245,77 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
     }
 
     private class VmaImage implements EngineImage {
+
+        private final long image, alloc;
+        private final Type type;
+        private final Format format;
+        private final Vector3i size;
+        private final int samples, mipLevels, arrayLayers;
+        private final Tiling tiling;
+        private final Flag<ImageRoles> roles;
+        private final Flag<MemoryProp> memProps;
+        private Layout layout = Layout.Undefined;
+
+        @Override
+        public long getHandle() {
+            return image;
+        }
+
+        @Override
+        public Type getType() {
+            return type;
+        }
+
+        @Override
+        public Format getFormat() {
+            return format;
+        }
+
+        @Override
+        public Layout getLayout() {
+            return layout;
+        }
+
+        @Override
+        public Vector3i getSize() {
+            return size;
+        }
+
+        @Override
+        public int getSamples() {
+            return samples;
+        }
+
+        @Override
+        public int getMipLevels() {
+            return mipLevels;
+        }
+
+        @Override
+        public int getArrayLayers() {
+            return arrayLayers;
+        }
+
+        @Override
+        public Tiling getTiling() {
+            return tiling;
+        }
+
+        @Override
+        public Flag<ImageRoles> getRoles() {
+            return roles;
+        }
+
+        @Override
+        public Flag<MemoryProp> getMemoryProperties() {
+            return memProps;
+        }
+
+        @Override
+        public void transitionLayout(CommandBuffer cmd, Layout layout) {
+            cmd.cmdTransitionLayout(this, this.layout, layout);
+            this.layout = layout;
+        }
 
     }
 

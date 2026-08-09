@@ -11,10 +11,10 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageRoles;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.framebuffer.GeneralFrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
@@ -218,8 +218,8 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public IntEnum<GpuImage.Type> getType() {
-            return GpuImage.Type.TwoDemensional;
+        public IntEnum<EngineImage.Type> getType() {
+            return EngineImage.Type.TwoDemensional;
         }
 
         @Override
@@ -263,8 +263,8 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public VulkanImage.Tiling getTiling() {
-            return VulkanImage.Tiling.Optimal;
+        public EngineImage.Tiling getTiling() {
+            return EngineImage.Tiling.Optimal;
         }
 
         @Override
@@ -278,7 +278,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public void transitionLayout(MemoryStack stack, CommandBuffer commands, Layout layout) {
+        public void transitionLayout(MemoryStack stack, CommandBuffer commands, EngineImage.Layout layout) {
             throw new UnsupportedOperationException("Cannot transition swapchain image.");
         }
 

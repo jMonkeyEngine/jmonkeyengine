@@ -1,6 +1,6 @@
 package com.jme3.vulkan.pass;
 
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkAttachmentReference;
 
@@ -10,9 +10,9 @@ import org.lwjgl.vulkan.VkAttachmentReference;
 public class AttachmentReference {
 
     private final Attachment attachment;
-    private final VulkanImage.Layout layout;
+    private final EngineImage.Layout layout;
 
-    protected AttachmentReference(Attachment attachment, VulkanImage.Layout layout) {
+    protected AttachmentReference(Attachment attachment, EngineImage.Layout layout) {
         this.attachment = attachment;
         this.layout = layout;
     }
@@ -26,7 +26,7 @@ public class AttachmentReference {
         return attachment;
     }
 
-    public VulkanImage.Layout getLayout() {
+    public EngineImage.Layout getLayout() {
         return layout;
     }
 
@@ -42,7 +42,7 @@ public class AttachmentReference {
         return isUnused() == ref.isUnused() && (isUnused() || attachment.isCompatible(ref.attachment)) && layout == ref.layout;
     }
 
-    public static AttachmentReference unused(VulkanImage.Layout layout) {
+    public static AttachmentReference unused(EngineImage.Layout layout) {
         return new AttachmentReference(null, layout);
     }
 

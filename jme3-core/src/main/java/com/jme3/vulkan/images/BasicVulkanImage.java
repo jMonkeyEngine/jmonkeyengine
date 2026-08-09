@@ -9,6 +9,7 @@ import com.jme3.vulkan.buffer.SharingMode;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.util.Flag;
@@ -28,7 +29,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImage {
 
     private final LogicalDevice<?> device;
-    private final IntEnum<GpuImage.Type> type;
+    private final IntEnum<EngineImage.Type> type;
     private MemoryRegion memory;
 
     private int width, height, depth;
@@ -36,11 +37,11 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     private int samples = VK_SAMPLE_COUNT_1_BIT;
     private Flag<ImageRoles> usage;
     private Format format = Format.RGBA8_SRGB;
-    private IntEnum<Tiling> tiling = Tiling.Optimal;
+    private IntEnum<EngineImage.Tiling> tiling = EngineImage.Tiling.Optimal;
     private IntEnum<SharingMode> sharing = SharingMode.Exclusive;
-    private Layout layout = Layout.Undefined;
+    private EngineImage.Layout layout = EngineImage.Layout.Undefined;
 
-    public BasicVulkanImage(LogicalDevice<?> device, IntEnum<GpuImage.Type> type) {
+    public BasicVulkanImage(LogicalDevice<?> device, IntEnum<EngineImage.Type> type) {
         this.device = device;
         this.type = type;
         width = height = depth = 1;
@@ -58,7 +59,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public IntEnum<GpuImage.Type> getType() {
+    public IntEnum<EngineImage.Type> getType() {
         return type;
     }
 
@@ -103,7 +104,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public IntEnum<Tiling> getTiling() {
+    public IntEnum<EngineImage.Tiling> getTiling() {
         return tiling;
     }
 
@@ -123,7 +124,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public void transitionLayout(MemoryStack stack, CommandBuffer commands, Layout layout) {
+    public void transitionLayout(MemoryStack stack, CommandBuffer commands, EngineImage.Layout layout) {
         if (layout == this.layout) {
             return;
         }
@@ -147,7 +148,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
         this.layout = layout;
     }
 
-    public static BasicVulkanImage build(LogicalDevice<?> device, IntEnum<GpuImage.Type> type, Consumer<Builder> config) {
+    public static BasicVulkanImage build(LogicalDevice<?> device, IntEnum<EngineImage.Type> type, Consumer<Builder> config) {
         Builder b = new BasicVulkanImage(device, type).new Builder();
         config.accept(b);
         return b.build();
@@ -234,11 +235,11 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             format = f;
         }
 
-        public void setTiling(IntEnum<Tiling> t) {
+        public void setTiling(IntEnum<EngineImage.Tiling> t) {
             tiling = t;
         }
 
-        public void setLayout(Layout l) {
+        public void setLayout(EngineImage.Layout l) {
             layout = l;
         }
 
@@ -250,7 +251,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             return mem;
         }
 
-        public IntEnum<Layout> getLayout() {
+        public IntEnum<EngineImage.Layout> getLayout() {
             return layout;
         }
 

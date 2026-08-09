@@ -5,8 +5,8 @@ import com.jme3.vulkan.buffer.BufferStream;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.images.BufferImageCopy;
 import com.jme3.vulkan.images.ImageCopy;
-import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.pipeline.PipelineStage;
@@ -108,7 +108,8 @@ public class VulkanCommandBuffer implements CommandBuffer {
         stream.streamFromRemote(this, src, dst, callback);
     }
 
-    public void cmdTransitionLayout(EngineImage image, VulkanImage.Layout srcLayout, VulkanImage.Layout dstLayout) {
+    @Override
+    public void cmdTransitionLayout(EngineImage image, EngineImage.Layout srcLayout, EngineImage.Layout dstLayout) {
         if (srcLayout == dstLayout) {
             return;
         }
@@ -131,13 +132,11 @@ public class VulkanCommandBuffer implements CommandBuffer {
             vkCmdPipelineBarrier(buffer, srcLayout.getStageHint().bits(), dstLayout.getStageHint().bits(),
                     0, null, null, barrier);
         }
+        addResource(image);
     }
 
+    @Override
     public void cmdCopy(EngineImage src, EngineImage dst, ImageCopy copy) {
-        if (src.getSamples() != dst.getSamples()) {
-            throw new IllegalArgumentException("Unable to copy between images of unequal sample counts.");
-        }
-        // images must be in a valid layout for copying, but we'll let the validation layers catch it
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCopy.Buffer imgCopy = VkImageCopy.calloc(copy.getRegions().size(), stack);
             for (ImageCopy.Region r : copy.getRegions()) {
@@ -158,12 +157,53 @@ public class VulkanCommandBuffer implements CommandBuffer {
             }
             vkCmdCopyImage(buffer, src.getHandle(), src.getLayout().getEnum(), dst.getHandle(), dst.getLayout().getEnum(), imgCopy.flip());
         }
+        addResource(src);
+        addResource(dst);
     }
 
+    @Override
     public void cmdResolveMultisampled(EngineImage src, EngineImage dst, ImageCopy copy) {
         if (copy.getRegions().size() != 1) {
             throw new IllegalArgumentException("Copy structure must contain only one copy region.");
         }
+    }
+
+    private VkBufferImageCopy.Buffer populateBufferImageCopyInfo(MemoryStack stack, int bufferOffset, BufferImageCopy copy) {
+        VkBufferImageCopy.Buffer bufImgCopy = VkBufferImageCopy.calloc(copy.getRegions().size(), stack);
+        for (BufferImageCopy.Region r : copy.getRegions()) {
+            VkBufferImageCopy c = bufImgCopy.get();
+            c.bufferRowLength(r.getBufferTexels().x)
+                    .bufferImageHeight(r.getBufferTexels().y)
+                    .bufferOffset(bufferOffset + r.getBufferOffset());
+            c.imageOffset().set(r.getImageOffset().x, r.getImageOffset().y, r.getImageOffset().z);
+            c.imageExtent().set(r.getImageSize().x, r.getImageSize().y, r.getImageSize().z);
+            bufImgCopy.imageSubresource()
+                .mipLevel(r.getImageMipLevel())
+                .baseArrayLayer(r.getImageBaseLayer())
+                .layerCount(r.getImageLayerCount())
+                .aspectMask(r.getAspects().bits());
+        }
+        return bufImgCopy.flip();
+    }
+
+    @Override
+    public void cmdCopy(EngineBuffer src, EngineImage dst, BufferImageCopy copy) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            vkCmdCopyBufferToImage(buffer, src.getHandle(), dst.getHandle(), dst.getLayout().getEnum(),
+                    populateBufferImageCopyInfo(stack, src.getBufferLocalOffset(), copy));
+        }
+        addResource(src);
+        addResource(dst);
+    }
+
+    @Override
+    public void cmdCopy(EngineImage src, EngineBuffer dst, BufferImageCopy copy) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            vkCmdCopyImageToBuffer(buffer, src.getHandle(), src.getLayout().getEnum(), dst.getHandle(),
+                    populateBufferImageCopyInfo(stack, dst.getBufferLocalOffset(), copy));
+        }
+        addResource(src);
+        addResource(dst);
     }
 
     /*-------------------------*\

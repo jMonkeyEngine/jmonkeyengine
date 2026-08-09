@@ -3,7 +3,7 @@ package com.jme3.vulkan.material.uniforms;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.descriptors.DescriptorBinding;
 import com.jme3.vulkan.descriptors.DescriptorType;
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -14,9 +14,9 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class TextureUniform extends DescriptorBinding<Texture> {
 
-    private final IntEnum<VulkanImage.Layout> layout;
+    private final IntEnum<EngineImage.Layout> layout;
 
-    public TextureUniform(DescriptorType type, int descriptorCount, Flag<ShaderStage> stages, IntEnum<VulkanImage.Layout> layout) {
+    public TextureUniform(DescriptorType type, int descriptorCount, Flag<ShaderStage> stages, IntEnum<EngineImage.Layout> layout) {
         super(type, new Texture[descriptorCount], stages);
         this.layout = layout;
     }
@@ -35,7 +35,7 @@ public class TextureUniform extends DescriptorBinding<Texture> {
         write.pImageInfo(imgInfo);
     }
 
-    public IntEnum<VulkanImage.Layout> getLayout() {
+    public IntEnum<EngineImage.Layout> getLayout() {
         return layout;
     }
 

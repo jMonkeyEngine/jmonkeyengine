@@ -3,14 +3,13 @@ package com.jme3.vulkan.pipeline.framebuffer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.surface.Swapchain;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 
 import java.util.*;
 
@@ -43,7 +42,7 @@ public class OutputFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget> 
     }
 
     @Override
-    public void beginDynamicRender(CommandBuffer cmd, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore, Flag<Render> flags) {
+    public void beginDynamicRender(CommandBuffer cmd, EngineImage.Load colorLoad, EngineImage.Store colorStore, EngineImage.Load depthLoad, EngineImage.Store depthStore, Flag<Render> flags) {
         assert readyToRender : "Next render target has not been acquired.";
         frames.get(currentImage).beginDynamicRender(cmd, colorLoad, colorStore, depthLoad, depthStore, flags);
         readyToRender = false;
@@ -115,7 +114,7 @@ public class OutputFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget> 
 
     @Override
     public boolean isUsingStencil() {
-        return depth != null && depth.getView().getAspect().contains(VulkanImage.Aspect.Stencil);
+        return depth != null && depth.getView().getAspect().contains(EngineImage.Aspect.Stencil);
     }
 
     private class MultiTarget extends VulkanRenderTarget {
@@ -123,7 +122,7 @@ public class OutputFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget> 
         private final List<VulkanRenderTarget> targets = new ArrayList<>();
 
         public MultiTarget(List<Swapchain.PresentImage> images) {
-            super(VulkanImage.Aspect.Color, images.getFirst().getColorView(), VulkanImage.Layout.ColorAttachmentOptimal);
+            super(EngineImage.Aspect.Color, images.getFirst().getColorView(), EngineImage.Layout.ColorAttachmentOptimal);
             for (Swapchain.PresentImage i : images) {
                 VulkanRenderTarget t = VulkanRenderTarget.createColorTarget(i.getColorView());
                 frames.get(i).addColorTarget(t);
@@ -166,7 +165,7 @@ public class OutputFrameBuffer implements VulkanFrameBuffer<VulkanRenderTarget> 
         }
 
         @Override
-        public VulkanRenderTarget setLayout(VulkanImage.Layout layout) {
+        public VulkanRenderTarget setLayout(EngineImage.Layout layout) {
             for (VulkanRenderTarget t : targets) {
                 t.setLayout(layout);
             }

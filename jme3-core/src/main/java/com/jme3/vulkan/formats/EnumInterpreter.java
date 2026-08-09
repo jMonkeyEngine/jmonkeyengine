@@ -1,6 +1,6 @@
 package com.jme3.vulkan.formats;
 
-import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.shaderc.ShaderType;
@@ -23,11 +23,11 @@ public interface EnumInterpreter {
         throw new UnsupportedOperationException(type.name());
     }
 
-    default int getImageLoadEnum(VulkanImage.Load load) {
+    default int getImageLoadEnum(EngineImage.Load load) {
         throw new UnsupportedOperationException(load.name());
     }
 
-    default int getImageStoreEnum(VulkanImage.Store store) {
+    default int getImageStoreEnum(EngineImage.Store store) {
         throw new UnsupportedOperationException(store.name());
     }
 
