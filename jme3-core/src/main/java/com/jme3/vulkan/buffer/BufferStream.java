@@ -1,6 +1,8 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandCycleListener;
 import com.jme3.vulkan.commands.OpLocation;
@@ -46,7 +48,7 @@ public class BufferStream {
             throw new IllegalArgumentException("Cannot stream to " + remote + ": not a transfer destination.");
         }
         if (regions.isEmpty()) return;
-        Partition partition = allocatePartition(regions.getCoveredBytes());
+        Partition partition = allocatePartition(regions.getNumCovered());
         if (partition == null) {
             throw new NullPointerException("Failed to allocate streaming page partition.");
         }
@@ -104,7 +106,7 @@ public class BufferStream {
             Partition p = s.allocatePartition(bytes);
             if (p != null) return p;
         }
-        StreamingPage s = new StreamingPage(allocator.createStagingBuffer(
+        StreamingPage s = new StreamingPage(allocator.createStreamingBuffer(
                 Math.max(bytes, pageByteSize),
                 Flag.of(BufferRole.TransferSrc, BufferRole.TransferDst)));
         pages.add(s);
@@ -136,13 +138,13 @@ public class BufferStream {
         }
 
         @Override
-        public int getInternalOffset() {
-            return buffer.getInternalOffset();
+        public int getBufferLocalOffset() {
+            return buffer.getBufferLocalOffset();
         }
 
         @Override
         public long getDeviceAddress() {
-            return buffer.getDeviceAddress() + getInternalOffset();
+            return buffer.getDeviceAddress() + getBufferLocalOffset();
         }
 
         @Override
@@ -193,7 +195,7 @@ public class BufferStream {
                 return createPartition(0, bytes);
             }
             for (BufferTracker.Island i : allocated) {
-                if (i.getAvailableBytesAfter(buffer.capacity()) > bytes) {
+                if (i.getAvailableAfter(buffer.capacity()) > bytes) {
                     return createPartition(i.getStart(), bytes);
                 }
             }
@@ -269,7 +271,7 @@ public class BufferStream {
 
         @Override
         public long getDeviceAddress() {
-            return page.getDeviceAddress() + getInternalOffset();
+            return page.getDeviceAddress() + getBufferLocalOffset();
         }
 
         @Override
@@ -293,7 +295,7 @@ public class BufferStream {
         }
 
         @Override
-        public int getInternalOffset() {
+        public int getBufferLocalOffset() {
             return start;
         }
 

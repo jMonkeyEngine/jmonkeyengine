@@ -6,15 +6,15 @@ import org.lwjgl.vulkan.VkDescriptorPoolSize;
 
 public class PoolSize {
 
-    private final IntEnum<Descriptor> type;
+    private final IntEnum<DescriptorType> type;
     private final int size;
 
-    public PoolSize(IntEnum<Descriptor> type, int size) {
+    public PoolSize(IntEnum<DescriptorType> type, int size) {
         this.type = type;
         this.size = size;
     }
 
-    public IntEnum<Descriptor> getType() {
+    public IntEnum<DescriptorType> getType() {
         return type;
     }
 

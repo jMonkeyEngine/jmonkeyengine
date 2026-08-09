@@ -16,8 +16,6 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.LongBuffer;
 import java.util.*;
 
-import static org.lwjgl.vulkan.VK10.*;
-
 /**
  * Relates shader uniform values to shader descriptor sets and bindings.
  */
@@ -123,7 +121,7 @@ public class NewMaterial implements VulkanMaterial {
         }
 
         public void writeChanges() {
-            set.write(changes.values());
+            set.update(changes.values());
             changes.clear();
         }
 

@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffer;
+package com.jme3.vulkan.buffer.tracking;
 
 import java.util.Iterator;
 
@@ -41,7 +41,7 @@ public class RangeBufferTracker implements BufferTracker, BufferTracker.Island {
     }
 
     @Override
-    public int getCoveredBytes() {
+    public int getNumCovered() {
         return max > min ? max - min : 0;
     }
 
@@ -66,7 +66,7 @@ public class RangeBufferTracker implements BufferTracker, BufferTracker.Island {
     }
 
     @Override
-    public int getAvailableBytesAfter(int limit) {
+    public int getAvailableAfter(int limit) {
         return Math.max(0, limit - max);
     }
 

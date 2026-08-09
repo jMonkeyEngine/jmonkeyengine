@@ -37,9 +37,9 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
-import com.jme3.vulkan.material.experimental.ShadingTechnique;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.jme3.vulkan.scene.Scene;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -73,7 +73,7 @@ public class ViewPort {
     private static final Logger logger = Logger.getLogger(ViewPort.class.getName());
 
     protected final Camera cam;
-    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
+    protected final SafeArrayList<Scene> sceneList = new SafeArrayList<>(Scene.class);
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
     protected RenderPipeline pipeline;
     protected FrameBuffer out = null;
@@ -113,35 +113,39 @@ public class ViewPort {
             return Collections.EMPTY_LIST;
         }
         buckets.values().forEach(GeometryBucket::clear);
-        Deque<String> batchHint = new ArrayDeque<>();
-        Deque<Spatial.CullHint> cullHint = new ArrayDeque<>();
-        Deque<Camera.FrustumIntersect> intersect = new ArrayDeque<>();
-        for (Spatial scene : sceneList) for (Spatial child : scene.iterator(cullHint, batchHint, intersect)) {
-            if (child.getLocalQueueBucket() == null) {
-                batchHint.push(batchHint.isEmpty() ? buckets.firstEntry().getKey() : batchHint.peek());
-            } else {
-                batchHint.push(child.getLocalQueueBucket());
-            }
-            if (child.getLocalCullHint() == Spatial.CullHint.Inherit) {
-                cullHint.push(cullHint.isEmpty() ? Spatial.CullHint.Dynamic : cullHint.peek());
-            } else {
-                cullHint.push(child.getLocalCullHint());
-            }
-            Camera.FrustumIntersect result = intersect.peek();
-            if (cullHint.peek() == Spatial.CullHint.Dynamic && (result == null
-                    || result == Camera.FrustumIntersect.Intersects)) {
-                result = cam.contains(child.getWorldBound());
-            }
-            intersect.push(result);
-            if (cullHint.peek() != Spatial.CullHint.Always && (result != Camera.FrustumIntersect.Outside
-                    || cullHint.peek() == Spatial.CullHint.Never)) {
-                if (onVisible != null) onVisible.accept(child);
-                if (child instanceof Geometry) {
-                    GeometryBucket bucket = buckets.get(batchHint.peek());
-                    if (bucket != null) {
-                        Geometry g = (Geometry)child;
-                        if (g.getMaterial() != null) {
-                            bucket.add((Geometry) child);
+        for (Scene scene : sceneList) {
+            Scene.Subset visibleGeometries = scene.createHierarchalSubset(node -> !scene.getNodeDataById(node).isCulled(cam))
+                    .filter(node -> scene.getNodeDataById(node).isGeometric());
+            int[] opaque = visibleGeometries.transfer(node -> "opaque".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
+            int[] sky = visibleGeometries.transfer(node -> "sky".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
+            int[] transparent = visibleGeometries.transfer(node -> "translucent".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
+            for (Spatial child : scene.iterator(cullHint, batchHint, intersect)) {
+                if (child.getLocalQueueBucket() == null) {
+                    batchHint.push(batchHint.isEmpty() ? buckets.firstEntry().getKey() : batchHint.peek());
+                } else {
+                    batchHint.push(child.getLocalQueueBucket());
+                }
+                if (child.getLocalCullHint() == Spatial.CullHint.Inherit) {
+                    cullHint.push(cullHint.isEmpty() ? Spatial.CullHint.Dynamic : cullHint.peek());
+                } else {
+                    cullHint.push(child.getLocalCullHint());
+                }
+                Camera.FrustumIntersect result = intersect.peek();
+                if (cullHint.peek() == Spatial.CullHint.Dynamic && (result == null
+                        || result == Camera.FrustumIntersect.Intersects)) {
+                    result = cam.contains(child.getWorldBound());
+                }
+                intersect.push(result);
+                if (cullHint.peek() != Spatial.CullHint.Always && (result != Camera.FrustumIntersect.Outside
+                        || cullHint.peek() == Spatial.CullHint.Never)) {
+                    if (onVisible != null) onVisible.accept(child);
+                    if (child instanceof Geometry) {
+                        GeometryBucket bucket = buckets.get(batchHint.peek());
+                        if (bucket != null) {
+                            Geometry g = (Geometry)child;
+                            if (g.getMaterial() != null) {
+                                bucket.add((Geometry) child);
+                            }
                         }
                     }
                 }

@@ -1,47 +1,27 @@
 package com.jme3.vulkan.material.experimental;
 
-import com.jme3.backend.Engine;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
-import com.jme3.util.MapBuilder;
-import com.jme3.util.struct.Struct;
+import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffer.alloc.BufferAllocator;
-import com.jme3.vulkan.commands.RenderCommands;
-import com.jme3.vulkan.descriptors.DescriptorSet;
-import com.jme3.vulkan.descriptors.UniformBinding;
-import com.jme3.vulkan.material.exp2.RenderSession;
-import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.render.bucket.GeometryBucket;
-import org.lwjgl.vulkan.VK10;
-
-import java.util.Collection;
-import java.util.HashMap;
+import com.jme3.vulkan.mesh.ExperimentalCubeMesh;
+import com.jme3.vulkan.scene.Scene;
 
 /**
  * Renders simple PBR materials using flat color, metallic, and roughness, and a normal texture.
  */
-public class PBRTechnique implements ShadingTechnique {
+public class PBRTechnique {
 
-    private static class ShaderArgs extends Struct {
+    private EngineBuffer instances;
 
-
-
-    }
-
-    private final ShaderBindingSet shared;
-    private final EngineBuffer sharedDataBuffer;
-
-    public PBRTechnique(Engine engine, BufferAllocator<EngineBuffer> allocator) {
-        this.shared = engine.createShaderSet(MapBuilder.build(new HashMap<Integer, UniformBinding>())
-                .put(0, engine.createUniformBufferBinding(ShaderStage.Fragment)).get());
-        this.sharedDataBuffer = allocator.createBuffer();
-    }
-
-    @Override
-    public void update(RenderCommands cmd, Geometry g) {
-        PBR pbr = g.getMaterial().getInterface(PBR.class);
-        VK10.vkCmdBindDescriptorSets();
+    public void renderScene(Scene.Subset geometries) {
+        // each batched geometry (an "instance") requires pointers to mesh and material data.
+        // the first thing to do is determine which geometries should be batched together.
+        // for now we'll assume all nodes in the subset are geometric and are batchable together.
+        DataBuffer inst = instances.cache();
+        for (int g : geometries) {
+            ExperimentalCubeMesh mesh; // somehow extract mesh from geometry
+            inst.put(mesh.getVertexArrayAddress()); // first long is the vertex buffer
+            inst.put(mesh.getIndicesArrayAddress()); // second long is the index buffer
+        }
     }
 
 }

@@ -8,7 +8,7 @@ public class ImageSetWriter extends BaseDescriptorWriter {
 
     private final ImageDescriptor[] descriptors;
 
-    public ImageSetWriter(Descriptor type, int binding, int arrayElement, ImageDescriptor... descriptors) {
+    public ImageSetWriter(DescriptorType type, int binding, int arrayElement, ImageDescriptor... descriptors) {
         super(type, binding, arrayElement, descriptors.length);
         this.descriptors = descriptors;
     }

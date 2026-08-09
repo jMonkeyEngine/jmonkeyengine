@@ -32,6 +32,8 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -868,6 +870,17 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         return this;
     }
 
+    public Vector3f abs() {
+        return new Vector3f(Math.abs(x), Math.abs(y), Math.abs(z));
+    }
+
+    public Vector3f absLocal() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        z = Math.abs(z);
+        return this;
+    }
+
     /**
      * Returns the angle (in radians) between this vector and the argument,
      * provided both vectors have length=1. The current instance is unaffected.
@@ -1226,6 +1239,104 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     public static Vector3f storage(Vector3f store) {
         return store != null ? store : new Vector3f();
+    }
+
+    /**
+     * Adds vector3 {@code i1} to vector3 {@code i2} to produce vector3 {@code i3}.
+     *
+     * @param d1 first input vector3 data array
+     * @param i1 first input vector3 index
+     * @param d2 second input vector3 data array
+     * @param i2 second input vector3 index
+     * @param d3 output vector3 data array
+     * @param i3 output vector3 index
+     */
+    public static void add(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        d3[i3] = d1[i1] + d2[i2];
+        d3[i3 + 1] = d1[i1 + 1] + d2[i2 + 1];
+        d3[i3 + 2] = d1[i1 + 2] + d2[i2 + 2];
+    }
+
+
+    /**
+     * Multiplies vector3 {@code i1} by vector3 {@code i2} to produce vector3 {@code i3}.
+     *
+     * @param d1 first input vector3 data array
+     * @param i1 first input vector3 index
+     * @param d2 second input vector3 data array
+     * @param i2 second input vector3 index
+     * @param d3 output vector3 data array
+     * @param i3 output vector3 index
+     */
+    public static void mult(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        d3[i3] = d1[i1] * d2[i2];
+        d3[i3 + 1] = d1[i1 + 1] * d2[i2 + 1];
+        d3[i3 + 2] = d1[i1 + 2] * d2[i2 + 2];
+    }
+
+    /**
+     * Extracts vector3 {@code i} as a {@link Vector3f}.
+     *
+     * @param d vector3 data array
+     * @param i vector3 index
+     * @param store stores the result
+     * @return extracted vector
+     */
+    public static Vector3f extract(float[] d, int i, @Nullable Vector3f store) {
+        store = storage(store);
+        store.x = d[i];
+        store.y = d[i + 1];
+        store.z = d[i + 2];
+        return store;
+    }
+
+    /**
+     * Sets vector3 {@code i} from {@code vec}.
+     *
+     * @param d vector3 data array
+     * @param i vector3 index
+     * @param vec vector to assign with
+     */
+    public static void inject(float[] d, int i, Vector3f vec) {
+        d[i] = vec.x;
+        d[i + 1] = vec.y;
+        d[i + 2] = vec.z;
+    }
+
+    public static void inject(float[] d, int i, float x, float y, float z) {
+        d[i] = x;
+        d[i + 1] = y;
+        d[i + 2] = z;
+    }
+
+    public static void mult(float[] d1, int i1, float[] d2, int i2, Vector3f vec) {
+        d2[i2] = d1[i1] * vec.x;
+        d2[i2 + 1] = d1[i1 + 1] * vec.y;
+        d2[i2 + 2] = d1[i1 + 2] * vec.z;
+    }
+
+    public static void mult(float[] d1, int i1, float[] d2, int i2, float x, float y, float z) {
+        d2[i2] = d1[i1] * x;
+        d2[i2 + 1] = d1[i1 + 1] * y;
+        d2[i2 + 2] = d1[i1 + 2] * z;
+    }
+
+    public static void mult(float[] d1, int i1, float[] d2, int i2, float scalar) {
+        for (int j = 0; j < 3; j++) {
+            d2[i2 + j] = d1[i1 + j] * scalar;
+        }
+    }
+
+    public static void add(float[] d1, int i1, float[] d2, int i2, Vector3f vec) {
+        d2[i2] = d1[i1] + vec.x;
+        d2[i2 + 1] = d1[i1 + 1] + vec.y;
+        d2[i2 + 2] = d1[i1 + 2] + vec.z;
+    }
+
+    public static void add(float[] d1, int i1, float[] d2, int i2, float x, float y, float z) {
+        d2[i2] = d1[i1] + x;
+        d2[i2 + 1] = d1[i1 + 1] + y;
+        d2[i2 + 2] = d1[i1 + 2] + z;
     }
 
 }

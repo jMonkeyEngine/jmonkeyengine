@@ -101,7 +101,12 @@ public abstract class ArrayField <T, E> implements StructField<T> {
     }
 
     @Override
-    public int getInternalOffset() {
+    public int getBufferLocalOffset() {
+        return offset;
+    }
+
+    @Override
+    public int getStructLocalOffset() {
         return offset;
     }
 

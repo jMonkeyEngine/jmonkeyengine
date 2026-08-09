@@ -4,7 +4,7 @@ import com.jme3.vulkan.util.Flag;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum ImageUsage implements Flag<ImageUsage> {
+public enum ImageRoles implements Flag<ImageRoles> {
 
     TransferDst(VK_IMAGE_USAGE_TRANSFER_DST_BIT),
     TransferSrc(VK_IMAGE_USAGE_TRANSFER_SRC_BIT),
@@ -17,7 +17,7 @@ public enum ImageUsage implements Flag<ImageUsage> {
 
     private final int bits;
 
-    ImageUsage(int bits) {
+    ImageRoles(int bits) {
         this.bits = bits;
     }
 

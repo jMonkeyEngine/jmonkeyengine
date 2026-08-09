@@ -7,7 +7,7 @@ import java.util.Map;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum Descriptor implements IntEnum<Descriptor> {
+public enum DescriptorType implements IntEnum<DescriptorType> {
 
     UniformBuffer(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
     UniformBufferDynamic(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, true),
@@ -24,11 +24,11 @@ public enum Descriptor implements IntEnum<Descriptor> {
     private final int vkEnum;
     private final boolean dynamicOffsets;
 
-    Descriptor(int vkEnum) {
+    DescriptorType(int vkEnum) {
         this(vkEnum, false);
     }
 
-    Descriptor(int vkEnum, boolean dynamicOffsets) {
+    DescriptorType(int vkEnum, boolean dynamicOffsets) {
         this.vkEnum = vkEnum;
         this.dynamicOffsets = dynamicOffsets;
     }
@@ -42,6 +42,6 @@ public enum Descriptor implements IntEnum<Descriptor> {
         return dynamicOffsets;
     }
 
-    private static final Map<String, IntEnum<Descriptor>> custom = new HashMap<>();
+    private static final Map<String, IntEnum<DescriptorType>> custom = new HashMap<>();
 
 }

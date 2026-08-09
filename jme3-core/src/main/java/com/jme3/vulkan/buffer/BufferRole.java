@@ -6,6 +6,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public enum BufferRole implements Flag<BufferRole> {
 
+    None(0),
     Uniform(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT),
     Index(VK_BUFFER_USAGE_INDEX_BUFFER_BIT),
     Storage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),

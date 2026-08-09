@@ -32,6 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHNode.BIHStackData;
 import com.jme3.math.*;
@@ -149,6 +150,7 @@ public class TempVars {
      * BoundingVolumes (for shadows etc.)
      */
     public final BoundingBox bbox = new BoundingBox();
+    public final BoundingSphere bsphere = new BoundingSphere();
     /**
      * Skinning buffers
      */
@@ -216,8 +218,10 @@ public class TempVars {
     public final float[] fADdU = new float[3];
     public final float[] fAWxDdU = new float[3];
     /**
-     * Maximum tree depth .. 32 levels??
+     * Maximum tree depth 32 levels??
+     * @deprecated make your own stack or something
      */
+    @Deprecated
     public final Spatial[] spatialStack = new Spatial[32];
     public final float[] matrixWrite = new float[16];
     /**
@@ -226,4 +230,5 @@ public class TempVars {
     public final CollisionResults collisionResults = new CollisionResults();
     public final float[] bihSwapTmp = new float[9];
     public final ArrayList<BIHStackData> bihStack = new ArrayList<>();
+
 }

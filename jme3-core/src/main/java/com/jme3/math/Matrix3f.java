@@ -1654,4 +1654,18 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         return store != null ? store : new Matrix3f();
     }
 
+    /**
+     * Computes matrix3 {@code i2} as the absolute value of matrix3 {@code i1}.
+     *
+     * @param d1 input matrix3 data array
+     * @param i1 input matrix3 index
+     * @param d2 output matrix3 data array
+     * @param i2 output matrix3 index
+     */
+    public static void absolute(float[] d1, int i1, float[] d2, int i2) {
+        for (int j = 0; j < 9; j++) {
+            d2[i2 + j] = Math.abs(d1[i1 + j]);
+        }
+    }
+
 }

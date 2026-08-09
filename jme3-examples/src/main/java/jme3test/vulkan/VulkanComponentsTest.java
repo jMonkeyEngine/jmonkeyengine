@@ -15,7 +15,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffer.BufferStream;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.NewMaterial;
@@ -116,8 +116,8 @@ public class VulkanComponentsTest {
         NewMaterial mat = new NewMaterial();
         PipelineLayout pipelineLayout = PipelineLayout.build(device, b -> {
             b.addUniformSet(d -> {
-                d.addBinding("Matrices", new UniformBinding(Descriptor.UniformBuffer, 0, ShaderStage.Vertex));
-                d.addBinding("ColorMap", new UniformBinding(Descriptor.CombinedImageSampler, 1, ShaderStage.Fragment));
+                d.addBinding("Matrices", new UniformBinding(DescriptorType.UniformBuffer, 0, ShaderStage.Vertex));
+                d.addBinding("ColorMap", new UniformBinding(DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment));
             });
         });
         DynamicGraphicsPipeline pipeline = DynamicGraphicsPipeline.build(device, b -> {

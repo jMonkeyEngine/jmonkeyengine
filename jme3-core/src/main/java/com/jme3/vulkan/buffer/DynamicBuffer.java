@@ -1,18 +1,25 @@
 package com.jme3.vulkan.buffer;
 
+import com.jme3.vulkan.alloc.RelativeBuffer;
+import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public abstract class DynamicBuffer <T extends EngineBuffer> implements EngineBuffer {
+public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
 
-    private T buffer;
-    private int targetCapacity;
-    private Flag<BufferRole> targetRoles;
+    private final BufferAllocator alloc;
+    private T structure;
+    private EngineBuffer buffer;
+    private BufferType type;
 
-    public DynamicBuffer(int capacity, Flag<BufferRole> roles) {
-        this.targetCapacity = capacity;
-        this.targetRoles = roles;
+    public DynamicBuffer(BufferAllocator alloc, T structure, BufferType type, Flag<BufferRole> roles) {
+        this.alloc = alloc;
+        this.structure = structure;
+        this.buffer = alloc.createBuffer(type, pickNextSize(0, structure.capacity()), roles.add(BufferRole.TransferSrc));
+        this.structure.bind(buffer);
     }
 
     @Override
@@ -22,42 +29,31 @@ public abstract class DynamicBuffer <T extends EngineBuffer> implements EngineBu
 
     @Override
     public DataBuffer cache() {
-        update();
         return buffer.cache();
     }
 
     @Override
-    public void flushCache() {
-        update();
-        buffer.flushCache();
-    }
-
-    @Override
     public void invalidateCache() {
-        update();
         buffer.invalidateCache();
     }
 
     @Override
     public int capacity() {
-        return targetCapacity;
+        return buffer.capacity();
     }
 
     @Override
-    public int getInternalOffset() {
-        update();
-        return buffer.getInternalOffset();
+    public int getBufferLocalOffset() {
+        return buffer.getBufferLocalOffset();
     }
 
     @Override
     public long getHandle() {
-        update();
         return buffer.getHandle();
     }
 
     @Override
     public long getDeviceAddress() {
-        update();
         return buffer.getDeviceAddress();
     }
 
@@ -76,33 +72,39 @@ public abstract class DynamicBuffer <T extends EngineBuffer> implements EngineBu
         return buffer.isDeviceAccessible();
     }
 
-    public void update() {
-        if (buffer == null) {
-            buffer = createBuffer(pickNextSize(0, targetCapacity), targetRoles.add(BufferRole.TransferSrc));
-        } else if (buffer.capacity() < targetCapacity || !buffer.getRoles().contains(targetRoles)) {
-            T temp = createBuffer(pickNextSize(buffer.capacity(), targetCapacity),
-                    targetRoles.add(buffer.getRoles(), BufferRole.TransferSrc, BufferRole.TransferDst));
-            copy(buffer, temp);
+    public boolean update(CommandBuffer cmd, BufferType type, Flag<BufferRole> roles, OpLocation copyLocation) {
+        boolean bufferAllocated = false;
+        if (this.type != type || buffer.capacity() < structure.capacity() || !buffer.getRoles().contains(roles)) {
+            EngineBuffer temp = alloc.createBuffer(type, pickNextSize(buffer.capacity(), structure.capacity()), roles.add(buffer.getRoles(), BufferRole.TransferSrc, BufferRole.TransferDst));
+            copy(cmd, buffer, temp, copyLocation);
             buffer = temp;
+            bufferAllocated = true;
         }
+        this.structure.bind(buffer);
+        this.type = type;
+        return bufferAllocated;
     }
 
-    public void setCapacity(int capacity) {
-        assert capacity > 0 : "Capacity must be positive.";
-        targetCapacity = capacity;
+    public void update(CommandBuffer cmd, T structure, BufferType type, Flag<BufferRole> roles, OpLocation copyLocation) {
+        this.structure = structure;
+        update(cmd, type, roles, copyLocation);
     }
 
-    public void addRoles(Flag<BufferRole> roles) {
-        targetRoles = roles.addNonNull(targetRoles);
+    protected void copy(CommandBuffer cmd, EngineBuffer src, EngineBuffer dst, OpLocation copyLocation) {
+        cmd.cmdCopy(src, dst, new BufferCopy().add(src, 0, dst, 0), copyLocation);
     }
-
-    protected abstract T createBuffer(int bytes, Flag<BufferRole> roles);
-
-    protected abstract void copy(T src, T dst);
 
     protected int pickNextSize(int currentSize, int requestedSize) {
         // next power of two at or above requestedSize
         return Math.max(Integer.highestOneBit(requestedSize - 1) << 1, Math.max(1, currentSize));
+    }
+
+    public T getStructure() {
+        return structure;
+    }
+
+    public BufferType getType() {
+        return type;
     }
 
 }

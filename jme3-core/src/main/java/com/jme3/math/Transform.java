@@ -47,6 +47,17 @@ import java.io.IOException;
  */
 public final class Transform implements Savable, Cloneable, java.io.Serializable {
 
+    public static final int TRANSLATION_X = 0;
+    public static final int TRANSLATION_Y = 1;
+    public static final int TRANSLATION_Z = 2;
+    public static final int ROTATION_X = 3;
+    public static final int ROTATION_Y = 4;
+    public static final int ROTATION_Z = 5;
+    public static final int ROTATION_W = 6;
+    public static final int SCALE_X = 7;
+    public static final int SCALE_Y = 8;
+    public static final int SCALE_Z = 9;
+
     static final long serialVersionUID = 1;
     /**
      * Shared instance of the identity transform. Do not modify!
@@ -566,4 +577,39 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
             throw new AssertionError();
         }
     }
+
+    public static Transform storage(Transform store) {
+        return store != null ? store : new Transform();
+    }
+
+    /**
+     * Computes transform {@code i3} as a world transform of transform {@code i2} relative to transform {@code i1}.
+     *
+     * @param d1 first input transform data array
+     * @param i1 first input transform index
+     * @param d2 second input transform data array
+     * @param i2 second input transform index
+     * @param d3 output transform data array
+     * @param i3 output transform index
+     */
+    public static void combineWithParent(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        Vector3f.mult(d1, i1 + SCALE_X, d2, i2 + SCALE_X, d3, i3 + SCALE_X);
+        Quaternion.multQuat(d1, i1 + ROTATION_X, d2, i2 + ROTATION_X, d3, i3 + ROTATION_X);
+        Vector3f.mult(d2, i2 + TRANSLATION_X, d1, i1 + SCALE_X, d3, i3 + TRANSLATION_X);
+        Quaternion.multVector3(d1, i1 + ROTATION_X, d3, i3 + TRANSLATION_X, d3, i3 + TRANSLATION_X);
+        Vector3f.add(d1, i1 + TRANSLATION_X, d3, i3 + TRANSLATION_X, d3, i3 + TRANSLATION_X);
+    }
+
+    /**
+     * Copies transform {@code i1} to transform {@code i2}.
+     *
+     * @param d1 input transform data array
+     * @param i1 input transform index
+     * @param d2 output transform data array
+     * @param i2 output transform index
+     */
+    public static void copy(float[] d1, int i1, float[] d2, int i2) {
+        System.arraycopy(d1, i1, d2, i2, 10);
+    }
+
 }

@@ -21,7 +21,7 @@ public class CachedDescriptorSet {
     }
 
     public void writeChanges() {
-        set.write(changes.values());
+        set.update(changes.values());
         changes.clear();
     }
 

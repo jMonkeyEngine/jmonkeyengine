@@ -128,7 +128,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
         return struct;
     }
 
-    public int getOffset() {
+    public int getStructLocalOffset() {
         return offset;
     }
 

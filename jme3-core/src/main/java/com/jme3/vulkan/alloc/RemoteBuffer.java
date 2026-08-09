@@ -44,8 +44,8 @@ public class RemoteBuffer implements EngineBuffer, Memory {
     }
 
     @Override
-    public int getInternalOffset() {
-        return remote.getInternalOffset();
+    public int getBufferLocalOffset() {
+        return remote.getBufferLocalOffset();
     }
 
     @Override

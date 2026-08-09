@@ -71,6 +71,13 @@ public interface StructField <T> extends EngineBuffer {
     String getName();
 
     /**
+     * Gets the offset in bytes of this field with its struct.
+     *
+     * @return offset in bytes in struct
+     */
+    int getStructLocalOffset();
+
+    /**
      * Gets the alignment in bytes of this field. The managing struct
      * must be bound.
      *

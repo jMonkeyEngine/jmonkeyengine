@@ -1,6 +1,7 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.buffer.BufferTracker;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
@@ -14,6 +15,10 @@ import java.util.Deque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Interesting idea, but not really all that useful. Better I think to use normal unsynchronized command buffers.
+ */
+@Deprecated
 public class ConcurrentCommandBuffer implements CommandBuffer {
 
     private final CommandAllocator allocator;
@@ -29,13 +34,8 @@ public class ConcurrentCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, OpLocation location) {
-        return getCurrent().cmdCopy(src, srcOffset, dst, dstOffset, regions, location);
-    }
-
-    @Override
-    public OpLocation cmdFlatCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, boolean flatten, OpLocation location) {
-        return getCurrent().cmdFlatCopy(src, srcOffset, dst, dstOffset, regions, flatten, location);
+    public OpLocation cmdCopy(EngineBuffer src, EngineBuffer dst, BufferCopy copy, OpLocation location) {
+        return getCurrent().cmdCopy(src, dst, copy, location);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ConcurrentCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public void addResource(Commandable resource) {
+    public void addResource(Object resource) {
         getCurrent().addResource(resource);
     }
 

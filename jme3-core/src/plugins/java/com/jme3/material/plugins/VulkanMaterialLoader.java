@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
-import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.material.NewMaterialDef;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
@@ -33,8 +33,8 @@ public class VulkanMaterialLoader implements AssetLoader {
                 "texture3d",
                 "texturecubemap",
                 "texturearray");
-        addUniformLoader(json -> new BufferUniform<>(json, Descriptor.UniformBuffer), "uniformbuffer", "uniform");
-        addUniformLoader(json -> new BufferUniform<>(json, Descriptor.StorageBuffer), "storagebuffer", "storage");
+        addUniformLoader(json -> new BufferUniform<>(json, DescriptorType.UniformBuffer), "uniformbuffer", "uniform");
+        addUniformLoader(json -> new BufferUniform<>(json, DescriptorType.StorageBuffer), "storagebuffer", "storage");
         addShaderStage(ShaderStage.Vertex, "vertex", "vert");
         addShaderStage(ShaderStage.Fragment, "fragment", "frag");
     }

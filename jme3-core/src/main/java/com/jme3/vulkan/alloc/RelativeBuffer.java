@@ -8,6 +8,8 @@ import com.jme3.util.struct.SubStructField;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 
+import java.util.function.IntFunction;
+
 public interface RelativeBuffer extends EngineBuffer {
 
     /**
@@ -16,6 +18,11 @@ public interface RelativeBuffer extends EngineBuffer {
      * @param parent memory to bind
      */
     void bind(EngineBuffer parent);
+
+    default RelativeBuffer bind(IntFunction<EngineBuffer> factory) {
+        bind(factory.apply(capacity()));
+        return this;
+    }
 
     // todo: remove api test code
     @Deprecated

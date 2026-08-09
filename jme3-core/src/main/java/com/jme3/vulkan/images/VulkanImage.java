@@ -10,10 +10,7 @@ import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.KHRSwapchain;
-import org.lwjgl.vulkan.VK14;
-import org.lwjgl.vulkan.VkImageCopy;
-import org.lwjgl.vulkan.VkImageResolve;
+import org.lwjgl.vulkan.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -39,7 +36,8 @@ public interface VulkanImage extends GpuImage {
                 Access.TransferWrite, PipelineStage.Transfer),
         ShaderReadOnlyOptimal(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                 Access.ShaderRead, PipelineStage.FragmentShader),
-        PresentSrc(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+        PresentSrc(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR),
+        SharedPresent(KHRSharedPresentableImage.VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR);
 
         private final int vkEnum;
         private final Flag<Access> access;
@@ -153,14 +151,16 @@ public interface VulkanImage extends GpuImage {
 
     }
 
+    @Deprecated
     LogicalDevice<?> getDevice();
 
-    Flag<ImageUsage> getUsage();
+    Flag<ImageRoles> getUsage();
 
     IntEnum<Tiling> getTiling();
 
     IntEnum<SharingMode> getSharingMode();
 
+    @Deprecated
     void addNativeDependent(DisposableReference ref);
 
     /**

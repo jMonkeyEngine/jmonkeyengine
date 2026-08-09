@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffer;
+package com.jme3.vulkan.buffer.tracking;
 
 import java.util.Iterator;
 
@@ -46,7 +46,7 @@ public class SliceBufferTracker implements BufferTracker {
     }
 
     @Override
-    public int getCoveredBytes() {
+    public int getNumCovered() {
         throw new UnsupportedOperationException();
     }
 

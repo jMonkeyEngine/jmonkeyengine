@@ -6,7 +6,7 @@ import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.AbstractSetWriter;
-import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -21,11 +21,11 @@ import java.util.*;
 
 public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T> {
 
-    private final IntEnum<Descriptor> descriptor;
+    private final IntEnum<DescriptorType> descriptor;
     private final StructLayout layout;
     private T buffer;
 
-    public BufferUniform(IntEnum<Descriptor> descriptor, StructLayout layout, T buffer) {
+    public BufferUniform(IntEnum<DescriptorType> descriptor, StructLayout layout, T buffer) {
         this.descriptor = descriptor;
         this.layout = layout;
         this.buffer = buffer;

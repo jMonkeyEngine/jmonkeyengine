@@ -1,4 +1,9 @@
 
+problems with buffers:
+    severe: command buffers are not readily accessible for copying
+    annoying: allocators are not readily accessible for creating buffers
+    annoying: boilerplate required to manage a buffer
+
 function update:
     await: previous render on same frame
     reset command pool

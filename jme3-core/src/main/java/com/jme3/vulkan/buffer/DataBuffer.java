@@ -1,6 +1,9 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.math.*;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.buffer.tracking.NullBufferTracker;
+import com.jme3.vulkan.buffer.tracking.SliceBufferTracker;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
@@ -18,6 +21,8 @@ public class DataBuffer implements EngineBuffer {
 
     private final ByteBuffer buffer;
     private final BufferTracker tracker;
+    private int markedPos = -1;
+    private int markedLim = -1;
 
     public DataBuffer(ByteBuffer buffer) {
         this(buffer, NullBufferTracker.INSTANCE);
@@ -40,7 +45,7 @@ public class DataBuffer implements EngineBuffer {
     public void invalidateCache() {}
 
     @Override
-    public int getInternalOffset() {
+    public int getBufferLocalOffset() {
         return 0;
     }
 
@@ -170,7 +175,38 @@ public class DataBuffer implements EngineBuffer {
 
     public DataBuffer clear() {
         buffer.clear();
+        markedPos = markedLim = -1;
         return this;
+    }
+
+    public DataBuffer mark() {
+        markedPos = buffer.position();
+        markedLim = buffer.limit();
+        return this;
+    }
+
+    public DataBuffer markPosition() {
+        markedPos = buffer.position();
+        return this;
+    }
+
+    public DataBuffer markLimit() {
+        markedLim = buffer.position();
+        return this;
+    }
+
+    public DataBuffer reset() {
+        buffer.position(markedPos).limit(markedLim);
+        return this;
+    }
+
+    public DataBuffer resetPosition() {
+        buffer.position(markedPos);
+        return this;
+    }
+
+    public DataBuffer resetLimit() {
+        buffer.limit(markedLim);
     }
 
     public DataBuffer slice(int p, int l) {

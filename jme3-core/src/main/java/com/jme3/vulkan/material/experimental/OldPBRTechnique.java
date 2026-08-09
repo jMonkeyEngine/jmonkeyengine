@@ -97,7 +97,7 @@ public class OldPBRTechnique implements ShadingTechnique {
         // create and write transform data buffer to binding object at binding 0
         MappableBuffer transformData = engine.createBuffer(transform.getSize(), BufferRole.Uniform, UpdateHint.Stream);
         transformBinding.stage(0, transformData);
-        transformBinding.write(); // write immediately: no further changes planned
+        transformBinding.writeChanges(); // write immediately: no further changes planned
         // create and write material data buffer to binding object at binding 0
         MappableBuffer materialData = engine.createBuffer(materials.getByteSize(), BufferRole.Uniform, UpdateHint.Dynamic);
         materialBinding.stage(0, materialData);
@@ -163,7 +163,7 @@ public class OldPBRTechnique implements ShadingTechnique {
                 // write textures to the binding object
                 materialBinding.stage(1, pbr.getColorMap());
                 materialBinding.stage(2, pbr.getNormalMap());
-                materialBinding.write();
+                materialBinding.writeChanges();
 
                 // bind material data and textures to set=2 in shader
                 session.stageShaderSet(2, materialBinding.bind(materialStruct.getPosition()));

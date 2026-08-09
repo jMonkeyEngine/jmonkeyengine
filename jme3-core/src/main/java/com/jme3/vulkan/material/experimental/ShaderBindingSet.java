@@ -4,7 +4,7 @@ public interface ShaderBindingSet {
 
     void stage(int binding, Object value);
 
-    void write();
+    void writeChanges();
 
     default SetBindCommand bind(int dynamicOffset) {
         return new SetBindCommand(this, dynamicOffset);

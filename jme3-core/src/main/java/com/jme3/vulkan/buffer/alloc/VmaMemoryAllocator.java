@@ -3,11 +3,18 @@ package com.jme3.vulkan.buffer.alloc;
 import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
+import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.alloc.RemoteBuffer;
 import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.SharingMode;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.formats.Format;
+import com.jme3.vulkan.images.ImageRoles;
+import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
@@ -16,6 +23,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vma.VmaAllocationCreateInfo;
 import org.lwjgl.util.vma.VmaAllocatorCreateInfo;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
+import org.lwjgl.vulkan.VkImageCreateInfo;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -86,6 +94,28 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
         }
     }
 
+    private VulkanImage createImage(Format format, int width, int height, int depth, int samples, int mipLevels, int arrayLayers, Flag<ImageRoles> roles, int allocUsage, int allocFlags) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageCreateInfo imgCreate = VkImageCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .format(format.getEnum(VulkanEnums.instance))
+                    .samples(samples)
+                    .mipLevels(mipLevels)
+                    .arrayLayers(arrayLayers)
+                    .usage(roles.bits())
+                    .tiling(VulkanImage.Tiling.Optimal.getEnum())
+                    .initialLayout(VulkanImage.Layout.Undefined.getEnum())
+                    .sharingMode(SharingMode.Exclusive.getEnum());
+            imgCreate.extent().set(width, height, depth);
+            VmaAllocationCreateInfo allocCreate = VmaAllocationCreateInfo.calloc(stack)
+                    .usage(allocUsage)
+                    .flags(allocFlags);
+            LongBuffer imgPtr = stack.mallocLong(1);
+            PointerBuffer allocPtr = stack.mallocPointer(1);
+            vmaCreateImage(allocator, imgCreate, allocCreate, imgPtr, allocPtr, null);
+        }
+    }
+
     /* THE FOLLOWING PRESETS ARE RECOMMENDED BY VMA.
        https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html */
 
@@ -110,7 +140,7 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
     }
 
     @Override
-    public EngineBuffer createStagingBuffer(int capacity, Flag<BufferRole> roles) {
+    public EngineBuffer createStreamingBuffer(int capacity, Flag<BufferRole> roles) {
         return createBuffer(capacity, roles.add(BufferRole.TransferSrc), VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
     }
 
@@ -155,6 +185,18 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
         }
 
         @Override
+        public void update(CommandBuffer cmd) {
+            if (mapping != null && !memProps.contains(MemoryProp.HostCoherent)) {
+                vmaFlushAllocation(allocator, alloc, 0, mapping.capacity());
+            }
+        }
+
+        @Override
+        public boolean isDeviceAccessible() {
+            return false;
+        }
+
+        @Override
         public long getHandle() {
             return buffer;
         }
@@ -162,13 +204,6 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
         @Override
         public long getDeviceAddress() {
             return 0;
-        }
-
-        @Override
-        public void flushCache() {
-            if (mapping != null && !memProps.contains(MemoryProp.HostCoherent)) {
-                vmaFlushAllocation(allocator, alloc, 0, mapping.capacity());
-            }
         }
 
         @Override
@@ -192,7 +227,7 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
         }
 
         @Override
-        public int getInternalOffset() {
+        public int getBufferLocalOffset() {
             return 0;
         }
 
@@ -205,6 +240,10 @@ public class VmaMemoryAllocator implements BufferAllocator, Disposable {
         public Flag<MemoryProp> getMemoryProperties() {
             return memProps;
         }
+
+    }
+
+    private class VmaImage implements EngineImage {
 
     }
 

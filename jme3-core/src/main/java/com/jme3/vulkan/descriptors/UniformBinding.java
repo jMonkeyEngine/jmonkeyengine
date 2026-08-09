@@ -1,22 +1,25 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 
 import java.util.Objects;
 
 public abstract class UniformBinding <T> {
 
-    private final Descriptor type;
-    private final int descriptors;
+    private final T[] slots;
+    private final DescriptorType type;
     private final Flag<ShaderStage> stages;
+    private final BufferTracker slotsToUpdate = new ExactBufferTracker();
 
-    public UniformBinding(Descriptor type, int descriptors, Flag<ShaderStage> stages) {
+    public UniformBinding(DescriptorType type, int descriptorCount, Flag<ShaderStage> stages) {
+        //noinspection unchecked
+        this.slots = (T[])new Object[descriptorCount];
         this.type = type;
-        this.descriptors = descriptors;
         this.stages = stages;
     }
 
@@ -24,17 +27,13 @@ public abstract class UniformBinding <T> {
 
     public void fillLayoutBinding(VkDescriptorSetLayoutBinding layoutBinding) {
         layoutBinding.descriptorType(type.getEnum())
-            .descriptorCount(descriptors)
+            .descriptorCount(slots.length)
             .stageFlags(stages.bits())
-            .pImmutableSamplers(null);
+            .pImmutableSamplers(null); // potential optimization
     }
 
-    public Descriptor getType() {
+    public DescriptorType getType() {
         return type;
-    }
-
-    public int getDescriptors() {
-        return descriptors;
     }
 
     public Flag<ShaderStage> getStages() {

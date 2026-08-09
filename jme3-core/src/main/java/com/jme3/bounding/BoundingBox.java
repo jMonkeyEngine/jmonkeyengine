@@ -44,6 +44,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.struct.FieldSequence;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -58,6 +59,14 @@ import java.util.Objects;
  * @version $Id: BoundingBox.java,v 1.50 2007/09/22 16:46:35 irrisor Exp $
  */
 public class BoundingBox extends BoundingVolume {
+
+    public static final int CENTER_X = 0;
+    public static final int CENTER_Y = 1;
+    public static final int CENTER_Z = 2;
+    public static final int EXTENT_X = 3;
+    public static final int EXTENT_Y = 4;
+    public static final int EXTENT_Z = 5;
+
     /**
      * the X-extent of the box (>=0, may be +Infinity)
      */
@@ -1238,4 +1247,199 @@ public class BoundingBox extends BoundingVolume {
     public float getVolume() {
         return (8 * xExtent * yExtent * zExtent);
     }
+
+    public static BoundingBox storage(BoundingBox store) {
+        return store != null ? store : new BoundingBox();
+    }
+
+    /**
+     * Transforms bounding box {@code i2} by transform {@code i1} to produce bounding box {@code i3}
+     *
+     * @param d1 input transform data array
+     * @param i1 input transform index
+     * @param d2 input bounding box data array
+     * @param i2 input bounding box index
+     * @param d3 output bounding box data array
+     * @param i3 output bounding box index
+     */
+    public static void transform(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        if (Float.isNaN(d2[i2 + CENTER_X])) { // box is imaginary
+            copy(d2, i2, d3, i3);
+            return;
+        }
+        Vector3f.mult(d1, i1 + Transform.SCALE_X, d2, i2 + CENTER_X, d3, i3 + CENTER_X);
+        Quaternion.multVector3(d1, i1 + Transform.ROTATION_X, d3, i3 + CENTER_X, d3, i3 + CENTER_X);
+        Vector3f.add(d1, i1 + Transform.TRANSLATION_X, d3, i3 + CENTER_X, d3, i3 + CENTER_X);
+        TempVars vars = TempVars.get();
+        Matrix3f mat = Quaternion.toMatrix(d1, i1 + Transform.ROTATION_X, vars.tempMat3);
+        // Make the rotation matrix all positive to get the maximum x/y/z extent
+        mat.absoluteLocal();
+        vars.vect1.set(d2[i2 + EXTENT_X] * FastMath.abs(d1[i1 + Transform.SCALE_X]),
+                d2[i2 + EXTENT_Y] * FastMath.abs(d1[i1 + Transform.SCALE_Y]),
+                d2[i2 + EXTENT_Z] * FastMath.abs(d1[i1 + Transform.SCALE_Z]));
+        mat.mult(vars.vect1, vars.vect2);
+        // Assign the biggest rotations after scales.
+        Vector3f.inject(d3, i3 + EXTENT_X, vars.vect2.absLocal());
+        vars.release();
+    }
+
+    /**
+     * Extracts bounding box {@code i} to a {@link BoundingVolume}. If bounding box {@code i}
+     * is not null, a {@link BoundingBox} is returned. Otherwise, a {@link NullVolume} is returned.
+     *
+     * @param d bounding box data array
+     * @param i bounding box index
+     * @param store BoundingBox instance to store the result if bounding box {@code i} is not null
+     * @return bounding volume
+     */
+    public static BoundingVolume extract(float[] d, int i, @Nullable BoundingBox store) {
+        if (Float.isNaN(d[i + CENTER_X])) {
+            return NullVolume.INSTANCE;
+        }
+        store = storage(store);
+        store.center.x = d[i + CENTER_X];
+        store.center.y = d[i + CENTER_Y];
+        store.center.z = d[i + CENTER_Z];
+        store.xExtent = d[i + EXTENT_X];
+        store.yExtent = d[i + EXTENT_Y];
+        store.zExtent = d[i + EXTENT_Z];
+        return store;
+    }
+
+    /**
+     * Sets bounding box {@code i} from {@code box}.
+     *
+     * @param d bounding box data array
+     * @param i bounding box index
+     * @param box box to assign from
+     */
+    public static void inject(float[] d, int i, BoundingBox box) {
+        d[i + CENTER_X] = box.center.x;
+        d[i + CENTER_Y] = box.center.y;
+        d[i + CENTER_Z] = box.center.z;
+        d[i + EXTENT_X] = box.xExtent;
+        d[i + EXTENT_Y] = box.yExtent;
+        d[i + EXTENT_Z] = box.zExtent;
+    }
+
+    public static void inject(float[] d, int i, BoundingSphere sphere) {
+        d[i + CENTER_X] = sphere.center.x;
+        d[i + CENTER_Y] = sphere.center.y;
+        d[i + CENTER_Z] = sphere.center.z;
+        d[i + EXTENT_X] = sphere.radius;
+        d[i + EXTENT_Y] = sphere.radius;
+        d[i + EXTENT_Z] = sphere.radius;
+    }
+
+    public static void inject(float[] d, int i, BoundingVolume volume) {
+        if (volume instanceof BoundingBox) {
+            inject(d, i, (BoundingBox)volume);
+        } else if (volume instanceof BoundingSphere) {
+            inject(d, i, (BoundingSphere)volume);
+        } else if (volume instanceof NullVolume) {
+            makeNull(d, i);
+        } else {
+            throw new UnsupportedOperationException(volume.getClass() + " is not implemented.");
+        }
+    }
+
+    /**
+     * Merges bounding box {@code i1} and bounding box {@code i2} and produces bounding box {@code i3}.
+     *
+     * @param d1 first input bounding box data array
+     * @param i1 first input bounding box index
+     * @param d2 second input bounding box data array
+     * @param i2 second input bounding box index
+     * @param d3 output bounding box data array
+     * @param i3 output bounding box index
+     */
+    public static void merge(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        if (Float.isNaN(d1[i1 + CENTER_X])) {
+            copy(d2, i2, d3, i3);
+        } else if (Float.isNaN(d2[i2 + CENTER_X])) {
+            copy(d1, i1, d3, i3);
+        } else {
+            float minX = Math.min(d1[i1 + CENTER_X] - d1[i1 + EXTENT_X], d2[i2 + CENTER_X] - d2[i2 + EXTENT_X]);
+            float minY = Math.min(d1[i1 + CENTER_Y] - d1[i1 + EXTENT_Y], d2[i2 + CENTER_Y] - d2[i2 + EXTENT_Y]);
+            float minZ = Math.min(d1[i1 + CENTER_Z] - d1[i1 + EXTENT_Z], d2[i2 + CENTER_Z] - d2[i2 + EXTENT_Z]);
+            float maxX = Math.max(d1[i1 + CENTER_X] + d1[i1 + EXTENT_X], d2[i2 + CENTER_X] + d2[i2 + EXTENT_X]);
+            float maxY = Math.max(d1[i1 + CENTER_Y] + d1[i1 + EXTENT_Y], d2[i2 + CENTER_Y] + d2[i2 + EXTENT_Y]);
+            float maxZ = Math.max(d1[i1 + CENTER_Z] + d1[i1 + EXTENT_Z], d2[i2 + CENTER_Z] + d2[i2 + EXTENT_Z]);
+            d3[i3 + CENTER_X] = minX + (d3[i3 + EXTENT_X] = (maxX - minX) * 0.5f);
+            d3[i3 + CENTER_Y] = minY + (d3[i3 + EXTENT_Y] = (maxY - minY) * 0.5f);
+            d3[i3 + CENTER_Z] = minZ + (d3[i3 + EXTENT_Z] = (maxZ - minZ) * 0.5f);
+        }
+    }
+
+    /**
+     * Copies bounding box {@code i1} to bounding box {@code i2}.
+     *
+     * @param d1 input bounding box data array
+     * @param i1 input bounding box index
+     * @param d2 output bounding box data array
+     * @param i2 output bounding box index
+     */
+    public static void copy(float[] d1, int i1, float[] d2, int i2) {
+        System.arraycopy(d1, i1, d2, i2, 6);
+    }
+
+    public static boolean intersects(float[] d, int i, BoundingSphere sphere) {
+        // Arvo's algorithm
+        float distSqr = sphere.radius * sphere.radius;
+
+        float minX = d[i + CENTER_X] - d[i + EXTENT_X];
+        float maxX = d[i + CENTER_X] + d[i + EXTENT_X];
+        float minY = d[i + CENTER_Y] - d[i + EXTENT_Y];
+        float maxY = d[i + CENTER_Y] + d[i + EXTENT_Y];
+        float minZ = d[i + CENTER_Z] - d[i + EXTENT_Z];
+        float maxZ = d[i + CENTER_Z] + d[i + EXTENT_Z];
+
+        if (d[i + CENTER_X] < minX)
+            distSqr -= FastMath.sqr(d[i + CENTER_X] - minX);
+        else if (d[i + CENTER_X] > maxX)
+            distSqr -= FastMath.sqr(d[i + CENTER_X] - maxX);
+
+        if (d[i + CENTER_Y] < minY)
+            distSqr -= FastMath.sqr(d[i + CENTER_Y] - minY);
+        else if (d[i + CENTER_Y] > maxY)
+            distSqr -= FastMath.sqr(d[i + CENTER_Y] - maxY);
+
+        if (d[i + CENTER_Z] < minZ)
+            distSqr -= FastMath.sqr(d[i + CENTER_Z] - minZ);
+        else if (d[i + CENTER_Z] > maxZ)
+            distSqr -= FastMath.sqr(d[i + CENTER_Z] - maxZ);
+
+        return distSqr > 0;
+    }
+
+    public static Plane.Side side(float[] d, int i, Plane plane) {
+        float radius = FastMath.abs(d[i + EXTENT_X] * plane.getNormal().getX())
+                + FastMath.abs(d[i + EXTENT_Y] * plane.getNormal().getY())
+                + FastMath.abs(d[i + EXTENT_Z] * plane.getNormal().getZ());
+
+        //float distance = plane.pseudoDistance(center); // equivalent to:
+        float distance = plane.getNormal().x * d[i + CENTER_X]
+                + plane.getNormal().y * d[i + CENTER_Y]
+                + plane.getNormal().z * d[i + CENTER_Z] - plane.getConstant();
+
+        //changed to < and > to prevent floating point precision problems
+        if (distance < -radius) {
+            return Plane.Side.Negative;
+        } else if (distance > radius) {
+            return Plane.Side.Positive;
+        } else {
+            return Plane.Side.None;
+        }
+    }
+
+    /**
+     * Makes bounding box {@code i} null. Null bounding boxes are unable to affect other volumes when merged.
+     *
+     * @param d bounding box data aray
+     * @param i bounding box index
+     */
+    public static void makeNull(float[] d, int i) {
+        d[i + CENTER_X] = Float.NaN;
+    }
+
 }

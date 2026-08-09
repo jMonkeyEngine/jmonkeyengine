@@ -33,6 +33,7 @@ package com.jme3.math;
 
 import com.jme3.export.*;
 import com.jme3.util.TempVars;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -1634,6 +1635,138 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     public static Quaternion storage(Quaternion store) {
         return store != null ? store : new Quaternion();
+    }
+
+
+
+    /**
+     * Multiplies quaternion {@code i1} by quaternion {@code i2} to produce quaternion {@code i3}.
+     *
+     * @param d1 first input quaternion data array
+     * @param i1 first input quaternion index
+     * @param d2 second input quaternion data array
+     * @param i2 second input quaternion index
+     * @param d3 output quaternion data array
+     * @param i3 output quaternion index
+     */
+    public static void multQuat(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        float x  = d1[i1];
+        float y  = d1[i1 + 1];
+        float z  = d1[i1 + 2];
+        float w  = d1[i1 + 3];
+        float qx = d2[i2];
+        float qy = d2[i2 + 1];
+        float qz = d2[i2 + 2];
+        float qw = d2[i2 + 3];
+        d3[i3] = x * qw + y * qz - z * qy + w * qx;
+        d3[i3 + 1] = -x * qz + y * qw + z * qx + w * qy;
+        d3[i3 + 2] = x * qy - y * qx + z * qw + w * qz;
+        d3[i3 + 3] = -x * qx - y * qy - z * qz + w * qw;
+    }
+
+    /**
+     * Multiplies quaternion {@code i1} by {@code q} to produce quaternion {@code i2}.
+     *
+     * @param d1
+     * @param i1
+     * @param d2
+     * @param i2
+     * @param q
+     */
+    public static void multQuat(float[] d1, int i1, float[] d2, int i2, Quaternion q) {
+        float x  = d1[i1];
+        float y  = d1[i1 + 1];
+        float z  = d1[i1 + 2];
+        float w  = d1[i1 + 3];
+        d2[i2] = x * q.w + y * q.z - z * q.y + w * q.x;
+        d2[i2 + 1] = -x * q.z + y * q.w + z * q.x + w * q.y;
+        d2[i2 + 2] = x * q.y - y * q.x + z * q.w + w * q.z;
+        d2[i2 + 3] = -x * q.x - y * q.y - z * q.z + w * q.w;
+    }
+
+    /**
+     * Multiplies vector3 {@code i2} by quaternion {@code i1} to produce vector3 {@code i3}.
+     *
+     * @param d1 input quaternion data array
+     * @param i1 input quaternion index
+     * @param d2 input vector data array
+     * @param i2 input vector index
+     * @param d3 output vector data array
+     * @param i3 output vector index
+     */
+    public static void multVector3(float[] d1, int i1, float[] d2, int i2, float[] d3, int i3) {
+        float x = d1[i1];
+        float y = d1[i1 + 1];
+        float z = d1[i1 + 2];
+        float w = d1[i1 + 3];
+        float tx = d2[i2];
+        float ty = d2[i2 + 1];
+        float tz = d2[i2 + 2];
+        d3[i3] = w * w * tx + 2 * y * w * tz - 2 * z * w * ty + x * x * tx
+                + 2 * y * x * ty + 2 * z * x * tz - z * z * tx - y * y * tx;
+        d3[i3 + 1] = 2 * x * y * tx + y * y * ty + 2 * z * y * tz + 2 * w * z
+                * tx - z * z * ty + w * w * ty - 2 * x * w * tz - x * x * ty;
+        d3[i3 + 2] = 2 * x * z * tx + 2 * y * z * ty + z * z * tz - 2 * w * y
+                * tx - y * y * tz + 2 * w * x * ty - x * x * tz + w * w * tz;
+    }
+
+    /**
+     * Computes the norm, defined as the dot product of quaternion {@code i} with itself.
+     *
+     * @param d quaternion data array
+     * @param i quaternion index
+     * @return norm
+     */
+    public static float norm(float[] d, int i) {
+        return d[i]*d[i] + d[i+1]*d[i+1] + d[i+2]*d[i+2] + d[i+3]*d[i+3];
+    }
+
+    /**
+     * Converts quaternion {@code i} to a rotation matrix.
+     *
+     * @param d quaternion data array
+     * @param i quaternion index
+     * @param store stores the result
+     * @return rotation matrix
+     */
+    public static Matrix3f toMatrix(float[] d, int i, @Nullable Matrix3f store) {
+        store = Matrix3f.storage(store);
+        float norm = norm(d, i);
+        // we explicitly test norm against one here, saving a division
+        // at the cost of a test and branch.  Is it worth it?
+        float s = (norm == 1f) ? 2f : (norm > 0f) ? 2f / norm : 0;
+        // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
+        // will be used 2-4 times each.
+        float xs = d[i] * s;
+        float ys = d[i + 1] * s;
+        float zs = d[i + 2] * s;
+        float xx = d[i] * xs;
+        float xy = d[i] * ys;
+        float xz = d[i] * zs;
+        float xw = d[i + 3] * xs;
+        float yy = d[i + 1] * ys;
+        float yz = d[i + 1] * zs;
+        float yw = d[i + 3] * ys;
+        float zz = d[i + 2] * zs;
+        float zw = d[i + 3] * zs;
+        // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
+        store.m00 = 1 - (yy + zz);
+        store.m01 = (xy - zw);
+        store.m02 = (xz + yw);
+        store.m10 = (xy + zw);
+        store.m11 = 1 - (xx + zz);
+        store.m12 = (yz - xw);
+        store.m20 = (xz - yw);
+        store.m21 = (yz + xw);
+        store.m22 = 1 - (xx + yy);
+        return store;
+    }
+
+    public static void inject(float[] d, int i, Quaternion quat) {
+        d[i] = quat.getX();
+        d[i + 1] = quat.getY();
+        d[i + 2] = quat.getZ();
+        d[i + 3] = quat.getW();
     }
 
 }

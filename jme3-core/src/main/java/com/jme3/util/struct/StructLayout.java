@@ -17,13 +17,13 @@ public class StructLayout {
 
     public static final StructLayout std140 = new StructLayout("std140", VEC4_WIDTH, VEC4_WIDTH);
     public static final StructLayout std430 = new StructLayout("std430", VEC4_WIDTH, Float.BYTES);
-    public static final StructLayout shared = new StructLayout("shared", Byte.BYTES, Byte.BYTES);
+    public static final StructLayout optimal = new StructLayout("optimal", Byte.BYTES, Byte.BYTES);
     private static final Map<String, StructLayout> layouts = new HashMap<>();
 
     private static void addToAllLayouts(FieldDescription desc, Class... types) {
         std140.addFieldDescription(desc, types);
         std430.addFieldDescription(desc, types);
-        shared.addFieldDescription(desc, types);
+        optimal.addFieldDescription(desc, types);
     }
 
     private static void addToLayouts(FieldDescription desc, StructLayout[] layouts, Class... types) {
@@ -71,6 +71,16 @@ public class StructLayout {
                 return buffer.getFloat();
             }
         }, float.class, Float.class);
+        addToLayouts(new ObjectDesc<Long>(VEC2_WIDTH, VEC2_WIDTH) {
+            @Override
+            public void write(DataBuffer buffer, Long value) {
+                buffer.put(value);
+            }
+            @Override
+            public Long read(DataBuffer buffer, Long store) {
+                return buffer.getLong();
+            }
+        }, stds, long.class, Long.class);
         addToLayouts(new ObjectDesc<Vector2f>(VEC2_WIDTH, VEC2_WIDTH) {
             @Override
             public void write(DataBuffer buffer, Vector2f value) {
@@ -133,7 +143,17 @@ public class StructLayout {
         }, stds, Matrix4f.class);
 
         // packed descriptions
-        shared.addFieldDescription(new ObjectDesc<Vector2f>(VEC2_WIDTH, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<Long>(VEC2_WIDTH, Float.BYTES) {
+            @Override
+            public void write(DataBuffer buffer, Long value) {
+                buffer.put(value);
+            }
+            @Override
+            public Long read(DataBuffer buffer, Long store) {
+                return buffer.getLong();
+            }
+        }, long.class, Long.class);
+        optimal.addFieldDescription(new ObjectDesc<Vector2f>(VEC2_WIDTH, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, Vector2f value) {
                 buffer.put(value);
@@ -143,7 +163,7 @@ public class StructLayout {
                 return buffer.get(store);
             }
         }, Vector2f.class);
-        shared.addFieldDescription(new ObjectDesc<Vector3f>(VEC3_WIDTH, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<Vector3f>(VEC3_WIDTH, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, Vector3f value) {
                 buffer.put(value);
@@ -153,7 +173,7 @@ public class StructLayout {
                 return buffer.get(store);
             }
         }, Vector3f.class);
-        shared.addFieldDescription(new ObjectDesc<Vector4f>(VEC4_WIDTH, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<Vector4f>(VEC4_WIDTH, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, Vector4f value) {
                 buffer.put(value);
@@ -163,7 +183,7 @@ public class StructLayout {
                 return buffer.get(store);
             }
         }, Vector4f.class);
-        shared.addFieldDescription(new ObjectDesc<ColorRGBA>(VEC4_WIDTH, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<ColorRGBA>(VEC4_WIDTH, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, ColorRGBA value) {
                 buffer.put(value);
@@ -173,7 +193,7 @@ public class StructLayout {
                 return buffer.get(store);
             }
         }, ColorRGBA.class);
-        shared.addFieldDescription(new ObjectDesc<Matrix3f>(VEC3_WIDTH * 3, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<Matrix3f>(VEC3_WIDTH * 3, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, Matrix3f value) {
                 buffer.putStd(value);
@@ -183,7 +203,7 @@ public class StructLayout {
                 return buffer.getStd(store);
             }
         }, Matrix3f.class);
-        shared.addFieldDescription(new ObjectDesc<Matrix4f>(Float.BYTES << 4, Float.BYTES) {
+        optimal.addFieldDescription(new ObjectDesc<Matrix4f>(Float.BYTES << 4, Float.BYTES) {
             @Override
             public void write(DataBuffer buffer, Matrix4f value) {
                 buffer.put(value);

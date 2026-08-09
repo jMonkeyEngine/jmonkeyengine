@@ -12,7 +12,7 @@ import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.GpuImage;
-import com.jme3.vulkan.images.ImageUsage;
+import com.jme3.vulkan.images.ImageRoles;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.pipeline.framebuffer.GeneralFrameBuffer;
@@ -68,7 +68,7 @@ public class Swapchain extends AbstractNative<Long> {
     private Extent2 extent;
     private Format format;
     private int imageLayers = 1;
-    private Flag<ImageUsage> imageUsage = ImageUsage.ColorAttachment;
+    private Flag<ImageRoles> imageUsage = ImageRoles.ColorAttachment;
     private Consumer<Swapchain> updater;
     private boolean updateNeeded = false;
 
@@ -184,7 +184,7 @@ public class Swapchain extends AbstractNative<Long> {
         return imageLayers;
     }
 
-    public Flag<ImageUsage> getImageUsage() {
+    public Flag<ImageRoles> getImageUsage() {
         return imageUsage;
     }
 
@@ -253,7 +253,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public Flag<ImageUsage> getUsage() {
+        public Flag<ImageRoles> getUsage() {
             return imageUsage;
         }
 
@@ -452,7 +452,7 @@ public class Swapchain extends AbstractNative<Long> {
             Swapchain.this.imageLayers = layers;
         }
 
-        public void setImageUsage(Flag<ImageUsage> usage) {
+        public void setImageUsage(Flag<ImageRoles> usage) {
             Swapchain.this.imageUsage = usage;
         }
 

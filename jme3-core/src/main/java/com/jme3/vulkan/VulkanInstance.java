@@ -8,20 +8,23 @@ import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.EXTDebugUtils;
+import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkInstance;
+import org.lwjgl.vulkan.VkInstanceCreateInfo;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
-import static com.jme3.renderer.vulkan.VulkanUtils.*;
+import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK14.*;
 
 public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public static final String ENGINE_NAME = "jMonkeyEngine";
     public static final String LUNARG_LAYER = "VK_LAYER_KHRONOS_validation";
-    public static final String DYNAMIC_RENDERING_EXT = "VK_KHR_dynamic_rendering";
 
     public enum Version implements IntEnum<Version> {
 
@@ -162,10 +165,6 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
         public void addDebugExtension() {
             extensions.add(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        }
-
-        public void addDynamicRenderingExtension() {
-            extensions.add(DYNAMIC_RENDERING_EXT);
         }
 
         public void addLunarGLayer() {

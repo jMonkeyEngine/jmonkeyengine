@@ -31,6 +31,7 @@
  */
 package com.jme3.scene;
 
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.Savable;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.mesh.*;
@@ -94,6 +95,8 @@ public interface Mesh extends Savable {
     int getVertexCapacity();
 
     int getInstanceCapacity();
+
+    BoundingVolume getBounds();
 
     Topology getTopology();
 

@@ -1,9 +1,9 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.buffer.BufferTracker;
+import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffer.RangeBufferTracker;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -11,7 +11,7 @@ import com.jme3.vulkan.sync.TimelineSemaphore;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 
-import java.nio.*;
+import java.nio.ByteBuffer;
 
 import static org.lwjgl.vulkan.VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 import static org.lwjgl.vulkan.VK10.VK_COMMAND_BUFFER_LEVEL_SECONDARY;
@@ -36,19 +36,7 @@ public interface CommandBuffer {
 
     }
 
-    default OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, int size, OpLocation location) {
-        if (srcOffset + size > src.capacity() || dstOffset + size > dst.capacity()) {
-            throw new BufferOverflowException();
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Size must be positive.");
-        }
-        return cmdCopy(src, srcOffset, dst, dstOffset, new RangeBufferTracker(0, size), location);
-    }
-
-    OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, OpLocation location);
-
-    OpLocation cmdFlatCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, boolean flatten, OpLocation location);
+    OpLocation cmdCopy(EngineBuffer src, EngineBuffer dst, BufferCopy copy, OpLocation location);
 
     void cmdStreamToRemote(ByteBuffer src, EngineBuffer dst, BufferTracker regions);
 
@@ -66,7 +54,7 @@ public interface CommandBuffer {
 
     void endRecording();
 
-    void addResource(Commandable resource);
+    void addResource(Object resource);
 
     void addListener(CommandCycleListener listener);
 

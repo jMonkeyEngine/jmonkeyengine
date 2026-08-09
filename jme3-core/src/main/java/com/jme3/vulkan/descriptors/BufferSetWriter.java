@@ -8,7 +8,7 @@ public class BufferSetWriter extends BaseDescriptorWriter {
 
     private final BufferDescriptor[] descriptors;
 
-    public BufferSetWriter(Descriptor type, int binding, int arrayElement, BufferDescriptor... descriptors) {
+    public BufferSetWriter(DescriptorType type, int binding, int arrayElement, BufferDescriptor... descriptors) {
         super(type, binding, arrayElement, descriptors.length);
         this.descriptors = descriptors;
     }

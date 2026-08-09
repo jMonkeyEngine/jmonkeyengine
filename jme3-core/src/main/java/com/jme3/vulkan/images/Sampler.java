@@ -109,7 +109,7 @@ public class Sampler extends AbstractNative<Long> {
         protected Sampler construct() {
             VkPhysicalDeviceProperties props = device.getPhysicalDevice().getProperties();
             VkSamplerCreateInfo create = VkSamplerCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO)
+                    .sType$Default()
                     .minFilter(min.getEnum())
                     .magFilter(mag.getEnum())
                     .addressModeU(edgeModes[U].getEnum())

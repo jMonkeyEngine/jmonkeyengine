@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffer;
+package com.jme3.vulkan.buffer.tracking;
 
 public interface BufferTracker extends Iterable<BufferTracker.Island> {
 
@@ -10,7 +10,7 @@ public interface BufferTracker extends Iterable<BufferTracker.Island> {
 
     int getNumIslands();
 
-    int getCoveredBytes();
+    int getNumCovered();
 
     boolean isEmpty();
 
@@ -20,7 +20,7 @@ public interface BufferTracker extends Iterable<BufferTracker.Island> {
 
         int getEnd();
 
-        int getAvailableBytesAfter(int limit);
+        int getAvailableAfter(int limit);
 
         default int getSize() {
             return getEnd() - getStart();

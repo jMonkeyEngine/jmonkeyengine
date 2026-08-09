@@ -1,6 +1,6 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.buffer.BufferTracker;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 

@@ -5,10 +5,10 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BaseDescriptorWriter implements DescriptorSetWriter {
 
-    private final Descriptor type;
+    private final DescriptorType type;
     private final int binding, arrayElement, descriptorCount;
 
-    public BaseDescriptorWriter(Descriptor type, int binding, int arrayElement, int descriptorCount) {
+    public BaseDescriptorWriter(DescriptorType type, int binding, int arrayElement, int descriptorCount) {
         this.type = type;
         this.binding = binding;
         this.arrayElement = arrayElement;
@@ -22,7 +22,7 @@ public class BaseDescriptorWriter implements DescriptorSetWriter {
                 .descriptorCount(descriptorCount);
     }
 
-    public Descriptor getType() {
+    public DescriptorType getType() {
         return type;
     }
 

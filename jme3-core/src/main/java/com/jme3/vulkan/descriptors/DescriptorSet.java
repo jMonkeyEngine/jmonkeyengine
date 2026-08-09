@@ -3,21 +3,21 @@ package com.jme3.vulkan.descriptors;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.experimental.ShaderBindingSet;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK10.vkFreeDescriptorSets;
+import static org.lwjgl.vulkan.VK10.vkUpdateDescriptorSets;
 
-public class DescriptorSet extends AbstractNative<Long> implements ShaderBindingSet {
+public class DescriptorSet extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
     private final DescriptorPool pool;
     private final DescriptorSetLayout layout;
-    private final Map<Integer, DescriptorSetWriter> writers = new HashMap<>();
-    private final Map<Integer, Object> staged = new HashMap<>();
+    private final Map<Integer, DescriptorBinding> bindings = new HashMap<>();
 
     public DescriptorSet(LogicalDevice<?> device, DescriptorPool pool, DescriptorSetLayout layout, long id) {
         this.device = device;
@@ -37,36 +37,20 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
         }};
     }
 
-    @Override
-    public void stage(int binding, Object value) {
-        DescriptorSetWriter writer = layout.getBindings().get(binding).createWriter(value);
-        if (writer != null) staged.put(binding, writer);
+    public void setBinding(int bindingSlot, DescriptorBinding binding) {
+        bindings.put(bindingSlot, binding);
     }
 
-    @Override
-    public void write() {
-        if (staged.isEmpty()) {
-            return;
-        }
+    public void update() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(staged.size(), stack);
-            for (Map.Entry<Integer, Object> e : staged.entrySet()) {
-                DescriptorSetWriter writer = layout.getBindings().get(e.getKey()).createWriter(e.getValue());
-                if (writer == null || Objects.equals(e.getValue(), writers.get(e.getKey()))) {
-                    continue;
-                }
-                VkWriteDescriptorSet nextWrite = write.get();
-                writer.populateWrite(stack, device, nextWrite);
-                nextWrite.sType$Default()
-                        .dstSet(object)
-                        .dstBinding(e.getKey());
-                writers.put(e.getKey(), writer);
+            VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(bindings.size(), stack);
+            for (Map.Entry<Integer, DescriptorBinding> e : bindings.entrySet()) {
+                e.getValue().populateWriteInfo(stack, write, this, e.getKey());
             }
             if (write.position() > 0) {
                 vkUpdateDescriptorSets(device.getNativeObject(), write.flip(), null);
             }
         }
-        staged.clear();
     }
 
     public LogicalDevice<?> getDevice() {
@@ -79,16 +63,6 @@ public class DescriptorSet extends AbstractNative<Long> implements ShaderBinding
 
     public DescriptorSetLayout getLayout() {
         return layout;
-    }
-
-    private static class Slot {
-
-        private Object value;
-        private DescriptorSetWriter writer;
-        private boolean needsUpdate = false;
-
-        public void persist()
-
     }
 
 }

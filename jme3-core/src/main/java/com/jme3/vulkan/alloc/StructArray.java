@@ -17,7 +17,7 @@ import java.util.function.IntFunction;
 
 public class StructArray <T extends Struct> implements StructuredArray<T>, RelativeBuffer, Iterable<T> {
 
-    private final int length;
+    private int length;
     private final Index<T> sharedStruct;
     private final int stride;
     private int currentIndex = 0;
@@ -60,11 +60,6 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
     }
 
     @Override
-    public void flushCache() {
-        source.flushCache();
-    }
-
-    @Override
     public void invalidateCache() {
         source.invalidateCache();
     }
@@ -75,8 +70,8 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
     }
 
     @Override
-    public int getInternalOffset() {
-        return source.getInternalOffset();
+    public int getBufferLocalOffset() {
+        return source.getBufferLocalOffset();
     }
 
     @Override
@@ -136,6 +131,10 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         return length;
     }
 
+    public void setLength(int length) {
+        this.length = length;
+    }
+
     /**
      * Binds {@code struct} to {@code index} in this array.
      *
@@ -145,7 +144,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      * @param <E> struct type
      */
     public <E extends Struct> E index(int index, E struct) {
-        OffsetPointer ptr = new OffsetPointer(index * stride);
+        SlicePointer ptr = new SlicePointer(index * stride);
         ptr.bind(this);
         struct.bind(ptr);
         return struct;
@@ -220,13 +219,8 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         }
 
         @Override
-        public void flushCache() {
-            array.flushCache();
-        }
-
-        @Override
         public void invalidateCache() {
-            array.flushCache();
+            array.invalidateCache();
         }
 
         @Override
@@ -235,8 +229,8 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         }
 
         @Override
-        public int getInternalOffset() {
-            return array.getInternalOffset();
+        public int getBufferLocalOffset() {
+            return array.getBufferLocalOffset();
         }
 
         @Override
@@ -268,6 +262,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
             return field.apply(index);
         }
 
+        @SuppressWarnings("unchecked")
         public void set(int index, Object value) {
             field.apply(index).set(value);
         }
@@ -293,11 +288,11 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
     protected static class Index <T extends Struct> {
 
         private final T struct;
-        private final OffsetPointer ptr;
+        private final SlicePointer ptr;
 
         public Index(T struct) {
             this.struct = struct;
-            this.ptr = new OffsetPointer(0);
+            this.ptr = new SlicePointer(0);
             this.struct.bind(ptr);
         }
 
@@ -310,7 +305,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
             return struct;
         }
 
-        public OffsetPointer getPointer() {
+        public SlicePointer getPointer() {
             return ptr;
         }
 

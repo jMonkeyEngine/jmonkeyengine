@@ -39,8 +39,6 @@ import com.jme3.export.Savable;
 import com.jme3.math.*;
 import com.jme3.util.TempVars;
 import com.jme3.util.struct.FieldSequence;
-import com.jme3.vulkan.mesh.attribute.Attribute;
-import com.jme3.vulkan.mesh.attribute.Position;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -69,7 +67,11 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
         /**
          * Currently unsupported by jME3.
          */
-        Capsule;
+        Capsule,
+        /**
+         * Volumeless volume that cannot affect other volumes and is never visible.
+         */
+        Null;
     }
 
     protected int checkPlane = 0;

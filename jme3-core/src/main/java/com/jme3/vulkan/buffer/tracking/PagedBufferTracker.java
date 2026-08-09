@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffer;
+package com.jme3.vulkan.buffer.tracking;
 
 import java.util.BitSet;
 import java.util.Iterator;
@@ -39,7 +39,7 @@ public class PagedBufferTracker implements BufferTracker {
     }
 
     @Override
-    public int getCoveredBytes() {
+    public int getNumCovered() {
         return pages.cardinality() * stride;
     }
 
@@ -101,7 +101,7 @@ public class PagedBufferTracker implements BufferTracker {
         }
 
         @Override
-        public int getAvailableBytesAfter(int limit) {
+        public int getAvailableAfter(int limit) {
             if (end >= limit) return 0;
             int next = pages.nextSetBit(index + 1) * stride;
             if (next < 0 || next > limit) return limit - end;

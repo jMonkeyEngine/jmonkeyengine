@@ -2,15 +2,12 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.buffers.VulkanBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.VulkanEnums;
-import com.jme3.vulkan.pipeline.VertexPipeline;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;
 
-import java.nio.LongBuffer;
 import java.util.*;
 import java.util.function.Function;
 
@@ -35,7 +32,7 @@ public class VertexInput {
                     continue;
                 }
                 anyValid = true;
-                int offset = attr.getOffset();
+                int offset = attr.getStructLocalOffset();
                 Format[] formats = attr.getFormats();
                 assert formats.length > 0 : "Vertex attribute must specify at least one format.";
                 for (int i = 0; i < formats.length; i++) {

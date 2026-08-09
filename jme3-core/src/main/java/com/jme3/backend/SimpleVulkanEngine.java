@@ -41,7 +41,6 @@ import com.jme3.vulkan.sync.BinarySemaphore;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
-import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
@@ -95,7 +94,6 @@ public class SimpleVulkanEngine implements Engine {
         instance = VulkanInstance.build(VulkanInstance.Version.v11, i -> {
             i.addGlfwExtensions();
             i.addDebugExtension();
-            i.addDynamicRenderingExtension();
             i.addLunarGLayer();
         });
         instance.createLogger(VulkanLogger.Severity.All, VulkanLogger.Type.All);
@@ -106,23 +104,37 @@ public class SimpleVulkanEngine implements Engine {
             d.addFilter(surface);
             d.addFilter(DeviceFilter.swapchain(surface));
             d.addCriticalExtension(Swapchain.EXTENSION_NAME);
-            d.addCriticalExtension(EXTMemoryBudget.VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
-            d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f);
-            d.addFeature(DeviceFeature.anisotropy(1f));
-            d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
-            d.addFeature(DeviceFeature.nullDescriptor(1f));
+            d.addCriticalExtension(KHRDynamicRendering.VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+
+            // for VMA
+            d.addOptionalExtension(EXTMemoryBudget.VK_EXT_MEMORY_BUDGET_EXTENSION_NAME, 10f); // 50%
+            d.addOptionalExtension(KHRBindMemory2.VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 10f); // 99%
+            d.addOptionalExtension(KHRMaintenance4.VK_KHR_MAINTENANCE_4_EXTENSION_NAME, 10f); // 67%
+            d.addOptionalExtension(KHRMaintenance5.VK_KHR_MAINTENANCE_5_EXTENSION_NAME, 10f); // 47%
+            d.addOptionalExtension(KHRBufferDeviceAddress.VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, 10f); // 90%
+            d.addOptionalExtension(EXTMemoryPriority.VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME, 10f); // 25%
+            d.addOptionalExtension(AMDDeviceCoherentMemory.VK_AMD_DEVICE_COHERENT_MEMORY_EXTENSION_NAME, 10f); // 9%
+            d.addOptionalExtension(KHRExternalMemoryWin32.VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, 10f); // 21%
             d.addFeatureContainer(p -> VkPhysicalDeviceBufferAddressFeaturesEXT.calloc().pNext(p));
-            d.addFeature(DeviceFeature.bufferAddressing(null));
-            if (instance.getApiVersion().getEnum() < VulkanInstance.Version.v13.getEnum()) {
-                d.addFeatureContainer(p -> VkPhysicalDeviceDynamicRenderingFeatures.calloc().pNext(p));
-                d.addFeature(DeviceFeature.dynamicRendering(null));
-            }
+            d.addFeature(DeviceFeature.bufferAddressing(null)); // included in BUFFER_DEVICE_ADDRESS
+
+            d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f); // completely optional
+            d.addFeature(DeviceFeature.anisotropy(1f)); // completely optional
+            d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
+            d.addFeature(DeviceFeature.nullDescriptor(1f)); // used for null shader resources
+
+            d.addCriticalExtension(EXTDescriptorIndexing.VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+            d.addFeatureContainer(p -> VkPhysicalDeviceDescriptorIndexingFeatures.calloc().pNext(p));
+            d.addFeature(DeviceFeature.partialDescriptorBinding(null)); // for bindless textures, 94%
+            d.addFeature(DeviceFeature.runtimeDescriptorArray(null)); // for bindless textures, 94%
+            d.addFeatureContainer(p -> VkPhysicalDeviceDynamicRenderingFeatures.calloc().pNext(p));
+            d.addFeature(DeviceFeature.dynamicRendering(null)); // required!
         });
 
         descriptorPool = new DescriptorPool(device, 1000,
-                new PoolSize(Descriptor.UniformBuffer, 1000),
-                new PoolSize(Descriptor.StorageBuffer, 1000),
-                new PoolSize(Descriptor.CombinedImageSampler, 1000));
+                new PoolSize(DescriptorType.UniformBuffer, 1000),
+                new PoolSize(DescriptorType.StorageBuffer, 1000),
+                new PoolSize(DescriptorType.CombinedImageSampler, 1000));
         graphicsPool = new CommandPool(device.getPhysicalDevice().getGraphics(), CommandPool.Create.ResetCommandBuffer);
         transientGraphicsPool = new CommandPool(device.getPhysicalDevice().getGraphics(), CommandPool.Create.Transient);
 
@@ -152,7 +164,7 @@ public class SimpleVulkanEngine implements Engine {
 
         globalBindings = descriptorPool.allocateSets(DescriptorSetLayout.build(device, l -> {
             l.setCache(descSetLayoutCache);
-            l.addBinding(0, new BufferBinding(Descriptor.UniformBuffer, ShaderStage.All));
+            l.addBinding(0, new BufferBinding(DescriptorType.UniformBuffer, ShaderStage.All));
         }))[0];
 
         initEvent.awaitSignal(3000L);
@@ -167,7 +179,7 @@ public class SimpleVulkanEngine implements Engine {
                     VulkanImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                     Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt));
             i.setTiling(VulkanImage.Tiling.Optimal);
-            i.setUsage(ImageUsage.DepthStencilAttachment);
+            i.setUsage(ImageRoles.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         });
         return VulkanImageView.build(depth, ImageView.Type.TwoDemensional, v -> {

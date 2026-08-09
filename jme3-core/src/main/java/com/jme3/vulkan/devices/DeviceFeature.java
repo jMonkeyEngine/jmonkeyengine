@@ -45,7 +45,8 @@ public interface DeviceFeature {
             }
             @Override
             public void enableFeature(PNextChain features) {
-                features.get(VkPhysicalDeviceDynamicRenderingFeatures.class, f -> f.dynamicRendering(true));
+                features.get(VkPhysicalDeviceDynamicRenderingFeatures.class,
+                        f -> f.dynamicRendering(true));
             }
         };
     }
@@ -59,7 +60,38 @@ public interface DeviceFeature {
             }
             @Override
             public void enableFeature(PNextChain features) {
-                features.get(VkPhysicalDeviceBufferAddressFeaturesEXT.class, f -> f.bufferDeviceAddress(true));
+                features.get(VkPhysicalDeviceBufferAddressFeaturesEXT.class,
+                        f -> f.bufferDeviceAddress(true));
+            }
+        };
+    }
+
+    static DeviceFeature partialDescriptorBinding(Float pass) {
+        return new BooleanDeviceFeature(pass) {
+            @Override
+            protected boolean isFeatureSupported(PNextChain features) {
+                return features.get(VkPhysicalDeviceDescriptorIndexingFeatures.class, false,
+                        VkPhysicalDeviceDescriptorIndexingFeatures::descriptorBindingPartiallyBound);
+            }
+            @Override
+            public void enableFeature(PNextChain features) {
+                features.get(VkPhysicalDeviceDescriptorIndexingFeatures.class,
+                        f -> f.descriptorBindingPartiallyBound(true));
+            }
+        };
+    }
+
+    static DeviceFeature runtimeDescriptorArray(Float pass) {
+        return new BooleanDeviceFeature(pass) {
+            @Override
+            protected boolean isFeatureSupported(PNextChain features) {
+                return features.get(VkPhysicalDeviceDescriptorIndexingFeatures.class, false,
+                        VkPhysicalDeviceDescriptorIndexingFeatures::runtimeDescriptorArray);
+            }
+            @Override
+            public void enableFeature(PNextChain features) {
+                features.get(VkPhysicalDeviceDescriptorIndexingFeatures.class,
+                        f -> f.runtimeDescriptorArray(true));
             }
         };
     }

@@ -1,8 +1,15 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.buffer.*;
+import com.jme3.vulkan.buffer.BufferCopy;
+import com.jme3.vulkan.buffer.BufferStream;
+import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.images.ImageCopy;
+import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.pipeline.*;
+import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
@@ -10,13 +17,16 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.nio.*;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.jme3.renderer.vulkan.VulkanUtils.*;
+import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK14.*;
 
 public class VulkanCommandBuffer implements CommandBuffer {
@@ -25,7 +35,8 @@ public class VulkanCommandBuffer implements CommandBuffer {
     private final VkCommandBuffer buffer;
     private final Collection<Sync> signals = new ArrayList<>();
     private final Collection<WaitSync> waits = new ArrayList<>();
-    private final Collection<Commandable> resourcesInUse = new ArrayList<>();
+    private final Collection<Object> resourcesInUse = new ArrayList<>();
+    private final Collection<Commandable> cmdResInUse = new ArrayList<>();
     private final Collection<CommandCycleListener> cycleListeners = new ArrayList<>();
     private final TimelineSemaphore completionSignal;
     private final Executor listenerThread = Executors.newFixedThreadPool(1);
@@ -54,78 +65,37 @@ public class VulkanCommandBuffer implements CommandBuffer {
                 && src.getMemoryProperties().contains(MemoryProp.HostCached)
                 && !dst.getMemoryProperties().contains(MemoryProp.HostCached)));
         if (hostOp && location == OpLocation.Device) {
-            throw new IllegalArgumentException("Unable to perform operation on device.");
+            throw new IllegalArgumentException("Unable to perform copy operation on device.");
         }
         if (!hostOp && location == OpLocation.Host) {
-            throw new IllegalArgumentException("Unable to perform operation on host.");
+            throw new IllegalArgumentException("Unable to perform copy operation on host.");
         }
         return hostOp;
     }
 
     @Override
-    public OpLocation cmdCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker regions, OpLocation location) {
-        if (srcOffset < 0 || dstOffset < 0) {
-            throw new BufferUnderflowException();
-        }
-        if (regions.isEmpty()) {
-            throw new IllegalArgumentException("No regions to copy.");
-        }
-        srcOffset += src.getInternalOffset();
-        dstOffset += dst.getInternalOffset();
+    public OpLocation cmdCopy(EngineBuffer src, EngineBuffer dst, BufferCopy copy, OpLocation location) {
         if (isPerformHostBufferCopy(src, dst, location)) {
-            DataBuffer srcCache = src.cache();
-            DataBuffer dstCache = dst.cache();
-            for (BufferTracker.Island i : regions) {
-                srcCache.range(srcOffset + i.getStart(), i.getEnd());
-                dstCache.range(dstOffset + i.getStart(), i.getEnd());
+            DataBuffer srcCache = src.cache().mark();
+            DataBuffer dstCache = dst.cache().mark();
+            for (BufferCopy.Region r : copy.getRegions()) {
+                srcCache.reset().offset(r.getSrcOffset(), r.getSize());
+                dstCache.reset().offset(r.getDstOffset(), r.getSize());
                 srcCache.copyTo(dstCache);
             }
             return OpLocation.Host;
-        }
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkBufferCopy.Buffer copy = VkBufferCopy.malloc(regions.getNumIslands(), stack);
-            for (BufferTracker.Island i : regions) {
-                copy.get().set(i.getStart() + srcOffset, i.getStart() + dstOffset, i.getSize());
+        } else {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                VkBufferCopy.Buffer vkCopy = VkBufferCopy.calloc(copy.getRegions().size(), stack);
+                for (BufferCopy.Region r : copy.getRegions()) {
+                    vkCopy.get().set(r.getSrcOffset(), r.getDstOffset(), r.getSize());
+                }
+                vkCmdCopyBuffer(buffer, src.getHandle(), dst.getHandle(), vkCopy.flip());
             }
-            vkCmdCopyBuffer(buffer, src.getHandle(), dst.getHandle(), copy.flip());
+            addResource(src);
+            addResource(dst);
+            return OpLocation.Device;
         }
-        resourcesInUse.add(src);
-        resourcesInUse.add(dst);
-        return OpLocation.Device;
-    }
-
-    @Override
-    public OpLocation cmdFlatCopy(EngineBuffer src, int srcOffset, EngineBuffer dst, int dstOffset, BufferTracker tracker, boolean flatten, OpLocation location) {
-        if (tracker.isEmpty()) {
-            throw new IllegalArgumentException("No regions to copy.");
-        }
-        srcOffset += src.getInternalOffset();
-        dstOffset += dst.getInternalOffset();
-        if (isPerformHostBufferCopy(src, dst, location)) {
-            DataBuffer srcCache = src.cache();
-            DataBuffer dstCache = dst.cache();
-            int flatOffset = 0;
-            for (BufferTracker.Island i : tracker) {
-                srcCache.region((flatten ? i.getStart() : flatOffset) + srcOffset, i.getSize());
-                dstCache.region((flatten ? flatOffset : i.getStart()) + dstOffset, i.getSize());
-                srcCache.copyTo(dstCache);
-                flatOffset += i.getSize();
-            }
-            return OpLocation.Host;
-        }
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkBufferCopy.Buffer copy = VkBufferCopy.malloc(tracker.getNumIslands(), stack);
-            int flatOffset = 0;
-            for (BufferTracker.Island i : tracker) {
-                copy.get().set((flatten ? i.getStart() : flatOffset) + srcOffset,
-                        (flatten ? flatOffset : i.getStart()) + dstOffset, i.getSize());
-                flatOffset += i.getSize();
-            }
-            vkCmdCopyBuffer(buffer, src.getHandle(), dst.getHandle(), copy.flip());
-        }
-        resourcesInUse.add(src);
-        resourcesInUse.add(dst);
-        return OpLocation.Device;
     }
 
     @Override
@@ -136,6 +106,64 @@ public class VulkanCommandBuffer implements CommandBuffer {
     @Override
     public void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst, Runnable callback) {
         stream.streamFromRemote(this, src, dst, callback);
+    }
+
+    public void cmdTransitionLayout(EngineImage image, VulkanImage.Layout srcLayout, VulkanImage.Layout dstLayout) {
+        if (srcLayout == dstLayout) {
+            return;
+        }
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.calloc(1, stack)
+                .sType$Default()
+                .oldLayout(srcLayout.getEnum())
+                .newLayout(dstLayout.getEnum())
+                .srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                .dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                .image(image.getHandle())
+                .srcAccessMask(srcLayout.getAccessHint().bits())
+                .dstAccessMask(dstLayout.getAccessHint().bits());
+            barrier.subresourceRange()
+                .baseMipLevel(0)
+                .levelCount(image.getMipLevels())
+                .baseArrayLayer(0)
+                .layerCount(image.getArrayLayers())
+                .aspectMask(image.getFormat().getAspects().getImageAspect().bits());
+            vkCmdPipelineBarrier(buffer, srcLayout.getStageHint().bits(), dstLayout.getStageHint().bits(),
+                    0, null, null, barrier);
+        }
+    }
+
+    public void cmdCopy(EngineImage src, EngineImage dst, ImageCopy copy) {
+        if (src.getSamples() != dst.getSamples()) {
+            throw new IllegalArgumentException("Unable to copy between images of unequal sample counts.");
+        }
+        // images must be in a valid layout for copying, but we'll let the validation layers catch it
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkImageCopy.Buffer imgCopy = VkImageCopy.calloc(copy.getRegions().size(), stack);
+            for (ImageCopy.Region r : copy.getRegions()) {
+                VkImageCopy c = imgCopy.get();
+                c.srcOffset().set(r.getSrcOffset().x, r.getSrcOffset().y, r.getSrcOffset().z);
+                c.dstOffset().set(r.getDstOffset().x, r.getDstOffset().y, r.getDstOffset().z);
+                c.extent().set(r.getSize().x, r.getSize().y, r.getSize().z);
+                c.srcSubresource()
+                    .mipLevel(r.getSrcMipLevel())
+                    .baseArrayLayer(r.getSrcBaseLayer())
+                    .layerCount(r.getLayerCount())
+                    .aspectMask(r.getAspects().bits());
+                c.dstSubresource()
+                    .mipLevel(r.getDstMipLevel())
+                    .baseArrayLayer(r.getDstBaseLayer())
+                    .layerCount(r.getLayerCount())
+                    .aspectMask(r.getAspects().bits());
+            }
+            vkCmdCopyImage(buffer, src.getHandle(), src.getLayout().getEnum(), dst.getHandle(), dst.getLayout().getEnum(), imgCopy.flip());
+        }
+    }
+
+    public void cmdResolveMultisampled(EngineImage src, EngineImage dst, ImageCopy copy) {
+        if (copy.getRegions().size() != 1) {
+            throw new IllegalArgumentException("Copy structure must contain only one copy region.");
+        }
     }
 
     /*-------------------------*\
@@ -171,12 +199,17 @@ public class VulkanCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public void addResource(Commandable resource) {
+    public void addResource(Object resource) {
         if (executing) {
             throw new IllegalStateException("Buffer is executing.");
         }
-        resource.acquireControl();
-        resourcesInUse.add(resource);
+        if (resource instanceof Commandable) {
+            Commandable c = (Commandable)resource;
+            c.acquireControl();
+            cmdResInUse.add(c);
+        } else {
+            resourcesInUse.add(resource);
+        }
     }
 
     @Override
@@ -246,8 +279,9 @@ public class VulkanCommandBuffer implements CommandBuffer {
         completionEvent.awaitSignal(TimeUnit.SECONDS.toMillis(5));
         cycleListeners.forEach(CommandCycleListener::onCmdComplete);
         cycleListeners.clear();
-        resourcesInUse.forEach(Commandable::releaseControl);
         resourcesInUse.clear();
+        cmdResInUse.forEach(Commandable::releaseControl);
+        cmdResInUse.clear();
         signals.clear();
         waits.clear();
         executing = false;

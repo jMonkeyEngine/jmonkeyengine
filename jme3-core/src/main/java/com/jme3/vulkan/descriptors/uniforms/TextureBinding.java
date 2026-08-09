@@ -1,8 +1,7 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
 import com.jme3.texture.Texture;
-import com.jme3.vulkan.descriptors.AbstractSetWriter;
-import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -21,7 +20,7 @@ import java.util.Objects;
 public class TextureBinding extends UniformBinding<Texture<VulkanImageView, VulkanImage>> {
 
     public TextureBinding(Flag<ShaderStage> stages) {
-        super(Descriptor.CombinedImageSampler, 1, stages);
+        super(DescriptorType.CombinedImageSampler, 1, stages);
     }
 
     @Override

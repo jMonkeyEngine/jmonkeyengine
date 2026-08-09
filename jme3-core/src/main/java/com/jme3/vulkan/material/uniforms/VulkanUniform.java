@@ -6,6 +6,7 @@ import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 
+@Deprecated
 public interface VulkanUniform <T> extends ShaderParam<T> {
 
     /**

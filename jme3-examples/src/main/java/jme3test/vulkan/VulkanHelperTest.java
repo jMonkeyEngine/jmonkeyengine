@@ -147,9 +147,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         });
 
         DescriptorPool descriptorPool = new DescriptorPool(device, 10,
-                new PoolSize(Descriptor.UniformBuffer, 3),
-                new PoolSize(Descriptor.StorageBuffer, 4),
-                new PoolSize(Descriptor.CombinedImageSampler, 2));
+                new PoolSize(DescriptorType.UniformBuffer, 3),
+                new PoolSize(DescriptorType.StorageBuffer, 4),
+                new PoolSize(DescriptorType.CombinedImageSampler, 2));
 
         CommandPool initPool = device.getShortTermPool(physDevice.getGraphics());
         CommandBuffer initCommands = initPool.allocateTransientCommandBuffer();
@@ -313,7 +313,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(depthFormat);
             i.setTiling(VulkanImage.Tiling.Optimal);
-            i.setUsage(ImageUsage.DepthStencilAttachment);
+            i.setUsage(ImageRoles.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         }
         VulkanImageView view = new VulkanImageView(image, ImageView.Type.TwoDemensional);

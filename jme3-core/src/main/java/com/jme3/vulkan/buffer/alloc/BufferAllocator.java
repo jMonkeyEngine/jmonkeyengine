@@ -42,6 +42,16 @@ public interface BufferAllocator {
      * @param roles
      * @return
      */
-    EngineBuffer createStagingBuffer(int capacity, Flag<BufferRole> roles);
+    EngineBuffer createStreamingBuffer(int capacity, Flag<BufferRole> roles);
+
+    default EngineBuffer createBuffer(BufferType type, int capacity, Flag<BufferRole> roles) {
+        switch (type) {
+            case Dynamic:   return createDynamicBuffer(capacity, roles);
+            case Readback:  return createReadbackBuffer(capacity, roles);
+            case Local:     return createLocalBuffer(capacity, roles);
+            case Streaming: return createStreamingBuffer(capacity, roles);
+            default: throw new UnsupportedOperationException("Type not implemented: " + type);
+        }
+    }
 
 }

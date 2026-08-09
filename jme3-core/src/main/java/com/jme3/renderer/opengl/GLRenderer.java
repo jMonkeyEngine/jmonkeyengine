@@ -3119,7 +3119,7 @@ public final class GLRenderer implements Renderer {
         if (context.boundAttribs[loc] == null || context.boundAttribs[loc].get() != buffer) {
             assert buffer.isInitialized();
             bindBuffer(buffer, GL_ARRAY_BUFFER);
-            int slotOffset = attr.getOffset();
+            int slotOffset = attr.getStructLocalOffset();
             for (int i = 0; i < slotsRequired; i++) {
                 int slot = loc + i;
                 com.jme3.vulkan.formats.Format f = attr.getFormats()[i];

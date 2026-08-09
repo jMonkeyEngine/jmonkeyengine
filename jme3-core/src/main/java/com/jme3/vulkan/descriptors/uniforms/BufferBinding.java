@@ -1,67 +1,33 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
-import com.jme3.vulkan.buffers.VulkanBuffer;
-import com.jme3.vulkan.descriptors.Descriptor;
-import com.jme3.vulkan.descriptors.DescriptorSetWriter;
-import com.jme3.vulkan.descriptors.UniformBinding;
-import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.descriptors.DescriptorBinding;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.util.Objects;
+public class BufferBinding extends DescriptorBinding<EngineBuffer> {
 
-public class BufferBinding extends UniformBinding<VulkanBuffer> {
-
-    public BufferBinding(Descriptor descriptor, Flag<ShaderStage> stages) {
-        super(descriptor, 1, stages);
+    public BufferBinding(DescriptorType type, int descriptorCount, Flag<ShaderStage> stages) {
+        super(type, new EngineBuffer[descriptorCount], stages);
     }
 
     @Override
-    public DescriptorSetWriter createWriter(LogicalDevice<?> device, VulkanBuffer value) {
-        return new Writer(value);
-    }
-
-    private class Writer implements DescriptorSetWriter<VulkanBuffer> {
-
-        private final VulkanBuffer buffer;
-        private final MemorySize size;
-
-        public Writer(VulkanBuffer buffer) {
-            this.buffer = buffer;
-            this.size = buffer.size();
+    protected void populateElementInfo(MemoryStack stack, VkWriteDescriptorSet write, int start, int count) {
+        VkDescriptorBufferInfo.Buffer bufInfo = VkDescriptorBufferInfo.calloc(count, stack);
+        for (int i = 0; i < count; i++) {
+            EngineBuffer b = resources[start + i];
+            if (b != null) {
+                bufInfo.get().buffer(b.getHandle()).offset(b.getBufferLocalOffset()).range(b.capacity());
+            } else {
+                bufInfo.get().buffer(VK10.VK_NULL_HANDLE);
+            }
         }
-
-        @Override
-        public void populateWrite(MemoryStack stack, LogicalDevice<?> device, VkWriteDescriptorSet write) {
-            write.pBufferInfo(VkDescriptorBufferInfo.calloc(1, stack)
-                .buffer(buffer.getBufferHandle(device))
-                .offset(size.getOffset()).range(size.getBytes()));
-            write.descriptorType(getType().getEnum())
-                .descriptorCount(1)
-                .dstArrayElement(0);
-        }
-
-        @Override
-        public boolean outdated(VulkanBuffer value) {
-            return false;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            Writer writer = (Writer)o;
-            return buffer == writer.buffer && Objects.equals(size, writer.size);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(System.identityHashCode(buffer), size);
-        }
-
+        write.pBufferInfo(bufInfo);
     }
 
 }

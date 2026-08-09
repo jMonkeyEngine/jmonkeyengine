@@ -165,7 +165,7 @@ public class VulkanImageLoader implements AssetLoader {
                 i.setSize(data.getWidth(), data.getHeight());
                 i.setFormat(data.getFormat());
                 i.setTiling(VulkanImage.Tiling.Optimal);
-                i.setUsage(Flag.of(ImageUsage.TransferDst, ImageUsage.Sampled));
+                i.setUsage(Flag.of(ImageRoles.TransferDst, ImageRoles.Sampled));
                 i.setMemoryProps(MemoryProp.DeviceLocal);
             }
             CommandBuffer commands = transferPool.allocateTransientCommandBuffer();

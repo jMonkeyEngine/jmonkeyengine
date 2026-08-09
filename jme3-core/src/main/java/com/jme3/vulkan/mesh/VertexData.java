@@ -58,7 +58,7 @@ public class VertexData extends ArrayList<VertexBuffer> {
                     continue;
                 }
                 anyValid = true;
-                int offset = attr.getOffset();
+                int offset = attr.getStructLocalOffset();
                 Format[] formats = attr.getFormats();
                 assert formats.length > 0;
                 for (int i = 0; i < formats.length; i++) {

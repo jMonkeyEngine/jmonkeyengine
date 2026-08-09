@@ -80,8 +80,8 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
     }
 
     @Override
-    public int getInternalOffset() {
-        return struct.getInternalOffset() + offset;
+    public int getBufferLocalOffset() {
+        return struct.getBufferLocalOffset() + offset;
     }
 
     @Override

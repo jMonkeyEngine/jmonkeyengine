@@ -74,8 +74,8 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
     }
 
     @Override
-    public int getInternalOffset() {
-        return parent.getInternalOffset();
+    public int getBufferLocalOffset() {
+        return parent.getBufferLocalOffset();
     }
 
     @Override
@@ -161,24 +161,6 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
     }
 
     /**
-     * Reformats the currently bound buffer region according to the {@code layout},
-     * if this struct is not already bound to {@code layout}.
-     *
-     * @param layout new layout
-     */
-    public void reformat(StructLayout layout) {
-        if (this.layout != null && this.layout != layout) {
-            for (T f : fields) {
-                f.get(); // read to alias
-            }
-            bind(layout);
-            for (T f : fields) {
-                f.set(); // write from alias
-            }
-        }
-    }
-
-    /**
      * Computes field offsets, struct size, and struct alignment based on
      * the currently bound layout.
      */
@@ -192,22 +174,13 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
         size = FastMath.toMultipleOf(size, alignment);
     }
 
-    @SuppressWarnings("unchecked")
-    public void set(Struct struct) {
-        Iterator<T> dst = fields.iterator();
-        Iterator<StructField> src = struct.getFields().iterator();
-        while (dst.hasNext() && src.hasNext()) {
-            dst.next().set(src.next().get());
-        }
-    }
+    /**
+     * Copies
+     *
+     * @param copyTo
+     */
+    public void createFieldByFieldCopy(Struct<?> target) {
 
-    @SuppressWarnings("unchecked")
-    public void setFromAlias(Struct struct) {
-        Iterator<T> dst = fields.iterator();
-        Iterator<StructField> src = struct.getFields().iterator();
-        while (dst.hasNext() && src.hasNext()) {
-            dst.next().set(src.next().alias());
-        }
     }
 
     /**
@@ -304,8 +277,8 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
         }
 
         @Override
-        public int getInternalOffset() {
-            return struct.getInternalOffset() + offset;
+        public int getBufferLocalOffset() {
+            return struct.getBufferLocalOffset() + offset;
         }
 
         @Override
@@ -351,7 +324,8 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
             return description;
         }
 
-        public int getOffset() {
+        @Override
+        public int getStructLocalOffset() {
             return offset;
         }
 

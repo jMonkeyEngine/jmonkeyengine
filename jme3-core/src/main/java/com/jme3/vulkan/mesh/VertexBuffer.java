@@ -27,13 +27,13 @@ public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
         this.rate = rate;
         this.struct = struct;
         this.buffer = buffer;
-        this.struct.bind(StructLayout.shared);
+        this.struct.bind(StructLayout.optimal);
     }
 
     public VertexBuffer(InputRate rate, T struct, int elements, IntFunction<MappableBuffer> buffer) {
         this.rate = rate;
         this.struct = struct;
-        this.struct.bind(StructLayout.shared);
+        this.struct.bind(StructLayout.optimal);
         this.buffer = buffer.apply(elements * this.struct.getAlignedSize());
     }
 

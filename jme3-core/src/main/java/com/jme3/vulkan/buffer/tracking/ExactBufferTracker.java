@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffer;
+package com.jme3.vulkan.buffer.tracking;
 
 import java.util.Iterator;
 
@@ -36,7 +36,7 @@ public class ExactBufferTracker implements BufferTracker {
     }
 
     @Override
-    public int getCoveredBytes() {
+    public int getNumCovered() {
         int coverage = 0;
         for (BufferTracker.Island i : this) {
             coverage += i.getSize();
@@ -85,7 +85,7 @@ public class ExactBufferTracker implements BufferTracker {
         }
 
         @Override
-        public int getAvailableBytesAfter(int limit) {
+        public int getAvailableAfter(int limit) {
             if (end >= limit) return 0;
             if (next == null) return limit - end;
             return next.start - end;

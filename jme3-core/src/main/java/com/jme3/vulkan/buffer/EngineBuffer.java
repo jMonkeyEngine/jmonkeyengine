@@ -1,17 +1,15 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.Commandable;
-import com.jme3.vulkan.commands.RenderCommands;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public interface EngineBuffer extends Commandable {
+public interface EngineBuffer {
 
     /**
-     * Updates this buffer. If {@link #flushCache()} has been called since the last update,
-     * the {@link #cache()} is flushed to the device, otherwise if {@link #invalidateCache()} has been
-     * called since the last update, the {@link #cache()} is updated from the device.
+     * Updates this buffer. Changes made to the {@link #cache()} are flushed to the device.
+     * If the cache has not been changed and {@link #invalidateCache()} has been called since
+     * the last update, the cache is updated from the device.
      *
      * @param cmd rendering commands
      */
@@ -25,13 +23,6 @@ public interface EngineBuffer extends Commandable {
      * device accessible}
      */
     DataBuffer cache();
-
-    /**
-     * Submits a cache flush to be performed on the next {@link #update(CommandBuffer)}. Flushing the
-     * cache updates the device memory with the cache's memory based on what sections of the cache
-     * were written to since the last flush or {@link #invalidateCache() invalidation}.
-     */
-    void flushCache();
 
     /**
      * Submits a cache invalidation to be performed on the next {@link #update(CommandBuffer)}.
@@ -53,7 +44,7 @@ public interface EngineBuffer extends Commandable {
      *
      * @return internal offset in bytes
      */
-    int getInternalOffset();
+    int getBufferLocalOffset();
 
     /**
      * Gets the graphics API handle of this buffer.

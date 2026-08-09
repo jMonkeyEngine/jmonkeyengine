@@ -124,7 +124,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      * Refresh flag types
      */
     protected static final int
-            RF_TRANSFORM = 0x01, // need light resort + combine transforms
+            RF_TRANSFORM = 0x01,
             RF_BOUND = 0x02,
             RF_LIGHTLIST = 0x04, // changes in light lists
             RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update

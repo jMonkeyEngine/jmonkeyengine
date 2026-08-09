@@ -42,7 +42,7 @@ public class StreamedBuffer implements EngineBuffer, Memory {
     }
 
     @Override
-    public int getInternalOffset() {
+    public int getBufferLocalOffset() {
         return 0;
     }
 
