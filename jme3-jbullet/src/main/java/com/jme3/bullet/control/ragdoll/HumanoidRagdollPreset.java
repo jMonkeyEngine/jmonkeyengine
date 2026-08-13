@@ -40,6 +40,7 @@ import com.jme3.math.FastMath;
  *
  * @author Nehon
  */
+@Deprecated
 public class HumanoidRagdollPreset extends RagdollPreset {
 
     /**

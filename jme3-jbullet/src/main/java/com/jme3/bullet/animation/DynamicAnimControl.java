@@ -70,6 +70,7 @@ import java.util.logging.Logger;
  *
  * Based on KinematicRagdollControl by Normen Hansen and Rémy Bouquet (Nehon).
  */
+@Deprecated
 public class DynamicAnimControl
         extends DacLinks
         implements PhysicsCollisionListener {
