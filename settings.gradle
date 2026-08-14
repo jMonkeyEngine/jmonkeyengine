@@ -83,6 +83,7 @@ def findAndroidSdk = {
 
 // Core classes, should work on all java platforms
 include 'jme3-core'
+include 'jme3-benchmark'
 include 'jme3-effects'
 include 'jme3-networking'
 include 'jme3-plugins'
