@@ -62,6 +62,7 @@ import javax.swing.SwingUtilities;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,6 +113,18 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /** Logger class. */
     private static final Logger LOGGER = Logger.getLogger(LwjglCanvas.class.getName());
+
+    static boolean swapBuffersAndCheckNativeVsync(boolean nativeVsyncEnabled,
+            BooleanSupplier swapBuffers) {
+        boolean swapped = swapBuffers.getAsBoolean();
+        return nativeVsyncEnabled && swapped;
+    }
+
+    /** Gives Swing time to process events when rendering without any limiter. */
+    private final AwtEventQueueFairness edtFairness = new AwtEventQueueFairness();
+
+    /** Whether the platform successfully enabled native vertical sync. */
+    private volatile boolean nativeVsyncEnabled;
 
     /** GL versions map. */
     private static final Map<String, Consumer<GLData>> RENDER_CONFIGS = new HashMap<>();
@@ -272,12 +285,14 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
          * To start drawing on the AWT surface, the AWT threads must be locked to
          * avoid conflicts when drawing on the canvas.
          */
-        public void lock() {
+        public boolean lock() {
             synchronized (lock) {
                 try {
                     platformCanvas.lock();// <- MUST lock on Linux
+                    return true;
                 } catch (AWTException e) {
                     listener.handleError("Failed to lock Canvas", e);
+                    return false;
                 }
             }
         }
@@ -305,8 +320,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         /**
          * This is where you actually draw on the canvas (framebuffer).
          */
-        public void swapBuffers() {
-            platformCanvas.swapBuffers();
+        public boolean swapBuffers() {
+            return platformCanvas.swapBuffers();
         }
 
         /**
@@ -575,6 +590,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 //       with demanding scenes.
                 runLoop();
 
+                boolean nativeVsyncPacedFrame = false;
+
                 // All this does is call swapBuffers().
                 // If the canvas is not active, there's no need to waste time
                 // doing that.
@@ -582,11 +599,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     try {
                         if (allowSwapBuffers && autoFlush) {
                             // calls swap buffers | lock, etc.
-                            try {
-                                canvas.lock();
-                                canvas.swapBuffers();
-                            } finally {
-                                canvas.unlock();
+                            if (canvas.lock()) {
+                                try {
+                                    nativeVsyncPacedFrame = swapBuffersAndCheckNativeVsync(
+                                            nativeVsyncEnabled, canvas::swapBuffers);
+                                } finally {
+                                    canvas.unlock();
+                                }
                             }
 
                             // Sync the display on some systems.
@@ -595,6 +614,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     } catch (Throwable ex) {
                         listener.handleError("Error while swapping buffers", ex);
                     }
+                }
+
+                // With neither VSync nor a software FPS limit, keep rendering
+                // unbounded but yield briefly if Swing's EDT stops progressing.
+                if (AwtEventQueueFairness.isRequired(nativeVsyncPacedFrame, frameRateLimit)) {
+                    edtFairness.afterFrame();
                 }
             } else {
                 // HACK: If the GL context is not rendering, the thread will
@@ -705,6 +730,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     @Override
     protected void createContext(AppSettings settings) {
+        nativeVsyncEnabled = false;
+
         boolean linux = Platform.get() == Platform.LINUX
                 || Platform.get() == Platform.FREEBSD;
         if (!settings.isX11PlatformPreferred() && linux && JmeSystem.isWaylandSession()) {
@@ -762,6 +789,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
         canvas.createContext();
         canvas.makeCurrent();
+
+        nativeVsyncEnabled = settings.isVSync()
+                && Integer.valueOf(1).equals(canvas.getGLDataEffective().swapInterval);
+        if (settings.isVSync() && !nativeVsyncEnabled) {
+            LOGGER.warning("Native VSync is unavailable for the AWT canvas; "
+                    + "EDT fairness will be used when no FPS limit is set.");
+        }
 
         SwingUtilities.invokeLater(() -> {
             canvas.validate();

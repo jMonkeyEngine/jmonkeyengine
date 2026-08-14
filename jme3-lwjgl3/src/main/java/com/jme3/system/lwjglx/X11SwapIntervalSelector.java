@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,53 +31,43 @@
  */
 package com.jme3.system.lwjglx;
 
-import static org.lwjgl.opengl.CGL.CGLSetParameter;
-import static org.lwjgl.opengl.CGL.kCGLCPSwapInterval;
-import static org.lwjgl.opengl.CGL.kCGLNoError;
-import static org.lwjgl.system.jawt.JAWTFunctions.JAWT_FreeDrawingSurface;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import java.awt.AWTException;
-import java.awt.Canvas;
+/** Chooses the best available GLX swap-control extension for an interval. */
+final class X11SwapIntervalSelector {
 
-import org.lwjgl.opengl.awt.GLData;
-import org.lwjgl.opengl.awt.PlatformMacOSXGLCanvas;
-
-/**
- * <code>MacOSXGLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
- * interface for the MacOS platform.
- * 
- * @author wil
- */
-final class MacOSXGLPlatform extends PlatformMacOSXGLCanvas implements LwjglxGLPlatform {
-
-    @Override
-    public long create(Canvas canvas, GLData data, GLData effective) throws AWTException {
-        effective.swapInterval = null;
-        if (data.swapInterval != null && data.swapInterval < 0) {
-            throw new AWTException("Negative swap intervals are not supported by CGL");
-        }
-
-        long context = super.create(canvas, data, effective);
-        if (data.swapInterval == null) {
-            return context;
-        }
-
-        int result = CGLSetParameter(context, kCGLCPSwapInterval, data.swapInterval);
-        if (result == kCGLNoError) {
-            effective.swapInterval = data.swapInterval;
-        }
-        return context;
+    enum Extension {
+        EXT,
+        MESA,
+        SGI,
+        NONE
     }
 
-    /**
-     * (non-Javadoc)
-     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
-     */
-    @Override
-    public void destroy() {
-        if (ds != null) {
-            JAWT_FreeDrawingSurface(ds, awt.FreeDrawingSurface());
-            awt.free();
-        }
+    private X11SwapIntervalSelector() {
     }
- }
+
+    static Extension select(String extensionString, int interval) {
+        Set<String> extensions;
+        if (extensionString == null || extensionString.trim().isEmpty()) {
+            extensions = Collections.emptySet();
+        } else {
+            extensions = new HashSet<>(Arrays.asList(extensionString.trim().split("\\s+")));
+        }
+
+        boolean extSupportsInterval = interval >= 0
+                || extensions.contains("GLX_EXT_swap_control_tear");
+        if (extSupportsInterval && extensions.contains("GLX_EXT_swap_control")) {
+            return Extension.EXT;
+        }
+        if (interval >= 0 && extensions.contains("GLX_MESA_swap_control")) {
+            return Extension.MESA;
+        }
+        if (interval > 0 && extensions.contains("GLX_SGI_swap_control")) {
+            return Extension.SGI;
+        }
+        return Extension.NONE;
+    }
+}

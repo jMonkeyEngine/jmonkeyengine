@@ -31,7 +31,18 @@
  */
 package com.jme3.system.lwjglx;
 
-import static org.lwjgl.system.jawt.JAWTFunctions.*;
+import static org.lwjgl.opengl.WGL.wglGetCurrentContext;
+import static org.lwjgl.opengl.WGL.wglGetCurrentDC;
+import static org.lwjgl.opengl.WGL.wglGetProcAddress;
+import static org.lwjgl.opengl.WGL.wglMakeCurrent;
+import static org.lwjgl.system.JNI.callI;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.system.jawt.JAWTFunctions.JAWT_FreeDrawingSurface;
+
+import java.awt.AWTException;
+import java.awt.Canvas;
+
+import org.lwjgl.opengl.awt.GLData;
 import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
 
 /**
@@ -41,6 +52,47 @@ import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
  * @author wil
  */
 final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
+
+    @Override
+    public long create(Canvas canvas, GLData data, GLData effective) throws AWTException {
+        effective.swapInterval = null;
+        Integer requestedSwapInterval = data.swapInterval;
+        long context;
+        try {
+            // The dependency treats an unavailable WGL swap-control extension
+            // as a fatal context-creation error. Create first, then apply VSync
+            // here so jME can fall back to EDT fairness instead.
+            data.swapInterval = null;
+            context = super.create(canvas, data, effective);
+        } finally {
+            data.swapInterval = requestedSwapInterval;
+        }
+
+        if (requestedSwapInterval == null) {
+            return context;
+        }
+
+        long previousContext = wglGetCurrentContext(null);
+        long previousDc = wglGetCurrentDC();
+        try {
+            if (!makeCurrent(context)) {
+                return context;
+            }
+
+            long setAddress = wglGetProcAddress(null, "wglSwapIntervalEXT");
+            if (setAddress == NULL || callI(requestedSwapInterval, setAddress) == 0) {
+                return context;
+            }
+
+            long getAddress = wglGetProcAddress(null, "wglGetSwapIntervalEXT");
+            if (getAddress != NULL && callI(getAddress) == requestedSwapInterval) {
+                effective.swapInterval = requestedSwapInterval;
+            }
+        } finally {
+            wglMakeCurrent(null, previousDc, previousContext);
+        }
+        return context;
+    }
 
     /* (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#dispose()
