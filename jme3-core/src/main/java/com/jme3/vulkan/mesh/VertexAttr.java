@@ -6,9 +6,9 @@ import com.jme3.util.struct.FieldDescription;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.tmp.Final;
-import com.jme3.vulkan.tmp.FinalWriter;
-import com.jme3.vulkan.tmp.SerializationOnly;
+import com.jme3.vulkan.compile.Final;
+import com.jme3.vulkan.compile.FinalWriter;
+import com.jme3.vulkan.compile.SerializationOnly;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -124,10 +124,12 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
         return formats;
     }
 
+    @Override
     public Struct getBoundStruct() {
         return struct;
     }
 
+    @Override
     public int getStructLocalOffset() {
         return offset;
     }

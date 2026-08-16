@@ -1203,10 +1203,36 @@ public final class FastMath {
     }
 
     /**
-     * Round n to a multiple of p
+     * Round n to a multiple of p, if p is a power of 2.
      */
     public static int toMultipleOf(int n, int p) {
         return ((n - 1) | (p - 1)) + 1;
+    }
+
+    /**
+     * Computes the logarithm of {@code n} in base 2.
+     *
+     * @param n
+     * @return log base 2 of n
+     */
+    public static int log2(int n) {
+        assert n >= 0 : "N must be non-negative.";
+        return Integer.SIZE - 1 - Integer.numberOfTrailingZeros(n);
+    }
+
+    /**
+     * Computes the logarithm of {@code n} in base 2.
+     *
+     * @param n
+     * @return log base 2 of n
+     */
+    public static int log2(long n) {
+        assert n >= 0 : "N must be non-negative.";
+        return Long.SIZE - 1 - Long.numberOfLeadingZeros(n);
+    }
+
+    public static boolean isMultipleOf(int n, int p) {
+        return n % p == 0;
     }
 
 }

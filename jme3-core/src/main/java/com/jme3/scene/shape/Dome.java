@@ -43,8 +43,8 @@ import com.jme3.util.TempVars;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -71,7 +71,7 @@ public class Dome extends AdaptiveMesh {
     private boolean insideView = true;
 
     private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-            JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+            JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
 
     /**
      * Serialization only. Do not use.
@@ -291,7 +291,7 @@ public class Dome extends AdaptiveMesh {
 
         // allocate connectivity
         int triCount = (planes - 2) * radialSamples * 2 + radialSamples;
-        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(3L * triCount * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(3L * triCount * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
 
         // Generate only for middle planes
         try (BufferMapping m = index.map()) {

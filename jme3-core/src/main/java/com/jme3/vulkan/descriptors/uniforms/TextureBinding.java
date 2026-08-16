@@ -1,67 +1,42 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
 import com.jme3.texture.Texture;
-import com.jme3.vulkan.descriptors.DescriptorType;
-import com.jme3.vulkan.descriptors.DescriptorSetWriter;
-import com.jme3.vulkan.descriptors.UniformBinding;
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.GpuImage;
-import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.images.VulkanImageView;
+import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.util.Objects;
+import static org.lwjgl.vulkan.VK10.VK_NULL_HANDLE;
 
-public class TextureBinding extends UniformBinding<Texture<VulkanImageView, VulkanImage>> {
+public class TextureBinding extends DescriptorBinding<Texture> {
 
-    public TextureBinding(Flag<ShaderStage> stages) {
-        super(DescriptorType.CombinedImageSampler, 1, stages);
+    public TextureBinding(int descriptors, Flag<ShaderStage> stages) {
+        super(DescriptorType.CombinedImageSampler, new Texture[descriptors], stages);
+    }
+
+    public TextureBinding(DescriptorSetLayout.Binding layout) {
+        this(layout.getDescriptors(), layout.getStages());
     }
 
     @Override
-    public DescriptorSetWriter createWriter(Texture<VulkanImageView, VulkanImage> value) {
-        return new Writer(value, EngineImage.Layout.ShaderReadOnlyOptimal);
-    }
-
-    private class Writer implements DescriptorSetWriter {
-
-        private final Texture<VulkanImageView, ? extends GpuImage> texture;
-        private final IntEnum<EngineImage.Layout> layout;
-
-        public Writer(Texture<VulkanImageView, ? extends GpuImage> texture, IntEnum<EngineImage.Layout> layout) {
-            this.texture = texture;
-            this.layout = layout;
+    protected void populateElementInfo(MemoryStack stack, VkWriteDescriptorSet write, int start, int count) {
+        VkDescriptorImageInfo.Buffer bufInfo = VkDescriptorImageInfo.calloc(count, stack);
+        for (int i = 0; i < count; i++) {
+            Texture t = resources[start + i];
+            if (t != null) {
+                bufInfo.get().imageView(t.getView().getHandle())
+                    .sampler(t.getSampler().getHandle())
+                    .imageLayout(t.getImage().getLayout().getEnum());
+            } else { // requires enabling null descriptors feature/extension
+                bufInfo.get().imageView(VK_NULL_HANDLE)
+                    .sampler(VK_NULL_HANDLE)
+                    .imageView(EngineImage.Layout.Undefined.getEnum());
+            }
         }
-
-        @Override
-        public void populateWrite(MemoryStack stack, LogicalDevice<?> device, VkWriteDescriptorSet write) {
-            write.pImageInfo(VkDescriptorImageInfo.calloc(1, stack)
-                    .imageView(texture.getView().getId())
-                    .sampler(texture.getId())
-                    .imageLayout(layout.getEnum()));
-            write.descriptorType(getType().getEnum())
-                    .descriptorCount(1)
-                    .dstArrayElement(0);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            Writer writer = (Writer)o;
-            return texture == writer.texture && layout.is(writer.layout);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(System.identityHashCode(texture), layout.getEnum());
-        }
-
+        write.pImageInfo(bufInfo);
     }
 
 }

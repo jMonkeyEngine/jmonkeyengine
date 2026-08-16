@@ -4,9 +4,9 @@ import com.jme3.export.*;
 import com.jme3.util.struct.*;
 import com.jme3.vulkan.buffers.Mappable;
 import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.tmp.Final;
-import com.jme3.vulkan.tmp.FinalWriter;
-import com.jme3.vulkan.tmp.SerializationOnly;
+import com.jme3.vulkan.compile.Final;
+import com.jme3.vulkan.compile.FinalWriter;
+import com.jme3.vulkan.compile.SerializationOnly;
 
 import java.io.IOException;
 import java.util.HashMap;

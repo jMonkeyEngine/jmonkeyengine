@@ -4,6 +4,10 @@ import com.jme3.export.*;
 
 import java.io.IOException;
 
+/**
+ * {@link IntVector} handles both 2D and 3D integer vectors.
+ */
+@Deprecated
 public class Vector2i implements Savable {
 
     public static final Vector2i ZERO = new Vector2i();
@@ -37,8 +41,8 @@ public class Vector2i implements Savable {
         return this;
     }
 
-    public Vector3i toVector3(int z) {
-        return new Vector3i(x, y, z);
+    public IntVector toVector3(int z) {
+        return new IntVector(x, y, z);
     }
 
     public int getX() {

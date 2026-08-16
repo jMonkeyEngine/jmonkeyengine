@@ -14,20 +14,11 @@ public abstract class DescriptorBinding <T> {
 
     protected final T[] resources;
     private final DescriptorType type;
-    private final Flag<ShaderStage> stages;
     private final BufferTracker writesNeeded = new ExactBufferTracker();
-    private final BitSet usedSlots = new BitSet();
 
-    public DescriptorBinding(DescriptorType type, T[] resources, Flag<ShaderStage> stages) {
+    public DescriptorBinding(DescriptorType type, T[] resources) {
         this.type = type;
         this.resources = resources;
-        this.stages = stages;
-    }
-
-    public void populateLayoutInfo(VkDescriptorSetLayoutBinding layoutBinding) {
-        layoutBinding.descriptorType(type.getEnum())
-            .descriptorCount(resources.length)
-            .stageFlags(stages.bits());
     }
 
     public void populateWriteInfo(MemoryStack stack, VkWriteDescriptorSet.Buffer write, DescriptorSet set, int binding) {
@@ -38,7 +29,7 @@ public abstract class DescriptorBinding <T> {
                 .descriptorType(type.getEnum())
                 .dstArrayElement(i.getStart())
                 .descriptorCount(i.getSize())
-                .dstSet(set.getNativeObject())
+                .dstSet(set.getHandle())
                 .dstBinding(binding);
         }
     }
@@ -48,13 +39,10 @@ public abstract class DescriptorBinding <T> {
     public void set(int descriptor, T resource) {
         resources[descriptor] = resource;
         writesNeeded.add(descriptor, 1);
-        usedSlots.set(descriptor, resource != null);
     }
 
-    public int setInFirstUnused(T resource) {
-        int i = usedSlots.nextClearBit(0);
-        set(i, resource);
-        return i;
+    public void setWriteNeeded() {
+        writesNeeded.add(0, resources.length);
     }
 
     public void setWriteNeeded(int descriptor) {
@@ -65,12 +53,24 @@ public abstract class DescriptorBinding <T> {
         writesNeeded.add(firstDescriptor, descriptorCount);
     }
 
+    public int getDescriptorWritesNeeded() {
+        return writesNeeded.getNumIslands();
+    }
+
     public T get(int descriptor) {
         return resources[descriptor];
     }
 
     public void clear(int descriptor) {
         set(descriptor, null);
+    }
+
+    public int getDescriptors() {
+        return resources.length;
+    }
+
+    public DescriptorType getType() {
+        return type;
     }
 
 }

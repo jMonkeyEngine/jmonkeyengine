@@ -40,8 +40,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -67,7 +67,7 @@ public class CenterQuad extends AdaptiveMesh {
     private float height;
 
     private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-            JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+            JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
 
     /**
      * For serialization only. Do not use.
@@ -179,7 +179,7 @@ public class CenterQuad extends AdaptiveMesh {
             v.normal.set(Vector3f.UNIT_Z);
         }
 
-        IdxBuffer index = new IdxBuffer(IndexType.UInt8, JmePlatform.allocateStandardBuffer(6 * Byte.BYTES, BufferRole.Index, UpdateHint.Static));
+        IdxBuffer index = new IdxBuffer(IndexType.UInt8, JmePlatform.allocateStandardBuffer(6 * Byte.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
         try (BufferMapping m = index.map()) {
             if (width * height < 0f) {
                 m.getBytes().put(new byte[]{0, 2, 1, 0, 3, 2});

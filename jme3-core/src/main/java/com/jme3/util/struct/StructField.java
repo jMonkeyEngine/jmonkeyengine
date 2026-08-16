@@ -1,7 +1,7 @@
 package com.jme3.util.struct;
 
 import com.jme3.math.FastMath;
-import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
@@ -144,18 +144,18 @@ public interface StructField <T> extends EngineBuffer {
     }
 
     @Override
+    default Destructor getDestructor() {
+        return getBoundStruct().getDestructor();
+    }
+
+    @Override
     default void update(CommandBuffer cmd) {
         getBoundStruct().update(cmd);
     }
 
     @Override
-    default void flushCache() {
-        getBoundStruct().flushCache();
-    }
-
-    @Override
     default void invalidateCache() {
-        getBoundStruct().flushCache();
+        getBoundStruct().invalidateCache();
     }
 
     @Override
@@ -169,7 +169,7 @@ public interface StructField <T> extends EngineBuffer {
     }
 
     @Override
-    default Flag<BufferRole> getRoles() {
+    default Flag<Role> getRoles() {
         return getBoundStruct().getRoles();
     }
 

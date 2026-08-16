@@ -38,8 +38,7 @@ import com.jme3.asset.TextureKey;
 import com.jme3.export.*;
 import com.jme3.util.PlaceholderAssets;
 import com.jme3.vulkan.images.AddressMode;
-import com.jme3.vulkan.images.Filter;
-import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.images.FilterMode;
 import com.jme3.vulkan.images.MipmapMode;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VK10;
@@ -159,11 +158,11 @@ public abstract class GlTexture implements Texture<GlTexture, GlImage>, ImageVie
             return usesMipMapLevels;
         }
 
-        public static MinFilter of(IntEnum<Filter> filter, IntEnum<MipmapMode> mipmap) {
-            if (filter.is(Filter.Linear)) {
+        public static MinFilter of(IntEnum<FilterMode> filter, IntEnum<MipmapMode> mipmap) {
+            if (filter.is(FilterMode.Linear)) {
                 if (mipmap.is(MipmapMode.Linear)) return Trilinear;
                 else return BilinearNearestMipMap;
-            } else if (filter.is(Filter.Nearest)) {
+            } else if (filter.is(FilterMode.Nearest)) {
                 if (mipmap.is(MipmapMode.Linear)) return Trilinear;
                 else return NearestNearestMipMap;
             } else if (mipmap.is(MipmapMode.Linear)) return NearestLinearMipMap;
@@ -192,8 +191,8 @@ public abstract class GlTexture implements Texture<GlTexture, GlImage>, ImageVie
          */
         Bilinear;
 
-        public static MagFilter of(IntEnum<Filter> filter) {
-            if (filter.is(Filter.Linear)) return Bilinear;
+        public static MagFilter of(IntEnum<FilterMode> filter) {
+            if (filter.is(FilterMode.Linear)) return Bilinear;
             else return Nearest;
         }
 

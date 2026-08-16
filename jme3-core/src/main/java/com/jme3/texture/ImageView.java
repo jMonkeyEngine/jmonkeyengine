@@ -5,6 +5,7 @@ import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
+@Deprecated
 public interface ImageView <T extends GpuImage> {
 
     enum Type implements IntEnum<Type> {

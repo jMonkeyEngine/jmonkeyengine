@@ -42,8 +42,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -73,7 +73,7 @@ public class Cylinder extends AdaptiveMesh {
     private boolean inverted;
 
     private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-            JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+            JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
 
     /**
      * constructor for serialization only. Do not use.
@@ -346,7 +346,7 @@ public class Cylinder extends AdaptiveMesh {
 
         // Add the triangles indexes.
         IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                (long)trianglesCount * 3 * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+                (long)trianglesCount * 3 * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
         try (BufferMapping m = index.map()) {
             ShortBuffer shorts = m.getShorts();
             for (short axisSample = 0; axisSample < axisSamples - 1; axisSample++) {

@@ -2,11 +2,11 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.DynamicBuffer;
 import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
-import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
@@ -19,7 +19,7 @@ public class CongregateVertexBuffer <T extends Struct<VertexAttr>> {
     private final DynamicBuffer<StructArray<T>> array;
     private final BufferTracker usedVertices = new ExactBufferTracker();
 
-    public CongregateVertexBuffer(BufferAllocator alloc, int vertexCapacity, T struct, BufferType type, Flag<BufferRole> roles) {
+    public CongregateVertexBuffer(MemoryAllocator alloc, int vertexCapacity, T struct, BufferType type, Flag<EngineBuffer.Role> roles) {
         array = new DynamicBuffer<>(alloc, new StructArray<>(vertexCapacity, struct), type, roles);
     }
 

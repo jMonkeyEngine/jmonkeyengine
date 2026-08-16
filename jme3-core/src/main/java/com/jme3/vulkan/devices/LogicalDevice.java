@@ -1,14 +1,8 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.*;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.buffers.PersistentVulkanBuffer;
-import com.jme3.vulkan.buffers.VulkanBuffer;
-import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
-import com.jme3.vulkan.buffers.saving.UpdateHint;
-import com.jme3.vulkan.buffers.stream.StreamingBuffer;
 import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.Struct;
@@ -25,10 +19,12 @@ import java.util.stream.Collectors;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkDevice> {
+public class LogicalDevice <T extends PhysicalDevice> implements NativeHandle<VkDevice> {
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
+    private VkDevice object;
+    private Destructor destructor = Destructor.NULL;
     private PNextChain enabledFeatures;
     private T physical;
 
@@ -37,11 +33,13 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
     }
 
     @Override
-    public Runnable createDestroyer() {
-        return () -> {
-            vkDestroyDevice(object, null);
-            enabledFeatures.free();
-        };
+    public Destructor getDestructor() {
+        return destructor;
+    }
+
+    @Override
+    public VkDevice getHandle() {
+        return object;
     }
 
     @Override
@@ -160,11 +158,16 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
                 create.ppEnabledLayerNames(lyrs.flip());
             }
             PointerBuffer ptr = stack.mallocPointer(1);
-            check(vkCreateDevice(physical.getDeviceHandle(), create, null, ptr),
+            check(vkCreateDevice(physical.getHandle(), create, null, ptr),
                     "Failed to create logical device.");
-            object = new VkDevice(ptr.get(0), physical.getDeviceHandle(), create);
-            ref = DisposableManager.get().register(LogicalDevice.this);
-            physical.getInstance().getReference().addDependent(ref);
+            object = new VkDevice(ptr.get(0), physical.getHandle(), create);
+            destructor = physical.getDestructor().addDependent(new Destructor(LogicalDevice.this) {
+                @Override
+                protected void runDestroy() {
+                    vkDestroyDevice(object, null);
+                    enabledFeatures.free();
+                }
+            });
             physical.createQueues(LogicalDevice.this);
             VmaAllocatorCreateInfo alloc = VmaAllocatorCreateInfo.calloc(stack);
             Vma.vmaCreateAllocator(alloc, ptr);
@@ -173,7 +176,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
         private void findSuitablePhysicalDevice() {
             PointerBuffer devicePtrs = enumerateBuffer(stack, stack::mallocPointer, (count, buffer) -> check(
-                    vkEnumeratePhysicalDevices(instance.getNativeObject(), count, buffer),
+                    vkEnumeratePhysicalDevices(instance.getHandle(), count, buffer),
                     "Failed to enumerate physical devices."));
             physical = null;
             float topWeight = Float.NEGATIVE_INFINITY;

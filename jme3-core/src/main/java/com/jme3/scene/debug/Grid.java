@@ -35,8 +35,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -64,13 +64,13 @@ public class Grid extends AdaptiveMesh {
      */
     public Grid(int xLines, int yLines, float lineDist) {
         VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+                JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
         addVertexBuffer(buffer);
 
         int lineCount = xLines + yLines;
         setVertexCount(lineCount * 6, 0);
         IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                2L * lineCount * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+                2L * lineCount * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
         setBaseIndexBuffer(index);
 
         float xLineLen = (yLines - 1) * lineDist;

@@ -42,7 +42,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
     }
 
     @Override
-    public VkPhysicalDevice getDeviceHandle() {
+    public VkPhysicalDevice getHandle() {
         return physicalDevice;
     }
 
@@ -170,9 +170,9 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
 
         public VkQueueFamilyProperties.Buffer getQueueFamilyProperties(PhysicalDevice device) {
             if (familyProps == null) {
-                vkGetPhysicalDeviceQueueFamilyProperties(device.getDeviceHandle(), intBuf, null);
+                vkGetPhysicalDeviceQueueFamilyProperties(device.getHandle(), intBuf, null);
                 familyProps = VkQueueFamilyProperties.malloc(intBuf.get(0));
-                vkGetPhysicalDeviceQueueFamilyProperties(device.getDeviceHandle(), intBuf, familyProps);
+                vkGetPhysicalDeviceQueueFamilyProperties(device.getHandle(), intBuf, familyProps);
             }
             return familyProps;
         }
@@ -180,16 +180,16 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
         public VkPhysicalDeviceProperties getDeviceProperties(PhysicalDevice device) {
             if (properties == null) {
                 properties = VkPhysicalDeviceProperties.malloc();
-                vkGetPhysicalDeviceProperties(device.getDeviceHandle(), properties);
+                vkGetPhysicalDeviceProperties(device.getHandle(), properties);
             }
             return properties;
         }
 
         public VkExtensionProperties.Buffer getExtensionProperties(PhysicalDevice device) {
             if (extProps == null) {
-                vkEnumerateDeviceExtensionProperties(device.getDeviceHandle(), (ByteBuffer)null, intBuf, null);
+                vkEnumerateDeviceExtensionProperties(device.getHandle(), (ByteBuffer)null, intBuf, null);
                 extProps = VkExtensionProperties.malloc(intBuf.get(0));
-                vkEnumerateDeviceExtensionProperties(device.getDeviceHandle(), (ByteBuffer)null, intBuf, extProps);
+                vkEnumerateDeviceExtensionProperties(device.getHandle(), (ByteBuffer)null, intBuf, extProps);
             }
             return extProps;
         }
@@ -197,7 +197,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
         public VkPhysicalDeviceMemoryProperties getMemoryProperties(PhysicalDevice device) {
             if (memProps == null) {
                 memProps = VkPhysicalDeviceMemoryProperties.malloc();
-                vkGetPhysicalDeviceMemoryProperties(device.getDeviceHandle(), memProps);
+                vkGetPhysicalDeviceMemoryProperties(device.getHandle(), memProps);
             }
             return memProps;
         }

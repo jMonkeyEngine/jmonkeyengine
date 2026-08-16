@@ -1,10 +1,11 @@
 package com.jme3.vulkan.buffer.alloc;
 
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.images.newimage.EngineImage;
+import com.jme3.vulkan.images.newimage.ImageInfo;
 import com.jme3.vulkan.util.Flag;
 
-public interface BufferAllocator {
+public interface MemoryAllocator {
 
     /**
      * Creates a buffer intended for efficient device access and for access by the host.
@@ -13,7 +14,7 @@ public interface BufferAllocator {
      * @param roles roles of the buffer
      * @return allocated buffer
      */
-    EngineBuffer createDynamicBuffer(int capacity, Flag<BufferRole> roles);
+    EngineBuffer createDynamicBuffer(int capacity, Flag<EngineBuffer.Role> roles);
 
     /**
      * Creates a buffer intended for efficient device access and for reading by the host.
@@ -22,7 +23,7 @@ public interface BufferAllocator {
      * @param roles roles of the buffer
      * @return allocated buffer
      */
-    EngineBuffer createReadbackBuffer(int capacity, Flag<BufferRole> roles);
+    EngineBuffer createReadbackBuffer(int capacity, Flag<EngineBuffer.Role> roles);
 
     /**
      * Creates a buffer intended only for device access.
@@ -31,7 +32,7 @@ public interface BufferAllocator {
      * @param roles
      * @return
      */
-    EngineBuffer createLocalBuffer(int capacity, Flag<BufferRole> roles);
+    EngineBuffer createLocalBuffer(int capacity, Flag<EngineBuffer.Role> roles);
 
     /**
      * Creates a buffer intended for efficient host access and for reading by the device.
@@ -42,9 +43,9 @@ public interface BufferAllocator {
      * @param roles
      * @return
      */
-    EngineBuffer createStreamingBuffer(int capacity, Flag<BufferRole> roles);
+    EngineBuffer createStreamingBuffer(int capacity, Flag<EngineBuffer.Role> roles);
 
-    default EngineBuffer createBuffer(BufferType type, int capacity, Flag<BufferRole> roles) {
+    default EngineBuffer createBuffer(BufferType type, int capacity, Flag<EngineBuffer.Role> roles) {
         switch (type) {
             case Dynamic:   return createDynamicBuffer(capacity, roles);
             case Readback:  return createReadbackBuffer(capacity, roles);
@@ -53,5 +54,7 @@ public interface BufferAllocator {
             default: throw new UnsupportedOperationException("Type not implemented: " + type);
         }
     }
+
+    EngineImage createImage(ImageInfo info);
 
 }

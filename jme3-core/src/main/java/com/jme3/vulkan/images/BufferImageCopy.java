@@ -1,7 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.math.Vector2i;
-import com.jme3.math.Vector3i;
+import com.jme3.math.IntVector;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.Flag;
 
@@ -12,24 +12,14 @@ public class BufferImageCopy {
 
     private final Collection<Region> regions = new ArrayList<>();
 
-    public BufferImageCopy add(int bufferOffset, Vector2i bufferTexels, Vector3i imageOffset, Vector3i imageSize, int imageMipLevel, int imageBaseLayer, int imageLayerCount, Flag<EngineImage.Aspect> aspects) {
-        regions.add(new Region(bufferOffset, bufferTexels, imageOffset, imageSize, imageMipLevel, imageBaseLayer, imageLayerCount, aspects));
-        return this;
-    }
-
-    public BufferImageCopy add(int bufferOffset, Vector3i imageOffset, Vector3i imageSize, int imageMipLevel, int imageBaseLayer, int imageLayerCount, Flag<EngineImage.Aspect> aspects) {
+    public BufferImageCopy add(int bufferOffset, IntVector imageOffset, IntVector imageSize, int imageMipLevel, int imageBaseLayer, int imageLayerCount, Flag<EngineImage.Aspect> aspects) {
         // imageOffset = zero = tightly packed buffer
-        regions.add(new Region(bufferOffset, Vector2i.ZERO, imageOffset, imageSize, imageMipLevel, imageBaseLayer, imageLayerCount, aspects));
+        regions.add(new Region(bufferOffset, IntVector.ZERO, imageOffset, imageSize, imageMipLevel, imageBaseLayer, imageLayerCount, aspects));
         return this;
     }
 
-    public BufferImageCopy add(int bufferOffset, Vector3i imageSize, Flag<EngineImage.Aspect> aspects) {
-        regions.add(new Region(bufferOffset, Vector2i.ZERO, Vector3i.ZERO, imageSize, 0, 0, 1, aspects));
-        return this;
-    }
-
-    public BufferImageCopy add(int bufferOffset, Vector2i bufferTexels, Vector3i imageSize, Flag<EngineImage.Aspect> aspects) {
-        regions.add(new Region(bufferOffset, bufferTexels, Vector3i.ZERO, imageSize, 0, 0, 1, aspects));
+    public BufferImageCopy add(int bufferOffset, IntVector imageSize, Flag<EngineImage.Aspect> aspects) {
+        regions.add(new Region(bufferOffset, IntVector.ZERO, IntVector.ZERO, imageSize, 0, 0, 1, aspects));
         return this;
     }
 
@@ -40,12 +30,12 @@ public class BufferImageCopy {
     public static class Region {
 
         private final int bufferOffset;
-        private final Vector2i bufferTexels;
-        private final Vector3i imageOffset, imageSize;
+        private final IntVector bufferTexels;
+        private final IntVector imageOffset, imageSize;
         private final int imageMipLevel, imageBaseLayer, imageLayerCount;
         private final Flag<EngineImage.Aspect> aspects;
 
-        public Region(int bufferOffset, Vector2i bufferTexels, Vector3i imageOffset, Vector3i imageSize, int imageMipLevel, int imageBaseLayer, int imageLayerCount, Flag<EngineImage.Aspect> aspects) {
+        public Region(int bufferOffset, IntVector bufferTexels, IntVector imageOffset, IntVector imageSize, int imageMipLevel, int imageBaseLayer, int imageLayerCount, Flag<EngineImage.Aspect> aspects) {
             this.bufferOffset = bufferOffset;
             this.bufferTexels = bufferTexels;
             this.imageOffset = imageOffset;
@@ -60,15 +50,15 @@ public class BufferImageCopy {
             return bufferOffset;
         }
 
-        public Vector2i getBufferTexels() {
+        public IntVector getBufferTexels() {
             return bufferTexels;
         }
 
-        public Vector3i getImageOffset() {
+        public IntVector getImageOffset() {
             return imageOffset;
         }
 
-        public Vector3i getImageSize() {
+        public IntVector getImageSize() {
             return imageSize;
         }
 

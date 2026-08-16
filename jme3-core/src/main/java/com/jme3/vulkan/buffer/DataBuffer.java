@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 
 public class DataBuffer implements EngineBuffer {
 
-    private static final Flag<BufferRole> ROLES = Flag.empty();
+    private static final Flag<Role> ROLES = Flag.empty();
 
     private static final int VEC2 = Float.BYTES * 2;
     private static final int VEC3 = Float.BYTES * 3;
@@ -60,7 +60,7 @@ public class DataBuffer implements EngineBuffer {
     }
 
     @Override
-    public Flag<BufferRole> getRoles() {
+    public Flag<Role> getRoles() {
         return ROLES;
     }
 

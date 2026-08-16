@@ -49,7 +49,7 @@ public class InlineTimedCache<K, E> implements Cache<K, E> {
             e.duplicated++;
         }
         evict();
-        return e.getValue();
+        return e != null ? e.getValue() : null;
     }
 
     @Override
@@ -103,8 +103,9 @@ public class InlineTimedCache<K, E> implements Cache<K, E> {
         Entry<K, E> rem = entries.remove(key);
         if (rem != null) {
             rem.evict(this);
+            return rem.getValue();
         }
-        return rem.getValue();
+        return null;
     }
 
     @Override
@@ -147,14 +148,12 @@ public class InlineTimedCache<K, E> implements Cache<K, E> {
         }
     }
 
-    /**
-     * Evicts all expired values from this cache.
-     */
     @Override
     public void flush() {
         long time = System.currentTimeMillis();
         for (int i = 0, l = evictionQueue.size(); i < l; i++) {
             Entry<K, E> e = evictionQueue.poll();
+            assert e != null;
             if (!e.expired(time)) {
                 evictionQueue.add(e);
             }

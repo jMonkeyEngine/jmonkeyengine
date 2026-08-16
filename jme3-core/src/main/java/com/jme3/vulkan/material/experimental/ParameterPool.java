@@ -4,7 +4,7 @@ import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructLayout;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 
@@ -30,7 +30,7 @@ public class ParameterPool {
             if (result != null) return result.mapStruct(struct);
         }
         ParameterBuffer newBuf = new ParameterBuffer(struct.getClass(), struct.getLayout(),
-                JmePlatform.allocateStandardBuffer(struct.getSize(), BufferRole.Uniform, UpdateHint.Dynamic));
+                JmePlatform.allocateStandardBuffer(struct.getSize(), EngineBuffer.Role.Uniform, UpdateHint.Dynamic));
         bufs.add(newBuf);
         return newBuf.buffer.mapStruct(struct);
     }

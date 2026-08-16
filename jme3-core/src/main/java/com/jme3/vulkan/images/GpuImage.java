@@ -4,6 +4,7 @@ import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.IntEnum;
 
+@Deprecated
 public interface GpuImage {
 
     long getId();

@@ -1,10 +1,11 @@
 package com.jme3.vulkan.images.newimage;
 
-import com.jme3.math.Vector3i;
+import com.jme3.math.IntVector;
+import com.jme3.texture.Texture;
+import com.jme3.util.natives.Destructable;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.images.ImageRoles;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.pipeline.Access;
 import com.jme3.vulkan.pipeline.PipelineStage;
@@ -16,13 +17,57 @@ import org.lwjgl.vulkan.VK14;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public interface EngineImage {
+public interface EngineImage extends Destructable {
+
+    enum Create implements Flag<Create> {
+
+        MutableFormat(VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT),
+        CubeCompatible(VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT),
+        SparseAliased(VK_IMAGE_CREATE_SPARSE_ALIASED_BIT),
+        SparseBinding(VK_IMAGE_CREATE_SPARSE_BINDING_BIT),
+        SparseResidency(VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT);
+
+        private final int bits;
+
+        Create(int bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public int bits() {
+            return bits;
+        }
+    }
+
+    enum Role implements Flag<Role> {
+
+        TransferDst(VK_IMAGE_USAGE_TRANSFER_DST_BIT),
+        TransferSrc(VK_IMAGE_USAGE_TRANSFER_SRC_BIT),
+        ColorAttachment(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT),
+        Sampled(VK_IMAGE_USAGE_SAMPLED_BIT),
+        Storage(VK_IMAGE_USAGE_STORAGE_BIT),
+        DepthStencilAttachment(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT),
+        InputAttachment(VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT),
+        TransientAttachment(VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
+
+        private final int bits;
+
+        Role(int bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public int bits() {
+            return bits;
+        }
+
+    }
 
     enum Type implements IntEnum<Type> {
 
         OneDemensional(VK_IMAGE_TYPE_1D),
-        TwoDemensional(VK_IMAGE_TYPE_2D),
-        ThreeDemensional(VK_IMAGE_TYPE_3D);
+        TwoDimensional(VK_IMAGE_TYPE_2D),
+        ThreeDimensional(VK_IMAGE_TYPE_3D);
 
         private final int vkEnum;
 
@@ -87,28 +132,6 @@ public interface EngineImage {
 
         public Flag<PipelineStage> getStageHint() {
             return stage;
-        }
-
-        @Deprecated
-        @SuppressWarnings("SwitchStatementWithTooFewBranches")
-        public static int[] getTransferArguments(Layout srcLayout, Layout dstLayout) {
-            // output array format: {srcAccessMask, dstAccessMask, srcStage, dstStage}
-            switch (srcLayout) {
-                case Undefined: switch (dstLayout) {
-                    case TransferDstOptimal: return new int[] {
-                            0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                            VK_PIPELINE_STAGE_TRANSFER_BIT};
-                    case DepthStencilAttachmentOptimal: return new int[] {
-                            0, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT};
-                } break;
-                case TransferDstOptimal: switch (dstLayout) {
-                    case ShaderReadOnlyOptimal: return new int[] {
-                            VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-                            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT};
-                } break;
-            }
-            throw new UnsupportedOperationException("Unsupported layout transition: " + srcLayout + " to " + dstLayout);
         }
 
     }
@@ -178,22 +201,84 @@ public interface EngineImage {
 
     Format getFormat();
 
+    /**
+     * Gets the current internal memory layout of this image on the device. Images must
+     * be in the correct layout for the tasks it is being used for. To change the layout
+     * on the fly, use {@link #transitionLayout(CommandBuffer, Layout)}.
+     *
+     * @return current memory layout
+     */
     Layout getLayout();
 
-    Vector3i getSize();
+    /**
+     * Gets the 3D size in pixels of this image. For unused dimensions, the size is 1.
+     *
+     * @return size in pixels
+     */
+    IntVector getSize();
 
+    /**
+     * Gets the number of samples per pixel in this image.
+     *
+     * @return samples per pixel
+     */
     int getSamples();
 
+    /**
+     * Gets the number of mipmap levels in this image.
+     *
+     * @return mipmap levels
+     */
     int getMipLevels();
 
+    /**
+     * Gets the number of array layers in this image. OpenGL images
+     * may interpret this property to be the same as the height or depth
+     * property, depending on the property type.
+     *
+     * @return array layers
+     */
     int getArrayLayers();
 
+    /**
+     * Gets the tiling mode of this image. {@link Tiling#Optimal} allows the device
+     * drivers to make significant optimizations for the image and is almost always
+     * the correct tiling mode to use. It is not recommended to use {@link Tiling#Linear}
+     * except when needing to directly interact with image memory on the host.
+     *
+     * @return tiling mode
+     */
     Tiling getTiling();
 
-    Flag<ImageRoles> getRoles();
+    /**
+     * Gets the roles this image is allowed to fill.
+     *
+     * @return image roles
+     */
+    Flag<Role> getRoles();
 
+    /**
+     * Gets the properties of the memory backing this image.
+     *
+     * @return memory properties
+     */
     Flag<MemoryProp> getMemoryProperties();
 
+    /**
+     * Transitions the layout of this image from its current layout to {@code layout}.
+     * Images must be in the correct layout for the task it is being used in.
+     *
+     * @param cmd command buffer
+     * @param layout layout to transition to
+     */
     void transitionLayout(CommandBuffer cmd, Layout layout);
+
+    /**
+     * Creates an image view that sees all aspects of this image. The type of image view
+     * is auto-detected from the properties of this image.
+     *
+     * @return image view
+     */
+    Texture createTexture();
 
 }

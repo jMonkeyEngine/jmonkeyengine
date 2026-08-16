@@ -1,6 +1,6 @@
 package com.jme3.vulkan.buffer;
 
-import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class BufferStream {
 
-    private final BufferAllocator allocator;
+    private final MemoryAllocator allocator;
     private final Collection<StreamingPage> pages = new ConcurrentLinkedQueue<>();
     private final int pageByteSize;
 
-    public BufferStream(BufferAllocator allocator, int pageByteSize) {
+    public BufferStream(MemoryAllocator allocator, int pageByteSize) {
         this.allocator = allocator;
         this.pageByteSize = pageByteSize;
     }
@@ -39,12 +39,12 @@ public class BufferStream {
      * streaming page partition.
      *
      * @param local buffer to stream from
-     * @param remote vulkan buffer to stream to (must be created with the {@link BufferRole#TransferDst} flag set)
+     * @param remote vulkan buffer to stream to (must be created with the {@link EngineBuffer.Role#TransferDst} flag set)
      * @throws IllegalArgumentException if {@code remote} to not a transfer destination
      * @throws IllegalStateException if {@code regions} gives a region not fully within {@code src}
      */
     public void streamToRemote(CommandBuffer cmd, ByteBuffer local, EngineBuffer remote, BufferTracker regions) {
-        if (!remote.getRoles().contains(BufferRole.TransferDst)) {
+        if (!remote.getRoles().contains(EngineBuffer.Role.TransferDst)) {
             throw new IllegalArgumentException("Cannot stream to " + remote + ": not a transfer destination.");
         }
         if (regions.isEmpty()) return;
@@ -72,7 +72,7 @@ public class BufferStream {
     }
 
     public void streamFromRemote(CommandBuffer cmd, EngineBuffer remote, ByteBuffer local, Runnable callback) {
-        if (!remote.getRoles().contains(BufferRole.TransferSrc)) {
+        if (!remote.getRoles().contains(EngineBuffer.Role.TransferSrc)) {
             throw new IllegalArgumentException("Cannot stream from " + remote + ": not a transfer source.");
         }
         Partition partition = allocatePartition(Math.min(remote.capacity(), local.remaining()));
@@ -108,7 +108,7 @@ public class BufferStream {
         }
         StreamingPage s = new StreamingPage(allocator.createStreamingBuffer(
                 Math.max(bytes, pageByteSize),
-                Flag.of(BufferRole.TransferSrc, BufferRole.TransferDst)));
+                Flag.of(EngineBuffer.Role.TransferSrc, EngineBuffer.Role.TransferDst)));
         pages.add(s);
         return s.allocatePartition(bytes);
     }
@@ -148,7 +148,7 @@ public class BufferStream {
         }
 
         @Override
-        public Flag<BufferRole> getRoles() {
+        public Flag<Role> getRoles() {
             return buffer.getRoles();
         }
 
@@ -275,7 +275,7 @@ public class BufferStream {
         }
 
         @Override
-        public Flag<BufferRole> getRoles() {
+        public Flag<Role> getRoles() {
             return page.getRoles();
         }
 

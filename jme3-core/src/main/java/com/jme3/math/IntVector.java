@@ -4,39 +4,51 @@ import com.jme3.export.*;
 
 import java.io.IOException;
 
-public final class Vector3i implements Savable {
+public final class IntVector implements Savable {
 
-    public static final Vector3i ZERO = new Vector3i();
-    public static final Vector3i UNIT_X = new Vector3i(1, 0, 0);
-    public static final Vector3i UNIT_Y = new Vector3i(0, 1, 0);
-    public static final Vector3i UNIT_Z = new Vector3i(0, 0, 1);
-    public static final Vector3i UNIT_XYZ = new Vector3i(1, 1, 1);
-    public static final Vector3i MAX = new Vector3i(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    public static final IntVector ZERO = new IntVector();
+    public static final IntVector UNIT_X = new IntVector(1, 0, 0);
+    public static final IntVector UNIT_Y = new IntVector(0, 1, 0);
+    public static final IntVector UNIT_Z = new IntVector(0, 0, 1);
+    public static final IntVector UNIT_XY = new IntVector(1, 1, 0);
+    public static final IntVector UNIT_XYZ = new IntVector(1, 1, 1);
+    public static final IntVector MAX = new IntVector(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     public int x, y, z;
 
-    public Vector3i() {}
+    public IntVector() {}
 
-    public Vector3i(int x, int y, int z) {
+    public IntVector(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public IntVector(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public Vector3i(Vector3i v) {
+    public IntVector(IntVector v) {
         this.x = v.x;
         this.y = v.y;
         this.z = v.z;
     }
 
-    public Vector3i set(int x, int y, int z) {
+    public IntVector set(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
         return this;
     }
 
-    public Vector3i set(Vector3i v) {
+    public IntVector set(int x, int y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    public IntVector set(IntVector v) {
         this.x = v.x;
         this.y = v.y;
         this.z = v.z;

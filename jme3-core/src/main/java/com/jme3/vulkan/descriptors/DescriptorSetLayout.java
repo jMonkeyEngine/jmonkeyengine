@@ -1,122 +1,144 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.util.cache.Cache;
-import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.util.natives.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.experimental.ShaderBindingLayout;
-import com.jme3.vulkan.material.experimental.ShaderSetBuilder;
+import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;
+import org.lwjgl.vulkan.VkDevice;
 
 import java.nio.LongBuffer;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DescriptorSetLayout implements ShaderBindingLayout {
+public class DescriptorSetLayout implements ShaderBindingLayout, NativeHandle<Long> {
 
-    public static final Cache<DescriptorSetLayout, Handle> cache = new InlineTimedCache<>(TimeUnit.SECONDS.toMillis(2));
+    private final Info info;
+    private final long handle;
+    private final Destructor destructor;
 
-    private final Map<Integer, UniformBinding> bindings = new HashMap<>();
-    private Handle handle;
+    public DescriptorSetLayout(LogicalDevice<?> device, Info info) {
+        this.info = info;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkDescriptorSetLayoutBinding.Buffer layoutBindings = VkDescriptorSetLayoutBinding.calloc(info.bindings.size(), stack);
+            for (Map.Entry<Integer, Binding> e : info.bindings.entrySet()) {
+                layoutBindings.get()
+                    .binding(e.getKey())
+                    .descriptorType(e.getValue().type.getEnum())
+                    .descriptorCount(e.getValue().descriptors)
+                    .stageFlags(e.getValue().stages.bits());
+            }
+            VkDescriptorSetLayoutCreateInfo create = VkDescriptorSetLayoutCreateInfo.calloc(stack)
+                    .sType$Default()
+                    .pBindings(layoutBindings.flip());
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateDescriptorSetLayout(device.getHandle(), create, null, idBuf),
+                    "Failed to create descriptor set layout.");
+            handle = idBuf.get(0);
+        }
+        VkDevice deviceHandle = device.getHandle();
+        this.destructor = device.getDestructor().addDependent(new Destructor(this) {
+            @Override
+            protected void runDestroy() {
+                vkDestroyDescriptorSetLayout(deviceHandle, handle, null);
+            }
+        });
+    }
 
-    protected DescriptorSetLayout() {}
+    @Override
+    public Long getHandle() {
+        return handle;
+    }
+
+    @Override
+    public Destructor getDestructor() {
+        return destructor;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DescriptorSetLayout that = (DescriptorSetLayout) o;
-        return Objects.equals(bindings, that.bindings);
+        return Objects.equals(info, that.info);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bindings);
+        return Objects.hash(info);
     }
 
-    public long getId(LogicalDevice<?> device) {
-        if (handle == null) {
-            handle = cache.computeIfAbsent(this, k -> k.createHandle(device));
-        }
-        return handle.getId();
+    public Info getInfo() {
+        return info;
     }
 
-    protected Handle createHandle(LogicalDevice<?> device) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkDescriptorSetLayoutBinding.Buffer layoutBindings = VkDescriptorSetLayoutBinding.calloc(bindings.size(), stack);
-            for (UniformBinding b : bindings.values()) {
-                b.fillLayoutBinding(layoutBindings.get());
-            }
-            layoutBindings.flip();
-            VkDescriptorSetLayoutCreateInfo create = VkDescriptorSetLayoutCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
-                    .pBindings(layoutBindings);
-            LongBuffer idBuf = stack.mallocLong(1);
-            check(vkCreateDescriptorSetLayout(device.getNativeObject(), create, null, idBuf),
-                    "Failed to create descriptor set layout.");
-            return new Handle(device, idBuf.get(0));
-        }
-    }
+    public static class Info {
 
-    public Map<Integer, UniformBinding> getBindings() {
-        return Collections.unmodifiableMap(bindings);
-    }
+        private final Map<Integer, Binding> bindings = new HashMap<>();
 
-    public static DescriptorSetLayout build(Consumer<Builder> config) {
-        DescriptorSetLayout l = new DescriptorSetLayout();
-        config.accept(l.new Builder());
-        return l;
-    }
+        public Info() {}
 
-    public static DescriptorSetLayout nullLayout() {
-        return new DescriptorSetLayout();
-    }
-
-    public static class Handle implements Disposable {
-
-        private final LogicalDevice<?> device;
-        private final long id;
-        private final DisposableReference ref;
-
-        public Handle(LogicalDevice<?> device, long id) {
-            this.device = device;
-            this.id = id;
-            this.ref = DisposableManager.reference(this);
-            this.device.getReference().addDependent(this.ref);
+        public Info addBinding(int bindingSlot, DescriptorType type, int descriptors, Flag<ShaderStage> stages) {
+            bindings.put(bindingSlot, new Binding(type, descriptors, stages));
+            return this;
         }
 
         @Override
-        public Runnable createDestroyer() {
-            return () -> vkDestroyDescriptorSetLayout(device.getNativeObject(), id, null);
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Info info = (Info) o;
+            return Objects.equals(bindings, info.bindings);
         }
 
         @Override
-        public DisposableReference getReference() {
-            return ref;
+        public int hashCode() {
+            return Objects.hashCode(bindings);
         }
 
-        public LogicalDevice<?> getDevice() {
-            return device;
-        }
-
-        public long getId() {
-            return id;
+        public Map<Integer, Binding> getBindings() {
+            return Collections.unmodifiableMap(bindings);
         }
 
     }
 
-    public class Builder implements ShaderSetBuilder {
+    public static class Binding {
 
-        protected Builder() {}
+        private final DescriptorType type;
+        private final int descriptors;
+        private final Flag<ShaderStage> stages;
+
+        private Binding(DescriptorType type, int descriptors, Flag<ShaderStage> stages) {
+            this.type = type;
+            this.descriptors = descriptors;
+            this.stages = stages;
+        }
 
         @Override
-        public void addBinding(int location, UniformBinding binding) {
-            bindings.put(location, binding);
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Binding that = (Binding) o;
+            return descriptors == that.descriptors && type == that.type && Objects.equals(stages, that.stages);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, descriptors, stages);
+        }
+
+        public DescriptorType getType() {
+            return type;
+        }
+
+        public int getDescriptors() {
+            return descriptors;
+        }
+
+        public Flag<ShaderStage> getStages() {
+            return stages;
         }
 
     }

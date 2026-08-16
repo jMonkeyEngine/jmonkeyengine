@@ -38,8 +38,8 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
@@ -64,7 +64,7 @@ public class Curve extends AdaptiveMesh {
     private Spline spline;
     private Vector3f temp = new Vector3f();
     private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-            JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Dynamic));
+            JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Dynamic));
 
     /**
      * Serialization only. Do not use.
@@ -126,7 +126,7 @@ public class Curve extends AdaptiveMesh {
             }
         }
         IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                (long)(spline.getControlPoints().size() - 1) * nbSubSegments * 2 * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+                (long)(spline.getControlPoints().size() - 1) * nbSubSegments * 2 * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
         short i = 0;
         try (BufferMapping m = index.map()) {
             m.getShorts().put(i);

@@ -1,7 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.math.Vector2i;
-import com.jme3.math.Vector3i;
+import com.jme3.math.IntVector;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.util.Flag;
 
@@ -18,7 +18,7 @@ public class ImageCopy {
     }
 
     public ImageCopy add(int width, int height, Flag<EngineImage.Aspect> aspects) {
-        regions.add(new Region(Vector3i.ZERO, Vector3i.ZERO, new Vector3i(width, height, 1), 0, 0, 0, 0, 1, aspects));
+        regions.add(new Region(IntVector.ZERO, IntVector.ZERO, new IntVector(width, height, 1), 0, 0, 0, 0, 1, aspects));
         return this;
     }
 
@@ -26,18 +26,18 @@ public class ImageCopy {
         return add(size.x, size.y, aspects);
     }
 
-    public ImageCopy add(Vector3i srcOffset, Vector3i dstOffset, Vector3i size, int srcMipLevel, int dstMipLevel, int srcBaseLayer, int dstBaseLayer, int layerCount, Flag<EngineImage.Aspect> aspects) {
+    public ImageCopy add(IntVector srcOffset, IntVector dstOffset, IntVector size, int srcMipLevel, int dstMipLevel, int srcBaseLayer, int dstBaseLayer, int layerCount, Flag<EngineImage.Aspect> aspects) {
         regions.add(new Region(srcOffset, dstOffset, size, srcMipLevel, dstMipLevel, srcBaseLayer, dstBaseLayer, layerCount, aspects));
         return this;
     }
 
-    public ImageCopy add(Vector3i size, Flag<EngineImage.Aspect> aspects) {
-        regions.add(new Region(Vector3i.ZERO, Vector3i.ZERO, size, 0, 0, 0, 0, 1, aspects));
+    public ImageCopy add(IntVector size, Flag<EngineImage.Aspect> aspects) {
+        regions.add(new Region(IntVector.ZERO, IntVector.ZERO, size, 0, 0, 0, 0, 1, aspects));
         return this;
     }
 
     public ImageCopy add(int width, int height, int depth, Flag<EngineImage.Aspect> aspects) {
-        return add(new Vector3i(width, height, depth), aspects);
+        return add(new IntVector(width, height, depth), aspects);
     }
 
     public Collection<Region> getRegions() {
@@ -46,11 +46,11 @@ public class ImageCopy {
 
     public static class Region {
 
-        private final Vector3i srcOffset, dstOffset, size;
+        private final IntVector srcOffset, dstOffset, size;
         private final int srcMipLevel, dstMipLevel, srcBaseLayer, dstBaseLayer, layerCount;
         private final Flag<EngineImage.Aspect> aspects;
 
-        public Region(Vector3i srcOffset, Vector3i dstOffset, Vector3i size, int srcMipLevel, int dstMipLevel, int srcBaseLayer, int dstBaseLayer, int layerCount, Flag<EngineImage.Aspect> aspects) {
+        public Region(IntVector srcOffset, IntVector dstOffset, IntVector size, int srcMipLevel, int dstMipLevel, int srcBaseLayer, int dstBaseLayer, int layerCount, Flag<EngineImage.Aspect> aspects) {
             this.srcOffset = srcOffset;
             this.dstOffset = dstOffset;
             this.size = size;
@@ -62,15 +62,15 @@ public class ImageCopy {
             this.aspects = aspects;
         }
 
-        public Vector3i getSrcOffset() {
+        public IntVector getSrcOffset() {
             return srcOffset;
         }
 
-        public Vector3i getDstOffset() {
+        public IntVector getDstOffset() {
             return dstOffset;
         }
 
-        public Vector3i getSize() {
+        public IntVector getSize() {
             return size;
         }
 

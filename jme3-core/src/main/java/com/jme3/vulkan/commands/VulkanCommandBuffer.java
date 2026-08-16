@@ -166,6 +166,7 @@ public class VulkanCommandBuffer implements CommandBuffer {
         if (copy.getRegions().size() != 1) {
             throw new IllegalArgumentException("Copy structure must contain only one copy region.");
         }
+        assert false : "not implemented";
     }
 
     private VkBufferImageCopy.Buffer populateBufferImageCopyInfo(MemoryStack stack, int bufferOffset, BufferImageCopy copy) {

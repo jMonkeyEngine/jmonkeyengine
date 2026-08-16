@@ -174,13 +174,13 @@ public class SimpleVulkanEngine implements Engine {
     }
 
     private VulkanImageView createPresentDepth() {
-        VulkanImage depth = BasicVulkanImage.build(device, EngineImage.Type.TwoDemensional, i -> {
+        VulkanImage depth = BasicVulkanImage.build(device, EngineImage.Type.TwoDimensional, i -> {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(device.getPhysicalDevice().findSupportedFormat(
                     EngineImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                     Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt));
             i.setTiling(EngineImage.Tiling.Optimal);
-            i.setUsage(ImageRoles.DepthStencilAttachment);
+            i.setUsage(EngineImage.Role.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         });
         return VulkanImageView.build(depth, ImageView.Type.TwoDemensional, v -> {

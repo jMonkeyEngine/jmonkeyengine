@@ -1,10 +1,39 @@
 package com.jme3.vulkan.buffer;
 
+import com.jme3.util.natives.Destructable;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public interface EngineBuffer {
+import static org.lwjgl.vulkan.VK10.*;
+
+public interface EngineBuffer extends Destructable {
+
+    enum Role implements Flag<Role> {
+
+        None(0),
+        Uniform(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT),
+        Index(VK_BUFFER_USAGE_INDEX_BUFFER_BIT),
+        Storage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT),
+        StorageTexel(VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT),
+        Indirect(VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT),
+        TransferDst(VK_BUFFER_USAGE_TRANSFER_DST_BIT),
+        TransferSrc(VK_BUFFER_USAGE_TRANSFER_SRC_BIT),
+        UniformTexel(VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT),
+        Vertex(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+
+        private final int vkEnum;
+
+        Role(int vkEnum) {
+            this.vkEnum = vkEnum;
+        }
+
+        @Override
+        public int bits() {
+            return vkEnum;
+        }
+
+    }
 
     /**
      * Updates this buffer. Changes made to the {@link #cache()} are flushed to the device.
@@ -66,7 +95,7 @@ public interface EngineBuffer {
      *
      * @return buffer abilities
      */
-    Flag<BufferRole> getRoles();
+    Flag<Role> getRoles();
 
     /**
      * Gets properties of the memory backing this buffer.

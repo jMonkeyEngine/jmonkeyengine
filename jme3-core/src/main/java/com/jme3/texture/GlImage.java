@@ -66,7 +66,7 @@ public class GlImage extends GlNative implements GpuImage, Savable /*, Cloneable
 
     @Override
     public IntEnum<EngineImage.Type> getType() {
-        return EngineImage.Type.TwoDemensional;
+        return EngineImage.Type.TwoDimensional;
     }
 
     public enum Format {

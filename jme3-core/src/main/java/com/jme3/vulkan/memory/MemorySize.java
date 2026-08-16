@@ -1,9 +1,8 @@
 package com.jme3.vulkan.memory;
 
 import com.jme3.export.*;
-import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.tmp.Final;
-import com.jme3.vulkan.tmp.FinalWriter;
+import com.jme3.vulkan.compile.Final;
+import com.jme3.vulkan.compile.FinalWriter;
 
 import java.io.IOException;
 import java.nio.*;

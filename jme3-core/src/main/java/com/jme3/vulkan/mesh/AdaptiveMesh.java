@@ -20,8 +20,8 @@ import com.jme3.vulkan.mesh.attributes.AttributeMapping;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.pipeline.VertexPipeline;
-import com.jme3.vulkan.tmp.FinalWriter;
-import com.jme3.vulkan.tmp.SerializationOnly;
+import com.jme3.vulkan.compile.FinalWriter;
+import com.jme3.vulkan.compile.SerializationOnly;
 
 import java.io.IOException;
 import java.util.*;

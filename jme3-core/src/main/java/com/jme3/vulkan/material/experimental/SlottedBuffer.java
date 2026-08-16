@@ -1,6 +1,5 @@
 package com.jme3.vulkan.material.experimental;
 
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -84,7 +83,7 @@ public class SlottedBuffer<T extends EngineBuffer> implements EngineBuffer {
     }
 
     @Override
-    public Flag<BufferRole> getRoles() {
+    public Flag<Role> getRoles() {
         return buffer.getRoles();
     }
 

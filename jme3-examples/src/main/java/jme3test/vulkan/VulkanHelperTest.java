@@ -10,6 +10,7 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
@@ -21,7 +22,6 @@ import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.texture.ImageView;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
@@ -234,8 +234,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             i.setAspect(EngineImage.Aspect.Color);
         }
         VulkanTexture texture = new VulkanTexture(device, imgView);
-        try (Sampler.Builder t = texture.build()) {
-            t.setMinMagFilters(Filter.Linear, Filter.Linear);
+        try (SamplerInfo.Builder t = texture.build()) {
+            t.setMinMagFilters(FilterMode.Linear, FilterMode.Linear);
             t.setEdgeModes(AddressMode.Repeat);
             t.setMipmapMode(MipmapMode.Linear);
         }
@@ -256,7 +256,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 s -> new OldPersistentBuffer(device, s));
         for (OldPersistentBuffer buf : transformBuffer) {
             try (OldPersistentBuffer.Builder b = buf.build()) {
-                b.setUsage(BufferRole.Uniform);
+                b.setUsage(EngineBuffer.Role.Uniform);
             }
         }
         t.getTransforms().set(transformBuffer);
@@ -309,12 +309,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
                 EngineImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                 Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt);
-        BasicVulkanImage image = new BasicVulkanImage(device, EngineImage.Type.TwoDemensional);
+        BasicVulkanImage image = new BasicVulkanImage(device, EngineImage.Type.TwoDimensional);
         try (BasicVulkanImage.Builder i = image.build()) {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(depthFormat);
             i.setTiling(EngineImage.Tiling.Optimal);
-            i.setUsage(ImageRoles.DepthStencilAttachment);
+            i.setUsage(EngineImage.Role.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         }
         VulkanImageView view = new VulkanImageView(image, ImageView.Type.TwoDemensional);

@@ -10,7 +10,7 @@ import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.util.cache.Freeable;
 import com.jme3.util.struct.*;
 import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.descriptors.UniformBinding;
@@ -95,11 +95,11 @@ public class OldPBRTechnique implements ShadingTechnique {
         materialBinding = engine.createShaderSet(MapBuilder.build(temp)
                 .put(0, engine.createUniformBufferBinding(ShaderStage.Fragment)).get());
         // create and write transform data buffer to binding object at binding 0
-        MappableBuffer transformData = engine.createBuffer(transform.getSize(), BufferRole.Uniform, UpdateHint.Stream);
+        MappableBuffer transformData = engine.createBuffer(transform.getSize(), EngineBuffer.Role.Uniform, UpdateHint.Stream);
         transformBinding.stage(0, transformData);
         transformBinding.writeChanges(); // write immediately: no further changes planned
         // create and write material data buffer to binding object at binding 0
-        MappableBuffer materialData = engine.createBuffer(materials.getByteSize(), BufferRole.Uniform, UpdateHint.Dynamic);
+        MappableBuffer materialData = engine.createBuffer(materials.getByteSize(), EngineBuffer.Role.Uniform, UpdateHint.Dynamic);
         materialBinding.stage(0, materialData);
     }
 

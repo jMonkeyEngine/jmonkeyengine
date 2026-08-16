@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
+@Deprecated
 public class VulkanImageView extends AbstractNative<Long> implements ImageView<VulkanImage> {
 
     private final VulkanImage image;

@@ -1,5 +1,6 @@
 package com.jme3.vulkan.devices;
 
+import com.jme3.util.natives.NativeHandle;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.commands.CommandQueue;
@@ -11,7 +12,7 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-public interface PhysicalDevice {
+public interface PhysicalDevice extends NativeHandle<VkPhysicalDevice> {
 
     boolean populateQueueFamilyIndices();
 
@@ -20,8 +21,6 @@ public interface PhysicalDevice {
     void createQueues(LogicalDevice device);
 
     VulkanInstance getInstance();
-
-    VkPhysicalDevice getDeviceHandle();
 
     VkQueueFamilyProperties.Buffer getQueueFamilyProperties();
 

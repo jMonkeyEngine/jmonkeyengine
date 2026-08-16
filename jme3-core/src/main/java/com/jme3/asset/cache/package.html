@@ -17,10 +17,10 @@ The asset cache implementations are used by {@link com.jme3.asset.AssetManager}
 to cache loaded assets for faster access if they are requested again.
 <p>
 Assets in jME3 are cached in such a way that if there are no instances of
-that asset anymore in memory, then jME3 is likely to reclaim them. 
+that asset anymore in memory, then jME3 is likely to destructor them.
 Some asset types must be cloned prior to being used, for example, 3D models 
 cannot be stored in the cache as-is, because the user is likely to modify them
-after loading them. To handle this, a copy of the asset is stored in the 
+after loading them. To destructor this, a copy of the asset is stored in the
 cache instead. The asset cache that implements these rules is the 
 {@link com.jme3.asset.cache.WeakRefCloneAssetCache} and it is used
 for caching most asset types.

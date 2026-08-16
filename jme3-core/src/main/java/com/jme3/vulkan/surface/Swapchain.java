@@ -11,7 +11,6 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.images.ImageRoles;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.newimage.EngineImage;
@@ -68,7 +67,7 @@ public class Swapchain extends AbstractNative<Long> {
     private Extent2 extent;
     private Format format;
     private int imageLayers = 1;
-    private Flag<ImageRoles> imageUsage = ImageRoles.ColorAttachment;
+    private Flag<EngineImage.Role> imageUsage = EngineImage.Role.ColorAttachment;
     private Consumer<Swapchain> updater;
     private boolean updateNeeded = false;
 
@@ -184,7 +183,7 @@ public class Swapchain extends AbstractNative<Long> {
         return imageLayers;
     }
 
-    public Flag<ImageRoles> getImageUsage() {
+    public Flag<EngineImage.Role> getImageUsage() {
         return imageUsage;
     }
 
@@ -219,7 +218,7 @@ public class Swapchain extends AbstractNative<Long> {
 
         @Override
         public IntEnum<EngineImage.Type> getType() {
-            return EngineImage.Type.TwoDemensional;
+            return EngineImage.Type.TwoDimensional;
         }
 
         @Override
@@ -253,7 +252,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public Flag<ImageRoles> getUsage() {
+        public Flag<EngineImage.Role> getUsage() {
             return imageUsage;
         }
 
@@ -313,12 +312,12 @@ public class Swapchain extends AbstractNative<Long> {
 
         public Builder() {
             caps = VkSurfaceCapabilitiesKHR.malloc(stack);
-            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
+            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice().getHandle(), surface.getNativeObject(), caps);
             formats = enumerateBuffer(stack, n -> VkSurfaceFormatKHR.malloc(n, stack), (count, buffer)
-                    -> KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice().getDeviceHandle(),
+                    -> KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice().getHandle(),
                             surface.getNativeObject(), count, buffer));
             modes = enumerateBuffer(stack, stack::mallocInt, (count, buffer) ->
-                    KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice().getDeviceHandle(),
+                    KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice().getHandle(),
                             surface.getNativeObject(), count, buffer));
             if (formats == null || modes == null) {
                 throw new UnsupportedOperationException("Swapchains are not supported by the device.");
@@ -345,7 +344,7 @@ public class Swapchain extends AbstractNative<Long> {
             }
             VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-                    device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
+                    device.getPhysicalDevice().getHandle(), surface.getNativeObject(), caps);
             format = Format.byEnum(VulkanEnums.instance, selectedFormat.format());
             extent = new Extent2(selectedExtent);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)
@@ -452,7 +451,7 @@ public class Swapchain extends AbstractNative<Long> {
             Swapchain.this.imageLayers = layers;
         }
 
-        public void setImageUsage(Flag<ImageRoles> usage) {
+        public void setImageUsage(Flag<EngineImage.Role> usage) {
             Swapchain.this.imageUsage = usage;
         }
 

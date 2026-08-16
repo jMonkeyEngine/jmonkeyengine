@@ -1,4 +1,4 @@
-package com.jme3.vulkan.tmp;
+package com.jme3.vulkan.compile;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

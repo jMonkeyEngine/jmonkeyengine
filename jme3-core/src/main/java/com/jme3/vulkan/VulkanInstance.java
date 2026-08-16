@@ -2,8 +2,7 @@ package com.jme3.vulkan;
 
 import com.jme3.system.JmeVersion;
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.*;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -21,7 +20,7 @@ import java.util.function.Consumer;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK14.*;
 
-public class VulkanInstance extends AbstractNative<VkInstance> {
+public class VulkanInstance implements NativeHandle<VkInstance> {
 
     public static final String ENGINE_NAME = "jMonkeyEngine";
     public static final String LUNARG_LAYER = "VK_LAYER_KHRONOS_validation";
@@ -49,6 +48,8 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
     private final Set<String> extensions = new HashSet<>();
     private final Set<String> layers = new HashSet<>();
+    private VkInstance object;
+    private Destructor destructor = Destructor.NULL;
     private String appName = "Unnamed App";
     private int appVersion = VK_MAKE_VERSION(0, 0, 0);
     private IntEnum<Version> apiVersion;
@@ -59,8 +60,8 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     }
 
     @Override
-    public Runnable createDestroyer() {
-        return () -> vkDestroyInstance(object, null);
+    public Destructor getDestructor() {
+        return destructor;
     }
 
     @Override
@@ -77,6 +78,11 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public VulkanLogger createLogger(VulkanLogger.Severity severity, VulkanLogger.Type type) {
         return logger = new VulkanLogger(this, severity, type);
+    }
+
+    @Override
+    public VkInstance getHandle() {
+        return object;
     }
 
     public IntEnum<Version> getApiVersion() {
@@ -139,7 +145,12 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
             PointerBuffer ptr = stack.mallocPointer(1);
             check(vkCreateInstance(create, null, ptr), "Failed to create instance.");
             object = new VkInstance(ptr.get(0), create);
-            ref = DisposableManager.reference(VulkanInstance.this);
+            destructor = new Destructor(VulkanInstance.this) {
+                @Override
+                protected void runDestroy() {
+                    vkDestroyInstance(object, null);
+                }
+            };
             return VulkanInstance.this;
         }
 

@@ -45,8 +45,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.material.structs.UnshadedParams;
@@ -230,20 +230,20 @@ public class BasicProfilerState extends BaseAppState {
 
         private final VertexBuffer position = new VertexBuffer<>(InputRate.Vertex,
                 new SingleAttrStruct<>(CommonAttributes.Position, new Vector3f()),
-                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Dynamic));
+                JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Dynamic));
 
         public BackgroundMesh() {
             super(12, 1);
             addVertexBuffer(position);
             VertexBuffer color = new VertexBuffer<>(InputRate.Vertex,
                     new SingleAttrStruct<>(CommonAttributes.Color, new ColorRGBA()),
-                    JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+                    JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
             addVertexBuffer(color);
             try (BufferMapping m = color.getBuffer().map()) {
                 m.getFloats().put(colorData);
             }
             IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                    (long)idxData.length * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+                    (long)idxData.length * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
             try (BufferMapping m = index.map()) {
                 m.getShorts().put(idxData);
             }

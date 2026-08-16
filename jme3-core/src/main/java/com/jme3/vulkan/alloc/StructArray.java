@@ -3,7 +3,6 @@ package com.jme3.vulkan.alloc;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructuredArray;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -85,7 +84,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
     }
 
     @Override
-    public Flag<BufferRole> getRoles() {
+    public Flag<Role> getRoles() {
         return source.getRoles();
     }
 
@@ -244,7 +243,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         }
 
         @Override
-        public Flag<BufferRole> getRoles() {
+        public Flag<Role> getRoles() {
             return array.getRoles();
         }
 

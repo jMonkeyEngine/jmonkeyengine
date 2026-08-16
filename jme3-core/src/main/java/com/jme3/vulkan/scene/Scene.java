@@ -13,12 +13,12 @@ import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.ConcurrentStructArray;
 import com.jme3.vulkan.alloc.SlicePointer;
 import com.jme3.vulkan.buffer.*;
-import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
-import com.jme3.vulkan.tmp.Final;
-import com.jme3.vulkan.tmp.FinalWriter;
+import com.jme3.vulkan.compile.Final;
+import com.jme3.vulkan.compile.FinalWriter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -138,7 +138,6 @@ public class Scene {
     private float[] transforms;     // local transform, world transform, world bounds
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
-    private final ArrayList<NodeData> data = new ArrayList<>();
     private final DynamicBuffer<ConcurrentStructArray<Light>> lights;
     private final DynamicBuffer<SlicePointer> geometricLightMasks;
 
@@ -148,21 +147,21 @@ public class Scene {
     private final BitSet usedLightSlots = new BitSet();
     private boolean refreshGlobalLights = false;
 
-    public Scene(BufferAllocator alloc) {
+    public Scene(MemoryAllocator alloc) {
         this(alloc, 512, 256, 64);
     }
 
-    public Scene(BufferAllocator alloc, int nodeCapacity, int geometryCapacity, int lightCapacity) {
+    public Scene(MemoryAllocator alloc, int nodeCapacity, int geometryCapacity, int lightCapacity) {
         assert nodeCapacity > 0 && geometryCapacity > 0 && lightCapacity > 0 : "Capacity must be positive.";
         nodeInfo = new int[nodeCapacity * INFO_SIZE];
         transforms = new float[nodeCapacity * TRANSFORMS_SIZE];
         hierarchyOrder = new int[nodeCapacity];
         lights = new DynamicBuffer<>(alloc,
                 new ConcurrentStructArray<>(lightCapacity, Light::new),
-                BufferType.Dynamic, BufferRole.Storage);
+                BufferType.Dynamic, EngineBuffer.Role.Storage);
         geometricLightMasks = new DynamicBuffer<>(alloc,
                 new SlicePointer(0, 1028), // i'm too tired to figure out the math for size here again
-                BufferType.Streaming, BufferRole.Storage);
+                BufferType.Streaming, EngineBuffer.Role.Storage);
     }
 
     private static int[] grow(int[] array) {
@@ -904,7 +903,7 @@ public class Scene {
         int i = usedLightSlots.nextClearBit(0);
         usedLightSlots.set(i);
         if (i >= lights.getStructure().getLength()) {
-            lights.update(cmd, BufferType.Dynamic, BufferRole.Storage, OpLocation.PreferHost);
+            lights.update(cmd, BufferType.Dynamic, EngineBuffer.Role.Storage, OpLocation.PreferHost);
         }
         return lights.getStructure().index(i);
     }
@@ -1221,7 +1220,7 @@ public class Scene {
         public Integer next() {
             currentIndex = nextIndex;
             computeNextIndex();
-            return getNodeIdByIndex(currentIndex);
+            return currentIndex;
         }
 
         @Override
@@ -1448,28 +1447,28 @@ public class Scene {
         public Integer next() {
             currentIndex = nextIndex;
             computeNextIndex();
-            return getNodeIdByIndex(currentIndex);
+            return currentIndex;
         }
 
         @Override
         public void remove() {
-            detach(getNodeIdByIndex(currentIndex));
+            detach(currentIndex);
             computeNextIndex();
         }
 
         private void computeNextIndex() {
             do {
                 nextIndex = usedOrderSlots.nextSetBit(Math.max(0, currentIndex + 1));
-            } while (nextIndex >= 0 && nodeInfo[getNodeIdByIndex(nextIndex)] >= 0);
+            } while (nextIndex >= 0 && nodeInfo[nextIndex] >= 0);
         }
 
         public void destroy() {
-            destroyNode(getNodeIdByIndex(currentIndex));
+            destroyNode(currentIndex);
             computeNextIndex();
         }
 
         public void destroyTree() {
-            Scene.this.destroyTree(getNodeIdByIndex(currentIndex));
+            Scene.this.destroyTree(currentIndex);
             computeNextIndex();
         }
 

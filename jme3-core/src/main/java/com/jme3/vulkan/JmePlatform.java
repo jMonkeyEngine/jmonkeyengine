@@ -1,7 +1,7 @@
 package com.jme3.vulkan;
 
 import com.jme3.backend.Engine;
-import com.jme3.vulkan.buffer.BufferRole;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.saving.BufferAllocator;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
@@ -20,7 +20,7 @@ public class JmePlatform {
         return engine;
     }
 
-    public static MappableBuffer allocateStandardBuffer(long bytes, Flag<BufferRole> usage, UpdateHint update) {
+    public static MappableBuffer allocateStandardBuffer(long bytes, Flag<EngineBuffer.Role> usage, UpdateHint update) {
         return engine.allocateStandard(bytes, usage, update);
     }
 

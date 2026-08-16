@@ -1,14 +1,20 @@
 package com.jme3.texture;
 
-import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.images.newimage.EngineImage;
+import com.jme3.vulkan.images.newimage.ImageView;
+import com.jme3.vulkan.images.newimage.Sampler;
 
-public interface Texture <V extends ImageView<? extends I>, I extends GpuImage> {
+/**
+ * Combination of a {@link Sampler} with an {@link ImageView}. Note that platforms like
+ * OpenGL samplers and image views are not seperate entities.
+ */
+public interface Texture {
 
-    long getId();
+    Sampler getSampler();
 
-    V getView();
+    ImageView getView();
 
-    default I getImage() {
+    default EngineImage getImage() {
         return getView().getImage();
     }
 

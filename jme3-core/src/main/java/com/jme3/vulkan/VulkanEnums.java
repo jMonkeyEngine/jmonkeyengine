@@ -2,7 +2,9 @@ package com.jme3.vulkan;
 
 import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.formats.Format;
+import com.jme3.vulkan.images.ColorSwizzle;
 import com.jme3.vulkan.images.newimage.EngineImage;
+import com.jme3.vulkan.images.newimage.ImageView;
 import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.shaderc.ShaderType;
@@ -94,4 +96,31 @@ public class VulkanEnums implements EnumInterpreter {
         }
     }
 
+    @Override
+    public int getColorSwizzleEnum(ColorSwizzle.Component component) {
+        switch (component) {
+            case R: return VK_COMPONENT_SWIZZLE_R;
+            case G: return VK_COMPONENT_SWIZZLE_G;
+            case B: return VK_COMPONENT_SWIZZLE_B;
+            case A: return VK_COMPONENT_SWIZZLE_A;
+            case Zero: return VK_COMPONENT_SWIZZLE_ZERO;
+            case One: return VK_COMPONENT_SWIZZLE_ONE;
+            case Identity: return VK_COMPONENT_SWIZZLE_IDENTITY;
+            default: throw new UnsupportedOperationException(component.name());
+        }
+    }
+
+    @Override
+    public int getImageViewType(ImageView.Type type) {
+        switch (type) {
+            case OneDimensional: return VK_IMAGE_VIEW_TYPE_1D;
+            case OneDimensionalArray: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+            case TwoDimensional: return VK_IMAGE_VIEW_TYPE_2D;
+            case TwoDimensionalArray: return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+            case ThreeDimensional: return VK_IMAGE_VIEW_TYPE_3D;
+            case Cube: return VK_IMAGE_VIEW_TYPE_CUBE;
+            case CubeArray: return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+            default: throw new UnsupportedOperationException(type.name());
+        }
+    }
 }

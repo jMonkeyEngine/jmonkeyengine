@@ -34,7 +34,7 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements Gra
                     graphics.setFamilyIndex(i);
                 }
                 if (!present.hasFamily()) {
-                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(), i, surface.getNativeObject(), intBuf);
+                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getHandle(), i, surface.getNativeObject(), intBuf);
                     if (intBuf.get(0) == VK_TRUE) {
                         present.setFamilyIndex(i);
                     }

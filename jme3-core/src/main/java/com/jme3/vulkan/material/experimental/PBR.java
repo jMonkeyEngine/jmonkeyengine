@@ -6,10 +6,9 @@ import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.util.struct.*;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffer.alloc.BufferAllocator;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 
@@ -40,10 +39,10 @@ public class PBR implements ShadingInterface, Disposable {
     private final int dataIndex;
     private Texture colorMap, normalMap;
 
-    public PBR(CommandBuffer cmd, BufferAllocator alloc) {
+    public PBR(CommandBuffer cmd, MemoryAllocator alloc) {
         dataIndex = data.acquireSlot((n, p) -> {
             Data d = new Data(n);
-            d.bind(alloc.createDynamicBuffer(d.capacity(), BufferRole.Uniform));
+            d.bind(alloc.createDynamicBuffer(d.capacity(), EngineBuffer.Role.Uniform));
             if (p != null) {
                 cmd.cmdCopy(p, d, new BufferCopy().add(p, d), OpLocation.PreferHost);
             }

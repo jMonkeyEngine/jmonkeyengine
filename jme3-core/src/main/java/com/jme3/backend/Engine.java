@@ -1,37 +1,20 @@
 
 package com.jme3.backend;
 
-import com.jme3.vulkan.buffer.BufferRole;
-import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.buffers.saving.UpdateHint;
-import com.jme3.vulkan.descriptors.UniformBinding;
-import com.jme3.vulkan.material.exp2.RenderSession;
-import com.jme3.vulkan.material.experimental.ShaderBindingSet;
-import com.jme3.vulkan.material.shader.ShaderModule;
-import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.slang.ComponentType;
-import com.jme3.vulkan.slang.Session;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
+import com.jme3.vulkan.descriptors.DescriptorPool;
+import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.descriptors.PoolSize;
 import com.jme3.vulkan.util.Flag;
 
-import java.util.Map;
+public interface Engine extends MemoryAllocator {
 
-public interface Engine {
+    DescriptorPool createDescriptorPool(int sets, Flag<DescriptorPool.Create> flags, PoolSize... sizes);
 
-    RenderSession createRenderSession(float tpf);
+    default DescriptorPool createDescriptorPool(int sets, PoolSize... sizes) {
+        return createDescriptorPool(sets, Flag.empty(), sizes);
+    }
 
-    EngineBuffer createBuffer(long bytes, Flag<BufferRole> usage, UpdateHint update);
-
-    ShaderBindingSet createShaderSet(Map<Integer, UniformBinding> bindings);
-
-    UniformBinding createUniformBufferBinding(Flag<ShaderStage> scope);
-
-    UniformBinding createStorageBufferBinding(Flag<ShaderStage> scope);
-
-    UniformBinding createTextureBinding(Flag<ShaderStage> scope);
-
-    ShaderModule createShader(ComponentType component);
-
-    Session getSlangSession();
+    DescriptorSetLayout createDescriptorSetLayout(DescriptorSetLayout.Info info);
 
 }

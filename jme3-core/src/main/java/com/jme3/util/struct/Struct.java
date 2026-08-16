@@ -2,8 +2,8 @@ package com.jme3.util.struct;
 
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
+import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.alloc.RelativeBuffer;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -42,6 +42,11 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
     private EngineBuffer parent;
 
     @Override
+    public Destructor getDestructor() {
+        return parent.getDestructor();
+    }
+
+    @Override
     public void update(CommandBuffer cmd) {
         if (parent != null) {
             parent.update(cmd);
@@ -56,11 +61,6 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
     @Override
     public void bind(EngineBuffer parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public void flushCache() {
-        parent.flushCache();
     }
 
     @Override
@@ -89,7 +89,7 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
     }
 
     @Override
-    public Flag<BufferRole> getRoles() {
+    public Flag<Role> getRoles() {
         return parent.getRoles();
     }
 
@@ -130,9 +130,9 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
      *
      * @param fields fields to add
      */
-    @SafeVarargs
-    protected final void addFields(T... fields) {
-        this.fields.addAll(Arrays.asList(fields));
+    @SuppressWarnings("unchecked")
+    protected final void addFields(StructField... fields) {
+        this.fields.addAll(Arrays.asList((T[])fields));
     }
 
     /**
@@ -172,15 +172,6 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
             alignment = Math.max(alignment, f.getAlignment());
         }
         size = FastMath.toMultipleOf(size, alignment);
-    }
-
-    /**
-     * Copies
-     *
-     * @param copyTo
-     */
-    public void createFieldByFieldCopy(Struct<?> target) {
-
     }
 
     /**

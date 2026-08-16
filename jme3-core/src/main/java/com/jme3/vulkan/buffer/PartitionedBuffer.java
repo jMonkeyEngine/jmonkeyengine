@@ -51,7 +51,7 @@ public class PartitionedBuffer implements EngineBuffer {
     }
 
     @Override
-    public Flag<BufferRole> getRoles() {
+    public Flag<Role> getRoles() {
         return buffer.getRoles();
     }
 
@@ -140,7 +140,7 @@ public class PartitionedBuffer implements EngineBuffer {
         }
 
         @Override
-        public Flag<BufferRole> getRoles() {
+        public Flag<Role> getRoles() {
             return PartitionedBuffer.this.getRoles();
         }
 

@@ -35,8 +35,8 @@ package com.jme3.scene.shape;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffer.BufferRole;
 import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.IndexType;
@@ -156,7 +156,7 @@ public class Box extends AbstractBox {
     @Override
     protected void doUpdateGeometryIndices() {
         IdxBuffer buf = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
-                GEOMETRY_INDICES_DATA.length * Short.BYTES, BufferRole.Index, UpdateHint.Static));
+                GEOMETRY_INDICES_DATA.length * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
         try (BufferMapping m = buf.map()) {
             m.getShorts().put(GEOMETRY_INDICES_DATA);
             m.stage();
@@ -168,7 +168,7 @@ public class Box extends AbstractBox {
     protected void doUpdateGeometryNormals() {
         // todo: fix: does not replace existing normal buffer (ditto for other buffers)
         VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("Normal", new Vector3f()),
-                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+                JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
         try (BufferMapping m = buf.getBuffer().map()) {
             m.getFloats().put(GEOMETRY_NORMALS_DATA);
             m.stage();
@@ -179,7 +179,7 @@ public class Box extends AbstractBox {
     @Override
     protected void doUpdateGeometryTextures() {
         VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("TexCoord", new Vector2f()),
-                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+                JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
         try (BufferMapping m = buf.getBuffer().map()) {
             m.getFloats().put(GEOMETRY_TEXTURE_DATA);
             m.stage();
@@ -190,7 +190,7 @@ public class Box extends AbstractBox {
     @Override
     protected void doUpdateGeometryVertices() {
         VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("Position", new Vector3f()),
-                JmePlatform.allocateStandardBuffer(1, BufferRole.Vertex, UpdateHint.Static));
+                JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
         try (BufferMapping m = buf.getBuffer().map()) {
             Vector3f[] v = computeVertices();
             m.getFloats().put(rearrangeToFloats(v, 0, 1, 2, 3, 1, 4, 6, 2, 4, 5, 7, 6, 5, 0, 3, 7, 2, 6, 7, 3, 0, 5, 4, 1));

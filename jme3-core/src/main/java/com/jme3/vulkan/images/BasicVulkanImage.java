@@ -35,7 +35,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     private int width, height, depth;
     private int mipmaps, layers;
     private int samples = VK_SAMPLE_COUNT_1_BIT;
-    private Flag<ImageRoles> usage;
+    private Flag<EngineImage.Role> usage;
     private Format format = Format.RGBA8_SRGB;
     private IntEnum<EngineImage.Tiling> tiling = EngineImage.Tiling.Optimal;
     private IntEnum<SharingMode> sharing = SharingMode.Exclusive;
@@ -94,7 +94,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public Flag<ImageRoles> getUsage() {
+    public Flag<EngineImage.Role> getUsage() {
         return usage;
     }
 
@@ -223,7 +223,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             layers = l;
         }
 
-        public void setUsage(Flag<ImageRoles> u) {
+        public void setUsage(Flag<EngineImage.Role> u) {
             usage = u;
         }
 

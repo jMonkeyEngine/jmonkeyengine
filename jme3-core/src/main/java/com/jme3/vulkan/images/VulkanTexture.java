@@ -5,7 +5,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 
 import java.util.Objects;
 
-public class VulkanTexture extends Sampler implements Texture<VulkanImageView, VulkanImage> {
+public class VulkanTexture extends SamplerInfo implements Texture<VulkanImageView, VulkanImage> {
 
     private final VulkanImageView image;
 

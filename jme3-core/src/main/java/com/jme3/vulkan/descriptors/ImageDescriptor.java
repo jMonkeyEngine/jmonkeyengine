@@ -7,14 +7,14 @@ import org.lwjgl.vulkan.VkDescriptorImageInfo;
 public class ImageDescriptor {
 
     private final VulkanImageView view;
-    private final Sampler sampler;
+    private final SamplerInfo sampler;
     private final EngineImage.Layout layout;
 
     public ImageDescriptor(VulkanTexture texture, EngineImage.Layout layout) {
         this(texture.getView(), texture, layout);
     }
 
-    public ImageDescriptor(VulkanImageView view, Sampler sampler, EngineImage.Layout layout) {
+    public ImageDescriptor(VulkanImageView view, SamplerInfo sampler, EngineImage.Layout layout) {
         this.view = view;
         this.sampler = sampler;
         this.layout = layout;
@@ -30,7 +30,7 @@ public class ImageDescriptor {
         return view;
     }
 
-    public Sampler getSampler() {
+    public SamplerInfo getSampler() {
         return sampler;
     }
 

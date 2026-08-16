@@ -17,7 +17,7 @@ public interface VulkanImage extends GpuImage {
     @Deprecated
     LogicalDevice<?> getDevice();
 
-    Flag<ImageRoles> getUsage();
+    Flag<EngineImage.Role> getUsage();
 
     IntEnum<EngineImage.Tiling> getTiling();
 
