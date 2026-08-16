@@ -340,7 +340,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 hasNativePeer.set(false);
                 reinitcontext.set(true);
 
-                 while (reinitcontext.get()) {
+                while (reinitcontext.get() && parallel.get()) {
                     try {
                         lock.wait();
                     } catch (InterruptedException ex) {
@@ -348,8 +348,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                         return;
                     }
                 }
-
-                 reinitcontext.set(false);
             }
 
             // GL context is dead at this point
@@ -410,6 +408,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
     /** Notify if there is a change in canvas dimensions. */
     private final AtomicBoolean needResize = new AtomicBoolean(false);
+
+    /**
+     * Flag indicating whether a custom thread is used to separate GL rendering
+     * from the EDT; its value is false if the main thread is used via the
+     * {@code SwingUtilities.invokeLater() } function.
+     */
+    private final AtomicBoolean parallel = new AtomicBoolean(false);
 
     /**
      * Flag that uses the context to check if it is initialized or not, this prevents
@@ -526,7 +531,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight, framebufferWidth, framebufferHeight);
-                listener.reshape(framebufferWidth, framebufferHeight);
             }
 
             synchronized (lock) {
@@ -588,9 +592,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                             } finally {
                                 canvas.unlock();
                             }
-
-                            // Sync the display on some systems.
-                            Toolkit.getDefaultToolkit().sync();
                         }
                     } catch (Throwable ex) {
                         listener.handleError("Error while swapping buffers", ex);
@@ -607,6 +608,17 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             if (needClose.get()) {
                 break;
             }
+
+            if (! parallel.get()) {
+                // Sync the display on some systems.
+                Toolkit.getDefaultToolkit().sync();
+                break;
+            }
+        }
+
+        if (!parallel.get() && !needClose.get()) {
+            SwingUtilities.invokeLater(() -> run());
+            return;
         }
 
         deinitInThread();
@@ -669,6 +681,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         if (this.contextFlag.get()) {
             return;
         }
+        /*
+         * Note that JME does not run on a thread parallel to the AWT EDT; 
+         * this applies only to macOS.
+         */
+        this.parallel.set(Platform.get() != Platform.MACOSX);
+
         // create context
         super.create(waitFor);
         this.contextFlag.set(true);
@@ -720,8 +738,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
 
         RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
             return (data) -> {
-                data.majorVersion = 2;
-                data.minorVersion = 0;
+                data.majorVersion = 3;
+                data.minorVersion = 2;
             };
         }).accept(glData);
 
@@ -759,9 +777,14 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         glData.forwardCompatible = false;
 
         allowSwapBuffers = settings.isSwapBuffers();
-
         canvas.createContext();
-        canvas.makeCurrent();
+
+        try {
+            canvas.lock();
+            canvas.makeCurrent();
+        } finally {
+            canvas.unlock();
+        }
 
         SwingUtilities.invokeLater(() -> {
             canvas.validate();
