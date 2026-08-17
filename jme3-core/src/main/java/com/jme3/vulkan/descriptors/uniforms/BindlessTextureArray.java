@@ -11,7 +11,6 @@ import java.util.BitSet;
  * A quality-of-life extension for TextureBinding that emits a {@link HandleTexture} when
  * a texture is submitted to the binding.
  */
-@Deprecated
 public class BindlessTextureArray extends TextureBinding {
 
     private final BitSet usedDescriptors = new BitSet();
@@ -33,6 +32,26 @@ public class BindlessTextureArray extends TextureBinding {
         usedDescriptors.set(i, texture != null);
         super.set(i, texture);
         return new HandleTexture(texture, i);
+    }
+
+    public class Handle {
+
+        private final Texture texture;
+        private final int address;
+
+        private Handle(Texture texture, int address) {
+            this.texture = texture;
+            this.address = address;
+        }
+
+        public Texture getTexture() {
+            return texture;
+        }
+
+        public int getAddress() {
+            return address;
+        }
+
     }
 
 }

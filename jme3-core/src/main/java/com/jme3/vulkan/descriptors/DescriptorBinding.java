@@ -2,13 +2,8 @@ package com.jme3.vulkan.descriptors;
 
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
-import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
-
-import java.util.BitSet;
 
 public abstract class DescriptorBinding <T> {
 
@@ -19,6 +14,7 @@ public abstract class DescriptorBinding <T> {
     public DescriptorBinding(DescriptorType type, T[] resources) {
         this.type = type;
         this.resources = resources;
+        writesNeeded.add(0, resources.length);
     }
 
     public void populateWriteInfo(MemoryStack stack, VkWriteDescriptorSet.Buffer write, DescriptorSet set, int binding) {

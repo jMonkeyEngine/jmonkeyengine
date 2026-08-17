@@ -7,6 +7,7 @@ import com.jme3.texture.Texture;
  * inside programmable GPU shaders. The exact method used for fetching the texture depends on the
  * backend, which HandleTextures must conform to.
  */
+@Deprecated
 public class HandleTexture implements Texture {
 
     private final Texture baseTexture;

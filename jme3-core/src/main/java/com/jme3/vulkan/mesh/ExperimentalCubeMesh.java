@@ -3,6 +3,7 @@ package com.jme3.vulkan.mesh;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.alloc.StructArray;
 import com.jme3.vulkan.buffer.DataBuffer;
@@ -52,12 +53,8 @@ public class ExperimentalCubeMesh {
         i.put(2).put(7).put(3);
     }
 
-    public long getVertexArrayAddress() {
-        return vertices.getDeviceAddress();
-    }
-
-    public long getIndicesArrayAddress() {
-        return indices.getDeviceAddress();
+    public StructArray.Field<StructField<Vector3f>> getPositions() {
+        return vertices.field(v -> v.position);
     }
 
 }

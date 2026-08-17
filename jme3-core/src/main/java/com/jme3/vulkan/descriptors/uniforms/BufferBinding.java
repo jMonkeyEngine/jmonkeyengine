@@ -3,8 +3,6 @@ package com.jme3.vulkan.descriptors.uniforms;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.descriptors.DescriptorBinding;
 import com.jme3.vulkan.descriptors.DescriptorType;
-import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
@@ -12,8 +10,12 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BufferBinding extends DescriptorBinding<EngineBuffer> {
 
-    public BufferBinding(DescriptorType type, int descriptorCount, Flag<ShaderStage> stages) {
-        super(type, new EngineBuffer[descriptorCount], stages);
+    public BufferBinding(DescriptorType type, int descriptorCount) {
+        super(type, new EngineBuffer[descriptorCount]);
+    }
+
+    public BufferBinding(DescriptorType type, EngineBuffer... buffers) {
+        super(type, buffers);
     }
 
     @Override
