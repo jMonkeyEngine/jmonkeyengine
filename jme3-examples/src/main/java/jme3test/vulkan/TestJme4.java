@@ -14,10 +14,7 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.vulkan.commands.StandardRenderSettings;
-import com.jme3.vulkan.material.exp2.RenderSession;
 import com.jme3.vulkan.material.experimental.PBR;
-import com.jme3.vulkan.material.experimental.PBRTechnique;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.sun.tools.javac.util.List;
 
@@ -25,7 +22,7 @@ public class TestJme4 extends SimpleApplication {
 
     private Engine engine;
     private ViewPort mainView;
-    private final PBRTechnique pbrTech = new PBRTechnique();
+    private final PBR pbrTech = new PBR();
 
     public static void main(String[] args) {
         TestJme4 app = new TestJme4();

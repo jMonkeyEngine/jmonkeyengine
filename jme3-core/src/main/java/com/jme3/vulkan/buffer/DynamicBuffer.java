@@ -1,5 +1,6 @@
 package com.jme3.vulkan.buffer;
 
+import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.alloc.RelativeBuffer;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
@@ -20,6 +21,11 @@ public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
         this.structure = structure;
         this.buffer = alloc.createBuffer(type, pickNextSize(0, structure.capacity()), roles.add(Role.TransferSrc));
         this.structure.bind(buffer);
+    }
+
+    @Override
+    public Destructor getDestructor() {
+        return buffer.getDestructor();
     }
 
     @Override
@@ -72,26 +78,30 @@ public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
         return buffer.isDeviceAccessible();
     }
 
-    public boolean update(CommandBuffer cmd, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
-        boolean bufferAllocated = false;
+    public OpLocation update(CommandBuffer cmd, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
         if (this.type != type || buffer.capacity() < structure.capacity() || !buffer.getRoles().contains(roles)) {
             EngineBuffer temp = alloc.createBuffer(type, pickNextSize(buffer.capacity(), structure.capacity()), roles.add(buffer.getRoles(), Role.TransferSrc, Role.TransferDst));
-            copy(cmd, buffer, temp, copyLocation);
+            copyLocation = copy(cmd, buffer, temp, copyLocation);
             buffer = temp;
-            bufferAllocated = true;
+        } else {
+            copyLocation = OpLocation.DontCare;
         }
         this.structure.bind(buffer);
         this.type = type;
-        return bufferAllocated;
+        return copyLocation;
     }
 
-    public void update(CommandBuffer cmd, T structure, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
+    public OpLocation update(CommandBuffer cmd, T structure, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
         this.structure = structure;
-        update(cmd, type, roles, copyLocation);
+        return update(cmd, type, roles, copyLocation);
     }
 
-    protected void copy(CommandBuffer cmd, EngineBuffer src, EngineBuffer dst, OpLocation copyLocation) {
-        cmd.cmdCopy(src, dst, new BufferCopy().add(src, 0, dst, 0), copyLocation);
+    public OpLocation update(CommandBuffer cmd, T structure, OpLocation copyLocation) {
+        return update(cmd, structure, type, buffer.getRoles(), copyLocation);
+    }
+
+    protected OpLocation copy(CommandBuffer cmd, EngineBuffer src, EngineBuffer dst, OpLocation copyLocation) {
+        return cmd.cmdCopy(src, dst, new BufferCopy().add(src, 0, dst, 0), copyLocation);
     }
 
     protected int pickNextSize(int currentSize, int requestedSize) {
