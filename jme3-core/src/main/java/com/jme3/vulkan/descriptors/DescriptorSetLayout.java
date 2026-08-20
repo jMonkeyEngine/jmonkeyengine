@@ -79,12 +79,21 @@ public class DescriptorSetLayout implements ShaderBindingLayout, NativeHandle<Lo
     public static class Info {
 
         private final Map<Integer, Binding> bindings = new HashMap<>();
+        private final BitSet usedBindings = new BitSet();
 
         public Info() {}
 
         public Info addBinding(int bindingSlot, DescriptorType type, int descriptors, Flag<ShaderStage> stages) {
             bindings.put(bindingSlot, new Binding(type, descriptors, stages));
+            usedBindings.set(bindingSlot);
             return this;
+        }
+
+        public int addBinding(DescriptorType type, int descriptors, Flag<ShaderStage> stages) {
+            int i = usedBindings.nextClearBit(0);
+            bindings.put(i, new Binding(type, descriptors, stages));
+            usedBindings.set(i);
+            return i;
         }
 
         @Override

@@ -6,6 +6,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.IntList;
 import com.jme3.util.TempVars;
@@ -19,6 +20,7 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.compile.Final;
 import com.jme3.vulkan.compile.FinalWriter;
+import com.jme3.vulkan.material.experimental.PBRTechnique;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -140,6 +142,7 @@ public class Scene {
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
     private final DynamicBuffer<ConcurrentStructArray<Light>> lights;
     private final DynamicBuffer<SlicePointer> geometricLightMasks;
+    private final List<GeometryData> geometryData = new ArrayList<>();
 
     private final BitSet usedOrderSlots = new BitSet();
     private final BitSet usedNodeSlots = new BitSet();
@@ -779,7 +782,7 @@ public class Scene {
         int flags = getFlags(id);
         int geom = getGeometry(id);
         if ((flags & BOUNDS_REFRESH_BIT) != 0 || ) {
-            BoundingBox.makeNull(transforms, worldBounds(id));
+            BoundingBox.makeNull(transforms, worldBounds(id)); // merging with a null box will just copy the non-null box
             if (isGeometric(id)) {
                 //vol = mesh.getBounds().transform(worldTransform, worldBounds);
                 BoundingBox.inject(transforms, worldBounds(id), mesh.getBounds());
@@ -1052,6 +1055,13 @@ public class Scene {
         public boolean contains(int node) {
             return members.get(node);
         }
+
+    }
+
+    public class GeometryData {
+
+        private Mesh mesh;
+        private
 
     }
 

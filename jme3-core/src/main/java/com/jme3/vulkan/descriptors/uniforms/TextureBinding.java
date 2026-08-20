@@ -1,10 +1,10 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
 import com.jme3.texture.Texture;
-import com.jme3.vulkan.descriptors.*;
+import com.jme3.vulkan.descriptors.DescriptorBinding;
+import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.images.newimage.EngineImage;
-import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
@@ -13,12 +13,12 @@ import static org.lwjgl.vulkan.VK10.VK_NULL_HANDLE;
 
 public class TextureBinding extends DescriptorBinding<Texture> {
 
-    public TextureBinding(int descriptors, Flag<ShaderStage> stages) {
-        super(DescriptorType.CombinedImageSampler, new Texture[descriptors], stages);
+    public TextureBinding(int descriptors) {
+        super(DescriptorType.CombinedImageSampler, new Texture[descriptors]);
     }
 
     public TextureBinding(DescriptorSetLayout.Binding layout) {
-        this(layout.getDescriptors(), layout.getStages());
+        this(layout.getDescriptors());
     }
 
     @Override

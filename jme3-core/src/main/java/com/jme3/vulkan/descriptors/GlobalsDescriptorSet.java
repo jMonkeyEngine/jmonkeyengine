@@ -3,14 +3,20 @@ package com.jme3.vulkan.descriptors;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicDescriptorSet implements ShaderBindingSet {
+public class GlobalsDescriptorSet implements ShaderBindingSet {
 
     private final DescriptorPool pool;
     private final Map<Integer, DescriptorBinding> bindings = new HashMap<>();
+    private final BitSet usedBindings = new BitSet();
     private DescriptorSet set;
+
+    public GlobalsDescriptorSet(DescriptorPool pool) {
+        this.pool = pool;
+    }
 
     @Override
     public void update() {
@@ -48,6 +54,18 @@ public class DynamicDescriptorSet implements ShaderBindingSet {
     @Override
     public DescriptorSetLayout getLayout() {
         return null;
+    }
+
+    public int acquireBindingSlot() {
+        int i = usedBindings.nextClearBit(0);
+        usedBindings.set(i);
+        return i;
+    }
+
+    public int setNextBinding(DescriptorBinding binding) {
+        int i = acquireBindingSlot();
+        setBinding(i, binding);
+        return i;
     }
 
 }
