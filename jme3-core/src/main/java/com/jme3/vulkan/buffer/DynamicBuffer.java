@@ -100,6 +100,10 @@ public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
         return update(cmd, structure, type, buffer.getRoles(), copyLocation);
     }
 
+    public OpLocation update(CommandBuffer cmd, OpLocation copyLocation) {
+        return update(cmd, type, buffer.getRoles(), copyLocation);
+    }
+
     protected OpLocation copy(CommandBuffer cmd, EngineBuffer src, EngineBuffer dst, OpLocation copyLocation) {
         return cmd.cmdCopy(src, dst, new BufferCopy().add(src, 0, dst, 0), copyLocation);
     }

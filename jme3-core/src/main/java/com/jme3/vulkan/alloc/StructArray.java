@@ -1,5 +1,6 @@
 package com.jme3.vulkan.alloc;
 
+import com.jme3.util.natives.Destructor;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructuredArray;
@@ -36,6 +37,11 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
 
     public static <T extends Struct> StructArray<T> directBuffer(int length, T struct) {
         return new StructArray<>(length, struct, new DataBuffer(ByteBuffer.wrap(new byte[length * struct.getAlignedSize()])));
+    }
+
+    @Override
+    public Destructor getDestructor() {
+        return source.getDestructor();
     }
 
     @Override

@@ -20,7 +20,6 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.compile.Final;
 import com.jme3.vulkan.compile.FinalWriter;
-import com.jme3.vulkan.material.experimental.PBRTechnique;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class Scene {
     private static final int FLAGS = 4;
     private static final int HINTS = 5;         // local cull hint, world cull hint, local bucket hint, world bucket hint (1 byte each)
     private static final int GEOMETRY = 6;
-    private static final int UNUSED_NODE_PROP = 7;
+    private static final int UNUSED_NODE_INFO = 7;
 
     private static final int LOCAL_TRANSLATION_X = 0;
     private static final int LOCAL_TRANSLATION_Y = 1;
@@ -140,6 +139,7 @@ public class Scene {
     private float[] transforms;     // local transform, world transform, world bounds
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
+    private Object[] geometry;
     private final DynamicBuffer<ConcurrentStructArray<Light>> lights;
     private final DynamicBuffer<SlicePointer> geometricLightMasks;
     private final List<GeometryData> geometryData = new ArrayList<>();
@@ -361,9 +361,7 @@ public class Scene {
 
     public BoundingBox getWorldBounds(int node, @Nullable BoundingBox store) {
         store = BoundingBox.storage(store);
-        store.setCenter(transforms[node + BOUNDS_CENTER_X],
-                transforms[node + BOUNDS_CENTER_Y],
-                transforms[node + BOUNDS_CENTER_Z]);
+        Vector3f.extract(transforms, node + BOUNDS_CENTER_X, store.getCenter());
         store.setXExtent(transforms[node + BOUNDS_EXTENT_X]);
         store.setYExtent(transforms[node + BOUNDS_EXTENT_Y]);
         store.setZExtent(transforms[node + BOUNDS_EXTENT_Z]);
@@ -1058,10 +1056,10 @@ public class Scene {
 
     }
 
-    public class GeometryData {
+    public class Geometry {
 
         private Mesh mesh;
-        private
+        private Collection<>
 
     }
 
