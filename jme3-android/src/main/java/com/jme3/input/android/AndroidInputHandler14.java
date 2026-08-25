@@ -179,7 +179,9 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         boolean isUnknown =
                 (source & android.view.InputDevice.SOURCE_UNKNOWN) == android.view.InputDevice.SOURCE_UNKNOWN;
 
-        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD && joyInput != null) {
+        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD
+                && joyInput != null
+                && isFromPhysicalKeyboard(event)) {
             joyInput.onKeyboardInput();
         }
 

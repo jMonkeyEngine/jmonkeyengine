@@ -238,7 +238,9 @@ public class AndroidInputHandler implements View.OnTouchListener,
 //        logger.log(Level.INFO, "onKey source: {0}, isTouch: {1}",
 //                new Object[]{source, isTouch});
 
-        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD && joyInput != null) {
+        if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD
+                && joyInput != null
+                && isFromPhysicalKeyboard(event)) {
             joyInput.onKeyboardInput();
         }
 
@@ -248,6 +250,20 @@ public class AndroidInputHandler implements View.OnTouchListener,
 
         return consumed;
 
+    }
+
+    /**
+     * Distinguishes a real hardware keyboard/keypad from synthetic
+     * SOURCE_KEYBOARD events injected by the IME, accessibility services, or
+     * instrumentation, all of which report a virtual (non-hardware-backed)
+     * InputDevice. Only a genuine hardware keyboard should be able to
+     * suppress the AUTO-mode on-screen virtual joystick.
+     */
+    protected static boolean isFromPhysicalKeyboard(KeyEvent event) {
+        InputDevice device = event.getDevice();
+        return device != null
+                && !device.isVirtual()
+                && device.getKeyboardType() == InputDevice.KEYBOARD_TYPE_ALPHABETIC;
     }
 
 }
