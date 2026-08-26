@@ -17,13 +17,8 @@ import java.util.*;
  * Graphics state variables compatible with all rendering backends.
  */
 public class GraphicsState implements Cloneable {
-    
-    private final Map<ShaderType, ShaderModule> shaders = new EnumMap<>(ShaderType.class);
+
     private final Map<Integer, ColorBlendAttachment> blendOverrides = new HashMap<>();
-    private final Map<String, Integer> attributeMappings = new HashMap<>();
-    private final Map<Integer, ShaderBindingSet> bindings = new HashMap<>();
-    private final Set<DynamicState> dynamic = EnumSet.noneOf(DynamicState.class);
-    private VertexInput vertexInput;
     private boolean depthTest = true;
     private boolean depthWrite = true;
     private boolean depthBoundsTest = true;
@@ -89,10 +84,7 @@ public class GraphicsState implements Cloneable {
             && Float.compare(lineWidth, that.lineWidth) == 0
             && Flag.equals(cullMode, that.cullMode)
             && Objects.equals(blendOverrides, that.blendOverrides)
-            && Objects.equals(attributeMappings, that.attributeMappings)
-            && Objects.equals(depthBias, that.depthBias)
-            && Objects.equals(dynamic, that.dynamic)
-            && Objects.equals(vertexInput, that.vertexInput);
+            && Objects.equals(depthBias, that.depthBias);
     }
 
     /**
@@ -102,29 +94,26 @@ public class GraphicsState implements Cloneable {
      * @param o state to test equality to
      * @return true if dynamically equal
      */
-    public boolean dynamicEquals(Object o) {
+    public boolean dynamicEquals(Object o, EnumSet<DynamicState> dynamic) {
         if (o == null || getClass() != o.getClass()) return false;
         GraphicsState that = (GraphicsState)o;
-        return Objects.equals(dynamic, that.dynamic)
-                && blendLogic == that.blendLogic
+        return blendLogic == that.blendLogic
                 && depthClamp == that.depthClamp
                 && polygonMode == that.polygonMode
                 && faceWinding == that.faceWinding
-                && (that.dynamic.contains(DynamicState.DepthTest) || depthTest == that.depthTest)
-                && (that.dynamic.contains(DynamicState.DepthWrite) || depthWrite == that.depthWrite)
-                && (that.dynamic.contains(DynamicState.DepthBoundsTest) || depthBoundsTest == that.depthBoundsTest)
-                && (that.dynamic.contains(DynamicState.StencilTest) || stencilTest == that.stencilTest)
-                && (that.dynamic.contains(DynamicState.RasterizerDiscard) || rasterizerDiscard == that.rasterizerDiscard)
-                && (that.dynamic.contains(DynamicState.DepthCompare) || depthCompare == that.depthCompare)
-                && (that.dynamic.contains(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
-                && (that.dynamic.contains(DynamicState.CullMode) || Flag.equals(cullMode, that.cullMode))
-                && (that.dynamic.contains(DynamicState.DepthBiasEnabled) || (depthBias == null) == (that.depthBias == null))
-                && (that.dynamic.contains(DynamicState.DepthBias) || Objects.equals(depthBias, that.depthBias))
-                && (that.dynamic.contains(DynamicState.Topology) || Objects.equals(topology, that.topology))
-                && (that.dynamic.contains(DynamicState.PrimitiveRestart) || primitiveRestart == that.primitiveRestart)
-                && Objects.equals(blendOverrides, that.blendOverrides)
-                && Objects.equals(attributeMappings, that.attributeMappings)
-                && Objects.equals(vertexInput, that.vertexInput);
+                && (dynamic.contains(DynamicState.DepthTest) || depthTest == that.depthTest)
+                && (dynamic.contains(DynamicState.DepthWrite) || depthWrite == that.depthWrite)
+                && (dynamic.contains(DynamicState.DepthBoundsTest) || depthBoundsTest == that.depthBoundsTest)
+                && (dynamic.contains(DynamicState.StencilTest) || stencilTest == that.stencilTest)
+                && (dynamic.contains(DynamicState.RasterizerDiscard) || rasterizerDiscard == that.rasterizerDiscard)
+                && (dynamic.contains(DynamicState.DepthCompare) || depthCompare == that.depthCompare)
+                && (dynamic.contains(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
+                && (dynamic.contains(DynamicState.CullMode) || Flag.equals(cullMode, that.cullMode))
+                && (dynamic.contains(DynamicState.DepthBiasEnabled) || (depthBias == null) == (that.depthBias == null))
+                && (dynamic.contains(DynamicState.DepthBias) || Objects.equals(depthBias, that.depthBias))
+                && (dynamic.contains(DynamicState.Topology) || Objects.equals(topology, that.topology))
+                && (dynamic.contains(DynamicState.PrimitiveRestart) || primitiveRestart == that.primitiveRestart)
+                && Objects.equals(blendOverrides, that.blendOverrides);
     }
 
     /**
@@ -160,7 +149,6 @@ public class GraphicsState implements Cloneable {
     }
 
     public void applyMesh(Mesh mesh) {
-        vertexInput = mesh.declareVertexInput(attributeMappings::get);
         topology = mesh.getTopology();
         faceWinding = mesh.getFaceWinding();
         primitiveRestart = mesh.isPrimitiveRestart();
@@ -184,13 +172,7 @@ public class GraphicsState implements Cloneable {
             depthBias = depthBias.clone();
         }
         blendOverrides.clear();
-        shaders.clear();
-        attributeMappings.clear();
-        dynamic.clear();
         state.blendOverrides.forEach((key, value) -> blendOverrides.put(key, value.clone()));
-        shaders.putAll(state.shaders);
-        attributeMappings.putAll(state.attributeMappings);
-        dynamic.addAll(state.dynamic);
     }
 
     public void setShader(ShaderType type, ShaderModule shader) {

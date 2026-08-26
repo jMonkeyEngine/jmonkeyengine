@@ -3,6 +3,7 @@ package com.jme3.vulkan.material.experimental;
 import com.jme3.backend.Engine;
 import com.jme3.math.Matrix4f;
 import com.jme3.texture.Texture;
+import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.util.natives.Destructable;
 import com.jme3.util.natives.Destructor;
 import com.jme3.util.struct.Struct;
@@ -18,7 +19,16 @@ import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.mesh.ExperimentalCubeMesh;
+import com.jme3.vulkan.pipeline.DynamicState;
+import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
+import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.scene.Scene;
+import org.lwjgl.system.MemoryStack;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Renders simple PBR materials using flat color, metallic, and roughness, and a normal texture.
@@ -26,6 +36,7 @@ import com.jme3.vulkan.scene.Scene;
 public class PBR {
 
     protected static DynamicBuffer<ReservedStructArray<Params>> parameters;
+    private static final Set<DynamicState> dynamics = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
 
     private final MaterialData data;
 
@@ -47,14 +58,20 @@ public class PBR {
     }
 
     public void renderScene(Scene.Subset geometries) {
-        // each batched geometry (an "instance") requires pointers to mesh and material data.
-        // the first thing to do is determine which geometries should be batched together.
-        // for now we'll assume all nodes in the subset are geometric and are batchable together.
-        DataBuffer inst = instances.cache();
-        for (int g : geometries) {
-            ExperimentalCubeMesh mesh; // somehow extract mesh from geometry
-            inst.put(mesh.getVertexArrayAddress()); // first long is the vertex buffer
-            inst.put(mesh.getIndicesArrayAddress()); // second long is the index buffer
+        // For each geometry, we need to generate a pipeline. This will be done be the technique managing
+        // a "pipeline pool" where each pipeline in the pool shares some base properties. Variations are
+        // requested from the pool. Geometries are then sorted based on what pipeline they are to be
+        // rendered with.
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            Constants constants = new Constants();
+            constants.bind(new DataBuffer(stack.malloc(constants.getSize())));
+            for (int g : geometries) {
+                Material mat = geometries.getMaterialOf(g, Material.class);
+                constants.worldViewProjection.set(geometries.getWorldMatrix(g));
+                constants.paramsIndex.set(mat.paramElement);
+                // ... bind constants to pipeline
+                // ... bind vertex buffers to pipeline
+            }
         }
     }
 
@@ -74,8 +91,11 @@ public class PBR {
         // index that this material's data is stored at for Params.class
         protected final int paramElement;
 
-        // for if we want to pass textures directly into the shader
+        // for if we want to pass textures directly into the shader w/o bindless textures
         protected final DescriptorSet textures = createTexturesSet();
+
+        // vertex buffers
+        protected EngineBuffer position, texCoord, normal;
 
         private final Destructor destructor;
 
@@ -95,15 +115,15 @@ public class PBR {
 
         @Override
         public Destructor getDestructor() {
-            return null;
+            return destructor;
         }
 
         public void setMetallic(float metallic) {
-            data.getStruct(Params.class, paramElement).metallic.set(metallic);
+            parameters.getStructure().index(paramElement).metallic.set(metallic);
         }
 
         public void setRoughness(float roughness) {
-            data.getStruct(Params.class, paramElement).roughness.set(roughness);
+            parameters.getStructure().index(paramElement).roughness.set(roughness);
         }
 
         public void setColorMap(Texture colorMap) {
@@ -131,6 +151,20 @@ public class PBR {
 
         public final Field<Matrix4f> worldViewProjection = new Field<>(new Matrix4f());
         public final Field<Integer> paramsIndex = new Field<>(0);
+
+    }
+
+    private static class PipelinePool {
+
+        private final Map<GraphicsState, DynamicGraphicsPipeline> pipelines = new InlineTimedCache<>(2000);
+
+        public DynamicGraphicsPipeline getPipeline(GraphicsState state) {
+            DynamicGraphicsPipeline pipeline = pipelines.get(state);
+            if (pipeline == null) {
+                // create
+            }
+            return pipeline;
+        }
 
     }
 
