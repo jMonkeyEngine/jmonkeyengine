@@ -136,6 +136,11 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         return length;
     }
 
+    /**
+     * Sets the length of this array in elements.
+     *
+     * @param length length in elements
+     */
     public void setLength(int length) {
         this.length = length;
     }
@@ -167,6 +172,22 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      */
     public <F extends StructField> Field<F> field(Function<T, F> field) {
         return new Field<>(this, i -> field.apply(index(i)));
+    }
+
+    /**
+     * Creates an array that is a slice of this array. The emitted array
+     * shares the same struct as this array.
+     *
+     * @param offset offset of the slice
+     * @param length length of the slice
+     * @return array being a slice of this array
+     */
+    public StructArray<T> slice(int offset, int length) {
+        StructArray<T> array = new StructArray<>(length, sharedStruct.struct);
+        SlicePointer ptr = new SlicePointer(offset * stride);
+        array.bind(ptr);
+        ptr.bind(this);
+        return array;
     }
 
     /**
@@ -206,6 +227,11 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         protected Field(StructArray array, IntFunction<F> field) {
             this.array = array;
             this.field = field;
+        }
+
+        @Override
+        public Destructor getDestructor() {
+            return array.getDestructor();
         }
 
         @Override

@@ -13,6 +13,7 @@ import com.jme3.util.TempVars;
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.ConcurrentStructArray;
 import com.jme3.vulkan.alloc.SlicePointer;
+import com.jme3.vulkan.alloc.StructArray;
 import com.jme3.vulkan.buffer.*;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
@@ -140,9 +141,9 @@ public class Scene {
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
     private Object[] geometry;
+    private final Map<Class<? extends Struct>, int[]> geometricDataIndices;
     private final DynamicBuffer<ConcurrentStructArray<Light>> lights;
     private final DynamicBuffer<SlicePointer> geometricLightMasks;
-    private final List<GeometryData> geometryData = new ArrayList<>();
 
     private final BitSet usedOrderSlots = new BitSet();
     private final BitSet usedNodeSlots = new BitSet();
@@ -1056,10 +1057,11 @@ public class Scene {
 
     }
 
-    public class Geometry {
+    public class GeometryDataArray <T extends Struct> {
 
-        private Mesh mesh;
-        private Collection<>
+        private final DynamicBuffer<StructArray<T>> data;
+        private final BitSet usedDataSlots;
+        private int[] geometryDataMap;
 
     }
 

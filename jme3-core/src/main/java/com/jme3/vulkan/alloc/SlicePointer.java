@@ -1,5 +1,6 @@
 package com.jme3.vulkan.alloc;
 
+import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -19,6 +20,11 @@ public class SlicePointer implements RelativeBuffer {
         assert offset >= 0 : "Offset must be non-negative.";
         this.offset = offset;
         this.size = size;
+    }
+
+    @Override
+    public Destructor getDestructor() {
+        return source.getDestructor();
     }
 
     @Override
