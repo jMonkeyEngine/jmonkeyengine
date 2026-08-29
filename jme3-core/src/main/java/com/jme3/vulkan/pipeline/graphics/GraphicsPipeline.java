@@ -11,6 +11,7 @@ import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.VulkanCommandBuffer;
 import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -39,7 +40,7 @@ import java.util.function.Consumer;
 
 import static org.lwjgl.vulkan.VK13.*;
 
-public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
+public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
 
     private final GraphicsState state = new GraphicsState();
 
@@ -48,14 +49,14 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
     private int depthFormat = -1;
     private boolean usingStencilAtt = false;
 
-    protected DynamicGraphicsPipeline(LogicalDevice<?> device) {
+    protected GraphicsPipeline(LogicalDevice<?> device) {
         super(device, PipelineBindPoint.Graphics);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        DynamicGraphicsPipeline that = (DynamicGraphicsPipeline) o;
+        GraphicsPipeline that = (GraphicsPipeline) o;
         return state.dynamicEquals(that.state)
                 && depthFormat == that.depthFormat
                 && usingStencilAtt == that.usingStencilAtt
@@ -65,146 +66,6 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
     @Override
     public int hashCode() {
         return Objects.hash(state.dynamicHashCode(), Arrays.hashCode(colorFormats), depthFormat, usingStencilAtt);
-    }
-
-    public void setDynamicLineWidth(CommandBuffer cmd, float lineWidth) {
-        if (!isDynamic(DynamicState.LineWidth)) {
-            throw new IllegalStateException("Line width cannot be set dynamically.");
-        }
-        vkCmdSetLineWidth(cmd.getBuffer(), lineWidth);
-    }
-
-    public void setDynamicViewport(MemoryStack stack, CommandBuffer cmd, int index, float x, float y, float w, float h, float minDepth, float maxDepth) {
-        if (!isDynamic(DynamicState.ViewPort)) {
-            throw new IllegalStateException("Viewport cannot be set dynamically.");
-        }
-        VkViewport.Buffer vp = VkViewport.calloc(1, stack)
-                .x(x).y(y)
-                .width(w).height(h)
-                .minDepth(minDepth).maxDepth(maxDepth);
-        vkCmdSetViewport(cmd.getBuffer(), index, vp);
-    }
-
-    public void setDynamicViewport(MemoryStack stack, CommandBuffer cmd, int index, float x, float y, float w, float h) {
-        setDynamicViewport(stack, cmd, index, x, y, w, h, 0f, 1f);
-    }
-
-    public void setDynamicScissor(MemoryStack stack, CommandBuffer cmd, int index, int x, int y, int w, int h) {
-        if (!isDynamic(DynamicState.Scissor)) {
-            throw new IllegalStateException("Scissor cannot be set dynamically.");
-        }
-        VkRect2D.Buffer scissor = VkRect2D.calloc(1, stack);
-        scissor.offset().set(x, y);
-        scissor.extent().set(w, h);
-        vkCmdSetScissor(cmd.getBuffer(), index, scissor);
-    }
-
-    public Subpass getSubpass() {
-        return subpass;
-    }
-
-    public DynamicGraphicsPipeline getParent() {
-        return parent;
-    }
-
-    public Flag<Create> getCreateFlags() {
-        return createFlags;
-    }
-
-    public Collection<ShaderModule> getShaders() {
-        return shaders;
-    }
-
-    public VertexInput getVertexInput() {
-        return vertexInput;
-    }
-
-    public Topology getTopology() {
-        return topology;
-    }
-
-    public boolean isPrimitiveRestart() {
-        return primitiveRestart;
-    }
-
-    public boolean isDepthTest() {
-        return depthTest;
-    }
-
-    public boolean isDepthWrite() {
-        return depthWrite;
-    }
-
-    public boolean isDepthBoundsTest() {
-        return depthBoundsTest;
-    }
-
-    public boolean isStencilTest() {
-        return stencilTest;
-    }
-
-    public IntEnum<CompareOp> getDepthCompare() {
-        return depthCompare;
-    }
-
-    public IntEnum<PolygonMode> getPolygonMode() {
-        return polygonMode;
-    }
-
-    public Flag<CullMode> getCullMode() {
-        return cullMode;
-    }
-
-    public IntEnum<FaceWinding> getFaceWinding() {
-        return faceWinding;
-    }
-
-    public float getLineWidth() {
-        return lineWidth;
-    }
-
-    public boolean isDepthClamp() {
-        return depthClamp;
-    }
-
-    public boolean isRasterizerDiscard() {
-        return rasterizerDiscard;
-    }
-
-    public boolean isDepthBias() {
-        return depthBias;
-    }
-
-    public int getRasterizationSamples() {
-        return rasterizationSamples;
-    }
-
-    public boolean isSampleShading() {
-        return sampleShading;
-    }
-
-    public List<ColorBlendAttachment> getBlendAttachments() {
-        return Collections.unmodifiableList(blendAttachments);
-    }
-
-    public boolean isBlendLogicEnabled() {
-        return blendLogicEnabled;
-    }
-
-    public IntEnum<LogicOp> getBlendLogic() {
-        return blendLogic;
-    }
-
-    public List<ViewPortArea> getViewports() {
-        return Collections.unmodifiableList(viewports);
-    }
-
-    public List<ScissorArea> getScissors() {
-        return Collections.unmodifiableList(scissors);
-    }
-
-    public Set<Integer> getDynamicStates() {
-        return Collections.unmodifiableSet(dynamicStates);
     }
 
     @Override
@@ -222,8 +83,8 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
         return layout;
     }
 
-    public static DynamicGraphicsPipeline build(LogicalDevice<?> device, Consumer<Builder> config) {
-        Builder b = new DynamicGraphicsPipeline(device).new Builder();
+    public static GraphicsPipeline build(LogicalDevice<?> device, Consumer<Builder> config) {
+        Builder b = new GraphicsPipeline(device).new Builder();
         config.accept(b);
         return b.build();
     }
@@ -239,7 +100,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
                 LongBuffer id = stack.mallocLong(1);
                 vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, create, null, id);
                 object = id.get(0);
-                ref = DisposableManager.reference(DynamicGraphicsPipeline.this);
+                ref = DisposableManager.reference(GraphicsPipeline.this);
                 device.getReference().addDependent(ref);
             }
         }
@@ -409,7 +270,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
 
     private static class State extends GraphicsState {
 
-        private DynamicGraphicsPipeline parent;
+        private GraphicsPipeline parent;
         private Flag<Create> createFlags = Flag.empty();
         private PipelineLayout layout;
         private int[] colorFormats;
@@ -438,7 +299,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
             });
         }
 
-        public void setParent(DynamicGraphicsPipeline parent) {
+        public void setParent(GraphicsPipeline parent) {
             this.parent = parent;
         }
 
@@ -499,7 +360,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
 
     }
 
-    public class Builder extends CacheableNativeBuilder<Pipeline, DynamicGraphicsPipeline> {
+    public class Builder extends CacheableNativeBuilder<Pipeline, GraphicsPipeline> {
 
         private InlineTimedCache<PipelineLayout> layoutCache;
         private InlineTimedCache<ShaderModule> shaderCache;
@@ -507,7 +368,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
         private FrameBuffer<VulkanImageView> frameBuffer;
 
         @Override
-        public DynamicGraphicsPipeline build() {
+        public GraphicsPipeline build() {
             Objects.requireNonNull(layout, "Pipeline layout not specified.");
             Objects.requireNonNull(vertexInput, "Vertex input not specified.");
             if (viewports.isEmpty()) setNextViewPort(new ViewPortArea(128, 128));
@@ -533,13 +394,13 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
             LongBuffer id = stack.mallocLong(1);
             vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, create, null, id);
             object = id.get(0);
-            ref = DisposableManager.reference(DynamicGraphicsPipeline.this);
+            ref = DisposableManager.reference(GraphicsPipeline.this);
             device.getReference().addDependent(ref);
         }
 
         @Override
-        protected DynamicGraphicsPipeline getBuildTarget() {
-            return DynamicGraphicsPipeline.this;
+        protected GraphicsPipeline getBuildTarget() {
+            return GraphicsPipeline.this;
         }
 
         protected VkGraphicsPipelineCreateInfo.Buffer createPipelineInfo() {
@@ -709,7 +570,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
         public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, VulkanTechnique tech) {
             setLayout(tech.getLayout(device, layoutCache, setCache));
             addShaders(tech.getShaders(device, assetManager, shaderCache, material));
-            setVertexInput(mesh.declareVertexInput(DynamicGraphicsPipeline.this));
+            setVertexInput(mesh.declareVertexInput(GraphicsPipeline.this));
             setTopology(mesh.getTopology());
             attributeLocations.putAll(tech.getAttributeLocations());
         }
@@ -728,11 +589,11 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
         }
 
         public void setLayout(PipelineLayout layout) {
-            DynamicGraphicsPipeline.this.layout = layout;
+            GraphicsPipeline.this.layout = layout;
         }
 
         public void setSubpass(Subpass subpass) {
-            DynamicGraphicsPipeline.this.subpass = subpass;
+            GraphicsPipeline.this.subpass = subpass;
         }
 
         /**
@@ -743,7 +604,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
          * @param vertexInput vertex input description
          */
         public void setVertexInput(VertexInput vertexInput) {
-            DynamicGraphicsPipeline.this.vertexInput = vertexInput;
+            GraphicsPipeline.this.vertexInput = vertexInput;
         }
 
         public void addShader(ShaderModule shader) {
@@ -751,7 +612,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
         }
 
         public void addShaders(Collection<ShaderModule> shaders) {
-            DynamicGraphicsPipeline.this.shaders.addAll(shaders);
+            GraphicsPipeline.this.shaders.addAll(shaders);
         }
 
         /**
@@ -850,15 +711,15 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
          *
          * @param parent parent pipeline (can be null)
          */
-        public void setParent(DynamicGraphicsPipeline parent) {
+        public void setParent(GraphicsPipeline parent) {
             if (parent != null && !parent.getCreateFlags().contains(Create.AllowDerivatives)) {
                 throw new IllegalArgumentException("Parent pipeline must allow derivatives.");
             }
-            DynamicGraphicsPipeline.this.parent = parent;
+            GraphicsPipeline.this.parent = parent;
         }
 
         public void setCreateFlags(Flag<Create> flags) {
-            DynamicGraphicsPipeline.this.createFlags = flags;
+            GraphicsPipeline.this.createFlags = flags;
         }
 
         /**
@@ -868,11 +729,11 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
          * @param topology mesh topology
          */
         public void setTopology(Topology topology) {
-            DynamicGraphicsPipeline.this.topology = topology;
+            GraphicsPipeline.this.topology = topology;
         }
 
         public void setPrimitiveRestart(boolean primitiveRestart) {
-            DynamicGraphicsPipeline.this.primitiveRestart = primitiveRestart;
+            GraphicsPipeline.this.primitiveRestart = primitiveRestart;
         }
 
         /**
@@ -881,7 +742,7 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
          * @param depthTest true to enable depth testing
          */
         public void setDepthTest(boolean depthTest) {
-            DynamicGraphicsPipeline.this.depthTest = depthTest;
+            GraphicsPipeline.this.depthTest = depthTest;
         }
 
         /**
@@ -890,63 +751,63 @@ public class DynamicGraphicsPipeline extends AbstractVulkanPipeline implements V
          * @param depthWrite true to enable depth writing
          */
         public void setDepthWrite(boolean depthWrite) {
-            DynamicGraphicsPipeline.this.depthWrite = depthWrite;
+            GraphicsPipeline.this.depthWrite = depthWrite;
         }
 
         public void setDepthBoundsTest(boolean depthBoundsTest) {
-            DynamicGraphicsPipeline.this.depthBoundsTest = depthBoundsTest;
+            GraphicsPipeline.this.depthBoundsTest = depthBoundsTest;
         }
 
         public void setStencilTest(boolean stencilTest) {
-            DynamicGraphicsPipeline.this.stencilTest = stencilTest;
+            GraphicsPipeline.this.stencilTest = stencilTest;
         }
 
         public void setDepthCompare(IntEnum<CompareOp> depthCompare) {
-            DynamicGraphicsPipeline.this.depthCompare = depthCompare;
+            GraphicsPipeline.this.depthCompare = depthCompare;
         }
 
         public void setPolygonMode(IntEnum<PolygonMode> polygonMode) {
-            DynamicGraphicsPipeline.this.polygonMode = polygonMode;
+            GraphicsPipeline.this.polygonMode = polygonMode;
         }
 
         public void setCullMode(Flag<CullMode> cullMode) {
-            DynamicGraphicsPipeline.this.cullMode = cullMode;
+            GraphicsPipeline.this.cullMode = cullMode;
         }
 
         public void setFaceWinding(IntEnum<FaceWinding> faceWinding) {
-            DynamicGraphicsPipeline.this.faceWinding = faceWinding;
+            GraphicsPipeline.this.faceWinding = faceWinding;
         }
 
         public void setLineWidth(float lineWidth) {
-            DynamicGraphicsPipeline.this.lineWidth = lineWidth;
+            GraphicsPipeline.this.lineWidth = lineWidth;
         }
 
         public void setDepthClamp(boolean depthClamp) {
-            DynamicGraphicsPipeline.this.depthClamp = depthClamp;
+            GraphicsPipeline.this.depthClamp = depthClamp;
         }
 
         public void setRasterizerDiscard(boolean rasterizerDiscard) {
-            DynamicGraphicsPipeline.this.rasterizerDiscard = rasterizerDiscard;
+            GraphicsPipeline.this.rasterizerDiscard = rasterizerDiscard;
         }
 
         public void setDepthBias(boolean depthBias) {
-            DynamicGraphicsPipeline.this.depthBias = depthBias;
+            GraphicsPipeline.this.depthBias = depthBias;
         }
 
         public void setRasterizationSamples(int rasterizationSamples) {
-            DynamicGraphicsPipeline.this.rasterizationSamples = rasterizationSamples;
+            GraphicsPipeline.this.rasterizationSamples = rasterizationSamples;
         }
 
         public void setSampleShading(boolean sampleShading) {
-            DynamicGraphicsPipeline.this.sampleShading = sampleShading;
+            GraphicsPipeline.this.sampleShading = sampleShading;
         }
 
         public void setBlendLogicEnabled(boolean blendLogicEnabled) {
-            DynamicGraphicsPipeline.this.blendLogicEnabled = blendLogicEnabled;
+            GraphicsPipeline.this.blendLogicEnabled = blendLogicEnabled;
         }
 
         public void setBlendLogic(IntEnum<LogicOp> blendLogic) {
-            DynamicGraphicsPipeline.this.blendLogic = blendLogic;
+            GraphicsPipeline.this.blendLogic = blendLogic;
         }
 
         public void setFrameBuffer(FrameBuffer<VulkanImageView> frameBuffer) {

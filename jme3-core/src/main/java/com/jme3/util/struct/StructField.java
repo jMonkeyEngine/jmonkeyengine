@@ -1,11 +1,7 @@
 package com.jme3.util.struct;
 
 import com.jme3.math.FastMath;
-import com.jme3.util.natives.Destructor;
-import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.alloc.BufferDescription;
 
 import java.util.Objects;
 
@@ -15,22 +11,29 @@ import java.util.Objects;
  *
  * @param <T>
  */
-public interface StructField <T> extends EngineBuffer {
+public interface StructField <T> extends BufferDescription {
 
     /**
-     * Binds this field to the struct and memory offset.
+     * Binds this field to the Struct {@code struct}.
      *
-     * @param struct struct
-     * @param offset memory offset from {@code struct}'s bound memory address of this field
+     * @param struct struct to bind to
      */
-    int bind(Struct struct, int offset);
+    void bind(Struct struct);
 
     /**
-     * Gets the struct that this field is bound to.
+     * Computes the layout of this field.
      *
-     * @return bound struct
+     * @param offset recommended offset for the field (can use a greater offset but not a lesser offset)
+     * @return computed offset of this field
      */
-    Struct getBoundStruct();
+    int layout(int offset);
+
+    /**
+     * Gets the struct that this field is computed relative to.
+     *
+     * @return struct
+     */
+    Struct getStruct();
 
     /**
      * Serializes {@code value} to the proper memory address through the
@@ -71,7 +74,7 @@ public interface StructField <T> extends EngineBuffer {
     String getName();
 
     /**
-     * Gets the offset in bytes of this field with its struct.
+     * Gets the offset in bytes of this field within its struct.
      *
      * @return offset in bytes in struct
      */
@@ -83,7 +86,7 @@ public interface StructField <T> extends EngineBuffer {
      *
      * @return alignment in bytes
      */
-    int getAlignment();
+    int alignment();
 
     /**
      * Serializes {@link #alias()} to the proper memory address through
@@ -94,27 +97,13 @@ public interface StructField <T> extends EngineBuffer {
     }
 
     /**
-     * {@link #set(Object) Sets} {@code value} and assigns it to the alias.
+     * Assigns {@code value} to the alias and {@link #set(Object) sets} {@code value}.
      *
      * @param value value to assign
      */
     default void aliasAndSet(T value) {
-        set(value);
         alias(value);
-    }
-
-    /**
-     * Gets the name of this field.
-     *
-     * @return field name
-     * @throws NullPointerException if the name is null
-     */
-    default String requireName() {
-        String n = getName();
-        if (n == null) {
-            throw new NullPointerException("Name required.");
-        }
-        return n;
+        set(value);
     }
 
     /**
@@ -134,52 +123,12 @@ public interface StructField <T> extends EngineBuffer {
     }
 
     /**
-     * Gets the aligned size of this field, which is {@link #capacity()}
-     * rounded up to the nearest multiple of {@link #getAlignment()}.
+     * Gets the aligned size of this field, which is {@link #size()}
+     * rounded up to the nearest multiple of {@link #alignment()}.
      *
      * @return aligned size in bytes
      */
-    default int getAlignedSize() {
-        return FastMath.toMultipleOf(capacity(), getAlignment());
-    }
-
-    @Override
-    default Destructor getDestructor() {
-        return getBoundStruct().getDestructor();
-    }
-
-    @Override
-    default void update(CommandBuffer cmd) {
-        getBoundStruct().update(cmd);
-    }
-
-    @Override
-    default void invalidateCache() {
-        getBoundStruct().invalidateCache();
-    }
-
-    @Override
-    default long getHandle() {
-        return getBoundStruct().getHandle();
-    }
-
-    @Override
-    default long getDeviceAddress() {
-        return getBoundStruct().getDeviceAddress();
-    }
-
-    @Override
-    default Flag<Role> getRoles() {
-        return getBoundStruct().getRoles();
-    }
-
-    @Override
-    default Flag<MemoryProp> getMemoryProperties() {
-        return getBoundStruct().getMemoryProperties();
-    }
-
-    @Override
-    default boolean isDeviceAccessible() {
-        return getBoundStruct().isDeviceAccessible();
+    default int alignedSize() {
+        return FastMath.toMultipleOf(size(), alignment());
     }
 }

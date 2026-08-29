@@ -2,13 +2,9 @@ package com.jme3.util.struct;
 
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
-import com.jme3.util.natives.Destructor;
-import com.jme3.vulkan.alloc.RelativeBuffer;
+import com.jme3.vulkan.alloc.BufferDescription;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.util.Flag;
 
 import java.io.IOException;
 import java.util.*;
@@ -32,75 +28,30 @@ import java.util.logging.Logger;
  *
  * @param <T> field type accepted by the struct
  */
-public abstract class Struct <T extends StructField> implements RelativeBuffer, Savable {
+public abstract class Struct <T extends StructField> implements BufferDescription, Savable {
 
     protected static final Logger logger = Logger.getLogger(Struct.class.getName());
 
     private final List<T> fields = new LinkedList<>();
     protected StructLayout layout;
     protected int size, alignment;
-    private EngineBuffer parent;
+    private EngineBuffer buffer;
 
     @Override
-    public Destructor getDestructor() {
-        return parent.getDestructor();
-    }
-
-    @Override
-    public void update(CommandBuffer cmd) {
-        if (parent != null) {
-            parent.update(cmd);
+    public void bind(EngineBuffer buffer, int baseOffset) {
+        for (T f : fields) {
+            f.bind(buffer, baseOffset);
         }
     }
 
     @Override
     public DataBuffer cache() {
-        return parent.cache();
+        return buffer.cache();
     }
 
     @Override
-    public void bind(EngineBuffer parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public void invalidateCache() {
-        parent.invalidateCache();
-    }
-
-    @Override
-    public int capacity() {
+    public int size() {
         return size;
-    }
-
-    @Override
-    public int getBufferLocalOffset() {
-        return parent.getBufferLocalOffset();
-    }
-
-    @Override
-    public long getHandle() {
-        return parent.getHandle();
-    }
-
-    @Override
-    public long getDeviceAddress() {
-        return parent.getDeviceAddress();
-    }
-
-    @Override
-    public Flag<Role> getRoles() {
-        return parent.getRoles();
-    }
-
-    @Override
-    public Flag<MemoryProp> getMemoryProperties() {
-        return parent.getMemoryProperties();
-    }
-
-    @Override
-    public boolean isDeviceAccessible() {
-        return parent.isDeviceAccessible();
     }
 
     @Override
@@ -132,6 +83,9 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
      */
     @SuppressWarnings("unchecked")
     protected final void addFields(StructField... fields) {
+        for (StructField f : fields) {
+            f.bind(this);
+        }
         this.fields.addAll(Arrays.asList((T[])fields));
     }
 
@@ -143,6 +97,7 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
      * @param <F> field type
      */
     protected final <F extends T> F addField(F field) {
+        field.bind(this);
         fields.add(field);
         return field;
     }
@@ -168,8 +123,8 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
         this.size = 0;
         this.alignment = layout.getMinStructAlignment();
         for (T f : fields) {
-            size = f.bind(this, size) + f.capacity();
-            alignment = Math.max(alignment, f.getAlignment());
+            size = f.layout(size) + f.size();
+            alignment = Math.max(alignment, f.alignment());
         }
         size = FastMath.toMultipleOf(size, alignment);
     }
@@ -233,7 +188,9 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
         private T alias;
         private Struct struct;
         private FieldDescription<T> description;
-        private int offset;
+        private int structOffset;
+        private EngineBuffer buffer;
+        private int bufferOffset;
 
         public Field(T alias) {
             this(null, alias);
@@ -247,29 +204,34 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
 
         @Override
         public DataBuffer cache() {
-            return struct.cache().offset(offset);
+            return buffer.cache().offset(bufferOffset, description.getSize());
         }
 
         @Override
-        public int bind(Struct struct, int offset) {
+        public void bind(Struct struct) {
             this.struct = struct;
+        }
+
+        @Override
+        public int layout(int offset) {
             this.description = struct.getLayout().getFieldDescription(alias.getClass());
-            return this.offset = FastMath.toMultipleOf(offset, getAlignment());
+            return this.structOffset = FastMath.toMultipleOf(offset, alignment());
         }
 
         @Override
-        public Struct getBoundStruct() {
+        public void bind(EngineBuffer buffer, int baseOffset) {
+            this.buffer = buffer;
+            this.bufferOffset = baseOffset + structOffset;
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public Struct getStruct() {
             return struct;
-        }
-
-        @Override
-        public int capacity() {
-            return description.getSize();
-        }
-
-        @Override
-        public int getBufferLocalOffset() {
-            return struct.getBufferLocalOffset() + offset;
         }
 
         @Override
@@ -301,14 +263,9 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
         }
 
         @Override
-        public int getAlignment() {
+        public int alignment() {
             assert description != null : "Struct not bound to a layout: alignment unknown.";
             return description.getAlignment();
-        }
-
-        @Override
-        public boolean isDeviceAccessible() {
-            return struct.isDeviceAccessible();
         }
 
         public FieldDescription<T> getDescription() {
@@ -317,7 +274,7 @@ public abstract class Struct <T extends StructField> implements RelativeBuffer, 
 
         @Override
         public int getStructLocalOffset() {
-            return offset;
+            return structOffset;
         }
 
     }

@@ -32,7 +32,7 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
     }
 
     @Override
-    public Struct getBoundStruct() {
+    public Struct getStruct() {
         return struct;
     }
 
@@ -75,7 +75,7 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
     }
 
     @Override
-    public int getAlignment() {
+    public int alignment() {
         return alignment;
     }
 
@@ -99,6 +99,7 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
         return alias.getLength();
     }
 
+    @Override
     public <E extends Struct> E index(int index, E struct) {
         return alias.index(index, struct);
     }

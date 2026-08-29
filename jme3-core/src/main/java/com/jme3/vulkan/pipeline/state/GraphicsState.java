@@ -18,6 +18,7 @@ import java.util.*;
  */
 public class GraphicsState implements Cloneable {
 
+    private final Set<DynamicState> dynamic = EnumSet.noneOf(DynamicState.class);
     private final Map<Integer, ColorBlendAttachment> blendOverrides = new HashMap<>();
     private boolean depthTest = true;
     private boolean depthWrite = true;
@@ -40,14 +41,48 @@ public class GraphicsState implements Cloneable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        return equals((GraphicsState)o);
+        GraphicsState that = (GraphicsState)o;
+        return blendLogic == that.blendLogic
+            && depthClamp == that.depthClamp
+            && polygonMode == that.polygonMode
+            && faceWinding == that.faceWinding
+            && (dynamic.contains(DynamicState.DepthTest) || depthTest == that.depthTest)
+            && (dynamic.contains(DynamicState.DepthWrite) || depthWrite == that.depthWrite)
+            && (dynamic.contains(DynamicState.DepthBoundsTest) || depthBoundsTest == that.depthBoundsTest)
+            && (dynamic.contains(DynamicState.StencilTest) || stencilTest == that.stencilTest)
+            && (dynamic.contains(DynamicState.RasterizerDiscard) || rasterizerDiscard == that.rasterizerDiscard)
+            && (dynamic.contains(DynamicState.DepthCompare) || depthCompare == that.depthCompare)
+            && (dynamic.contains(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
+            && (dynamic.contains(DynamicState.CullMode) || Flag.equals(cullMode, that.cullMode))
+            && (dynamic.contains(DynamicState.DepthBiasEnabled) || (depthBias == null) == (that.depthBias == null))
+            && (dynamic.contains(DynamicState.DepthBias) || Objects.equals(depthBias, that.depthBias))
+            && (dynamic.contains(DynamicState.Topology) || Objects.equals(topology, that.topology))
+            && (dynamic.contains(DynamicState.PrimitiveRestart) || primitiveRestart == that.primitiveRestart)
+            && Objects.equals(blendOverrides, that.blendOverrides);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(blendOverrides, attributeMappings, depthTest, depthWrite, depthBoundsTest, stencilTest,
-                depthClamp, blendLogic, rasterizerDiscard, lineWidth, depthCompare, depthBias, polygonMode, cullMode,
-                topology, primitiveRestart, faceWinding, vertexInput);
+        return Objects.hash(dynamic,
+                dynamicHash(DynamicState.DepthTest, depthTest),
+                dynamicHash(DynamicState.DepthWrite, depthWrite),
+                dynamicHash(DynamicState.DepthBoundsTest, depthBoundsTest),
+                depthClamp,
+                dynamicHash(DynamicState.StencilTest, stencilTest),
+                dynamicHash(DynamicState.RasterizerDiscard, rasterizerDiscard),
+                polygonMode,
+                dynamicHash(DynamicState.DepthCompare, depthCompare),
+                blendLogic,
+                dynamicHash(DynamicState.LineWidth, lineWidth),
+                dynamicHash(DynamicState.CullMode, cullMode),
+                blendOverrides,
+                attributeMappings,
+                dynamicHash(DynamicState.DepthBiasEnabled, depthBias == null),
+                dynamicHash(DynamicState.DepthBias, depthBias),
+                dynamicHash(DynamicState.Topology, topology),
+                dynamicHash(DynamicState.PrimitiveRestart, primitiveRestart),
+                faceWinding,
+                vertexInput);
     }
 
     @Override

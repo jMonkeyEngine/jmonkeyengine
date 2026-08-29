@@ -6,7 +6,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.IntList;
 import com.jme3.util.TempVars;
@@ -142,8 +141,8 @@ public class Scene {
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
     private Object[] geometry;
     private final Map<Class<? extends Struct>, int[]> geometricDataIndices;
-    private final DynamicBuffer<ConcurrentStructArray<Light>> lights;
-    private final DynamicBuffer<SlicePointer> geometricLightMasks;
+    private final AutoBuffer<ConcurrentStructArray<Light>> lights;
+    private final AutoBuffer<SlicePointer> geometricLightMasks;
 
     private final BitSet usedOrderSlots = new BitSet();
     private final BitSet usedNodeSlots = new BitSet();
@@ -160,10 +159,10 @@ public class Scene {
         nodeInfo = new int[nodeCapacity * INFO_SIZE];
         transforms = new float[nodeCapacity * TRANSFORMS_SIZE];
         hierarchyOrder = new int[nodeCapacity];
-        lights = new DynamicBuffer<>(alloc,
+        lights = new AutoBuffer<>(alloc,
                 new ConcurrentStructArray<>(lightCapacity, Light::new),
                 BufferType.Dynamic, EngineBuffer.Role.Storage);
-        geometricLightMasks = new DynamicBuffer<>(alloc,
+        geometricLightMasks = new AutoBuffer<>(alloc,
                 new SlicePointer(0, 1028), // i'm too tired to figure out the math for size here again
                 BufferType.Streaming, EngineBuffer.Role.Storage);
     }
@@ -1059,7 +1058,7 @@ public class Scene {
 
     public class GeometryDataArray <T extends Struct> {
 
-        private final DynamicBuffer<StructArray<T>> data;
+        private final AutoBuffer<StructArray<T>> data;
         private final BitSet usedDataSlots;
         private int[] geometryDataMap;
 

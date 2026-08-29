@@ -1,7 +1,7 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.util.natives.Destructor;
-import com.jme3.vulkan.alloc.RelativeBuffer;
+import com.jme3.vulkan.alloc.BufferDescription;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -9,28 +9,23 @@ import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
+public class AutoBuffer <T extends BufferDescription> implements EngineBuffer {
 
     private final MemoryAllocator alloc;
     private T structure;
     private EngineBuffer buffer;
     private BufferType type;
 
-    public DynamicBuffer(MemoryAllocator alloc, T structure, BufferType type, Flag<Role> roles) {
+    public AutoBuffer(MemoryAllocator alloc, T structure, BufferType type, Flag<Role> roles) {
         this.alloc = alloc;
         this.structure = structure;
-        this.buffer = alloc.createBuffer(type, pickNextSize(0, structure.capacity()), roles.add(Role.TransferSrc));
-        this.structure.bind(buffer);
+        this.buffer = alloc.createBuffer(type, pickNextSize(0, structure.size()), roles.add(Role.TransferSrc));
+        this.structure.bind(buffer, 0);
     }
 
     @Override
-    public Destructor getDestructor() {
-        return buffer.getDestructor();
-    }
-
-    @Override
-    public void update(CommandBuffer cmd) {
-        buffer.update(cmd);
+    public void flushCache() {
+        buffer.flushCache();
     }
 
     @Override
@@ -49,18 +44,8 @@ public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
     }
 
     @Override
-    public int getBufferLocalOffset() {
-        return buffer.getBufferLocalOffset();
-    }
-
-    @Override
     public long getHandle() {
         return buffer.getHandle();
-    }
-
-    @Override
-    public long getDeviceAddress() {
-        return buffer.getDeviceAddress();
     }
 
     @Override
@@ -79,14 +64,14 @@ public class DynamicBuffer <T extends RelativeBuffer> implements EngineBuffer {
     }
 
     public OpLocation update(CommandBuffer cmd, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
-        if (this.type != type || buffer.capacity() < structure.capacity() || !buffer.getRoles().contains(roles)) {
-            EngineBuffer temp = alloc.createBuffer(type, pickNextSize(buffer.capacity(), structure.capacity()), roles.add(buffer.getRoles(), Role.TransferSrc, Role.TransferDst));
+        if (this.type != type || buffer.capacity() < structure.size() || !buffer.getRoles().contains(roles)) {
+            EngineBuffer temp = alloc.createBuffer(type, pickNextSize(buffer.capacity(), structure.size()), roles.add(buffer.getRoles(), Role.TransferSrc, Role.TransferDst));
             copyLocation = copy(cmd, buffer, temp, copyLocation);
             buffer = temp;
         } else {
             copyLocation = OpLocation.DontCare;
         }
-        this.structure.bind(buffer);
+        this.structure.bind(buffer, 0);
         this.type = type;
         return copyLocation;
     }

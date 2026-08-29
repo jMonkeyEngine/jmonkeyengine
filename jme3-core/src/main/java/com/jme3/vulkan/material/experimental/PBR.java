@@ -4,13 +4,12 @@ import com.jme3.backend.Engine;
 import com.jme3.math.Matrix4f;
 import com.jme3.texture.Texture;
 import com.jme3.util.cache.InlineTimedCache;
-import com.jme3.util.natives.Destructable;
 import com.jme3.util.natives.Destructor;
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.alloc.ReservedStructArray;
+import com.jme3.vulkan.alloc.SparseStructList;
 import com.jme3.vulkan.alloc.StructArray;
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.DynamicBuffer;
+import com.jme3.vulkan.buffer.AutoBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -18,15 +17,14 @@ import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.mesh.ExperimentalCubeMesh;
 import com.jme3.vulkan.pipeline.DynamicState;
-import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.scene.Scene;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +33,7 @@ import java.util.Set;
  */
 public class PBR {
 
-    protected static DynamicBuffer<ReservedStructArray<Params>> parameters;
+    protected static AutoBuffer<SparseStructList<Params>> parameters;
     private static final Set<DynamicState> dynamics = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
 
     private final MaterialData data;
@@ -46,37 +44,38 @@ public class PBR {
 
     public PBR(Engine engine, int materials) {
         if (parameters == null) {
-            parameters = new DynamicBuffer<>(engine, new ReservedStructArray<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage);
+            parameters = new AutoBuffer<>(engine, new SparseStructList<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage);
         }
         this.data = engine.getMaterialData();
         pool = engine.createDescriptorPool(materials, new PoolSize(DescriptorType.CombinedImageSampler, materials * 2));
         textureLayout = engine.createDescriptorSetLayout(new DescriptorSetLayout.Info()
                 .addBinding(0, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment)
                 .addBinding(1, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment));
-        engine.getMaterialData().initDataType(Params.class, () -> new DynamicBuffer<>(engine,
+        engine.getMaterialData().initDataType(Params.class, () -> new AutoBuffer<>(engine,
                 new StructArray<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage));
     }
 
     public void renderScene(Scene.Subset geometries) {
-        // For each geometry, we need to generate a pipeline. This will be done be the technique managing
+        // For each geometry, we need to generate a pipeline. This will be done by the technique managing
         // a "pipeline pool" where each pipeline in the pool shares some base properties. Variations are
         // requested from the pool. Geometries are then sorted based on what pipeline they are to be
         // rendered with.
         try (MemoryStack stack = MemoryStack.stackPush()) {
             Constants constants = new Constants();
-            constants.bind(new DataBuffer(stack.malloc(constants.getSize())));
+            constants.bind(new DataBuffer(stack.malloc(constants.getSize())), 0);
             for (int g : geometries) {
                 Material mat = geometries.getMaterialOf(g, Material.class);
                 constants.worldViewProjection.set(geometries.getWorldMatrix(g));
                 constants.paramsIndex.set(mat.paramElement);
+                VK10.vkCmdPushConstants(cmd, layout, ShaderStage.AllGraphics, 0, constants.cache());
                 // ... bind constants to pipeline
                 // ... bind vertex buffers to pipeline
             }
         }
     }
 
-    public Material createMaterial() {
-
+    public Material createMaterial(CommandBuffer cmd) {
+        return new Material(cmd);
     }
 
     protected DescriptorSet createTexturesSet() {
@@ -86,7 +85,7 @@ public class PBR {
         return set;
     }
 
-    public class Material implements Destructable {
+    public class Material {
 
         // index that this material's data is stored at for Params.class
         protected final int paramElement;
@@ -94,28 +93,13 @@ public class PBR {
         // for if we want to pass textures directly into the shader w/o bindless textures
         protected final DescriptorSet textures = createTexturesSet();
 
-        // vertex buffers
-        protected EngineBuffer position, texCoord, normal;
-
-        private final Destructor destructor;
+        // attributes
+        protected StructArray.Field position, texCoord, normal;
 
         protected Material(CommandBuffer cmd) {
-            paramElement = parameters.getStructure().acquire();
-            if (paramElement >= parameters.getStructure().getLength()) {
-                parameters.getStructure().setLength(paramElement << 1);
-                parameters.update(cmd, OpLocation.PreferHost);
-            }
-            destructor = new Destructor(this) {
-                @Override
-                protected void runDestroy() {
-                    parameters.getStructure().release(paramElement);
-                }
-            };
-        }
-
-        @Override
-        public Destructor getDestructor() {
-            return destructor;
+            paramElement = parameters.getStructure().acquireElement();
+            parameters.update(cmd, OpLocation.PreferHost);
+            Destructor.run(this, () -> parameters.getStructure().releaseElement(paramElement));
         }
 
         public void setMetallic(float metallic) {
@@ -154,12 +138,18 @@ public class PBR {
 
     }
 
+    private static class Attribute {
+
+
+
+    }
+
     private static class PipelinePool {
 
-        private final Map<GraphicsState, DynamicGraphicsPipeline> pipelines = new InlineTimedCache<>(2000);
+        private final Map<GraphicsState, GraphicsPipeline> pipelines = new InlineTimedCache<>(2000);
 
-        public DynamicGraphicsPipeline getPipeline(GraphicsState state) {
-            DynamicGraphicsPipeline pipeline = pipelines.get(state);
+        public GraphicsPipeline getPipeline(GraphicsState state) {
+            GraphicsPipeline pipeline = pipelines.get(state);
             if (pipeline == null) {
                 // create
             }

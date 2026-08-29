@@ -81,7 +81,7 @@ public abstract class ArrayField <T, E> implements StructField<T> {
     }
 
     @Override
-    public int getAlignment() {
+    public int alignment() {
         return alignment;
     }
 
@@ -91,7 +91,7 @@ public abstract class ArrayField <T, E> implements StructField<T> {
     }
 
     @Override
-    public Struct getBoundStruct() {
+    public Struct getStruct() {
         return struct;
     }
 

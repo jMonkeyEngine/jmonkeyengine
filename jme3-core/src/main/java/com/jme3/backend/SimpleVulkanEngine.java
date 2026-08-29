@@ -31,7 +31,7 @@ import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.vulkan.pipeline.framebuffer.*;
-import com.jme3.vulkan.pipeline.graphics.DynamicGraphicsPipeline;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.jme3.vulkan.render.bucket.GraphicsElement;
@@ -322,7 +322,7 @@ public class SimpleVulkanEngine implements Engine {
             super(cam, g);
             this.cmd = cmd;
             this.frameBuffer = frameBuffer;
-            this.pipeline = DynamicGraphicsPipeline.build(device, p -> {
+            this.pipeline = GraphicsPipeline.build(device, p -> {
                 p.setCache(pipelineCache);
                 p.setLayoutCache(pipelineLayoutCache);
                 p.setShaderCache(shaderCache);

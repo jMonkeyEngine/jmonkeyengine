@@ -27,26 +27,26 @@ public class BufferCopy {
         return this;
     }
 
-    public BufferCopy add(Struct<?> src, Struct<?> dst) {
+    public BufferCopy add(Struct<?> src, int srcOffset, Struct<?> dst, int dstOffset) {
         ListIterator<? extends StructField> srcFields = src.getFields().listIterator();
         ListIterator<? extends StructField> dstFields = dst.getFields().listIterator();
         while (srcFields.hasNext() && dstFields.hasNext()) {
             StructField originSrc = srcFields.next();
             StructField originDst = dstFields.next();
-            int size = Math.min(originSrc.capacity(), originDst.capacity());
+            int size = Math.min(originSrc.size(), originDst.size());
             while (srcFields.hasNext() && dstFields.hasNext()) {
                 StructField seqSrc = srcFields.next();
                 StructField seqDst = srcFields.next();
                 int srcStride = seqSrc.getStructLocalOffset() - originSrc.getStructLocalOffset();
                 if (srcStride == seqDst.getStructLocalOffset() - originDst.getStructLocalOffset()) {
-                    size = srcStride + Math.min(seqSrc.capacity(), seqDst.capacity());
+                    size = srcStride + Math.min(seqSrc.size(), seqDst.size());
                 } else {
                     srcFields.previous();
                     dstFields.previous();
                     break;
                 }
             }
-            regions.add(new Region(originSrc.getBufferLocalOffset(), originDst.getBufferLocalOffset(), size));
+            regions.add(new Region(srcOffset + originSrc.getStructLocalOffset(), dstOffset + originDst.getStructLocalOffset(), size));
         }
         return this;
     }

@@ -8,7 +8,7 @@ import com.jme3.vulkan.alloc.StructArray;
  */
 public class ElementPool <T extends Struct> extends StructArray<T> {
 
-    private final DynamicBuffer<ElementPool<T>> buffer = new DynamicBuffer<>();
+    private final AutoBuffer<ElementPool<T>> buffer = new AutoBuffer<>();
 
     public ElementPool(int length, T struct) {
         super(length, struct);

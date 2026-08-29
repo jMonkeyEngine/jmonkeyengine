@@ -15,88 +15,35 @@ import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-public class StructArray <T extends Struct> implements StructuredArray<T>, RelativeBuffer, Iterable<T> {
+public class StructArray <T extends Struct> implements StructuredArray<T>, BufferDescription, Iterable<T> {
 
     private int length;
-    private final Index<T> sharedStruct;
+    private final T sharedStruct;
     private final int stride;
-    private int currentIndex = 0;
-    private EngineBuffer source;
+    private EngineBuffer buffer;
+    private int bufferOffset;
 
     public StructArray(int length, T struct) {
         this.length = length;
-        sharedStruct = new Index<>(struct);
-        sharedStruct.getPointer().bind(this);
-        stride = sharedStruct.getStruct().getAlignedSize();
-    }
-
-    public StructArray(int length, T struct, EngineBuffer source) {
-        this(length, struct);
-        bind(source);
-    }
-
-    public static <T extends Struct> StructArray<T> directBuffer(int length, T struct) {
-        return new StructArray<>(length, struct, new DataBuffer(ByteBuffer.wrap(new byte[length * struct.getAlignedSize()])));
-    }
-
-    @Override
-    public Destructor getDestructor() {
-        return source.getDestructor();
-    }
-
-    @Override
-    public void update(CommandBuffer cmd) {
-        source.update(cmd);
-    }
-
-    @Override
-    public boolean isDeviceAccessible() {
-        return source.isDeviceAccessible();
+        this.sharedStruct = struct;
+        stride = sharedStruct.getAlignedSize();
     }
 
     @Override
     public DataBuffer cache() {
-        return source.cache();
+        return buffer.cache().offset(bufferOffset, length * stride);
     }
 
     @Override
-    public void bind(EngineBuffer parent) {
-        this.source = parent;
+    public void bind(EngineBuffer buffer, int baseOffset) {
+        this.buffer = buffer;
+        this.bufferOffset = baseOffset;
+        sharedStruct.bind(null, 0);
     }
 
     @Override
-    public void invalidateCache() {
-        source.invalidateCache();
-    }
-
-    @Override
-    public int capacity() {
+    public int size() {
         return length * stride;
-    }
-
-    @Override
-    public int getBufferLocalOffset() {
-        return source.getBufferLocalOffset();
-    }
-
-    @Override
-    public long getHandle() {
-        return source.getHandle();
-    }
-
-    @Override
-    public long getDeviceAddress() {
-        return source.getDeviceAddress();
-    }
-
-    @Override
-    public Flag<Role> getRoles() {
-        return source.getRoles();
-    }
-
-    @Override
-    public Flag<MemoryProp> getMemoryProperties() {
-        return source.getMemoryProperties();
     }
 
     @Override
@@ -104,31 +51,10 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         return new SharedIteratorImpl();
     }
 
-    protected Index<T> getSharedStruct() {
-        return sharedStruct;
-    }
-
-    /**
-     * Gets the shared, dynamically indexed struct and binds it to {@code index}. Previous
-     * calls to this method are invalidated. This is the correct method to use if needing a
-     * temporary handle into the struct array. If a more concrete handle is necessary, use
-     * {@link #index(int, Struct)}, but this method should be preferred as it is the most
-     * performant.
-     *
-     * @param index index to bind at
-     * @return shared indexed struct
-     */
     @Override
     public T index(int index) {
-        Index<T> i = getSharedStruct();
-        i.getPointer().setOffset(index * stride);
-        this.currentIndex = index;
-        return i.getStruct();
-    }
-
-    @Override
-    public int getIndex() {
-        return currentIndex;
+        sharedStruct.bind(buffer, bufferOffset + index * stride);
+        return sharedStruct;
     }
 
     @Override
@@ -153,10 +79,9 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      * @return {@code struct}
      * @param <E> struct type
      */
+    @Override
     public <E extends Struct> E index(int index, E struct) {
-        SlicePointer ptr = new SlicePointer(index * stride);
-        ptr.bind(this);
-        struct.bind(ptr);
+        struct.bind(buffer, bufferOffset + index * stride);
         return struct;
     }
 
@@ -171,7 +96,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      * @param <F> field type
      */
     public <F extends StructField> Field<F> field(Function<T, F> field) {
-        return new Field<>(this, i -> field.apply(index(i)));
+        return new Field<>(this, field.apply(sharedStruct));
     }
 
     /**
@@ -183,10 +108,8 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      * @return array being a slice of this array
      */
     public StructArray<T> slice(int offset, int length) {
-        StructArray<T> array = new StructArray<>(length, sharedStruct.struct);
-        SlicePointer ptr = new SlicePointer(offset * stride);
-        array.bind(ptr);
-        ptr.bind(this);
+        StructArray<T> array = new StructArray<>(length, sharedStruct);
+        array.bind(buffer, bufferOffset + offset * stride);
         return array;
     }
 
@@ -197,7 +120,7 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
      * @return representational struct
      */
     public T getStruct() {
-        return sharedStruct.getStruct();
+        return sharedStruct;
     }
 
     /**
@@ -219,29 +142,19 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         return stride;
     }
 
-    public static class Field <F extends StructField> implements EngineBuffer, Iterable<F> {
+    public static class Field <F extends StructField> implements BufferDescription, Iterable<F> {
 
         private final StructArray<?> array;
-        private final IntFunction<F> field;
+        private final F field;
 
-        protected Field(StructArray array, IntFunction<F> field) {
+        protected Field(StructArray array, F field) {
             this.array = array;
             this.field = field;
         }
 
         @Override
-        public Destructor getDestructor() {
-            return array.getDestructor();
-        }
-
-        @Override
-        public void update(CommandBuffer cmd) {
-            array.update(cmd);
-        }
-
-        @Override
-        public boolean isDeviceAccessible() {
-            return array.isDeviceAccessible();
+        public void bind(EngineBuffer buffer, int baseOffset) {
+            throw new UnsupportedOperationException("Array field cannot be bound separate to its array.");
         }
 
         @Override
@@ -250,38 +163,8 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         }
 
         @Override
-        public void invalidateCache() {
-            array.invalidateCache();
-        }
-
-        @Override
-        public int capacity() {
-            return array.capacity();
-        }
-
-        @Override
-        public int getBufferLocalOffset() {
-            return array.getBufferLocalOffset();
-        }
-
-        @Override
-        public long getHandle() {
-            return array.getHandle();
-        }
-
-        @Override
-        public long getDeviceAddress() {
-            return array.getDeviceAddress();
-        }
-
-        @Override
-        public Flag<Role> getRoles() {
-            return array.getRoles();
-        }
-
-        @Override
-        public Flag<MemoryProp> getMemoryProperties() {
-            return array.getMemoryProperties();
+        public int size() {
+            return array.size();
         }
 
         @Override
@@ -290,12 +173,22 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
         }
 
         public F index(int index) {
-            return field.apply(index);
+            array.index(index);
+            return field;
         }
 
         @SuppressWarnings("unchecked")
         public void set(int index, Object value) {
-            field.apply(index).set(value);
+            array.index(index);
+            field.set(value);
+        }
+
+        public int getOffset() {
+            return field.getStructLocalOffset();
+        }
+
+        public int getStride() {
+            return array.stride;
         }
 
         private class FieldIteratorImpl implements Iterator<F> {
@@ -309,35 +202,10 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Relat
 
             @Override
             public F next() {
-                return field.apply(index++);
+                array.index(index++);
+                return field;
             }
 
-        }
-
-    }
-
-    protected static class Index <T extends Struct> {
-
-        private final T struct;
-        private final SlicePointer ptr;
-
-        public Index(T struct) {
-            this.struct = struct;
-            this.ptr = new SlicePointer(0);
-            this.struct.bind(ptr);
-        }
-
-        public Index(T struct, int offset) {
-            this(struct);
-            ptr.setOffset(offset);
-        }
-
-        public T getStruct() {
-            return struct;
-        }
-
-        public SlicePointer getPointer() {
-            return ptr;
         }
 
     }

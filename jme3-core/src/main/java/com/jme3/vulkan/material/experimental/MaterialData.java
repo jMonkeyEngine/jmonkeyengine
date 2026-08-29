@@ -2,21 +2,20 @@ package com.jme3.vulkan.material.experimental;
 
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.DynamicBuffer;
+import com.jme3.vulkan.buffer.AutoBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MaterialData {
 
     private final Map<Class, MatBuffer<?>> data = new HashMap<>();
 
-    public <T extends Struct> void initDataType(Class<T> type, Supplier<DynamicBuffer<StructArray<T>>> factory) {
+    public <T extends Struct> void initDataType(Class<T> type, Supplier<AutoBuffer<StructArray<T>>> factory) {
         data.computeIfAbsent(type, k -> new MatBuffer<>(factory.get()));
     }
 
@@ -35,10 +34,10 @@ public class MaterialData {
 
     private static class MatBuffer <T extends Struct> {
 
-        private final DynamicBuffer<StructArray<T>> data;
+        private final AutoBuffer<StructArray<T>> data;
         private final BitSet usedElements = new BitSet();
 
-        public MatBuffer(DynamicBuffer<StructArray<T>> data) {
+        public MatBuffer(AutoBuffer<StructArray<T>> data) {
             this.data = data;
         }
 

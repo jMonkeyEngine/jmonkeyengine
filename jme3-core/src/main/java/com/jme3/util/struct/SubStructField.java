@@ -24,7 +24,7 @@ public class SubStructField <T extends Struct> implements StructField<T> {
     public int bind(Struct struct, int offset) {
         this.struct = struct;
         this.alias.bind(struct.getLayout());
-        return this.offset = FastMath.toMultipleOf(offset, getAlignment());
+        return this.offset = FastMath.toMultipleOf(offset, alignment());
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SubStructField <T extends Struct> implements StructField<T> {
     }
 
     @Override
-    public int getAlignment() {
+    public int alignment() {
         return struct.getAlignment();
     }
 

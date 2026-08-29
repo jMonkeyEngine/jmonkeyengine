@@ -87,7 +87,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     public int bind(Struct struct,  int offset) {
         this.struct = struct;
         this.description = struct.getLayout().getFieldDescription(alias.getClass());
-        return this.offset = FastMath.toMultipleOf(offset, getAlignment());
+        return this.offset = FastMath.toMultipleOf(offset, alignment());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     }
 
     @Override
-    public int getAlignment() {
+    public int alignment() {
         return description.getAlignment();
     }
 
@@ -125,7 +125,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     }
 
     @Override
-    public Struct getBoundStruct() {
+    public Struct getStruct() {
         return struct;
     }
 

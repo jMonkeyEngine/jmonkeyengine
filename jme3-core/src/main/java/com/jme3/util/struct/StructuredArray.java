@@ -9,7 +9,7 @@ public interface StructuredArray <T extends Struct> {
 
     T index(int i);
 
-    int getIndex();
+    <E extends Struct> E index(int i, E struct);
 
     int getLength();
 
