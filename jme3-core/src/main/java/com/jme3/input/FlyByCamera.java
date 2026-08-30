@@ -64,6 +64,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     private static final String FLYCAM_JOYSTICK_UP = "FLYCAM_JoystickUp";
     private static final String FLYCAM_JOYSTICK_DOWN = "FLYCAM_JoystickDown";
     private static final String FLYCAM_TOUCH = "FLYCAM_Touch";
+    private static final float TOUCH_ROTATION_SCALE = 1f / 1024f;
 
     private static final String[] mappings = new String[]{
             CameraInput.FLYCAM_LEFT,
@@ -580,7 +581,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
             return;
         }
 
-        rotateCamera(-event.getDeltaX() / 1024f, initialUpVec, true);
-        rotateCamera(-event.getDeltaY() / 1024f * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
+        rotateCamera(-event.getDeltaX() * TOUCH_ROTATION_SCALE, initialUpVec, true);
+        rotateCamera(-event.getDeltaY() * TOUCH_ROTATION_SCALE * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
     }
 }
