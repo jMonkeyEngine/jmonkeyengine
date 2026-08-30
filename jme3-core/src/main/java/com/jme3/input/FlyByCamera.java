@@ -37,6 +37,9 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -54,12 +57,13 @@ import com.jme3.renderer.Camera;
  *  - WASD keys for moving forward/backward and strafing
  *  - QZ keys raise or lower the camera
  */
-public class FlyByCamera implements AnalogListener, ActionListener, JoystickConnectionListener {
+public class FlyByCamera implements AnalogListener, ActionListener, JoystickConnectionListener, TouchListener {
 
     private static final String FLYCAM_JOYSTICK_LEFT = "FLYCAM_JoystickLeft";
     private static final String FLYCAM_JOYSTICK_RIGHT = "FLYCAM_JoystickRight";
     private static final String FLYCAM_JOYSTICK_UP = "FLYCAM_JoystickUp";
     private static final String FLYCAM_JOYSTICK_DOWN = "FLYCAM_JoystickDown";
+    private static final String FLYCAM_TOUCH = "FLYCAM_Touch";
 
     private static final String[] mappings = new String[]{
             CameraInput.FLYCAM_LEFT,
@@ -84,7 +88,8 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
             FLYCAM_JOYSTICK_LEFT,
             FLYCAM_JOYSTICK_RIGHT,
             FLYCAM_JOYSTICK_UP,
-            FLYCAM_JOYSTICK_DOWN
+            FLYCAM_JOYSTICK_DOWN,
+            FLYCAM_TOUCH
     };
     /**
      * camera controlled by this controller (not null)
@@ -306,6 +311,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
         inputManager.addMapping(CameraInput.FLYCAM_ZOOMIN, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
         inputManager.addMapping(CameraInput.FLYCAM_ZOOMOUT, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         inputManager.addMapping(CameraInput.FLYCAM_ROTATEDRAG, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping(FLYCAM_TOUCH, new TouchTrigger(TouchInput.ALL));
 
         // keyboard only WASD for movement and WZ for rise/lower height
         inputManager.addMapping(CameraInput.FLYCAM_STRAFELEFT, new KeyTrigger(KeyInput.KEY_A));
@@ -566,5 +572,15 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
                 invertY = !invertY;
             }
         }
+    }
+
+    @Override
+    public void onTouch(String name, TouchEvent event, float tpf) {
+        if (!enabled || !name.equals(FLYCAM_TOUCH) || event.getType() != TouchEvent.Type.MOVE) {
+            return;
+        }
+
+        rotateCamera(-event.getDeltaX() / 1024f, initialUpVec, true);
+        rotateCamera(-event.getDeltaY() / 1024f * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
     }
 }
