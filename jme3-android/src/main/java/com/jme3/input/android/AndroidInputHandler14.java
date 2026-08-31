@@ -181,7 +181,7 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
 
         if ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD
                 && joyInput != null
-                && isFromPhysicalKeyboard(event)) {
+                && !isVirtualKeyboardEvent(event)) {
             joyInput.onKeyboardInput();
         }
 
