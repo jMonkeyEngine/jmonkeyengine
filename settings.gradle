@@ -35,6 +35,15 @@ def isIosExamplesTaskRequested = {
             || taskName.startsWith('jme3-ios-examples:')
     }
 }
+def isJmhTaskRequested = {
+    gradle.startParameter.taskNames.any { taskName ->
+        taskName == 'jmh'
+            || taskName == ':jmh'
+            || taskName == 'jme3-benchmark'
+            || taskName.startsWith(':jme3-benchmark:')
+            || taskName.startsWith('jme3-benchmark:')
+    }
+}
 
 def findAndroidSdk = {
     def sdkDirs = []
@@ -83,6 +92,9 @@ def findAndroidSdk = {
 
 // Core classes, should work on all java platforms
 include 'jme3-core'
+if (isJmhTaskRequested()) {
+    include 'jme3-benchmark'
+}
 include 'jme3-effects'
 include 'jme3-networking'
 include 'jme3-plugins'
