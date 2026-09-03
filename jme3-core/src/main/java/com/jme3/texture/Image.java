@@ -719,7 +719,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @return A shallow clone of this image. The data is not cloned.
+     * @return a shallow clone of this image. The data is not cloned.
+     * @see #deepClone() Deep clone.
      */
     @Override
     public Image clone(){
@@ -728,6 +729,27 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         clone.data = data != null ? new ArrayList<ByteBuffer>(data) : null;
         clone.lastTextureState = new LastTextureState();
         clone.setUpdateNeeded();
+        return clone;
+    }
+
+    /**
+     * @return a deep clone of this image. The data is cloned.
+     * @see #clone() Shallow clone.
+     */
+    public Image deepClone() {
+        Image clone = (Image) super.clone();
+        clone.mipMapSizes = mipMapSizes != null ? mipMapSizes.clone() : null;
+        clone.data = data != null ? dataDeepClone() : null;
+        clone.lastTextureState = new LastTextureState();
+        clone.setUpdateNeeded();
+        return clone;
+    }
+
+    private ArrayList<ByteBuffer> dataDeepClone() {
+        ArrayList<ByteBuffer> clone = new ArrayList<ByteBuffer>(data.size());
+        for (ByteBuffer originalBuffer : data) {
+            clone.add(BufferUtils.createByteBuffer(originalBuffer, originalBuffer.capacity()));
+        }
         return clone;
     }
 
