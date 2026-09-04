@@ -170,13 +170,16 @@ public class AndroidTouchInput implements TouchInput {
         float jmeX;
         float jmeY;
 
-        numPointers = event.getPointerCount();
+        numPointers = countReportedPointers(event);
 
         // final int historySize = event.getHistorySize();
         //final int pointerCount = event.getPointerCount();
         switch (getAction(event)) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
+                if (isJoystickPointer(pointerId)) {
+                    break;
+                }
                 jmeX = getJmeX(event.getX(pointerIndex));
                 jmeY = invertY(getJmeY(event.getY(pointerIndex)));
                 touch = getFreeTouchEvent();
@@ -193,9 +196,19 @@ public class AndroidTouchInput implements TouchInput {
 
                 bWasHandled = true;
                 break;
-            case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL:
+                // A cancelled gesture ends every pointer at once, not just the one the event
+                // names - which, with the virtual joystick owning some of them, may well be a
+                // pointer that was never reported here to begin with.
+                bWasHandled = releaseAllPointers(event);
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
+                if (lastPositions.remove(pointerId) == null) {
+                    // Never reported as DOWN - eg. it went to the virtual joystick instead -
+                    // so releasing it here would be an UP with no matching press.
+                    break;
+                }
                 jmeX = getJmeX(event.getX(pointerIndex));
                 jmeY = invertY(getJmeY(event.getY(pointerIndex)));
                 touch = getFreeTouchEvent();
@@ -203,7 +216,6 @@ public class AndroidTouchInput implements TouchInput {
                 touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
-                lastPositions.remove(pointerId);
 
                 addEvent(touch);
                 addEvent(generateMouseEvent(touch));
@@ -213,6 +225,9 @@ public class AndroidTouchInput implements TouchInput {
             case MotionEvent.ACTION_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
+                    if (isJoystickPointer(event.getPointerId(p))) {
+                        continue;
+                    }
                     jmeX = getJmeX(event.getX(p));
                     jmeY = invertY(getJmeY(event.getY(p)));
                     lastPos = lastPositions.get(event.getPointerId(p));
@@ -243,15 +258,71 @@ public class AndroidTouchInput implements TouchInput {
 
         }
 
-        // Try to detect gestures
-        if (gestureDetector != null) {
-            gestureDetector.onTouchEvent(event);
-        }
-        if (scaleDetector != null) {
-            scaleDetector.onTouchEvent(event);
+        // Try to detect gestures - but not for events the virtual joystick has a hand in,
+        // where a gesture spanning both the stick and another finger would be meaningless
+        // (and the detectors have no way to be told to ignore individual pointers).
+        if (numPointers == event.getPointerCount()) {
+            if (gestureDetector != null) {
+                gestureDetector.onTouchEvent(event);
+            }
+            if (scaleDetector != null) {
+                scaleDetector.onTouchEvent(event);
+            }
         }
 
         return bWasHandled;
+    }
+
+    /**
+     * Emits an UP for every pointer currently being tracked, used when Android cancels the
+     * whole gesture.
+     *
+     * @param event the cancelling MotionEvent
+     * @return true if at least one pointer was released
+     */
+    private boolean releaseAllPointers(MotionEvent event) {
+        boolean released = false;
+        for (int p = 0; p < event.getPointerCount(); p++) {
+            int pointerId = event.getPointerId(p);
+            if (lastPositions.remove(pointerId) == null) {
+                continue;
+            }
+            TouchEvent touch = getFreeTouchEvent();
+            touch.set(TouchEvent.Type.UP, getJmeX(event.getX(p)), invertY(getJmeY(event.getY(p))), 0, 0);
+            touch.setPointerId(pointerId);
+            touch.setTime(event.getEventTime());
+            touch.setPressure(event.getPressure(p));
+
+            addEvent(touch);
+            addEvent(generateMouseEvent(touch));
+
+            released = true;
+        }
+        return released;
+    }
+
+    /**
+     * Counts the pointers in the event that this class actually reports, ie. those not being
+     * used to drive an on-screen virtual joystick control. Those are hidden from touch and
+     * mouse emulation entirely, so they mustn't count towards the multi-touch check in
+     * {@link #generateMouseEvent(TouchEvent)} either - otherwise holding the on-screen stick
+     * would suppress the emulated mouse events of the finger looking around.
+     *
+     * @param event the MotionEvent being dispatched
+     * @return the number of pointers reported by this class
+     */
+    private int countReportedPointers(MotionEvent event) {
+        int count = 0;
+        for (int p = 0; p < event.getPointerCount(); p++) {
+            if (!isJoystickPointer(event.getPointerId(p))) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean isJoystickPointer(int pointerId) {
+        return androidInput != null && androidInput.isPointerCapturedByJoystick(pointerId);
     }
 
     // TODO: Ring Buffer for mouse events?
