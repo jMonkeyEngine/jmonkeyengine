@@ -51,7 +51,7 @@ Note: The master branch on GitHub is a development version of the engine and is 
  - libraries for GUI, networking, physics, SFX, terrain, importing assets, etc.
  - platform-neutral core library for scene graph, animation, rendering, math, etc.
  - LWJGL v2/v3 (to access GLFW, OpenAL, OpenGL, and OpenVR) or Android or iOS
- - Java Virtual Machine (v8 or higher)
+ - Java Virtual Machine (v11 or higher)
 
 ### Documentation
 
