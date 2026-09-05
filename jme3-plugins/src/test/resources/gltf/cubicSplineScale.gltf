@@ -1,0 +1,77 @@
+{
+  "asset": {
+    "version": "2.0"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "AnimatedNode"
+    }
+  ],
+  "animations": [
+    {
+      "name": "CubicSplineScale",
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 0,
+            "path": "scale"
+          }
+        }
+      ],
+      "samplers": [
+        {
+          "input": 0,
+          "interpolation": "CUBICSPLINE",
+          "output": 1
+        }
+      ]
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "data:application/octet-stream;base64,AAAAAAAAgD8AAABAAABAQAAAgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAAAAAACAPwAAgD8AAAAAAACAPwAAgD8AAAAAAAAAQAAAAEAAAAAAAAAAQAAAAEAAAAAAAAAAQAAAAEAAAAAAAABAQAAAQEAAAAAAAABAQAAAQEAAAAAAAABAQAAAQEAAAAAAAACAQAAAgEAAAAAAAACAQAAAgEAAAAAAAACAQAAAgEA=",
+      "byteLength": 200
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 20
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 20,
+      "byteLength": 180
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 5,
+      "type": "SCALAR",
+      "min": [
+        0
+      ],
+      "max": [
+        4
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 15,
+      "type": "VEC3"
+    }
+  ]
+}
