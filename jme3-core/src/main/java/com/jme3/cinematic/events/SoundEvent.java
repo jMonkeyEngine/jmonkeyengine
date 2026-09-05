@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,10 @@
 package com.jme3.cinematic.events;
 
 import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioSource;
-import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -144,6 +143,20 @@ public class SoundEvent extends AbstractCinematicEvent {
     }
 
     /**
+     * Creates a sound event using the specified {@link AudioNode}.
+     * <p>
+     * This constructor is useful when the audio has already been loaded or
+     * preconfigured, allowing the event to play an existing {@code AudioNode}
+     * without relying on path‑based loading.
+     * </p>
+     *
+     * @param audioNode the audio node to be played by this event (not null)
+     */
+    public SoundEvent(AudioNode audioNode) {
+        this.audioNode = audioNode;
+    }
+
+    /**
      * creates a sound event
      * used for serialization
      */
@@ -152,11 +165,13 @@ public class SoundEvent extends AbstractCinematicEvent {
     }
 
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
-        super.initEvent(app, cinematic);
-        audioNode = new AudioNode(app.getAssetManager(), path, stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
-        audioNode.setPositional(false);
-        setLoopMode(loopMode);
+    public void initEvent(CinematicHandler cinematic) {
+        super.initEvent(cinematic);
+        if (audioNode == null) {
+            audioNode = new AudioNode(app.getAssetManager(), path, stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
+            audioNode.setPositional(false);
+            setLoopMode(loopMode);
+        }
     }
 
     @Override
@@ -217,6 +232,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(path, "path", "");
         oc.write(stream, "stream", false);
+        oc.write(audioNode, "audioNode", null);
     }
 
     @Override
@@ -225,5 +241,7 @@ public class SoundEvent extends AbstractCinematicEvent {
         InputCapsule ic = im.getCapsule(this);
         path = ic.readString("path", "");
         stream = ic.readBoolean("stream", false);
+        audioNode = (AudioNode) ic.readSavable("audioNode", null);
     }
 }
+

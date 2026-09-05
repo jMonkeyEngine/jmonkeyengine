@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@ package com.jme3.cinematic.events;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.tween.action.Action;
 import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,17 +53,20 @@ import java.util.logging.Logger;
  */
 public class AnimEvent extends AbstractCinematicEvent {
 
-    public static final Logger logger
+    private static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
 
+
+    private static final AtomicLong refCounter = new AtomicLong();
+
+    /**
+     * Unique-ish id that identify this anim event
+     */
+    protected String animRef;
     /*
      * Control that will play the animation
      */
     private AnimComposer composer;
-    /*
-     * Cinematic that contains this event
-     */
-    private Cinematic cinematic;
     /*
      * name of the animation action to be played
      */
@@ -72,6 +75,16 @@ public class AnimEvent extends AbstractCinematicEvent {
      * name of the animation layer on which the action will be played
      */
     private String layerName;
+
+    /**
+     * Constructs a new AnimEvent to play the named action on the default layer.
+     *
+     * @param composer the Control that will play the animation (not null).
+     * @param actionName the name of the animation action to play.
+     */
+    public AnimEvent(AnimComposer composer, String actionName) {
+        this(composer, actionName, AnimComposer.DEFAULT_LAYER);
+    }
 
     /**
      * Instantiate a non-looping event to play the named action on the named
@@ -84,6 +97,7 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     public AnimEvent(AnimComposer composer, String actionName,
             String layerName) {
+        this();
         this.composer = composer;
         this.actionName = actionName;
         this.layerName = layerName;
@@ -99,6 +113,7 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     protected AnimEvent() {
         super();
+        animRef = "animEvent-" + System.currentTimeMillis() + "_" + refCounter.incrementAndGet();
     }
 
     /**
@@ -108,9 +123,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      * @param cinematic the Cinematic that contains this event
      */
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
-        super.initEvent(app, cinematic);
-        this.cinematic = cinematic;
+    public void initEvent(CinematicHandler cinematic) {
+        super.initEvent(cinematic);
     }
 
     /**
@@ -191,11 +205,10 @@ public class AnimEvent extends AbstractCinematicEvent {
     public void read(JmeImporter importer) throws IOException {
         super.read(importer);
         InputCapsule capsule = importer.getCapsule(this);
-
         actionName = capsule.readString("actionName", "");
-        cinematic = (Cinematic) capsule.readSavable("cinematic", null);
         composer = (AnimComposer) capsule.readSavable("composer", null);
         layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
+        animRef = capsule.readString("animRef", null);
     }
 
     /**
@@ -269,10 +282,21 @@ public class AnimEvent extends AbstractCinematicEvent {
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
         OutputCapsule capsule = exporter.getCapsule(this);
-
         capsule.write(actionName, "actionName", "");
-        capsule.write(cinematic, "cinematic", null);
         capsule.write(composer, "composer", null);
         capsule.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
+        capsule.write(animRef, "animRef", null);
+    }
+
+    public AnimComposer getComposer() {
+        return composer;
+    }
+
+    public void setComposer(AnimComposer composer) {
+        this.composer = composer;
+    }
+
+    public String getAnimRef() {
+        return animRef;
     }
 }
