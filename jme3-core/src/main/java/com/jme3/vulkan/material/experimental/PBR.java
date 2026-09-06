@@ -18,6 +18,7 @@ import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.pipeline.DynamicState;
+import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.scene.Scene;
@@ -34,9 +35,6 @@ import java.util.Set;
 public class PBR {
 
     protected static AutoBuffer<SparseStructList<Params>> parameters;
-    private static final Set<DynamicState> dynamics = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
-
-    private final MaterialData data;
 
     // for passing in textures directly instead of bindless
     private DescriptorPool pool;
@@ -46,16 +44,13 @@ public class PBR {
         if (parameters == null) {
             parameters = new AutoBuffer<>(engine, new SparseStructList<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage);
         }
-        this.data = engine.getMaterialData();
         pool = engine.createDescriptorPool(materials, new PoolSize(DescriptorType.CombinedImageSampler, materials * 2));
         textureLayout = engine.createDescriptorSetLayout(new DescriptorSetLayout.Info()
                 .addBinding(0, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment)
                 .addBinding(1, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment));
-        engine.getMaterialData().initDataType(Params.class, () -> new AutoBuffer<>(engine,
-                new StructArray<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage));
     }
 
-    public void renderScene(Scene.Subset geometries) {
+    public void renderScene(CommandBuffer cmd, Scene.Subset geometries) {
         // For each geometry, we need to generate a pipeline. This will be done by the technique managing
         // a "pipeline pool" where each pipeline in the pool shares some base properties. Variations are
         // requested from the pool. Geometries are then sorted based on what pipeline they are to be
@@ -63,11 +58,12 @@ public class PBR {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             Constants constants = new Constants();
             constants.bind(new DataBuffer(stack.malloc(constants.getSize())), 0);
-            for (int g : geometries) {
-                Material mat = geometries.getMaterialOf(g, Material.class);
+            Scene.SubsetIterator it = geometries.iterator();
+            for (int g : it) {
+                Material mat = geometries.getScene().getUserData(g, Material.class);
                 constants.worldViewProjection.set(geometries.getWorldMatrix(g));
                 constants.paramsIndex.set(mat.paramElement);
-                VK10.vkCmdPushConstants(cmd, layout, ShaderStage.AllGraphics, 0, constants.cache());
+                VK10.vkCmdPushConstants(cmd, pipelinelayout, ShaderStage.AllGraphics, 0, constants.cache());
                 // ... bind constants to pipeline
                 // ... bind vertex buffers to pipeline
             }
@@ -138,18 +134,13 @@ public class PBR {
 
     }
 
-    private static class Attribute {
+    private static class PipelinePool <K, T extends Pipeline> {
 
+        private final Map<K, T> pipelines = new InlineTimedCache<>(2000);
+        private final Set<DynamicState> dynamics = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
 
-
-    }
-
-    private static class PipelinePool {
-
-        private final Map<GraphicsState, GraphicsPipeline> pipelines = new InlineTimedCache<>(2000);
-
-        public GraphicsPipeline getPipeline(GraphicsState state) {
-            GraphicsPipeline pipeline = pipelines.get(state);
+        public T getPipeline(K state) {
+            T pipeline = pipelines.get(state);
             if (pipeline == null) {
                 // create
             }

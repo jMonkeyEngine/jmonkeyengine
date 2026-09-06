@@ -1960,6 +1960,39 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Sets the scale of matrix4 {@code i}.
+     *
+     * @param d matrix4 data array
+     * @param i matrix4 index
+     * @param x x scale
+     * @param y y scale
+     * @param z z scale
+     */
+    public static void scale(float[] d, int i, float x, float y, float z) {
+        float length = d[i] * d[i] + d[4] * d[4] + d[8] * d[8];
+        if (length != 0f) {
+            length = length == 1 ? x : (x / FastMath.sqrt(length));
+            d[0] *= length;
+            d[4] *= length;
+            d[8] *= length;
+        }
+        length = d[1] * d[1] + d[5] * d[5] + d[9] * d[9];
+        if (length != 0f) {
+            length = length == 1 ? y : (y / FastMath.sqrt(length));
+            d[1] *= length;
+            d[5] *= length;
+            d[9] *= length;
+        }
+        length = d[2] * d[2] + d[6] * d[6] + d[10] * d[10];
+        if (length != 0f) {
+            length = length == 1 ? z : (z / FastMath.sqrt(length));
+            d[2] *= length;
+            d[6] *= length;
+            d[10] *= length;
+        }
+    }
+
+    /**
      * Alters the scale component of the coordinate transform.
      *
      * @param scale the desired scale factors (not null, unaffected)

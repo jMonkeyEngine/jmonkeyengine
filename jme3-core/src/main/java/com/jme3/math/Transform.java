@@ -33,6 +33,7 @@ package com.jme3.math;
 
 import com.jme3.export.*;
 import com.jme3.util.TempVars;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 
@@ -406,6 +407,25 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
+     * Computes matrix4 {@code i2} from transform {@code i1}.
+     *
+     * @param d1 transform data array
+     * @param i1 transform index
+     * @param d2 target matrix4 data array
+     * @param i2 target matrix4 index
+     */
+    public static void matrix(float[] d1, int i1, float[] d2, int i2) {
+        // translation
+        d2[i2 + 3] = d1[i1 + TRANSLATION_X];
+        d2[i2 + 7] = d1[i1 + TRANSLATION_Y];
+        d2[i2 + 11] = d1[i1 + TRANSLATION_Z];
+        // rotation
+        Quaternion.matrix(d1, i1 + ROTATION_X, d2, i2);
+        // scale
+        Matrix4f.scale(d2, i2, d1[i1 + SCALE_X], d1[i1 + SCALE_Y], d1[i1 + SCALE_Z]);
+    }
+
+    /**
      * Sets the current instance from a transform matrix. Any reflection or shear in the
      * matrix is lost -- in other words, it may not be possible to recreate the
      * original matrix from the result.
@@ -610,6 +630,14 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      */
     public static void copy(float[] d1, int i1, float[] d2, int i2) {
         System.arraycopy(d1, i1, d2, i2, 10);
+    }
+
+    public static Transform extract(float[] d, int i, @Nullable Transform store) {
+        store = storage(store);
+        Vector3f.extract(d, i, store.getTranslation());
+        Quaternion.extract(d, i + ROTATION_X, store.getRotation());
+        Vector3f.extract(d, i + SCALE_X, store.getScale());
+        return store;
     }
 
 }

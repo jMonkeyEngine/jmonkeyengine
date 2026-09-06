@@ -6,24 +6,31 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.IntList;
 import com.jme3.util.TempVars;
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.ConcurrentStructArray;
 import com.jme3.vulkan.alloc.SlicePointer;
-import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.*;
-import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
+import com.jme3.vulkan.buffer.AutoBuffer;
+import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.alloc.BufferType;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.compile.Final;
 import com.jme3.vulkan.compile.FinalWriter;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 /**
@@ -38,8 +45,8 @@ public class Scene {
     private static final int FIRST_CHILD = 3;   // type: node index
     private static final int FLAGS = 4;
     private static final int HINTS = 5;         // local cull hint, world cull hint, local bucket hint, world bucket hint (1 byte each)
-    private static final int GEOMETRY = 6;
-    private static final int UNUSED_NODE_INFO = 7;
+    private static final int UNUSED_NODE_INFO_1 = 6;
+    private static final int UNUSED_NODE_INFO_2 = 7;
 
     private static final int LOCAL_TRANSLATION_X = 0;
     private static final int LOCAL_TRANSLATION_Y = 1;
@@ -51,22 +58,14 @@ public class Scene {
     private static final int LOCAL_SCALE_X = 7;
     private static final int LOCAL_SCALE_Y = 8;
     private static final int LOCAL_SCALE_Z = 9;
-    private static final int WORLD_TRANSLATION_X = 10;
-    private static final int WORLD_TRANSLATION_Y = 11;
-    private static final int WORLD_TRANSLATION_Z = 12;
-    private static final int WORLD_ROTATION_X = 13;
-    private static final int WORLD_ROTATION_Y = 14;
-    private static final int WORLD_ROTATION_Z = 15;
-    private static final int WORLD_ROTATION_W = 16;
-    private static final int WORLD_SCALE_X = 17;
-    private static final int WORLD_SCALE_Y = 18;
-    private static final int WORLD_SCALE_Z = 19;
-    private static final int BOUNDS_CENTER_X = 20;
-    private static final int BOUNDS_CENTER_Y = 21;
-    private static final int BOUNDS_CENTER_Z = 22;
-    private static final int BOUNDS_EXTENT_X = 23;
-    private static final int BOUNDS_EXTENT_Y = 24;
-    private static final int BOUNDS_EXTENT_Z = 25;
+    private static final int WORLD_TRANSFORM = 10;
+    private static final int WORLD_MATRIX = 20;
+    private static final int BOUNDS_CENTER_X = 36;
+    private static final int BOUNDS_CENTER_Y = 37;
+    private static final int BOUNDS_CENTER_Z = 38;
+    private static final int BOUNDS_EXTENT_X = 39;
+    private static final int BOUNDS_EXTENT_Y = 40;
+    private static final int BOUNDS_EXTENT_Z = 41;
 
     // refresh flags
     public static final int TRANSFORM_REFRESH_BIT = 1;
@@ -77,10 +76,10 @@ public class Scene {
     public static final int IGNORE_NONLOCAL_LIGHTS_BIT = 1 << 5;
     private static final int CHILD_TRANSFORM_REFRESH_BIT = 1 << 6;
     private static final int CHILD_LIGHT_REFRESH_BIT = 1 << 7;
+    private static final int IGNORE_PARENT_COMPONENTS_BIT = 1 << 8;
 
     private static final int INFO_SIZE = 8;
-    private static final int TRANSFORMS_SIZE = 20;
-    private static final int SINGLE_TRANSFORM_SIZE = 10;
+    private static final int TRANSFORMS_SIZE = 42;
 
     private static final int NULL = -1000;
     private static final int INHERIT = 0;
@@ -104,7 +103,11 @@ public class Scene {
     }
 
     private static int worldTransform(int node) {
-        return node * TRANSFORMS_SIZE + WORLD_TRANSLATION_X;
+        return node * TRANSFORMS_SIZE + WORLD_TRANSFORM;
+    }
+
+    private static int worldMatrix(int node) {
+        return node * TRANSFORMS_SIZE + WORLD_MATRIX;
     }
 
     private static int localTranslation(int node) {
@@ -120,27 +123,33 @@ public class Scene {
     }
 
     private static int worldTranslation(int node) {
-        return transforms(node);
+        return node * TRANSFORMS_SIZE + WORLD_TRANSFORM + Transform.TRANSLATION_X;
     }
 
     private static int worldRotation(int node) {
-        return node * TRANSFORMS_SIZE + LOCAL_ROTATION_X;
+        return node * TRANSFORMS_SIZE + WORLD_TRANSFORM + Transform.ROTATION_X;
     }
 
     private static int worldScale(int node) {
-        return node * TRANSFORMS_SIZE + LOCAL_SCALE_X;
+        return node * TRANSFORMS_SIZE + WORLD_TRANSFORM + Transform.SCALE_X;
     }
 
     private static int worldBounds(int node) {
         return node * TRANSFORMS_SIZE + BOUNDS_CENTER_X;
     }
 
+    private static final AtomicInteger nextUserDataId = new AtomicInteger();
+
+    public static int generateUserDataId() {
+        return nextUserDataId.getAndIncrement();
+    }
+
     private int[] nodeInfo, hierarchyOrder;
-    private float[] transforms;     // local transform, world transform, world bounds
+    private final float[] transforms;     // local transform, world transform, world bounds
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
-    private Object[] geometry;
-    private final Map<Class<? extends Struct>, int[]> geometricDataIndices;
+    private final Map<Class<? extends SceneComponent>, ComponentArray> components = new HashMap<>();
+    private final Map<String, UserDataArray> userData = new HashMap<>();
     private final AutoBuffer<ConcurrentStructArray<Light>> lights;
     private final AutoBuffer<SlicePointer> geometricLightMasks;
 
@@ -256,10 +265,6 @@ public class Scene {
         return (nodeInfo[node * INFO_SIZE + HINTS] >> WORLD_BUCKET_HINT) & HINT_MASK;
     }
 
-    public int getGeometry(int node) {
-        return nodeInfo[node * INFO_SIZE + GEOMETRY];
-    }
-
     public boolean isIgnoreParentTransform(int node) {
         return (nodeInfo[node * INFO_SIZE + FLAGS] & IGNORE_PARENT_TRANSFORM_BIT) != 0;
     }
@@ -313,8 +318,8 @@ public class Scene {
         return nodeInfo[node * INFO_SIZE + PARENT] >= 0;
     }
 
-    public boolean isGeometric(int node) {
-        return nodeInfo[node * INFO_SIZE + GEOMETRY] >= 0;
+    public void requireValidNodeId(int node) {
+        assert node >= 0 && usedNodeSlots.get(node) : "Invalid node ID: " + node;
     }
 
     public Vector3f getLocalTranslation(int node, @Nullable Vector3f store) {
@@ -322,50 +327,35 @@ public class Scene {
     }
 
     public Quaternion getLocalRotation(int node, @Nullable Quaternion store) {
-        node *= TRANSFORMS_SIZE;
-        store = Quaternion.storage(store);
-        return store.set(
-            transforms[node + LOCAL_ROTATION_X],
-            transforms[node + LOCAL_ROTATION_Y],
-            transforms[node + LOCAL_ROTATION_Z],
-            transforms[node + LOCAL_ROTATION_W]);
+        return Quaternion.extract(transforms, localRotation(node), store);
     }
 
     public Vector3f getLocalScale(int node, @Nullable Vector3f store) {
-        node *= TRANSFORMS_SIZE;
-        store = Vector3f.storage(store);
-        store.x = transforms[node + LOCAL_SCALE_X];
-        store.y = transforms[node + LOCAL_SCALE_Y];
-        store.z = transforms[node + LOCAL_SCALE_Z];
-        return store;
+        return Vector3f.extract(transforms, localScale(node), store);
     }
 
     public Transform getLocalTransform(int node, @Nullable Transform store) {
-        node *= TRANSFORMS_SIZE;
-        store = Transform.storage(store);
-        Vector3f translation = store.getTranslation();
-        translation.x = transforms[node + LOCAL_TRANSLATION_X];
-        translation.y = transforms[node + LOCAL_TRANSLATION_Y];
-        translation.z = transforms[node + LOCAL_TRANSLATION_Z];
-        store.getRotation().set(
-                transforms[node + LOCAL_ROTATION_X],
-                transforms[node + LOCAL_ROTATION_Y],
-                transforms[node + LOCAL_ROTATION_Z],
-                transforms[node + LOCAL_ROTATION_W]);
-        Vector3f scale = store.getScale();
-        scale.x = transforms[node + LOCAL_SCALE_X];
-        scale.y = transforms[node + LOCAL_SCALE_Y];
-        scale.z = transforms[node + LOCAL_SCALE_Z];
-        return store;
+        return Transform.extract(transforms, localTransform(node), store);
+    }
+
+    public Vector3f getWorldTranslation(int node, @Nullable Vector3f store) {
+        return Vector3f.extract(transforms, worldTranslation(node), store);
+    }
+
+    public Quaternion getWorldRotation(int node, @Nullable Quaternion store) {
+        return Quaternion.extract(transforms, worldRotation(node), store);
+    }
+
+    public Vector3f getWorldScale(int node, @Nullable Vector3f store) {
+        return Vector3f.extract(transforms, worldScale(node), store);
+    }
+
+    public Transform getWorldTransform(int node, @Nullable Transform store) {
+        return Transform.extract(transforms, worldTransform(node), store);
     }
 
     public BoundingBox getWorldBounds(int node, @Nullable BoundingBox store) {
-        store = BoundingBox.storage(store);
-        Vector3f.extract(transforms, node + BOUNDS_CENTER_X, store.getCenter());
-        store.setXExtent(transforms[node + BOUNDS_EXTENT_X]);
-        store.setYExtent(transforms[node + BOUNDS_EXTENT_Y]);
-        store.setZExtent(transforms[node + BOUNDS_EXTENT_Z]);
-        return store;
+        return BoundingBox.extractLiteral(transforms, worldBounds(node), store);
     }
 
     /**
@@ -407,7 +397,7 @@ public class Scene {
      *
      * @return id of created node
      */
-    public int createNode() {
+    public Node createNode() {
         int id = usedNodeSlots.nextClearBit(0);
         usedNodeSlots.set(id);
         int index = id * INFO_SIZE;
@@ -420,14 +410,17 @@ public class Scene {
         nodeInfo[index + FIRST_CHILD] = NULL;
         nodeInfo[index + FLAGS] = TRANSFORM_REFRESH_BIT | BOUNDS_REFRESH_BIT | LIGHT_REFRESH_ALL_BIT;
         nodeInfo[index + HINTS] = 0;
-        nodeInfo[index + GEOMETRY] = NULL;
-//        NodeData node = new NodeData(id);
-//        if (index < data.size()) {
-//            data.set(index, node);
-//        } else {
-//            data.add(node);
-//        }
-        return id;
+        for (ComponentArray c : components.values()) {
+            c.set(id, null);
+        }
+        for (UserDataArray d : userData.values()) {
+            d.set(id, null);
+        }
+        return new Node(this, id);
+    }
+
+    public Node getNode(int id) {
+        return new Node(this, id);
     }
 
     /**
@@ -461,7 +454,7 @@ public class Scene {
     }
 
     /**
-     * Froms a parent-child relationship between {@code parent} and {@code child}, if
+     * Forms a parent-child relationship between {@code parent} and {@code child}, if
      * it does not already exist.
      *
      * @param parent id of node to attach to
@@ -472,14 +465,14 @@ public class Scene {
             return;
         }
         detach(child);
-        int firstChild = nodeInfo[parent + FIRST_CHILD];
+        int firstChild = getFirstChildId(parent);
         if (firstChild >= 0) {
             setSiblingId(child, firstChild);
         }
         setFirstChildId(parent, child);
         setParentId(child, parent);
         if (isAttached(parent)) for (int i : depthFirst(child)) {
-            int index = nodeInfo[i * INFO_SIZE] = usedOrderSlots.nextClearBit(nodeInfo[nodeInfo[i + PARENT]] + 1);
+            int index = nodeInfo[i * INFO_SIZE] = usedOrderSlots.nextClearBit(nodeInfo[getParentId(i)] + 1);
             usedOrderSlots.set(index);
             while (index >= hierarchyOrder.length) {
                 hierarchyOrder = grow(hierarchyOrder);
@@ -495,7 +488,7 @@ public class Scene {
      *
      * @param node id of node to attach
      */
-    public void attachRoot(int node) {
+    public void makeRoot(int node) {
         if (hasParent(node)) {
             detachChildToRoot(node);
             return;
@@ -523,24 +516,24 @@ public class Scene {
      * @return true if {@code child} was made a scene root
      */
     public boolean detachChildToRoot(int child) {
-        child *= INFO_SIZE;
-        int parent = nodeInfo[child + PARENT];
+        int childInfo = child * INFO_SIZE;
+        int parent = nodeInfo[childInfo + PARENT];
         if (parent < 0) {
             return false;
         }
         parent *= INFO_SIZE;
         int prev = nodeInfo[parent + FIRST_CHILD] * INFO_SIZE;
-        if (child == prev) {
+        if (childInfo == prev) {
             nodeInfo[parent + FIRST_CHILD] = nodeInfo[prev + SIBLING];
         } else for (int i = nodeInfo[prev + SIBLING] * INFO_SIZE; i >= 0; prev = i, i = nodeInfo[i + SIBLING] * INFO_SIZE) {
-            if (child == i) {
+            if (childInfo == i) {
                 nodeInfo[prev + SIBLING] = nodeInfo[i + SIBLING];
                 break;
             }
         }
-        nodeInfo[child + PARENT] = NULL;
-        nodeInfo[child + SIBLING] = NULL;
-        nodeInfo[child + FLAGS] |= TRANSFORM_REFRESH_BIT | LIGHT_REFRESH_BIT;
+        nodeInfo[childInfo + PARENT] = NULL;
+        nodeInfo[childInfo + SIBLING] = NULL;
+        nodeInfo[childInfo + FLAGS] |= TRANSFORM_REFRESH_BIT | LIGHT_REFRESH_BIT;
         nodeInfo[parent + FLAGS] |= BOUNDS_REFRESH_BIT;
         return true;
     }
@@ -590,7 +583,7 @@ public class Scene {
      *
      * @param node node to force
      */
-    public void forceBoundRefresh(int node) {
+    public void forceBoundsRefresh(int node) {
         nodeInfo[node * INFO_SIZE + FLAGS] |= BOUNDS_REFRESH_BIT;
     }
 
@@ -745,6 +738,7 @@ public class Scene {
             } else {
                 Transform.copy(transforms, localTransform(id), transforms, worldTransform(id));
             }
+            Transform.matrix(transforms, worldTransform(id), transforms, worldMatrix(id));
             if (isGeometric(id)) {
                 flags |= BOUNDS_REFRESH_BIT;
             }
@@ -778,12 +772,12 @@ public class Scene {
 
     private void updateWorldBounds(int id) {
         int flags = getFlags(id);
-        int geom = getGeometry(id);
+        Geometry geom = getComponent(id, Geometry.class);
         if ((flags & BOUNDS_REFRESH_BIT) != 0 || ) {
             BoundingBox.makeNull(transforms, worldBounds(id)); // merging with a null box will just copy the non-null box
             if (isGeometric(id)) {
                 //vol = mesh.getBounds().transform(worldTransform, worldBounds);
-                BoundingBox.inject(transforms, worldBounds(id), mesh.getBounds());
+                BoundingBox.inject(transforms, worldBounds(id), geom.getMesh().getBounds());
                 BoundingBox.transform(transforms, worldTransform(id), transforms, worldBounds(id), transforms, worldBounds(id));
             }
             for (int c : children(id)) {
@@ -854,6 +848,99 @@ public class Scene {
             flags &= ~CHILD_LIGHT_REFRESH_BIT;
         }
         nodeInfo[id + FLAGS] = flags;
+    }
+
+    /**
+     * Sets the local component of {@code node} according to the type of {@code component}.
+     *
+     * @param node node to set
+     * @param component component to use
+     */
+    public void setComponent(int node, @NonNull SceneComponent component) {
+        components.computeIfAbsent(component.getClass(), k ->
+                new ComponentArray(k.getAnnotation(ComponentInheritance.class))).set(node, component);
+    }
+
+    /**
+     * Clears the local component of {@code type} in {@code node}.
+     *
+     * @param node node to clear the component of
+     * @param type type of component to clear
+     */
+    public void clearComponent(int node, Class<? extends SceneComponent> type) {
+        ComponentArray array = components.get(type);
+        if (array != null) {
+            array.set(node, null);
+        }
+    }
+
+    /**
+     * Initializes the component array of {@code type} if it has not already been initialized.
+     * This can be used to override the presence (or lack) of the {@link ComponentInheritance} annotation
+     * on the component type.
+     *
+     * @param type type to initialize
+     * @param allowInheritance true to allow inheritance for the component type
+     */
+    public void initComponent(Class<? extends SceneComponent> type, boolean allowInheritance) {
+        components.computeIfAbsent(type, k -> new ComponentArray(allowInheritance));
+    }
+
+    /**
+     * Gets the local component of {@code node} set by {@link #setComponent(int, SceneComponent)}.
+     *
+     * @param node node to get the component of
+     * @param type type of component to get
+     * @return local component of {@code node}, or null if it does not exist
+     * @param <T> component type
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends SceneComponent> T getLocalComponent(int node, Class<T> type) {
+        ComponentArray array = components.get(type);
+        return array != null ? (T)array.getLocal(node) : null;
+    }
+
+    /**
+     * Gets the world component of {@code node} computed from the local component of
+     * {@code node} and the world component of the node's parent (if any).
+     *
+     * @param node node to get the component of
+     * @param type type of component to get
+     * @return world component of {@code node}, or null if it does not exist
+     * @param <T> component type
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends SceneComponent> T getComponent(int node, Class<T> type) {
+        ComponentArray array = components.get(type);
+        return array != null ? (T)array.getWorld(node) : null;
+    }
+
+    /**
+     * Sets the userdata of {@code node} under {@code name}. Userdata should be reserved
+     * for marking a handful of nodes (one node is optimal). If many nodes need to use the same
+     * key or inheritance is required, consider using {@link #setComponent(int, SceneComponent)}
+     * instead.
+     *
+     * @param name userdata key
+     * @param node node to set the userdata of
+     * @param value value to assign
+     */
+    public void setUserData(String name, int node, @Nullable Object value) {
+        userData.computeIfAbsent(name, k -> new UserDataArray()).set(node, value);
+    }
+
+    /**
+     * Gets the userdata of {@code node} under {@code name}.
+     *
+     * @param name userdata key
+     * @param node node to get the userdata of
+     * @return the assigned value, or null
+     * @param <T> value type to return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getUserData(String name, int node) {
+        UserDataArray array = userData.get(name);
+        return array != null ? (T)array.get(node) : null;
     }
 
     /**
@@ -955,7 +1042,7 @@ public class Scene {
     }
 
     /**
-     * Creates an iterable that iterates over each descendent of {@code origin}
+     * Creates an iterable that iterates over each descendant of {@code origin}
      * in a depth-first visitation pattern.
      *
      * @param origin id of origin node
@@ -1007,6 +1094,122 @@ public class Scene {
         return new UnorderedSceneIterator();
     }
 
+    protected class ComponentArray {
+
+        private final boolean allowInherit;
+        private final InheritMode onNull;
+        private final int stride;
+        private SceneComponent[] array;
+
+        protected ComponentArray(boolean allowInherit, InheritMode onNull) {
+            this.allowInherit = allowInherit;
+            this.onNull = onNull;
+            this.stride = allowInherit ? 2 : 1;
+        }
+
+        protected ComponentArray(ComponentInheritance i) {
+            this(i == null || i.allow(), i != null ? i.onNull() : InheritMode.Pull);
+        }
+
+        protected void growToContain(int node) {
+            if (array == null) {
+                array = new SceneComponent[nodeInfo.length * stride / INFO_SIZE];
+            } else if (node * stride >= array.length) {
+                SceneComponent[] temp = new SceneComponent[nodeInfo.length * stride / INFO_SIZE];
+                System.arraycopy(array, 0, temp, 0, array.length);
+                array = temp;
+            }
+        }
+
+        protected void updateWorldValues(int originNode) {
+            if (!allowInherit) {
+                return;
+            }
+            DepthFirstIterator it = depthFirst(originNode);
+            for (int child : it) {
+                SceneComponent newWorldValue = array[child * stride];
+                InheritMode mode = newWorldValue != null ? newWorldValue.getInheritMode() : onNull;
+                if (!mode.isIgnoreParent() && (getFlags(child) & IGNORE_PARENT_COMPONENTS_BIT) == 0) {
+                    SceneComponent parentWorldValue = hasParent(child) ? array[getParentId(child) * stride + 1] : null;
+                    InheritMode parentMode = parentWorldValue != null ? parentWorldValue.getInheritMode() : onNull;
+                    if (parentMode.isPush() || (mode.isPull() && parentWorldValue != null)) {
+                        newWorldValue = parentWorldValue;
+                    }
+                }
+                child = child * stride + 1;
+                if (array[child] != newWorldValue) {
+                    array[child] = newWorldValue;
+                } else {
+                    it.skipChildren();
+                }
+            }
+        }
+
+        public void set(int node, SceneComponent value) {
+            growToContain(node);
+            int i = node * stride;
+            if (array[i] != value) {
+                array[i] = value;
+                updateWorldValues(node);
+            }
+        }
+
+        public SceneComponent getLocal(int node) {
+            return array[node * stride];
+        }
+
+        public SceneComponent getWorld(int node) {
+            return array[node * stride + (!allowInherit ? 0 : 1)];
+        }
+
+    }
+
+    protected static class UserDataArray {
+
+        private Object[] array;
+        private int offset;
+
+        protected void growToFit(int node) {
+            if (array == null) {
+                array = new Object[1];
+            } else if (node < offset || node >= offset + array.length) {
+                Object[] temp = new Object[Math.max(offset - node + array.length, node - offset)];
+                System.arraycopy(array, 0, temp, Math.max(offset - node, 0), array.length);
+                array = temp;
+                offset = Math.min(offset, node);
+            }
+        }
+
+        public void set(int node, Object value) {
+            if (value != null) {
+                growToFit(node);
+                array[node] = value;
+            } else if (node >= offset && node < offset + array.length) {
+                array[node] = null;
+            }
+        }
+
+        public Object get(int node) {
+            return node >= offset && node < offset + array.length ? array[node] : null;
+        }
+
+    }
+
+    @ComponentInheritance(allow=false)
+    private static class GeometryData implements SceneComponent {
+
+        private Mesh mesh;
+
+        public Mesh getMesh() {
+            return mesh;
+        }
+
+        public void setMesh(Mesh mesh) {
+            this.mesh = mesh;
+        }
+
+    }
+
     public class Subset implements Iterable<Integer> {
 
         private final BitSet members = new BitSet();
@@ -1014,17 +1217,18 @@ public class Scene {
         protected Subset() {}
 
         @Override
-        public Iterator<Integer> iterator() {
+        public SubsetIterator iterator() {
             return new SubsetIterator(this);
         }
 
         public Subset filter(Predicate<Integer> filter) {
+            Subset target = new Subset();
             for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
-                if (!filter.test(i)) {
-                    members.clear(i);
+                if (filter.test(i)) {
+                    target.members.set(i);
                 }
             }
-            return this;
+            return target;
         }
 
         public Subset transfer(Predicate<Integer> filter) {
@@ -1035,7 +1239,7 @@ public class Scene {
                     target.members.set(i);
                 }
             }
-            return this;
+            return target;
         }
 
         public int[] toArray() {
@@ -1056,14 +1260,6 @@ public class Scene {
 
     }
 
-    public class GeometryDataArray <T extends Struct> {
-
-        private final AutoBuffer<StructArray<T>> data;
-        private final BitSet usedDataSlots;
-        private int[] geometryDataMap;
-
-    }
-
     public class Light extends Struct {
 
         private final Field<Vector3f> color = new Field<>(new Vector3f());
@@ -1071,7 +1267,8 @@ public class Scene {
         private final Field<Vector4f> position = new Field<>(new Vector4f());
         private final Field<Vector4f> direction = new Field<>(new Vector4f());
 
-        @Final private int index;
+        @Final
+        private int index;
         private float radius, innerCos, outerCos;
         private final ColorRGBA colorRGB = new ColorRGBA(0f, 0f, 0f, 1f);
         private final Vector3f positionVec = new Vector3f();
@@ -1079,7 +1276,7 @@ public class Scene {
 
         private boolean needsBoundsCheck = true;
         private final IntList attachedNodes = new IntList(1);
-        private boolean global = false;
+        private final boolean global = false;
 
         protected Light() {}
 
@@ -1209,15 +1406,20 @@ public class Scene {
 
     }
 
-    private static class SubsetIterator implements Iterator<Integer> {
+    public static class SubsetIterator implements Iterable<Integer>, Iterator<Integer> {
 
         private final Subset set;
         private int nextIndex;
         private int currentIndex = -1;
 
-        public SubsetIterator(Subset set) {
+        protected SubsetIterator(Subset set) {
             this.set = set;
             computeNextIndex();
+        }
+
+        @Override
+        public Iterator<Integer> iterator() {
+            return this;
         }
 
         @Override

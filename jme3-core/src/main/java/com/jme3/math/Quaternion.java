@@ -565,6 +565,52 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * Computes rotation matrix4 {@code i2} from quaternion {@code i1}.
+     *
+     * @param d1 quaternion data array
+     * @param i1 quaternion index
+     * @param d2 target matrix4 data array
+     * @param i2 target matrix4 index
+     */
+    public static void matrix(float[] d1, int i1, float[] d2, int i2) {
+        float norm = norm(d1, i1);
+        // we explicitly test norm against one here, saving a division
+        // at the cost of a test and branch.  Is it worth it?
+        float s = (norm == 1f) ? 2f : (norm > 0f) ? 2f / norm : 0;
+
+        float x = d1[i1];
+        float y = d1[i1 + 1];
+        float z = d1[i1 + 2];
+        float w = d1[i1 + 3];
+
+        // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
+        // will be used 2-4 times each.
+        float xs = x * s;
+        float ys = y * s;
+        float zs = z * s;
+        float xx = x * xs;
+        float xy = x * ys;
+        float xz = x * zs;
+        float xw = w * xs;
+        float yy = y * ys;
+        float yz = y * zs;
+        float yw = w * ys;
+        float zz = z * zs;
+        float zw = w * zs;
+
+        // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
+        d2[i2] = 1 - (yy + zz);
+        d2[i2 + 1] = (xy - zw);
+        d2[i2 + 2] = (xz + yw);
+        d2[i2 + 4] = (xy + zw);
+        d2[i2 + 5] = 1 - (xx + zz);
+        d2[i2 + 6] = (yz - xw);
+        d2[i2 + 8] = (xz - yw);
+        d2[i2 + 9] = (yz + xw);
+        d2[i2 + 10] = 1 - (xx + yy);
+    }
+
+    /**
      * Sets the rotation component of the specified transform matrix. The
      * current instance is unaffected.
      *
@@ -1767,6 +1813,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         d[i + 1] = quat.getY();
         d[i + 2] = quat.getZ();
         d[i + 3] = quat.getW();
+    }
+
+    public static Quaternion extract(float[] d, int i, Quaternion store) {
+        return Quaternion.storage(store).set(d[i], d[i + 1], d[i + 2], d[i + 3]);
     }
 
 }

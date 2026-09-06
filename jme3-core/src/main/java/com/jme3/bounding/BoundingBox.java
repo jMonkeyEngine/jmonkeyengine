@@ -1292,10 +1292,21 @@ public class BoundingBox extends BoundingVolume {
      * @param store BoundingBox instance to store the result if bounding box {@code i} is not null
      * @return bounding volume
      */
-    public static BoundingVolume extract(float[] d, int i, @Nullable BoundingBox store) {
+    public static BoundingVolume extractVolume(float[] d, int i, @Nullable BoundingBox store) {
         if (Float.isNaN(d[i + CENTER_X])) {
             return NullVolume.INSTANCE;
         }
+        store = storage(store);
+        store.center.x = d[i + CENTER_X];
+        store.center.y = d[i + CENTER_Y];
+        store.center.z = d[i + CENTER_Z];
+        store.xExtent = d[i + EXTENT_X];
+        store.yExtent = d[i + EXTENT_Y];
+        store.zExtent = d[i + EXTENT_Z];
+        return store;
+    }
+
+    public static BoundingBox extractLiteral(float[] d, int i, @Nullable BoundingBox store) {
         store = storage(store);
         store.center.x = d[i + CENTER_X];
         store.center.y = d[i + CENTER_Y];

@@ -36,9 +36,11 @@ public abstract class Struct <T extends StructField> implements BufferDescriptio
     protected StructLayout layout;
     protected int size, alignment;
     private EngineBuffer buffer;
+    private int bufferOffset;
 
     @Override
     public void bind(EngineBuffer buffer, int baseOffset) {
+        this.bufferOffset = baseOffset;
         for (T f : fields) {
             f.bind(buffer, baseOffset);
         }
@@ -74,6 +76,16 @@ public abstract class Struct <T extends StructField> implements BufferDescriptio
                 logger.log(Level.WARNING, "Layout \"{0}\" is unknown. No layout assigned to struct.", layoutId);
             }
         }
+    }
+
+    @Override
+    public EngineBuffer getBuffer() {
+        return buffer;
+    }
+
+    @Override
+    public int offset() {
+        return bufferOffset;
     }
 
     /**
@@ -226,7 +238,17 @@ public abstract class Struct <T extends StructField> implements BufferDescriptio
 
         @Override
         public int size() {
-            return 0;
+            return description.getSize();
+        }
+
+        @Override
+        public EngineBuffer getBuffer() {
+            return buffer;
+        }
+
+        @Override
+        public int offset() {
+            return bufferOffset;
         }
 
         @Override

@@ -168,6 +168,16 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Buffe
         }
 
         @Override
+        public EngineBuffer getBuffer() {
+            return array.buffer;
+        }
+
+        @Override
+        public int offset() {
+            return array.bufferOffset;
+        }
+
+        @Override
         public Iterator<F> iterator() {
             return new FieldIteratorImpl();
         }
@@ -189,6 +199,10 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Buffe
 
         public int getStride() {
             return array.stride;
+        }
+
+        public StructArray getArray() {
+            return array;
         }
 
         private class FieldIteratorImpl implements Iterator<F> {

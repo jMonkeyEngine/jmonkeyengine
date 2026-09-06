@@ -26,15 +26,17 @@ public class GraphicsState implements Cloneable {
     private boolean depthClamp = true;
     private boolean stencilTest = false;
     private boolean rasterizerDiscard = false;
-    private boolean primitiveRestart = false;
     private float lineWidth = 1f;
     private CompareOp depthCompare = CompareOp.LessOrEqual;
     private DepthBias depthBias;
     private PolygonMode polygonMode = PolygonMode.Fill;
-    private Topology topology = Topology.TriangleList;
-    private FaceWinding faceWinding = FaceWinding.CounterClockwise;
     private Flag<CullMode> cullMode = CullMode.Back;
     private LogicOp blendLogic;
+
+    // mesh
+    private boolean primitiveRestart = false;
+    private Topology topology = Topology.TriangleList;
+    private FaceWinding faceWinding = FaceWinding.CounterClockwise;
 
     private final DynamicKey key = new DynamicKey(this);
 
