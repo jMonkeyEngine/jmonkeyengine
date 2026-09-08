@@ -169,6 +169,16 @@ jobs:
             fi
             if [ $attempt -lt 3 ]; then
               echo "Attempt $attempt failed, retrying..."
+              # Stop any crashed/lingering Gradle daemons so a failed JVM
+              # (e.g. an X_PutImage Xlib crash) cannot poison the next attempt.
+              ./gradlew --stop || true
+              # Restart Xvfb: a corrupted X server state (e.g. BadLength on
+              # X_PutImage) persists for the life of the server, so give each
+              # retry a fresh display.
+              pkill Xvfb || true
+              sleep 2
+              Xvfb :99 -ac -screen 0 1024x768x16 &
+              sleep 2
             fi
           done
           echo "All 3 attempts failed."
@@ -350,7 +360,19 @@ jobs:
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishToSonatype --console=plain --stacktrace
+            # Retry with backoff to absorb transient Maven Central failures
+            # (e.g. HTTP 429 Too Many Requests during dependency resolution).
+            for attempt in 1 2 3; do
+              echo "publishToSonatype attempt $attempt of 3"
+              if ./gradlew publishToSonatype --console=plain --stacktrace; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then
+                echo "publishToSonatype failed after 3 attempts."
+                exit 1
+              fi
+              sleep $((attempt * 30))
+            done
           fi
 
 
