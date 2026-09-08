@@ -32,18 +32,22 @@
 
 package com.jme3.input.android;
 
+import android.view.InputDevice;
+import android.view.KeyEvent;
+
 /**
- * <code>AndroidInputHandler24</code> extends <code>AndroidInputHandler16</code> to
- * use AndroidMouseInput24 which adds usage of newer events and also enables cursor visibility
- * and cursor image change.
- *
- * @author joliver82
+ * Extends {@link AndroidInputHandler14} with input-device APIs introduced in
+ * Android API level 16.
  */
-public class AndroidInputHandler24 extends AndroidInputHandler16 {
+public class AndroidInputHandler16 extends AndroidInputHandler14 {
 
-    public AndroidInputHandler24() {
-        super();
-        mouseInput = new AndroidMouseInput24(this);
+    @Override
+    protected boolean isVirtualKeyboardEvent(KeyEvent event) {
+        if (super.isVirtualKeyboardEvent(event)) {
+            return true;
+        }
+
+        InputDevice device = event.getDevice();
+        return device != null && device.isVirtual();
     }
-
 }
