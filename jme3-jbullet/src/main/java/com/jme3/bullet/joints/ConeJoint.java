@@ -50,6 +50,7 @@ import java.io.IOException;
  * The x-axis serves as twist axis.
  * @author normenhansen
  */
+@Deprecated
 public class ConeJoint extends PhysicsJoint {
 
     protected Matrix3f rotA, rotB;

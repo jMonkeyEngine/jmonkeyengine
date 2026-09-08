@@ -58,6 +58,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public class GhostControl extends PhysicsGhostObject implements PhysicsControl, JmeCloneable {
 
     /**

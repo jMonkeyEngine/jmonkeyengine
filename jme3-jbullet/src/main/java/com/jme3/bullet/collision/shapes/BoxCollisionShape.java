@@ -44,6 +44,7 @@ import java.io.IOException;
  * Basic box collision shape
  * @author normenhansen
  */
+@Deprecated
 public class BoxCollisionShape extends CollisionShape {
 
     private Vector3f halfExtents;

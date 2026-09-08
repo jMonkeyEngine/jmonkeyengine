@@ -42,6 +42,7 @@ import java.io.IOException;
  * TODO: add static methods to create shapes from nodes (like jbullet-jme constructor)
  * @author normenhansen
  */
+@Deprecated
 public abstract class CollisionShape implements Savable {
 
     /**
@@ -65,6 +66,7 @@ public abstract class CollisionShape implements Savable {
      * @param mass the desired mass for the body
      * @param vector storage for the result (not null, modified)
      */
+    @Deprecated
     public void calculateLocalInertia(float mass, javax.vecmath.Vector3f vector) {
         if (cShape == null) {
             return;
@@ -81,6 +83,7 @@ public abstract class CollisionShape implements Savable {
      *
      * @return the pre-existing instance
      */
+    @Deprecated
     public com.bulletphysics.collision.shapes.CollisionShape getCShape() {
         return cShape;
     }
@@ -90,6 +93,7 @@ public abstract class CollisionShape implements Savable {
      *
      * @param cShape the shape to use (alias created)
      */
+    @Deprecated
     public void setCShape(com.bulletphysics.collision.shapes.CollisionShape cShape) {
         this.cShape = cShape;
     }

@@ -48,6 +48,7 @@ import java.io.IOException;
  * A chain of rigid bodies can be connected using this constraint.
  * @author normenhansen
  */
+@Deprecated
 public class Point2PointJoint extends PhysicsJoint {
 
     protected Point2PointJoint() {

@@ -45,6 +45,7 @@ import com.jme3.scene.control.AbstractControl;
  *
  * @author normenhansen
  */
+@Deprecated
 public abstract class AbstractPhysicsDebugControl extends AbstractControl {
 
     private final Quaternion tmp_inverseWorldRotation = new Quaternion();

@@ -38,6 +38,7 @@ import com.jme3.math.Vector3f;
  * <b>Read data only in callback method, object is reused</b>
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsRayTestResult {
 
     private PhysicsCollisionObject collisionObject;

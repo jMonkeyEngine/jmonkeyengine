@@ -54,6 +54,7 @@ import java.util.logging.Logger;
  *
  * Based on RagdollPreset by Rémy Bouquet (Nehon).
  */
+@Deprecated
 public class RangeOfMotion implements Savable {
     // *************************************************************************
     // constants and loggers
