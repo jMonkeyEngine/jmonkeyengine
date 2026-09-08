@@ -4,6 +4,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import groovy.json.JsonOutput
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.security.MessageDigest
 
 plugins {
     id 'org.graalvm.buildtools.native' version '1.1.2'
@@ -134,17 +135,43 @@ task runExamples(dependsOn: 'classes', type: JavaExec) {
 }
 
 def umuLauncherDownloadUrl = 'https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.4.0/umu-launcher-1.4.0-zipapp.tar'
+def umuLauncherSha256 = '138ce4b8843608a257d4bee88191ca78a989778bcefd8abb3c1d1aaac3ac6fb8'
 def umuLauncherArchive = layout.buildDirectory.file('tmp/umu-launcher-1.4.0-zipapp.tar')
 def umuLauncherExtractDir = layout.buildDirectory.dir('tools/umu-launcher')
 def protonToolchainVersion = java.toolchain.languageVersion.get().asInt()
-def protonJdkDownloadUrl = "https://api.adoptium.net/v3/binary/latest/${protonToolchainVersion}/ga/windows/x64/jdk/hotspot/normal/eclipse?project=jdk"
-def protonJdkArchive = layout.buildDirectory.file("tmp/proton-jdk-${protonToolchainVersion}-windows.zip")
+def protonJdkMajorVersion = 25
+def protonJdkRelease = '25.0.4.1+1'
+def protonJdkArchiveVersion = protonJdkRelease.replace('+', '_')
+def protonJdkArchiveName = "OpenJDK25U-jdk_x64_windows_hotspot_${protonJdkArchiveVersion}.zip"
+def protonJdkReleaseUrl = protonJdkRelease.replace('+', '%2B')
+def protonJdkDownloadUrl =
+        "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-${protonJdkReleaseUrl}/${protonJdkArchiveName}"
+def protonJdkSha256 = '00c847d804f4a78e9f04f2683faf14fed898535b177b7fc704486cb0284e9283'
+def protonJdkArchive = layout.buildDirectory.file("tmp/${protonJdkArchiveName}")
 def protonJdkExtractDir = layout.buildDirectory.dir('tools/proton-jdk')
+
+def verifySha256 = { File archiveFile, String expectedSha256 ->
+    MessageDigest digest = MessageDigest.getInstance('SHA-256')
+    archiveFile.withInputStream { input ->
+        byte[] buffer = new byte[8192]
+        int bytesRead
+        while ((bytesRead = input.read(buffer)) != -1) {
+            digest.update(buffer, 0, bytesRead)
+        }
+    }
+
+    String actualSha256 = digest.digest().encodeHex().toString()
+    if (!actualSha256.equalsIgnoreCase(expectedSha256)) {
+        throw new GradleException("SHA-256 mismatch for ${archiveFile.name}: expected ${expectedSha256}, got ${actualSha256}")
+    }
+    logger.lifecycle("Verified SHA-256 for ${archiveFile.name}: ${actualSha256}")
+}
 
 task downloadProtonRuntime {
     description = 'Download and extract Proton runtime launcher into jme3-examples/build/tools/umu-launcher.'
     outputs.dir(umuLauncherExtractDir)
     inputs.property("url", umuLauncherDownloadUrl)
+    inputs.property("sha256", umuLauncherSha256)
 
     doLast {
         def archiveFile = umuLauncherArchive.get().asFile
@@ -157,6 +184,7 @@ task downloadProtonRuntime {
                 output << input
             }
         }
+        verifySha256(archiveFile, umuLauncherSha256)
 
         def extractRoot = umuLauncherExtractDir.get().asFile
         extractRoot.deleteDir()
@@ -177,11 +205,19 @@ task downloadProtonRuntime {
 }
 
 task downloadProtonJdk {
-    description = "Download and extract the Adoptium Java ${protonToolchainVersion} Windows JDK used to bootstrap Gradle inside Proton."
+    description = "Download and extract the Adoptium Java ${protonJdkRelease} Windows JDK used to run examples inside Proton."
     outputs.dir(protonJdkExtractDir)
     inputs.property("url", protonJdkDownloadUrl)
+    inputs.property("sha256", protonJdkSha256)
+    inputs.property("toolchainVersion", protonToolchainVersion)
 
     doLast {
+        if (protonToolchainVersion != protonJdkMajorVersion) {
+            throw new GradleException("The pinned Proton JDK is Java ${protonJdkMajorVersion}, "
+                    + "but the project toolchain uses Java ${protonToolchainVersion}. "
+                    + "Update the pinned JDK URL and SHA-256.")
+        }
+
         def archiveFile = protonJdkArchive.get().asFile
         archiveFile.parentFile.mkdirs()
 
@@ -192,6 +228,7 @@ task downloadProtonJdk {
                 output << input
             }
         }
+        verifySha256(archiveFile, protonJdkSha256)
 
         def extractRoot = protonJdkExtractDir.get().asFile
         extractRoot.deleteDir()
@@ -231,9 +268,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         def protonJdkRoot = protonJdkExtractDir.get().asFile
         def protonJdkDir = fileTree(protonJdkRoot).find { it.name == 'java.exe' }?.parentFile?.parentFile
 
-        def winePrefix = "${buildDir}/umu/wineprefix"
         def gameId = 'jme3-examples'
-        def store = 'none'
         def protonJavaHome = "Z:${protonJdkDir.absolutePath.replace('/', '\\\\')}"
         def protonJavaExe = "${protonJavaHome}\\\\bin\\\\java.exe"
         def exampleClass = project.findProperty('example')?.toString() ?: mainClassName
@@ -263,9 +298,7 @@ task runExamplesWithProton(dependsOn: ['build', 'downloadProtonRuntime', 'downlo
         args jvmArgs
         args '-cp', runtimeClasspath, exampleClass
 
-        environment 'WINEPREFIX', winePrefix
         environment 'GAMEID', gameId
-        environment 'STORE', store
         environment 'JAVA_HOME', protonJavaHome
         environment 'JDK_HOME', protonJavaHome
         environment 'PROTON_VERB', 'waitforexitandrun'

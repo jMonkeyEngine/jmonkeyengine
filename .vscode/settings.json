@@ -1,4 +1,9 @@
 {
+    "files.exclude": {
+        "**/bin/**": true,
+        "**/build/**": true,
+        "**/dist/**": true
+    },
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.compile.nullAnalysis.mode": "automatic",
     "java.format.settings.url": "./.vscode/JME_style.xml",

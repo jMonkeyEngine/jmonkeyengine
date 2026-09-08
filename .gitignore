@@ -51,6 +51,7 @@ joysticks-*.txt
 /jme3-screenshot-tests/jme3-screenshot-tests-android/build/
 /jme3-screenshot-tests/jme3-screenshot-tests-shared/build/
 /jme3-screenshot-tests/jme3-screenshot-tests-proto-report/build/
+
 /jme3-screenshot-tests/jme3-screenshot-tests-desktop/bin/
 /jme3-screenshot-tests/jme3-screenshot-tests-android/bin/
 /jme3-screenshot-tests/jme3-screenshot-tests-shared/bin/
