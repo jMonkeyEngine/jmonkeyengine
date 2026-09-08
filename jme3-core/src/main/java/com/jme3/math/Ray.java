@@ -337,6 +337,90 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
+     * Test for an intersection between the ray and the given triangle and,
+     * if an intersection exists, store the barycentric coordinates of the
+     * contact point in <code>baryCoords</code>.
+     *
+     * <p>The stored (u, v) barycentric coordinates mean: u is the weight
+     * of <code>v1</code>, v is the weight of <code>v2</code>, and
+     * (1&nbsp;-&nbsp;u&nbsp;-&nbsp;v) is the weight of <code>v0</code>.
+     *
+     * @param v0 first vertex of the triangle (not null, unaffected)
+     * @param v1 second vertex of the triangle (not null, unaffected)
+     * @param v2 third vertex of the triangle (not null, unaffected)
+     * @param baryCoords storage for the barycentric (u, v) coordinates of the
+     *     contact point (modified on hit, may be null)
+     * @return the distance along the ray to the intersection, or
+     *     {@link Float#POSITIVE_INFINITY} if there is no intersection
+     */
+    public float intersects(Vector3f v0, Vector3f v1, Vector3f v2, Vector2f baryCoords) {
+        float edge1X = v1.x - v0.x;
+        float edge1Y = v1.y - v0.y;
+        float edge1Z = v1.z - v0.z;
+
+        float edge2X = v2.x - v0.x;
+        float edge2Y = v2.y - v0.y;
+        float edge2Z = v2.z - v0.z;
+
+        float normX = ((edge1Y * edge2Z) - (edge1Z * edge2Y));
+        float normY = ((edge1Z * edge2X) - (edge1X * edge2Z));
+        float normZ = ((edge1X * edge2Y) - (edge1Y * edge2X));
+
+        float dirDotNorm = direction.x * normX + direction.y * normY + direction.z * normZ;
+
+        float diffX = origin.x - v0.x;
+        float diffY = origin.y - v0.y;
+        float diffZ = origin.z - v0.z;
+
+        float sign;
+        if (dirDotNorm > FastMath.FLT_EPSILON) {
+            sign = 1;
+        } else if (dirDotNorm < -FastMath.FLT_EPSILON) {
+            sign = -1f;
+            dirDotNorm = -dirDotNorm;
+        } else {
+            // ray and triangle/quad are parallel
+            return Float.POSITIVE_INFINITY;
+        }
+
+        float diffEdge2X = ((diffY * edge2Z) - (diffZ * edge2Y));
+        float diffEdge2Y = ((diffZ * edge2X) - (diffX * edge2Z));
+        float diffEdge2Z = ((diffX * edge2Y) - (diffY * edge2X));
+
+        float dirDotDiffxEdge2 = sign * (direction.x * diffEdge2X
+                + direction.y * diffEdge2Y
+                + direction.z * diffEdge2Z);
+
+        if (dirDotDiffxEdge2 >= 0.0f) {
+            diffEdge2X = ((edge1Y * diffZ) - (edge1Z * diffY));
+            diffEdge2Y = ((edge1Z * diffX) - (edge1X * diffZ));
+            diffEdge2Z = ((edge1X * diffY) - (edge1Y * diffX));
+
+            float dirDotEdge1xDiff = sign * (direction.x * diffEdge2X
+                    + direction.y * diffEdge2Y
+                    + direction.z * diffEdge2Z);
+
+            if (dirDotEdge1xDiff >= 0.0f) {
+                if (dirDotDiffxEdge2 + dirDotEdge1xDiff <= dirDotNorm) {
+                    float diffDotNorm = -sign * (diffX * normX + diffY * normY + diffZ * normZ);
+                    if (diffDotNorm >= 0.0f) {
+                        // ray intersects triangle
+                        float inv = 1f / dirDotNorm;
+                        float t = diffDotNorm * inv;
+                        if (baryCoords != null) {
+                            baryCoords.set(dirDotDiffxEdge2 * inv,
+                                           dirDotEdge1xDiff * inv);
+                        }
+                        return t;
+                    }
+                }
+            }
+        }
+
+        return Float.POSITIVE_INFINITY;
+    }
+
+    /**
      * <code>intersectWherePlanar</code> determines if the Ray intersects a
      * quad defined by the specified points and if so it stores the point of
      * intersection in the given loc vector as t, u, v where t is the distance
@@ -393,13 +477,18 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
             return bv.collideWith(this, results);
         } else if (other instanceof AbstractTriangle) {
             AbstractTriangle tri = (AbstractTriangle) other;
-            float d = intersects(tri.get1(), tri.get2(), tri.get3());
+            Vector2f baryCoords = results.isRequiresBaryCoords() ? new Vector2f() : null;
+            float d = intersects(tri.get1(), tri.get2(), tri.get3(), baryCoords);
             if (Float.isInfinite(d) || Float.isNaN(d)) {
                 return 0;
             }
 
             Vector3f point = new Vector3f(direction).multLocal(d).addLocal(origin);
-            results.addCollision(new CollisionResult(point, d));
+            CollisionResult cr = new CollisionResult(point, d);
+            if (baryCoords != null) {
+                cr.setContactBaryCoords(baryCoords);
+            }
+            results.addCollision(cr);
             return 1;
         } else {
             throw new UnsupportedCollisionException();
