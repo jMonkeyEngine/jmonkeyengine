@@ -31,11 +31,21 @@
  */
 package com.jme3.system.lwjglx;
 
-import org.lwjgl.opengl.awt.*;
+import static org.lwjgl.opengl.GLX.glXDestroyContext;
+import static org.lwjgl.opengl.GLX11.glXQueryExtensionsString;
+import static org.lwjgl.opengl.GLX14.glXGetProcAddress;
+import static org.lwjgl.opengl.GLXEXTSwapControl.glXSwapIntervalEXT;
+import static org.lwjgl.opengl.GLXSGISwapControl.glXSwapIntervalSGI;
+import static org.lwjgl.system.JNI.callI;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.system.jawt.JAWTFunctions.JAWT_FreeDrawingSurface;
 
-import static org.lwjgl.opengl.GLX.*;
-import static org.lwjgl.system.MemoryUtil.*;
-import static org.lwjgl.system.jawt.JAWTFunctions.*;
+import java.awt.AWTException;
+import java.awt.Canvas;
+
+import org.lwjgl.opengl.awt.GLData;
+import org.lwjgl.opengl.awt.PlatformLinuxGLCanvas;
+import org.lwjgl.system.linux.X11;
 
 /**
  * <code>X11GLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
@@ -44,6 +54,60 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * @author wil
  */
 final class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
+
+    @Override
+    public long create(Canvas canvas, GLData data, GLData effective) throws AWTException {
+        effective.swapInterval = null;
+        long context = super.create(canvas, data, effective);
+        if (data.swapInterval == null) {
+            return context;
+        }
+
+        try {
+            boolean locked = false;
+            boolean current = false;
+            try {
+                lock();
+                locked = true;
+                current = makeCurrent(context);
+                if (current && applySwapInterval(data.swapInterval)) {
+                    effective.swapInterval = data.swapInterval;
+                }
+            } finally {
+                if (current) {
+                    makeCurrent(NULL);
+                }
+                if (locked) {
+                    unlock();
+                }
+            }
+        } catch (AWTException | RuntimeException exception) {
+            try {
+                deleteContext(context);
+            } catch (RuntimeException cleanupException) {
+                exception.addSuppressed(cleanupException);
+            }
+            throw exception;
+        }
+        return context;
+    }
+
+    private boolean applySwapInterval(int interval) {
+        int screen = X11.XDefaultScreen(display);
+        String extensionString = glXQueryExtensionsString(display, screen);
+        switch (X11SwapIntervalSelector.select(extensionString, interval)) {
+            case EXT:
+                glXSwapIntervalEXT(display, drawable, interval);
+                return true;
+            case MESA:
+                long address = glXGetProcAddress("glXSwapIntervalMESA");
+                return address != NULL && callI(interval, address) == 0;
+            case SGI:
+                return glXSwapIntervalSGI(interval) == 0;
+            default:
+                return false;
+        }
+    }
 
     /**
      * Returns a pointer to the {@code Display*} of the current X11 window using
