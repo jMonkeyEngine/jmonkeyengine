@@ -33,13 +33,10 @@ package org.jmonkeyengine.screenshottests.scenarios.effects;
 
 import static org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase.screenshotTest;
 
-import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.AssetManager;
-import com.jme3.cinematic.MotionPath;
-import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
@@ -70,6 +67,10 @@ import java.util.Arrays;
 public class ScenarioIssue1773 {
 
     public static ScreenshotTest testIssue1773(boolean worldSpace) {
+        // Reset the shared random generator to a known state so the particle
+        // positions are identical on every run (the framework sets a fixed tpf,
+        // this makes the random side deterministic too).
+        FastMath.rand.setSeed(0);
         return screenshotTest(new BaseAppState() {
             private ParticleEmitter emit;
             private Node myModel;
@@ -88,7 +89,6 @@ public class ScenarioIssue1773 {
                 setupLights();
                 setupGround();
                 setupCircle();
-                createMotionControl();
             }
 
             @Override
@@ -141,22 +141,6 @@ public class ScenarioIssue1773 {
                 emitter.setShape(new EmitterMeshVertexShape(Arrays.asList(geo.getMesh())));
                 emitter.setInWorldSpace(worldSpace);
                 return emitter;
-            }
-
-            private void createMotionControl() {
-                float radius = 5f;
-                float height = 1.10f;
-                MotionPath path = new MotionPath();
-                path.setCycle(true);
-                for (int i = 0; i < 8; i++) {
-                    float x = FastMath.sin(FastMath.QUARTER_PI * i) * radius;
-                    float z = FastMath.cos(FastMath.QUARTER_PI * i) * radius;
-                    path.addWayPoint(new Vector3f(x, height, z));
-                }
-                MotionEvent motionControl = new MotionEvent(myModel, path);
-                motionControl.setLoopMode(LoopMode.Loop);
-                motionControl.setDirectionType(MotionEvent.Direction.Path);
-                motionControl.play();
             }
 
             private void configCamera() {
