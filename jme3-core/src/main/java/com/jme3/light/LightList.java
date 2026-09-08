@@ -49,8 +49,8 @@ import java.util.function.Predicate;
 public final class LightList implements Iterable<Light>, Savable, Cloneable, JmeCloneable {
 
     private Light[] list, tlist;
-    private float[] distToOwner;
     private int listSize;
+    private int tlistSize;
     private Spatial owner;
 
     private static final int DEFAULT_SIZE = 1;
@@ -84,8 +84,6 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     public LightList(Spatial owner) {
         listSize = 0;
         list = new Light[DEFAULT_SIZE];
-        distToOwner = new float[DEFAULT_SIZE];
-        Arrays.fill(distToOwner, Float.NEGATIVE_INFINITY);
         this.owner = owner;
     }
 
@@ -100,11 +98,8 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
     private void doubleSize() {
         Light[] temp = new Light[list.length * 2];
-        float[] temp2 = new float[list.length * 2];
         System.arraycopy(list, 0, temp, 0, list.length);
-        System.arraycopy(distToOwner, 0, temp2, 0, list.length);
         list = temp;
-        distToOwner = temp2;
     }
 
     /**
@@ -117,8 +112,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         if (listSize == list.length) {
             doubleSize();
         }
-        list[listSize] = l;
-        distToOwner[listSize++] = Float.NEGATIVE_INFINITY;
+        list[listSize++] = l;
     }
 
     /**
@@ -136,8 +130,9 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
             return;
         }
 
-        for (int i = index; i < listSize; i++) {
-            list[i] = list[i+1];
+        int copyLength = listSize - index;
+        if (copyLength > 0) {
+            System.arraycopy(list, index + 1, list, index, copyLength);
         }
         list[listSize] = null;
     }
@@ -182,11 +177,11 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         if (listSize == 0)
             return;
 
-        for (int i = 0; i < listSize; i++)
-            list[i] = null;
+        Arrays.fill(list, 0, listSize, null);
 
         if (tlist != null)
-            Arrays.fill(tlist, null);
+            Arrays.fill(tlist, 0, tlistSize, null);
+        tlistSize = 0;
 
         listSize = 0;
     }
@@ -205,11 +200,15 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     public void sort(boolean transformChanged) {
         if (listSize > 1) {
             // resize or populate our temporary array as necessary
-            if (tlist == null || tlist.length != list.length) {
-                tlist = list.clone();
+            if (tlist == null || tlist.length < listSize) {
+                tlist = new Light[listSize];
             } else {
-                System.arraycopy(list, 0, tlist, 0, list.length);
+                if (tlistSize > listSize) {
+                    Arrays.fill(tlist, listSize, tlistSize, null);
+                }
             }
+            System.arraycopy(list, 0, tlist, 0, listSize);
+            tlistSize = listSize;
 
             if (transformChanged) {
                 // check distance of each light
@@ -249,31 +248,33 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         // using the arguments
         clear();
 
-        while (list.length <= local.listSize) {
+        int requiredSize = local.listSize + (parent == null ? 0 : parent.listSize);
+        while (list.length < requiredSize) {
             doubleSize();
         }
         
-        int localListSize = 0;
-        for(int i=0;i<local.listSize;i++){
-            Light l = local.list[i];
-            if (filter != null && !filter.test(l))  continue; 
-            list[localListSize] = l;
-            distToOwner[localListSize] = Float.NEGATIVE_INFINITY;
-            localListSize++;
+        int localListSize;
+        if (filter == null) {
+            localListSize = local.listSize;
+            System.arraycopy(local.list, 0, list, 0, localListSize);
+        } else {
+            localListSize = 0;
+            for(int i=0;i<local.listSize;i++){
+                Light l = local.list[i];
+                if (!filter.test(l))  continue;
+                list[localListSize] = l;
+                localListSize++;
+            }
         }
 
         // if the spatial has a parent node, add the lights
         // from the parent list as well
         if (parent != null) {
             int sz = localListSize + parent.listSize;
-            while (list.length <= sz)
+            while (list.length < sz)
                 doubleSize();
 
-            for (int i = 0; i < parent.listSize; i++) {
-                int p = i + localListSize;
-                list[p] = parent.list[i];
-                distToOwner[p] = Float.NEGATIVE_INFINITY;
-            }
+            System.arraycopy(parent.list, 0, list, localListSize, parent.listSize);
 
             listSize = localListSize + parent.listSize;
         } else {
@@ -319,7 +320,6 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
             clone.owner = null;
             clone.list = list.clone();
-            clone.distToOwner = distToOwner.clone();
             clone.tlist = null; // list used for sorting only
 
             return clone;
@@ -343,7 +343,6 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
     public void cloneFields(Cloner cloner, Object original) {
         this.owner = cloner.clone(owner);
         this.list = cloner.clone(list);
-        this.distToOwner = cloner.clone(distToOwner);
     }
 
     @Override
@@ -370,13 +369,10 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         // NOTE: make sure the array has a length of at least 1
         int arraySize = Math.max(DEFAULT_SIZE, listSize);
         list = new Light[arraySize];
-        distToOwner = new float[arraySize];
 
         for (int i = 0; i < listSize; i++) {
             list[i] = lights.get(i);
         }
-
-        Arrays.fill(distToOwner, Float.NEGATIVE_INFINITY);
     }
 
     @Override
