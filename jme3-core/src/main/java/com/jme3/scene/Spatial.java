@@ -1714,7 +1714,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         shadowMode = ic.readEnum("shadow_mode", ShadowMode.class,
                 ShadowMode.Inherit);
 
-        localTransform = (Transform) ic.readSavable("transform", Transform.IDENTITY);
+        localTransform = (Transform) ic.readSavable("transform", Transform.IDENTITY.clone());
 
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);

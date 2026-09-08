@@ -39,6 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * An {@link EmitterShape} that emits particles randomly within the bounds of an axis-aligned box.
@@ -74,7 +75,7 @@ public class EmitterBoxShape implements EmitterShape {
             throw new IllegalArgumentException("min or max cannot be null");
         }
 
-        this.min = min;
+        this.min = min.clone();
         this.len = new Vector3f();
         this.len.set(max).subtractLocal(min);
     }
@@ -151,7 +152,7 @@ public class EmitterBoxShape implements EmitterShape {
      * @param min The new minimum corner.
      */
     public void setMin(Vector3f min) {
-        this.min = min;
+        this.min = Objects.requireNonNull(min, "min cannot be null").clone();
     }
 
     /**
@@ -171,7 +172,7 @@ public class EmitterBoxShape implements EmitterShape {
      * @param len The new length vector.
      */
     public void setLen(Vector3f len) {
-        this.len = len;
+        this.len = Objects.requireNonNull(len, "len cannot be null").clone();
     }
 
     @Override

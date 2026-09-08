@@ -50,6 +50,7 @@ import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * A MotionEvent is a control over the spatial that manages
@@ -65,7 +66,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected float currentValue;
     protected Vector3f direction = new Vector3f();
     protected Vector3f lookAt = null;
-    protected Vector3f upVector = Vector3f.UNIT_Y;
+    protected Vector3f upVector = Vector3f.UNIT_Y.clone();
     protected Quaternion rotation = null;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
@@ -231,7 +232,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         lookAt = (Vector3f) ic.readSavable("lookAt", null);
-        upVector = (Vector3f) ic.readSavable("upVector", Vector3f.UNIT_Y);
+        upVector = (Vector3f) ic.readSavable("upVector", Vector3f.UNIT_Y.clone());
         rotation = (Quaternion) ic.readSavable("rotation", null);
         directionType = ic.readEnum("directionType", Direction.class, Direction.None);
         path = (MotionPath) ic.readSavable("path", null);
@@ -392,8 +393,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      * @param upVector the up vector to consider for this direction.
      */
     public void setDirection(Vector3f direction, Vector3f upVector) {
-        this.direction.set(direction);
-        this.upVector.set(upVector);
+        this.direction.set(Objects.requireNonNull(direction, "direction cannot be null"));
+        this.upVector.set(Objects.requireNonNull(upVector, "upVector cannot be null"));
     }
 
     /**
@@ -422,7 +423,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public void setLookAt(Vector3f lookAt, Vector3f upVector) {
         this.lookAt = lookAt;
-        this.upVector = upVector;
+        this.upVector.set(upVector);
     }
 
     /**

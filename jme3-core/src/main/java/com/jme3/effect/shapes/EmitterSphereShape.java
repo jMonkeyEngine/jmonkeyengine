@@ -39,6 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * An {@link EmitterShape} that emits particles randomly from within the volume of a sphere.
@@ -155,7 +156,7 @@ public class EmitterSphereShape implements EmitterShape {
      * @param center The new center point.
      */
     public void setCenter(Vector3f center) {
-        this.center = center;
+        this.center = Objects.requireNonNull(center, "center cannot be null");
     }
 
     /**
@@ -179,14 +180,14 @@ public class EmitterSphereShape implements EmitterShape {
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(center, "center", null);
+        oc.write(center, "center", Vector3f.ZERO);
         oc.write(radius, "radius", 0);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        center = (Vector3f) ic.readSavable("center", null);
+        center = (Vector3f) ic.readSavable("center", Vector3f.ZERO);
         radius = ic.readFloat("radius", 0);
     }
 }
