@@ -19,6 +19,10 @@ public interface BufferDescription {
      */
     void bind(@Nullable EngineBuffer buffer, int baseOffset);
 
+    default void bind(@Nullable EngineBuffer buffer) {
+        bind(buffer, 0);
+    }
+
     /**
      * Unbinds this description from the buffer it is bound to.
      */

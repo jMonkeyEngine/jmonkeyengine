@@ -1,19 +1,13 @@
 package com.jme3.vulkan.alloc;
 
-import com.jme3.util.natives.Destructor;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructuredArray;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.util.Flag;
 
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 
 public class StructArray <T extends Struct> implements StructuredArray<T>, BufferDescription, Iterable<T> {
 
@@ -38,7 +32,17 @@ public class StructArray <T extends Struct> implements StructuredArray<T>, Buffe
     public void bind(EngineBuffer buffer, int baseOffset) {
         this.buffer = buffer;
         this.bufferOffset = baseOffset;
-        sharedStruct.bind(null, 0);
+        sharedStruct.bind(buffer, bufferOffset);
+    }
+
+    @Override
+    public EngineBuffer getBuffer() {
+        return buffer;
+    }
+
+    @Override
+    public int offset() {
+        return bufferOffset;
     }
 
     @Override

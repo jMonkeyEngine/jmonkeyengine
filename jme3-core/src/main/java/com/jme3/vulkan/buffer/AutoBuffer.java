@@ -1,101 +1,137 @@
 package com.jme3.vulkan.buffer;
 
-import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.alloc.BufferDescription;
-import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.alloc.BufferType;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class AutoBuffer <T extends BufferDescription> implements EngineBuffer {
+
+    public interface ResizeFunction {
+        int nextSize(int requested);
+    }
+
+    public static final ResizeFunction EXACT = r -> r;
+    public static final ResizeFunction DOUBLE = r -> r << 1;
+    public static final ResizeFunction POWER_OF_TWO = r -> Integer.highestOneBit(r - 1) << 1;
 
     private final MemoryAllocator alloc;
     private T structure;
     private EngineBuffer buffer;
-    private BufferType type;
+    private BufferType currentType, targetType;
+    private Flag<Role> roles;
+    private ResizeFunction resize;
 
     public AutoBuffer(MemoryAllocator alloc, T structure, BufferType type, Flag<Role> roles) {
+        this(alloc, structure, type, roles, DOUBLE);
+    }
+
+    public AutoBuffer(MemoryAllocator alloc, T structure, BufferType type, Flag<Role> roles, @NonNull ResizeFunction resize) {
         this.alloc = alloc;
         this.structure = structure;
-        this.buffer = alloc.createBuffer(type, pickNextSize(0, structure.size()), roles.add(Role.TransferSrc));
-        this.structure.bind(buffer, 0);
+        this.targetType = type;
+        this.roles = roles;
+        this.resize = resize;
+        structure.bind(this, 0);
     }
 
     @Override
     public void flushCache() {
-        buffer.flushCache();
+        if (buffer != null) {
+            buffer.flushCache();
+        }
     }
 
     @Override
     public DataBuffer cache() {
+        if (buffer == null) {
+            initBuffer();
+        }
         return buffer.cache();
     }
 
     @Override
     public void invalidateCache() {
-        buffer.invalidateCache();
+        if (buffer != null) {
+            buffer.invalidateCache();
+        }
     }
 
     @Override
     public int capacity() {
-        return buffer.capacity();
+        return buffer != null ? buffer.capacity() : structure.size();
     }
 
     @Override
     public long getHandle() {
+        if (buffer == null) {
+            initBuffer();
+        }
         return buffer.getHandle();
     }
 
     @Override
     public Flag<Role> getRoles() {
-        return buffer.getRoles();
+        return buffer != null ? buffer.getRoles() : roles;
     }
 
     @Override
     public Flag<MemoryProp> getMemoryProperties() {
+        if (buffer == null) {
+            initBuffer();
+        }
         return buffer.getMemoryProperties();
     }
 
     @Override
     public boolean isDeviceAccessible() {
+        if (buffer == null) {
+            initBuffer();
+        }
         return buffer.isDeviceAccessible();
     }
 
-    public OpLocation update(CommandBuffer cmd, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
-        if (this.type != type || buffer.capacity() < structure.size() || !buffer.getRoles().contains(roles)) {
-            EngineBuffer temp = alloc.createBuffer(type, pickNextSize(buffer.capacity(), structure.size()), roles.add(buffer.getRoles(), Role.TransferSrc, Role.TransferDst));
-            copyLocation = copy(cmd, buffer, temp, copyLocation);
+    private void initBuffer() {
+        buffer = alloc.createBuffer(targetType, resize.nextSize(structure.size()), roles);
+        currentType = targetType;
+    }
+
+    public OpLocation update(CommandBuffer cmd, OpLocation copyLocation) {
+        if (buffer != null && (buffer.capacity() < structure.size() || currentType != targetType || !buffer.getRoles().contains(roles))) {
+            EngineBuffer temp = alloc.createBuffer(targetType, Math.max(Math.max(resize.nextSize(structure.size()), buffer.capacity()), structure.size()), roles);
+            copyLocation = cmd.cmdCopy(buffer, temp, new BufferCopy().add(0, 0, buffer.capacity()), copyLocation);
             buffer = temp;
         } else {
             copyLocation = OpLocation.DontCare;
         }
-        this.structure.bind(buffer, 0);
-        this.type = type;
+        currentType = targetType;
         return copyLocation;
     }
 
-    public OpLocation update(CommandBuffer cmd, T structure, BufferType type, Flag<Role> roles, OpLocation copyLocation) {
+    public AutoBuffer<T> setStructure(@NonNull T structure) {
+        this.structure.unbind();
         this.structure = structure;
-        return update(cmd, type, roles, copyLocation);
+        this.structure.bind(this, 0);
+        return this;
     }
 
-    public OpLocation update(CommandBuffer cmd, T structure, OpLocation copyLocation) {
-        return update(cmd, structure, type, buffer.getRoles(), copyLocation);
+    public AutoBuffer<T> setType(BufferType type) {
+        targetType = type;
+        return this;
     }
 
-    public OpLocation update(CommandBuffer cmd, OpLocation copyLocation) {
-        return update(cmd, type, buffer.getRoles(), copyLocation);
+    public AutoBuffer<T> addRoles(Flag<EngineBuffer.Role> roles) {
+        this.roles = this.roles.add(roles);
+        return this;
     }
 
-    protected OpLocation copy(CommandBuffer cmd, EngineBuffer src, EngineBuffer dst, OpLocation copyLocation) {
-        return cmd.cmdCopy(src, dst, new BufferCopy().add(src, 0, dst, 0), copyLocation);
-    }
-
-    protected int pickNextSize(int currentSize, int requestedSize) {
-        // next power of two at or above requestedSize
-        return Math.max(Integer.highestOneBit(requestedSize - 1) << 1, Math.max(1, currentSize));
+    public AutoBuffer<T> setResizeFunction(@NonNull ResizeFunction resize) {
+        this.resize = resize;
+        return this;
     }
 
     public T getStructure() {
@@ -103,7 +139,7 @@ public class AutoBuffer <T extends BufferDescription> implements EngineBuffer {
     }
 
     public BufferType getType() {
-        return type;
+        return currentType;
     }
 
 }

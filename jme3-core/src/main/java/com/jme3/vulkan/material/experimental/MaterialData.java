@@ -1,59 +1,53 @@
 package com.jme3.vulkan.material.experimental;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.alloc.StructArray;
+import com.jme3.vulkan.alloc.SparseStructList;
 import com.jme3.vulkan.buffer.AutoBuffer;
+import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.alloc.BufferType;
+import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
+import com.jme3.vulkan.util.Flag;
 
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class MaterialData {
 
-    private final Map<Class, MatBuffer<?>> data = new HashMap<>();
+    private final MemoryAllocator allocator;
+    private final Map<Class<? extends Struct>, AutoBuffer<SparseStructList>> buffers = new HashMap<>();
 
-    public <T extends Struct> void initDataType(Class<T> type, Supplier<AutoBuffer<StructArray<T>>> factory) {
-        data.computeIfAbsent(type, k -> new MatBuffer<>(factory.get()));
+    public MaterialData(MemoryAllocator allocator) {
+        this.allocator = allocator;
     }
 
-    public int acquireElement(CommandBuffer cmd, Class type) {
-        return data.get(type).acquireElement(cmd);
+    public void initialize(Struct struct, int length, Flag<EngineBuffer.Role> roles) {
+        AutoBuffer<SparseStructList> b = buffers.get(struct.getClass());
+        if (b == null) {
+            buffers.put(struct.getClass(), new AutoBuffer<>(allocator, new SparseStructList<>(length, struct), BufferType.Dynamic, roles));
+        } else {
+            b.getStructure().setLength(Math.max(length, b.getStructure().getLength()));
+            b.addRoles(roles);
+        }
     }
 
-    public void releaseElement(Class type, int element) {
-        data.get(type).releaseElement(element);
+    public int acquire(CommandBuffer cmd, Class<? extends Struct> type) {
+        AutoBuffer<SparseStructList> b = buffers.get(type);
+        int i = b.getStructure().acquireElement();
+        b.update(cmd, OpLocation.PreferHost);
+        return i;
+    }
+
+    public void release(Class<? extends Struct> type, int index) {
+        AutoBuffer<SparseStructList> b = buffers.get(type);
+        assert b != null : "Buffer for " + type + " does not exist.";
+        b.getStructure().releaseElement(index);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Struct> T getStruct(Class<T> type, int index) {
-        return (T)data.get(type).data.getStructure().index(index);
-    }
-
-    private static class MatBuffer <T extends Struct> {
-
-        private final AutoBuffer<StructArray<T>> data;
-        private final BitSet usedElements = new BitSet();
-
-        public MatBuffer(AutoBuffer<StructArray<T>> data) {
-            this.data = data;
-        }
-
-        public int acquireElement(CommandBuffer cmd) {
-            int i = usedElements.nextClearBit(0);
-            usedElements.set(i);
-            if (i >= data.getStructure().getLength()) {
-                data.update(cmd, new StructArray<>(i << 1, data.getStructure().getStruct()), OpLocation.PreferHost);
-            }
-            return i;
-        }
-
-        public void releaseElement(int element) {
-            usedElements.clear(element);
-        }
-
+    public <T extends Struct> T get(Class<T> type, int index) {
+        return (T)buffers.get(type).getStructure().index(index);
     }
 
 }

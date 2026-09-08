@@ -13,15 +13,14 @@ import com.jme3.vulkan.buffer.AutoBuffer;
 import com.jme3.vulkan.buffer.EngineBuffer;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.pipeline.DynamicState;
 import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
-import com.jme3.vulkan.pipeline.state.GraphicsState;
+import com.jme3.vulkan.scene.ComponentInheritance;
 import com.jme3.vulkan.scene.Scene;
+import com.jme3.vulkan.scene.SceneComponent;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 
@@ -81,7 +80,10 @@ public class PBR {
         return set;
     }
 
-    public class Material {
+    @ComponentInheritance(allow=false)
+    public static class Material implements SceneComponent {
+
+        protected final MaterialData data;
 
         // index that this material's data is stored at for Params.class
         protected final int paramElement;
@@ -92,18 +94,18 @@ public class PBR {
         // attributes
         protected StructArray.Field position, texCoord, normal;
 
-        protected Material(CommandBuffer cmd) {
-            paramElement = parameters.getStructure().acquireElement();
-            parameters.update(cmd, OpLocation.PreferHost);
-            Destructor.run(this, () -> parameters.getStructure().releaseElement(paramElement));
+        protected Material(CommandBuffer cmd, MaterialData data) {
+            this.data = data;
+            paramElement = data.acquire(cmd, Params.class);
+            Destructor.run(this, () -> data.release(Params.class, paramElement));
         }
 
         public void setMetallic(float metallic) {
-            parameters.getStructure().index(paramElement).metallic.set(metallic);
+            data.get(Params.class, paramElement).metallic.set(metallic);
         }
 
         public void setRoughness(float roughness) {
-            parameters.getStructure().index(paramElement).roughness.set(roughness);
+            data.get(Params.class, paramElement).roughness.set(roughness);
         }
 
         public void setColorMap(Texture colorMap) {
