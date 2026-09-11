@@ -225,6 +225,17 @@ public class AndroidJoyInput implements JoyInput {
         return joystickList.toArray( new Joystick[joystickList.size()] );
     }
 
+    /**
+     * Returns a bit mask of the pointer ids currently captured by the on-screen virtual
+     * joystick - see {@link VirtualJoystick#getCapturedPointerMask()}.
+     *
+     * @return the captured pointer ids as a bit mask, 0 if there is no virtual joystick
+     */
+    public long getCapturedPointerMask() {
+        VirtualJoystick joystick = virtualJoystick;
+        return joystick == null ? 0L : joystick.getCapturedPointerMask();
+    }
+
     public boolean onTouch(MotionEvent event) {
         VirtualJoystick joystick = virtualJoystick;
         if (joystick == null || inputHandler.getView() == null) {
@@ -240,6 +251,9 @@ public class AndroidJoyInput implements JoyInput {
         switch (action) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
+                // Touch is back in use, so a keyboard/gamepad seen earlier no longer
+                // justifies keeping the AUTO-mode virtual joystick suppressed.
+                keyboardSuppressedAutoJoystick = false;
                 consumed = joystick.onPointerDown(event.getPointerId(pointerIndex),
                         toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
                 break;

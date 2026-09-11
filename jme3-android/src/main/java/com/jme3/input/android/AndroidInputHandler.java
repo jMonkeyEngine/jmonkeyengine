@@ -65,6 +65,11 @@ public class AndroidInputHandler implements View.OnTouchListener,
     protected AndroidTouchInput touchInput;
     protected AndroidJoyInput joyInput;
     protected MouseInput mouseInput;
+    /**
+     * Pointer ids owned by the on-screen virtual joystick for the duration of the MotionEvent
+     * being dispatched - see {@link #isPointerCapturedByJoystick(int)}.
+     */
+    private long joystickPointerMask;
 
     public AndroidInputHandler() {
         touchInput = new AndroidTouchInput(this);
@@ -210,17 +215,42 @@ public class AndroidInputHandler implements View.OnTouchListener,
 //        logger.log(Level.INFO, "onTouch source: {0}, isTouch: {1}",
 //                new Object[]{source, isTouch});
 
-        if (isTouch && joyInput != null && joyInput.onTouch(event)) {
-            return true;
+        boolean joyConsumed = false;
+        joystickPointerMask = 0L;
+        if (isTouch && joyInput != null) {
+            // The union of the captures before and after the event, so that the pointer a
+            // DOWN captures (only in the "after" set) and the pointer an UP releases (only
+            // in the "before" set) are both hidden from touchInput below.
+            long capturedBefore = joyInput.getCapturedPointerMask();
+            joyConsumed = joyInput.onTouch(event);
+            joystickPointerMask = capturedBefore | joyInput.getCapturedPointerMask();
         }
 
         if (isTouch && touchInput != null) {
-            // send the event to the touch processor
+            // The virtual joystick doesn't get to swallow the whole MotionEvent: it only owns
+            // the pointers it has captured, and touchInput skips exactly those. Dropping the
+            // event outright would mean a finger resting on the on-screen stick blocked every
+            // other finger from being reported at all - so no looking around while moving, and
+            // a jump in accumulated drag as soon as the stick was released.
             consumed = touchInput.onTouch(event);
         }
 
-        return consumed;
+        return consumed || joyConsumed;
 
+    }
+
+    /**
+     * Returns whether the given pointer is driving an on-screen virtual joystick control in
+     * the MotionEvent currently being dispatched, and so must not also be reported as a touch
+     * (or emulated mouse) event. Only meaningful while {@link #onTouch(View, MotionEvent)} is
+     * on the stack.
+     *
+     * @param pointerId the Android pointer id to test
+     * @return true if the virtual joystick owns this pointer
+     */
+    public boolean isPointerCapturedByJoystick(int pointerId) {
+        return pointerId >= 0 && pointerId < Long.SIZE
+                && (joystickPointerMask & (1L << pointerId)) != 0;
     }
 
     @Override
