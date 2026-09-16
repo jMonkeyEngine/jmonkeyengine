@@ -40,6 +40,20 @@ tasks.register("screenshotTest", Test) {
     }
 }
 
+// Runs the same screenshot tests with the ANGLE GLES3 renderer instead of OpenGL.
+// Requires a Wayland compositor (e.g. weston --backend=headless-backend.so) because
+// the ANGLE binaries used here have no X11 EGL platform support.
+tasks.register("screenshotTestAngle", Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform{
+        filter{
+            includeTags 'integration'
+        }
+    }
+    systemProperty "jme.screenshot.renderer", "ANGLE_GLES3"
+}
+
 
 test {
     useJUnitPlatform{
