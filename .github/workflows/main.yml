@@ -150,20 +150,13 @@ jobs:
           java-version: '25'
       - name: Start display server
         run: |
-          # The lavapipe ICD file was renamed from lvp_icd.x86_64.json to lvp_icd.json in
-          # newer Mesa releases; resolve it dynamically here so every later step
-          # (including Report GL/Vulkan below) sees the right file.
-          ICD=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json 2>/dev/null | head -n 1)
-          if [ -n "$ICD" ]; then
-            echo "Using Vulkan ICD: $ICD"
-            echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
-            export VK_ICD_FILENAMES="$ICD"
-          else
-            echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
-          fi
           if [ "${{ matrix.renderer }}" = "angle" ]; then
             # The ANGLE binaries used by jME have no EGL X11 platform support, so run them
             # on a headless Wayland compositor instead of Xvfb.
+            # NOTE: this runs BEFORE the ICD resolution below on purpose: installing
+            # weston can pull a Mesa upgrade, and newer Mesa renames the lavapipe ICD
+            # from lvp_icd.x86_64.json to lvp_icd.json. Resolving the path first and
+            # upgrading after leaves VK_ICD_FILENAMES pointing at a stale file.
             apt-get update -qq
             DEBIAN_FRONTEND=noninteractive apt-get install -y -qq weston
             mkdir -p /tmp/runtime-root
@@ -192,6 +185,16 @@ jobs:
             Xvfb :99 -ac -screen 0 1024x768x16 &
             export DISPLAY=:99
             echo "DISPLAY=:99" >> $GITHUB_ENV
+          fi
+          # Resolve the lavapipe ICD file AFTER any apt activity above: the file was
+          # renamed from lvp_icd.x86_64.json to lvp_icd.json in newer Mesa releases,
+          # so every later step (including Report GL/Vulkan below) sees the right file.
+          ICD=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json 2>/dev/null | head -n 1)
+          if [ -n "$ICD" ]; then
+            echo "Using Vulkan ICD: $ICD"
+            echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
+          else
+            echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
           fi
       - name: Report GL/Vulkan
         run: |
