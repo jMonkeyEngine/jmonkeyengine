@@ -902,7 +902,7 @@ public class TerrainPatch extends Geometry {
         oc.write(totalSize, "totalSize", 16);
         oc.write(quadrant, "quadrant", (short)0);
         oc.write(stepScale, "stepScale", Vector3f.UNIT_XYZ);
-        oc.write(offset, "offset", Vector3f.UNIT_XYZ);
+        oc.write(offset, "offset", Vector2f.ZERO);
         oc.write(offsetAmount, "offsetAmount", 0);
         //oc.write(lodCalculator, "lodCalculator", null);
         //oc.write(lodCalculatorFactory, "lodCalculatorFactory", null);
@@ -920,7 +920,7 @@ public class TerrainPatch extends Geometry {
         totalSize = ic.readInt("totalSize", 16);
         quadrant = ic.readShort("quadrant", (short)0);
         stepScale = (Vector3f) ic.readSavable("stepScale", Vector3f.UNIT_XYZ);
-        offset = (Vector2f) ic.readSavable("offset", Vector3f.UNIT_XYZ);
+        offset = (Vector2f) ic.readSavable("offset", Vector2f.ZERO);
         offsetAmount = ic.readFloat("offsetAmount", 0);
         //lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
         //lodCalculator.setTerrainPatch(this);
