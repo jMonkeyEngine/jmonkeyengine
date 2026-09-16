@@ -36,7 +36,9 @@ package com.jme3.view.surfaceview;
  *
  * @author pavl_g.
  * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
+@Deprecated
 public interface OnExceptionThrown {
     /**
      * Listens for a thrown exception or a thrown error.

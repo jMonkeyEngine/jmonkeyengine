@@ -39,7 +39,9 @@ import com.jme3.system.AppSettings;
  *
  * @author pavl_g.
  * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
+@Deprecated
 public interface OnRendererCompleted {
     /**
      * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the

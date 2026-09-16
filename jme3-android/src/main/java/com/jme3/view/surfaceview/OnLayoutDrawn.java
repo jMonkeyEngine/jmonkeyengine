@@ -39,7 +39,9 @@ import com.jme3.app.LegacyApplication;
  * the event is dispatched on the user activity context thread.
  *
  * @author pavl_g.
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
+@Deprecated
 public interface OnLayoutDrawn {
     /**
      * Dispatched when the layout is drawn on the screen.

@@ -41,7 +41,9 @@ import com.jme3.app.LegacyApplication;
  *
  * @author pavl_g.
  * @see JmeSurfaceView#setOnRendererStarted(OnRendererStarted)
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
+@Deprecated
 public interface OnRendererStarted {
     /**
      * Invoked when the game application is started by the {@link LegacyApplication#start()}, the event is dispatched on the

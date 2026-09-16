@@ -69,7 +69,9 @@ import java.util.logging.Logger;
  * An OpenGL Android View wrapper for embedding a jMonkeyEngine application in custom layouts.
  *
  * @author pavl_g.
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
+@Deprecated
 public class JmeSurfaceView extends RelativeLayout
         implements SystemListener, DialogInterface.OnClickListener, LifecycleEventObserver {
 
