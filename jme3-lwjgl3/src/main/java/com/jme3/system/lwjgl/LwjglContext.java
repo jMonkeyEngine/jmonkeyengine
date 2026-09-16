@@ -51,7 +51,6 @@ import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LWJGLBufferAllocator;
-import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import com.jme3.util.LWJGLSaferAllocMemoryAllocator;
 
 import java.nio.IntBuffer;
@@ -83,6 +82,8 @@ public abstract class LwjglContext implements JmeContext {
     protected boolean useAngle = false;
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
+    private static final String CONCURRENT_LWJGL_BUFFER_ALLOCATOR_CLASS =
+            "com.jme3.util.LWJGLBufferAllocator$ConcurrentLWJGLBufferAllocator";
 
     static {
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
@@ -95,8 +96,8 @@ public abstract class LwjglContext implements JmeContext {
                         LWJGLSaferAllocMemoryAllocator.SAFER_BUFFER_ALLOCATOR_CLASS);
             }
         } else if (configuredImplementation == null) {
-            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "true"))) {
-                System.setProperty(implementation, ConcurrentLWJGLBufferAllocator.class.getName());
+            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "false"))) {
+                System.setProperty(implementation, CONCURRENT_LWJGL_BUFFER_ALLOCATOR_CLASS);
             } else {
                 System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
             }

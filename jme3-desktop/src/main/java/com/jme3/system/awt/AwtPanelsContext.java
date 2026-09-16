@@ -70,6 +70,7 @@ public class AwtPanelsContext implements JmeContext {
         }
 
         @Override
+        @Deprecated
         public void rescale(float x, float y) {
             logger.severe("rescale is not supported.");
         }

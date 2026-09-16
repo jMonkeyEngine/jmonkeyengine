@@ -399,7 +399,7 @@ public final class BinaryImporter implements JmeImporter {
                 throw new IOException("Invalid J3O object data length: " + dataLength);
             }
 
-            Savable  out = SavableClassUtil.fromName(bco.className, classFilter);
+            Savable  out = SavableClassUtil.fromName(bco.className, classFilter, assetManager == null ? null : assetManager.getClassLoaders());
 
             BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
             cap.setContent(dataArray, loc, loc+dataLength);

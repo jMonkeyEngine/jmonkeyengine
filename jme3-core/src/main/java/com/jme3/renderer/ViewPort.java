@@ -73,7 +73,7 @@ public class ViewPort {
     /**
      * Camera used for rendering.
      */
-    protected final Camera cam;
+    protected Camera cam;
     /**
      * Geometries for rendering, sorted.
      */
@@ -94,6 +94,7 @@ public class ViewPort {
      * FrameBuffer for output.
      */
     protected FrameBuffer out = null;
+    private boolean resizeWithDefaultFramebuffer;
     protected int renderTargetWidth;
     protected int renderTargetHeight;
 
@@ -124,10 +125,12 @@ public class ViewPort {
      * </ul>
      *
      * @param name The name of the viewport. Used for debugging only.
-     * @param cam The camera through which the viewport is rendered. The camera
-     *     cannot be swapped to a different one after creating the viewport.
+     * @param cam The camera through which the viewport is rendered (not null).
      */
     public ViewPort(String name, Camera cam) {
+        if (cam == null) {
+            throw new IllegalArgumentException("Camera cannot be null.");
+        }
         this.name = name;
         this.cam = cam;
     }
@@ -310,6 +313,29 @@ public class ViewPort {
      */
     public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;
+        resizeWithDefaultFramebuffer = false;
+    }
+
+    /**
+     * Determines whether reshape notifications for this viewport should follow
+     * the default framebuffer size.
+     *
+     * @return true if reshape should use the default framebuffer size, otherwise
+     *     false
+     */
+    public boolean isResizeWithDefaultFramebuffer() {
+        return resizeWithDefaultFramebuffer;
+    }
+
+    /**
+     * Sets whether reshape notifications for this viewport should follow the
+     * default framebuffer size.
+     *
+     * @param resizeWithDefaultFramebuffer true to use the default framebuffer size, false to
+     *     use the explicit output framebuffer size
+     */
+    public void setResizeWithDefaultFramebuffer(boolean resizeWithDefaultFramebuffer) {
+        this.resizeWithDefaultFramebuffer = resizeWithDefaultFramebuffer;
     }
 
     void setRenderTargetSize(int width, int height) {
@@ -356,6 +382,22 @@ public class ViewPort {
      */
     public Camera getCamera() {
         return cam;
+    }
+
+    /**
+     * Replaces the camera used by this viewport.
+     *
+     * <p>Scene processors can use this method to install a temporary camera
+     * for a render pass. They are responsible for restoring the previous
+     * camera when the pass completes.</p>
+     *
+     * @param camera the camera to use (not null)
+     */
+    public void setCamera(Camera camera) {
+        if (camera == null) {
+            throw new IllegalArgumentException("Camera cannot be null.");
+        }
+        this.cam = camera;
     }
 
     /**

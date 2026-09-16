@@ -913,13 +913,11 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
         int length = value.limit();
         write(length);
         for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+            writeForBuffer(value.get(x));
         }
-        value.rewind();
     }
 
     // int buffer
@@ -929,14 +927,12 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
         int length = value.limit();
         write(length);
 
         for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+            writeForBuffer(value.get(x));
         }
-        value.rewind();
     }
 
     // byte buffer
@@ -946,13 +942,11 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
         int length = value.limit();
         write(length);
         for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+            writeForBuffer(value.get(x));
         }
-        value.rewind();
     }
 
     // short buffer
@@ -962,13 +956,11 @@ final class BinaryOutputCapsule implements OutputCapsule {
             write(NULL_OBJECT);
             return;
         }
-        value.rewind();
         int length = value.limit();
         write(length);
         for (int x = 0; x < length; x++) {
-            writeForBuffer(value.get());
+            writeForBuffer(value.get(x));
         }
-        value.rewind();
     }
 
     @Override

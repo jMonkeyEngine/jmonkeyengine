@@ -63,6 +63,7 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.texture.TextureImage;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
@@ -1754,7 +1755,14 @@ public final class GLRenderer implements Renderer {
         if (language.startsWith("GLSL")) {
             if (version > 100) {
                 stringBuf.append("#version ");
-                stringBuf.append(language.substring(4));
+
+                if (version >= 150 && version < 300 && gles3) {
+                    // upgrade to 300, since it's the minimum version for GLES3.
+                    version = 300;
+                }
+
+                stringBuf.append(version);
+                
                 if (version >= 150) {
                     if(gles3) {
                         stringBuf.append(" es");
@@ -1763,12 +1771,15 @@ public final class GLRenderer implements Renderer {
                         stringBuf.append(" core");
                     }
                 }
+
                 stringBuf.append("\n");
             } else {
-                if (gles2 || gles3) {
+                if (gles3) {
+                    // request GLSL ES (3.00) when compiling under GLES3.
+                    stringBuf.append("#version 300 es\n");
+                } else if (gles2) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
-
                 } else {
                     // version 100 does not exist in desktop GLSL.
                     // put version 110 in that case to enable strict checking
@@ -2857,6 +2868,10 @@ public final class GLRenderer implements Renderer {
                             cpuMipmapsGenerated = true;
                             scaleToPot = false;
                             img.setMipmapsGenerated(true);
+                            logger.log(Level.WARNING,
+                                    "Texture " + img + " requires mipmaps, but the format " + img.getFormat()
+                                            + " does not support hardware mipmap generation."
+                                            + " Falling back to CPU mipmap generation.");
                         }
                     } catch (RuntimeException exception) {
                         cpuMipmapFallbackFailed = true;
@@ -3031,7 +3046,7 @@ public final class GLRenderer implements Renderer {
             if (buffer == null) {
                 return null;
             }
-            data.add(buffer.duplicate());
+            data.add(ByteBufferUtils.duplicate(buffer));
         }
         return new Image(image.getFormat(), image.getWidth(), image.getHeight(), image.getDepth(),
                 data, null, image.getColorSpace());

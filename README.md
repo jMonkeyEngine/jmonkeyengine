@@ -151,3 +151,4 @@ This runs all subproject tests and produces two sets of HTML reports:
 
 A summary index linking to every per-module report is also generated at:
 `build/reports/jacoco/index.html`
+ 

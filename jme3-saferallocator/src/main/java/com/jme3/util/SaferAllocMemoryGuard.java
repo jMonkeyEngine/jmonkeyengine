@@ -7,7 +7,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.ngengine.saferalloc.SaferAlloc;
-import org.ngengine.saferalloc.SaferAllocNative;
 
 public class SaferAllocMemoryGuard {
     private static final Logger LOGGER = Logger.getLogger(SaferAllocMemoryGuard.class.getName());
@@ -129,7 +128,7 @@ public class SaferAllocMemoryGuard {
     private static final AtomicLong highPressureCount = new AtomicLong(0L);
     private static final AtomicLong lowPressureCount = new AtomicLong(0L);
     private static volatile LongSupplier allocatedBytesSupplier = SaferAlloc::currentAllocatedBytes;
-    private static volatile LongSupplier nowSupplier = System::currentTimeMillis;
+    private static volatile LongSupplier nowSupplier = System::nanoTime;
     private static volatile Runnable gcInvoker = System::gc;
 
     public static void beforeAlloc(long size){
@@ -161,7 +160,7 @@ public class SaferAllocMemoryGuard {
             long minimumBytesForMaintenanceGC = (long) (currentSoftBudget * maintenanceGcMinUsageRatio);
             if (currentBytes >= minimumBytesForMaintenanceGC) {
                 long last = lastGCRun.get();
-                if (now - last >= maintenanceGcIntervalMillis) {
+                if (hasElapsed(now, last, millisToNanos(maintenanceGcIntervalMillis))) {
                     requestGC(now);
                 }
             }
@@ -189,7 +188,7 @@ public class SaferAllocMemoryGuard {
 
         long now = nowSupplier.getAsLong();
         long lastUpdate = lastAdaptUpdate.get();
-        if (now - lastUpdate < adaptIntervalMillis) {
+        if (!hasElapsed(now, lastUpdate, millisToNanos(adaptIntervalMillis))) {
             return;
         }
         if (!lastAdaptUpdate.compareAndSet(lastUpdate, now)) {
@@ -225,27 +224,32 @@ public class SaferAllocMemoryGuard {
     }
 
     private static void requestGC(long now) {
-        if (now - lastGCRun.get() >= gcIntervalMillis) {
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.log(Level.FINER, "!!! Requesting GC...");
+        long minimumInterval = millisToNanos(gcIntervalMillis);
+        for (;;) {
+            long last = lastGCRun.get();
+            if (!hasElapsed(now, last, minimumInterval)) {
+                return;
             }
-
-            // Calling gc() twice is a common heuristic to increase the likelihood of a full
-            // garbage collection cycle, which is important for timely release of native memory.
-            gcInvoker.run();
-            gcInvoker.run();
-
-            lastGCRun.updateAndGet(v -> {
-                if (v < now) return now;
-                return v;
-            });
+            if (!lastGCRun.compareAndSet(last, now)) {
+                continue;
+            }
+            break;
         }
+
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.log(Level.FINER, "!!! Requesting GC...");
+        }
+
+        // Calling gc() twice is a common heuristic to increase the likelihood of a full
+        // garbage collection cycle, which is important for timely release of native memory.
+        gcInvoker.run();
+        gcInvoker.run();
     }
 
     // Test-only hooks to keep unit tests deterministic without real native allocations or GC calls.
     static void setTestHooks(LongSupplier allocatedBytes, LongSupplier now, Runnable gcAction) {
-        allocatedBytesSupplier = allocatedBytes != null ? allocatedBytes : SaferAllocNative::currentAllocatedBytes;
-        nowSupplier = now != null ? now : System::currentTimeMillis;
+        allocatedBytesSupplier = allocatedBytes != null ? allocatedBytes : SaferAlloc::currentAllocatedBytes;
+        nowSupplier = now != null ? now : System::nanoTime;
         gcInvoker = gcAction != null ? gcAction : System::gc;
     }
 
@@ -273,6 +277,17 @@ public class SaferAllocMemoryGuard {
             return Long.MAX_VALUE;
         }
         return a + b;
+    }
+
+    private static boolean hasElapsed(long now, long last, long intervalNanos) {
+        return now - last >= intervalNanos;
+    }
+
+    private static long millisToNanos(long millis) {
+        if (millis > Long.MAX_VALUE / 1_000_000L) {
+            return Long.MAX_VALUE;
+        }
+        return millis * 1_000_000L;
     }
 
     private static String human(long bytes) {
@@ -325,6 +340,9 @@ public class SaferAllocMemoryGuard {
         }
         try {
             float value = Float.parseFloat(raw.trim());
+            if (Float.isNaN(value) || Float.isInfinite(value)) {
+                throw new NumberFormatException("non-finite");
+            }
             return clamp(value, minValue, maxValue);
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Invalid value for {0}: {1}. Using default {2}.",

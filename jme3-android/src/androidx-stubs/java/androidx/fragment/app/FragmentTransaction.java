@@ -39,6 +39,10 @@ package androidx.fragment.app;
  */
 public class FragmentTransaction {
 
+    public FragmentTransaction add(int containerViewId, Fragment fragment, String tag) {
+        return this;
+    }
+
     public FragmentTransaction replace(int containerViewId, Fragment fragment, String tag) {
         return this;
     }

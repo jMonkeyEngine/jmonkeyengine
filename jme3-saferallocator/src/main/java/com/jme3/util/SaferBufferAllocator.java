@@ -34,8 +34,8 @@ public final class SaferBufferAllocator implements BufferAllocator {
         for (;;) {
             try {
                 AllocationRef ref = (AllocationRef) refQueue.remove();
-                SaferAllocMemoryGuard.notifyGC();
                 ref.freeFromQueue();
+                SaferAllocMemoryGuard.notifyGC();
             } catch (InterruptedException e) {
                 return;
             } catch (Throwable t) {
@@ -138,6 +138,7 @@ public final class SaferBufferAllocator implements BufferAllocator {
         if (size < 0) {
             throw new IllegalArgumentException("size < 0");
         }
+        SaferAllocMemoryGuard.beforeAlloc(size);
         long pointer = SaferAllocNative.malloc(size);
         if (pointer == 0L && size != 0) {
             throw new OutOfMemoryError("SaferAlloc malloc failed: " + size);
@@ -153,8 +154,10 @@ public final class SaferBufferAllocator implements BufferAllocator {
             throw new OutOfMemoryError("calloc overflow");
         }
 
+        long requestedBytes = num * size;
+        SaferAllocMemoryGuard.beforeAlloc(requestedBytes);
         long pointer = SaferAllocNative.calloc(num, size);
-        if (pointer == 0L && (num * size) != 0) {
+        if (pointer == 0L && requestedBytes != 0) {
             throw new OutOfMemoryError("SaferAlloc calloc failed: " + num + "*" + size);
         }
         return pointer;
@@ -164,6 +167,9 @@ public final class SaferBufferAllocator implements BufferAllocator {
         if (size < 0) {
             throw new IllegalArgumentException("size < 0");
         }
+        // saferalloc does not currently expose the old allocation size, so use the
+        // requested size as a conservative pressure estimate.
+        SaferAllocMemoryGuard.beforeAlloc(size);
         long pointer = SaferAllocNative.realloc(ptr, size);
         if (pointer == 0L && size != 0) {
             throw new OutOfMemoryError("SaferAlloc realloc failed: " + size);
@@ -184,6 +190,7 @@ public final class SaferBufferAllocator implements BufferAllocator {
         if (size < 0) {
             throw new IllegalArgumentException("size < 0");
         }
+        SaferAllocMemoryGuard.beforeAlloc(size);
         long pointer = SaferAllocNative.mallocAligned(size, alignment);
         if (pointer == 0L && size != 0) {
             throw new OutOfMemoryError("SaferAlloc aligned_alloc failed: " + size);
@@ -200,7 +207,11 @@ public final class SaferBufferAllocator implements BufferAllocator {
     @Override
     public ByteBuffer allocate(int size) {
         SaferAllocMemoryGuard.beforeAlloc(size);
-        return register(SaferAlloc.calloc(1, size));
+        ByteBuffer buffer = SaferAlloc.calloc(1, size);
+        if (buffer == null) {
+            throw new OutOfMemoryError("Could not allocate " + size + " bytes through SaferAlloc");
+        }
+        return register(buffer);
     }
 
     @Override
