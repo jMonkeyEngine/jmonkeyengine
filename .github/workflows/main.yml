@@ -173,11 +173,14 @@ jobs:
             echo "SDL_VIDEODRIVER=wayland" >> $GITHUB_ENV
             # The container sets DISPLAY=:99 and zink overrides for the OpenGL run;
             # ANGLE talks to Vulkan directly, so drop them to avoid any interference.
-            unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER VK_DRIVER_FILES
+            # NOTE: VK_DRIVER_FILES is intentionally NOT blanked here. The Vulkan
+            # loader reads VK_DRIVER_FILES before VK_ICD_FILENAMES, so exporting it
+            # empty would shadow VK_ICD_FILENAMES and leave the loader with no
+            # drivers at all. It is set to the resolved ICD path below instead.
+            unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
             echo "DISPLAY=" >> $GITHUB_ENV
             echo "MESA_LOADER_DRIVER_OVERRIDE=" >> $GITHUB_ENV
             echo "GALLIUM_DRIVER=" >> $GITHUB_ENV
-            echo "VK_DRIVER_FILES=" >> $GITHUB_ENV
             weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
             echo $! > /tmp/weston.pid
             sleep 2
@@ -193,6 +196,12 @@ jobs:
           if [ -n "$ICD" ]; then
             echo "Using Vulkan ICD: $ICD"
             echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
+            # VK_DRIVER_FILES is the newer name for the same setting and takes
+            # precedence in the Vulkan loader; point it at the same ICD so both
+            # old loaders (VK_ICD_FILENAMES) and new ones (VK_DRIVER_FILES) agree.
+            # It must never be empty: an empty-but-set VK_DRIVER_FILES shadows
+            # VK_ICD_FILENAMES and leaves the loader with no drivers.
+            echo "VK_DRIVER_FILES=$ICD" >> $GITHUB_ENV
           else
             echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
           fi
@@ -228,8 +237,10 @@ jobs:
               fi
               sleep 1
               # Same env discipline as the Start step: weston must not see a stale
-              # DISPLAY, and SDL must stay on Wayland.
-              unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER VK_DRIVER_FILES
+              # DISPLAY, and SDL must stay on Wayland. VK_DRIVER_FILES keeps the
+              # resolved ICD path from $GITHUB_ENV (unsetting it would also work
+              # via the VK_ICD_FILENAMES fallback, but there is no reason to).
+              unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
               export SDL_VIDEODRIVER=wayland
               weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
               echo $! > /tmp/weston.pid
