@@ -8,6 +8,23 @@ The tests are run using the following command:
  ./gradlew :jme3-screenshot-test:screenshotTest
 ```
 
+This runs them with the OpenGL 4.5 renderer. To run them with the ANGLE GLES3 renderer instead:
+
+```
+ ./gradlew :jme3-screenshot-test:screenshotTestAngle
+```
+
+Note: ANGLE needs a Wayland compositor (its EGL binaries have no X11 platform support).
+On a headless machine start one first, e.g. `weston --backend=headless-backend.so --socket=wayland-1`,
+with `XDG_RUNTIME_DIR` set, `XDG_SESSION_TYPE=wayland` and `WAYLAND_DISPLAY=wayland-1` exported.
+
+## ANGLE reference images
+
+ANGLE renders into files suffixed with `_angle` (e.g. `..._f1_angle.png`), kept next to the
+OpenGL references in `src/test/resources` so the two backends never overwrite each other's
+reference images. When accepting new ANGLE images, copy the `*_angle.png` files from the
+`screenshot-test-report-angle` CI artifact (or `build/changed-images` locally).
+
 This will create a report in `jme3-screenshot-test/build/reports/ScreenshotDiffReport.html` that shows the differences between the reference images and the screenshots taken during the test run. Note that this is an ExtentReport. 
 
 This is most reliable when run on the CI server. The report can be downloaded from the artifacts section of the pipeline (once the full pipeline has completed). If you go into

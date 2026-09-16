@@ -81,6 +81,20 @@ public class ScreenshotTest{
 
     public static final String NON_DETERMINISTIC_TEST = "This is a non deterministic test, please manually review the expected and actual images to make sure they are approximately the same.";
 
+    /**
+     * System property used to select the renderer the screenshot tests run with.
+     * Defaults to {@link AppSettings#LWJGL_OPENGL45}; set to {@link AppSettings#ANGLE_GLES3}
+     * (via the Gradle task or CI job) to run the ANGLE backend instead.
+     */
+    public static final String RENDERER_SYSTEM_PROPERTY = "jme.screenshot.renderer";
+
+    /**
+     * Suffix appended to reference/changed image file names when running with the ANGLE renderer,
+     * so ANGLE reference images (e.g. {@code TestFoo_f1_angle.png}) live next to - but never
+     * overwrite - the OpenGL ones.
+     */
+    public static final String ANGLE_REFERENCE_IMAGE_SUFFIX = "_angle";
+
 
     private static final Logger logger = Logger.getLogger(ScreenshotTest.class.getName());
 
@@ -166,11 +180,32 @@ public class ScreenshotTest{
         settings.setDisplayScaleMode(displayScaleMode);
         settings.setAudioRenderer(null); // Disable audio (for headless)
         settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
-        settings.setRenderer(AppSettings.LWJGL_OPENGL45);
+        String renderer = resolveRenderer();
+        settings.setRenderer(renderer);
+        logger.info("ScreenshotTest renderer: " + renderer);
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
-        bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner);
+        bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner,
+                referenceImageSuffix(renderer));
+    }
+
+    /**
+     * Resolves the renderer to run with from the {@link #RENDERER_SYSTEM_PROPERTY} system
+     * property. Defaults to {@link AppSettings#LWJGL_OPENGL45} so existing suites and CI
+     * jobs keep their previous behaviour when the property is not set.
+     */
+    static String resolveRenderer(){
+        return System.getProperty(RENDERER_SYSTEM_PROPERTY, AppSettings.LWJGL_OPENGL45);
+    }
+
+    /**
+     * Returns the file name suffix used for reference and changed images for the given renderer.
+     * ANGLE runs produce and consume {@code *_angle.png} images so they never clash with the
+     * OpenGL reference set.
+     */
+    public static String referenceImageSuffix(String renderer){
+        return AppSettings.ANGLE_GLES3.equals(renderer) ? ANGLE_REFERENCE_IMAGE_SUFFIX : "";
     }
 
     /**
@@ -179,7 +214,7 @@ public class ScreenshotTest{
      * - After all the frames have been taken it stops the application
      * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
      */
-    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner){
+    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner, String referenceImageSuffix){
 
         Collections.sort(framesToTakeScreenshotsOn);
         ScenarioScreenshotRecorder overallScreenshots = new ScenarioScreenshotRecorder();
@@ -222,7 +257,7 @@ public class ScreenshotTest{
                         Image primeGeneratedImage = readImage(primeGeneratedImagePath.toFile());
                         Image otherGeneratedImage = readImage(otherGeneratedImagePath.toFile());
 
-                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame + referenceImageSuffix;
 
                         if(!imagesAreSameSize(primeGeneratedImage, otherGeneratedImage)){
                             attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
@@ -253,7 +288,7 @@ public class ScreenshotTest{
                         "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                 ));
 
-                String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+                String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame + referenceImageSuffix;
 
                 Enumeration<URL> expectedImageResources = ScreenshotTest.class.getClassLoader().getResources(thisFrameBaseImageFileName + ".png");
 

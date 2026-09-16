@@ -131,10 +131,14 @@ jobs:
           echo "::notice title=Javadoc doclint failed::Javadoc warnings were found. Run ./gradlew -PenableJavadocError=true javadoc mergedJavadoc locally to reproduce."
 
   ScreenshotTests:
-    name: Run Screenshot Tests
+    name: Run Screenshot Tests (${{ matrix.renderer }})
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [opengl, angle]
     permissions:
       contents: read
     steps:
@@ -144,27 +148,115 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '25'
-      - name: Start xvfb
+      - name: Start display server
         run: |
-          Xvfb :99 -ac -screen 0 1024x768x16 &
-          export DISPLAY=:99
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            # The ANGLE binaries used by jME have no EGL X11 platform support, so run them
+            # on a headless Wayland compositor instead of Xvfb.
+            # NOTE: this runs BEFORE the ICD resolution below on purpose: installing
+            # weston can pull a Mesa upgrade, and newer Mesa renames the lavapipe ICD
+            # from lvp_icd.x86_64.json to lvp_icd.json. Resolving the path first and
+            # upgrading after leaves VK_ICD_FILENAMES pointing at a stale file.
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq weston
+            mkdir -p /tmp/runtime-root
+            chmod 700 /tmp/runtime-root
+            # Export in this shell too: weston is started below, in this same step.
+            export XDG_RUNTIME_DIR=/tmp/runtime-root
+            export XDG_SESSION_TYPE=wayland
+            export WAYLAND_DISPLAY=wayland-1
+            # Force SDL onto Wayland even if a DISPLAY lingers in the container env.
+            export SDL_VIDEODRIVER=wayland
+            echo "XDG_RUNTIME_DIR=/tmp/runtime-root" >> $GITHUB_ENV
+            echo "XDG_SESSION_TYPE=wayland" >> $GITHUB_ENV
+            echo "WAYLAND_DISPLAY=wayland-1" >> $GITHUB_ENV
+            echo "SDL_VIDEODRIVER=wayland" >> $GITHUB_ENV
+            # The container sets DISPLAY=:99 and zink overrides for the OpenGL run;
+            # ANGLE talks to Vulkan directly, so drop them to avoid any interference.
+            # NOTE: VK_DRIVER_FILES is intentionally NOT blanked here. The Vulkan
+            # loader reads VK_DRIVER_FILES before VK_ICD_FILENAMES, so exporting it
+            # empty would shadow VK_ICD_FILENAMES and leave the loader with no
+            # drivers at all. It is set to the resolved ICD path below instead.
+            unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+            echo "DISPLAY=" >> $GITHUB_ENV
+            echo "MESA_LOADER_DRIVER_OVERRIDE=" >> $GITHUB_ENV
+            echo "GALLIUM_DRIVER=" >> $GITHUB_ENV
+            weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+            echo $! > /tmp/weston.pid
+            sleep 2
+          else
+            Xvfb :99 -ac -screen 0 1024x768x16 &
+            export DISPLAY=:99
+            echo "DISPLAY=:99" >> $GITHUB_ENV
+          fi
+          # Resolve the lavapipe ICD file AFTER any apt activity above: the file was
+          # renamed from lvp_icd.x86_64.json to lvp_icd.json in newer Mesa releases,
+          # so every later step (including Report GL/Vulkan below) sees the right file.
+          ICD=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json 2>/dev/null | head -n 1)
+          if [ -n "$ICD" ]; then
+            echo "Using Vulkan ICD: $ICD"
+            echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
+            # VK_DRIVER_FILES is the newer name for the same setting and takes
+            # precedence in the Vulkan loader; point it at the same ICD so both
+            # old loaders (VK_ICD_FILENAMES) and new ones (VK_DRIVER_FILES) agree.
+            # It must never be empty: an empty-but-set VK_DRIVER_FILES shadows
+            # VK_ICD_FILENAMES and leaves the loader with no drivers.
+            echo "VK_DRIVER_FILES=$ICD" >> $GITHUB_ENV
+          else
+            echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
+          fi
       - name: Report GL/Vulkan
         run: |
           set -x
+          echo "renderer=${{ matrix.renderer }}"
           echo "DISPLAY=$DISPLAY"
+          echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY"
+          echo "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"
+          echo "SDL_VIDEODRIVER=$SDL_VIDEODRIVER"
           glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
           vulkaninfo --summary || true
           echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+          echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.3.0
       - name: Test with Gradle Wrapper
         run: |
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            TASK=screenshotTestAngle
+          else
+            TASK=screenshotTest
+          fi
+          restart_display_server() {
+            if [ "${{ matrix.renderer }}" = "angle" ]; then
+              # Kill the exact weston we started (PID saved by the Start step),
+              # not anything matching a pattern.
+              if [ -f /tmp/weston.pid ]; then
+                kill "$(cat /tmp/weston.pid)" 2>/dev/null || true
+              fi
+              sleep 1
+              # Same env discipline as the Start step: weston must not see a stale
+              # DISPLAY, and SDL must stay on Wayland. VK_DRIVER_FILES keeps the
+              # resolved ICD path from $GITHUB_ENV (unsetting it would also work
+              # via the VK_ICD_FILENAMES fallback, but there is no reason to).
+              unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+              export SDL_VIDEODRIVER=wayland
+              weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+              echo $! > /tmp/weston.pid
+              sleep 2
+            else
+              # A corrupted X server state (e.g. BadLength on X_PutImage) persists for the
+              # life of the server, so give each retry a fresh display.
+              pkill Xvfb || true
+              sleep 2
+              Xvfb :99 -ac -screen 0 1024x768x16 &
+              sleep 2
+            fi
+          }
           for attempt in 1 2 3; do
-            echo "Screenshot test attempt $attempt of 3"
-            if ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest; then
+            echo "Screenshot test (${{ matrix.renderer }}) attempt $attempt of 3"
+            if ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:$TASK; then
               exit 0
             fi
             if [ $attempt -lt 3 ]; then
@@ -172,13 +264,7 @@ jobs:
               # Stop any crashed/lingering Gradle daemons so a failed JVM
               # (e.g. an X_PutImage Xlib crash) cannot poison the next attempt.
               ./gradlew --stop || true
-              # Restart Xvfb: a corrupted X server state (e.g. BadLength on
-              # X_PutImage) persists for the life of the server, so give each
-              # retry a fresh display.
-              pkill Xvfb || true
-              sleep 2
-              Xvfb :99 -ac -screen 0 1024x768x16 &
-              sleep 2
+              restart_display_server
             fi
           done
           echo "All 3 attempts failed."
@@ -186,19 +272,12 @@ jobs:
       - name: Report Screenshot Test failure
         if: failure()
         run: |
-          echo "::error title=Screenshot tests failed::Screenshot tests have failed.%0A%0A"\
-          "To review the differences:%0A"\
-          "  1. Download the 'screenshot-test-report' artifact from this run.%0A"\
-          "  2. Open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html%0A%0A"\
-          "If you did not intend to change any visuals: fix your changes so the tests pass.%0A"\
-          "If you intended to change visuals: review jme3-screenshot-tests/build/changed-images"\
-          " and commit replacements to jme3-screenshot-tests/src/test/resources.%0A%0A"\
-          "See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information."
+          echo "::error title=Screenshot tests (${{ matrix.renderer }}) failed::For details download the 'screenshot-test-report-${{ matrix.renderer }}' artifact and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html. If you intended to change visuals: review jme3-screenshot-tests/build/changed-images and commit replacements to jme3-screenshot-tests/src/test/resources (files ending in _angle.png for the ANGLE run). See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md"
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: screenshot-test-report
+          name: screenshot-test-report-${{ matrix.renderer }}
           retention-days: 30
           path: |
             **/build/reports/**
