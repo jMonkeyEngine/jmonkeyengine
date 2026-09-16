@@ -50,6 +50,7 @@ import androidx.fragment.app.FragmentManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.android.AndroidJoyInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
@@ -64,10 +65,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Legacy Activity wrapper for running a jME application on Android.
+ * Compatibility harness Activity that delegates lifecycle management to an
+ * internal {@link AndroidHarnessFragment}.
  *
- * @deprecated Use {@link AndroidHarnessFragment} from an AndroidX
- * {@link FragmentActivity} instead.
+ * @deprecated Prefer using {@link AndroidHarnessFragment} directly.
  */
 @Deprecated
 public class AndroidHarness extends FragmentActivity
@@ -112,7 +113,6 @@ public class AndroidHarness extends FragmentActivity
     protected boolean isGLThreadPaused = true;
     protected ImageView splashImageView;
     protected FrameLayout frameLayout;
-
     private boolean firstDrawFrame = true;
 
     @Override
@@ -134,33 +134,22 @@ public class AndroidHarness extends FragmentActivity
         }
     }
 
+    private HarnessFragment attachFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        HarnessFragment fragment = (HarnessFragment) fm.findFragmentByTag(HARNESS_FRAGMENT_TAG);
+        if (fragment == null) {
+            fragment = new HarnessFragment();
+            fm.beginTransaction()
+                    .add(android.R.id.content, fragment, HARNESS_FRAGMENT_TAG)
+                    .commit();
+        }
+        return fragment;
+    }
+
     public Application getJmeApplication() {
         return app;
     }
 
-    private HarnessFragment attachFragment() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment existingFragment = fragmentManager.findFragmentByTag(HARNESS_FRAGMENT_TAG);
-        if (existingFragment instanceof HarnessFragment) {
-            return (HarnessFragment) existingFragment;
-        }
-
-        HarnessFragment newFragment = new HarnessFragment();
-        fragmentManager.beginTransaction()
-                .replace(android.R.id.content, newFragment, HARNESS_FRAGMENT_TAG)
-                .commit();
-        return newFragment;
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        if (app != null) {
-            app.restart();
-        }
-    }
-
-    @Override
     public void handleError(final String errorMsg, final Throwable throwable) {
         String stackTrace = "";
         String title = "Error";
@@ -181,40 +170,57 @@ public class AndroidHarness extends FragmentActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(AndroidHarness.this)
+                AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
                         .setTitle(finalTitle)
                         .setMessage(finalMessage)
-                        .setPositiveButton("Close", AndroidHarness.this)
-                        .create()
-                        .show();
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (app != null) {
+                                    app.stop(true);
+                                }
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("Kill", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                android.os.Process.killProcess(android.os.Process.myPid());
+                            }
+                        })
+                        .setCancelable(true)
+                        .create();
+                dialog.show();
             }
         });
     }
 
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {
-        if (whichButton != DialogInterface.BUTTON_NEGATIVE) {
+        if (whichButton == DialogInterface.BUTTON_POSITIVE) {
             if (app != null) {
                 app.stop(true);
             }
             app = null;
-            finish();
+            if (finishOnAppStop) {
+                finish();
+            }
         }
     }
 
     @Override
     public void onTouch(String name, TouchEvent event, float tpf) {
-        if (ESCAPE_EVENT.equals(name) && event.getType() == TouchEvent.Type.KEY_UP) {
+        if (name.equals(ESCAPE_EVENT)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    new AlertDialog.Builder(AndroidHarness.this)
+                    AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
                             .setTitle(exitDialogTitle)
                             .setMessage(exitDialogMessage)
                             .setPositiveButton("Yes", AndroidHarness.this)
                             .setNegativeButton("No", AndroidHarness.this)
-                            .create()
-                            .show();
+                            .create();
+                    dialog.show();
                 }
             });
         }
@@ -261,29 +267,44 @@ public class AndroidHarness extends FragmentActivity
 
     @Override
     public void initialize() {
-        app.initialize();
-        if (handleExitHook) {
-            if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
-                app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+        if (app != null) {
+            app.initialize();
+            if (handleExitHook) {
+                if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
+                    app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+                }
+                app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+                app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
             }
-            app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
-            app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
         }
     }
 
     @Override
     public void reshape(int width, int height) {
-        app.reshape(width, height);
+        if (app != null) {
+            app.reshape(width, height);
+        }
+    }
+
+    @Override
+    public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        if (app != null) {
+            app.reshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
+        }
     }
 
     @Override
     public void rescale(float x, float y) {
-        app.rescale(x, y);
+        if (app != null) {
+            app.rescale(x, y);
+        }
     }
 
     @Override
     public void update() {
-        app.update();
+        if (app != null) {
+            app.update();
+        }
         if (firstDrawFrame) {
             removeSplashScreen();
             firstDrawFrame = false;
@@ -292,7 +313,9 @@ public class AndroidHarness extends FragmentActivity
 
     @Override
     public void requestClose(boolean esc) {
-        app.requestClose(esc);
+        if (app != null) {
+            app.requestClose(esc);
+        }
     }
 
     @Override
@@ -319,7 +342,9 @@ public class AndroidHarness extends FragmentActivity
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).resumeJoysticks();
+            } else if (joyInput instanceof AndroidSensorJoyInput) {
                 ((AndroidSensorJoyInput) joyInput).resumeSensors();
             }
 
@@ -346,7 +371,9 @@ public class AndroidHarness extends FragmentActivity
             }
 
             JoyInput joyInput = app.getContext() != null ? app.getContext().getJoyInput() : null;
-            if (joyInput instanceof AndroidSensorJoyInput) {
+            if (joyInput instanceof AndroidJoyInput) {
+                ((AndroidJoyInput) joyInput).pauseJoysticks();
+            } else if (joyInput instanceof AndroidSensorJoyInput) {
                 ((AndroidSensorJoyInput) joyInput).pauseSensors();
             }
         }
@@ -432,6 +459,11 @@ public class AndroidHarness extends FragmentActivity
         @Override
         public void reshape(int width, int height) {
             harness().reshape(width, height);
+        }
+
+        @Override
+        public void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+            harness().reshape(logicalWidth, logicalHeight, framebufferWidth, framebufferHeight);
         }
 
         @Override
