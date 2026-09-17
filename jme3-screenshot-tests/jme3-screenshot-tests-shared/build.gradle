@@ -13,8 +13,21 @@ dependencies {
     implementation project(':jme3-plugins')
 
     implementation 'com.aventstack:extentreports:5.1.2'
-    implementation platform('org.junit:junit-bom:6.1.3')
-    implementation 'org.junit.jupiter:junit-jupiter'
+
+    // The test framework's main sources only need JUnit to compile - they reference it in
+    // imports and never call into it at runtime. It must therefore stay compile-only and
+    // never leak onto this module's runtime classpath: the Android screenshot-test app
+    // inherits this module's runtime dependencies and cannot dex the Java 17 JUnit 6 jars
+    // (D8: "Attempt to create a global synthetic for 'Record desugaring' without a
+    // global-synthetics consumer"). The Android app and its instrumentation tests use
+    // JUnit 4 only.
+    compileOnly platform('org.junit:junit-bom:6.1.3')
+    compileOnly 'org.junit.jupiter:junit-jupiter'
+
+    // This module's own unit tests are JUnit 5 tests, so they still need the full Jupiter
+    // dependency (and the platform launcher) on their compile and runtime classpaths.
+    testImplementation platform('org.junit:junit-bom:6.1.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly project(':jme3-testdata')
 }
