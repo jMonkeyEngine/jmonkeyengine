@@ -67,7 +67,16 @@ public enum GameMode {
      * The system asks for battery saving, for example when the user enabled battery
      * saver mode for the game.
      */
-    BATTERY(3);
+    BATTERY(3),
+
+    /**
+     * A custom game mode reported by the system on Android 14 (API 34) and newer.
+     *
+     * <p>This is the fourth game mode constant of {@code android.app.GameManager}. The
+     * platform reports it to applications it treats as games, when the user selected the
+     * custom game mode for them.</p>
+     */
+    CUSTOM(4);
 
     private final int value;
 
@@ -97,7 +106,9 @@ public enum GameMode {
      * Converts a raw Android game mode value into a {@link GameMode} constant.
      *
      * @param value the {@code android.app.GameManager} constant value
-     * @return the matching game mode, or {@link #UNSUPPORTED} for unknown values
+     * @return the matching game mode, or {@link #UNSUPPORTED} for values this library
+     *     does not know about, including game modes added by platform versions newer
+     *     than this library
      */
     public static GameMode fromValue(int value) {
         for (GameMode gameMode : values()) {
