@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,25 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package androidx.fragment.app;
+package com.jme3.view.surfaceview;
 
-import android.app.Activity;
+import android.view.View;
+import com.jme3.app.LegacyApplication;
 
 /**
- * Compile-time stub for the AndroidX FragmentActivity API.
+ * An interface used for dispatching an event when the layout holding the {@link android.opengl.GLSurfaceView} is drawn,
+ * the event is dispatched on the user activity context thread.
  *
- * <p>The real AndroidX Fragment dependency must be supplied by the Android
- * application. This class is excluded from jme3-android artifacts.</p>
+ * @author pavl_g.
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
-public class FragmentActivity extends Activity {
-
-    public FragmentManager getSupportFragmentManager() {
-        return null;
-    }
+@Deprecated
+public interface OnLayoutDrawn {
+    /**
+     * Dispatched when the layout is drawn on the screen.
+     *
+     * @param legacyApplication the application instance.
+     * @param layout            the current layout.
+     */
+    void onLayoutDrawn(LegacyApplication legacyApplication, View layout);
 }

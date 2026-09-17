@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,27 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package androidx.fragment.app;
+package com.jme3.view.surfaceview;
 
-import android.app.Activity;
+import com.jme3.app.LegacyApplication;
+import com.jme3.system.AppSettings;
 
 /**
- * Compile-time stub for the AndroidX FragmentActivity API.
+ * An interface used for invoking an event when the user delay finishes, on the first update of the game.
  *
- * <p>The real AndroidX Fragment dependency must be supplied by the Android
- * application. This class is excluded from jme3-android artifacts.</p>
+ * @author pavl_g.
+ * @see JmeSurfaceView#setOnRendererCompleted(OnRendererCompleted)
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
-public class FragmentActivity extends Activity {
-
-    public FragmentManager getSupportFragmentManager() {
-        return null;
-    }
+@Deprecated
+public interface OnRendererCompleted {
+    /**
+     * Invoked when the user delay finishes, on the first update of the game, the event is dispatched on the
+     * enclosing Activity context thread.
+     *
+     * @param application the current jme game instance.
+     * @param appSettings the current window settings of the running jme game.
+     * @see JmeSurfaceView#update()
+     */
+    void onRenderCompletion(LegacyApplication application, AppSettings appSettings);
 }

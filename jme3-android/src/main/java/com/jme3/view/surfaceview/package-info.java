@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package androidx.fragment.app;
-
-import android.app.Activity;
 
 /**
- * Compile-time stub for the AndroidX FragmentActivity API.
- *
- * <p>The real AndroidX Fragment dependency must be supplied by the Android
- * application. This class is excluded from jme3-android artifacts.</p>
+ * Holds {@link com.jme3.view.surfaceview.JmeSurfaceView} with some lifecycle interfaces.
+ * <p>
+ * This package provides the following :
+ * <p>
+ * {@link com.jme3.view.surfaceview.JmeSurfaceView} : An OpenGL android view wrapper for rendering, updating and destroying a jMonkeyEngine game.
+ * {@link com.jme3.view.surfaceview.OnRendererStarted} :  Provides a method to be invoked when a jMonkeyEngine application starts.
+ * {@link com.jme3.view.surfaceview.OnLayoutDrawn} : Provides a method to be invoked when the GLSurfaceView draws the content, before OnRendererCompleted.
+ * {@link com.jme3.view.surfaceview.OnRendererCompleted} : Provides a method to be invoked on the first update of the game.
+ * {@link com.jme3.view.surfaceview.OnExceptionThrown} : Provides a method to be invoked when an exception is thrown.
+ * <p>
+ * <b>Deprecated:</b> use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
-public class FragmentActivity extends Activity {
-
-    public FragmentManager getSupportFragmentManager() {
-        return null;
-    }
-}
+@Deprecated
+package com.jme3.view.surfaceview;

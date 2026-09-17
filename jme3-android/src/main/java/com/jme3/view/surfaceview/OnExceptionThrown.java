@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2026 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,21 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package androidx.fragment.app;
-
-import android.app.Activity;
+package com.jme3.view.surfaceview;
 
 /**
- * Compile-time stub for the AndroidX FragmentActivity API.
+ * An interface designed to listen for exceptions and fire an event when an exception is thrown.
  *
- * <p>The real AndroidX Fragment dependency must be supplied by the Android
- * application. This class is excluded from jme3-android artifacts.</p>
+ * @author pavl_g.
+ * @see JmeSurfaceView#setOnExceptionThrown(OnExceptionThrown)
+ * @deprecated Use {@link com.jme3.app.AndroidHarnessFragment} instead.
  */
-public class FragmentActivity extends Activity {
-
-    public FragmentManager getSupportFragmentManager() {
-        return null;
-    }
+@Deprecated
+public interface OnExceptionThrown {
+    /**
+     * Listens for a thrown exception or a thrown error.
+     *
+     * @param e the exception or the error that is throwable.
+     */
+    void onExceptionThrown(Throwable e);
 }
