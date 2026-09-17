@@ -56,8 +56,11 @@ import com.jme3.input.android.AndroidJoyInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
+import com.jme3.system.android.AndroidGameMode;
+import com.jme3.system.android.GameMode;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
+import com.jme3.system.android.OnGameModeChanged;
 import com.jme3.util.AndroidNativeBufferAllocator;
 import com.jme3.util.BufferAllocatorFactory;
 import java.io.PrintWriter;
@@ -136,6 +139,7 @@ public class JmeSurfaceView extends RelativeLayout
     private OnRendererCompleted onRendererCompleted;
     private OnLayoutDrawn onLayoutDrawn;
     private OnExceptionThrown onExceptionThrown;
+    private AndroidGameMode androidGameMode;
 
     public JmeSurfaceView(@NonNull Context context) {
         super(context);
@@ -414,6 +418,10 @@ public class JmeSurfaceView extends RelativeLayout
     @Override
     public void destroy() {
         logger.fine("destroy");
+        if (androidGameMode != null) {
+            androidGameMode.setListener(null);
+            androidGameMode = null;
+        }
         if (legacyApplication != null) {
             legacyApplication.stop(false);
         }
@@ -648,6 +656,33 @@ public class JmeSurfaceView extends RelativeLayout
 
     public void setOnLayoutDrawn(OnLayoutDrawn onLayoutDrawn) {
         this.onLayoutDrawn = onLayoutDrawn;
+    }
+
+    /**
+     * Registers a listener notified when the Android game mode changes.
+     *
+     * <p>The current game mode is reported to the listener as soon as it is registered,
+     * including once with {@link GameMode#UNSUPPORTED} on devices where the Game Mode API
+     * is unavailable (Android 11 and older) or for applications the platform does not
+     * treat as games. Pass null to unregister a previously registered listener.</p>
+     *
+     * <p>Applications typically use this listener to alter the level of detail, load
+     * lower-poly models, change the frame rate or disable filters when the platform asks
+     * for performance or for battery saving.</p>
+     *
+     * @param onGameModeChanged the listener, or null to unregister
+     * @see GameMode
+     * @see OnGameModeChanged
+     */
+    public void setOnGameModeChanged(OnGameModeChanged onGameModeChanged) {
+        getAndroidGameMode().setListener(onGameModeChanged);
+    }
+
+    private AndroidGameMode getAndroidGameMode() {
+        if (androidGameMode == null) {
+            androidGameMode = new AndroidGameMode(getContext());
+        }
+        return androidGameMode;
     }
 
     public String getGlEsVersion() {
