@@ -6,15 +6,74 @@ sourceSets {
     }
 }
 
+// The android.* classes come from the platform android.jar of the locally installed Android
+// SDK, see https://github.com/jMonkeyEngine/jmonkeyengine/issues/1148. The SDK is looked up
+// the same way settings.gradle does it for the Android examples, and the jar is resolved in a
+// provider so that the build only fails when this module is really compiled (or its javadoc
+// or its classpath is built) instead of on every Gradle invocation.
+def androidMinCompileSdk = 34
+def findAndroidSdk = {
+    def sdkDirs = []
+
+    if (project.hasProperty('android.sdk.path')) {
+        sdkDirs << file(project.property('android.sdk.path'))
+    }
+
+    def localProperties = rootProject.file('local.properties')
+    if (localProperties.isFile()) {
+        Properties properties = new Properties()
+        localProperties.withInputStream { properties.load(it) }
+        if (properties.getProperty('sdk.dir')) {
+            sdkDirs << file(properties.getProperty('sdk.dir'))
+        }
+    }
+
+    if (System.env.ANDROID_HOME) {
+        sdkDirs << file(System.env.ANDROID_HOME)
+    }
+    if (System.env.ANDROID_SDK_ROOT) {
+        sdkDirs << file(System.env.ANDROID_SDK_ROOT)
+    }
+    sdkDirs << file("${System.properties['user.home']}/Android/Sdk")
+    sdkDirs << file("${System.properties['user.home']}/Library/Android/sdk")
+    sdkDirs << file("${System.properties['user.home']}/AppData/Local/Android/Sdk")
+
+    for (sdkDir in sdkDirs.unique { it.absolutePath }) {
+        def compileSdk = new File(sdkDir, 'platforms').listFiles()?.collect { platform ->
+            def matcher = platform.name =~ /^android-(\d+)$/
+            matcher.matches() && new File(platform, 'android.jar').isFile() ? matcher[0][1] as int : null
+        }?.findAll { it != null }?.max()
+
+        if (sdkDir.isDirectory() && compileSdk != null && compileSdk >= androidMinCompileSdk) {
+            return [dir: sdkDir, compileSdk: compileSdk]
+        }
+    }
+
+    return null
+}
+
+def androidJar = providers.provider {
+    def androidSdk = findAndroidSdk()
+    if (androidSdk == null) {
+        throw new GradleException(
+                "No Android SDK with API level ${androidMinCompileSdk} or newer was found. "
+                + "jme3-android compiles against the platform android.jar shipped with the Android SDK: "
+                + "install it with 'sdkmanager \"platforms;android-${androidMinCompileSdk}\"' and make the "
+                + "SDK discoverable through the 'android.sdk.path' project property, 'sdk.dir' in "
+                + "local.properties, or the ANDROID_HOME / ANDROID_SDK_ROOT environment variables.")
+    }
+    return new File(androidSdk.dir, "platforms/android-${androidSdk.compileSdk}/android.jar")
+}
+
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly libs.androidx.annotation
     compileOnly libs.androidx.lifecycle.common
     compileOnly sourceSets.androidxStubs.output
-    androidxStubsCompileOnly files(rootProject.file('lib/android.jar'))
+    androidxStubsCompileOnly files(androidJar)
     api project(':jme3-core')
     implementation libs.jme3.android.natives
-    compileOnly files(rootProject.file('lib/android.jar'))
+    compileOnly files(androidJar)
 }
 
 compileJava {
