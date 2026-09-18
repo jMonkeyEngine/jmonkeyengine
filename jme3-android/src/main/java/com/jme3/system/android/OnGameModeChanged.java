@@ -32,24 +32,25 @@
 package com.jme3.system.android;
 
 /**
- * Listener notified when the Android platform game mode changes.
+ * jME listener that receives the game mode the Android platform currently reports.
  *
- * <p>The listener is registered with
- * {@link AndroidGameMode#setListener(OnGameModeChanged)} and is usually exposed by the
- * Android harnesses, for example
+ * <p>Android does not offer a game mode change callback: its documentation asks games
+ * to read {@code GameManager.getGameMode()} every time they are resumed. This listener
+ * is therefore notified when jME refreshes that value, not by a platform callback for
+ * every settings change. It is usually registered through the Android harnesses, for
+ * example
  * {@code com.jme3.view.surfaceview.JmeSurfaceView#setOnGameModeChanged(OnGameModeChanged)}
  * and
- * {@code com.jme3.app.AndroidHarnessFragment#setOnGameModeChanged(OnGameModeChanged)}.</p>
+ * {@code com.jme3.app.AndroidHarnessFragment#setOnGameModeChanged(OnGameModeChanged)},
+ * which refresh it when they are resumed.</p>
  *
- * <p>It maps the per-mode callbacks of the Game Mode API to a single game mode
- * value: {@link GameMode#PERFORMANCE} corresponds to the performance callback,
- * {@link GameMode#BATTERY} to the battery saver callback,
- * {@link GameMode#STANDARD} to the standard callback and
- * {@link GameMode#UNSUPPORTED} to the disabled callback.</p>
+ * <p>The listener receives a single game mode value: {@link GameMode#PERFORMANCE},
+ * {@link GameMode#BATTERY}, {@link GameMode#STANDARD} or {@link GameMode#CUSTOM} when
+ * the platform reports one, and {@link GameMode#UNSUPPORTED} when the Game Mode API is
+ * unavailable or the platform has no mode for the application.</p>
  *
- * <p>Callbacks are delivered on the Android main thread. The current mode is reported
- * to the listener as soon as it is registered, including once with
- * {@link GameMode#UNSUPPORTED} when the Game Mode API is unavailable.</p>
+ * <p>The listener is notified on the Android main thread, once with the current mode
+ * when it is registered and again whenever jME refreshes that mode.</p>
  *
  * @see GameMode
  * @see AndroidGameMode
@@ -57,8 +58,8 @@ package com.jme3.system.android;
 public interface OnGameModeChanged {
 
     /**
-     * Invoked when the platform game mode changes, and once with the current mode when
-     * the listener is registered.
+     * Invoked with the game mode the platform currently reports, when the listener is
+     * registered and whenever jME refreshes that mode.
      *
      * @param gameMode the current game mode, never null
      */

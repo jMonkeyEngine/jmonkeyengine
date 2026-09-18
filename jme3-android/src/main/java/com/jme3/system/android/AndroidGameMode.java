@@ -31,23 +31,31 @@
  */
 package com.jme3.system.android;
 
+import android.app.GameManager;
+import android.app.GameState;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+import android.os.Build;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Reflection-based bridge to the Android Game Mode API of Android 12 (API 31) and newer.
+ * Bridge to the Android Game Mode API of Android 12 (API 31) and newer.
  *
- * <p>The platform classes ({@code android.app.GameManager} and its game mode listener)
- * are accessed through reflection, so this class compiles and runs on older devices. On
- * devices where the API is unavailable, {@link #isSupported()} returns false,
- * {@link #getGameMode()} returns {@link GameMode#UNSUPPORTED} and registering a listener
- * reports {@link GameMode#UNSUPPORTED} once, the equivalent of the disabled game mode.</p>
+ * <p>{@link GameManager} is used directly, with the API level guarded per member:
+ * looking the service up and calling {@code getGameMode()} require API 31
+ * ({@link Build.VERSION_CODES#S}), {@link GameManager#setGameState(GameState)}
+ * requires API 33 ({@link Build.VERSION_CODES#TIRAMISU}) and the custom game mode
+ * requires API 34 ({@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE}). On older devices
+ * {@link #isSupported()} returns false, {@link #getGameMode()} returns
+ * {@link GameMode#UNSUPPORTED} and there is nothing to unregister, so applications
+ * keep working unchanged.</p>
+ *
+ * <p>The platform has no game mode change callback: its documentation asks
+ * applications to read {@code GameManager.getGameMode()} every time they are
+ * resumed. On this API that means storing an {@link OnGameModeChanged} listener and
+ * calling {@link #refresh()} when the application is resumed, which is what the jME
+ * harnesses do. The listener receives the mode currently reported by the system, or
+ * {@link GameMode#UNSUPPORTED} when there is none.</p>
  *
  * <p>Instances are normally created and managed by the Android harnesses, for example
  * {@code com.jme3.view.surfaceview.JmeSurfaceView} and
@@ -60,69 +68,37 @@ import java.util.logging.Logger;
 public class AndroidGameMode {
 
     private static final Logger logger = Logger.getLogger(AndroidGameMode.class.getName());
-    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
-    private static final String GAME_MANAGER_CLASS_NAME = "android.app.GameManager";
-    private static final String GAME_MODE_LISTENER_CLASS_NAME = "android.app.GameManager$OnGameModeChangedListener";
-    private static final String GAME_SERVICE_NAME = "game";
-    private static final String GET_GAME_MODE_METHOD_NAME = "getGameMode";
-    private static final String REGISTER_LISTENER_METHOD_NAME = "registerGameModeChangedListener";
-    private static final String UNREGISTER_LISTENER_METHOD_NAME = "unregisterGameModeChangedListener";
-    private static final String GAME_MODE_CHANGED_METHOD_NAME = "onGameModeChanged";
-
-    private final Object gameManager;
-    private final Method getGameModeMethod;
-    private final Method registerListenerMethod;
-    private final Method unregisterListenerMethod;
-    private final Class<?> listenerClass;
+    private final GameManager gameManager;
     private OnGameModeChanged listener;
-    private Object listenerProxy;
 
     /**
      * Creates a bridge to the Game Mode API of the given context.
      *
+     * <p>The game service is only looked up on Android 12 and newer; on any other
+     * device, and when the platform does not publish a {@link GameManager}, the bridge
+     * simply reports {@link GameMode#UNSUPPORTED}.</p>
+     *
      * @param context the Android context used to look up the game service
      */
     public AndroidGameMode(Context context) {
-        Object manager = null;
-        Method getGameMode = null;
-        Method registerListener = null;
-        Method unregisterListener = null;
-        Class<?> gameModeListenerClass = null;
-
-        try {
-            Class<?> gameManagerClass = Class.forName(GAME_MANAGER_CLASS_NAME);
-            gameModeListenerClass = Class.forName(GAME_MODE_LISTENER_CLASS_NAME);
-            Object service = context.getSystemService(GAME_SERVICE_NAME);
-            if (gameManagerClass.isInstance(service)) {
-                getGameMode = gameManagerClass.getMethod(GET_GAME_MODE_METHOD_NAME);
-                registerListener =
-                        gameManagerClass.getMethod(REGISTER_LISTENER_METHOD_NAME, gameModeListenerClass);
-                unregisterListener =
-                        gameManagerClass.getMethod(UNREGISTER_LISTENER_METHOD_NAME, gameModeListenerClass);
-                manager = service;
+        GameManager manager = null;
+        if (context != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                manager = context.getSystemService(GameManager.class);
+            } catch (Throwable throwable) {
+                logger.log(Level.FINE,
+                        "The Android Game Mode API is not available on this device", throwable);
             }
-        } catch (Throwable throwable) {
-            manager = null;
-            getGameMode = null;
-            registerListener = null;
-            unregisterListener = null;
-            gameModeListenerClass = null;
-            logger.log(Level.FINE, "The Android Game Mode API is not available on this device", throwable);
         }
-
         this.gameManager = manager;
-        this.getGameModeMethod = getGameMode;
-        this.registerListenerMethod = registerListener;
-        this.unregisterListenerMethod = unregisterListener;
-        this.listenerClass = gameModeListenerClass;
     }
 
     /**
      * Tests whether the platform Game Mode API is available, which requires Android 12
-     * (API 31) or newer.
+     * (API 31) or newer and a device that publishes the game service.
      *
-     * @return true if the game mode can be read and observed, false otherwise
+     * @return true if the game mode can be read and reported, false otherwise
      */
     public boolean isSupported() {
         return gameManager != null;
@@ -131,110 +107,84 @@ public class AndroidGameMode {
     /**
      * Reads the game mode currently selected for this application.
      *
-     * @return the current game mode, or {@link GameMode#UNSUPPORTED} if it cannot be read
+     * @return the current game mode, or {@link GameMode#UNSUPPORTED} if the API is
+     *     unavailable or the platform does not report a game mode
      */
     public GameMode getGameMode() {
-        if (gameManager == null || getGameModeMethod == null) {
+        if (gameManager == null) {
             return GameMode.UNSUPPORTED;
         }
         try {
-            Object gameMode = getGameModeMethod.invoke(gameManager);
-            if (gameMode instanceof Integer) {
-                return GameMode.fromValue((Integer) gameMode);
+            int gameMode = gameManager.getGameMode();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                    && gameMode == GameManager.GAME_MODE_CUSTOM) {
+                return GameMode.CUSTOM;
             }
+            return GameMode.fromValue(gameMode);
         } catch (Throwable throwable) {
             logger.log(Level.WARNING, "Unable to read the Android game mode", throwable);
+            return GameMode.UNSUPPORTED;
         }
-        return GameMode.UNSUPPORTED;
     }
 
     /**
-     * Registers the listener notified when the platform game mode changes, replacing any
-     * previously registered listener.
+     * Reports how much of the current game is actually content versus an interruption,
+     * which lets the platform withhold game mode interventions while gameplay must not
+     * be disturbed. See the Android documentation of
+     * {@link GameManager#setGameState(GameState)} for the available states.
      *
-     * <p>The current game mode is reported to the listener immediately after it is
-     * registered, and the callback is always dispatched on the Android main thread. Pass
-     * null to only unregister the previous listener.</p>
+     * <p>This is a no-op that returns false before Android 13 (API 33) and on devices
+     * without the Game Mode API.</p>
+     *
+     * @param gameState the state built with a {@code GameState.Builder}
+     * @return true if the state was reported to the platform, false otherwise
+     */
+    public boolean setGameState(GameState gameState) {
+        if (gameManager == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return false;
+        }
+        try {
+            gameManager.setGameState(gameState);
+            return true;
+        } catch (Throwable throwable) {
+            logger.log(Level.WARNING, "Unable to report the Android game state", throwable);
+            return false;
+        }
+    }
+
+    /**
+     * Sets the listener notified when this bridge refreshes the current game mode,
+     * replacing any previously registered listener.
+     *
+     * <p>The current game mode is reported to a new listener immediately, including
+     * once with {@link GameMode#UNSUPPORTED} when the Game Mode API is unavailable.
+     * Pass null to unregister the previous listener.</p>
      *
      * @param listener the listener to notify, or null to unregister
      * @see OnGameModeChanged
+     * @see #refresh()
      */
     public void setListener(OnGameModeChanged listener) {
-        unregister();
         this.listener = listener;
-        if (listener == null) {
-            return;
-        }
-        register(listener);
-        dispatch(getGameMode());
-    }
-
-    /**
-     * Registers the platform listener. Does nothing if the Game Mode API is unavailable.
-     */
-    private void register(OnGameModeChanged listener) {
-        if (gameManager == null || registerListenerMethod == null || listenerClass == null) {
-            return;
-        }
-
-        InvocationHandler handler = new InvocationHandler() {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) {
-                if (GAME_MODE_CHANGED_METHOD_NAME.equals(method.getName())
-                        && args != null && args.length == 1 && args[0] instanceof Integer) {
-                    dispatch(GameMode.fromValue((Integer) args[0]));
-                }
-                return null;
-            }
-        };
-
-        try {
-            listenerProxy = Proxy.newProxyInstance(
-                    AndroidGameMode.class.getClassLoader(), new Class<?>[]{listenerClass}, handler);
-            registerListenerMethod.invoke(gameManager, listenerProxy);
-        } catch (Throwable throwable) {
-            listenerProxy = null;
-            logger.log(Level.WARNING, "Unable to register the Android game mode listener", throwable);
+        if (listener != null) {
+            refresh();
         }
     }
 
     /**
-     * Unregisters the platform listener, if any.
+     * Reads the current game mode and pushes it to the registered listener, if any.
+     *
+     * <p>Because the platform does not notify applications of game mode changes, this
+     * is meant to be called whenever the application comes back to the foreground, for
+     * example from {@code JmeSurfaceView} on {@code ON_RESUME} and from
+     * {@code AndroidHarnessFragment#onResume()}.</p>
+     *
+     * @see #getGameMode()
      */
-    private void unregister() {
-        if (gameManager != null && listenerProxy != null && unregisterListenerMethod != null) {
-            try {
-                unregisterListenerMethod.invoke(gameManager, listenerProxy);
-            } catch (Throwable throwable) {
-                logger.log(Level.WARNING, "Unable to unregister the Android game mode listener", throwable);
-            }
-        }
-        listenerProxy = null;
-    }
-
-    /**
-     * Notifies the registered listener on the Android main thread.
-     */
-    private void dispatch(final GameMode gameMode) {
-        if (listener == null) {
-            return;
-        }
-
-        Runnable notification = new Runnable() {
-            @Override
-            public void run() {
-                OnGameModeChanged target = listener;
-                if (target != null) {
-                    target.onGameModeChanged(gameMode);
-                }
-            }
-        };
-
-        Looper looper = Looper.myLooper();
-        if (looper != null && looper == Looper.getMainLooper()) {
-            notification.run();
-        } else {
-            MAIN_HANDLER.post(notification);
+    public void refresh() {
+        OnGameModeChanged target = listener;
+        if (target != null) {
+            target.onGameModeChanged(getGameMode());
         }
     }
 }

@@ -280,6 +280,10 @@ public class JmeSurfaceView extends RelativeLayout
 
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        if (event == Lifecycle.Event.ON_RESUME && androidGameMode != null) {
+            // The platform asks games to read the game mode every time they are resumed.
+            androidGameMode.refresh();
+        }
         if (!bindAppState) {
             return;
         }
@@ -659,12 +663,15 @@ public class JmeSurfaceView extends RelativeLayout
     }
 
     /**
-     * Registers a listener notified when the Android game mode changes.
+     * Registers a listener that receives the game mode the Android platform currently
+     * reports.
      *
-     * <p>The current game mode is reported to the listener as soon as it is registered,
-     * including once with {@link GameMode#UNSUPPORTED} on devices where the Game Mode API
-     * is unavailable (Android 11 and older) or for applications the platform does not
-     * treat as games. Pass null to unregister a previously registered listener.</p>
+     * <p>The platform has no game mode change callback, so the listener is notified on
+     * registration and every time this view is resumed, which is when the system asks
+     * games to read the mode again. It is notified with {@link GameMode#UNSUPPORTED} on
+     * devices where the Game Mode API is unavailable (Android 11 and older) or for
+     * applications the platform does not treat as games. Pass null to unregister a
+     * previously registered listener.</p>
      *
      * <p>Applications typically use this listener to alter the level of detail, load
      * lower-poly models, change the frame rate or disable filters when the platform asks
