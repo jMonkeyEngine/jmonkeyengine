@@ -193,10 +193,27 @@ public class AndroidTouchInput implements TouchInput {
 
         boolean bWasHandled = false;
         TouchEvent touch = null;
-        //    System.out.println("native : " + event.getAction());
-        getAction(event);
+        int action = getAction(event);
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
+
+        if (action == MotionEvent.ACTION_DOWN) {
+            // A brand-new gesture stream has started: reset any stale hidden state from
+            // previous interrupted gestures.
+            hiddenPointerMask = 0L;
+            if (isJoystickPointer(pointerId)) {
+                hiddenPointerMask |= pointerBit(pointerId);
+            }
+        } else if (action == MotionEvent.ACTION_POINTER_DOWN) {
+            if (isJoystickPointer(pointerId)) {
+                hiddenPointerMask |= pointerBit(pointerId);
+            } else {
+                // Fresh DOWN for an ordinary pointer: drop any stale hidden state for
+                // this id (eg. a previous DOWN that never saw its UP).
+                hiddenPointerMask &= ~pointerBit(pointerId);
+            }
+        }
+
         Vector2f lastPos = lastPositions.get(pointerId);
         float jmeX;
         float jmeY;
@@ -205,7 +222,7 @@ public class AndroidTouchInput implements TouchInput {
 
         // final int historySize = event.getHistorySize();
         //final int pointerCount = event.getPointerCount();
-        switch (getAction(event)) {
+        switch (action) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
                 if (isJoystickPointer(pointerId)) {
@@ -308,7 +325,6 @@ public class AndroidTouchInput implements TouchInput {
         // ACTION_CANCEL and then nothing until the gesture ends. Without the cancel,
         // a detector that saw the initial DOWN would be left waiting for an UP that
         // never comes (and might fire a stale long-press or fling later).
-        int action = getAction(event);
         boolean tainted = isEventTainted(event);
         MotionEvent cancelEvent = null;
         if (action == MotionEvent.ACTION_DOWN) {
@@ -330,6 +346,7 @@ public class AndroidTouchInput implements TouchInput {
         }
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             gestureStreamTainted = false;
+            hiddenPointerMask = 0L;
         }
 
         return bWasHandled;
