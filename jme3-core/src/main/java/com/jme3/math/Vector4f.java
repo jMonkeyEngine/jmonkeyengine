@@ -789,7 +789,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return a new Vector4f with non-negative components
      */
     public Vector4f abs() {
-        return new Vector4f(Math.abs(x), Math.abs(y),Math.abs(z),Math.abs(w));
+        return new Vector4f(Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w));
     }
 
     /**
