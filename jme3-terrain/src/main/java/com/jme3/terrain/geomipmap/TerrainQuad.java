@@ -126,7 +126,7 @@ public class TerrainQuad extends Node implements Terrain {
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
     private TerrainPicker picker = new BresenhamTerrainPicker(this);
-    private Vector3f lastScale = Vector3f.UNIT_XYZ;
+    private Vector3f lastScale = Vector3f.UNIT_XYZ.clone();
 
     protected NeighbourFinder neighbourFinder;
 
@@ -885,7 +885,7 @@ public class TerrainQuad extends Node implements Terrain {
             return true;
         if (!lastScale.equals(getWorldScale())) {
             affectedAreaBBox = new BoundingBox(getWorldTranslation(), Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-            lastScale = getWorldScale();
+            lastScale.set(getWorldScale());
             return true;
         }
         return false;

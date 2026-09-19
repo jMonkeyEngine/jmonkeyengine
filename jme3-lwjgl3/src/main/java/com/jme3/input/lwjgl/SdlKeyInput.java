@@ -49,7 +49,7 @@ import static org.lwjgl.sdl.SDLTimer.*;
 /**
  * SDL implementation of {@link KeyInput}.
  */
-public class SdlKeyInput implements KeyInput {
+public class SdlKeyInput implements KeyInput, SdlEventListener {
 
     private static final Logger LOGGER = Logger.getLogger(SdlKeyInput.class.getName());
 
@@ -80,6 +80,7 @@ public class SdlKeyInput implements KeyInput {
 
     }
 
+    @Override
     public void onSDLEvent(SDL_Event event) {
         final int type = event.type();
         if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
