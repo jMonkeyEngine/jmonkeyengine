@@ -321,31 +321,35 @@ public class ScreenshotTest{
                     if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                         failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
                     }
-                }else if (imagesAreVerySimilar(generatedImage, expectedImage))  {
-                    if(testType == TestType.KNOWN_TO_FAIL){
-                        TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
-                    }
                 } else {
-                    //save the generated image to the build directory
-                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
+                    ImageDifference imageDifference = ImageDifference.of(generatedImage, expectedImage);
 
-                    attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
-                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
-                    attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
+                    if (imageDifference.isNegligible()) {
+                        if(testType == TestType.KNOWN_TO_FAIL){
+                            TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
+                        }
+                    } else {
+                        //save the generated image to the build directory
+                        osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
 
-                    switch(testType){
-                        case MUST_PASS:
-                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                                failureMessage = IMAGES_ARE_DIFFERENT;
-                            }
-                            TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
-                            break;
-                        case NON_DETERMINISTIC:
-                            TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
-                            break;
-                        case KNOWN_TO_FAIL:
-                            TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
-                            break;
+                        attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
+                        attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
+                        attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
+
+                        switch(testType){
+                            case MUST_PASS:
+                                if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                    failureMessage = IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")";
+                                }
+                                TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
+                                break;
+                            case NON_DETERMINISTIC:
+                                TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
+                                break;
+                            case KNOWN_TO_FAIL:
+                                TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
+                                break;
+                        }
                     }
                 }
 
@@ -433,32 +437,11 @@ public class ScreenshotTest{
      * Tests that the images are the same for the purposes of the test.
      * If they are not the same it will return false (which may fail the test depending on the test type).
      * Different sizes are so fatal that they will immediately fail the test.
+     * A difference that is small enough to be renderer noise rather than a change in what was drawn
+     * still counts as the same, see {@link ImageDifference}.
      */
     private static boolean imagesAreVerySimilar(Image img1, Image img2) {
-        ImageRaster image1Wrapper = DefaultImageRaster.create(img1);
-        ImageRaster image2Wrapper = DefaultImageRaster.create(img2);
-
-        ColorRGBA color1 = new ColorRGBA();
-        ColorRGBA color2 = new ColorRGBA();
-
-        for (int y = 0; y < img1.getHeight(); y++) {
-            for (int x = 0; x < img1.getWidth(); x++) {
-
-                image1Wrapper.getPixel(x, y, color1);
-                image2Wrapper.getPixel(x, y, color2);
-
-                int pixel1 = color1.asIntARGB();
-                int pixel2 = color2.asIntARGB();
-
-                int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
-
-                if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
-                    return false;
-                }
-
-            }
-        }
-        return true;
+        return ImageDifference.of(img1, img2).isNegligible();
     }
 
     /**
@@ -532,7 +515,7 @@ public class ScreenshotTest{
             return PixelSamenessDegree.SAME;
         }
 
-        int pixelDifference = getMaximumComponentDifference(pixel1, pixel2);
+        int pixelDifference = ImageDifference.maximumComponentDifference(pixel1, pixel2);
 
         if(pixelDifference<= PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
             return PixelSamenessDegree.NEGLIGIBLY_DIFFERENT;
@@ -548,21 +531,5 @@ public class ScreenshotTest{
         }
         return PixelSamenessDegree.EXTREMELY_DIFFERENT;
     }
-
-    private static int getMaximumComponentDifference(int pixel1, int pixel2){
-        int r1 = (pixel1 >> 16) & 0xFF;
-        int g1 = (pixel1 >> 8) & 0xFF;
-        int b1 = pixel1 & 0xFF;
-        int a1 = (pixel1 >> 24) & 0xFF;
-
-        int r2 = (pixel2 >> 16) & 0xFF;
-        int g2 = (pixel2 >> 8) & 0xFF;
-        int b2 = pixel2 & 0xFF;
-        int a2 = (pixel2 >> 24) & 0xFF;
-
-        return Math.max(Math.abs(r1 - r2), Math.max(Math.abs(g1 - g2), Math.max(Math.abs(b1 - b2), Math.abs(a1 - a2))));
-    }
-
-
 
 }
