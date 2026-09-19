@@ -835,7 +835,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return a new Vector3f with non-negative components
      */
     public Vector3f abs() {
-        return new Vector3f(Math.abs(x), Math.abs(y),Math.abs(z));
+        return new Vector3f(Math.abs(x), Math.abs(y), Math.abs(z));
     }
 
     /**
