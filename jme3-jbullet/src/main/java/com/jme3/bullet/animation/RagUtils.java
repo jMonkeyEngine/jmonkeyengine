@@ -68,6 +68,7 @@ import java.util.logging.Logger;
  *
  * Based on KinematicRagdollControl by Normen Hansen and Rémy Bouquet (Nehon).
  */
+@Deprecated
 public class RagUtils {
     // *************************************************************************
     // constants and loggers

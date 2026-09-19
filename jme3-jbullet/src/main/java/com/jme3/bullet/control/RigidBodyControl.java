@@ -62,6 +62,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl, JmeCloneable {
 
     /**
