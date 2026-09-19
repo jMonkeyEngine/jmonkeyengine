@@ -92,6 +92,17 @@ public class GltfLoaderTest {
     }
 
     @Test
+    public void testLoadCubicSplineScaleAnimation() {
+        try {
+            Spatial scene = assetManager.loadModel("gltf/cubicSplineScale.gltf");
+            dumpScene(scene, 0);
+        } catch (AssetLoadException ex) {
+            ex.printStackTrace();
+            Assertions.fail("Failed to import gltf model with cubic spline scale animation");
+        }
+    }
+
+    @Test
     public void testLightsPunctualExtension() {
         try {
             Spatial scene = assetManager.loadModel("gltf/lights/lights.gltf");
