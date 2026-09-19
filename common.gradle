@@ -33,6 +33,18 @@ tasks.withType(JavaCompile) { // compile-time options:
     options.release = 8
 }
 
+// JUnit 6 requires Java 17 bytecode, so every compilation unit that consumes it is
+// compiled for Java 17: the test sources of all modules and the main sources of the
+// screenshot-test framework modules (which use JUnit in their main code). The engine
+// itself keeps targeting Java 8.
+def isScreenshotTestFrameworkModule = project.path.startsWith(':jme3-screenshot-tests:')
+tasks.withType(JavaCompile).configureEach { JavaCompile javaCompile ->
+    if (javaCompile.name.startsWith('compileTest')
+            || (isScreenshotTestFrameworkModule && javaCompile.name == 'compileJava')) {
+        javaCompile.options.release = 17
+    }
+}
+
 repositories {
     mavenCentral()
     flatDir {

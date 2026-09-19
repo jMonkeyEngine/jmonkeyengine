@@ -70,6 +70,12 @@ import java.util.Arrays;
 public class ScenarioIssue1773 {
 
     public static ScreenshotTest testIssue1773(boolean worldSpace) {
+        // The framework runs at a fixed tpf (IsoTimer), so particle emission is
+        // already deterministic per frame. However the emitter shape picks random
+        // mesh vertices from the shared FastMath.rand generator, whose state is
+        // not reset between the two parameterized invocations. Reset it to a known
+        // seed here so every run produces an identical, reproducible screenshot.
+        FastMath.rand.setSeed(0);
         return screenshotTest(new BaseAppState() {
             private ParticleEmitter emit;
             private Node myModel;

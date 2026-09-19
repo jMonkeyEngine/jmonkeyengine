@@ -106,6 +106,18 @@ jmeNativeImage {
 }
 ```
 
+## Runtime Initialization
+ 
+
+Add application-specific classes or packages you want to be initialized at runtime instead of build time:
+
+```groovy
+jmeNativeImage {
+    runtimeInitialize 'com.example.RuntimeState'
+    runtimeInitialize 'com.example.runtime'
+}
+```
+
 
 ## Advanced Usage
 

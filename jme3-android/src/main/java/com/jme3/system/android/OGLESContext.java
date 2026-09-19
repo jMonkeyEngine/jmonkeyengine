@@ -50,6 +50,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInputHandler;
 import com.jme3.input.android.AndroidInputHandler14;
+import com.jme3.input.android.AndroidInputHandler16;
 import com.jme3.input.android.AndroidInputHandler24;
 import com.jme3.input.android.AndroidInputHandler26;
 import com.jme3.input.controls.SoftTextDialogInputListener;
@@ -166,6 +167,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 androidInput = new AndroidInputHandler26();
             } else if (Build.VERSION.SDK_INT >= 24) {
                 androidInput = new AndroidInputHandler24();
+            } else if (Build.VERSION.SDK_INT >= 16) {
+                androidInput = new AndroidInputHandler16();
             } else if (Build.VERSION.SDK_INT >= 14) {
                 androidInput = new AndroidInputHandler14();
             } else if (Build.VERSION.SDK_INT >= 9) {

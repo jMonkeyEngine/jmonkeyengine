@@ -50,7 +50,7 @@ public class IosInputHandler implements TouchInput {
     }
     private int width = 0;
     private int height = 0;
-    private final int[] nativeIntData = new int[5];
+    private final int[] nativeIntData = new int[6];
     private final float[] nativeFloatData = new float[4];
 
     public IosInputHandler() {
@@ -277,7 +277,9 @@ public class IosInputHandler implements TouchInput {
                 addEvent(motion);
                 break;
             case LibJGLIOSInputBridge.EVENT_KEY:
-                IosJoyInput.dispatchKeyboardInput();
+                if (isPhysicalKeyboardEvent(intData)) {
+                    IosJoyInput.dispatchKeyboardInput();
+                }
                 int sdlKey = SDL_GetKeyFromScancode(intData[1], intData[4], true);
                 char keyChar = sdlKey > 0 && sdlKey <= Character.MAX_VALUE && !Character.isISOControl((char) sdlKey)
                         ? (char) sdlKey
@@ -299,6 +301,10 @@ public class IosInputHandler implements TouchInput {
             default:
                 break;
         }
+    }
+
+    private static boolean isPhysicalKeyboardEvent(int[] intData) {
+        return intData[5] != 0;
     }
 
     private float nativeX(float value) {

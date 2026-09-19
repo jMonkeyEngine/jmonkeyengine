@@ -81,6 +81,20 @@ public class ScreenshotTest{
 
     public static final String NON_DETERMINISTIC_TEST = "This is a non deterministic test, please manually review the expected and actual images to make sure they are approximately the same.";
 
+    /**
+     * System property used to select the renderer the screenshot tests run with.
+     * Defaults to {@link AppSettings#LWJGL_OPENGL45}; set to {@link AppSettings#ANGLE_GLES3}
+     * (via the Gradle task or CI job) to run the ANGLE backend instead.
+     */
+    public static final String RENDERER_SYSTEM_PROPERTY = "jme.screenshot.renderer";
+
+    /**
+     * Suffix appended to reference/changed image file names when running with the ANGLE renderer,
+     * so ANGLE reference images (e.g. {@code TestFoo_f1_angle.png}) live next to - but never
+     * overwrite - the OpenGL ones.
+     */
+    public static final String ANGLE_REFERENCE_IMAGE_SUFFIX = "_angle";
+
 
     private static final Logger logger = Logger.getLogger(ScreenshotTest.class.getName());
 
@@ -166,11 +180,32 @@ public class ScreenshotTest{
         settings.setDisplayScaleMode(displayScaleMode);
         settings.setAudioRenderer(null); // Disable audio (for headless)
         settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
-        settings.setRenderer(AppSettings.LWJGL_OPENGL45);
+        String renderer = resolveRenderer();
+        settings.setRenderer(renderer);
+        logger.info("ScreenshotTest renderer: " + renderer);
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
-        bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner);
+        bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner,
+                referenceImageSuffix(renderer));
+    }
+
+    /**
+     * Resolves the renderer to run with from the {@link #RENDERER_SYSTEM_PROPERTY} system
+     * property. Defaults to {@link AppSettings#LWJGL_OPENGL45} so existing suites and CI
+     * jobs keep their previous behaviour when the property is not set.
+     */
+    static String resolveRenderer(){
+        return System.getProperty(RENDERER_SYSTEM_PROPERTY, AppSettings.LWJGL_OPENGL45);
+    }
+
+    /**
+     * Returns the file name suffix used for reference and changed images for the given renderer.
+     * ANGLE runs produce and consume {@code *_angle.png} images so they never clash with the
+     * OpenGL reference set.
+     */
+    public static String referenceImageSuffix(String renderer){
+        return AppSettings.ANGLE_GLES3.equals(renderer) ? ANGLE_REFERENCE_IMAGE_SUFFIX : "";
     }
 
     /**
@@ -179,7 +214,7 @@ public class ScreenshotTest{
      * - After all the frames have been taken it stops the application
      * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
      */
-    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner){
+    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner, String referenceImageSuffix){
 
         Collections.sort(framesToTakeScreenshotsOn);
         ScenarioScreenshotRecorder overallScreenshots = new ScenarioScreenshotRecorder();
@@ -222,7 +257,7 @@ public class ScreenshotTest{
                         Image primeGeneratedImage = readImage(primeGeneratedImagePath.toFile());
                         Image otherGeneratedImage = readImage(otherGeneratedImagePath.toFile());
 
-                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame + referenceImageSuffix;
 
                         if(!imagesAreSameSize(primeGeneratedImage, otherGeneratedImage)){
                             attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
@@ -253,7 +288,7 @@ public class ScreenshotTest{
                         "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                 ));
 
-                String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+                String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame + referenceImageSuffix;
 
                 Enumeration<URL> expectedImageResources = ScreenshotTest.class.getClassLoader().getResources(thisFrameBaseImageFileName + ".png");
 
@@ -286,31 +321,35 @@ public class ScreenshotTest{
                     if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                         failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
                     }
-                }else if (imagesAreVerySimilar(generatedImage, expectedImage))  {
-                    if(testType == TestType.KNOWN_TO_FAIL){
-                        TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
-                    }
                 } else {
-                    //save the generated image to the build directory
-                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
+                    ImageDifference imageDifference = ImageDifference.of(generatedImage, expectedImage);
 
-                    attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
-                    attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
-                    attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
+                    if (imageDifference.isNegligible()) {
+                        if(testType == TestType.KNOWN_TO_FAIL){
+                            TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
+                        }
+                    } else {
+                        //save the generated image to the build directory
+                        osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
 
-                    switch(testType){
-                        case MUST_PASS:
-                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                                failureMessage = IMAGES_ARE_DIFFERENT;
-                            }
-                            TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
-                            break;
-                        case NON_DETERMINISTIC:
-                            TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
-                            break;
-                        case KNOWN_TO_FAIL:
-                            TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
-                            break;
+                        attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
+                        attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
+                        attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
+
+                        switch(testType){
+                            case MUST_PASS:
+                                if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                    failureMessage = IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")";
+                                }
+                                TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
+                                break;
+                            case NON_DETERMINISTIC:
+                                TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
+                                break;
+                            case KNOWN_TO_FAIL:
+                                TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_DIFFERENT);
+                                break;
+                        }
                     }
                 }
 
@@ -398,32 +437,11 @@ public class ScreenshotTest{
      * Tests that the images are the same for the purposes of the test.
      * If they are not the same it will return false (which may fail the test depending on the test type).
      * Different sizes are so fatal that they will immediately fail the test.
+     * A difference that is small enough to be renderer noise rather than a change in what was drawn
+     * still counts as the same, see {@link ImageDifference}.
      */
     private static boolean imagesAreVerySimilar(Image img1, Image img2) {
-        ImageRaster image1Wrapper = DefaultImageRaster.create(img1);
-        ImageRaster image2Wrapper = DefaultImageRaster.create(img2);
-
-        ColorRGBA color1 = new ColorRGBA();
-        ColorRGBA color2 = new ColorRGBA();
-
-        for (int y = 0; y < img1.getHeight(); y++) {
-            for (int x = 0; x < img1.getWidth(); x++) {
-
-                image1Wrapper.getPixel(x, y, color1);
-                image2Wrapper.getPixel(x, y, color2);
-
-                int pixel1 = color1.asIntARGB();
-                int pixel2 = color2.asIntARGB();
-
-                int largestPixelValueDifference = getMaximumComponentDifference(pixel1, pixel2);
-
-                if(largestPixelValueDifference>PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
-                    return false;
-                }
-
-            }
-        }
-        return true;
+        return ImageDifference.of(img1, img2).isNegligible();
     }
 
     /**
@@ -497,7 +515,7 @@ public class ScreenshotTest{
             return PixelSamenessDegree.SAME;
         }
 
-        int pixelDifference = getMaximumComponentDifference(pixel1, pixel2);
+        int pixelDifference = ImageDifference.maximumComponentDifference(pixel1, pixel2);
 
         if(pixelDifference<= PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
             return PixelSamenessDegree.NEGLIGIBLY_DIFFERENT;
@@ -513,21 +531,5 @@ public class ScreenshotTest{
         }
         return PixelSamenessDegree.EXTREMELY_DIFFERENT;
     }
-
-    private static int getMaximumComponentDifference(int pixel1, int pixel2){
-        int r1 = (pixel1 >> 16) & 0xFF;
-        int g1 = (pixel1 >> 8) & 0xFF;
-        int b1 = pixel1 & 0xFF;
-        int a1 = (pixel1 >> 24) & 0xFF;
-
-        int r2 = (pixel2 >> 16) & 0xFF;
-        int g2 = (pixel2 >> 8) & 0xFF;
-        int b2 = pixel2 & 0xFF;
-        int a2 = (pixel2 >> 24) & 0xFF;
-
-        return Math.max(Math.abs(r1 - r2), Math.max(Math.abs(g1 - g2), Math.max(Math.abs(b1 - b2), Math.abs(a1 - a2))));
-    }
-
-
 
 }
