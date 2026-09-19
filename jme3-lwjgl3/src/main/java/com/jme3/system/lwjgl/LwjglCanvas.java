@@ -518,6 +518,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      * Here the entire GL context is rendered and initialized.
      */
     @Override
+    @SuppressWarnings("deprecation")
     public void run() {
         if (listener == null) {
             throw new IllegalStateException(
@@ -530,6 +531,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         while (true) {
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
+                listener.reshape(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight, framebufferWidth, framebufferHeight);
             }
 
