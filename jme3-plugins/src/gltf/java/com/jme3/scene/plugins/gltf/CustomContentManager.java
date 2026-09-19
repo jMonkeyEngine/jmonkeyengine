@@ -214,7 +214,7 @@ public class CustomContentManager {
                 continue;
             }
             try {
-                return (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
+                input = (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
             } catch (ClassCastException e) {
                 throw new AssetLoadException("Extension loader " + loader.getClass().getName() + " for extension " + ext.getKey() + " is incompatible with type " + input.getClass(), e);
             }

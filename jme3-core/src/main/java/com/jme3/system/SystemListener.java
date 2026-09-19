@@ -46,16 +46,39 @@ public interface SystemListener {
 
     /**
      * Called to notify the application that the resolution has changed.
-     * @param width the new width of the display (in pixels, &ge;0)
-     * @param height the new height of the display (in pixels, &ge;0)
+     * @param width the new logical width of the display (&ge;0)
+     * @param height the new logical height of the display (&ge;0)
+     *
+     * @deprecated Implement {@link #reshape(int, int, int, int)} instead.
+     * This one is kept only for backward compatibility.
      */
-    public void reshape(int width, int height);
+    @Deprecated
+    public default void reshape(int width, int height) {
+    }
+
+    /**
+     * Called to notify the application that logical application size and
+     * physical framebuffer size changed independently.
+     *
+     * @param logicalWidth the width used by cameras, GUI, picking, and input
+     * @param logicalHeight the height used by cameras, GUI, picking, and input
+     * @param framebufferWidth the physical framebuffer width in pixels
+     * @param framebufferHeight the physical framebuffer height in pixels
+     */
+    public default void reshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+    }
 
     /**
      * Called to notify the application that the scale has changed.
+     *
+     * @deprecated Display scale changes are reported through
+     * {@link #reshape(int, int, int, int)}. Built-in contexts no longer call
+     * this method.
+     *
      * @param x the new horizontal scale of the display 
      * @param y the new vertical scale of the display
      */
+    @Deprecated
     public default void rescale(float x, float y){
 
     }

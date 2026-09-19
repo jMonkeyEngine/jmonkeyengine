@@ -15,6 +15,8 @@ public class TestSafeCanvas extends SimpleApplication {
 
     public static void main(String[] args) throws InterruptedException{
         AppSettings settings = new AppSettings(true);
+        settings.setX11PlatformPreferred(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setWidth(640);
         settings.setHeight(480);
 

@@ -145,7 +145,9 @@ public class AndroidMouseInput14 implements MouseInput {
         if (inputHandler.getView().getWidth() != 0 && inputHandler.getView().getHeight() != 0) {
             scaleX = settings.getWidth() / (float)inputHandler.getView().getWidth();
             scaleY = settings.getHeight() / (float)inputHandler.getView().getHeight();
-            currentMouseState.setStartPosition(inputHandler.getView().getWidth()/2, inputHandler.getView().getHeight()/2);
+            currentMouseState.setStartPosition(
+                    getJmeX(inputHandler.getView().getWidth() / 2f),
+                    getJmeY(inputHandler.getView().getHeight() / 2f));
         }
 
         if (logger.isLoggable(Level.FINE)) {

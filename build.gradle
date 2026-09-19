@@ -13,6 +13,7 @@ buildscript {
 }
 
 plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
     id 'org.jmonkeyengine.nativeimage' apply false
 }
 
@@ -23,6 +24,20 @@ ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply from: file('version.gradle')
+
+group = 'org.jmonkeyengine'
+version = jmeFullVersion
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://ossrh-staging-api.central.sonatype.com/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://central.sonatype.com/repository/maven-snapshots/'))
+            username = findProperty('sonatypeUsername') ?: findProperty('centralUsername') ?: 'Unknown user'
+            password = findProperty('sonatypePassword') ?: findProperty('centralPassword') ?: 'Unknown password'
+        }
+    }
+}
 
 allprojects {
     repositories {
@@ -36,13 +51,14 @@ allprojects {
 
 // This is applied to all sub projects
 subprojects {
-    if(!project.name.equals('jme3-android-examples')) {
-        apply from: rootProject.file('common.gradle')
-    } else {
+    if(project.name.equals('jme3-android-examples') || project.name.equals('jme3-screenshot-tests-android')) {
         apply from: rootProject.file('common-android-app.gradle')
+    } else {
+        apply from: rootProject.file('common.gradle')
     }
 
-    if (!project.name.endsWith("-native") && enableSpotBugs != "false" ) {
+    def isAndroidApp = project.plugins.hasPlugin('com.android.application')
+    if (!project.name.endsWith("-native") && !isAndroidApp && enableSpotBugs != "false" ) {
         apply plugin: 'com.github.spotbugs'
 
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
@@ -65,9 +81,15 @@ def nativeImagePluginPublishTasks = [
         publish                                      : ':publish',
         publishToMavenLocal                         : ':publishToMavenLocal',
         install                                      : ':install',
+        publishMavenPublicationToCentralRepository  : ':publishAllPublicationsToCentralRepository',
+        publishMavenPublicationToSNAPSHOTRepository : ':publishAllPublicationsToSNAPSHOTRepository',
+        publishMavenPublicationToDistRepository     : ':publishAllPublicationsToDistRepository',
         publishAllPublicationsToCentralRepository   : ':publishAllPublicationsToCentralRepository',
         publishAllPublicationsToSNAPSHOTRepository  : ':publishAllPublicationsToSNAPSHOTRepository',
-        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository'
+        publishAllPublicationsToDistRepository      : ':publishAllPublicationsToDistRepository',
+        publishToSonatype                           : ':publishToSonatype',
+        closeSonatypeStagingRepository              : ':closeSonatypeStagingRepository',
+        closeStagingRepositories                    : ':closeStagingRepositories'
 ]
 
 subprojects {
@@ -79,9 +101,46 @@ subprojects {
     }
 }
 
+gradle.projectsEvaluated {
+    [
+            publishToSonatype             : ':publishToSonatype',
+            closeSonatypeStagingRepository: ':closeSonatypeStagingRepository',
+            closeStagingRepositories      : ':closeStagingRepositories'
+    ].each { rootTaskName, includedTaskPath ->
+        def rootTask = tasks.findByName(rootTaskName)
+        if (rootTask != null) {
+            rootTask.dependsOn nativeImagePluginBuild.task(includedTaskPath)
+        }
+    }
+}
+
 tasks.register('run') {
     dependsOn ':jme3-examples:run'
     description = 'Run the jME3 examples'
+}
+
+tasks.register('runAndroidExamples') {
+    description = 'Run the Android examples selector'
+    def androidExamplesProject = findProject(':jme3-android-examples')
+    if (androidExamplesProject != null) {
+        dependsOn ':jme3-android-examples:runAndroidExamples'
+    } else {
+        doLast {
+            throw new GradleException('Android examples are not available. Request an Android examples task and configure an Android SDK.')
+        }
+    }
+}
+
+tasks.register('runIosExamples') {
+    description = 'Run the iOS examples selector'
+    def iosExamplesProject = findProject(':jme3-ios-examples')
+    if (iosExamplesProject != null) {
+        dependsOn ':jme3-ios-examples:runIosExamples'
+    } else {
+        doLast {
+            throw new GradleException('iOS examples are not available. Request an iOS examples task.')
+        }
+    }
 }
 
 defaultTasks 'run'
@@ -173,13 +232,19 @@ tasks.register('mergedJavadoc', Javadoc) {
     title = 'jMonkeyEngine3'
     destinationDir = file("dist/javadoc")
 
+    def javadocErrorsEnabled = findProperty('enableJavadocError') == 'true'
+    failOnError = javadocErrorsEnabled
     options.encoding = 'UTF-8'
-    if (JavaVersion.current().isJava8Compatible()) {
+    if (javadocErrorsEnabled) {
+        options.addBooleanOption('Werror', true)
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    } else {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
+    source += fileTree("jme3-android/src/androidx-stubs/java")
     classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
 }
 
@@ -191,128 +256,4 @@ tasks.named('clean') {
     dependsOn cleanMergedJavadoc
 }
 
-ext {
-    ndkCommandPath  = ""
-    ndkExists       = false
-}
-
 apply from: 'gradle/jacoco.gradle'
-
-task configureAndroidNDK {
-    def ndkBuildFile = "ndk-build"
-    // if windows, use ndk-build.cmd instead
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        ndkBuildFile = "ndk-build.cmd"
-    }
-
-    def ndkCandidates = []
-    if (System.env.ANDROID_NDK) {
-        ndkCandidates << file(System.env.ANDROID_NDK)
-    }
-    if (System.env.ANDROID_NDK_HOME) {
-        ndkCandidates << file(System.env.ANDROID_NDK_HOME)
-    }
-    if (project.hasProperty('ndkPath') && ndkPath) {
-        ndkCandidates << file(ndkPath)
-    }
-
-    def localProperties = file('local.properties')
-    if (localProperties.isFile()) {
-        Properties properties = new Properties()
-        localProperties.withInputStream { properties.load(it) }
-        if (properties.getProperty('ndk.dir')) {
-            ndkCandidates << file(properties.getProperty('ndk.dir'))
-        }
-        if (properties.getProperty('sdk.dir')) {
-            ndkCandidates.addAll(findAndroidNdkDirs(file(properties.getProperty('sdk.dir'))))
-        }
-    }
-
-    if (System.env.ANDROID_HOME) {
-        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_HOME)))
-    }
-    if (System.env.ANDROID_SDK_ROOT) {
-        ndkCandidates.addAll(findAndroidNdkDirs(file(System.env.ANDROID_SDK_ROOT)))
-    }
-    ndkCandidates.addAll(findAndroidNdkDirs(file("${System.properties['user.home']}/Android/Sdk")))
-
-    def ndkBuildPath = ndkCandidates.collect { new File(it, ndkBuildFile) }.find { it.isFile() }
-    if (ndkBuildPath != null) {
-        ndkExists = true
-        ndkCommandPath = ndkBuildPath.absolutePath
-    }
-}
-
-def findAndroidNdkDirs(File sdkDir) {
-    def ndkDirs = []
-    def nestedSdkDir = new File(sdkDir, 'Sdk')
-    if (nestedSdkDir.isDirectory()) {
-        ndkDirs.addAll(findAndroidNdkDirs(nestedSdkDir))
-    }
-    def sideBySideDir = new File(sdkDir, 'ndk')
-    if (sideBySideDir.isDirectory()) {
-        ndkDirs.addAll(sideBySideDir.listFiles()?.findAll { it.isDirectory() }?.sort { a, b -> b.name <=> a.name } ?: [])
-    }
-    ndkDirs << new File(sdkDir, 'ndk-bundle')
-    return ndkDirs
-}
-
-gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
-
-if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
-    File nativesSnapshotPropF = file('natives-snapshot.properties')
-
-    if (nativesSnapshotPropF.exists()) {
-        def readNativesConfig = {
-            Properties nativesSnapshotProp = new Properties()
-            nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
-
-            String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot")
-            if (!nativesSnapshot) {
-                throw new GradleException("Missing 'natives.snapshot' in ${nativesSnapshotPropF}")
-            }
-
-            [
-                snapshot: nativesSnapshot,
-                url: PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot),
-                zipFile: layout.buildDirectory.file("${nativesSnapshot}-natives.zip"),
-                nativeDir: layout.buildDirectory.dir("native"),
-            ]
-        }
-
-        def nativesZipFile = providers.provider { readNativesConfig().zipFile.get().asFile }
-        def nativesPath = layout.buildDirectory.dir("native")
-
-        def getNativesZipFile = tasks.register('getNativesZipFile') {
-            outputs.file(nativesZipFile)
-            doFirst {
-                def nativesConfig = readNativesConfig()
-                File target = nativesConfig.zipFile.get().asFile
-                println("Use natives snapshot: ${nativesConfig.url}")
-                println("Download natives from ${nativesConfig.url} to ${target}")
-                target.getParentFile().mkdirs()
-                ant.get(src: nativesConfig.url, dest: target)
-            }
-        }
-
-        def extractPrebuiltNatives = tasks.register('extractPrebuiltNatives', Sync) {
-            dependsOn(getNativesZipFile)
-            into(nativesPath)
-            from({
-                zipTree(readNativesConfig().zipFile.get().asFile)
-            }) {
-                eachFile { details ->
-                    def segments = details.relativePath.segments
-                    if (segments.length > 1) {
-                        details.path = segments[1..-1].join('/')
-                    }
-                }
-                includeEmptyDirs = false
-            }
-        }
-
-        tasks.named('assemble') {
-            dependsOn extractPrebuiltNatives
-        }
-    }
-}

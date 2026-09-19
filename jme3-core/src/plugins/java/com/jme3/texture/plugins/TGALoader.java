@@ -53,7 +53,7 @@ import java.nio.ByteBuffer;
  * @author Joshua Slack - cleaned, commented, added ability to read 16bit true color and color-mapped TGAs.
  * @author Kirill Vainer - ported to jME3
  * @version $Id: TGALoader.java 4131 2009-03-19 20:15:28Z blaine.dev $
- * @deprecated use {@link StbImageLoader} instead
+ * @deprecated use {@code StbImageLoader} instead
  */
 @Deprecated
 public final class TGALoader implements AssetLoader {

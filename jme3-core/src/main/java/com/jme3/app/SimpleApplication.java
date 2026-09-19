@@ -37,10 +37,13 @@ import com.jme3.audio.AudioListenerState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
+import com.jme3.input.Joystick;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.virtual.VirtualJoystick;
 import com.jme3.profile.AppStep;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
@@ -245,7 +248,7 @@ public abstract class SimpleApplication extends LegacyApplication {
      * @return the loaded BitmapFont
      */
     protected BitmapFont loadGuiFont() {
-        return assetManager.loadFont("Interface/Fonts/Default.fnt");
+        return assetManager.loadFont("Interface/Fonts/Default.j3o");
     }
 
     @Override
@@ -336,6 +339,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         if (prof != null) {
             prof.appStep(AppStep.SpatialUpdate);
         }
+        updateVirtualJoystickVisuals(tpf);
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
 
@@ -409,5 +413,23 @@ public abstract class SimpleApplication extends LegacyApplication {
      */
     public void simpleRender(RenderManager rm) {
         // Default empty implementation; subclasses can override
+    }
+
+    private void updateVirtualJoystickVisuals(float tpf) {
+        if (inputManager == null || assetManager == null || guiViewPort == null) {
+            return;
+        }
+        Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks == null) {
+            return;
+        }
+        Camera guiCamera = guiViewPort.getCamera();
+        int width = guiCamera != null ? guiCamera.getWidth() : settings.getWidth();
+        int height = guiCamera != null ? guiCamera.getHeight() : settings.getHeight();
+        for (Joystick joystick : joysticks) {
+            if (joystick instanceof VirtualJoystick) {
+                ((VirtualJoystick) joystick).updateVisuals(guiNode, assetManager, width, height, tpf);
+            }
+        }
     }
 }

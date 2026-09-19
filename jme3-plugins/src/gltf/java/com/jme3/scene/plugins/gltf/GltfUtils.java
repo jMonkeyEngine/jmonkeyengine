@@ -69,6 +69,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.gltf.GltfLoader.SkinBuffers;
 import com.jme3.texture.Texture;
+import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.LittleEndien;
@@ -716,6 +717,12 @@ public class GltfUtils {
         return null;
     }
 
+    public static boolean isMaterialAdaptersEnabled(AssetInfo info) {
+        GltfModelKey key = getKey(info);
+        return key != null && key.isMaterialAdaptersEnabled();
+    }
+
+    @Deprecated
     public static MaterialAdapter getAdapterForMaterial(AssetInfo info, String defName) {
         GltfModelKey key = getKey(info);
         if (key == null) {
@@ -1028,7 +1035,7 @@ public class GltfUtils {
         boolean tightlyPacked = (stride == elemSize);
 
         if (tightlyPacked) {
-            ByteBuffer view = source.duplicate();
+            ByteBuffer view = ByteBufferUtils.duplicate(source);
             view.position(start).limit(start + bytes);
             view = view.slice().order(ByteOrder.LITTLE_ENDIAN);
 

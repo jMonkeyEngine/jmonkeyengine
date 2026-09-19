@@ -113,6 +113,10 @@ public class RenderManager {
     private final LinkedList<RenderPipeline<? extends PipelineContext>> usedPipelines = new LinkedList<>();
     private RenderPipeline<? extends PipelineContext> defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
+    private int prevViewportWidth = -1;
+    private int prevViewportHeight = -1;
+    private int defaultFramebufferWidth = -1;
+    private int defaultFramebufferHeight = -1;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
@@ -437,6 +441,7 @@ public class RenderManager {
      */
     public ViewPort createPreView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
+        applyDefaultFramebufferSize(vp);
         preViewPorts.add(vp);
         return vp;
     }
@@ -453,6 +458,7 @@ public class RenderManager {
      */
     public ViewPort createMainView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
+        applyDefaultFramebufferSize(vp);
         viewPorts.add(vp);
         return vp;
     }
@@ -468,11 +474,19 @@ public class RenderManager {
      */
     public ViewPort createPostView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
+        applyDefaultFramebufferSize(vp);
         postViewPorts.add(vp);
         return vp;
     }
 
+    private void applyDefaultFramebufferSize(ViewPort vp) {
+        if (defaultFramebufferWidth > 0 && defaultFramebufferHeight > 0) {
+            vp.setRenderTargetSize(defaultFramebufferWidth, defaultFramebufferHeight);
+        }
+    }
+
     private void notifyReshape(ViewPort vp, int w, int h) {
+        vp.setRenderTargetSize(w, h);
         List<SceneProcessor> processors = vp.getProcessors();
         for (SceneProcessor proc : processors) {
             if (!proc.isInitialized()) {
@@ -483,6 +497,7 @@ public class RenderManager {
         }
     }
 
+    @Deprecated
     private void notifyRescale(ViewPort vp, float x, float y) {
         List<SceneProcessor> processors = vp.getProcessors();
         for (SceneProcessor proc : processors) {
@@ -503,36 +518,65 @@ public class RenderManager {
      * @param h the new height (in pixels)
      */
     public void notifyReshape(int w, int h) {
-        for (ViewPort vp : preViewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
-                Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
-            }
-            notifyReshape(vp, w, h);
-        }
+        notifyReshape(w, h, w, h);
+    }
+
+    /**
+     * Internal use only.
+     * Updates logical on-screen camera sizes while keeping the physical size of
+     * the default framebuffer available for viewport and post-processing work.
+     *
+     * @param logicalWidth the logical application width
+     * @param logicalHeight the logical application height
+     * @param framebufferWidth the physical default framebuffer width
+     * @param framebufferHeight the physical default framebuffer height
+     */
+    public void notifyReshape(int logicalWidth, int logicalHeight, int framebufferWidth, int framebufferHeight) {
+        prevCam = null;
+        int surfaceWidth = Math.max(framebufferWidth, 1);
+        int surfaceHeight = Math.max(framebufferHeight, 1);
+        defaultFramebufferWidth = surfaceWidth;
+        defaultFramebufferHeight = surfaceHeight;
+        reshapeViewPorts(preViewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+        reshapeViewPorts(viewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+        reshapeViewPorts(postViewPorts, logicalWidth, logicalHeight, surfaceWidth, surfaceHeight);
+    }
+
+    private void reshapeViewPorts(List<ViewPort> viewPorts, int logicalWidth, int logicalHeight,
+                                  int surfaceWidth, int surfaceHeight) {
         for (ViewPort vp : viewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
+            FrameBuffer frameBuffer = vp.getOutputFrameBuffer();
+            if (vp.isResizeWithDefaultFramebuffer() || frameBuffer == null) {
                 Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
+                cam.resize(logicalWidth, logicalHeight, true);
+                notifyReshape(vp, surfaceWidth, surfaceHeight);
+            } else {
+                notifyReshape(vp, getFrameBufferWidth(frameBuffer, logicalWidth),
+                        getFrameBufferHeight(frameBuffer, logicalHeight));
             }
-            notifyReshape(vp, w, h);
         }
-        for (ViewPort vp : postViewPorts) {
-            if (vp.getOutputFrameBuffer() == null) {
-                Camera cam = vp.getCamera();
-                cam.resize(w, h, true);
-            }
-            notifyReshape(vp, w, h);
-        }
+    }
+
+    private int getFrameBufferWidth(FrameBuffer frameBuffer, int fallbackWidth) {
+        return frameBuffer.getWidth() > 0 ? frameBuffer.getWidth() : fallbackWidth;
+    }
+
+    private int getFrameBufferHeight(FrameBuffer frameBuffer, int fallbackHeight) {
+        return frameBuffer.getHeight() > 0 ? frameBuffer.getHeight() : fallbackHeight;
     }
 
     /**
      * Internal use only.
      * Updates the scale of all on-screen ViewPorts
      *
+     * @deprecated Display scale changes are handled by {@link #notifyReshape(int, int, int, int)}
+     * using logical and framebuffer sizes. Built-in contexts no longer call
+     * this method.
+     *
      * @param x the new horizontal scale
      * @param y the new vertical scale
      */
+    @Deprecated
     public void notifyRescale(float x, float y) {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
@@ -1237,9 +1281,9 @@ public class RenderManager {
                 prof.vpStep(VpStep.RenderBucket, vp, Bucket.Gui);
             }
             renderer.setDepthRange(0, 0);
-            setCamera(cam, true);
+            setCamera(cam, true, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
             rq.renderQueue(Bucket.Gui, this, cam, flush);
-            setCamera(cam, false);
+            setCamera(cam, false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
             depthRangeChanged = true;
         }
 
@@ -1272,13 +1316,14 @@ public class RenderManager {
         }
     }
 
-    private void setViewPort(Camera cam) {
+    private void setViewPort(Camera cam, int surfaceWidth, int surfaceHeight) {
         // this will make sure to clearReservations viewport only if needed
-        if (cam != prevCam || cam.isViewportChanged()) {
-            int viewX  = (int) (cam.getViewPortLeft() * cam.getWidth());
-            int viewY  = (int) (cam.getViewPortBottom() * cam.getHeight());
-            int viewX2 = (int) (cam.getViewPortRight() * cam.getWidth());
-            int viewY2 = (int) (cam.getViewPortTop() * cam.getHeight());
+        if (cam != prevCam || cam.isViewportChanged()
+                || surfaceWidth != prevViewportWidth || surfaceHeight != prevViewportHeight) {
+            int viewX  = (int) (cam.getViewPortLeft() * surfaceWidth);
+            int viewY  = (int) (cam.getViewPortBottom() * surfaceHeight);
+            int viewX2 = (int) (cam.getViewPortRight() * surfaceWidth);
+            int viewY2 = (int) (cam.getViewPortTop() * surfaceHeight);
             int viewWidth  = viewX2 - viewX;
             int viewHeight = viewY2 - viewY;
             uniformBindingManager.setViewPort(viewX, viewY, viewWidth, viewHeight);
@@ -1286,6 +1331,8 @@ public class RenderManager {
             renderer.setClipRect(viewX, viewY, viewWidth, viewHeight);
             cam.clearViewportChanged();
             prevCam = cam;
+            prevViewportWidth = surfaceWidth;
+            prevViewportHeight = surfaceHeight;
 
 //            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
 //            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
@@ -1329,11 +1376,28 @@ public class RenderManager {
      *     false if to use the camera's view and projection matrices.
      */
     public void setCamera(Camera cam, boolean ortho) {
+        setCamera(cam, ortho, cam.getWidth(), cam.getHeight());
+    }
+
+    /**
+     * Sets the camera while applying its normalized viewport to an explicit
+     * render-target size.
+     *
+     * <p>This overload is intended for rendering paths where camera dimensions
+     * are logical coordinates but the framebuffer uses a different physical
+     * size, such as HiDPI, supersampling, and post-processing.</p>
+     *
+     * @param cam the camera to set
+     * @param ortho true to use GUI orthographic projection
+     * @param targetWidth physical render-target width
+     * @param targetHeight physical render-target height
+     */
+    public void setCamera(Camera cam, boolean ortho, int targetWidth, int targetHeight) {
         // Tell the light filter which camera to use for filtering.
         if (lightFilter != null) {
             lightFilter.setCamera(cam);
         }
-        setViewPort(cam);
+        setViewPort(cam, targetWidth, targetHeight);
         setViewProjection(cam, ortho);
     }
 
@@ -1346,7 +1410,7 @@ public class RenderManager {
      * @see #renderViewPort(com.jme3.renderer.ViewPort, float)
      */
     public void renderViewPortRaw(ViewPort vp) {
-        setCamera(vp.getCamera(), false);
+        setCamera(vp.getCamera(), false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
         List<Spatial> scenes = vp.getScenes();
         for (int i = scenes.size() - 1; i >= 0; i--) {
             renderScene(scenes.get(i), vp);
@@ -1362,7 +1426,7 @@ public class RenderManager {
      */
     public void applyViewPort(ViewPort vp) {
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-        setCamera(vp.getCamera(), false);
+        setCamera(vp.getCamera(), false, vp.getRenderTargetWidth(), vp.getRenderTargetHeight());
         if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
             if (vp.isClearColor()) {
                 renderer.setBackgroundColor(vp.getBackgroundColor());

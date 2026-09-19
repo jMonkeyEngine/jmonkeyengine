@@ -207,7 +207,6 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
 
         try {
             renderManager.preloadScene(spatial);
-            logger.log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
             hwSkinningEngaged = true;
 
         } catch (RendererException ex) {

@@ -17,6 +17,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Line;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.util.IntMap;
 
@@ -78,6 +79,12 @@ public class TestAndroidSensors extends SimpleApplication implements ActionListe
     boolean enableGeometryRotation = true;
 
     // Make sure to set joystickEventsEnabled = true in MainActivity for Android
+
+    public static void configureSettings(AppSettings settings) {
+        settings.setUseJoysticks(true);
+        settings.setUseAndroidSensorJoystick(true);
+        settings.setVirtualJoystick(AppSettings.VIRTUAL_JOYSTICK_DISABLED);
+    }
 
     private float toDegrees(float rad) {
         return rad * FastMath.RAD_TO_DEG;

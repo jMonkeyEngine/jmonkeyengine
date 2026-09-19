@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.system.lwjgl;
 
 import com.jme3.input.JoyInput;
@@ -52,31 +51,29 @@ import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LWJGLBufferAllocator;
-import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import com.jme3.util.LWJGLSaferAllocMemoryAllocator;
 
-import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.lwjgl.Version;
 import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
-
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.glGetInteger;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengles.GLES;
 import org.lwjgl.opengles.GLES30;
 import org.lwjgl.opengles.GLESCapabilities;
-import static org.lwjgl.sdl.SDLVideo.*;
 import org.lwjgl.system.Configuration;
-import org.lwjgl.system.MemoryStack;
+
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -85,6 +82,8 @@ public abstract class LwjglContext implements JmeContext {
     protected boolean useAngle = false;
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
+    private static final String CONCURRENT_LWJGL_BUFFER_ALLOCATOR_CLASS =
+            "com.jme3.util.LWJGLBufferAllocator$ConcurrentLWJGLBufferAllocator";
 
     static {
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
@@ -97,8 +96,8 @@ public abstract class LwjglContext implements JmeContext {
                         LWJGLSaferAllocMemoryAllocator.SAFER_BUFFER_ALLOCATOR_CLASS);
             }
         } else if (configuredImplementation == null) {
-            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "true"))) {
-                System.setProperty(implementation, ConcurrentLWJGLBufferAllocator.class.getName());
+            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "false"))) {
+                System.setProperty(implementation, CONCURRENT_LWJGL_BUFFER_ALLOCATOR_CLASS);
             } else {
                 System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
             }
@@ -149,11 +148,13 @@ public abstract class LwjglContext implements JmeContext {
 
     protected void printContextInitInfo() {
         if (logger.isLoggable(Level.INFO)) {
-            logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Video backend: SDL {2}",
-                    APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), SDL_GetCurrentVideoDriver()));
+            logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Video backend: {2}",
+                    APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), getCurrentVideoDriver()));
         }
     }
 
+    protected abstract String getCurrentVideoDriver();
+    
     protected int determineMaxSamples() {
         final GLCapabilities capabilities = org.lwjgl.opengl.GL.getCapabilities();
         if (capabilities.GL_ARB_framebuffer_object) {
@@ -206,7 +207,6 @@ public abstract class LwjglContext implements JmeContext {
     private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
-        boolean auxFramebufferSrgb = useAuxFramebufferSrgb();
 
         if (first) {
             GL gl;
@@ -286,26 +286,9 @@ public abstract class LwjglContext implements JmeContext {
         }
         this.renderer.initialize();
 
-        boolean isSrgbFb = false;
-        if (settings.isGammaCorrection() && !auxFramebufferSrgb) {
-            isSrgbFb = isDefaultFramebufferSrgb();
+ 
 
-            if (!isSrgbFb && settings.isGammaCorrection()) {
-                if (enableAuxFramebufferSrgbFallback()) {
-                    auxFramebufferSrgb = useAuxFramebufferSrgb();
-                    if (auxFramebufferSrgb) {
-                        logger.warning(
-                                "sRGB framebuffer not supported by the backend platform, using auxiliary sRGB framebuffer");
-                    }
-                }
-                if (!auxFramebufferSrgb) {
-                    logger.warning(
-                            "sRGB framebuffer not supported by the backend platform, disabling gamma correction");
-                }
-            }
-        }
-
-        this.renderer.setMainFrameBufferSrgb(auxFramebufferSrgb ? false : isSrgbFb);
+        this.renderer.setMainFrameBufferSrgb(false);
         this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         if (first) {
@@ -338,14 +321,6 @@ public abstract class LwjglContext implements JmeContext {
                     GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
             return value.get(0) == GLES30.GL_SRGB;
         }
-        return false;
-    }
-
-    protected boolean useAuxFramebufferSrgb() {
-        return false;
-    }
-
-    protected boolean enableAuxFramebufferSrgbFallback() {
         return false;
     }
 

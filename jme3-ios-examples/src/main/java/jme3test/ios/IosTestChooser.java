@@ -1,6 +1,10 @@
 package jme3test.ios;
 
+import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.app.StatsAppState;
+import com.jme3.app.state.ConstantVerifierState;
+import com.jme3.audio.AudioListenerState;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -45,12 +49,19 @@ public final class IosTestChooser extends SimpleApplication implements ActionLis
     private RawInputListenerAdapter keyboardListener;
     private boolean searchInputActive;
 
+    public IosTestChooser() {
+        super(new StatsAppState(),
+                new AudioListenerState(),
+                new DebugKeysAppState(),
+                new ConstantVerifierState());
+    }
+
     @Override
     public void simpleInitApp() {
         setDisplayStatView(false);
         setDisplayFps(false);
         if (flyCam != null) {
-            flyCam.setEnabled(false);
+            flyCam.unregisterInput();
         }
         viewPort.setBackgroundColor(BACKGROUND_COLOR);
         buttonMaterial = material(EXAMPLE_BUTTON_COLOR);

@@ -37,7 +37,12 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.material.MatParam;
+import com.jme3.material.MatParamTexture;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.material.plugin.TestMaterialWrite;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -196,4 +201,276 @@ public class GltfLoaderTest {
             }
         }
     }
+
+    @Test
+    public void testPBRMaterialNoTextures() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry pbrNoTexturesCube = (Geometry) sceneNode.getChild("pbrNoTexturesCube_0");
+        Material pbrMaterial = pbrNoTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(pbrMaterial, "PBR Lighting", "pbrNoTexturesMaterial");
+
+        assertMaterialParam(pbrMaterial, "BaseColor", new ColorRGBA(0.9f, 0.6f, 0.3f, 0f));
+        assertMaterialParam(pbrMaterial, "BaseColorMap", null);
+        assertMaterialParam(pbrMaterial, "Metallic", 0.4f);
+        assertMaterialParam(pbrMaterial, "Roughness", 0.6f);
+        assertMaterialParam(pbrMaterial, "MetallicRoughnessMap", null);
+
+        assertMaterialParam(pbrMaterial, "NormalMap", null);
+        assertMaterialParam(pbrMaterial, "NormalScale", null);
+        assertMaterialParam(pbrMaterial, "NormalType", -1f);
+
+        assertMaterialParam(pbrMaterial, "LightMapAsAOMap", null);
+        assertMaterialParam(pbrMaterial, "LightMap", null);
+        assertMaterialParam(pbrMaterial, "AoStrength", null);
+        assertMaterialParam(pbrMaterial, "AoPackedInMRMap", null);
+
+        assertMaterialParam(pbrMaterial, "EmissiveMap", null);
+        assertMaterialParam(pbrMaterial, "Emissive", new ColorRGBA(0.2f, 0.6f, 1.f, 1f));
+        assertMaterialParam(pbrMaterial, "EmissiveIntensity", 2.7f);
+
+        assertMaterialParam(pbrMaterial, "AlphaDiscardThreshold", 0.5f);
+        Assertions.assertEquals(RenderState.BlendMode.Off, pbrMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Off, pbrMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(pbrMaterial, "UseVertexColor", true);
+    }
+
+    @Test
+    public void testPBRMaterialWithTextures() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry pbrWithTexturesCube = (Geometry) sceneNode.getChild("pbrWithTexturesCube_0");
+        Material pbrMaterial = pbrWithTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(pbrMaterial, "PBR Lighting", "pbrWithTexturesMaterial");
+
+        assertMaterialParam(pbrMaterial, "BaseColor", ColorRGBA.White);
+        assertMaterialParam(pbrMaterial, "BaseColorMap", "gltf/ColorTexture.png");
+        assertMaterialParam(pbrMaterial, "Metallic", 1f);
+        assertMaterialParam(pbrMaterial, "Roughness", 1f);
+        assertMaterialParam(pbrMaterial, "MetallicRoughnessMap", "gltf/MetallicRoughnessOcclusionTexture.png");
+
+        assertMaterialParam(pbrMaterial, "NormalMap", "gltf/NormalTexture.png");
+        assertMaterialParam(pbrMaterial, "NormalScale", 1.8f);
+        assertMaterialParam(pbrMaterial, "NormalType", 1f);
+
+        assertMaterialParam(pbrMaterial, "LightMapAsAOMap", true);
+        assertMaterialParam(pbrMaterial, "LightMap", "gltf/MetallicRoughnessOcclusionTexture.png");
+        assertMaterialParam(pbrMaterial, "AoStrength", null);
+        assertMaterialParam(pbrMaterial, "AoPackedInMRMap", true);
+
+        assertMaterialParam(pbrMaterial, "EmissiveMap", "gltf/EmissiveTexture.png");
+        assertMaterialParam(pbrMaterial, "Emissive", ColorRGBA.White);
+        assertMaterialParam(pbrMaterial, "EmissiveIntensity", 2.7f);
+
+        assertMaterialParam(pbrMaterial, "AlphaDiscardThreshold", null);
+        Assertions.assertEquals(RenderState.BlendMode.Alpha, pbrMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Back, pbrMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(pbrMaterial, "UseVertexColor", false);
+    }
+
+    @Test
+    public void testUnlitMaterialNoTextures() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry unlitNoTexturesCube = (Geometry) sceneNode.getChild("unlitNoTexturesCube_0");
+        Material unlitMaterial = unlitNoTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(unlitMaterial, "Unshaded", "unlitNoTexturesMaterial");
+
+        assertMaterialParam(unlitMaterial, "Color", new ColorRGBA(0.2f, 0.4f, 0.6f, 0f));
+        assertMaterialParam(unlitMaterial, "ColorMap", null);
+
+        assertMaterialParam(unlitMaterial, "GlowMap", null);
+        assertMaterialParam(unlitMaterial, "GlowColor", ColorRGBA.Black);
+
+        assertMaterialParam(unlitMaterial, "AlphaDiscardThreshold", 0.5f);
+        Assertions.assertEquals(RenderState.BlendMode.Off, unlitMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Off, unlitMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(unlitMaterial, "VertexColor", true);
+    }
+
+    @Test
+    public void testUnlitMaterialWithTextures() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry unlitWithTexturesCube = (Geometry) sceneNode.getChild("unlitWithTexturesCube_0");
+        Material unlitMaterial = unlitWithTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(unlitMaterial, "Unshaded", "unlitWithTexturesMaterial");
+
+        assertMaterialParam(unlitMaterial, "Color", ColorRGBA.White);
+        assertMaterialParam(unlitMaterial, "ColorMap", "gltf/ColorTexture.png");
+
+        assertMaterialParam(unlitMaterial, "GlowMap", null);
+        assertMaterialParam(unlitMaterial, "GlowColor", ColorRGBA.Black);
+
+        assertMaterialParam(unlitMaterial, "AlphaDiscardThreshold", null);
+        Assertions.assertEquals(RenderState.BlendMode.Alpha, unlitMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Back, unlitMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(unlitMaterial, "VertexColor", false);
+    }
+
+    @Test
+    public void testPBRMaterialNoTextures_LegacyMechanism() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        gltfModelKey.setMaterialAdaptersEnabled(true);
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry pbrNoTexturesCube = (Geometry) sceneNode.getChild("pbrNoTexturesCube_0");
+        Material pbrMaterial = pbrNoTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(pbrMaterial, "PBR Lighting", "pbrNoTexturesMaterial");
+
+        assertMaterialParam(pbrMaterial, "BaseColor", new ColorRGBA(0.9f, 0.6f, 0.3f, 0f));
+        assertMaterialParam(pbrMaterial, "BaseColorMap", null);
+        assertMaterialParam(pbrMaterial, "Metallic", 0.4f);
+        assertMaterialParam(pbrMaterial, "Roughness", 0.6f);
+        assertMaterialParam(pbrMaterial, "MetallicRoughnessMap", null);
+
+        assertMaterialParam(pbrMaterial, "NormalMap", null);
+        assertMaterialParam(pbrMaterial, "NormalScale", null);
+        assertMaterialParam(pbrMaterial, "NormalType", -1f);
+
+        assertMaterialParam(pbrMaterial, "LightMapAsAOMap", null);
+        assertMaterialParam(pbrMaterial, "LightMap", null);
+        assertMaterialParam(pbrMaterial, "AoStrength", null);
+        assertMaterialParam(pbrMaterial, "AoPackedInMRMap", null);
+
+        assertMaterialParam(pbrMaterial, "EmissiveMap", null);
+        assertMaterialParam(pbrMaterial, "Emissive", new ColorRGBA(0.2f, 0.6f, 1.f, 1f));
+        assertMaterialParam(pbrMaterial, "EmissiveIntensity", 2.7f);
+
+        assertMaterialParam(pbrMaterial, "AlphaDiscardThreshold", 0.5f);
+        Assertions.assertEquals(RenderState.BlendMode.Off, pbrMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Off, pbrMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(pbrMaterial, "UseVertexColor", true);
+    }
+
+    @Test
+    public void testPBRMaterialWithTextures_LegacyMechanism() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        gltfModelKey.setMaterialAdaptersEnabled(true);
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry pbrWithTexturesCube = (Geometry) sceneNode.getChild("pbrWithTexturesCube_0");
+        Material pbrMaterial = pbrWithTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(pbrMaterial, "PBR Lighting", "pbrWithTexturesMaterial");
+
+        assertMaterialParam(pbrMaterial, "BaseColor", ColorRGBA.White);
+        assertMaterialParam(pbrMaterial, "BaseColorMap", "gltf/ColorTexture.png");
+        assertMaterialParam(pbrMaterial, "Metallic", 1f);
+        assertMaterialParam(pbrMaterial, "Roughness", 1f);
+        assertMaterialParam(pbrMaterial, "MetallicRoughnessMap", "gltf/MetallicRoughnessOcclusionTexture.png");
+
+        assertMaterialParam(pbrMaterial, "NormalMap", "gltf/NormalTexture.png");
+        assertMaterialParam(pbrMaterial, "NormalScale", 1.8f);
+        assertMaterialParam(pbrMaterial, "NormalType", 1f);
+
+        // Differences to new material system:
+        //   - LightMap is not set to occlusion texture
+        //   - LightMapAsAOMap is not set
+        assertMaterialParam(pbrMaterial, "LightMapAsAOMap", null);
+        assertMaterialParam(pbrMaterial, "LightMap", null);
+        assertMaterialParam(pbrMaterial, "AoStrength", null);
+        assertMaterialParam(pbrMaterial, "AoPackedInMRMap", true);
+
+        assertMaterialParam(pbrMaterial, "EmissiveMap", "gltf/EmissiveTexture.png");
+        assertMaterialParam(pbrMaterial, "Emissive", ColorRGBA.White);
+        assertMaterialParam(pbrMaterial, "EmissiveIntensity", 2.7f);
+
+        assertMaterialParam(pbrMaterial, "AlphaDiscardThreshold", null);
+        Assertions.assertEquals(RenderState.BlendMode.Alpha, pbrMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Back, pbrMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(pbrMaterial, "UseVertexColor", false);
+    }
+
+    @Test
+    public void testUnlitMaterialNoTextures_LegacyMechanism() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        gltfModelKey.setMaterialAdaptersEnabled(true);
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry unlitNoTexturesCube = (Geometry) sceneNode.getChild("unlitNoTexturesCube_0");
+        Material unlitMaterial = unlitNoTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(unlitMaterial, "Unshaded", "unlitNoTexturesMaterial");
+
+        assertMaterialParam(unlitMaterial, "Color", new ColorRGBA(0.2f, 0.4f, 0.6f, 0f));
+        assertMaterialParam(unlitMaterial, "ColorMap", null);
+
+        assertMaterialParam(unlitMaterial, "GlowMap", null);
+        assertMaterialParam(unlitMaterial, "GlowColor", ColorRGBA.Black);
+
+        // Differences to new material system:
+        //   - UnlitMaterialAdapter translates alphaMode=MASK to BlendMode.Alpha
+        //   - AlphaDiscardThreshold is also not set
+        assertMaterialParam(unlitMaterial, "AlphaDiscardThreshold", null);
+        Assertions.assertEquals(RenderState.BlendMode.Alpha, unlitMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Off, unlitMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(unlitMaterial, "VertexColor", true);
+    }
+
+    @Test
+    public void testUnlitMaterialWithTextures_LegacyMechanism() {
+        GltfModelKey gltfModelKey = new GltfModelKey("gltf/MaterialTestCubes.gltf");
+        gltfModelKey.setMaterialAdaptersEnabled(true);
+        Node sceneNode = (Node) assetManager.loadModel(gltfModelKey);
+
+        Geometry unlitWithTexturesCube = (Geometry) sceneNode.getChild("unlitWithTexturesCube_0");
+        Material unlitMaterial = unlitWithTexturesCube.getMaterial();
+
+        assertMaterialNameAndDefinition(unlitMaterial, "Unshaded", "unlitWithTexturesMaterial");
+
+        assertMaterialParam(unlitMaterial, "Color", ColorRGBA.White);
+        assertMaterialParam(unlitMaterial, "ColorMap", "gltf/ColorTexture.png");
+
+        assertMaterialParam(unlitMaterial, "GlowMap", null);
+        assertMaterialParam(unlitMaterial, "GlowColor", ColorRGBA.Black);
+
+        assertMaterialParam(unlitMaterial, "AlphaDiscardThreshold", null);
+        Assertions.assertEquals(RenderState.BlendMode.Alpha, unlitMaterial.getAdditionalRenderState().getBlendMode());
+        Assertions.assertEquals(RenderState.FaceCullMode.Back, unlitMaterial.getAdditionalRenderState().getFaceCullMode());
+
+        assertMaterialParam(unlitMaterial, "VertexColor", false);
+    }
+
+    private void assertMaterialNameAndDefinition(Material material, String expectedDefinitionName, String expectedMaterialName) {
+        Assertions.assertEquals(expectedMaterialName, material.getName(), "Wrong material name.");
+        Assertions.assertEquals(expectedDefinitionName, material.getMaterialDef().getName(), "Wrong material definition.");
+    }
+
+    private void assertMaterialParam(Material material, String paramName, Object expectedValue) {
+        MatParam matParam = material.getParam(paramName);
+        if (expectedValue == null) {
+            Assertions.assertNull(matParam, () -> "Material parameter '" + paramName + "' should not be set.");
+            return;
+
+        } else {
+            Assertions.assertNotNull(matParam, () -> "Missing material parameter '" + paramName + "'.");
+        }
+
+        if (matParam instanceof MatParamTexture) {
+            String imageName = ((MatParamTexture) matParam).getTextureValue().getName();
+            Assertions.assertEquals(expectedValue, imageName, () -> "Wrong value of texture parameter '" + paramName + "'.");
+
+        } else {
+            Object value = matParam.getValue();
+            Assertions.assertEquals(expectedValue, value, () -> "Wrong value of material parameter '" + paramName + "'.");
+        }
+    }
+
 }

@@ -54,7 +54,7 @@
 
     //0 means dont scale to be desaturated (bricks, stones, etc)
         if(mode > 0){ //1 means almost fully desaturated.. 1 is less alive, and 2 is slightly less, etc etc
-            deathVar -= mode * 0.033;
+            deathVar -= float(mode) * 0.033;
 
             deathVar = max(0.0, deathVar);
             deathVar = min(0.99, deathVar);
@@ -361,7 +361,7 @@
         #ifdef AFFLICTIONTEXTURE     
             vec4 afflictionAlbedo;    
             
-            float newAfflictionScale = m_AfflictionSplatScale; 
+            float newAfflictionScale = float(m_AfflictionSplatScale);
             vec2 newScaledCoords;
             
             #ifdef AFFLICTIONALBEDOMAP
@@ -369,7 +369,7 @@
                     newAfflictionScale = newAfflictionScale / 256;
                     afflictionAlbedo = getTriPlanarBlend(lPosition, m_SplatAlbedoMap , newAfflictionScale);
                 #else
-                    newScaledCoords = mod(wPosition.xz / m_AfflictionSplatScale, 0.985);
+                    newScaledCoords = mod(wPosition.xz / float(m_AfflictionSplatScale), 0.985);
                     afflictionAlbedo = texture2D(m_SplatAlbedoMap , newScaledCoords);
                 #endif
 
@@ -455,7 +455,6 @@
         #endif
     }
 #endif
-
 
 
 

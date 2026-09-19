@@ -34,9 +34,15 @@ package com.jme3.scene.mesh;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.collision.CollisionResults;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Ray;
+import com.jme3.math.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
 
 /**
  * Tests selected methods of the Mesh class.
@@ -53,5 +59,26 @@ public class MeshTest {
         final Mesh mesh = new Mesh();
 
         assertEquals(-1, mesh.getVertexCount());
+    }
+
+    @Test
+    public void testPatchModeDoesNotCollide() {
+        final Mesh mesh = new Mesh();
+        mesh.setMode(Mesh.Mode.Patch);
+        mesh.setPatchVertexCount(4);
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, new float[]{
+            0f, 0f, 0f,
+            1f, 0f, 0f,
+            1f, 1f, 0f,
+            0f, 1f, 0f
+        });
+        mesh.setBuffer(VertexBuffer.Type.Index, 1, new short[]{0, 1, 2, 3});
+
+        CollisionResults results = new CollisionResults();
+        int collisions = mesh.collideWith(new Ray(new Vector3f(0.5f, 0.5f, 1f),
+                new Vector3f(0f, 0f, -1f)), Matrix4f.IDENTITY, new BoundingBox(), results);
+
+        assertEquals(0, collisions);
+        assertEquals(0, results.size());
     }
 }

@@ -3,10 +3,3 @@ dependencies {
 
     implementation libs.bundles.saferalloc
 }
-
-javadoc {
-    // Disable doclint for JDK8+.
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}

@@ -33,7 +33,11 @@ package com.jme3.scene.plugins.gltf;
 
 /**
  * Created by Nehon on 20/08/2017.
+ *
+ * @deprecated This will be removed in a future version of the engine. To migrate,
+ * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
  */
+@Deprecated
 public class PBRMetalRoughMaterialAdapter extends PBRMaterialAdapter {
 
     public PBRMetalRoughMaterialAdapter() {
