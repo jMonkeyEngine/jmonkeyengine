@@ -31,6 +31,8 @@
  */
 package com.jme3.shader.bufferobject;
 
+import com.jme3.util.ByteBufferUtils;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -73,7 +75,7 @@ public class BufferRegion implements Savable, Cloneable {
         ByteBuffer source = bo.getData();
         assert end < source.capacity() : "Can't set limit at " + end + " on capacity " + source.capacity();
 
-        ByteBuffer view = source.duplicate();
+        ByteBuffer view = ByteBufferUtils.duplicate(source);
         view.position(start);
         view.limit(end + 1);
 

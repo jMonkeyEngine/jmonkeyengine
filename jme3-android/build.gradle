@@ -17,6 +17,11 @@ dependencies {
     compileOnly files(rootProject.file('lib/android.jar'))
 }
 
+compileJava {
+    options.sourcepath = files("src/androidx-stubs/java")
+    options.compilerArgs += ["-implicit:none"]
+}
+
 tasks.withType(Jar).configureEach {
     exclude('androidx/**')
 }
@@ -26,5 +31,6 @@ tasks.named('sourcesJar') {
 }
 
 javadoc {
+    source += fileTree("src/androidx-stubs/java")
     exclude('androidx/**')
 }

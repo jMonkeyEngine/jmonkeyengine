@@ -34,6 +34,7 @@ package com.jme3.export.xml;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.export.SavableClassFilter;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
@@ -56,6 +57,7 @@ import org.w3c.dom.*;
  */
 public class DOMInputCapsule implements InputCapsule {
     private static final Logger logger = Logger.getLogger(DOMInputCapsule.class .getName());
+    private SavableClassFilter classFilter = SavableClassFilter.ACCEPT_ALL;
 
     private Document doc;
     private Element currentElement;
@@ -84,6 +86,28 @@ public class DOMInputCapsule implements InputCapsule {
             return 0;
         }
     }
+
+    /**
+     * Sets the policy used before this importer instantiates classes. 
+     * The default accepts all classes for backward compatibility.
+     * Use a restrictive filter when loading assets from untrusted sources.
+     *
+     * @param classFilter the filter to apply
+     */
+    public void setClassFilter(SavableClassFilter classFilter) {
+        if (classFilter == null) {
+            throw new NullPointerException("classFilter");
+        }
+        this.classFilter = classFilter;
+    }
+
+    /**
+     * @return the current class filter
+     */
+    public SavableClassFilter getClassFilter() {
+        return classFilter;
+    }
+
 
     private Element findChildElement(String name) {
         if (currentElement == null) {
@@ -574,7 +598,7 @@ public class DOMInputCapsule implements InputCapsule {
 
             Savable tmp = null;
             try {
-                tmp = SavableClassUtil.fromName(className);
+                tmp = SavableClassUtil.fromName(className, classFilter, importer.getAssetManager() == null ? null : importer.getAssetManager().getClassLoaders());
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new IOException(e);
             }

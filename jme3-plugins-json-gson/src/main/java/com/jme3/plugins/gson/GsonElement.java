@@ -119,5 +119,25 @@ class GsonElement implements JsonElement {
         if (element.isJsonPrimitive()) return (T) new GsonPrimitive(element.getAsJsonPrimitive());
         return (T) new GsonElement(element);
     }
+
+    @Override
+    public boolean isJsonObject() {
+        return element != null && element.isJsonObject();
+    }
+
+    @Override
+    public boolean isJsonArray() {
+        return element != null && element.isJsonArray();
+    }
+
+    @Override
+    public boolean isJsonPrimitive() {
+        return element != null && element.isJsonPrimitive();
+    }
+
+    @Override
+    public boolean isJsonNull() {
+        return isNull(element);
+    }
     
 }

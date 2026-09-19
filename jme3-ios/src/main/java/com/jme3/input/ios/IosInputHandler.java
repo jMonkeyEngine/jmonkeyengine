@@ -1,7 +1,6 @@
 package com.jme3.input.ios;
 
 import com.jme3.input.RawInputListener;
-import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.event.InputEvent;
@@ -15,13 +14,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ngengine.libjglios.core.LibJGLIOSInputBridge;
 
+import static org.ngengine.libjglios.sdl3.SDL3.SDL_GetKeyFromScancode;
+
 public class IosInputHandler implements TouchInput {
     private static final Logger logger = Logger.getLogger(IosInputHandler.class.getName());
 
     private final static int MAX_TOUCH_EVENTS = 1024;
 
     // Custom settings
-    private boolean mouseEventsEnabled = true;
+    private boolean mouseEventsEnabled = false;
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
@@ -49,7 +50,7 @@ public class IosInputHandler implements TouchInput {
     }
     private int width = 0;
     private int height = 0;
-    private final int[] nativeIntData = new int[4];
+    private final int[] nativeIntData = new int[6];
     private final float[] nativeFloatData = new float[4];
 
     public IosInputHandler() {
@@ -143,7 +144,7 @@ public class IosInputHandler implements TouchInput {
     public void loadSettings(AppSettings settings) {
         // TODO: add simulate keyboard to settings
 //        keyboardEventsEnabled = true;
-        mouseEventsEnabled = true;//settings.isEmulateMouse();
+        mouseEventsEnabled = settings.isEmulateMouse();
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
 
@@ -276,27 +277,20 @@ public class IosInputHandler implements TouchInput {
                 addEvent(motion);
                 break;
             case LibJGLIOSInputBridge.EVENT_KEY:
-                IosJoyInput.dispatchKeyboardInput();
+                if (isPhysicalKeyboardEvent(intData)) {
+                    IosJoyInput.dispatchKeyboardInput();
+                }
+                int sdlKey = SDL_GetKeyFromScancode(intData[1], intData[4], true);
+                char keyChar = sdlKey > 0 && sdlKey <= Character.MAX_VALUE && !Character.isISOControl((char) sdlKey)
+                        ? (char) sdlKey
+                        : '\0';
                 KeyInputEvent key = new KeyInputEvent(
                         IosSdlKeyMap.toJmeKeyCode(intData[1]),
-                        '\0',
+                        keyChar,
                         intData[2] != 0,
                         intData[3] != 0);
                 key.setTime(time);
                 addEvent(key);
-                break;
-            case LibJGLIOSInputBridge.EVENT_TEXT_INPUT:
-                if (!isSingleCharTextInput(intData[1])) {
-                    break;
-                }
-                IosJoyInput.dispatchKeyboardInput();
-                KeyInputEvent text = new KeyInputEvent(
-                        KeyInput.KEY_UNKNOWN,
-                        (char) intData[1],
-                        true,
-                        false);
-                text.setTime(time);
-                addEvent(text);
                 break;
             case LibJGLIOSInputBridge.EVENT_GAMEPAD_ADDED:
             case LibJGLIOSInputBridge.EVENT_GAMEPAD_REMOVED:
@@ -307,6 +301,10 @@ public class IosInputHandler implements TouchInput {
             default:
                 break;
         }
+    }
+
+    private static boolean isPhysicalKeyboardEvent(int[] intData) {
+        return intData[5] != 0;
     }
 
     private float nativeX(float value) {
@@ -351,11 +349,5 @@ public class IosInputHandler implements TouchInput {
 
     private boolean isNormalized(float value) {
         return value >= 0f && value <= 1f;
-    }
-
-    private boolean isSingleCharTextInput(int codePoint) {
-        return codePoint > 0
-                && codePoint <= Character.MAX_VALUE
-                && !Character.isSurrogate((char) codePoint);
     }
 }

@@ -950,6 +950,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
         // test if the face cull mode should be flipped before render
         if (finalRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            if (finalRenderState != mergedRenderState) {
+                finalRenderState = mergedRenderState.copyFrom(finalRenderState);
+            }
             finalRenderState.flipFaceCull();
         }
         renderer.applyRenderState(finalRenderState);

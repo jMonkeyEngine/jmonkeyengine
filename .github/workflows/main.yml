@@ -47,7 +47,7 @@ on:
       - v3.5
       - v3.4
       - v3.3
-      - ios-2024_2
+      - ios
   pull_request:
   release:
     types: [published]
@@ -60,19 +60,19 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
           java-version: '25'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.3.0
       - name: Run Checkstyle
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
       - name: Upload Checkstyle Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: checkstyle-report
@@ -87,19 +87,19 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
           java-version: '25'
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.3.0
       - name: Run SpotBugs
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
       - name: Upload SpotBugs Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: spotbugs-report
@@ -107,50 +107,206 @@ jobs:
           path: |
             **/build/reports/spotbugs/**
 
-  ScreenshotTests:
-    name: Run Screenshot Tests
+  JavadocDoclint:
+    name: Run Javadoc Doclint
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    continue-on-error: true
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
           java-version: '25'
-      - name: Start xvfb
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.3.0
+      - name: Run Javadoc doclint
         run: |
-          Xvfb :99 -ac -screen 0 1024x768x16 &
-          export DISPLAY=:99
-          echo "DISPLAY=:99" >> $GITHUB_ENV
+          ./gradlew -PenableJavadocError=true javadoc mergedJavadoc --console=plain --stacktrace
+      - name: Report Javadoc doclint failure
+        if: failure()
+        run: |
+          echo "::notice title=Javadoc doclint failed::Javadoc warnings were found. Run ./gradlew -PenableJavadocError=true javadoc mergedJavadoc locally to reproduce."
+
+  ScreenshotTests:
+    name: Run Screenshot Tests (${{ matrix.renderer }})
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [opengl, angle]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Setup the java environment
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+      - name: Start display server
+        run: |
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            # The ANGLE binaries used by jME have no EGL X11 platform support, so run them
+            # on a headless Wayland compositor instead of Xvfb.
+            # NOTE: this runs BEFORE the ICD resolution below on purpose: installing
+            # weston can pull a Mesa upgrade, and newer Mesa renames the lavapipe ICD
+            # from lvp_icd.x86_64.json to lvp_icd.json. Resolving the path first and
+            # upgrading after leaves VK_ICD_FILENAMES pointing at a stale file.
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq weston
+            mkdir -p /tmp/runtime-root
+            chmod 700 /tmp/runtime-root
+            # Export in this shell too: weston is started below, in this same step.
+            export XDG_RUNTIME_DIR=/tmp/runtime-root
+            export XDG_SESSION_TYPE=wayland
+            export WAYLAND_DISPLAY=wayland-1
+            # Force SDL onto Wayland even if a DISPLAY lingers in the container env.
+            export SDL_VIDEODRIVER=wayland
+            echo "XDG_RUNTIME_DIR=/tmp/runtime-root" >> $GITHUB_ENV
+            echo "XDG_SESSION_TYPE=wayland" >> $GITHUB_ENV
+            echo "WAYLAND_DISPLAY=wayland-1" >> $GITHUB_ENV
+            echo "SDL_VIDEODRIVER=wayland" >> $GITHUB_ENV
+            # The container sets DISPLAY=:99 and zink overrides for the OpenGL run;
+            # ANGLE talks to Vulkan directly, so drop them to avoid any interference.
+            # NOTE: VK_DRIVER_FILES is intentionally NOT blanked here. The Vulkan
+            # loader reads VK_DRIVER_FILES before VK_ICD_FILENAMES, so exporting it
+            # empty would shadow VK_ICD_FILENAMES and leave the loader with no
+            # drivers at all. It is set to the resolved ICD path below instead.
+            unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+            echo "DISPLAY=" >> $GITHUB_ENV
+            echo "MESA_LOADER_DRIVER_OVERRIDE=" >> $GITHUB_ENV
+            echo "GALLIUM_DRIVER=" >> $GITHUB_ENV
+            weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+            echo $! > /tmp/weston.pid
+            sleep 2
+          else
+            Xvfb :99 -ac -screen 0 1024x768x16 &
+            export DISPLAY=:99
+            echo "DISPLAY=:99" >> $GITHUB_ENV
+          fi
+          # Resolve the lavapipe ICD file AFTER any apt activity above: the file was
+          # renamed from lvp_icd.x86_64.json to lvp_icd.json in newer Mesa releases,
+          # so every later step (including Report GL/Vulkan below) sees the right file.
+          ICD=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json 2>/dev/null | head -n 1)
+          if [ -n "$ICD" ]; then
+            echo "Using Vulkan ICD: $ICD"
+            echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
+            # VK_DRIVER_FILES is the newer name for the same setting and takes
+            # precedence in the Vulkan loader; point it at the same ICD so both
+            # old loaders (VK_ICD_FILENAMES) and new ones (VK_DRIVER_FILES) agree.
+            # It must never be empty: an empty-but-set VK_DRIVER_FILES shadows
+            # VK_ICD_FILENAMES and leaves the loader with no drivers.
+            echo "VK_DRIVER_FILES=$ICD" >> $GITHUB_ENV
+          else
+            echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
+          fi
       - name: Report GL/Vulkan
         run: |
           set -x
+          echo "renderer=${{ matrix.renderer }}"
           echo "DISPLAY=$DISPLAY"
+          echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY"
+          echo "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"
+          echo "SDL_VIDEODRIVER=$SDL_VIDEODRIVER"
           glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
           vulkaninfo --summary || true
           echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+          echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.3.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-test:screenshotTest
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            TASK=screenshotTestAngle
+          else
+            TASK=screenshotTest
+          fi
+          restart_display_server() {
+            if [ "${{ matrix.renderer }}" = "angle" ]; then
+              # Kill the exact weston we started (PID saved by the Start step),
+              # not anything matching a pattern.
+              if [ -f /tmp/weston.pid ]; then
+                kill "$(cat /tmp/weston.pid)" 2>/dev/null || true
+              fi
+              sleep 1
+              # Same env discipline as the Start step: weston must not see a stale
+              # DISPLAY, and SDL must stay on Wayland. VK_DRIVER_FILES keeps the
+              # resolved ICD path from $GITHUB_ENV (unsetting it would also work
+              # via the VK_ICD_FILENAMES fallback, but there is no reason to).
+              unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+              export SDL_VIDEODRIVER=wayland
+              weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+              echo $! > /tmp/weston.pid
+              sleep 2
+            else
+              # A corrupted X server state (e.g. BadLength on X_PutImage) persists for the
+              # life of the server, so give each retry a fresh display.
+              pkill Xvfb || true
+              sleep 2
+              Xvfb :99 -ac -screen 0 1024x768x16 &
+              sleep 2
+            fi
+          }
+          for attempt in 1 2 3; do
+            echo "Screenshot test (${{ matrix.renderer }}) attempt $attempt of 3"
+            if ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:$TASK; then
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Attempt $attempt failed, retrying..."
+              # Stop any crashed/lingering Gradle daemons so a failed JVM
+              # (e.g. an X_PutImage Xlib crash) cannot poison the next attempt.
+              ./gradlew --stop || true
+              restart_display_server
+            fi
+          done
+          echo "All 3 attempts failed."
+          exit 1
+      - name: Report Screenshot Test failure
+        if: failure()
+        run: |
+          echo "::error title=Screenshot tests (${{ matrix.renderer }}) failed::For details download the 'screenshot-test-report-${{ matrix.renderer }}' artifact and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html. If you intended to change visuals: review jme3-screenshot-tests/build/changed-images and commit replacements to jme3-screenshot-tests/src/test/resources (files ending in _angle.png for the ANGLE run). See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md"
       - name: Upload Test Reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: screenshot-test-report
+          name: screenshot-test-report-${{ matrix.renderer }}
           retention-days: 30
           path: |
             **/build/reports/**
             **/build/changed-images/**
             **/build/test-results/**
 
+  TestIOSBuild:
+    name: Test iOS build
+    runs-on: macos-latest
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.3.0
+    
+      - name: Build iOS examples
+        shell: bash
+        run: |
+         ./gradlew :jme3-ios-examples:buildIosSimulatorApp
+         
   # Build the engine, we only deploy from ubuntu-latest jdk25
   BuildJMonkey:
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -173,18 +329,18 @@ jobs:
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 1
 
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6.1.0
+        uses: gradle/actions/wrapper-validation@v6.3.0
       - name: Build Engine
         shell: bash
         run: |
@@ -225,14 +381,14 @@ jobs:
       # Upload maven artifacts to be used later by the deploy job
       - name: Upload maven artifacts
         if: matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: maven
           path: dist/maven
 
       - name: Upload javadoc
         if:  matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: javadoc
           path: dist/javadoc
@@ -240,7 +396,7 @@ jobs:
       # Upload release archive to be used later by the deploy job
       - name: Upload release
         if: github.event_name == 'release' && matrix.deploy==true
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7
         with:
           name: release
           path: dist/release
@@ -255,32 +411,47 @@ jobs:
       contents: read
     steps:
 
-      # We need to clone everything again for uploadToMaven.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
 
       # Setup jdk 25 used for building Maven-style artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: 'temurin'
           java-version: '25'
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToSNAPSHOTRepository \
-            -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-            -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            --console=plain --stacktrace
+            # Retry with backoff to absorb transient Maven Central failures
+            # (e.g. HTTP 429 Too Many Requests during dependency resolution).
+            for attempt in 1 2 3; do
+              echo "publishToSonatype attempt $attempt of 3"
+              if ./gradlew publishToSonatype --console=plain --stacktrace; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then
+                echo "publishToSonatype failed after 3 attempts."
+                exit 1
+              fi
+              sleep $((attempt * 30))
+            done
           fi
 
 
@@ -292,15 +463,15 @@ jobs:
     if: github.event_name == 'release'
     steps:
 
-      # We need to clone everything again for uploadToCentral.sh ...
+      # We need to clone everything again for publishing ...
       - name: Clone the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 1
 
       # Setup jdk 25 used for building Sonatype artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.7.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -318,23 +489,24 @@ jobs:
           name: release
           path: dist/release
 
-      - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
+      - name: Rebuild the maven artifacts and close the Sonatype staging repository
+        env:
+          ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_centralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
+          if [ "${ORG_GRADLE_PROJECT_centralUsername}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_centralPassword}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingKey}" = "" ] || \
+             [ "${ORG_GRADLE_PROJECT_signingPassword}" = "" ];
           then
             echo "Configure the following secrets to enable uploading to Sonatype:"
             echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToCentralRepository \
-              -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
-              -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
-              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            ./gradlew publishToSonatype closeSonatypeStagingRepository \
               -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
-            .github/actions/tools/uploadToCentral.sh \
-              -p '${{ secrets.CENTRAL_PASSWORD }}' \
-              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases

@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':jme3-desktop')
+    implementation project(':jme3-core')
+    implementation project(':jme3-effects')
+    implementation project(':jme3-terrain')
+    implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-plugins')
+    implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
+
+    implementation libs.extent.reports
+    implementation platform('org.junit:junit-bom:6.1.3')
+    implementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly project(':jme3-testdata')
+}
+
+testing {
+    suites {
+        test {
+            useJUnitJupiter('6.1.3')
+        }
+    }
+}
+
+tasks.register("screenshotTest", Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform{
+        filter{
+            includeTags 'integration'
+        }
+    }
+}
+
+// Runs the same screenshot tests with the ANGLE GLES3 renderer instead of OpenGL.
+// Requires a Wayland compositor (e.g. weston --backend=headless-backend.so) because
+// the ANGLE binaries used here have no X11 EGL platform support.
+tasks.register("screenshotTestAngle", Test) {
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform{
+        filter{
+            includeTags 'integration'
+        }
+    }
+    systemProperty "jme.screenshot.renderer", "ANGLE_GLES3"
+}
+
+
+test {
+    useJUnitPlatform{
+        filter{
+            excludeTags 'integration'
+        }
+    }
+}

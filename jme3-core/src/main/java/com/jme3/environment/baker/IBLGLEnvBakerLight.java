@@ -44,8 +44,6 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.Platform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -73,11 +71,6 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
      */
     public enum SphericalHarmonicsMode {
         /**
-         * Use full cubemap integration on desktop and the Hammersley fast path on
-         * Android and iOS.
-         */
-        AUTO,
-        /**
          * Use Hammersley sampling.
          */
         FAST,
@@ -87,7 +80,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         QUALITY
     }
 
-    private SphericalHarmonicsMode sphericalHarmonicsMode = SphericalHarmonicsMode.AUTO;
+    private SphericalHarmonicsMode sphericalHarmonicsMode = SphericalHarmonicsMode.FAST;
     private int sphericalHarmonicsFastPathSampleCount = DEFAULT_FAST_SH_SAMPLE_COUNT;
     private Texture2D shCoefTexture;
     private FrameBuffer shBaker;
@@ -208,11 +201,6 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             }
             case QUALITY: {
                 mat.setBoolean("UseFastSphericalHarmonics", false);
-                break;
-            }
-            case AUTO: {
-                Platform.Os os = JmeSystem.getPlatform().getOs();
-                mat.setBoolean("UseFastSphericalHarmonics",  os == Platform.Os.Android || os == Platform.Os.iOS);
                 break;
             }
         }

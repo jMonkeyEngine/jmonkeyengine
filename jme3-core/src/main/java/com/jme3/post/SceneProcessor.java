@@ -65,10 +65,15 @@ public interface SceneProcessor {
     /**
      * Called when the scale of the viewport has been changed.
      *
+     * @deprecated Display scale changes are reported through
+     * {@link #reshape(ViewPort, int, int)} using the viewport render target size.
+     * Built-in contexts no longer call this method.
+     *
      * @param vp the affected ViewPort
      * @param x the new horizontal scale 
      * @param y the new vertical scale 
      */
+    @Deprecated
     public default void rescale(ViewPort vp, float x, float y) {
 
     }
