@@ -35,6 +35,30 @@ the Actions tab (on GitHub) and find your pipeline you can download the report f
 It is important to be aware that the tests are sensitive to machine variability. Different GPUs may produce subtly different pixel outputs
 (that look identical to a human user). The tests are run on a specific machine and the reference images are generated on that machine. If the tests are run on a different machine, the images may not match the reference images and this is "fine". If you run these on your local machine compare the differences by eye in the report, don't wory about failing tests.
 
+### Renderer noise is tolerated
+
+The CI renders with software renderers (Mesa in the desktop job, the emulator's GLES renderer in
+the Android job) whose rounding depends on the machine hosting the runner. The same commit can
+therefore produce an image whose pixels are a little different from the reference image the tests
+were baked against. Requiring every pixel to match turns that noise into a red pipeline, and
+retrying the test on the same runner reproduces it exactly.
+
+A screenshot is therefore considered to match its reference image when no more than `0.02%` of its
+pixels (and never fewer than 10 pixels, so that small images still get a usable budget) differ by
+more than 3/255 on any colour channel - about 40 pixels on a 500x400 desktop screenshot and about
+200 pixels on a 1280x800 emulator screenshot. A change to what is actually drawn moves far more
+pixels than that and still fails the test; the numbers live in `ImageDifference` if they ever need
+tightening.
+
+Failures also now report the measurement that caused them, e.g.
+
+```
+Generated images is different from committed image. (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)
+```
+
+so a genuine change of the drawn scene (hundreds or thousands of pixels) can be told apart from a
+rendering hiccup (a handful of pixels) without downloading the artefacts.
+
 ## Parameterised tests
 
 By default, the tests use the class and method name to produce the screenshot image name. E.g. org.jmonkeyengine.screenshottests.effects.TestExplosionEffect.testExplosionEffect_f15.png is the testExplosionEffect test at frame 15. If you are using parameterised tests this won't work (as all the tests have the same function name). In this case you should specify the image name (including whatever parameterised information to make it unique). E.g.
