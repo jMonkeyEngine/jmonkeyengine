@@ -251,9 +251,6 @@ public class AndroidJoyInput implements JoyInput {
         switch (action) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
-                // Touch is back in use, so a keyboard/gamepad seen earlier no longer
-                // justifies keeping the AUTO-mode virtual joystick suppressed.
-                keyboardSuppressedAutoJoystick = false;
                 consumed = joystick.onPointerDown(event.getPointerId(pointerIndex),
                         toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
                 break;

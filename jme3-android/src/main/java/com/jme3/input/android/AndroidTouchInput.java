@@ -86,6 +86,26 @@ public class AndroidTouchInput implements TouchInput {
 
     protected AndroidInputHandler androidInput;
 
+    /**
+     * Bit mask of the pointer ids the virtual joystick owns for the MotionEvent
+     * currently being dispatched. Set by AndroidInputHandler before each onTouch()
+     * call; never read outside of it.
+     */
+    private long joystickPointerMask = 0L;
+    /**
+     * Pointer ids hidden at DOWN time that must stay hidden until their UP/CANCEL,
+     * even if the joystick drops the capture mid-gesture (eg. setEnabled(false) or
+     * a layout resize while the finger is still down). Without this, the finger
+     * would reappear as a touch with MOVE/UP but no preceding DOWN.
+     */
+    private long hiddenPointerMask = 0L;
+    /**
+     * Whether the gesture-detector stream for the current physical gesture has been
+     * tainted by a joystick-owned pointer. Once tainted, the detectors get a single
+     * synthetic ACTION_CANCEL and then nothing until the gesture ends.
+     */
+    private boolean gestureStreamTainted = false;
+
     public AndroidTouchInput(AndroidInputHandler androidInput) {
         this.androidInput = androidInput;
     }
@@ -104,6 +124,17 @@ public class AndroidTouchInput implements TouchInput {
 
     public void setScaleDetector(ScaleGestureDetector scaleDetector) {
         this.scaleDetector = scaleDetector;
+    }
+
+    /**
+     * Sets the bit mask of pointer ids the virtual joystick owns for the
+     * MotionEvent about to be dispatched. Called by AndroidInputHandler before
+     * each {@link #onTouch(MotionEvent)} call.
+     *
+     * @param mask the captured pointer ids as a bit mask
+     */
+    public void setJoystickPointerMask(long mask) {
+        this.joystickPointerMask = mask;
     }
 
     public float invertX(float origX) {
@@ -178,8 +209,14 @@ public class AndroidTouchInput implements TouchInput {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
                 if (isJoystickPointer(pointerId)) {
+                    // Hidden from touch for the rest of this finger's life, even if the
+                    // joystick later drops the capture before the UP.
+                    hiddenPointerMask |= pointerBit(pointerId);
                     break;
                 }
+                // Fresh DOWN for an ordinary pointer: drop any stale hidden state for
+                // this id (eg. a previous DOWN that never saw its UP).
+                hiddenPointerMask &= ~pointerBit(pointerId);
                 jmeX = getJmeX(event.getX(pointerIndex));
                 jmeY = invertY(getJmeY(event.getY(pointerIndex)));
                 touch = getFreeTouchEvent();
@@ -201,10 +238,18 @@ public class AndroidTouchInput implements TouchInput {
                 // names - which, with the virtual joystick owning some of them, may well be a
                 // pointer that was never reported here to begin with.
                 bWasHandled = releaseAllPointers(event);
+                hiddenPointerMask = 0L;
                 break;
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-                if (lastPositions.remove(pointerId) == null) {
+                if ((hiddenPointerMask & pointerBit(pointerId)) != 0) {
+                    // Was hidden at DOWN time and stayed hidden: swallow the UP, it has no
+                    // matching press on the touch side.
+                    hiddenPointerMask &= ~pointerBit(pointerId);
+                    break;
+                }
+                if (isJoystickPointer(pointerId)
+                        || lastPositions.remove(pointerId) == null) {
                     // Never reported as DOWN - eg. it went to the virtual joystick instead -
                     // so releasing it here would be an UP with no matching press.
                     break;
@@ -225,7 +270,7 @@ public class AndroidTouchInput implements TouchInput {
             case MotionEvent.ACTION_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
-                    if (isJoystickPointer(event.getPointerId(p))) {
+                    if (isHiddenPointer(event.getPointerId(p))) {
                         continue;
                     }
                     jmeX = getJmeX(event.getX(p));
@@ -258,19 +303,64 @@ public class AndroidTouchInput implements TouchInput {
 
         }
 
-        // Try to detect gestures - but not for events the virtual joystick has a hand in,
-        // where a gesture spanning both the stick and another finger would be meaningless
-        // (and the detectors have no way to be told to ignore individual pointers).
-        if (numPointers == event.getPointerCount()) {
-            if (gestureDetector != null) {
-                gestureDetector.onTouchEvent(event);
+        // Feed the gesture detectors a consistent stream: once a joystick-owned
+        // pointer taints the physical gesture, the detectors get a single synthetic
+        // ACTION_CANCEL and then nothing until the gesture ends. Without the cancel,
+        // a detector that saw the initial DOWN would be left waiting for an UP that
+        // never comes (and might fire a stale long-press or fling later).
+        int action = getAction(event);
+        boolean tainted = isEventTainted(event);
+        MotionEvent cancelEvent = null;
+        if (action == MotionEvent.ACTION_DOWN) {
+            gestureStreamTainted = tainted;
+            if (!tainted) {
+                feedGestureDetectors(event);
             }
-            if (scaleDetector != null) {
-                scaleDetector.onTouchEvent(event);
+        } else if (!gestureStreamTainted) {
+            if (tainted) {
+                cancelEvent = obtainCancelEvent(event);
+                feedGestureDetectors(cancelEvent);
+                gestureStreamTainted = true;
+            } else {
+                feedGestureDetectors(event);
             }
+        }
+        if (cancelEvent != null) {
+            cancelEvent.recycle();
+        }
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            gestureStreamTainted = false;
         }
 
         return bWasHandled;
+    }
+
+    private void feedGestureDetectors(MotionEvent event) {
+        if (gestureDetector != null) {
+            gestureDetector.onTouchEvent(event);
+        }
+        if (scaleDetector != null) {
+            scaleDetector.onTouchEvent(event);
+        }
+    }
+
+    /**
+     * Synthesizes an ACTION_CANCEL for the gesture detectors when a joystick-owned
+     * pointer joins a gesture they were already tracking.
+     */
+    private MotionEvent obtainCancelEvent(MotionEvent event) {
+        int pointerIndex = getPointerIndex(event);
+        return MotionEvent.obtain(event.getDownTime(), event.getEventTime(),
+                MotionEvent.ACTION_CANCEL, event.getX(pointerIndex), event.getY(pointerIndex), 0);
+    }
+
+    private boolean isEventTainted(MotionEvent event) {
+        for (int p = 0; p < event.getPointerCount(); p++) {
+            if (isHiddenPointer(event.getPointerId(p))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -314,7 +404,7 @@ public class AndroidTouchInput implements TouchInput {
     private int countReportedPointers(MotionEvent event) {
         int count = 0;
         for (int p = 0; p < event.getPointerCount(); p++) {
-            if (!isJoystickPointer(event.getPointerId(p))) {
+            if (!isHiddenPointer(event.getPointerId(p))) {
                 count++;
             }
         }
@@ -322,7 +412,20 @@ public class AndroidTouchInput implements TouchInput {
     }
 
     private boolean isJoystickPointer(int pointerId) {
-        return androidInput != null && androidInput.isPointerCapturedByJoystick(pointerId);
+        return (joystickPointerMask & pointerBit(pointerId)) != 0;
+    }
+
+    /**
+     * Whether the pointer must not be reported as a touch (or emulated mouse)
+     * event: either the virtual joystick owns it for the event being dispatched,
+     * or it was hidden at DOWN time and hasn't gone up yet.
+     */
+    private boolean isHiddenPointer(int pointerId) {
+        return ((joystickPointerMask | hiddenPointerMask) & pointerBit(pointerId)) != 0;
+    }
+
+    private static long pointerBit(int pointerId) {
+        return (pointerId >= 0 && pointerId < Long.SIZE) ? (1L << pointerId) : 0L;
     }
 
     // TODO: Ring Buffer for mouse events?
