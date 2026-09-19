@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,13 @@ class BitmapTextPage extends Geometry {
     private final Texture2D texture;
     private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
 
-    BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
+    /**
+     * Creates the page at the given index for the specified font.
+     *
+     * @param font the font to use (not null)
+     * @param page the index of the font page to display
+     */
+    BitmapTextPage(BitmapFont font, int page) {
         super("BitmapFont", new Mesh());
         setRequiresUpdates(false);
         setBatchHint(BatchHint.Never);
@@ -86,31 +92,41 @@ class BitmapTextPage extends Geometry {
         // scale colors from 0 - 255 range into 0 - 1
         m.getBuffer(Type.Color).setNormalized(true);
 
-        arrayBased = true;
-
-        /*
-         * TODO: Since this is forced to true, should we just lose the conditional?
-         * - Skye (sbook)
-         */
-        if (arrayBased) {
-            pos = new float[4 * 3];  // 4 vertices * 3 floats
-            tc = new float[4 * 2];  // 4 vertices * 2 floats
-            idx = new short[2 * 3];  // 2 triangles * 3 indices
-            color = new byte[4 * 4];   // 4 vertices * 4 bytes
-        } else {
-            pos = null;
-            tc = null;
-            idx = null;
-            color = null;
-        }
+        // The buffers are always array-based: one quad is stored in these
+        // arrays and reused for every quad of this page.
+        pos = new float[4 * 3];  // 4 vertices * 3 floats
+        tc = new float[4 * 2];  // 4 vertices * 2 floats
+        idx = new short[2 * 3];  // 2 triangles * 3 indices
+        color = new byte[4 * 4];   // 4 vertices * 4 bytes
     }
 
+    /**
+     * @deprecated The arrayBased parameter is ignored; array-based buffers are
+     * always used. Use {@link #BitmapTextPage(BitmapFont, int)} instead.
+     *
+     * @param font the font to use (not null)
+     * @param arrayBased ignored
+     * @param page the index of the font page to display
+     */
+    @Deprecated
+    BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
+        this(font, page);
+    }
+
+    /**
+     * @deprecated The arrayBased parameter is ignored; array-based buffers are
+     * always used. Use {@link #BitmapTextPage(BitmapFont, int)} instead.
+     *
+     * @param font the font to use (not null)
+     * @param arrayBased ignored
+     */
+    @Deprecated
     BitmapTextPage(BitmapFont font, boolean arrayBased) {
-        this(font, arrayBased, 0);
+        this(font, 0);
     }
 
     BitmapTextPage(BitmapFont font) {
-        this(font, false, 0);
+        this(font, 0);
     }
 
     Texture2D getTexture() {
@@ -199,24 +215,18 @@ class BitmapTextPage extends Geometry {
 
         m.updateCounts();
 
-        // go for each quad and append it to the buffers
-        if (pos != null) {
-            for (int i = 0; i < pageQuads.size(); i++) {
-                LetterQuad fq = pageQuads.get(i);
-                fq.storeToArrays(pos, tc, idx, color, i);
-                fpb.put(pos);
-                ftb.put(tc);
-                sib.put(idx);
-                bcb.put(color);
-            }
-        } else {
-            for (int i = 0; i < pageQuads.size(); i++) {
-                LetterQuad fq = pageQuads.get(i);
-                fq.appendPositions(fpb);
-                fq.appendTexCoords(ftb);
-                fq.appendIndices(sib, i);
-                fq.appendColors(bcb);
-            }
+        // go for each quad and append it to the buffers.
+        // pageQuads is a LinkedList, so iterate it with a for-each loop:
+        // indexed access (get(i)) walks the list from the head every time,
+        // which makes this loop quadratic in the number of quads.
+        int i = 0;
+        for (LetterQuad fq : pageQuads) {
+            fq.storeToArrays(pos, tc, idx, color, i);
+            fpb.put(pos);
+            ftb.put(tc);
+            sib.put(idx);
+            bcb.put(color);
+            i++;
         }
 
         fpb.rewind();
