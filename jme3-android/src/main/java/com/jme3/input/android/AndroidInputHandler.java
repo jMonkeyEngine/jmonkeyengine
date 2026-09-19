@@ -217,6 +217,18 @@ public class AndroidInputHandler implements View.OnTouchListener,
             long capturedBefore = joyInput.getCapturedPointerMask();
             joyConsumed = joyInput.onTouch(event);
             joystickPointerMask = capturedBefore | joyInput.getCapturedPointerMask();
+            if (joyConsumed) {
+                int action = event.getAction() & MotionEvent.ACTION_MASK;
+                if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN
+                        || action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+                    int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    int pointerId = event.getPointerId(pointerIndex);
+                    if (pointerId >= 0 && pointerId < Long.SIZE) {
+                        joystickPointerMask |= (1L << pointerId);
+                    }
+                }
+            }
         }
 
         if (isTouch && touchInput != null) {
