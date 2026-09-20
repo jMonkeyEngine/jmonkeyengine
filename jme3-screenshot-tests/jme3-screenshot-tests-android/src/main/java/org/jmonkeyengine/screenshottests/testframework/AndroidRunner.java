@@ -41,21 +41,35 @@ import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.services.storage.TestStorage;
 
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 
 import org.junit.Assert;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @SuppressLint("RestrictedApi")
 public class AndroidRunner implements AppRunner {
+
+    /**
+     * Instrumentation argument used to select the {@link ScreenshotTestMode}, the Android
+     * equivalent of {@link org.jmonkeyengine.screenshottests.testframework.ScreenshotTest#MODE_SYSTEM_PROPERTY}.
+     * Pass it with
+     * {@code -Pandroid.testInstrumentationRunnerArguments.jmeScreenshotMode=generate}.
+     */
+    public static final String MODE_INSTRUMENTATION_ARGUMENT = "jmeScreenshotMode";
+
+    /**
+     * Directory (within test storage) that reference images are written to and read from.
+     */
+    public static final String REFERENCE_IMAGES_DIRECTORY = "reference-images";
 
     private static final Logger logger = Logger.getLogger(AndroidRunner.class.getName());
 
@@ -131,12 +145,49 @@ public class AndroidRunner implements AppRunner {
     }
 
     @Override
-    public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
-        Image rgbaImage = TestReportCaptureBase.convertToRGBA8(generatedImage);
-        try (OutputStream out = getPersistentFileOutputStream("changed-images/" + fileName)) {
-            JmeSystem.writeImageFile(out, "png",rgbaImage.getData(0), rgbaImage.getWidth(), rgbaImage.getHeight());
+    public ScreenshotTestMode getScreenshotTestMode() {
+        return ScreenshotTestMode.fromConfigurationValue(
+                InstrumentationRegistry.getArguments().getString(MODE_INSTRUMENTATION_ARGUMENT));
+    }
+
+    /**
+     * Reads a reference image from the test storage input directory, where the reference run's
+     * images are placed between the two passes.
+     *
+     * <p>
+     * Test storage belongs to the test services app rather than to the app under test, which is
+     * what makes it the right home for these: it survives the
+     * {@code adb uninstall org.jmonkeyengine.screenshottests.android} that the CI script does
+     * between retry attempts, whereas the app's own external files directory does not.
+     * </p>
+     */
+    @Override
+    public Optional<Image> loadReferenceImage(String fileName) {
+        try (InputStream referenceImage = testStorage.openInputFile(REFERENCE_IMAGES_DIRECTORY + "/" + fileName)) {
+            return Optional.of(ScreenshotImageIo.readImage(referenceImage));
+        } catch (FileNotFoundException e) {
+            // No image under that name, so the test did not exist on the reference branch.
+            return Optional.empty();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not read reference image " + fileName, e);
+        }
+    }
+
+    @Override
+    public void saveReferenceImage(Image image, String fileName) {
+        writePng(image, REFERENCE_IMAGES_DIRECTORY + "/" + fileName);
+    }
+
+    @Override
+    public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
+        writePng(generatedImage, "changed-images/" + fileName);
+    }
+
+    private void writePng(Image image, String relativePath) {
+        try (OutputStream out = getPersistentFileOutputStream(relativePath)) {
+            ScreenshotImageIo.writePng(image, out);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not write " + relativePath, e);
         }
     }
 }

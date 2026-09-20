@@ -1,59 +1,87 @@
 # jme3-screenshot-tests
 
-This module contains tests that compare screenshots of the JME3 test applications to reference images. Think of these like visual unit tests
+This module contains tests that compare screenshots of the JME3 test applications to reference
+images. Think of these like visual unit tests.
 
-The tests are run using the following command:
+Reference images are **not** committed. They are generated fresh, on the machine running the tests,
+from whichever branch you are comparing against. A reference image is really a recording of how one
+particular machine rasterises a scene, so a committed one makes the tests sensitive to the hardware
+that happens to run them; generating both halves of the comparison on one machine removes that
+variable entirely, and means the difference you are shown was caused by the code.
+
+## Choosing a mode
+
+Every run has to say which half of the comparison it is. There is no default: a run that picks no
+mode fails immediately, with an explanation, rather than rendering anything.
+
+| Mode | What it does |
+| --- | --- |
+| `-Pscreenshot.mode=generate` | Renders and records what every test looks like **on this machine**, into `build/reference-images`. Asserts nothing about the images, so it cannot fail on how a scene looks. |
+| `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is accepted with a warning. |
+
+`-Pscreenshot.referenceDir=<path>` overrides where reference images are written and read.
+
+To check a visual change, generate on the branch you are comparing against and then compare on
+yours - both on the same machine, so the hardware cancels out:
 
 ```
- ./gradlew :jme3-screenshot-test:screenshotTest
+ git switch master
+ ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest -Pscreenshot.mode=generate
+ git switch my-branch
+ ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-desktop:screenshotTest -Pscreenshot.mode=compare
 ```
 
-This runs them with the OpenGL 4.5 renderer. To run them with the ANGLE GLES3 renderer instead:
+Unlike the old committed-reference setup, this works on your own machine and its result means
+something there - you no longer have to push to CI to find out whether you changed how something
+looks.
+
+The desktop commands above use the OpenGL 4.5 renderer. To use the ANGLE GLES3 renderer instead, run
+`screenshotTestAngle` in place of `screenshotTest` for both passes. Note that ANGLE needs a Wayland
+compositor (its EGL binaries have no X11 platform support). On a headless machine start one first,
+e.g. `weston --backend=headless-backend.so --socket=wayland-1`, with `XDG_RUNTIME_DIR` set, and
+`XDG_SESSION_TYPE=wayland` and `WAYLAND_DISPLAY=wayland-1` exported.
+
+The same flag works for the Android tests, which pass it through to the instrumentation runner:
 
 ```
- ./gradlew :jme3-screenshot-test:screenshotTestAngle
+ ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pscreenshot.mode=generate
 ```
 
-Note: ANGLE needs a Wayland compositor (its EGL binaries have no X11 platform support).
-On a headless machine start one first, e.g. `weston --backend=headless-backend.so --socket=wayland-1`,
-with `XDG_RUNTIME_DIR` set, `XDG_SESSION_TYPE=wayland` and `WAYLAND_DISPLAY=wayland-1` exported.
+ANGLE records into files suffixed with `_angle` (e.g. `..._f1_angle.png`) so that the two desktop
+backends never overwrite each other's reference images.
 
-## ANGLE reference images
+## The report
 
-ANGLE renders into files suffixed with `_angle` (e.g. `..._f1_angle.png`), kept next to the
-OpenGL references in `src/test/resources` so the two backends never overwrite each other's
-reference images. When accepting new ANGLE images, copy the `*_angle.png` files from the
-`screenshot-test-report-angle` CI artifact (or `build/changed-images` locally).
+A run produces `jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html` showing the
+differences between the reference images and the screenshots taken during the run. It is an
+ExtentReport. On CI it can be downloaded from the Artifacts section of the pipeline once it has
+finished; it is called `screenshot-test-report`.
 
-This will create a report in `jme3-screenshot-test/build/reports/ScreenshotDiffReport.html` that shows the differences between the reference images and the screenshots taken during the test run. Note that this is an ExtentReport. 
+Images that differ from their reference are also written to `build/changed-images`.
 
-This is most reliable when run on the CI server. The report can be downloaded from the artifacts section of the pipeline (once the full pipeline has completed). If you go into
-the Actions tab (on GitHub) and find your pipeline you can download the report from the Artifacts section. It will be called screenshot-test-report.
+## Accepting a changed image
 
-## Machine variability
+A change that alters how something looks is expected to change these images. Because references are
+regenerated every run, there is nothing to copy and commit: review the difference in the report, and
+if it is what you intended, say so on the pull request. A test that is new on your branch has no
+reference to compare against and is accepted automatically, with a warning in the report.
 
-It is important to be aware that the tests are sensitive to machine variability. Different GPUs may produce subtly different pixel outputs
-(that look identical to a human user). The tests are run on a specific machine and the reference images are generated on that machine. If the tests are run on a different machine, the images may not match the reference images and this is "fine". If you run these on your local machine compare the differences by eye in the report, don't wory about failing tests.
+## Renderer noise is tolerated
 
-### Renderer noise is tolerated
-
-The CI renders with software renderers (Mesa in the desktop job, the emulator's GLES renderer in
-the Android job) whose rounding depends on the machine hosting the runner. The same commit can
-therefore produce an image whose pixels are a little different from the reference image the tests
-were baked against. Requiring every pixel to match turns that noise into a red pipeline, and
-retrying the test on the same runner reproduces it exactly.
+CI renders with software renderers (Mesa in the desktop job, the emulator's GLES renderer in the
+Android job) whose rounding is not perfectly reproducible, so a small number of pixels can differ
+between two runs of the very same code.
 
 A screenshot is therefore considered to match its reference image when no more than `0.02%` of its
 pixels (and never fewer than 10 pixels, so that small images still get a usable budget) differ by
 more than 3/255 on any colour channel - about 40 pixels on a 500x400 desktop screenshot and about
 200 pixels on a 1280x800 emulator screenshot. A change to what is actually drawn moves far more
-pixels than that and still fails the test; the numbers live in `ImageDifference` if they ever need
-tightening.
+pixels than that and still fails the test; the numbers live in `ImageDifference`.
 
-Failures also now report the measurement that caused them, e.g.
+Failures report the measurement that caused them, e.g.
 
 ```
-Generated images is different from committed image. (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)
+Generated image is different from the reference image. ... (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)
 ```
 
 so a genuine change of the drawn scene (hundreds or thousands of pixels) can be told apart from a
@@ -86,7 +114,3 @@ change the behaviour of the test such that these are marked as warnings in the g
     .run();
 )
 ```
-
-## Accepting new images
-
-It may be the case that a change makes an improvement to the library (or the test is entirely new) and the new image should be accepted as the new reference image. To do this, copy the new image to the `src/test/resources` directory. The new image can be found in the `build/changed-images` directory, however it is very important that the image come from the reference machine. This can be obtained from the CI server. The job runs only if there is an active pull request (to one of the mainline branches; e.g. master or 3.7). If you go into the Actions tab and find your pipeline you can download the report and changed images from the Artifacts section.

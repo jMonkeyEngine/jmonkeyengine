@@ -16,6 +16,16 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Lets the Android screenshot tests take the same -Pscreenshot.mode=generate|compare
+        // flag as the desktop ones, rather than the raw
+        // -Pandroid.testInstrumentationRunnerArguments.jmeScreenshotMode form. Nothing is passed on
+        // when no mode was given, so the test framework explains the choice rather than the build
+        // script guessing one. See ScreenshotTestMode.
+        def screenshotMode = findProperty('screenshot.mode')
+        if (screenshotMode != null) {
+            testInstrumentationRunnerArguments jmeScreenshotMode: screenshotMode.toString()
+        }
     }
 
     buildTypes {
