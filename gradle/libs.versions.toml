@@ -67,7 +67,7 @@ nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls
 nifty-examples         = { module = "com.github.nifty-gui:nifty-examples",         version.ref = "nifty" }
 nifty-style-black      = { module = "com.github.nifty-gui:nifty-style-black",      version.ref = "nifty" }
 
-spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8"
+spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.5.11"
 vecmath = "javax.vecmath:vecmath:1.5.2"
 
 stb-image = "org.ngengine:stb-image:2.30.5"
