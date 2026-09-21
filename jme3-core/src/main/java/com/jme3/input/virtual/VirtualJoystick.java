@@ -246,6 +246,30 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     /**
+     * Returns a bit mask of the pointer ids currently captured by an on-screen control,
+     * bit <em>n</em> being set when pointer id <em>n</em> is captured.
+     *
+     * <p>Backends use this to tell apart the pointers this joystick owns from the ones that
+     * should still reach the rest of the input pipeline, so that a finger on the on-screen
+     * stick doesn't stop a second finger from being reported as an ordinary touch. Pointer
+     * ids of 64 or above cannot be represented and are omitted; no platform jME supports
+     * produces them.
+     *
+     * @return the captured pointer ids as a bit mask, 0 if none are captured
+     */
+    public long getCapturedPointerMask() {
+        synchronized (inputLock) {
+            long mask = 0L;
+            for (Integer pointerId : captures.keySet()) {
+                if (pointerId >= 0 && pointerId < Long.SIZE) {
+                    mask |= 1L << pointerId;
+                }
+            }
+            return mask;
+        }
+    }
+
+    /**
      * Releases all active pointer captures.
      *
      * @return true if at least one pointer was captured

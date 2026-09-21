@@ -12,19 +12,19 @@ nifty = "1.4.3"
 spotbugs = "4.9.8"
 jmeAndroidNatives = "3.10.0-xt16kb-alloc"
 googleMaterial = "1.14.0"
-androidx-fragment-testing = "1.8.9"
+androidx-fragment-testing = "1.9.0"
 
 [libraries]
 
 androidx-annotation = "androidx.annotation:annotation:1.10.0"
-androidx-fragment = "androidx.fragment:fragment:1.8.9"
+androidx-fragment = "androidx.fragment:fragment:1.9.0"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
 androidx-test-services = { module = "androidx.test.services:test-services", version = "1.6.0" }
 androidx-storage = { module = "androidx.test.services:storage" }  # used for peristent android test result storage, file version from androidx-fragment-testing-manifest
 androidxAppcompat = { module = "androidx.appcompat:appcompat", version = "1.4.0" }
-androidxConstraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }
+androidxConstraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.2" }
 androidx-test-core = "androidx.test:core:1.7.0"
 androidx-test-rules = "androidx.test:rules:1.7.0"
 androidx-test-ext-junit = "androidx.test.ext:junit:1.3.0"
@@ -67,7 +67,7 @@ nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls
 nifty-examples         = { module = "com.github.nifty-gui:nifty-examples",         version.ref = "nifty" }
 nifty-style-black      = { module = "com.github.nifty-gui:nifty-style-black",      version.ref = "nifty" }
 
-spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8"
+spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.5.11"
 vecmath = "javax.vecmath:vecmath:1.5.2"
 
 stb-image = "org.ngengine:stb-image:2.30.5"
