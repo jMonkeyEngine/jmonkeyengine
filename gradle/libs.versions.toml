@@ -12,12 +12,12 @@ nifty = "1.4.3"
 spotbugs = "4.9.8"
 jmeAndroidNatives = "3.10.0-xt16kb-alloc"
 googleMaterial = "1.14.0"
-androidx-fragment-testing = "1.8.9"
+androidx-fragment-testing = "1.9.0"
 
 [libraries]
 
 androidx-annotation = "androidx.annotation:annotation:1.10.0"
-androidx-fragment = "androidx.fragment:fragment:1.8.9"
+androidx-fragment = "androidx.fragment:fragment:1.9.0"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
