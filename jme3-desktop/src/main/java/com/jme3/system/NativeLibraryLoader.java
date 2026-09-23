@@ -332,15 +332,13 @@ public final class NativeLibraryLoader {
      */
     private static Path getJmeUserCacheFolder() {
         Path base = null;
-        if (base == null) {
-            String loc = System.getProperty(CACHE_FOLDER_PROPERTY);
-            if (loc != null && !loc.trim().isEmpty()) {
-                base = Paths.get(loc);
-                if (!base.isAbsolute() || !Files.isDirectory(base)) {
-                    base = null;
-                    logger.warning(CACHE_FOLDER_PROPERTY
-                            + " must be an absolute path and must exist. Falling back to default cache location.");
-                }
+        String cacheFolder = System.getProperty(CACHE_FOLDER_PROPERTY);
+        if (cacheFolder != null && !cacheFolder.trim().isEmpty()) {
+            base = Paths.get(cacheFolder);
+            if (!base.isAbsolute() || !Files.isDirectory(base)) {
+                base = null;
+                logger.warning(CACHE_FOLDER_PROPERTY
+                        + " must be an absolute path and must exist. Falling back to default cache location.");
             }
         }
 
