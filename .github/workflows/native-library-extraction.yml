@@ -1,0 +1,60 @@
+name: Native library extraction
+
+on:
+  push:
+    paths:
+      - '.github/workflows/native-library-extraction.yml'
+      - 'jme3-desktop/src/main/java/com/jme3/system/**'
+      - 'jme3-desktop/src/test/java/com/jme3/system/**'
+      - 'jme3-core/src/main/java/com/jme3/system/**'
+  pull_request:
+    paths:
+      - '.github/workflows/native-library-extraction.yml'
+      - 'jme3-desktop/src/main/java/com/jme3/system/**'
+      - 'jme3-desktop/src/test/java/com/jme3/system/**'
+      - 'jme3-core/src/main/java/com/jme3/system/**'
+  workflow_dispatch:
+
+jobs:
+  native-extraction:
+    name: ${{ matrix.os }} / ${{ matrix.scenario }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        scenario: [baseline, custom-file, temp-file, temp-and-cache-file, all-blocked]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/wrapper-validation@v6.3.0
+      - name: Test configured extraction scenario
+        shell: bash
+        run: |
+          case '${{ matrix.scenario }}' in
+            baseline)
+              ./gradlew :jme3-desktop:test --no-daemon --console=plain --stacktrace
+              exit 0
+              ;;
+            custom-file) method=unusableCustomDirectoryFallsBackToTemp ;;
+            temp-file) method=tempFileFallsBackToCacheDuringExtraction ;;
+            temp-and-cache-file) method=unusableTempAndCacheFallBackToHome ;;
+            all-blocked) method=allUnusableRootsFailWithoutRetryingForever ;;
+          esac
+          ./gradlew :jme3-desktop:test \
+            --tests "com.jme3.system.AutomaticNativeLibraryLoaderTest.${method}" \
+            --no-daemon --console=plain --stacktrace
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-extraction-${{ matrix.os }}-${{ matrix.scenario }}
+          path: |
+            jme3-desktop/build/test-results/test/**
+            jme3-desktop/build/reports/tests/test/**
