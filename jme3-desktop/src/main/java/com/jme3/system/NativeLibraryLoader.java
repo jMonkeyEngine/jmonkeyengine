@@ -80,7 +80,8 @@ public final class NativeLibraryLoader {
 
     /**
      * System property controlling whether native libraries should be extracted
-     * from the classpath before loading. Defaults to {@code true}.
+     * from the classpath before loading. Defaults to {@code true}. When false,
+     * {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} must specify existing natives.
      */
     public static final String EXTRACT_NATIVE_LIBRARIES_PROPERTY = "com.jme3.ExtractNativeLibraries";
 
@@ -90,6 +91,7 @@ public final class NativeLibraryLoader {
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
     private static File extractionFolderOverride = null;
     private static File extractionFolder = null;
+    private static final int EXTRACTION_ROOT_COUNT = 4; // configured, temp, cache, home
     private static int extractionRootIndex = 0; // extraction root to try next
     private static Boolean extractNativeLibrariesOverride = null;
     private static final Map<NativeLibrary, String> loadedLibraries = new HashMap<>();
@@ -217,7 +219,9 @@ public final class NativeLibraryLoader {
 
     /**
      * Specify whether native libraries should be extracted from the classpath
-     * before loading. Set to {@code true} to preserve the default behavior.
+     * before loading. When false, configure a folder containing the native
+     * files with {@link #setCustomExtractionFolder(String)} or
+     * {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY}.
      *
      * @param extractNativeLibraries true to extract classpath natives, false to
      *                               load existing files from the extraction folder
@@ -252,14 +256,19 @@ public final class NativeLibraryLoader {
     }
 
     /**
-     * Returns the folder where native libraries will be extracted.
-     * This is automatically determined at run-time.
-     * @return Path where natives will be extracted to.
+     * Returns the folder where native libraries will be extracted or loaded from.
+     * Extraction uses a fresh private directory scheduled for deletion on JVM
+     * exit; an abrupt termination may leave it behind. Without extraction, a
+     * custom folder containing the native files must be configured.
+     * @return the folder used to extract or load native libraries
+     * @throws IllegalStateException if extraction is disabled without a custom folder
      */
     public static synchronized File getExtractionFolder() {
         if (!isExtractNativeLibraries()) {
             File custom = getCustomExtractionFolder();
             if (custom != null) return custom;
+            throw new IllegalStateException("Native library extraction is disabled; configure "
+                    + CUSTOM_EXTRACTION_FOLDER_PROPERTY + " with a directory containing the native files.");
         }
         if (extractionFolder != null) return extractionFolder;
 
@@ -573,7 +582,7 @@ public final class NativeLibraryLoader {
             }
             UnsatisfiedLinkError error = new UnsatisfiedLinkError(
                     "Cannot extract/load native libraries from the configured directory, temp, user cache, or ~/.jme3.");
-            while (extractionRootIndex < 4) {
+            while (extractionRootIndex < EXTRACTION_ROOT_COUNT) {
                 Path target = null;
                 boolean created = false;
                 try {
@@ -620,7 +629,15 @@ public final class NativeLibraryLoader {
             return null;
         }
 
-        File targetFile = new File(getExtractionFolder(), loadedAsFileName);
+        File directory;
+        try {
+            directory = getExtractionFolder();
+        } catch (IllegalStateException missingFolder) {
+            if (isRequired) throw new UnsatisfiedLinkError(missingFolder.getMessage());
+            logger.log(Level.FINE, missingFolder.getMessage());
+            return null;
+        }
+        File targetFile = new File(directory, loadedAsFileName);
         if (!targetFile.isFile()) {
             if (isRequired) {
                 throw new UnsatisfiedLinkError(
@@ -653,31 +670,4 @@ public final class NativeLibraryLoader {
         return filename;
     }
 
-    /**
-     * Checks if library extraction is required by comparing source and target
-     * last modified date. Returns true if target file does not exist.
-     *
-     * @param conn the source file
-     * @param targetFile the target file
-     * @return false if target file exist and the difference in last modified date is
-     *          less than 1 second, true otherwise
-     */
-    private static boolean isExtractingRequired(URLConnection conn, File targetFile) {
-        if (!targetFile.exists()) {
-            // Extract anyway if the file doesn't exist
-            return true;
-        }
-
-        // OK, if the file exists then compare last modified date
-        // of this file to file in jar
-        long targetLastModified = targetFile.lastModified();
-        long sourceLastModified = conn.getLastModified();
-
-        // Allow ~1 second range for OSes that only support low precision
-        return Math.abs(sourceLastModified - targetLastModified) >= 1000;
-
-        // Note extraction should also work fine if user who was using
-        // a newer version of library, downgraded to an older version
-        // which will make above check invalid and extract it again.
-    }
 }

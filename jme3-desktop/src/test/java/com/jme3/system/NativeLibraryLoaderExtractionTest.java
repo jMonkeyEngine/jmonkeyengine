@@ -38,11 +38,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.jme3.util.res.Resources;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -358,15 +360,27 @@ class NativeLibraryLoaderExtractionTest {
 
     private static Path createNoexecDirectory() throws Exception {
         assumeTrue(JmeSystem.getPlatform().getOs() == Platform.Os.Linux);
+        Path executable = Paths.get("/bin/true");
+        assumeTrue(Files.isRegularFile(executable));
         for (String name : new String[]{"/dev/shm", "/run/lock"}) {
             Path root = Paths.get(name);
             if (!Files.isDirectory(root) || !Files.isWritable(root)) continue;
-            Path probe = Files.createTempFile(root, "jme-noexec-", null);
+            Path probe = null;
             try {
+                probe = Files.createTempFile(root, "jme-noexec-", null);
+                Files.copy(executable, probe, StandardCopyOption.REPLACE_EXISTING);
                 Files.setPosixFilePermissions(probe, PosixFilePermissions.fromString("rwx------"));
-                if (!Files.isExecutable(probe)) return Files.createTempDirectory(root, "jme-test-");
+                try {
+                    // Exercise actual execution instead of repeating the loader's isExecutable check.
+                    Process process = new ProcessBuilder(probe.toString()).start();
+                    if (!process.waitFor(5, TimeUnit.SECONDS)) process.destroyForcibly();
+                } catch (IOException cannotExecute) {
+                    return Files.createTempDirectory(root, "jme-test-");
+                }
+            } catch (IOException unavailable) {
+                // Try another writable candidate.
             } finally {
-                Files.delete(probe);
+                if (probe != null) Files.deleteIfExists(probe);
             }
         }
         assumeTrue(false, "No writable noexec filesystem available");
