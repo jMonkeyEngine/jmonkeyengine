@@ -35,10 +35,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -68,11 +70,21 @@ class NativeLibraryExtractionTest {
 
     @Test
     void refusesSharedDirectoryWithoutStickyBit() throws Exception {
-        assumeTrue(Files.getFileStore(root).supportsFileAttributeView("posix"));
-        Files.setPosixFilePermissions(root, PosixFilePermissions.fromString("rwxr-xr-x"));
-        Path shared = Files.createDirectory(root.resolve("shared"));
-        Files.setPosixFilePermissions(shared, PosixFilePermissions.fromString("rwxrwxrwx"));
-        assertThrows(IOException.class, () -> NativeLibraryExtraction.createDirectory(shared, "native-"));
+        Path publicTemp = Paths.get("/tmp");
+        assumeTrue(Files.isDirectory(publicTemp) && Files.getFileStore(publicTemp).supportsFileAttributeView("posix"));
+        Path shared = Files.createTempDirectory(publicTemp, "native-shared-test-");
+        try {
+            Files.setPosixFilePermissions(shared, PosixFilePermissions.fromString("rwxrwxrwx"));
+            IOException failure = assertThrows(IOException.class,
+                    () -> NativeLibraryExtraction.createDirectory(shared, "native-"));
+            assertEquals("Native extraction ancestor is writable by other users: " + shared.toRealPath(),
+                    failure.getMessage());
+        } finally {
+            try (DirectoryStream<Path> children = Files.newDirectoryStream(shared)) {
+                for (Path child : children) Files.deleteIfExists(child);
+            }
+            Files.deleteIfExists(shared);
+        }
     }
 
     @Test

@@ -59,8 +59,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-class AutomaticNativeLibraryLoaderTest {
-    private static final String RESOURCE = "com/jme3/system/AutomaticNativeLibraryLoaderTest.class";
+class NativeLibraryLoaderExtractionTest {
+    private static final String RESOURCE = "com/jme3/system/NativeLibraryLoaderExtractionTest.class";
     @TempDir Path directory;
     private final Map<String, String> properties = new HashMap<>();
     private final Map<String, Object> fields = new HashMap<>();
