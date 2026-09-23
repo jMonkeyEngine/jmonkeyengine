@@ -45,6 +45,7 @@ import java.io.IOException;
  * Basic capsule collision shape
  * @author normenhansen
  */
+@Deprecated
 public class CapsuleCollisionShape extends CollisionShape{
     protected float radius,height;
     protected int axis;

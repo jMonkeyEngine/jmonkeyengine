@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
  * Basic mesh collision shape
  * @author normenhansen
  */
+@Deprecated
 public class MeshCollisionShape extends CollisionShape {
 
     protected int numVertices, numTriangles, vertexStride, triangleIndexStride;

@@ -38,6 +38,7 @@ package com.jme3.bullet;
  *
  * @author normenhansen
  */
+@Deprecated
 public interface PhysicsTickListener {
 
     /**
