@@ -29,14 +29,9 @@
  */
 package com.jme3.terrain.noise;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.WritableRaster;
+import com.jme3.math.ColorRGBA;
+import com.jme3.texture.Texture2D;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * Helper class containing useful functions explained in the book:
@@ -66,14 +61,16 @@ public class ShaderUtils {
         return (1 - f) * a + f * b;
     }
 
-    public static final Color mix(final Color a, final Color b, final float f) {
-        return new Color((int) ShaderUtils.clamp(ShaderUtils.mix(a.getRed(), b.getRed(), f), 0, 255), (int) ShaderUtils.clamp(
-                ShaderUtils.mix(a.getGreen(), b.getGreen(), f), 0, 255), (int) ShaderUtils.clamp(
-                ShaderUtils.mix(a.getBlue(), b.getBlue(), f), 0, 255));
-    }
-
     public static final int mix(final int a, final int b, final float f) {
         return (int) ((1 - f) * a + f * b);
+    }
+
+    public static final ColorRGBA mix(final ColorRGBA a, final ColorRGBA b, final float f) {
+        return new ColorRGBA(
+            ShaderUtils.mix(a.r, b.r, f),
+            ShaderUtils.mix(a.g, b.g, f),
+            ShaderUtils.mix(a.b, b.b, f),
+            ShaderUtils.mix(a.a, b.a, f));
     }
 
     public static final float[] mix(final float[] c1, final float[] c2, final float f) {
@@ -257,26 +254,8 @@ public class ShaderUtils {
         return (float) Math.sqrt(s);
     }
 
-    public static final ByteBuffer getImageDataFromImage(BufferedImage bufferedImage) {
-        WritableRaster wr;
-        DataBuffer db;
-
-        BufferedImage bi = new BufferedImage(128, 64, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = bi.createGraphics();
-        g.drawImage(bufferedImage, null, null);
-        bufferedImage = bi;
-        wr = bi.getRaster();
-        db = wr.getDataBuffer();
-
-        DataBufferInt dbi = (DataBufferInt) db;
-        int[] data = dbi.getData();
-
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(data.length * 4);
-        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        byteBuffer.asIntBuffer().put(data);
-        byteBuffer.flip();
-
-        return byteBuffer;
+    public static final ByteBuffer getImageDataFromTexture(final Texture2D texture) {
+        return texture.getImage().getData(0);
     }
 
     public static float frac(float f) {

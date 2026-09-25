@@ -35,8 +35,7 @@ def iosChooserExcludedPrefixes = [
     'jme3test.awt.',
     'jme3test.bullet.',
     'jme3test.niftygui.',
-    'jme3test.opencl.',
-    'jme3test.terrain.'
+    'jme3test.opencl.'
 ]
 def iosChooserExcludedNames = [
     'jme3test.app.TestChangeAppIcon',
@@ -311,10 +310,10 @@ dependencies {
     implementation project(':jme3-plugins')
     implementation project(':jme3-plugins-json')
     implementation project(':jme3-plugins-json-gson')
+    implementation project(':jme3-terrain')
 
     if ((findProperty('iosIncludeAwtUnsafeModules') ?: 'false').toString().toBoolean()) {
         implementation project(':jme3-niftygui')
-        implementation project(':jme3-terrain')
     }
 }
 
