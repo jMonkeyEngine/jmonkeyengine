@@ -68,6 +68,12 @@ jobs:
           java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.3.0
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
+
       - name: Run Checkstyle
         run: |
           ./gradlew checkstyleMain checkstyleTest --console=plain --stacktrace
@@ -95,6 +101,12 @@ jobs:
           java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.3.0
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
+
       - name: Run SpotBugs
         run: |
           ./gradlew -PenableSpotBugs=true spotbugsMain spotbugsTest --console=plain --stacktrace
@@ -122,6 +134,12 @@ jobs:
           java-version: '25'
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.3.0
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
+
       - name: Run Javadoc doclint
         run: |
           ./gradlew -PenableJavadocError=true javadoc mergedJavadoc --console=plain --stacktrace
@@ -341,6 +359,12 @@ jobs:
 
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.3.0
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
+
       - name: Build Engine
         shell: bash
         run: |
@@ -424,6 +448,12 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
 
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
+
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         env:
           ORG_GRADLE_PROJECT_centralUsername: ${{ secrets.CENTRAL_USERNAME }}
@@ -488,6 +518,12 @@ jobs:
         with:
           name: release
           path: dist/release
+
+      # jme3-android compiles against the platform android.jar of the Android SDK
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platforms;android-34'
 
       - name: Rebuild the maven artifacts and close the Sonatype staging repository
         env:

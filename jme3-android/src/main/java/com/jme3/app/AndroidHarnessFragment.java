@@ -45,8 +45,11 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.android.AndroidJoyInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
+import com.jme3.system.android.AndroidGameMode;
+import com.jme3.system.android.GameMode;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
+import com.jme3.system.android.OnGameModeChanged;
 import com.jme3.util.AndroidLogHandler;
 import com.jme3.util.AndroidNativeBufferAllocator;
 import com.jme3.util.BufferAllocatorFactory;
@@ -71,10 +74,14 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     protected GLSurfaceView view;
     protected LegacyApplication app;
     protected boolean finishOnAppStop = true;
+    private Context attachedContext;
+    private AndroidGameMode androidGameMode;
+    private OnGameModeChanged onGameModeChangedListener;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        attachedContext = context;
     }
 
     public Application getJmeApplication() {
@@ -83,6 +90,38 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
 
     public void setFinishOnAppStop(boolean finishOnAppStop) {
         this.finishOnAppStop = finishOnAppStop;
+    }
+
+    /**
+     * Registers a listener notified when the Android game mode changes.
+     *
+     * <p>The current game mode is reported to the listener as soon as it is registered,
+     * including once with {@link GameMode#UNSUPPORTED} on devices where the Game Mode API
+     * is unavailable (Android 11 and older) or for applications the platform does not
+     * treat as games. Pass null to unregister a previously registered listener. When this
+     * method is called before the fragment is attached to a context, the listener is
+     * registered as soon as the fragment is created.</p>
+     *
+     * <p>Applications typically use this listener to alter the level of detail, load
+     * lower-poly models, change the frame rate or disable filters when the platform asks
+     * for performance or for battery saving.</p>
+     *
+     * @param onGameModeChanged the listener, or null to unregister
+     * @see GameMode
+     * @see OnGameModeChanged
+     */
+    public void setOnGameModeChanged(OnGameModeChanged onGameModeChanged) {
+        this.onGameModeChangedListener = onGameModeChanged;
+        if (attachedContext != null) {
+            getAndroidGameMode().setListener(onGameModeChanged);
+        }
+    }
+
+    private AndroidGameMode getAndroidGameMode() {
+        if (androidGameMode == null) {
+            androidGameMode = new AndroidGameMode(attachedContext);
+        }
+        return androidGameMode;
     }
 
     @Override
@@ -105,6 +144,10 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
             context.setSystemListener(this);
         } catch (Exception exception) {
             handleError("jME application initialization failed", exception);
+        }
+
+        if (onGameModeChangedListener != null) {
+            getAndroidGameMode().setListener(onGameModeChangedListener);
         }
     }
 
@@ -166,6 +209,11 @@ public abstract class AndroidHarnessFragment extends Fragment implements SystemL
     @Override
     public void onDestroy() {
         logger.fine("onDestroy");
+        if (androidGameMode != null) {
+            androidGameMode.setListener(null);
+            androidGameMode = null;
+        }
+        attachedContext = null;
         if (app != null) {
             app.stop(false);
         }
