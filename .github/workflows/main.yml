@@ -143,6 +143,13 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
+      # setup-java v6 verifies the Temurin archive signature with gpg, which the
+      # GitHub-hosted runners ship, but this container image does not. Install it
+      # before the Java setup, otherwise the action fails with "gpg: not found".
+      - name: Install gpg
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gnupg
       - name: Setup the java environment
         uses: actions/setup-java@v6.0.0
         with:
