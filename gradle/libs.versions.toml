@@ -40,7 +40,7 @@ j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jme3-android-natives = { module = "org.jmonkeyengine:jme3-android-native", version.ref = "jmeAndroidNatives" }
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
-jna = "net.java.dev.jna:jna:5.18.1"
+jna = "net.java.dev.jna:jna:5.19.1"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
 junit-bom = "org.junit:junit-bom:6.1.3"
 junit4 = "junit:junit:4.13.2"
