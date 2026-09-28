@@ -1,7 +1,12 @@
+// Resolved here rather than inside the dependencies {} block on purpose.
+// As of Gradle 9.5, `project(path)` inside that block resolves against the
+// DependencyHandler, which returns a ProjectDependency (no `sourceSets`).
+def jme3CoreTestClasses = files(project(':jme3-core').sourceSets.test.output)
+
 dependencies {
     api project(':jme3-core')
     testImplementation project(':jme3-core')
-    testImplementation project(':jme3-core').sourceSets.test.output
+    testImplementation jme3CoreTestClasses
     testRuntimeOnly project(':jme3-desktop')
     testRuntimeOnly project(':jme3-testdata')
 }
