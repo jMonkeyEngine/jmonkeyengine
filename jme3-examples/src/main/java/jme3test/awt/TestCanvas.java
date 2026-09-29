@@ -35,6 +35,8 @@ import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import com.jme3.util.JmeFormatter;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
@@ -60,6 +62,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
+    private static boolean platformX11 = true;
     private static final String appClass = "jme3test.post.TestRenderToTexture";
 
     private static void createTabs(){
@@ -168,13 +171,25 @@ public class TestCanvas {
         itemKillCanvas.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                currentPanel.remove(canvas);
-                app.stop(true);
-                
-                createCanvas(appClass);
-                currentPanel.add(canvas, BorderLayout.CENTER);
-                frame.pack();
-                startApp();
+                restartCanvas();
+            }
+        });
+
+        JMenuItem itemX11PlatformPreferred = new JMenuItem();
+        itemX11PlatformPreferred.setText("X11 ON");
+        itemX11PlatformPreferred.setEnabled(JmeSystem.getPlatform().getOs() == Platform.Os.Linux);
+        menuTortureMethods.add(itemX11PlatformPreferred);
+        itemX11PlatformPreferred.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (itemX11PlatformPreferred.getText().endsWith("ON")) {
+                    platformX11 = false;
+                    itemX11PlatformPreferred.setText("X11 OFF");
+                } else {
+                    platformX11 = true;
+                    itemX11PlatformPreferred.setText("X11 ON");
+                }
+                restartCanvas();
             }
         });
 
@@ -187,6 +202,16 @@ public class TestCanvas {
                 app.stop();
             }
         });
+    }
+
+    private static void restartCanvas() {
+        currentPanel.remove(canvas);
+        app.stop(true);
+
+        createCanvas(appClass);
+        currentPanel.add(canvas, BorderLayout.CENTER);
+        frame.pack();
+        startApp();
     }
 
     private static void createFrame(){
@@ -209,7 +234,7 @@ public class TestCanvas {
 
         // Note: Only for Linux and Wayland platforms, forces you to
         // use XWayland (x11) with awt.
-        settings.setX11PlatformPreferred(true);
+        settings.setX11PlatformPreferred(platformX11);
         settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setWidth(640);
         settings.setHeight(480);
