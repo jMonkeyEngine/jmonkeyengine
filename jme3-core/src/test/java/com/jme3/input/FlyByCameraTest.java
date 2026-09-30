@@ -193,15 +193,19 @@ class FlyByCameraTest {
     }
 
     @Test
-    void zeroDeltaDoesNotRotateOrReleasePointer() {
+    void zeroDeltaDoesNotRebuildCameraOrReleasePointer() {
         Fixture fixture = new Fixture();
         Quaternion before = fixture.camera.getRotation().clone();
 
+        int rebuildsBefore = fixture.camera.frameChanges;
         fixture.frame(down(ACTIVE_POINTER), move(ACTIVE_POINTER, 0f, 0f));
+        fixture.frame(move(ACTIVE_POINTER, -0f, 0f), move(ACTIVE_POINTER, 0f, -0f));
         assertRotation(before, fixture.camera);
+        assertEquals(rebuildsBefore, fixture.camera.frameChanges, "zero deltas must not rebuild camera matrices");
 
         fixture.frame(move(ACTIVE_POINTER, 128f, 0f));
         assertDirection(fixture.camera, -128f / 1024f, 0f);
+        assertTrue(fixture.camera.frameChanges > rebuildsBefore, "the active pointer must still rotate the camera");
     }
 
     @Test
@@ -455,9 +459,24 @@ class FlyByCameraTest {
         return new MouseButtonEvent(MouseInput.BUTTON_LEFT, pressed, 320, 240);
     }
 
+    private static class TrackingCamera extends Camera {
+
+        private int frameChanges;
+
+        TrackingCamera() {
+            super(640, 480);
+        }
+
+        @Override
+        public void onFrameChange() {
+            ++frameChanges;
+            super.onFrameChange();
+        }
+    }
+
     private static class Fixture {
 
-        final Camera camera = new Camera(640, 480);
+        final TrackingCamera camera = new TrackingCamera();
         final FlyByCamera flyCam = new FlyByCamera(camera);
         final QueuedTouchInput input = new QueuedTouchInput();
         final InputManager manager;
