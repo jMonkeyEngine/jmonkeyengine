@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -95,7 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -128,7 +128,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -161,8 +161,15 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7.0.1
+      # setup-java v6 verifies the Temurin archive signature with gpg, which the
+      # GitHub-hosted runners ship, but this container image does not. Install it
+      # before the Java setup, otherwise the action fails with "gpg: not found".
+      - name: Install gpg
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq gnupg
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -312,7 +319,7 @@ jobs:
           fetch-depth: 1
 
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: 25
@@ -352,7 +359,7 @@ jobs:
           fetch-depth: 1
 
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
@@ -443,7 +450,7 @@ jobs:
 
       # Setup jdk 25 used for building Maven-style artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
@@ -501,7 +508,7 @@ jobs:
 
       # Setup jdk 25 used for building Sonatype artifacts
       - name: Setup the java environment
-        uses: actions/setup-java@v5.7.0
+        uses: actions/setup-java@v6.0.0
         with:
           distribution: 'temurin'
           java-version: '25'
