@@ -37,6 +37,9 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -50,16 +53,23 @@ import com.jme3.renderer.Camera;
  * <p>
  * Controls:
  *  - Move (or, in drag-to-rotate mode, drag) the mouse to rotate the camera
+ *  - Drag one touch pointer to rotate the camera, in either drag-to-rotate mode
  *  - Mouse wheel for zooming in or out
  *  - WASD keys for moving forward/backward and strafing
  *  - QZ keys raise or lower the camera
+ * <p>
+ * Native touch rotation follows the first unconsumed touch-down until that
+ * pointer is released. Other fingers do not take over without a new touch-down.
+ * When mouse emulation is enabled, rotation uses the emulated mouse events instead.
  */
-public class FlyByCamera implements AnalogListener, ActionListener, JoystickConnectionListener {
+public class FlyByCamera implements AnalogListener, ActionListener, JoystickConnectionListener, TouchListener {
 
     private static final String FLYCAM_JOYSTICK_LEFT = "FLYCAM_JoystickLeft";
     private static final String FLYCAM_JOYSTICK_RIGHT = "FLYCAM_JoystickRight";
     private static final String FLYCAM_JOYSTICK_UP = "FLYCAM_JoystickUp";
     private static final String FLYCAM_JOYSTICK_DOWN = "FLYCAM_JoystickDown";
+    private static final String FLYCAM_TOUCH = "FLYCAM_Touch";
+    private static final float TOUCH_ROTATION_SCALE = 1f / 1024f;
 
     private static final String[] mappings = new String[]{
             CameraInput.FLYCAM_LEFT,
@@ -84,7 +94,8 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
             FLYCAM_JOYSTICK_LEFT,
             FLYCAM_JOYSTICK_RIGHT,
             FLYCAM_JOYSTICK_UP,
-            FLYCAM_JOYSTICK_DOWN
+            FLYCAM_JOYSTICK_DOWN,
+            FLYCAM_TOUCH
     };
     /**
      * camera controlled by this controller (not null)
@@ -119,6 +130,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     protected boolean invertY = false;
     protected InputManager inputManager;
     private boolean inputMappingsRegistered;
+    private int touchPointerId = -1;
 
     // Reusable temporary objects to reduce allocations during updates
     private final Matrix3f tempMat = new Matrix3f();
@@ -215,6 +227,9 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      * @param enable true to enable, false to disable
      */
     public void setEnabled(boolean enable) {
+        if (!enable) {
+            touchPointerId = -1;
+        }
         if (enabled == enable) {
             return;
         }
@@ -258,6 +273,10 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      * until dragged. When drag-to-rotate mode is disabled, the cursor is
      * invisible at all times and holding the mouse button is not needed to
      * rotate the camera. This mode is disabled by default.
+     * <p>
+     * Native touch dragging rotates the camera in either mode: the touch gesture
+     * itself supplies the drag. With mouse emulation enabled, the emulated mouse
+     * events follow the usual mouse-button requirement.
      *
      * @param dragToRotate true to enable, false to disable
      */
@@ -271,7 +290,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     /**
      * Registers this controller to receive input events from the specified
      * {@link InputManager}. This method sets up all the necessary input mappings
-     * for mouse, keyboard, and joysticks.
+     * for mouse, keyboard, joysticks, and touch input.
      *
      * @param inputManager The InputManager instance to register with (must not be null).
      */
@@ -306,6 +325,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
         inputManager.addMapping(CameraInput.FLYCAM_ZOOMIN, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
         inputManager.addMapping(CameraInput.FLYCAM_ZOOMOUT, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         inputManager.addMapping(CameraInput.FLYCAM_ROTATEDRAG, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping(FLYCAM_TOUCH, new TouchTrigger(TouchInput.ALL));
 
         // keyboard only WASD for movement and WZ for rise/lower height
         inputManager.addMapping(CameraInput.FLYCAM_STRAFELEFT, new KeyTrigger(KeyInput.KEY_A));
@@ -367,6 +387,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      * Unregisters this controller from its currently associated {@link InputManager}.
      */
     public void unregisterInput() {
+        touchPointerId = -1;
         if (inputManager == null) {
             return;
         }
@@ -378,6 +399,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
     }
 
     private void unregisterInputMappings() {
+        touchPointerId = -1;
         if (inputManager == null || !inputMappingsRegistered) {
             return;
         }
@@ -566,5 +588,36 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
                 invertY = !invertY;
             }
         }
+    }
+
+    @Override
+    public void onTouch(String name, TouchEvent event, float tpf) {
+        if (!enabled || !name.equals(FLYCAM_TOUCH)) {
+            return;
+        }
+
+        switch (event.getType()) {
+            case DOWN:
+                if (touchPointerId == -1) {
+                    touchPointerId = event.getPointerId();
+                }
+                return;
+            case UP:
+                if (event.getPointerId() == touchPointerId) {
+                    touchPointerId = -1;
+                }
+                return;
+            case MOVE:
+                if (touchPointerId == -1 || event.getPointerId() != touchPointerId
+                        || (inputManager != null && inputManager.isSimulateMouse())) {
+                    return;
+                }
+                break;
+            default:
+                return;
+        }
+
+        rotateCamera(-event.getDeltaX() * TOUCH_ROTATION_SCALE, initialUpVec, true);
+        rotateCamera(-event.getDeltaY() * TOUCH_ROTATION_SCALE * (invertY ? -1 : 1), cam.getLeft(tempLeft), true);
     }
 }
