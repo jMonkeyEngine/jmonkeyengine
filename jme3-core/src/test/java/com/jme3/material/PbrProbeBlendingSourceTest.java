@@ -51,12 +51,13 @@ public class PbrProbeBlendingSourceTest {
         AssetManager assets = TestUtil.createAssetManager();
         String source = (String) assets.loadAsset("Common/MatDefs/Light/PBRLighting.frag");
         Matcher assignments = Pattern.compile("(?m)^\\s*weight([123])\\s*=\\s*([^;]+);").matcher(source);
+        Pattern floatingPointDivisor = Pattern.compile("/\\s*float\\s*\\(\\s*NB_PROBES\\s*-\\s*1\\s*\\)");
         Set<String> weights = new HashSet<>();
         while (assignments.find()) {
             String expression = assignments.group(2);
             if (expression.contains("sumNdf")) {
                 weights.add(assignments.group(1));
-                assertTrue(expression.contains("/ float(NB_PROBES - 1)"),
+                assertTrue(floatingPointDivisor.matcher(expression).find(),
                         "weight" + assignments.group(1) + " must not divide a float by an int");
             }
         }
