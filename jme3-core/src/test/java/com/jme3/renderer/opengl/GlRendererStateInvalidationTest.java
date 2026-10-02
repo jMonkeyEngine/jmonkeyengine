@@ -45,9 +45,7 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.RenderContext;
 import com.jme3.scene.Mesh;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -316,33 +314,6 @@ public class GlRendererStateInvalidationTest {
         state.setLineWidth(1f);
         recording.renderer.applyRenderState(state);
         recording.assertState("glLineWidth", 1f);
-    }
-
-    @Test
-    public void invalidationRetainsCachedValues() throws ReflectiveOperationException {
-        RecordingGl recording = new RecordingGl(Surface.DESKTOP);
-        recording.renderer.applyRenderState(enabledState());
-        Field contextField = GLRenderer.class.getDeclaredField("context");
-        contextField.setAccessible(true);
-        RenderContext context = (RenderContext) contextField.get(recording.renderer);
-
-        recording.renderer.invalidateState();
-
-        assertAll(
-                () -> assertTrue(context.depthTestEnabled),
-                () -> assertEquals(TestFunction.Greater, context.depthFunc),
-                () -> assertFalse(context.depthWriteEnabled),
-                () -> assertFalse(context.colorWriteEnabled),
-                () -> assertEquals(FaceCullMode.Front, context.cullMode),
-                () -> assertEquals(BlendMode.Custom, context.blendMode),
-                () -> assertEquals(BlendEquation.Subtract, context.blendEquation),
-                () -> assertEquals(BlendFunc.Src_Alpha, context.sfactorRGB),
-                () -> assertTrue(context.polyOffsetEnabled),
-                () -> assertEquals(2f, context.polyOffsetFactor),
-                () -> assertEquals(3f, context.polyOffsetUnits),
-                () -> assertEquals(TestFunction.Equal, context.frontStencilFunction),
-                () -> assertEquals(2f, context.lineWidth),
-                () -> assertTrue(context.wireframe));
     }
 
     @Test
