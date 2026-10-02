@@ -1,0 +1,15 @@
+MaterialDef GeometryPass {
+    MaterialParameters {
+        Color   Albedo
+    }
+
+    Technique {
+        VertexShader GLSL330 : TestDeferred/MatDefs/GeometryPass.vert
+        FragmentShader GLSL330 : TestDeferred/MatDefs/GeometryPass.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+    }
+}
