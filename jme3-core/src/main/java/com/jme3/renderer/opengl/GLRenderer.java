@@ -920,6 +920,7 @@ public final class GLRenderer implements Renderer {
     @Override
     public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
+        texUtil.cleanup();
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
         invalidateState();

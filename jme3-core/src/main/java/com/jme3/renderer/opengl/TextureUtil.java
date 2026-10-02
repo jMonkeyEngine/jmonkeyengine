@@ -57,6 +57,7 @@ public final class TextureUtil {
     private final GLExt glext;
     private GLImageFormat[][] formats;
     private boolean supportUnpackRowLength;
+    private ByteBuffer packedPixelBuffer;
     
     public TextureUtil(GL gl, GL2 gl2, GLExt glext) {
         this.gl = gl;
@@ -164,7 +165,7 @@ public final class TextureUtil {
                 && (format == Format.RGB565 || format == Format.RGB5A1);
     }
 
-    private static ByteBuffer expandPackedPixels(ByteBuffer data, Format format, int pixelCount) {
+    private ByteBuffer expandPackedPixels(ByteBuffer data, Format format, int pixelCount) {
         // GL reads packed shorts in native byte order, regardless of the ByteBuffer's byte-order metadata.
         ByteBuffer source = data.duplicate().order(ByteOrder.nativeOrder());
         boolean hasAlpha = format == Format.RGB5A1;
@@ -172,7 +173,14 @@ public final class TextureUtil {
         if (pixelCount > source.remaining() / 2) {
             throw new IllegalArgumentException("Packed image data is too small for the requested dimensions");
         }
-        ByteBuffer expanded = BufferUtils.createByteBuffer(Math.multiplyExact(pixelCount, components));
+        int requiredBytes = Math.multiplyExact(pixelCount, components);
+        if (packedPixelBuffer == null || packedPixelBuffer.capacity() < requiredBytes) {
+            cleanup();
+            packedPixelBuffer = BufferUtils.createByteBuffer(requiredBytes);
+        }
+        // Client-memory pixels have been consumed when the preceding GL upload returns.
+        ByteBuffer expanded = packedPixelBuffer;
+        expanded.clear();
         for (int i = 0; i < pixelCount; i++) {
             int pixel = source.getShort() & 0xffff;
             int red = pixel >> 11;
@@ -188,6 +196,15 @@ public final class TextureUtil {
         }
         expanded.flip();
         return expanded;
+    }
+
+    /** Releases the owned CPU conversion scratch buffer; repeated calls are safe. */
+    void cleanup() {
+        ByteBuffer buffer = packedPixelBuffer;
+        packedPixelBuffer = null;
+        if (buffer != null) {
+            BufferUtils.destroyDirectBuffer(buffer);
+        }
     }
 
     private void uploadTextureLevel(GLImageFormat format, int target, int level, int slice, int sliceCount, int width, int height, int depth, int samples, ByteBuffer data) {
