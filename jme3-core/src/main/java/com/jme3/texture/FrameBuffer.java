@@ -258,12 +258,14 @@ public class FrameBuffer extends NativeObject {
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
     
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
     
     /**
@@ -281,6 +283,7 @@ public class FrameBuffer extends NativeObject {
         }
         colorBuf.slot = i;
         colorBufs.set(i, colorBuf);
+        setUpdateNeeded();
     }
     
     /**
@@ -293,9 +296,15 @@ public class FrameBuffer extends NativeObject {
      */
     public void removeColorTarget(int i) {
         colorBufs.remove(i);
+        if (colorBufIndex > i) {
+            colorBufIndex--;
+        } else if (colorBufIndex == i && colorBufIndex == colorBufs.size()) {
+            colorBufIndex = Math.max(0, colorBufs.size() - 1);
+        }
         for (; i < colorBufs.size(); i++) {
             colorBufs.get(i).slot = i;
         }
+        setUpdateNeeded();
     }
 
     /**
@@ -310,6 +319,7 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot = colorBufs.size();
         colorBuf.face = face.ordinal();
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
 
     public void setDepthTarget(FrameBufferBufferTarget depthBuf){
@@ -317,12 +327,14 @@ public class FrameBuffer extends NativeObject {
             throw new IllegalArgumentException("Depth buffer format must be depth.");
         this.depthBuf = depthBuf;
         this.depthBuf.slot =  this.depthBuf.getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        setUpdateNeeded();
     }
 
     public void setDepthTarget(FrameBufferTextureTarget depthBuf){
         checkSetTexture(depthBuf.getTexture(), true);
         this.depthBuf = depthBuf;
         this.depthBuf.slot = depthBuf.getTexture().getImage().getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        setUpdateNeeded();
     }
 
     public int getNumColorTargets(){
@@ -474,6 +486,7 @@ public class FrameBuffer extends NativeObject {
         } else {
             colorBufIndex = 0;
         }
+        setUpdateNeeded();
     }
 
     /**
@@ -499,7 +512,7 @@ public class FrameBuffer extends NativeObject {
             throw new IllegalArgumentException("Target index must be between 0 and 16");
         }
 
-        if (colorBufs.size() < index) {
+        if (colorBufs.size() <= index) {
             throw new IllegalArgumentException("The target at " + index + " is not set!");
         }
 
@@ -568,6 +581,10 @@ public class FrameBuffer extends NativeObject {
      */
     public void clearColorTargets() {
         colorBufs.clear();
+        if (colorBufIndex >= 0) {
+            colorBufIndex = 0;
+        }
+        setUpdateNeeded();
     }
 
     /**
