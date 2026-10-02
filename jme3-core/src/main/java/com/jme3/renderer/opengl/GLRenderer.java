@@ -1154,9 +1154,14 @@ public final class GLRenderer implements Renderer {
                 || context.backStencilDepthFailOperation != state.getBackStencilDepthFailOperation()
                 || context.backStencilDepthPassOperation != state.getBackStencilDepthPassOperation()
                 || context.frontStencilFunction != state.getFrontStencilFunction()
-                || context.backStencilFunction != state.getBackStencilFunction()) {
+                || context.backStencilFunction != state.getBackStencilFunction()
+                || context.frontStencilReference != state.getFrontStencilReference()
+                || context.backStencilReference != state.getBackStencilReference()
+                || context.frontStencilMask != state.getFrontStencilMask()
+                || context.backStencilMask != state.getBackStencilMask()) {
 
-            context.frontStencilStencilFailOperation = state.getFrontStencilStencilFailOperation();   //terrible looking, I know
+            context.stencilTest = state.isStencilTest();
+            context.frontStencilStencilFailOperation = state.getFrontStencilStencilFailOperation();
             context.frontStencilDepthFailOperation = state.getFrontStencilDepthFailOperation();
             context.frontStencilDepthPassOperation = state.getFrontStencilDepthPassOperation();
             context.backStencilStencilFailOperation = state.getBackStencilStencilFailOperation();
@@ -1164,6 +1169,10 @@ public final class GLRenderer implements Renderer {
             context.backStencilDepthPassOperation = state.getBackStencilDepthPassOperation();
             context.frontStencilFunction = state.getFrontStencilFunction();
             context.backStencilFunction = state.getBackStencilFunction();
+            context.frontStencilReference = state.getFrontStencilReference();
+            context.backStencilReference = state.getBackStencilReference();
+            context.frontStencilMask = state.getFrontStencilMask();
+            context.backStencilMask = state.getBackStencilMask();
 
             if (state.isStencilTest()) {
                 gl.glEnable(GL.GL_STENCIL_TEST);
