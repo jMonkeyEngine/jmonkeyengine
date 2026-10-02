@@ -45,7 +45,9 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderContext;
 import com.jme3.scene.Mesh;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -295,19 +297,7 @@ public class GlRendererStateInvalidationTest {
     @Test
     public void meshLineWidthAndRenderStateShareTheSameCache() {
         final RecordingGl recording = new RecordingGl(Surface.GLES2);
-        Mesh mesh = new Mesh() {
-            @Override
-            public int getVertexCount() {
-                return 2;
-            }
-
-            @Override
-            public int getTriangleCount() {
-                return 1;
-            }
-        };
-        mesh.setMode(Mesh.Mode.Lines);
-        mesh.setLineWidth(2f);
+        final Mesh mesh = lineMesh(2f);
         RenderState state = disabledState();
         state.setLineWidth(2f);
         recording.renderer.applyRenderState(state);
@@ -326,6 +316,66 @@ public class GlRendererStateInvalidationTest {
         state.setLineWidth(1f);
         recording.renderer.applyRenderState(state);
         recording.assertState("glLineWidth", 1f);
+    }
+
+    @Test
+    public void invalidationRetainsCachedValues() throws ReflectiveOperationException {
+        RecordingGl recording = new RecordingGl(Surface.DESKTOP);
+        recording.renderer.applyRenderState(enabledState());
+        Field contextField = GLRenderer.class.getDeclaredField("context");
+        contextField.setAccessible(true);
+        RenderContext context = (RenderContext) contextField.get(recording.renderer);
+
+        recording.renderer.invalidateState();
+
+        assertAll(
+                () -> assertTrue(context.depthTestEnabled),
+                () -> assertEquals(TestFunction.Greater, context.depthFunc),
+                () -> assertFalse(context.depthWriteEnabled),
+                () -> assertFalse(context.colorWriteEnabled),
+                () -> assertEquals(FaceCullMode.Front, context.cullMode),
+                () -> assertEquals(BlendMode.Custom, context.blendMode),
+                () -> assertEquals(BlendEquation.Subtract, context.blendEquation),
+                () -> assertEquals(BlendFunc.Src_Alpha, context.sfactorRGB),
+                () -> assertTrue(context.polyOffsetEnabled),
+                () -> assertEquals(2f, context.polyOffsetFactor),
+                () -> assertEquals(3f, context.polyOffsetUnits),
+                () -> assertEquals(TestFunction.Equal, context.frontStencilFunction),
+                () -> assertEquals(2f, context.lineWidth),
+                () -> assertTrue(context.wireframe));
+    }
+
+    @Test
+    public void defaultMeshWidthRestoresAnUnknownLineWidthWithoutAMaterialApply() {
+        RecordingGl recording = new RecordingGl(Surface.GLES2);
+        recording.gl.glLineWidth(5f);
+        recording.renderer.invalidateState();
+        recording.calls.clear();
+        Mesh mesh = lineMesh(1f);
+
+        recording.renderer.renderMesh(mesh, 0, 1, null);
+
+        recording.assertState("glLineWidth", 1f);
+        assertTrue(recording.calls.contains("glLineWidth"));
+        recording.calls.clear();
+        recording.renderer.renderMesh(mesh, 0, 1, null);
+        assertFalse(recording.calls.contains("glLineWidth"));
+    }
+
+    @Test
+    public void defaultMeshWidthPreservesTheKnownMaterialLineWidth() {
+        RecordingGl recording = new RecordingGl(Surface.GLES2);
+        recording.gl.glLineWidth(5f);
+        recording.renderer.invalidateState();
+        RenderState state = disabledState();
+        state.setLineWidth(3f);
+        recording.renderer.applyRenderState(state);
+        recording.calls.clear();
+
+        recording.renderer.renderMesh(lineMesh(1f), 0, 1, null);
+
+        recording.assertState("glLineWidth", 3f);
+        assertFalse(recording.calls.contains("glLineWidth"));
     }
 
     @Test
@@ -393,6 +443,23 @@ public class GlRendererStateInvalidationTest {
         recording.renderer.cleanup();
         recording.renderer.applyRenderState(state);
         recording.assertState("glColorMask", true, true, true, true);
+    }
+
+    private static Mesh lineMesh(float lineWidth) {
+        Mesh mesh = new Mesh() {
+            @Override
+            public int getVertexCount() {
+                return 2;
+            }
+
+            @Override
+            public int getTriangleCount() {
+                return 1;
+            }
+        };
+        mesh.setMode(Mesh.Mode.Lines);
+        mesh.setLineWidth(lineWidth);
+        return mesh;
     }
 
     private static RenderState disabledState() {
