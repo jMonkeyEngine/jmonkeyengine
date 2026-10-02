@@ -134,12 +134,15 @@ public class WeakRefCloneAssetCacheTest {
 
     private static Reference<?> cachedReference(WeakRefCloneAssetCache cache, AssetKey<?> key)
             throws ReflectiveOperationException {
+        // Reflection intentionally exposes the tracked phantom reference so tests
+        // can enqueue it deterministically, without depending on JVM GC timing.
         Object entry = cachedEntry(cache, key);
         Field field = entry.getClass().getDeclaredField("cleanupRef");
         field.setAccessible(true);
         return (Reference<?>) field.get(entry);
     }
 
+    // Keep inspection test-only instead of exposing a public cache getter.
     private static Object cachedEntry(WeakRefCloneAssetCache cache, AssetKey<?> key)
             throws ReflectiveOperationException {
         Field field = WeakRefCloneAssetCache.class.getDeclaredField("smartCache");

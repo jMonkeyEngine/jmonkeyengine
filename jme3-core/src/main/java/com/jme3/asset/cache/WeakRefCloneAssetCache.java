@@ -63,9 +63,11 @@ public class WeakRefCloneAssetCache implements AssetCache {
     private final ConcurrentHashMap<AssetKey, AssetRef> smartCache = new ConcurrentHashMap<>();
 
     /**
-     * Stored in the ReferenceQueue to find out when originalKey is collected
-     * by GC. Once collected, the clonedKey is used to remove the asset
-     * from the cache.
+     * Tracks collection of the original key shared by the user-visible clones
+     * (or retained directly by callers), not collection of the asset itself.
+     * Only the separate cloned lookup key is held strongly here. Once the original
+     * key is collected, a later addToCache() drains the queue and releases the
+     * strongly cached original asset.
      */
     private static final class KeyRef extends PhantomReference<AssetKey> {
 
@@ -110,7 +112,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
             AssetKey key = ref.clonedKey;
 
             // An equal key may already have been reloaded. Only remove the entry
-            // whose cleanup reference was collected.
+            // whose original key triggered this notification.
             AssetRef current = smartCache.get(key);
             if (current != null && current.cleanupRef == ref && smartCache.remove(key, current)) {
                 removedAssets++;
