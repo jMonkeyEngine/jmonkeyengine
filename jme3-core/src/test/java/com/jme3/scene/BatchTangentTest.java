@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,17 @@
  */
 package com.jme3.scene;
 
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.material.Material;
-import com.jme3.material.MaterialDef;
-import com.jme3.scene.shape.Quad;
-import java.nio.FloatBuffer;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.material.Material;
+import com.jme3.material.MaterialDef;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.shape.Quad;
+import java.nio.FloatBuffer;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that extending an existing batch preserves its tangent basis.
@@ -57,6 +58,71 @@ public class BatchTangentTest {
         checkIncrementalBatch(new SimpleBatchNode("batch"));
     }
 
+    @Test
+    public void movedBatchPreservesWorldPositions() {
+        checkMovedBatch(new BatchNode("batch"));
+    }
+
+    @Test
+    public void movedSimpleBatchPreservesWorldPositions() {
+        checkMovedBatch(new SimpleBatchNode("batch"));
+    }
+
+    private void checkMovedBatch(BatchNode node) {
+        Node root = new Node("root");
+        root.move(7, 8, 9);
+        root.attachChild(node);
+        node.move(10, 20, 30);
+        Material material = new Material(new MaterialDef(new DesktopAssetManager(), "test"));
+        Geometry first = geometry(material, -1);
+        first.move(2, 3, 4);
+        node.attachChild(first);
+        node.batch();
+        root.updateGeometricState();
+        checkWorldPositions(node, first, 0);
+
+        node.move(1, 2, 3);
+        root.updateGeometricState();
+        Geometry second = geometry(material, 1);
+        second.move(-2, -3, -4);
+        node.attachChild(second);
+        node.batch();
+        root.updateGeometricState();
+        checkWorldPositions(node, first, 0);
+        checkWorldPositions(node, second, first.getVertexCount());
+
+        // Also rebatch while a new container transform is still pending.
+        node.move(4, 5, 6);
+        Geometry third = geometry(material, -1);
+        node.attachChild(third);
+        node.batch();
+        root.updateGeometricState();
+        checkWorldPositions(node, first, 0);
+        checkWorldPositions(node, second, first.getVertexCount());
+        checkWorldPositions(node, third, first.getVertexCount() + second.getVertexCount());
+    }
+
+    private void checkWorldPositions(BatchNode node, Geometry source, int startVertex) {
+        Geometry batch = node.batches.get(0).getGeometry();
+        FloatBuffer sourcePositions = source.getMesh().getFloatBuffer(VertexBuffer.Type.Position);
+        FloatBuffer batchPositions = batch.getMesh().getFloatBuffer(VertexBuffer.Type.Position);
+        for (int i = 0; i < source.getVertexCount(); i++) {
+            int sourceOffset = i * 3;
+            Vector3f expected = new Vector3f(sourcePositions.get(sourceOffset),
+                    sourcePositions.get(sourceOffset + 1), sourcePositions.get(sourceOffset + 2));
+            source.getLocalTransform().transformVector(expected, expected);
+            node.localToWorld(expected, expected);
+            int batchOffset = (startVertex + i) * 3;
+            Vector3f actual = new Vector3f(batchPositions.get(batchOffset),
+                    batchPositions.get(batchOffset + 1), batchPositions.get(batchOffset + 2));
+            batch.computeWorldMatrix();
+            batch.getWorldMatrix().mult(actual, actual);
+            assertEquals(expected.x, actual.x, 0.00001f);
+            assertEquals(expected.y, actual.y, 0.00001f);
+            assertEquals(expected.z, actual.z, 0.00001f);
+        }
+    }
+
     private void checkIncrementalBatch(BatchNode node) {
         Material material = new Material(new MaterialDef(new DesktopAssetManager(), "test"));
         Geometry first = geometry(material, -1);
@@ -67,9 +133,9 @@ public class BatchTangentTest {
         node.updateGeometricState();
         Mesh initial = getBatchMesh(node);
         checkHandedness(initial, 0, first.getVertexCount(), -1);
-        float[] initialPositions = copyBuffer(initial, VertexBuffer.Type.Position);
-        float[] initialNormals = copyBuffer(initial, VertexBuffer.Type.Normal);
-        float[] initialTangents = copyBuffer(initial, VertexBuffer.Type.Tangent);
+        final float[] initialPositions = copyBuffer(initial, VertexBuffer.Type.Position);
+        final float[] initialNormals = copyBuffer(initial, VertexBuffer.Type.Normal);
+        final float[] initialTangents = copyBuffer(initial, VertexBuffer.Type.Tangent);
 
         Geometry second = geometry(material, 1);
         node.attachChild(second);
@@ -90,7 +156,8 @@ public class BatchTangentTest {
         Mesh repeated = getBatchMesh(node);
         checkHandedness(repeated, 0, first.getVertexCount(), -1);
         checkHandedness(repeated, first.getVertexCount(), second.getVertexCount(), 1);
-        checkHandedness(repeated, first.getVertexCount() + second.getVertexCount(), third.getVertexCount(), -1);
+        checkHandedness(repeated, first.getVertexCount() + second.getVertexCount(),
+                third.getVertexCount(), -1);
     }
 
     private Geometry geometry(Material material, float sign) {
