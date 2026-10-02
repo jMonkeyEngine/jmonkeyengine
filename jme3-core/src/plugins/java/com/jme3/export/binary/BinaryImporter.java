@@ -38,6 +38,8 @@ import com.jme3.math.FastMath;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.logging.Level;
@@ -193,7 +195,8 @@ public final class BinaryImporter implements JmeImporter {
 
         classes.clear();
         for(int i = 0; i < numClasses; i++) {
-            String alias = readString(bis, aliasWidth);
+            // Class aliases are opaque bytes, not text in the default charset.
+            String alias = readString(bis, aliasWidth, StandardCharsets.ISO_8859_1);
             
             // jME3 NEW: Read class version number
             int[] classHierarchyVersions;
@@ -216,7 +219,7 @@ public final class BinaryImporter implements JmeImporter {
             }
             
             BinaryClassObject bco = new BinaryClassObject();
-            bco.alias = alias.getBytes();
+            bco.alias = alias.getBytes(StandardCharsets.ISO_8859_1);
             bco.className = className;
             bco.classHierarchyVersions = classHierarchyVersions;
             
@@ -328,16 +331,24 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     protected String readString(InputStream f, int length) throws IOException {
+        return readString(f, length, Charset.defaultCharset());
+    }
+
+    private String readString(InputStream f, int length, Charset charset) throws IOException {
         checkLength(length);
         byte[] data = new byte[length];
         for(int j = 0; j < length; j++) {
             data[j] = (byte) readUnsignedByte(f, "string");
         }
 
-        return new String(data);
+        return new String(data, charset);
     }
 
     protected String readString(int length, int offset) throws IOException {
+        return readString(length, offset, Charset.defaultCharset());
+    }
+
+    private String readString(int length, int offset, Charset charset) throws IOException {
         checkLength(length);
         if (offset < 0 || offset + length < offset || offset + length > dataArray.length) {
             throw new IOException("String outside J3O payload: offset=" + offset + ", length=" + length);
@@ -347,7 +358,7 @@ public final class BinaryImporter implements JmeImporter {
             data[j] = dataArray[j+offset];
         }
 
-        return new String(data);
+        return new String(data, charset);
     }
 
     private void checkLength(int length) throws IOException {
@@ -380,7 +391,7 @@ public final class BinaryImporter implements JmeImporter {
                 throw new IOException("J3O object location outside payload: " + loc);
             }
 
-            String alias = readString(aliasWidth, loc);
+            String alias = readString(aliasWidth, loc, StandardCharsets.ISO_8859_1);
             loc+=aliasWidth;
 
             BinaryClassObject bco = classes.get(alias);
