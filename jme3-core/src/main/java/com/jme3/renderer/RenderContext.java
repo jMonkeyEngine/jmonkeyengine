@@ -217,7 +217,10 @@ public class RenderContext {
     private boolean frameBufferBindingValid = true;
 
     /**
-     * Currently bound FrameBuffer.
+     * Java object associated with the known framebuffer binding, or null when
+     * there is no associated object or the binding is unknown. A null value
+     * does not imply a native framebuffer name of zero; presentation and
+     * externally managed framebuffers can have nonzero names.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
@@ -387,13 +390,26 @@ public class RenderContext {
     }
 
     /**
-     * Updates the validity of the cached framebuffer binding after applying
-     * native state or restoring a previously saved cache.
+     * Records the object and native name of a known framebuffer binding.
+     * Call after establishing native state or restoring a known binding.
      *
-     * @param valid true if the cached framebuffer binding is known
+     * @param fb the associated Java framebuffer, or null if there is none
+     * @param fbo the known native framebuffer name
      */
-    public void setFrameBufferBindingValid(boolean valid) {
-        frameBufferBindingValid = valid;
+    public void setFrameBufferBinding(FrameBuffer fb, int fbo) {
+        boundFB = fb;
+        boundFBO = fbo;
+        frameBufferBindingValid = true;
+    }
+
+    /**
+     * Invalidates only the framebuffer binding, leaving texture bindings alone.
+     * The numeric name is retained as an untrusted value, and the associated
+     * Java object is cleared. This does not modify native state.
+     */
+    public void invalidateFrameBufferBinding() {
+        frameBufferBindingValid = false;
+        boundFB = null;
     }
 
     /**
@@ -403,8 +419,7 @@ public class RenderContext {
      */
     public void invalidateBindings() {
         boundTextureUnit = -1;
-        frameBufferBindingValid = false;
-        boundFB = null;
+        invalidateFrameBufferBinding();
         for (int i = 0; i < boundTextures.length; i++) {
             boundTextures[i] = null;
         }

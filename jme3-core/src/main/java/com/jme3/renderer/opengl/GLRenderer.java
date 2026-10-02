@@ -2072,15 +2072,15 @@ public final class GLRenderer implements Renderer {
 
             if (prevBindingValid) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, prevFBO);
+                context.setFrameBufferBinding(prevFB, prevFBO);
+                if (prevFB != null || prevFBO == defaultFBO) {
+                    toggleFramebufferSrgb(prevFB);
+                }
             } else {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, prevReadFramebuffer);
                 glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, prevDrawFramebuffer);
-            }
-            context.boundFBO = prevFBO;
-            context.boundFB = prevFB;
-            context.setFrameBufferBindingValid(prevBindingValid);
-            if (prevBindingValid) {
-                toggleFramebufferSrgb(prevFB);
+                context.invalidateFrameBufferBinding();
+                context.boundFBO = prevFBO;
             }
         } else {
             throw new RendererException("Framebuffer blitting not supported by the video hardware");
@@ -2239,17 +2239,13 @@ public final class GLRenderer implements Renderer {
             if (!context.isFrameBufferBindingValid() || context.boundFBO != defaultFBO) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, defaultFBO);
                 statistics.onFrameBufferUse(null, true);
-                context.boundFBO = defaultFBO;
-                context.boundFB = null;
-                context.setFrameBufferBindingValid(true);
+                context.setFrameBufferBinding(null, defaultFBO);
             }
         } else {
             assert fb.getId() != -1 && fb.getId() != 0;
             if (!context.isFrameBufferBindingValid() || context.boundFBO != fb.getId()) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, fb.getId());
-                context.boundFBO = fb.getId();
-                context.boundFB = fb;
-                context.setFrameBufferBindingValid(true);
+                context.setFrameBufferBinding(fb, fb.getId());
                 statistics.onFrameBufferUse(fb, true);
             } else {
                 statistics.onFrameBufferUse(fb, false);
@@ -2409,7 +2405,8 @@ public final class GLRenderer implements Renderer {
             return;
         }
 
-        if (context.isFrameBufferBindingValid() && context.boundFB == fb) {
+        if (context.isFrameBufferBindingValid() && context.boundFB == fb
+                && context.boundFBO == (fb == null ? defaultFBO : fb.getId())) {
             if (fb == null || !fb.isUpdateNeeded()) {
                 toggleFramebufferSrgb(fb);
                 return;
@@ -2467,7 +2464,7 @@ public final class GLRenderer implements Renderer {
             assert fb.getId() > 0;
             assert context.boundFBO == fb.getId();
 
-            context.boundFB = fb;
+            context.setFrameBufferBinding(fb, fb.getId());
             if (debug && caps.contains(Caps.GLDebug)) {
                 if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
             }
@@ -2514,7 +2511,7 @@ public final class GLRenderer implements Renderer {
         if (fb.getId() != -1) {
             if (context.isFrameBufferBindingValid() && context.boundFBO == fb.getId()) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
-                context.boundFBO = 0;
+                context.setFrameBufferBinding(null, 0);
             }
 
             if (fb.getDepthTarget() != null) {
@@ -3862,7 +3859,8 @@ public final class GLRenderer implements Renderer {
         }
 
         mainFrameBufferSrgb = enableSrgb;
-        if (context.isFrameBufferBindingValid() && context.boundFB == null) {
+        if (context.isFrameBufferBindingValid() && context.boundFB == null
+                && context.boundFBO == defaultFBO) {
             toggleFramebufferSrgb(null);
         }
     }

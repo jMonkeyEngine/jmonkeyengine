@@ -33,6 +33,7 @@ package com.jme3.renderer.opengl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -265,6 +266,30 @@ public class GlRendererBindingInvalidationTest {
         assertEquals(0, driver.drawFramebuffer);
     }
 
+    @Test
+    public void unknownCopyPreservesTheUntrustedNameAndKnownTextures() throws Exception {
+        Recording driver = new Recording(false);
+        Texture2D texture = texture(17);
+        driver.renderer.setTexture(3, texture);
+        driver.context.setFrameBufferBinding(framebuffer(27), 27);
+        driver.context.invalidateFrameBufferBinding();
+        driver.setNativeFramebuffer(9);
+
+        driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
+
+        assertEquals(9, driver.readFramebuffer);
+        assertEquals(9, driver.drawFramebuffer);
+        assertEquals(27, driver.context.boundFBO);
+        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertEquals(3, driver.context.boundTextureUnit);
+        assertSame(texture.getImage().getWeakRef(), driver.context.boundTextures[3]);
+        driver.calls.clear();
+        driver.renderer.setTexture(3, texture);
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
+        driver.renderer.setFrameBuffer(null);
+        assertEquals(0, driver.drawFramebuffer);
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void knownCopyUsesCachedBindingAndPreservesElision(boolean desktop) throws Exception {
@@ -328,6 +353,46 @@ public class GlRendererBindingInvalidationTest {
         driver.renderer.setFrameBuffer(null);
         assertEquals(defaultId, driver.drawFramebuffer);
         assertTrue(driver.context.isFrameBufferBindingValid());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 77})
+    public void deletingKnownFramebufferKeepsCacheConsistentAndRestoresMain(int defaultId) throws Exception {
+        Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(defaultId);
+        FrameBuffer framebuffer = framebuffer(12);
+        driver.renderer.setFrameBuffer(framebuffer);
+
+        driver.renderer.deleteFrameBuffer(framebuffer);
+
+        assertEquals(driver.drawFramebuffer, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
+        assertTrue(driver.context.isFrameBufferBindingValid());
+        driver.renderer.setFrameBuffer(null);
+        assertEquals(defaultId, driver.drawFramebuffer);
+        driver.calls.clear();
+        driver.renderer.setFrameBuffer(null);
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
+    }
+
+    @Test
+    public void knownUntrackedFramebufferDoesNotReceiveMainSrgbConfiguration() throws Exception {
+        Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(77);
+        driver.renderer.getCaps().add(Caps.Srgb);
+        driver.renderer.getCaps().add(Caps.SrgbWriteControl);
+        driver.context.setFrameBufferBinding(null, 0);
+        driver.calls.clear();
+
+        driver.renderer.setMainFrameBufferSrgb(true);
+        driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
+
+        assertEquals(0, driver.drawFramebuffer);
+        assertEquals(0, driver.countCalls("glEnable"));
+        assertEquals(0, driver.countCalls("glGetInteger"));
+        driver.renderer.setFrameBuffer(null);
+        assertEquals(77, driver.drawFramebuffer);
+        assertEquals(1, driver.countCalls("glEnable"));
     }
 
     @Test
@@ -432,7 +497,9 @@ public class GlRendererBindingInvalidationTest {
             String name = method.getName();
             calls.add(name);
             if (name.equals("glActiveTexture")) {
-                activeUnit = (Integer) args[0] - GL.GL_TEXTURE0;
+                int unit = (Integer) args[0] - GL.GL_TEXTURE0;
+                assertTrue(unit >= 0, "Unknown texture unit passed to GL");
+                activeUnit = unit;
             } else if (name.equals("glBindTexture")) {
                 textureBindings[activeUnit] = (Integer) args[1];
             } else if (name.equals("glTexImage2D")) {

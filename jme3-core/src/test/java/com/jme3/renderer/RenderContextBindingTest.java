@@ -34,6 +34,7 @@ package com.jme3.renderer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.texture.FrameBuffer;
@@ -87,16 +88,53 @@ public class RenderContextBindingTest {
     }
 
     @Test
-    public void framebufferValidationDoesNotValidateTheActiveTextureUnit() {
+    public void knownFramebufferRecordingUpdatesTheObjectNameAndValidityTogether() {
         RenderContext context = new RenderContext();
         context.invalidateBindings();
-        context.boundFBO = 12;
-        context.setFrameBufferBindingValid(true);
+        FrameBuffer framebuffer = new FrameBuffer(4, 4, 1);
+        framebuffer.setId(12);
+
+        context.setFrameBufferBinding(framebuffer, framebuffer.getId());
+
+        assertSame(framebuffer, context.boundFB);
+        assertEquals(12, context.boundFBO);
         assertTrue(context.isFrameBufferBindingValid());
         assertEquals(-1, context.boundTextureUnit);
-        context.setFrameBufferBindingValid(false);
+    }
+
+    @Test
+    public void knownNativeFramebufferDoesNotRequireAJavaObject() {
+        RenderContext context = new RenderContext();
+        context.invalidateBindings();
+
+        context.setFrameBufferBinding(null, 7);
+
+        assertNull(context.boundFB);
+        assertEquals(7, context.boundFBO);
+        assertTrue(context.isFrameBufferBindingValid());
+    }
+
+    @Test
+    public void framebufferOnlyInvalidationPreservesTextureKnowledgeAndUntrustedName() {
+        RenderContext context = new RenderContext();
+        FrameBuffer framebuffer = new FrameBuffer(4, 4, 1);
+        context.setFrameBufferBinding(framebuffer, 12);
+        Image image = new Image();
+        context.boundTextures[3] = image.getWeakRef();
+        context.boundTextureUnit = 3;
+        context.textureIndexList.moveToNew(3);
+        context.textureIndexList.copyNewToOld();
+        context.textureIndexList.moveToNew(0);
+
+        context.invalidateFrameBufferBinding();
+
+        assertNull(context.boundFB);
         assertFalse(context.isFrameBufferBindingValid());
         assertEquals(12, context.boundFBO);
+        assertEquals(3, context.boundTextureUnit);
+        assertSame(image.getWeakRef(), context.boundTextures[3]);
+        assertEquals(1, context.textureIndexList.oldLen);
+        assertEquals(1, context.textureIndexList.newLen);
     }
 
     private static void assertDefaults(RenderContext context) {
