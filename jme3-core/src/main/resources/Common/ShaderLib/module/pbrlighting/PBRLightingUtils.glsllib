@@ -1,6 +1,8 @@
 #ifndef __PBR_LIGHT_UTILS_MODULE__
     #define __PBR_LIGHT_UTILS_MODULE__
 
+    vec2 newTexCoord;
+
     #import "Common/ShaderLib/Math.glsllib"
     #import "Common/ShaderLib/PBR.glsllib"
     #import "Common/ShaderLib/Parallax.glsllib"
@@ -33,7 +35,7 @@
         varying vec4 wTangent;
     #endif 
 
-    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)
+    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)||defined(EXPOSUREMAP)
         varying vec2 texCoord;
         #ifdef SEPARATE_TEXCOORD
             varying vec2 texCoord2;
@@ -48,7 +50,6 @@
 
     #ifdef ENABLE_PBRLightingUtils_readPBRSurface   
         varying vec4 Color;
-        vec2 newTexCoord;
 
         uniform float m_Roughness;
         uniform float m_Metallic;
@@ -150,6 +151,9 @@
             
             surface.exposure = 1.0; //default value
             #ifdef EXPOSUREMAP
+                #ifndef ENABLE_PBRLightingUtils_readPBRSurface
+                    newTexCoord = texCoord;
+                #endif
                 surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord).r;
             #endif
             #if defined(STATIC_SUN_EXPOSURE) || defined(STATIC_SUN_INTENSITY)
@@ -346,6 +350,7 @@
             #endif
 
             
+            newTexCoord = texCoord;
             #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
                 if (surface.hasTangents) {
                     vec3 vViewDir =  surface.viewDir * surface.tbnMat;  
@@ -366,11 +371,7 @@
                         newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
                         #endif
                     #endif
-                } else {
-                    newTexCoord = texCoord;
                 }
-            #else
-            newTexCoord = texCoord;    
             #endif
 
             #ifdef BASECOLORMAP
