@@ -208,9 +208,11 @@ public class BatchNode extends GeometryGroupNode {
             nbGeoms += list.size();
             String batchName = name + "-batch" + batches.size();
             Batch batch;
+            boolean newBatch = true;
             if (!needsFullRebatch) {
                 batch = findBatchByMaterial(material);
                 if (batch != null) {
+                    newBatch = false;
                     list.add(0, batch.geometry);
                     batchName = batch.geometry.getName();
                     batch.geometry.removeFromParent();
@@ -233,7 +235,9 @@ public class BatchNode extends GeometryGroupNode {
             batch.geometry.setMesh(m);
             batch.geometry.getMesh().updateCounts();
             batch.geometry.updateModelBound();
-            batches.add(batch);
+            if (newBatch) {
+                batches.add(batch);
+            }
         }
         if (batches.size() > 0) {
             needsFullRebatch = false;
