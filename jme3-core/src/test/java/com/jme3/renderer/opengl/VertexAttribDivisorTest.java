@@ -149,7 +149,7 @@ public class VertexAttribDivisorTest {
         renderer.setShader(shader());
         renderer.renderMesh(mesh, 0, 4, new VertexBuffer[] {buffer});
 
-        assertEquals(2, gl.divisorCalls);
+        assertEquals(2, gl.divisorCallsBySlot[ATTRIBUTE_LOCATION]);
         assertEquals(2, gl.drawDivisors.get(1)[ATTRIBUTE_LOCATION]);
     }
 
@@ -201,6 +201,7 @@ public class VertexAttribDivisorTest {
 
     private static final class RecordingGl implements InvocationHandler {
         private final int[] divisors = new int[16];
+        private final int[] divisorCallsBySlot = new int[16];
         private final List<int[]> drawDivisors = new ArrayList<>();
         private int nextBufferId = 10;
         private int divisorCalls;
@@ -226,6 +227,7 @@ public class VertexAttribDivisorTest {
                     int slot = (Integer) arguments[0];
                     divisors[slot] = (Integer) arguments[1];
                     divisorCalls++;
+                    divisorCallsBySlot[slot]++;
                     break;
                 case "glDrawArraysInstancedARB":
                 case "glDrawArrays":
