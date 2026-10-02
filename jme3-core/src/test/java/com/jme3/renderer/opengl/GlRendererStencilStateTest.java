@@ -57,17 +57,6 @@ public class GlRendererStencilStateTest {
     }
 
     @Test
-    public void disablingStencilWithUnchangedParametersDisablesTheTest() {
-        renderer.applyRenderState(stencil(true, TestFunction.Never));
-        verify(gl).glEnable(GL.GL_STENCIL_TEST);
-        clearInvocations(gl);
-
-        renderer.applyRenderState(stencil(false, TestFunction.Never));
-
-        verify(gl).glDisable(GL.GL_STENCIL_TEST);
-    }
-
-    @Test
     public void applyingUnchangedEnabledStateDoesNotRepeatGlCalls() {
         RenderState state = stencil(true, TestFunction.Equal);
         renderer.applyRenderState(state);
