@@ -33,6 +33,7 @@ package com.jme3.font;
 
 import com.jme3.math.ColorRGBA;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,7 +66,7 @@ class ColorTags {
         return text;
     }
 
-    LinkedList<Range> getTags() {
+    List<Range> getTags() {
         return colors;
     }
 
