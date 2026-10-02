@@ -833,9 +833,28 @@ public class Node extends Spatial {
         if (children != null) {
             for (Spatial child : children.getArray()) {
                 child.parent = this;
+                invalidateReadTransform(child);
+                // Carry pending global-light discovery from loaded descendants toward the root.
+                refreshFlags |= child.refreshFlags & RF_GLOBAL_LIGHTS;
             }
         }
         super.read(importer);
+    }
+
+    /**
+     * Invalidates transforms that a loaded control may have computed before its
+     * subtree acquired a parent. Already-dirty branches need no further traversal.
+     */
+    private static void invalidateReadTransform(Spatial spatial) {
+        if ((spatial.refreshFlags & RF_TRANSFORM) != 0) {
+            return;
+        }
+        spatial.refreshFlags |= RF_TRANSFORM | RF_BOUND;
+        if (spatial instanceof Node) {
+            for (Spatial child : ((Node) spatial).children.getArray()) {
+                invalidateReadTransform(child);
+            }
+        }
     }
 
     @Override
