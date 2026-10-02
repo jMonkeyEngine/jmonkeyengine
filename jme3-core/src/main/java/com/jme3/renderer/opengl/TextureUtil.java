@@ -105,6 +105,12 @@ public final class TextureUtil {
     }
     
     private void setupTextureSwizzle(int target, Format format) {
+        // Swizzle state belongs to the cubemap, not to an individual image face.
+        // OpenGL defines the six face enums contiguously (0x8515 through 0x851A).
+        if (target >= GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X
+                && target <= GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+            target = GL.GL_TEXTURE_CUBE_MAP;
+        }
         // Needed for OpenGL 3.3 to support luminance / alpha formats
         switch (format) {
             case Alpha8:
