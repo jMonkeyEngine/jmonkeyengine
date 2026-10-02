@@ -185,8 +185,13 @@ public final class GLImageFormats {
             // sRGB formats
             if (caps.contains(Caps.Srgb)) {
                 formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, opengl, false, true);
-                formatSrgb(formatToGL, Format.RGB565,       GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, opengl, false, true);
-                formatSrgb(formatToGL, Format.RGB5A1,       GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_SHORT_5_5_5_1, opengl, false, true);
+                // GLES3 sRGB formats require unsigned bytes. TextureUtil expands packed source pixels.
+                formatSrgb(formatToGL, Format.RGB565, GLExt.GL_SRGB8_EXT, GL.GL_RGB,
+                        opengles3 ? GL.GL_UNSIGNED_BYTE : GL.GL_UNSIGNED_SHORT_5_6_5,
+                        opengl, false, true);
+                formatSrgb(formatToGL, Format.RGB5A1, GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA,
+                        opengles3 ? GL.GL_UNSIGNED_BYTE : GL.GL_UNSIGNED_SHORT_5_5_5_1,
+                        opengl || opengles3, false, true);
 
                 formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
                 if (!coreProfile) {
