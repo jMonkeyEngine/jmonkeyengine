@@ -43,6 +43,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Covers one-byte class aliases and unchanged decoding of text fields.
+ * The larger, two-byte alias boundary is covered by a separate ordinary-exporter
+ * smoke test with 255, 256, 257, and 261 distinct classes, as documented in PR #2991.
+ */
 public class BinaryImporterClassAliasTest {
 
     @ParameterizedTest
