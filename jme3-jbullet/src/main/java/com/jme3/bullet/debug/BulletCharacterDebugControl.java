@@ -48,6 +48,7 @@ import com.jme3.scene.Spatial;
  *
  * @author normenhansen
  */
+@Deprecated
 public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
 
     /**

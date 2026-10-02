@@ -44,6 +44,7 @@ import java.io.IOException;
  * A simple point, line, triangle or quad collisionShape based on one to four points-
  * @author normenhansen
  */
+@Deprecated
 public class SimplexCollisionShape extends CollisionShape {
 
     private Vector3f vector1, vector2, vector3, vector4;

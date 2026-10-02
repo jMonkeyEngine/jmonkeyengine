@@ -49,6 +49,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
+@Deprecated
 public class BulletAppState
         extends AbstractAppState
         implements PhysicsTickListener {
