@@ -87,6 +87,21 @@ public class InstancedBoundsTest {
     }
 
     @Test
+    public void parentTraversalUpdatesInstancedChildBounds() {
+        Fixture fixture = new Fixture(false);
+        Node root = new Node("root");
+        root.attachChild(fixture.node);
+        root.updateGeometricState();
+
+        fixture.geometry.move(20, 0, 0);
+        root.updateLogicalState(0);
+        root.updateGeometricState();
+
+        fixture.assertBounds();
+        assertEquals(fixture.geometry.getWorldBound(), root.getWorldBound());
+    }
+
+    @Test
     public void changingModelBoundUpdatesBounds() {
         Fixture fixture = new Fixture(false);
         fixture.geometry.setModelBound(new BoundingBox(Vector3f.ZERO, 4, 5, 6));
