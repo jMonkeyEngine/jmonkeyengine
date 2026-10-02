@@ -3171,7 +3171,7 @@ public final class GLRenderer implements Renderer {
         }
         int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
         texUtil.uploadSubTexture(target, pixels, 0, x, y,
-                0, 0, pixels.getWidth(), pixels.getHeight(), linearizeSrgbImages);
+                0, 0, pixels.getWidth(), pixels.getHeight(), linearizeSrgbImages, tex.getImage().getColorSpace());
     }
 
      /**
@@ -3199,7 +3199,7 @@ public final class GLRenderer implements Renderer {
         }
         int target = convertTextureType(dest.getType(), src.getMultiSamples(), -1);
         texUtil.uploadSubTexture(target, src, 0, destX, destY,
-                srcX, srcY, areaW, areaH, linearizeSrgbImages);
+                srcX, srcY, areaW, areaH, linearizeSrgbImages, dest.getImage().getColorSpace());
     }
 
     @Override
