@@ -2421,7 +2421,9 @@ public final class GLRenderer implements Renderer {
                     bindTextureAndUnit(textureType, image, 0);
                     if (!image.hasMipmaps()
                             && (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30))) {
-                        // A mipmapped filter may have been selected after a base-level-only allocation.
+                        // A base-level-only upload may have clamped GL_TEXTURE_MAX_LEVEL to 0.
+                        // If a mipmapped filter was selected later, reopen the full range before
+                        // generation; otherwise glGenerateMipmap would generate no lower levels.
                         gl.glTexParameteri(textureType, GL2.GL_TEXTURE_MAX_LEVEL,
                                 generatedMipMaxLevel(image.getWidth(), image.getHeight(), image.getDepth()));
                     }
