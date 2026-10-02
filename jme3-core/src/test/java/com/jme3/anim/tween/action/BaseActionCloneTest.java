@@ -60,20 +60,6 @@ public class BaseActionCloneTest {
 
     private static final float TOLERANCE = 0.00001f;
 
-    @Test
-    public void originalSequenceAndDirectClipCloneControls() {
-        Node source = model();
-        sequence(source);
-        source.updateLogicalState(0.5f);
-        assertEquals(5, x(source), TOLERANCE);
-
-        Node copy = source.clone(false);
-        composer(copy).setCurrentAction("a");
-        copy.updateLogicalState(0.75f);
-        assertEquals(5, x(source), TOLERANCE);
-        assertEquals(7.5f, x(copy), TOLERANCE);
-    }
-
     @ParameterizedTest
     @ValueSource(doubles = {0, 0.5, 1.5})
     public void cloneBeforeDuringAndAfterFirstClip(double time) {

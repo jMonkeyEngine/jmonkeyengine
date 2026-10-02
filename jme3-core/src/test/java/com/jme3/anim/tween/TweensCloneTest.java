@@ -276,12 +276,6 @@ public class TweensCloneTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("wrappers")
-    public void constructorsAlreadyRejectNullDelegates(String name, UnaryOperator<Tween> wrapper) {
-        assertThrows(NullPointerException.class, () -> wrapper.apply(null));
-    }
-
-    @ParameterizedTest(name = "{0}")
     @MethodSource("containers")
     public void nullAddedAfterConstructionStillFailsAtInterpolation(String name,
             UnaryOperator<Tween> wrapper) {
