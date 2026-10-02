@@ -843,7 +843,9 @@ public class Node extends Spatial {
 
     /**
      * Invalidates transforms that a loaded control may have computed before its
-     * subtree acquired a parent. Already-dirty branches need no further traversal.
+     * subtree acquired a parent. Lazy world-transform and bound getters update
+     * their dirty ancestor path first, so a still-transform-dirty branch needs
+     * no further traversal.
      */
     private static void invalidateReadTransform(Spatial spatial) {
         if ((spatial.refreshFlags & RF_TRANSFORM) != 0) {
