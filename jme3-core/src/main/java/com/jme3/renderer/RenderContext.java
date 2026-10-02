@@ -390,9 +390,9 @@ public class RenderContext {
         blendEquation = RenderState.BlendEquation.Add;
         blendEquationAlpha = RenderState.BlendEquationAlpha.InheritColor;
         sfactorRGB = RenderState.BlendFunc.One;
-        dfactorRGB = RenderState.BlendFunc.One;
+        dfactorRGB = RenderState.BlendFunc.Zero;
         sfactorAlpha = RenderState.BlendFunc.One;
-        dfactorAlpha = RenderState.BlendFunc.One;
+        dfactorAlpha = RenderState.BlendFunc.Zero;
         wireframe = false;
 
         boundShaderProgram = 0;
