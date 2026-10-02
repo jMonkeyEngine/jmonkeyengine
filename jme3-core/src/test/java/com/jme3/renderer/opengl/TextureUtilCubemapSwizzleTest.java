@@ -199,7 +199,7 @@ public class TextureUtilCubemapSwizzleTest {
                     if (method.getReturnType() == void.class) {
                         return null;
                     }
-                    throw new AssertionError("Unexpected GL call: " + method);
+                    throw new AssertionError("Unstubbed GL call, extend RecordingGl: " + method);
             }
         }
     }
