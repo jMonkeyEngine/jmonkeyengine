@@ -86,10 +86,12 @@ public class WeakRefCloneAssetCache implements AssetCache {
     private static final class AssetRef extends WeakReference<AssetKey> {
 
         CloneableSmartAsset asset;
+        final KeyRef cleanupRef;
 
-        public AssetRef(CloneableSmartAsset originalAsset, AssetKey originalKey) {
+        public AssetRef(CloneableSmartAsset originalAsset, AssetKey originalKey, KeyRef cleanupRef) {
             super(originalKey);
             this.asset = originalAsset;
+            this.cleanupRef = cleanupRef;
         }
     }
 
@@ -107,9 +109,10 @@ public class WeakRefCloneAssetCache implements AssetCache {
             // (Cannot use ref.get() since it was just collected by GC!)
             AssetKey key = ref.clonedKey;
 
-            // Asset was collected, note that at this point the asset cache
-            // might not even have this asset anymore, it is OK.
-            if (smartCache.remove(key) != null) {
+            // An equal key may already have been reloaded. Only remove the entry
+            // whose cleanup reference was collected.
+            AssetRef current = smartCache.get(key);
+            if (current != null && current.cleanupRef == ref && smartCache.remove(key, current)) {
                 removedAssets++;
             }
         }
@@ -130,13 +133,13 @@ public class WeakRefCloneAssetCache implements AssetCache {
         // strongly referenced, we don't want the key strongly referenced.
         asset.setKey(null);
 
-        // Start tracking the collection of originalKey
-        // (this adds the KeyRef to the ReferenceQueue)
+        // Start tracking the collection of originalKey. The cache entry keeps
+        // this reference alive until it can be enqueued by the garbage collector.
         KeyRef ref = new KeyRef(originalKey, refQueue);
 
         // Place the asset in the cache, but use a clone of
         // the original key.
-        smartCache.put(ref.clonedKey, new AssetRef(asset, originalKey));
+        smartCache.put(ref.clonedKey, new AssetRef(asset, originalKey, ref));
 
         // Push the original key used to load the asset
         // so that it can be set on the clone later
