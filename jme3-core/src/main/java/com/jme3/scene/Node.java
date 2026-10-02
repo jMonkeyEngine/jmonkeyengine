@@ -271,6 +271,8 @@ public class Node extends Spatial {
             List<Spatial> children = n.getChildren();
             for (int i = 0; i < children.size(); i++) {
                 Spatial child = children.get(i);
+                // No dirty-flag pruning: a global collection rebuilds the root's
+                // complete list, so clean branches must contribute too.
                 findGlobalLights(child, list);
             }
         }
