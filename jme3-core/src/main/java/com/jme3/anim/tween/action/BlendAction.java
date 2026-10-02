@@ -34,6 +34,8 @@ package com.jme3.anim.tween.action;
 import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,11 +46,11 @@ public class BlendAction extends BlendableAction {
 
     private int firstActiveIndex;
     private int secondActiveIndex;
-    final private BlendSpace blendSpace;
+    private BlendSpace blendSpace;
     private float blendWeight;
     final private double[] timeFactor;
     private double[] speedFactors;
-    final private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
+    private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
     public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
         super(actions);
@@ -200,6 +202,35 @@ public class BlendAction extends BlendableAction {
 
         if (source == actions[secondActiveIndex]) {
             collect(target, tr);
+        }
+    }
+
+    /**
+     * Resolve the cloned child targets and copy mutable blending state.
+     * Blend spaces implementing {@link JmeCloneable}, with an existing cloner
+     * mapping, or with a registered clone function use the same cloner. Other
+     * spaces remain shared and are not rebound.
+     *
+     * @param cloner the cloner that's cloning this action (not null)
+     * @param original the action from which this action was shallow-cloned
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        Map<HasLocalTransform, Transform> clonedTargets = new HashMap<>();
+        for (Map.Entry<HasLocalTransform, Transform> entry : targetMap.entrySet()) {
+            HasLocalTransform target = entry.getKey();
+            // A custom child action may deliberately retain a non-cloneable target.
+            if (cloner.isCloned(target)) {
+                target = cloner.clone(target);
+            }
+            clonedTargets.put(target, cloner.clone(entry.getValue()));
+        }
+        targetMap = clonedTargets;
+        speedFactors = cloner.clone(speedFactors);
+        if (blendSpace instanceof JmeCloneable || cloner.isCloned(blendSpace)
+                || cloner.getCloneFunction(blendSpace.getClass()) != null) {
+            blendSpace = cloner.clone(blendSpace);
         }
     }
 
