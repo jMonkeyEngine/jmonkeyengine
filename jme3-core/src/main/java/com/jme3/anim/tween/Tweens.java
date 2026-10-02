@@ -51,6 +51,11 @@ import java.util.logging.Logger;
  * Callback targets and argument payloads remain shared and are not
  * automatically retargeted when cloning.</p>
  *
+ * <p>Custom subclasses of {@link AbstractTween} inherit shallow field copying:
+ * primitive fields are copied and referenced objects remain shared. Override
+ * {@link AbstractTween#cloneFields(Cloner, Object)} to clone or remap those
+ * referenced fields; an override is not required to preserve their values.</p>
+ *
  * @author Paul Speed
  */
 public class Tweens {
@@ -244,6 +249,9 @@ public class Tweens {
     }
 
     private static Tween cloneTween(Cloner cloner, Tween tween) {
+        if (tween == null) {
+            return null;
+        }
         if (tween instanceof JmeCloneable || cloner.isCloned(tween)
                 || cloner.getCloneFunction(tween.getClass()) != null) {
             return cloner.clone(tween);
@@ -252,6 +260,9 @@ public class Tweens {
     }
 
     private static Tween[] cloneTweens(Cloner cloner, Tween[] tweens) {
+        if (tweens == null) {
+            return null;
+        }
         if (cloner.isCloned(tweens) || cloner.getCloneFunction(tweens.getClass()) != null) {
             return cloner.clone(tweens);
         }

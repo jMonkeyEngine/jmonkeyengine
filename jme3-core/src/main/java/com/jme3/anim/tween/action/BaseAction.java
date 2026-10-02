@@ -129,14 +129,18 @@ public class BaseAction extends Action {
      * an explicit mapping or clone function for it. Other custom tweens remain
      * shared with the original action.
      *
+     * <p>Custom subclasses of {@link com.jme3.anim.tween.AbstractTween} inherit
+     * shallow copying of their fields. They need to override cloneFields only
+     * when referenced fields should be cloned or remapped instead of shared.</p>
+     *
      * @param cloner the cloner that's cloning this action (not null)
      * @param original the action from which this action was shallow-cloned
      */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
-        if (tween instanceof JmeCloneable || cloner.isCloned(tween)
-                || cloner.getCloneFunction(tween.getClass()) != null) {
+        if (tween != null && (tween instanceof JmeCloneable || cloner.isCloned(tween)
+                || cloner.getCloneFunction(tween.getClass()) != null)) {
             tween = cloner.clone(tween);
         }
     }

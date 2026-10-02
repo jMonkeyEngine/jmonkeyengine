@@ -41,10 +41,12 @@ import com.jme3.anim.AnimComposer;
 import com.jme3.anim.AnimTrack;
 import com.jme3.anim.ArmatureMask;
 import com.jme3.anim.TransformTrack;
+import com.jme3.anim.tween.AbstractTween;
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.tween.Tweens;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.util.clone.Cloner;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -179,6 +181,104 @@ public class BaseActionCloneTest {
         copied.setMaskPropagationEnabled(false);
         copied.setMask(null);
         assertSame(mask, composer(copy).getAction("a").getMask());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void inheritedAbstractTweenCloningRetainsFieldsAndSharedTarget(boolean sequence) {
+        Node source = new Node("model");
+        Node target = new Node("target");
+        target.setLocalTranslation(1, 0, 0);
+        source.attachChild(target);
+        TweenPayload payload = new TweenPayload();
+        CustomTargetTween tween = new CustomTargetTween(target, payload);
+        addCustomAction(source, tween, sequence);
+
+        Node copy = source.clone(false);
+        composer(copy).setCurrentAction("custom");
+        copy.updateLogicalState(0.5f);
+        CustomTargetTween invoked = payload.lastTween;
+        assertNotSame(tween, invoked);
+        assertSame(target, invoked.target);
+        assertSame(payload, invoked.payload);
+        assertEquals(2, invoked.getLength());
+        assertEquals(8, invoked.distance);
+        assertEquals(8, invoked.calls);
+        assertEquals(7, tween.calls);
+        // The inherited no-op cloneFields preserves target sharing, as before.
+        assertEquals(5, x(source), TOLERANCE);
+        assertEquals(1, x(copy), TOLERANCE);
+
+        composer(source).setCurrentAction("custom");
+        source.updateLogicalState(1);
+        assertEquals(7, x(source), TOLERANCE);
+        assertEquals(8, tween.calls);
+        assertEquals(8, invoked.calls);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void customCloneFieldsCanRetargetTheCopiedModel(boolean sequence) {
+        Node source = new Node("model");
+        Node target = new Node("target");
+        target.setLocalTranslation(1, 0, 0);
+        source.attachChild(target);
+        TweenPayload payload = new TweenPayload();
+        addCustomAction(source, new RetargetedTween(target, payload), sequence);
+
+        Node copy = source.clone(false);
+        composer(copy).setCurrentAction("custom");
+        copy.updateLogicalState(0.5f);
+        assertSame(copy.getChild("target"), payload.lastTween.target);
+        assertEquals(1, x(source), TOLERANCE);
+        assertEquals(5, x(copy), TOLERANCE);
+    }
+
+    private static void addCustomAction(Node model, Tween tween, boolean sequence) {
+        AnimComposer composer = new AnimComposer();
+        model.addControl(composer);
+        if (sequence) {
+            composer.actionSequence("custom", tween);
+        } else {
+            composer.addAction("custom", new BaseAction(tween));
+        }
+    }
+
+    private static class TweenPayload {
+        CustomTargetTween lastTween;
+    }
+
+    // Inherits both jmeClone and the no-op cloneFields from AbstractTween.
+    private static class CustomTargetTween extends AbstractTween {
+        Node target;
+        final TweenPayload payload;
+        int calls = 7;
+        double distance = 8;
+
+        CustomTargetTween(Node target, TweenPayload payload) {
+            super(2);
+            this.target = target;
+            this.payload = payload;
+        }
+
+        @Override
+        protected void doInterpolate(double time) {
+            calls++;
+            target.setLocalTranslation((float) (3 + distance * time), 0, 0);
+            payload.lastTween = this;
+        }
+    }
+
+    private static class RetargetedTween extends CustomTargetTween {
+        RetargetedTween(Node target, TweenPayload payload) {
+            super(target, payload);
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            super.cloneFields(cloner, original);
+            target = cloner.clone(target);
+        }
     }
 
     private static BaseAction sequence(Node model) {

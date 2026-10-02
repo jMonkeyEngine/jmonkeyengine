@@ -31,9 +31,11 @@
  */
 package com.jme3.anim.tween;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -271,6 +273,58 @@ public class TweensCloneTest {
         callback.interpolate(0.5);
         assertEquals(4, target.calls);
         assertEquals(0.5, target.time);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("wrappers")
+    public void constructorsAlreadyRejectNullDelegates(String name, UnaryOperator<Tween> wrapper) {
+        assertThrows(NullPointerException.class, () -> wrapper.apply(null));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("containers")
+    public void nullAddedAfterConstructionStillFailsAtInterpolation(String name,
+            UnaryOperator<Tween> wrapper) {
+        Tween container = wrapper.apply(Tweens.delay(1));
+        BaseAction source = new BaseAction(container);
+        // The caller can mutate the array returned by ContainsTweens after construction.
+        children(container)[0] = null;
+        BaseAction copy = assertDoesNotThrow(() -> Cloner.deepClone(source));
+        assertThrows(NullPointerException.class, () -> copy.interpolate(0.25));
+        assertThrows(NullPointerException.class, () -> source.interpolate(0.25));
+    }
+
+    @Test
+    public void nullMappedBaseActionTweenCanBeClonedAgain() {
+        Tween tween = Tweens.delay(1);
+        Cloner cloner = new Cloner();
+        cloner.setClonedValue(tween, null);
+        BaseAction firstCopy = cloner.clone(new BaseAction(tween));
+        BaseAction secondCopy = assertDoesNotThrow(() -> Cloner.deepClone(firstCopy));
+        assertThrows(NullPointerException.class, () -> firstCopy.interpolate(0.25));
+        assertThrows(NullPointerException.class, () -> secondCopy.interpolate(0.25));
+    }
+
+    @Test
+    public void nullMappedDelegateArrayCanBeClonedAgain() {
+        Tween[] delegates = {Tweens.delay(1)};
+        Tween sequence = Tweens.sequence(delegates);
+        Cloner cloner = new Cloner();
+        cloner.setClonedValue(delegates, null);
+        Tween firstCopy = cloner.clone(sequence);
+        Tween secondCopy = assertDoesNotThrow(() -> Cloner.deepClone(firstCopy));
+        assertNull(children(secondCopy));
+        assertThrows(NullPointerException.class, () -> secondCopy.interpolate(0.25));
+    }
+
+    private static Stream<Arguments> containers() {
+        return Stream.of(
+                wrapper("sequence", tween -> Tweens.sequence(tween)),
+                wrapper("parallel", tween -> Tweens.parallel(tween)),
+                wrapper("stretch", tween -> Tweens.stretch(2, tween)),
+                wrapper("loop count", tween -> Tweens.loopCount(2, tween)),
+                wrapper("loop duration", tween -> Tweens.loopDuration(2.5, tween)),
+                wrapper("invert", tween -> Tweens.invert(tween)));
     }
 
     private static Stream<Arguments> wrappers() {
