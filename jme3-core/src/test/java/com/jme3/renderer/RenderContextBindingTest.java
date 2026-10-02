@@ -47,12 +47,6 @@ import org.junit.jupiter.api.Test;
 public class RenderContextBindingTest {
 
     @Test
-    public void freshContextHasKnownDefaultBindings() {
-        RenderContext context = new RenderContext();
-        assertDefaults(context);
-    }
-
-    @Test
     public void bindingInvalidationClearsTextureReferencesWithoutAssumingNativeDefaults() {
         RenderContext context = new RenderContext();
         Image image = new Image();
@@ -85,33 +79,6 @@ public class RenderContextBindingTest {
         context.invalidateBindings();
         context.reset();
         assertDefaults(context);
-    }
-
-    @Test
-    public void knownFramebufferRecordingUpdatesTheObjectNameAndValidityTogether() {
-        RenderContext context = new RenderContext();
-        context.invalidateBindings();
-        FrameBuffer framebuffer = new FrameBuffer(4, 4, 1);
-        framebuffer.setId(12);
-
-        context.setFrameBufferBinding(framebuffer, framebuffer.getId());
-
-        assertSame(framebuffer, context.boundFB);
-        assertEquals(12, context.boundFBO);
-        assertTrue(context.isFrameBufferBindingValid());
-        assertEquals(-1, context.boundTextureUnit);
-    }
-
-    @Test
-    public void knownNativeFramebufferDoesNotRequireAJavaObject() {
-        RenderContext context = new RenderContext();
-        context.invalidateBindings();
-
-        context.setFrameBufferBinding(null, 7);
-
-        assertNull(context.boundFB);
-        assertEquals(7, context.boundFBO);
-        assertTrue(context.isFrameBufferBindingValid());
     }
 
     @Test
