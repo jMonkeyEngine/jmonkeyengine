@@ -696,11 +696,11 @@
                         float invNdf3 = max(1.0 - ndf3,0.0);
                         sumNdf = max(sumNdf + ndf3, 1e-4);
                         sumInvNdf = max(sumInvNdf + invNdf3, 1e-4);
-                        weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
+                        weight3 =  ((1.0 - (ndf3 / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
                     #endif
 
-                    weight1 = ((1.0 - (ndf / sumNdf)) / (NB_PROBES - 1)) *  (invNdf / sumInvNdf);
-                    weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
+                    weight1 = ((1.0 - (ndf / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf / sumInvNdf);
+                    weight2 = ((1.0 - (ndf2 / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
 
                     float weightSum = weight1 + weight2 + weight3;
                     if (weightSum > 1e-4) {
