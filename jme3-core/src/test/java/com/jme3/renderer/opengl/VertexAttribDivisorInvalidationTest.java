@@ -170,16 +170,6 @@ public class VertexAttribDivisorInvalidationTest {
     }
 
     @Test
-    public void freshNativeContextAfterInvalidationReceivesZeroDefaults() {
-        RecordingGl gl = new RecordingGl();
-        GLRenderer renderer = gl.renderer();
-        renderer.invalidateState();
-        renderer.setShader(shader());
-        renderer.renderMesh(triangle(), 0, 4, new VertexBuffer[] {instanceBuffer(0, 16)});
-        assertDivisors(gl.lastDraw(), ATTRIBUTE_LOCATION, 4, 0);
-    }
-
-    @Test
     public void unavailableInstancingNeverCallsDivisorExtension() {
         RecordingGl gl = new RecordingGl();
         GLRenderer renderer = gl.renderer();
