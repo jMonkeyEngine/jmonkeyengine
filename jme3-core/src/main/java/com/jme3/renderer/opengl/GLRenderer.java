@@ -3450,14 +3450,11 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            WeakReference<VertexBuffer> ref = context.boundAttribs[idx];
-            if (ref != null) {
-                VertexBuffer buffer = ref.get();
-                if (buffer != null && buffer.isInstanced()) {
-                    glext.glVertexAttribDivisorARB(idx, 0);
-                }
-                context.boundAttribs[idx] = null;
+            if (context.boundAttribDivisors[idx] != 0) {
+                glext.glVertexAttribDivisorARB(idx, 0);
+                context.boundAttribDivisors[idx] = 0;
             }
+            context.boundAttribs[idx] = null;
         }
         attribList.copyNewToOld();
     }
@@ -3510,9 +3507,16 @@ public final class GLRenderer implements Renderer {
         }
 
         WeakReference<VertexBuffer>[] attribs = context.boundAttribs;
+        int instanceSpan = vb.isInstanced() ? vb.getInstanceSpan() : 0;
         for (int i = 0; i < slotsRequired; i++) {
-            if (!context.attribIndexList.moveToNew(loc + i)) {
-                gl.glEnableVertexAttribArray(loc + i);
+            int slot = loc + i;
+            if (!context.attribIndexList.moveToNew(slot)) {
+                gl.glEnableVertexAttribArray(slot);
+            }
+            // The span can change even when the same buffer remains bound.
+            if (context.boundAttribDivisors[slot] != instanceSpan) {
+                glext.glVertexAttribDivisorARB(slot, instanceSpan);
+                context.boundAttribDivisors[slot] = instanceSpan;
             }
         }
         if (attribs[loc]==null||attribs[loc].get() != vb) {
@@ -3555,13 +3559,6 @@ public final class GLRenderer implements Renderer {
 
             for (int i = 0; i < slotsRequired; i++) {
                 int slot = loc + i;
-                if (vb.isInstanced() && (attribs[slot] == null || attribs[slot].get() == null || !attribs[slot].get().isInstanced())) {
-                    // non-instanced -> instanced
-                    glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
-                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].get() != null && attribs[slot].get().isInstanced()) {
-                    // instanced -> non-instanced
-                    glext.glVertexAttribDivisorARB(slot, 0);
-                }
                 attribs[slot] = vb.getWeakRef();
             }
         }
