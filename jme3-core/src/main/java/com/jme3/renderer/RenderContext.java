@@ -207,11 +207,14 @@ public class RenderContext {
     public Shader boundShader;
 
     /**
-     * ID of the bound FrameBuffer.
+     * ID of the bound FrameBuffer. This value is untrusted while
+     * {@link #isFrameBufferBindingValid()} is false.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public int boundFBO;
+
+    private boolean frameBufferBindingValid = true;
 
     /**
      * Currently bound FrameBuffer.
@@ -289,7 +292,7 @@ public class RenderContext {
     public final IDList textureIndexList = new IDList();
 
     /**
-     * Currently bound texture unit.
+     * Currently bound texture unit, or -1 when the active unit is unknown.
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
@@ -374,6 +377,40 @@ public class RenderContext {
         init();
     }
 
+    /**
+     * Tests whether the cached framebuffer binding can suppress a GL bind.
+     *
+     * @return true if the binding is known
+     */
+    public boolean isFrameBufferBindingValid() {
+        return frameBufferBindingValid;
+    }
+
+    /**
+     * Updates the validity of the cached framebuffer binding after applying
+     * native state or restoring a previously saved cache.
+     *
+     * @param valid true if the cached framebuffer binding is known
+     */
+    public void setFrameBufferBindingValid(boolean valid) {
+        frameBufferBindingValid = valid;
+    }
+
+    /**
+     * Invalidates texture and framebuffer bindings after external GL changes.
+     * This does not modify native state. Unlike reset(), it does not assume
+     * that texture unit zero or the default framebuffer is bound.
+     */
+    public void invalidateBindings() {
+        boundTextureUnit = -1;
+        frameBufferBindingValid = false;
+        boundFB = null;
+        for (int i = 0; i < boundTextures.length; i++) {
+            boundTextures[i] = null;
+        }
+        textureIndexList.reset();
+    }
+
 
     private void init() {
         cullMode = RenderState.FaceCullMode.Off;
@@ -399,6 +436,7 @@ public class RenderContext {
         boundShader = null;
         boundFBO = 0;
         boundFB = null;
+        frameBufferBindingValid = true;
         boundRB = 0;
 
         boundElementArrayVBO = 0;
