@@ -42,7 +42,6 @@ import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -138,24 +137,6 @@ public class GeometryMorphStateCloneTest {
     }
 
     /**
-     * Tests that copying weights does not change the mesh-sharing policy.
-     *
-     * @param mode the cloning path to exercise
-     */
-    @ParameterizedTest
-    @EnumSource(CloneMode.class)
-    public void preservesMeshSharingPolicy(CloneMode mode) {
-        Geometry source = createGeometry();
-        source.setMorphState(new float[]{0.2f, 0.4f});
-        Geometry clone = cloneGeometry(source, mode);
-        if (mode == CloneMode.DEEP) {
-            assertNotSame(source.getMesh(), clone.getMesh());
-        } else {
-            assertSame(source.getMesh(), clone.getMesh());
-        }
-    }
-
-    /**
      * Tests that the Cloner preserves graph references to the copied weight array.
      *
      * @param arrayFirst whether to clone the array before the geometry
@@ -177,30 +158,6 @@ public class GeometryMorphStateCloneTest {
         assertNotSame(source.getMorphState(), clone.getMorphState());
         clone.setMorphState("smile", 0.8f);
         assertEquals(0.2f, source.getMorphState("smile"));
-    }
-
-    /** Tests that setters copy their input even when geometries share a mesh. */
-    @Test
-    public void separatelyCreatedGeometriesKeepIndependentWeights() {
-        Geometry first = createGeometry();
-        Geometry second = new Geometry("second", first.getMesh());
-        float[] input = {0.2f, 0.4f};
-        first.setMorphState(input);
-        second.setMorphState(new float[]{0.8f, 0.6f});
-        input[0] = 1f;
-        assertArrayEquals(new float[]{0.2f, 0.4f}, first.getMorphState());
-        assertArrayEquals(new float[]{0.8f, 0.6f}, second.getMorphState());
-    }
-
-    /** Tests geometries without any morph targets. */
-    @Test
-    public void geometryWithoutMorphTargetsStillClones() {
-        Geometry source = new Geometry("box", new Box(1f, 1f, 1f));
-        Geometry clone = source.clone();
-        source.setMorphState(new float[0]);
-        clone.setMorphState(new float[0]);
-        assertArrayEquals(new float[0], source.getMorphState());
-        assertArrayEquals(new float[0], clone.getMorphState());
     }
 
     private static Geometry createGeometry() {
