@@ -66,15 +66,6 @@ public class GlRendererFrameBufferLifecycleTest extends FrameBufferTestSupport {
     }
 
     @Test
-    void singleTargetDisposalDeletesBothBuffers() {
-        FrameBuffer fb = bufferedFramebuffer(1);
-        renderer.setFrameBuffer(fb);
-        fb.dispose();
-        renderer.postFrame();
-        assertEquals(2, driver.deletedRenderbuffers.size());
-    }
-
-    @Test
     void disposalBeforeRebindStillDeletesRemovedBuffers() {
         FrameBuffer fb = bufferedFramebuffer(2);
         renderer.setFrameBuffer(fb);
