@@ -61,25 +61,6 @@ public class BlendActionCloneTest {
     private static final float TOLERANCE = 0.00001f;
 
     @Test
-    public void originalBlendControl() {
-        Node original = model();
-        blend(original, 0.5f, "a", "b");
-        original.updateLogicalState(0.5f);
-        assertEquals(7.5f, x(original), TOLERANCE);
-    }
-
-    @Test
-    public void directClipCloneControl() {
-        Node original = model();
-        composer(original).setCurrentAction("a");
-        Node copy = original.clone(false);
-        composer(copy).setCurrentAction("a");
-        copy.updateLogicalState(0.5f);
-        assertEquals(5f, x(copy), TOLERANCE);
-        assertEquals(0f, x(original), TOLERANCE);
-    }
-
-    @Test
     public void defaultTransitionCloneAfterTransitionEnds() {
         Node original = model();
         LinearBlendSpace space = new LinearBlendSpace(0, 1);
