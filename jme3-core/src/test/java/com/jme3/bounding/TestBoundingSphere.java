@@ -42,6 +42,41 @@ import org.junit.jupiter.api.Test;
  */
 public class TestBoundingSphere {
     /**
+     * Nearby centers must still move when merging two spheres.
+     */
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testMergeNearbySphere() {
+        BoundingSphere sphere = new BoundingSphere(1f, new Vector3f());
+        BoundingSphere other = new BoundingSphere(1f, new Vector3f(0.5f, 0f, 0f));
+
+        BoundingSphere merged = (BoundingSphere) sphere.merge(other);
+
+        Assertions.assertEquals(new Vector3f(), sphere.getCenter());
+        Assertions.assertTrue(merged.intersects(new Vector3f(-1f, 0f, 0f)));
+        Assertions.assertTrue(merged.intersects(new Vector3f(1.5f, 0f, 0f)));
+        Assertions.assertEquals(new Vector3f(0.25f, 0f, 0f), merged.getCenter());
+        Assertions.assertEquals(1.25f, merged.getRadius(), 0f);
+        Assertions.assertEquals(merged, sphere.mergeLocal(other));
+    }
+
+    /**
+     * The same center adjustment must include a nearby box's farthest corner.
+     */
+    @Test
+    public void testMergeNearbyBox() {
+        BoundingSphere sphere = new BoundingSphere(0.75f, new Vector3f());
+        BoundingBox box = new BoundingBox(new Vector3f(0.5f, 0f, 0f), 0.25f, 0.5f, 0.5f);
+
+        BoundingSphere merged = (BoundingSphere) sphere.mergeWith(box);
+
+        Assertions.assertTrue(merged.intersects(new Vector3f(-0.75f, 0f, 0f)));
+        Assertions.assertTrue(merged.intersects(box.getMax(null)));
+        Assertions.assertEquals(new Vector3f(0.25f, 0f, 0f), merged.getCenter());
+        Assertions.assertEquals(1f, merged.getRadius(), 0f);
+    }
+
+    /**
      * Verify that equals() behaves as expected.
      */
     @Test
