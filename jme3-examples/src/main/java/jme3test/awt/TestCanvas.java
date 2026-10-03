@@ -62,7 +62,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
-    private static boolean platformX11 = true;
+    private static boolean platformX11 = false;
     private static final String appClass = "jme3test.post.TestRenderToTexture";
 
     private static void createTabs(){
