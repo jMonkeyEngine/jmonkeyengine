@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,10 @@
  */
 package com.jme3.system.lwjglx;
 
-import org.lwjgl.system.Platform;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
 
+import org.lwjgl.system.Platform;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.Platform.*;
 
@@ -80,17 +82,22 @@ public final class LwjglxDefaultGLPlatform {
     /**
      * Returns a drawing platform based on the platform it is running on.
      *
+     * @param settings AppSettings
+     *
      * @return LwjglxGLPlatform
+     *
      * @throws UnsupportedOperationException throws exception if platform is not
-     * supported
+     *                                       supported
      */
-    public static LwjglxGLPlatform createLwjglxGLPlatform() throws UnsupportedOperationException {
+    public static LwjglxGLPlatform createLwjglxGLPlatform(AppSettings settings) throws UnsupportedOperationException {
         switch (Platform.get()) {
             case WINDOWS:
                 return new Win32GLPlatform();
             case FREEBSD:
             case LINUX:
-                return new X11GLPlatform();
+                return JmeSystem.isWaylandSession() && !settings.isX11PlatformPreferred()
+                        ? new WaylandGLPlatform()
+                        : new X11GLPlatform();
             case MACOSX:
                 return new MacOSXGLPlatform();
             default:
