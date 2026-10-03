@@ -171,25 +171,13 @@ public class TestCanvas {
         itemKillCanvas.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                restartCanvas();
-            }
-        });
+                currentPanel.remove(canvas);
+                app.stop(true);
 
-        JMenuItem itemX11PlatformPreferred = new JMenuItem();
-        itemX11PlatformPreferred.setText("X11 ON");
-        itemX11PlatformPreferred.setEnabled(JmeSystem.getPlatform().getOs() == Platform.Os.Linux);
-        menuTortureMethods.add(itemX11PlatformPreferred);
-        itemX11PlatformPreferred.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (itemX11PlatformPreferred.getText().endsWith("ON")) {
-                    platformX11 = false;
-                    itemX11PlatformPreferred.setText("X11 OFF");
-                } else {
-                    platformX11 = true;
-                    itemX11PlatformPreferred.setText("X11 ON");
-                }
-                restartCanvas();
+                createCanvas(appClass);
+                currentPanel.add(canvas, BorderLayout.CENTER);
+                frame.pack();
+                startApp();
             }
         });
 
@@ -202,16 +190,10 @@ public class TestCanvas {
                 app.stop();
             }
         });
-    }
 
-    private static void restartCanvas() {
-        currentPanel.remove(canvas);
-        app.stop(true);
-
-        createCanvas(appClass);
-        currentPanel.add(canvas, BorderLayout.CENTER);
-        frame.pack();
-        startApp();
+        if (JmeSystem.getPlatform().getOs() == Platform.Os.Linux) {
+            frame.setTitle("Test - Platform " + (platformX11 ? "X11" : "XWayland"));
+        }
     }
 
     private static void createFrame(){
@@ -232,8 +214,8 @@ public class TestCanvas {
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
 
-        // Note: Only for Linux and Wayland platforms, forces you to
-        // use XWayland (x11) with awt.
+        // Note: Only for Linux and Wayland platforms, select the
+        // XWayland or x11 platform (if possible).
         settings.setX11PlatformPreferred(platformX11);
         settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setWidth(640);
