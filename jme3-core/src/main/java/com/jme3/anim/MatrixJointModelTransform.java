@@ -61,6 +61,8 @@ public class MatrixJointModelTransform implements JointModelTransform {
 
     @Override
     public void updateModelTransform(Transform localTransform, Joint parent) {
+        // Reset the affine row after matrix inversions performed by applyBindPose().
+        modelTransformMatrix.loadIdentity();
         localTransform.toTransformMatrix(modelTransformMatrix);
         if (parent != null) {
             MatrixJointModelTransform transform = (MatrixJointModelTransform) parent.getJointModelTransform();
