@@ -72,7 +72,6 @@ import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
 
 import org.lwjgl.system.Configuration;
-import org.lwjgl.system.Platform;
 
 import static org.lwjgl.system.MemoryUtil.*;
 import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
@@ -185,10 +184,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         /**
          * Information object used to create the OpenGL context.
          */
-        private GLData data;
+        private final GLData data;
 
         /** Effective data to initialize the context. */
-        private GLData effective;
+        private final GLData effective;
 
         /**
          * Constructor of the <code>LwjglAWTGLCanva</code> class where objects are
@@ -200,12 +199,33 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             this.effective = new GLData();
             this.context   = NULL;
             this.data      = data;
+        }
 
+        /**
+         * Create the platform according to the operating system and user
+         * preferences.
+         *
+         * @param settings Backend configurations
+         */
+        public void createPlatform(AppSettings settings) {
             try {
-                platformCanvas = createLwjglxGLPlatform();
+                platformCanvas = createLwjglxGLPlatform(settings);
             } catch (UnsupportedOperationException e) {
                 listener.handleError(e.getLocalizedMessage(), e);
             }
+        }
+
+        /**
+         * Returns information about the controllers (names) that are being
+         * used.
+         *
+         * @return String
+         */
+        public String getVideoDriver() {
+            if (platformCanvas == null) {
+                return "Unknown NULL";
+            }
+            return platformCanvas.getVideoDriver();
         }
 
         /**
@@ -464,33 +484,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         buffer.append("AWT|Swing (LWJGLX) GLv")
                 .append(canvas.data.majorVersion)
                 .append('.')
-                .append(canvas.data.minorVersion);
-
-        String driver = JmeSystem.isWaylandSession() ? "(XWayland|X11) GLX" : "X11 GLX";
-
-        Platform platform = Platform.get();
-        if (null == platform) {
-            buffer.append(" Unknown NULL");
-        } else {
-            switch (platform) {
-                case FREEBSD:
-                    buffer.append(" FreeBSD ")
-                          .append(driver);
-                    break;
-                case LINUX:
-                    buffer.append(" Linux ")
-                           .append(driver);
-                    break;
-                case MACOSX:
-                    buffer.append(" MacOSX Cocoa NSGL");
-                    break;
-                case WINDOWS:
-                    buffer.append(" Win32 WGL");
-                    break;
-                default:
-                    break;
-            }
-        }
+                .append(canvas.data.minorVersion)
+                .append(' ').append(canvas.getVideoDriver());
         return String.valueOf(buffer);
     }
 
@@ -539,11 +534,13 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                             renderer.cleanup();
                         }
 
+                        canvas.lock();
                         canvas.releaseContext();
                         canvas.deleteContext();
                         canvas.doDisposeCanvas();
                         canvas.context = NULL;
                     } finally {
+                        canvas.unlock();
                         renderable.set(false);
                         lock.notifyAll();
                     }
@@ -705,19 +702,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      */
     @Override
     protected void createContext(AppSettings settings) {
-        boolean linux = Platform.get() == Platform.LINUX
-                || Platform.get() == Platform.FREEBSD;
-        if (!settings.isX11PlatformPreferred() && linux && JmeSystem.isWaylandSession()) {
-            LOGGER.log(Level.WARNING, "LWJGLX and AWT/Swing only work with X11, so XWayland will be used for GLX.");
-        }
-
-        // HACK: For LWJGLX to work in Wyland, it is necessary to use GLX via
-        //       XWayland, so LWJGL must be forced to load GLX as a native API.
-        //       This is because LWJGLX does not provide an EGL context.
-        if (linux && JmeSystem.isWaylandSession()) {
+        if (settings.isX11PlatformPreferred() && JmeSystem.isWaylandSession()) {
             Configuration.OPENGL_CONTEXT_API.set("native");
+            LOGGER.log(Level.INFO, "The use of GLX is forced through XWayland (X11).");
         }
 
+        canvas.createPlatform(settings);
         RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
             return (data) -> {
                 data.majorVersion = 2;
@@ -761,7 +751,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         allowSwapBuffers = settings.isSwapBuffers();
 
         canvas.createContext();
-        canvas.makeCurrent();
+        try {
+            canvas.lock();
+            canvas.makeCurrent();
+        } finally {
+            canvas.unlock();
+        }
 
         SwingUtilities.invokeLater(() -> {
             canvas.validate();
@@ -1070,7 +1065,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             StringBuilder buffer = new StringBuilder();
             buffer.append("LWJGLX is not compatible with ANGLE/SDL or GLES, as it only supports the following:")
                     .append('\n').append(" * WGL | Windows")
-                    .append('\n').append(" * GLX | Linux (X11/XWayland)")
+                    .append('\n').append(" * GLX | Linux (X11)")
+                    .append('\n').append(" * EGL | Linux (XWayland)")
                     .append('\n').append(" * CGL | MacOsX")
                     .append('\n').append(" * Therefore, version ")
                     .append(AppSettings.LWJGL_OPENGL32)
@@ -1078,6 +1074,16 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             
             LOGGER.log(Level.WARNING, String.valueOf(buffer));
             settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+        }
+
+        if (isGLInitAPI() && JmeSystem.isWaylandSession()
+                && (getSettings().isX11PlatformPreferred() != settings.isX11PlatformPreferred())) {
+            LOGGER.log(Level.WARNING, " Platform Preferred: \n"
+                    + " * It is not possible to switch platforms at runtime (from GLX to EGL or vice versa)");
+
+            settings.setX11PlatformPreferred(
+                    getSettings().isX11PlatformPreferred()
+            );
         }
         super.setSettings(settings);
     }

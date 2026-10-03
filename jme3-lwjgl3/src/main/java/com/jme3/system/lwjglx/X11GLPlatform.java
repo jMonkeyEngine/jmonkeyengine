@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.system.lwjglx;
 
 import org.lwjgl.opengl.awt.*;
+import org.lwjgl.system.Platform;
 
 import static org.lwjgl.opengl.GLX.*;
 import static org.lwjgl.system.MemoryUtil.*;
@@ -44,6 +45,20 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * @author wil
  */
 final class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
+
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#getVideoDriver() 
+     * 
+     * @return String
+     */
+    @Override
+    public String getVideoDriver() {
+        Platform platform = Platform.get();
+        return (platform == Platform.FREEBSD 
+                ? "FreeBSD" : "Linux") 
+                + " X11 GLX";
+    }
 
     /**
      * Returns a pointer to the {@code Display*} of the current X11 window using

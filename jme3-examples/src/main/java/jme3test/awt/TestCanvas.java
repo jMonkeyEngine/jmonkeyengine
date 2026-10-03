@@ -35,6 +35,8 @@ import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import com.jme3.util.JmeFormatter;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
@@ -60,6 +62,7 @@ public class TestCanvas {
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
     private static JTabbedPane tabbedPane;
+    private static boolean platformX11 = false;
     private static final String appClass = "jme3test.post.TestRenderToTexture";
 
     private static void createTabs(){
@@ -170,7 +173,7 @@ public class TestCanvas {
             public void actionPerformed(ActionEvent e) {
                 currentPanel.remove(canvas);
                 app.stop(true);
-                
+
                 createCanvas(appClass);
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
@@ -187,6 +190,10 @@ public class TestCanvas {
                 app.stop();
             }
         });
+
+        if (JmeSystem.getPlatform().getOs() == Platform.Os.Linux) {
+            frame.setTitle("Test - Platform " + (platformX11 ? "X11" : "XWayland"));
+        }
     }
 
     private static void createFrame(){
@@ -207,9 +214,9 @@ public class TestCanvas {
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
 
-        // Note: Only for Linux and Wayland platforms, forces you to
-        // use XWayland (x11) with awt.
-        settings.setX11PlatformPreferred(true);
+        // Note: Only for Linux and Wayland platforms, select the
+        // XWayland or x11 platform (if possible).
+        settings.setX11PlatformPreferred(platformX11);
         settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         settings.setWidth(640);
         settings.setHeight(480);

@@ -31,17 +31,17 @@
  */
 package com.jme3.system.lwjglx;
 
-import static org.lwjgl.system.jawt.JAWTFunctions.*;
-import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
+import org.lwjgl.opengl.awt.PlatformLinuxEGLCanvas;
+import org.lwjgl.system.Platform;
 
 /**
- * <code>Win32GLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
- * interface for the Windows (Win32) platform.
+ * <code>WaylandGLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
+ * interface for the Linux (Based) platform with Wayland.
  * 
  * @author wil
  */
-final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
-
+final class WaylandGLPlatform extends PlatformLinuxEGLCanvas implements LwjglxGLPlatform {
+    
     /**
      * (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#getVideoDriver() 
@@ -50,27 +50,16 @@ final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPla
      */
     @Override
     public String getVideoDriver() {
-        return "Win32 WGL";
+        Platform platform = Platform.get();
+        return (platform == Platform.FREEBSD 
+                ? "FreeBSD" : "Linux") 
+                + " EGL XWayland";
     }
 
-    /* (non-Javadoc)
-     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#dispose()
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy()
      */
     @Override
-    public void dispose() {
-        if (ds != null) {
-            super.dispose();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
-     */
-    @Override
-    public void destroy() {
-        if (ds != null) {
-            JAWT_FreeDrawingSurface(ds, awt.FreeDrawingSurface());
-            awt.free();
-        }
-    }
+    public void destroy() { }
 }
