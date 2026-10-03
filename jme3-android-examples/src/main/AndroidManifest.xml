@@ -39,6 +39,13 @@
                 android:launchMode="singleTask"
                 android:screenOrientation="landscape">
         </activity>
+        <activity
+                android:name=".TestGameModeActivity"
+                android:exported="true"
+                android:label="Test Game Mode Activity"
+                android:launchMode="singleTask"
+                android:screenOrientation="landscape">
+        </activity>
     </application>
 
     <!-- Tell the system that you need ES 3.0. -->
