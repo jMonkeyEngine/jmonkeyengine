@@ -56,16 +56,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /** Verifies packed sRGB transfers without creating a native GL context. */
 public class TextureUtilPackedSrgbTest {
 
+    private static final int SCRATCH_CAPACITY = 32 * 1024 * 1024;
     private static final Format[] PACKED_FORMATS = {Format.RGB565, Format.RGB5A1};
+    private final List<RecordingGl> contexts = new ArrayList<>();
+
+    @AfterEach
+    public void cleanupScratchBuffers() {
+        for (RecordingGl gl : new ArrayList<>(contexts)) {
+            gl.close();
+        }
+    }
 
     @Test
     public void testGles3SrgbFormatCapabilities() {
-        TextureUtil util = new RecordingGl().textureUtil(true, true);
+        RecordingGl gl = new RecordingGl();
+        TextureUtil util = gl.textureUtil(true, true);
         GLImageFormat rgb = util.getImageFormat(Format.RGB565, true);
         GLImageFormat rgba = util.getImageFormat(Format.RGB5A1, true);
         assertEquals(GLExt.GL_SRGB8_EXT, rgb.internalFormat);
@@ -78,6 +89,7 @@ public class TextureUtilPackedSrgbTest {
         assertTrue(rgba.colorRenderable);
         assertTrue(rgb.filterable);
         assertTrue(rgba.filterable);
+        gl.close();
     }
 
     @Test
@@ -92,6 +104,7 @@ public class TextureUtilPackedSrgbTest {
         assertArrayEquals(bytes(0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 255, 0,
                 0, 0, 255, 25, 12, 25, 132, 130, 132, 58, 61, 58), upload.data);
         assertTrue(upload.direct);
+        gl.close();
     }
 
     @Test
@@ -106,6 +119,7 @@ public class TextureUtilPackedSrgbTest {
         assertArrayEquals(bytes(0, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 255,
                 0, 255, 0, 0, 0, 0, 255, 255, 25, 25, 25, 0,
                 132, 132, 132, 255, 58, 58, 58, 0), upload.data);
+        gl.close();
     }
 
     @Test
@@ -129,6 +143,7 @@ public class TextureUtilPackedSrgbTest {
             gl.textureUtil(true, true).uploadTexture(image(format, 256, 256, source),
                     GL.GL_TEXTURE_2D, 0, true);
             assertArrayEquals(expected, gl.uploads.get(0).data);
+            gl.close();
         }
     }
 
@@ -144,6 +159,7 @@ public class TextureUtilPackedSrgbTest {
                 assertArrayEquals(format == Format.RGB565 ? bytes(255, 0, 0, 0, 0, 255)
                         : bytes(255, 0, 0, 0, 0, 0, 123, 255), gl.uploads.get(0).data);
                 state.assertUnchanged(source);
+                gl.close();
             }
         }
     }
@@ -180,6 +196,7 @@ public class TextureUtilPackedSrgbTest {
             state.assertUnchanged(source);
             source.reset();
             assertEquals(3, source.position());
+            gl.close();
         }
     }
 
@@ -192,6 +209,7 @@ public class TextureUtilPackedSrgbTest {
                     GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, true);
             assertEquals(GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, gl.uploads.get(0).target);
             assertArrayEquals(white(format, 1), gl.uploads.get(0).data);
+            gl.close();
         }
     }
 
@@ -208,6 +226,7 @@ public class TextureUtilPackedSrgbTest {
             assertArrayEquals(white(format, 8), gl.uploads.get(0).data);
             assertEquals(1, gl.uploads.get(1).depth);
             assertArrayEquals(new byte[components(format)], gl.uploads.get(1).data);
+            gl.close();
         }
     }
 
@@ -229,6 +248,7 @@ public class TextureUtilPackedSrgbTest {
             assertArrayEquals(new byte[2 * components(format)], gl.uploads.get(1).data);
             assertEquals(1, gl.uploads.get(2).offsetZ);
             assertArrayEquals(white(format, 2), gl.uploads.get(2).data);
+            gl.close();
         }
     }
 
@@ -239,6 +259,7 @@ public class TextureUtilPackedSrgbTest {
             gl.textureUtil(true, true).uploadTexture(image(format, 3, 2, null), GL.GL_TEXTURE_2D, 0, true);
             assertSrgb(gl.uploads.get(0), format);
             assertNull(gl.uploads.get(0).data);
+            gl.close();
         }
     }
 
@@ -258,6 +279,7 @@ public class TextureUtilPackedSrgbTest {
             assertArrayEquals(white(format, 2), upload.data);
             state.assertUnchanged(source);
             source.reset();
+            gl.close();
         }
     }
 
@@ -274,21 +296,17 @@ public class TextureUtilPackedSrgbTest {
                 byte[] expected = format == Format.RGB565
                         ? bytes(255, 255, 255, 255, 0, 0, 0, 0, 0, 255, 255, 255)
                         : bytes(255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255);
-                assertEquals(rowLength ? 1 : 2, gl.uploads.size());
-                if (rowLength) {
-                    assertArrayEquals(expected, gl.uploads.get(0).data);
-                } else {
-                    assertArrayEquals(Arrays.copyOfRange(expected, 0, expected.length / 2),
-                            gl.uploads.get(0).data);
-                    assertArrayEquals(Arrays.copyOfRange(expected, expected.length / 2, expected.length),
-                            gl.uploads.get(1).data);
-                    assertEquals(10, gl.uploads.get(1).offsetY);
-                }
+                assertEquals(1, gl.uploads.size());
+                assertArrayEquals(expected, gl.uploads.get(0).data);
+                assertEquals(0, gl.uploads.get(0).bufferPosition);
+                assertEquals(expected.length, gl.uploads.get(0).bufferLimit);
+                assertEquals(0, gl.pixelStoreCalls);
                 assertEquals(0, gl.rowLength);
                 assertEquals(7, gl.uploads.get(0).offsetX);
                 assertEquals(9, gl.uploads.get(0).offsetY);
                 state.assertUnchanged(source);
                 source.reset();
+                gl.close();
             }
         }
     }
@@ -332,6 +350,7 @@ public class TextureUtilPackedSrgbTest {
                         assertEquals(format == Format.RGB565 ? GL.GL_RGB : GL.GL_RGBA, update.format);
                         state.assertUnchanged(sourceData);
                         sourceData.reset();
+                        gl.close();
                     }
                 }
             }
@@ -352,6 +371,7 @@ public class TextureUtilPackedSrgbTest {
                         : GL.GL_UNSIGNED_SHORT_5_5_5_1, upload.type);
                 assertArrayEquals(rawBytes(source), upload.data);
             }
+            gl.close();
         }
     }
 
@@ -387,6 +407,7 @@ public class TextureUtilPackedSrgbTest {
                         state.assertUnchanged(source);
                         source.reset();
                         assertEquals(1, source.position());
+                        gl.close();
                     }
                 }
             }
@@ -427,6 +448,7 @@ public class TextureUtilPackedSrgbTest {
                         state.assertUnchanged(sourceData);
                         sourceData.reset();
                         assertEquals(1, sourceData.position());
+                        gl.close();
                     }
                 }
             }
@@ -450,6 +472,7 @@ public class TextureUtilPackedSrgbTest {
                 assertArrayEquals(rawBytes(source), upload.data);
                 assertEquals(control == 0 ? srgbInternal(format)
                         : format == Format.RGB565 ? GL.GL_RGB565 : GL.GL_RGB5_A1, upload.internal);
+                gl.close();
             }
         }
     }
@@ -464,6 +487,7 @@ public class TextureUtilPackedSrgbTest {
             gl.textureUtil(true, true).uploadTexture(image(format, 1, 1, source), GL.GL_TEXTURE_2D, 0, true);
             assertEquals(GL.GL_UNSIGNED_BYTE, gl.uploads.get(0).type);
             assertArrayEquals(expected, gl.uploads.get(0).data);
+            gl.close();
         }
     }
 
@@ -477,6 +501,7 @@ public class TextureUtilPackedSrgbTest {
             gl.textureUtil(true, true).uploadTexture(image(format, 1, 1, source), GL.GL_TEXTURE_2D, 0, true);
             assertArrayEquals(white(format, 1), gl.uploads.get(0).data);
             state.assertUnchanged(source);
+            gl.close();
         }
     }
 
@@ -500,6 +525,7 @@ public class TextureUtilPackedSrgbTest {
                             : GL.GL_UNSIGNED_SHORT_5_5_5_1, upload.type);
                     assertArrayEquals(rawBytes(source), upload.data);
                 }
+                gl.close();
             }
         }
     }
@@ -530,9 +556,9 @@ public class TextureUtilPackedSrgbTest {
             util.uploadSubTexture(GL.GL_TEXTURE_2D, smaller, 0, 0, 0, 1, 0, 1, 1, true);
             for (Upload upload : gl.uploads) {
                 assertSame(scratch, upload.buffer);
-                assertEquals(4 * components(format), upload.bufferCapacity);
+                assertEquals(SCRATCH_CAPACITY, upload.bufferCapacity);
             }
-            assertEquals(2 * components(format), gl.uploads.get(7).bufferLimit);
+            assertEquals(components(format), gl.uploads.get(7).bufferLimit);
             assertArrayEquals(new byte[components(format)], gl.uploads.get(7).data);
             util.uploadTexture(image(format, 1, 1, packed(0xffff)), GL.GL_TEXTURE_2D, 0, true);
             assertSame(scratch, gl.uploads.get(8).buffer);
@@ -540,11 +566,12 @@ public class TextureUtilPackedSrgbTest {
             assertEquals(components(format), gl.uploads.get(8).bufferLimit);
             assertArrayEquals(white(format, 1), gl.uploads.get(8).data);
             util.cleanup();
+            gl.close();
         }
     }
 
     @Test
-    public void testPackedScratchGrowsThenReusesCapacityUntilCleanup() {
+    public void testPackedScratchHasFixedCapacityUntilCleanup() {
         RecordingGl gl = new RecordingGl();
         TextureUtil util = gl.textureUtil(true, true);
         util.uploadTexture(image(Format.RGB565, 1, 1, packed(0)), GL.GL_TEXTURE_2D, 0, true);
@@ -552,8 +579,8 @@ public class TextureUtilPackedSrgbTest {
         util.uploadTexture(image(Format.RGB5A1, 2, 2, packed(0xffff, 0xffff, 0xffff, 0xffff)),
                 GL.GL_TEXTURE_2D, 0, true);
         ByteBuffer larger = gl.uploads.get(1).buffer;
-        assertNotSame(first, larger);
-        assertEquals(16, gl.uploads.get(1).bufferCapacity);
+        assertSame(first, larger);
+        assertEquals(SCRATCH_CAPACITY, gl.uploads.get(1).bufferCapacity);
         util.uploadTexture(image(Format.RGB565, 1, 1, packed(0xffff)), GL.GL_TEXTURE_2D, 0, true);
         assertSame(larger, gl.uploads.get(2).buffer);
         assertEquals(0, gl.uploads.get(2).bufferPosition);
@@ -563,9 +590,193 @@ public class TextureUtilPackedSrgbTest {
         util.cleanup();
         util.uploadTexture(image(Format.RGB5A1, 1, 1, packed(0xffff)), GL.GL_TEXTURE_2D, 0, true);
         assertNotSame(larger, gl.uploads.get(3).buffer);
-        assertEquals(4, gl.uploads.get(3).bufferCapacity);
+        assertEquals(SCRATCH_CAPACITY, gl.uploads.get(3).bufferCapacity);
         assertArrayEquals(white(Format.RGB5A1, 1), gl.uploads.get(3).data);
         util.cleanup();
+        gl.close();
+    }
+
+    @Test
+    public void testExactScratchCapacityIsReused() {
+        RecordingGl gl = new RecordingGl();
+        gl.captureUploadBytes = false;
+        TextureUtil util = gl.textureUtil(true, true);
+        ByteBuffer source = ByteBuffer.allocateDirect(SCRATCH_CAPACITY / 2);
+        util.uploadTexture(image(Format.RGB5A1, 4096, 2048, source), GL.GL_TEXTURE_2D, 0, true);
+        Upload exact = gl.uploads.get(0);
+        assertEquals(SCRATCH_CAPACITY, exact.bufferCapacity);
+        assertEquals(SCRATCH_CAPACITY, exact.bufferLimit);
+        util.uploadTexture(image(Format.RGB565, 1, 1, packed(0)), GL.GL_TEXTURE_2D, 0, true);
+        assertSame(exact.buffer, gl.uploads.get(1).buffer);
+        assertEquals(3, gl.uploads.get(1).bufferLimit);
+        gl.close();
+    }
+
+    @Test
+    public void testOversizedUploadsDoNotReplaceScratchOnSuccessOrFailure() {
+        for (int entryPoint = 0; entryPoint < 3; entryPoint++) {
+            for (boolean fail : new boolean[]{false, true}) {
+                RecordingGl gl = new RecordingGl();
+                gl.captureUploadBytes = false;
+                gl.consumeUploadBuffer = true;
+                TextureUtil util = gl.textureUtil(true, true);
+                util.uploadTexture(image(Format.RGB565, 1, 1, packed(0)), GL.GL_TEXTURE_2D, 0, true);
+                final ByteBuffer scratch = gl.uploads.get(0).buffer;
+                int width = 4097;
+                int height = 2048;
+                ByteBuffer source = ByteBuffer.allocateDirect(width * height * 2).asReadOnlyBuffer();
+                source.position(1).mark().position(2).limit(3);
+                Image image = image(Format.RGB5A1, width, height, source);
+                gl.failUpload = fail;
+                final int selectedEntryPoint = entryPoint;
+                Runnable upload = () -> {
+                    if (selectedEntryPoint == 0) {
+                        util.uploadTexture(image, GL.GL_TEXTURE_2D, 0, true);
+                    } else if (selectedEntryPoint == 1) {
+                        util.uploadSubTexture(image, GL.GL_TEXTURE_2D, 0, 0, 0, true);
+                    } else {
+                        util.uploadSubTexture(GL.GL_TEXTURE_2D, image, 0, 0, 0,
+                                0, 0, width, height, true);
+                    }
+                };
+                if (fail) {
+                    assertThrows(IllegalStateException.class, upload::run);
+                } else {
+                    upload.run();
+                }
+                Upload oversized = gl.uploads.get(1);
+                assertNotSame(scratch, oversized.buffer);
+                assertEquals(width * height * 4, oversized.bufferCapacity);
+                assertEquals(width * height * 4, oversized.bufferLimit);
+                assertEquals(2, source.position());
+                assertEquals(3, source.limit());
+                source.reset();
+                assertEquals(1, source.position());
+                gl.failUpload = false;
+                util.uploadTexture(image(Format.RGB565, 1, 1, packed(0)), GL.GL_TEXTURE_2D, 0, true);
+                assertSame(scratch, gl.uploads.get(2).buffer);
+                assertEquals(SCRATCH_CAPACITY, gl.uploads.get(2).bufferCapacity);
+                assertEquals(3, gl.uploads.get(2).bufferLimit);
+                util.cleanup();
+                gl.close();
+            }
+        }
+    }
+
+    @Test
+    public void testCropDoesNotRequireUnselectedSourcePixels() {
+        for (Format format : PACKED_FORMATS) {
+            RecordingGl gl = new RecordingGl();
+            TextureUtil util = gl.textureUtil(true, false);
+            // Only the first selected row exists, although the image describes a much larger source.
+            ByteBuffer source = packed(0, 0xffff, 0xf800).asReadOnlyBuffer();
+            source.position(1).mark().position(2).limit(3);
+            final SourceState state = new SourceState(source);
+            util.uploadSubTexture(GL.GL_TEXTURE_2D, image(format, 4096, 4096, source),
+                    0, 3, 5, 1, 0, 2, 1, true);
+            Upload upload = gl.uploads.get(0);
+            assertEquals(2 * components(format), upload.bufferLimit);
+            assertEquals(SCRATCH_CAPACITY, upload.bufferCapacity);
+            assertArrayEquals(format == Format.RGB565 ? bytes(255, 255, 255, 255, 0, 0)
+                    : bytes(255, 255, 255, 255, 255, 0, 0, 0), upload.data);
+            state.assertUnchanged(source);
+            source.reset();
+            assertEquals(1, source.position());
+            gl.close();
+        }
+    }
+
+    @Test
+    public void testInvalidCropAndTruncatedSelectedRowsFailBeforeUpload() {
+        RecordingGl gl = new RecordingGl();
+        TextureUtil util = gl.textureUtil(true, true);
+        ByteBuffer source = packed(0, 0xffff, 0, 0);
+        source.position(1).mark();
+        final SourceState state = new SourceState(source);
+        Image image = image(Format.RGB565, 3, 3, source);
+        int[][] regions = {{-1, 0, 1, 1}, {0, -1, 1, 1}, {0, 0, -1, 1},
+            {0, 0, 1, -1}, {3, 0, 1, 1}, {0, 3, 1, 1}, {1, 1, 2, 2},
+            {Integer.MAX_VALUE, 0, 1, 1}, {0, 0, Integer.MAX_VALUE, 1}};
+        for (int[] region : regions) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> util.uploadSubTexture(GL.GL_TEXTURE_2D, image, 0, 0, 0,
+                            region[0], region[1], region[2], region[3], true));
+        }
+        assertTrue(gl.uploads.isEmpty());
+        state.assertUnchanged(source);
+        source.reset();
+        gl.close();
+    }
+
+    @Test
+    public void testCroppedPackedUploadPreservesStateAfterFailure() {
+        for (Format format : PACKED_FORMATS) {
+            for (boolean rowLength : new boolean[]{false, true}) {
+                RecordingGl gl = new RecordingGl();
+                gl.failUpload = true;
+                gl.consumeUploadBuffer = true;
+                TextureUtil util = gl.textureUtil(true, rowLength);
+                ByteBuffer source = packed(0, 0, 0, 0, 0xffff, 0xf800, 0, 0, 0xffff).asReadOnlyBuffer();
+                source.position(1).mark().position(2).limit(3);
+                final SourceState state = new SourceState(source);
+                Runnable upload = () -> util.uploadSubTexture(GL.GL_TEXTURE_2D,
+                        image(format, 3, 3, source), 0, 7, 9, 1, 1, 2, 2, true);
+                assertThrows(IllegalStateException.class, upload::run);
+                assertEquals(0, gl.rowLength);
+                assertEquals(0, gl.pixelStoreCalls);
+                assertEquals(4 * components(format), gl.uploads.get(0).bufferLimit);
+                state.assertUnchanged(source);
+                source.reset();
+                assertEquals(1, source.position());
+                gl.failUpload = false;
+                upload.run();
+                assertSame(gl.uploads.get(0).buffer, gl.uploads.get(1).buffer);
+                assertEquals(0, gl.uploads.get(1).bufferPosition);
+                assertArrayEquals(gl.uploads.get(0).data, gl.uploads.get(1).data);
+                gl.close();
+            }
+        }
+    }
+
+    @Test
+    public void testPackedDimensionOverflowFailsBeforeUpload() {
+        RecordingGl gl = new RecordingGl();
+        TextureUtil util = gl.textureUtil(true, true);
+        ByteBuffer source = packed(0xffff);
+        final SourceState state = new SourceState(source);
+        Image image = image(Format.RGB5A1, Integer.MAX_VALUE, 3, source);
+        assertThrows(ArithmeticException.class,
+                () -> util.uploadTexture(image, GL.GL_TEXTURE_2D, 0, true));
+        assertThrows(ArithmeticException.class,
+                () -> util.uploadSubTexture(GL.GL_TEXTURE_2D, image, 0, 0, 0, 0, 2, 1, 1, true));
+        assertTrue(gl.uploads.isEmpty());
+        state.assertUnchanged(source);
+        gl.close();
+    }
+
+    @Test
+    public void testCroppedUnconvertedUploadRestoresRowLengthAfterFailure() {
+        for (boolean fail : new boolean[]{false, true}) {
+            RecordingGl gl = new RecordingGl();
+            gl.failUpload = fail;
+            gl.consumeUploadBuffer = true;
+            TextureUtil util = gl.textureUtil(false, true);
+            ByteBuffer source = packed(0, 0, 0, 0, 0xffff, 0xf800, 0, 0, 0xffff);
+            source.position(1).mark();
+            final SourceState state = new SourceState(source);
+            Runnable upload = () -> util.uploadSubTexture(GL.GL_TEXTURE_2D,
+                    image(Format.RGB565, 3, 3, source), 0, 0, 0, 1, 1, 2, 2, true);
+            if (fail) {
+                assertThrows(IllegalStateException.class, upload::run);
+            } else {
+                upload.run();
+            }
+            assertEquals(0, gl.rowLength);
+            assertEquals(2, gl.pixelStoreCalls);
+            state.assertUnchanged(source);
+            source.reset();
+            gl.close();
+        }
     }
 
     @Test
@@ -582,6 +793,7 @@ public class TextureUtilPackedSrgbTest {
         assertNotSame(first, gl.uploads.get(1).buffer);
         assertArrayEquals(bytes(255, 255, 255), gl.uploads.get(1).data);
         renderer.cleanup();
+        gl.close();
     }
 
     @Test
@@ -596,6 +808,7 @@ public class TextureUtilPackedSrgbTest {
         assertTrue(gl.uploads.isEmpty());
         state.assertUnchanged(source);
         source.reset();
+        gl.close();
     }
 
     private static Image image(Format format, int width, int height, ByteBuffer source) {
@@ -688,11 +901,28 @@ public class TextureUtilPackedSrgbTest {
         private int bufferCapacity;
     }
 
-    private static final class RecordingGl implements InvocationHandler {
+    private final class RecordingGl implements InvocationHandler, AutoCloseable {
+        private final List<Runnable> cleanups = new ArrayList<>();
+
         private final List<Upload> uploads = new ArrayList<>();
         private int rowLength;
+        private int pixelStoreCalls;
+        private boolean captureUploadBytes = true;
         private boolean consumeUploadBuffer;
         private boolean failUpload;
+
+        private RecordingGl() {
+            contexts.add(this);
+        }
+
+        @Override
+        public void close() {
+            for (Runnable cleanup : cleanups) {
+                cleanup.run();
+            }
+            cleanups.clear();
+            contexts.remove(this);
+        }
 
         private <T> T proxy(Class<T> type) {
             return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]{type}, this));
@@ -711,6 +941,7 @@ public class TextureUtilPackedSrgbTest {
         private TextureUtil textureUtil(EnumSet<Caps> caps) {
             TextureUtil util = new TextureUtil(proxy(GL.class), proxy(GL2.class), proxy(GLExt.class));
             util.initialize(caps);
+            cleanups.add(util::cleanup);
             return util;
         }
 
@@ -718,6 +949,7 @@ public class TextureUtilPackedSrgbTest {
             final GLRenderer renderer = new GLRenderer(proxy(GLES_30.class),
                     proxy(GLExt.class), proxy(GLFbo.class));
             renderer.initialize();
+            cleanups.add(renderer::cleanup);
             assertTrue(renderer.getCaps().contains(Caps.OpenGLES30));
             assertTrue(renderer.getCaps().contains(Caps.Srgb));
             renderer.setLinearizeSrgbImages(true);
@@ -751,6 +983,7 @@ public class TextureUtilPackedSrgbTest {
                     ((IntBuffer) args[0]).put(0, 1);
                     return null;
                 case "glPixelStorei":
+                    pixelStoreCalls++;
                     if ((Integer) args[0] == GL.GL_UNPACK_ROW_LENGTH) {
                         rowLength = (Integer) args[1];
                     }
@@ -811,6 +1044,10 @@ public class TextureUtilPackedSrgbTest {
                 upload.bufferPosition = source.position();
                 upload.bufferLimit = source.limit();
                 upload.bufferCapacity = source.capacity();
+                if (!captureUploadBytes) {
+                    uploads.add(upload);
+                    return;
+                }
                 int bpp = upload.type == GL.GL_UNSIGNED_BYTE ? (upload.format == GL.GL_RGB ? 3 : 4) : 2;
                 int stride = rowLength == 0 ? upload.width : rowLength;
                 upload.data = new byte[upload.width * upload.height * upload.depth * bpp];

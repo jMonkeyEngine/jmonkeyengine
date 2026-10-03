@@ -50,6 +50,8 @@ import java.util.logging.Logger;
  */
 public final class TextureUtil {
 
+    private static final int PACKED_PIXEL_BUFFER_SIZE = 32 * 1024 * 1024;
+
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
 
     private final GL gl;
@@ -166,36 +168,58 @@ public final class TextureUtil {
     }
 
     private ByteBuffer expandPackedPixels(ByteBuffer data, Format format, int pixelCount) {
+        return expandPackedPixels(data, format, pixelCount, 1, pixelCount);
+    }
+
+    private ByteBuffer expandPackedPixels(ByteBuffer data, Format format,
+            int width, int height, int rowLength) {
         // GL reads packed shorts in native byte order, regardless of the ByteBuffer's byte-order metadata.
         ByteBuffer source = data.duplicate().order(ByteOrder.nativeOrder());
         boolean hasAlpha = format == Format.RGB5A1;
         int components = hasAlpha ? 4 : 3;
-        if (pixelCount > source.remaining() / 2) {
+        long sourcePixels = width == 0 || height == 0 ? 0 : (long) (height - 1) * rowLength + width;
+        if (width < 0 || height < 0 || rowLength < width || sourcePixels > source.remaining() / 2) {
             throw new IllegalArgumentException("Packed image data is too small for the requested dimensions");
         }
-        int requiredBytes = Math.multiplyExact(pixelCount, components);
-        if (packedPixelBuffer == null || packedPixelBuffer.capacity() < requiredBytes) {
-            cleanup();
-            packedPixelBuffer = BufferUtils.createByteBuffer(requiredBytes);
+        int requiredBytes = Math.multiplyExact(Math.multiplyExact(width, height), components);
+        if (packedPixelBuffer == null) {
+            packedPixelBuffer = BufferUtils.createByteBuffer(PACKED_PIXEL_BUFFER_SIZE);
         }
-        // Client-memory pixels have been consumed when the preceding GL upload returns.
-        ByteBuffer expanded = packedPixelBuffer;
-        expanded.clear();
-        for (int i = 0; i < pixelCount; i++) {
-            int pixel = source.getShort() & 0xffff;
-            int red = pixel >> 11;
-            int green = hasAlpha ? (pixel >> 6) & 0x1f : (pixel >> 5) & 0x3f;
-            int blue = hasAlpha ? (pixel >> 1) & 0x1f : pixel & 0x1f;
-            // Preserve the encoded sRGB values; the sRGB texture performs linearization when sampled.
-            expanded.put((byte) ((red * 255 + 15) / 31));
-            expanded.put((byte) ((green * 255 + (hasAlpha ? 15 : 31)) / (hasAlpha ? 31 : 63)));
-            expanded.put((byte) ((blue * 255 + 15) / 31));
-            if (hasAlpha) {
-                expanded.put((byte) ((pixel & 1) * 255));
+        // Keep a fixed scratch allocation; unusually large uploads must not enlarge it permanently.
+        ByteBuffer expanded = requiredBytes <= PACKED_PIXEL_BUFFER_SIZE
+                ? packedPixelBuffer : BufferUtils.createByteBuffer(requiredBytes);
+        try {
+            // Client-memory pixels have been consumed when the preceding GL upload returns.
+            expanded.clear();
+            int start = source.position();
+            for (int row = 0; row < height && width != 0; row++) {
+                source.position(start + Math.multiplyExact(Math.multiplyExact(row, rowLength), 2));
+                for (int column = 0; column < width; column++) {
+                    int pixel = source.getShort() & 0xffff;
+                    int red = pixel >> 11;
+                    int green = hasAlpha ? (pixel >> 6) & 0x1f : (pixel >> 5) & 0x3f;
+                    int blue = hasAlpha ? (pixel >> 1) & 0x1f : pixel & 0x1f;
+                    // Preserve encoded sRGB values; the texture performs linearization when sampled.
+                    expanded.put((byte) ((red * 255 + 15) / 31));
+                    expanded.put((byte) ((green * 255 + (hasAlpha ? 15 : 31)) / (hasAlpha ? 31 : 63)));
+                    expanded.put((byte) ((blue * 255 + 15) / 31));
+                    if (hasAlpha) {
+                        expanded.put((byte) ((pixel & 1) * 255));
+                    }
+                }
             }
+            expanded.flip();
+            return expanded;
+        } catch (RuntimeException | Error exception) {
+            releasePackedPixels(expanded);
+            throw exception;
         }
-        expanded.flip();
-        return expanded;
+    }
+
+    private void releasePackedPixels(ByteBuffer buffer) {
+        if (buffer != null && buffer != packedPixelBuffer) {
+            BufferUtils.destroyDirectBuffer(buffer);
+        }
     }
 
     /** Releases the owned CPU conversion scratch buffer; repeated calls are safe. */
@@ -366,16 +390,20 @@ public final class TextureUtil {
                 data.limit(pos + mipSizes[i]);
             }
 
-            ByteBuffer uploadData = data;
-            if (data != null && requiresPackedExpansion(jmeFormat, oglFormat)) {
-                int pixelCount = Math.multiplyExact(mipWidth, mipHeight);
-                if (target == GL2.GL_TEXTURE_3D) {
-                    pixelCount = Math.multiplyExact(pixelCount, mipDepth);
+            ByteBuffer expanded = null;
+            try {
+                if (data != null && requiresPackedExpansion(jmeFormat, oglFormat)) {
+                    int pixelCount = Math.multiplyExact(mipWidth, mipHeight);
+                    if (target == GL2.GL_TEXTURE_3D) {
+                        pixelCount = Math.multiplyExact(pixelCount, mipDepth);
+                    }
+                    expanded = expandPackedPixels(data, jmeFormat, pixelCount);
                 }
-                uploadData = expandPackedPixels(data, jmeFormat, pixelCount);
+                uploadTextureLevel(oglFormat, target, i, index, sliceCount,
+                        mipWidth, mipHeight, mipDepth, samples, expanded != null ? expanded : data);
+            } finally {
+                releasePackedPixels(expanded);
             }
-            uploadTextureLevel(oglFormat, target, i, index, sliceCount,
-                    mipWidth, mipHeight, mipDepth, samples, uploadData);
 
             pos += mipSizes[i];
         }
@@ -425,13 +453,17 @@ public final class TextureUtil {
 
         data.position(0);
         data.limit(data.capacity());
-        if (requiresPackedExpansion(jmeFormat, oglFormat)) {
-            data = expandPackedPixels(data, jmeFormat,
-                    Math.multiplyExact(image.getWidth(), image.getHeight()));
+        ByteBuffer expanded = null;
+        try {
+            if (requiresPackedExpansion(jmeFormat, oglFormat)) {
+                expanded = expandPackedPixels(data, jmeFormat,
+                        Math.multiplyExact(image.getWidth(), image.getHeight()));
+            }
+            gl.glTexSubImage2D(target, 0, x, y, image.getWidth(), image.getHeight(),
+                    oglFormat.format, oglFormat.dataType, expanded != null ? expanded : data);
+        } finally {
+            releasePackedPixels(expanded);
         }
-        
-        gl.glTexSubImage2D(target, 0, x, y, image.getWidth(), image.getHeight(), 
-                           oglFormat.format, oglFormat.dataType, data);
     }
 
     public void uploadSubTexture(int target, Image src, int index, int targetX, int targetY, int areaX, int areaY, int areaWidth, int areaHeight, boolean linearizeSrgb) {
@@ -476,9 +508,24 @@ public final class TextureUtil {
         data = data.duplicate();
         int bytesPerPixel = src.getFormat().getBitsPerPixel() / 8;
         if (requiresPackedExpansion(jmeFormat, oglFormat)) {
+            if (areaX < 0 || areaY < 0 || areaWidth < 0 || areaHeight < 0
+                    || areaX > src.getWidth() - areaWidth || areaY > src.getHeight() - areaHeight) {
+                throw new IllegalArgumentException("The requested region is outside the source image");
+            }
             data.clear();
-            data = expandPackedPixels(data, jmeFormat, Math.multiplyExact(src.getWidth(), src.getHeight()));
-            bytesPerPixel = jmeFormat == Format.RGB565 ? 3 : 4;
+            if (areaWidth != 0 && areaHeight != 0) {
+                int firstPixel = Math.addExact(Math.multiplyExact(areaY, src.getWidth()), areaX);
+                data.position(Math.multiplyExact(firstPixel, bytesPerPixel));
+            }
+            ByteBuffer expanded = null;
+            try {
+                expanded = expandPackedPixels(data, jmeFormat, areaWidth, areaHeight, src.getWidth());
+                gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight,
+                        oglFormat.format, oglFormat.dataType, expanded);
+            } finally {
+                releasePackedPixels(expanded);
+            }
+            return;
         }
 
         int srcWidth = src.getWidth();
@@ -499,9 +546,13 @@ public final class TextureUtil {
         } else {
             if (needsStride)
                 gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
-            gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight, oglFormat.format, oglFormat.dataType, data);
-            if (needsStride)
-                gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+            try {
+                gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight,
+                        oglFormat.format, oglFormat.dataType, data);
+            } finally {
+                if (needsStride)
+                    gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+            }
         }
 
     }
