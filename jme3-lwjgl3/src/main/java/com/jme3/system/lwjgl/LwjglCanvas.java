@@ -1075,6 +1075,16 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             LOGGER.log(Level.WARNING, String.valueOf(buffer));
             settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         }
+
+        if (isGLInitAPI() && JmeSystem.isWaylandSession()
+                && (getSettings().isX11PlatformPreferred() != settings.isX11PlatformPreferred())) {
+            LOGGER.log(Level.WARNING, " Platform Preferred: \n"
+                    + " * It is not possible to switch platforms at runtime (from GLX to EGL or vice versa)");
+
+            settings.setX11PlatformPreferred(
+                    getSettings().isX11PlatformPreferred()
+            );
+        }
         super.setSettings(settings);
     }
 }

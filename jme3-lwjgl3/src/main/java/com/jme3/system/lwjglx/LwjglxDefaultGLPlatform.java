@@ -34,6 +34,8 @@ package com.jme3.system.lwjglx;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.lwjgl.system.Platform;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.Platform.*;
@@ -43,6 +45,11 @@ import static org.lwjgl.system.Platform.*;
  * @author wil
  */
 public final class LwjglxDefaultGLPlatform {
+
+    /**
+     * A flag indicating that the GL API has been initialized or loaded.
+     */
+    private static final AtomicBoolean CHECK_GL_INITAPI = new AtomicBoolean(false);
 
     /**
      * Detects if you are in a Wayland session.
@@ -63,6 +70,18 @@ public final class LwjglxDefaultGLPlatform {
         return false;
     }
 
+    /**
+     * Returns the value of the indicator signaling the load status of the GL
+     * API.
+     *
+     * @see #CHECK_GL_INITAPI
+     *
+     * @return boolean
+     */
+    public static boolean isGLInitAPI() {
+        return CHECK_GL_INITAPI.get();
+    }
+    
     /**
      * Returns the pointer to a {@code Display*} that uses X11.
      *
@@ -90,6 +109,7 @@ public final class LwjglxDefaultGLPlatform {
      *                                       supported
      */
     public static LwjglxGLPlatform createLwjglxGLPlatform(AppSettings settings) throws UnsupportedOperationException {
+        CHECK_GL_INITAPI.set(true);
         switch (Platform.get()) {
             case WINDOWS:
                 return new Win32GLPlatform();
