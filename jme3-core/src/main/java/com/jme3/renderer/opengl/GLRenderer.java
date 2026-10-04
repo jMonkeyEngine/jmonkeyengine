@@ -439,7 +439,9 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.FloatTextureFilter);
         }
 
-        if (hasHalfFloatTexture && (caps.contains(Caps.OpenGL30) || hasExtension("GL_OES_texture_half_float_linear"))) {
+        if (hasHalfFloatTexture && (caps.contains(Caps.OpenGL30)
+                || caps.contains(Caps.OpenGLES30)
+                || hasExtension("GL_OES_texture_half_float_linear"))) {
             caps.add(Caps.HalfFloatTextureFilter);
         }
 
@@ -2410,18 +2412,24 @@ public final class GLRenderer implements Renderer {
                         && isMipmapGenerationSupported(tex.getImage().getFormat(),
                                 linearizeSrgbImages && boundFB.isSrgb()
                                         ? ColorSpace.sRGB : ColorSpace.Linear)) {
-                    try {
-                        final int textureUnitIndex = 0;
-                        setTexture(textureUnitIndex, rb.getTexture());
-                    } catch (TextureUnitException exception) {
-                        throw new RuntimeException("Renderer lacks texture units?");
+                    Image image = tex.getImage();
+                    if (image.getMultiSamples() > 1) {
+                        throw new RendererException("Multisample textures do not support mipmaps");
                     }
-                    if (tex.getType() == Texture.Type.CubeMap) {
-                        glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
-                    } else {
-                        int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
-                        glfbo.glGenerateMipmapEXT(textureType);
+                    // The attachment already contains the rendered image. Going through
+                    // setTexture here could upload its CPU data or redefine null-data storage.
+                    int textureType = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
+                    bindTextureAndUnit(textureType, image, 0);
+                    if (!image.hasMipmaps()
+                            && (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30))) {
+                        // A base-level-only upload may have clamped GL_TEXTURE_MAX_LEVEL to 0.
+                        // If a mipmapped filter was selected later, reopen the full range before
+                        // generation; otherwise glGenerateMipmap would generate no lower levels.
+                        gl.glTexParameteri(textureType, GL2.GL_TEXTURE_MAX_LEVEL,
+                                generatedMipMaxLevel(image.getWidth(), image.getHeight(), image.getDepth()));
                     }
+                    glfbo.glGenerateMipmapEXT(textureType);
+                    image.setMipmapsGenerated(true);
                 } else if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     logger.warning("Cannot generate mipmaps for framebuffer texture: " + tex
                             + " with image format: " + tex.getImage().getFormat());
@@ -3055,6 +3063,13 @@ public final class GLRenderer implements Renderer {
 
     private boolean needsGeneratedMipmaps(Image image) {
         if (!image.isGeneratedMipmapsRequired() || image.isMipmapsGenerated()) {
+            return false;
+        }
+
+        // GPU-only images are generated when leaving their framebuffer, not by
+        // re-uploading empty image data when the texture is sampled. Keep the
+        // upload path's validation for invalid mipmapped multisample textures.
+        if (image.getMultiSamples() <= 1 && image.getData(0) == null) {
             return false;
         }
 
