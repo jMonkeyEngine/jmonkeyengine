@@ -46,6 +46,7 @@ import java.nio.FloatBuffer;
  * Objects, also some jme to jbullet mesh conversion.
  * @author normenhansen
  */
+@Deprecated
 public class Converter {
 
     private Converter() {

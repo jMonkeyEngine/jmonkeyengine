@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsCollisionEventFactory {
 
     private ConcurrentLinkedQueue<PhysicsCollisionEvent> eventBuffer = new ConcurrentLinkedQueue<>();

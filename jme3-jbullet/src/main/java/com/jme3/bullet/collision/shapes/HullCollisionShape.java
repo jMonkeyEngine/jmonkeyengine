@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import javax.vecmath.Vector3f;
 
+@Deprecated
 public class HullCollisionShape extends CollisionShape {
 
     private float[] points;

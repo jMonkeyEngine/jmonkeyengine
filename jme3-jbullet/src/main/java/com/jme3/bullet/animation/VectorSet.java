@@ -46,6 +46,7 @@ import java.util.logging.Logger;
  *
  * @author Stephen Gold sgold@sonic.net
  */
+@Deprecated
 public class VectorSet {
     // *************************************************************************
     // constants and loggers

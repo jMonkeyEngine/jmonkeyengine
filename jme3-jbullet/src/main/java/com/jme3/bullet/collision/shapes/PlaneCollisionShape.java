@@ -44,6 +44,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public class PlaneCollisionShape extends CollisionShape{
     private Plane plane;
 

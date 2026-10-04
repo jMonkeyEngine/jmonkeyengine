@@ -59,6 +59,7 @@ import java.util.ArrayList;
  * </p>
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsVehicle extends PhysicsRigidBody {
 
     protected RaycastVehicle vehicle;
