@@ -271,9 +271,7 @@ public class Node extends Spatial {
             List<Spatial> children = n.getChildren();
             for (int i = 0; i < children.size(); i++) {
                 Spatial child = children.get(i);
-                if ((child.refreshFlags & RF_GLOBAL_LIGHTS)!= 0) {
-                    findGlobalLights(child, list);
-                }
+                findGlobalLights(child, list);
             }
         }
     }
@@ -284,11 +282,13 @@ public class Node extends Spatial {
             // This branch has no geometric state that requires updates.
             return;
         }
-        if ((refreshFlags & RF_LIGHTLIST) != 0) {
+        boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
+        if ((refreshFlags & RF_LIGHTLIST) != 0 || (updateGlobalLights && parent == null)) {
+            // Global collection replaces the root's previous list, even when
+            // the global refresh came from an already-dirty descendant.
             updateWorldLightList();
         }
 
-        boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
         if (updateGlobalLights){
             // if root node, we collect the global lights
             if (getParent() == null){ 
@@ -487,6 +487,9 @@ public class Node extends Spatial {
         assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         Spatial child = children.remove(index);
         if (child != null) {
+            // Refresh while the old parent is still reachable, so global lights
+            // anywhere in the detached subtree also invalidate the old root.
+            child.setLightListRefresh();
             child.setParent(null);
             logger.log(Level.FINE, "{0}: Child removed.", this);
 
@@ -498,8 +501,6 @@ public class Node extends Spatial {
             // XXX: Not necessary? Since child will have transform updated
             // when attached anyway.
             child.setTransformRefresh();
-            // lights are also inherited from parent
-            child.setLightListRefresh();
             child.setMatParamOverrideRefresh();
 
             invalidateUpdateList();
@@ -832,9 +833,30 @@ public class Node extends Spatial {
         if (children != null) {
             for (Spatial child : children.getArray()) {
                 child.parent = this;
+                invalidateReadTransform(child);
+                // Carry pending global-light discovery from loaded descendants toward the root.
+                refreshFlags |= child.refreshFlags & RF_GLOBAL_LIGHTS;
             }
         }
         super.read(importer);
+    }
+
+    /**
+     * Invalidates transforms that a loaded control may have computed before its
+     * subtree acquired a parent. Lazy world-transform and bound getters update
+     * their dirty ancestor path first, so a still-transform-dirty branch needs
+     * no further traversal.
+     */
+    private static void invalidateReadTransform(Spatial spatial) {
+        if ((spatial.refreshFlags & RF_TRANSFORM) != 0) {
+            return;
+        }
+        spatial.refreshFlags |= RF_TRANSFORM | RF_BOUND;
+        if (spatial instanceof Node) {
+            for (Spatial child : ((Node) spatial).children.getArray()) {
+                invalidateReadTransform(child);
+            }
+        }
     }
 
     @Override
