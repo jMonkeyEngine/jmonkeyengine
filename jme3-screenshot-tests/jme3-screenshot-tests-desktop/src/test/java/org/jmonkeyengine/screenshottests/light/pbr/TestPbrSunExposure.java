@@ -158,7 +158,7 @@ public class TestPbrSunExposure {
             }
         } finally {
             renderer.setFrameBuffer(null);
-            renderer.deleteFrameBuffer(target);
+            target.dispose();
         }
     }
 
