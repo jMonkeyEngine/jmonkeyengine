@@ -39,12 +39,25 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import java.lang.ref.WeakReference;
+import java.util.EnumSet;
 
 /**
  * Represents the current state of the graphics library. This class is used
  * internally to reduce state changes. NOTE: This class is specific to OpenGL.
  */
 public class RenderContext {
+    /**
+     * Independently cached categories managed by Renderer.applyRenderState.
+     * A disabled category need not have its inactive parameters applied yet.
+     */
+    public enum RenderStateCategory {
+        Wireframe, DepthTest, DepthFunction, DepthWrite, ColorWrite, PolygonOffset,
+        FaceCull, BlendMode, BlendEquations, BlendFactors, Stencil, LineWidth
+    }
+
+    private final EnumSet<RenderStateCategory> validRenderState
+            = EnumSet.allOf(RenderStateCategory.class);
+
     @SuppressWarnings("unchecked")
     private static <T> WeakReference<T>[] newWeakReferenceArray(int size) {
         return (WeakReference<T>[]) new WeakReference<?>[size];
@@ -368,47 +381,71 @@ public class RenderContext {
     public ColorRGBA clearColor = new ColorRGBA(0, 0, 0, 0);
 
     /**
-     * Instantiates a context with appropriate default values.
+     * Instantiates a context matching the defaults of a fresh GL context.
      */
     public RenderContext() {
-        init();
+        resetRenderState();
+        resetOtherState();
     }
 
+    /**
+     * Tests whether a render-state category can be trusted for suppressing
+     * redundant GL calls. The stored values must not be trusted while invalid.
+     *
+     * @param category the category to inspect (not null)
+     * @return true if the category has known state
+     */
+    public boolean isRenderStateValid(RenderStateCategory category) {
+        return validRenderState.contains(category);
+    }
 
-    private void init() {
+    /**
+     * Marks a category valid after its required GL state has been applied and
+     * the corresponding cached values have been updated.
+     *
+     * @param category the category that was applied (not null)
+     */
+    public void setRenderStateValid(RenderStateCategory category) {
+        validRenderState.add(category);
+    }
+
+    /**
+     * Invalidates cached render-state values without replacing them with
+     * assumed GL defaults. Inactive parameters stay unknown until applied.
+     * Other renderer caches retain their existing reset behavior.
+     */
+    public void invalidate() {
+        validRenderState.clear();
+        resetOtherState();
+    }
+
+    /**
+     * Resets this cache to the known defaults of a fresh GL context.
+     * This does not modify GL state. Use invalidate() after external GL changes.
+     */
+    public void reset() {
+        resetRenderState();
+        resetOtherState();
+    }
+
+    private void resetRenderState() {
         cullMode = RenderState.FaceCullMode.Off;
         depthTestEnabled = false;
         depthWriteEnabled = true;
         colorWriteEnabled = true;
-        clipRectEnabled = false;
         polyOffsetEnabled = false;
         polyOffsetFactor = 0;
         polyOffsetUnits = 0;
-        pointSize = 1;
         lineWidth = 1;
         blendMode = RenderState.BlendMode.Off;
         blendEquation = RenderState.BlendEquation.Add;
         blendEquationAlpha = RenderState.BlendEquationAlpha.InheritColor;
         sfactorRGB = RenderState.BlendFunc.One;
-        dfactorRGB = RenderState.BlendFunc.One;
+        dfactorRGB = RenderState.BlendFunc.Zero;
         sfactorAlpha = RenderState.BlendFunc.One;
-        dfactorAlpha = RenderState.BlendFunc.One;
+        dfactorAlpha = RenderState.BlendFunc.Zero;
         wireframe = false;
-
-        boundShaderProgram = 0;
-        boundShader = null;
-        boundFBO = 0;
-        boundFB = null;
-        boundRB = 0;
-
-        boundElementArrayVBO = 0;
-        boundVertexArray = 0;
-        boundArrayVBO = 0;
-        boundPixelPackPBO = 0;
-        numTexturesSet = 0;
-        boundTextureUnit = 0;
         stencilTest = false;
-
         frontStencilStencilFailOperation = RenderState.StencilOperation.Keep;
         frontStencilDepthFailOperation = RenderState.StencilOperation.Keep;
         frontStencilDepthPassOperation = RenderState.StencilOperation.Keep;
@@ -417,32 +454,36 @@ public class RenderContext {
         backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
         frontStencilFunction = RenderState.TestFunction.Always;
         backStencilFunction = RenderState.TestFunction.Always;
-
         depthFunc = RenderState.TestFunction.Less;
-        alphaFunc = RenderState.TestFunction.Greater;
-        cullMode = RenderState.FaceCullMode.Off;
-
-        srgbWriteEnabled = false;
-
-        clearColor.set(0, 0, 0, 0);
+        validRenderState.addAll(EnumSet.allOf(RenderStateCategory.class));
     }
 
-    /**
-     * Resets the RenderContext to default GL state.
-     */
-    public void reset() {
-        init();
+    private void resetOtherState() {
+        clipRectEnabled = false;
+        pointSize = 1;
+        boundShaderProgram = 0;
+        boundShader = null;
+        boundFBO = 0;
+        boundFB = null;
+        boundRB = 0;
+        boundElementArrayVBO = 0;
+        boundVertexArray = 0;
+        boundArrayVBO = 0;
+        boundPixelPackPBO = 0;
+        numTexturesSet = 0;
+        boundTextureUnit = 0;
+        alphaFunc = RenderState.TestFunction.Greater;
+        srgbWriteEnabled = false;
+        clearColor.set(0, 0, 0, 0);
 
         for (int i = 0; i < boundTextures.length; i++) {
             boundTextures[i] = null;
         }
-
         textureIndexList.reset();
 
         for (int i = 0; i < boundAttribs.length; i++) {
             boundAttribs[i] = null;
         }
-
         attribIndexList.reset();
     }
 }
