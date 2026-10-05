@@ -53,7 +53,7 @@ java {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    compileOnly 'org.graalvm.sdk:nativeimage:25.2.4'
+    compileOnly 'org.graalvm.sdk:nativeimage:25.3.4.1'
     compileOnly 'org.graalvm.nativeimage:svm:25.0.4.1'
 }
 
