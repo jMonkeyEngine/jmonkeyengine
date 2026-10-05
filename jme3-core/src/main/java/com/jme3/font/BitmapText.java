@@ -89,17 +89,16 @@ public class BitmapText extends Node {
 
     /**
      * Creates a new `BitmapText` instance with the specified font, text direction,
-     * and a flag for array-based rendering.
+     * and a legacy rendering flag.
      *
      * @param font The {@link BitmapFont} to use for rendering the text (not null).
      * @param rightToLeft true for right-to-left text rendering, false for left-to-right.
-     * @param arrayBased If true, the internal text pages will use array-based buffers for rendering.
-     * This might affect performance or compatibility depending on the renderer.
+     * @param arrayBased ignored; array-based buffers are always used.
      */
     public BitmapText(BitmapFont font, boolean rightToLeft, boolean arrayBased) {
         textPages = new BitmapTextPage[font.getPageSize()];
         for (int page = 0; page < textPages.length; page++) {
-            textPages[page] = new BitmapTextPage(font, arrayBased, page);
+            textPages[page] = new BitmapTextPage(font, page);
             attachChild(textPages[page]);
         }
 
