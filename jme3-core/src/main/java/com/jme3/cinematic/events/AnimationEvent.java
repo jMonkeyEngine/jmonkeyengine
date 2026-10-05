@@ -32,8 +32,8 @@
 package com.jme3.cinematic.events;
 
 import com.jme3.animation.*;
-import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.*;
 import com.jme3.scene.Node;
@@ -287,9 +287,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void initEvent(Application app, Cinematic cinematic) {
-        super.initEvent(app, cinematic);
-        this.cinematic = cinematic;
+    public void initEvent(CinematicHandler handler) {
+        super.initEvent(handler);
+        this.cinematic = (Cinematic) handler;
         if (channel == null) {
             Object s = cinematic.getEventData(MODEL_CHANNELS, model);
             if (s == null) {
