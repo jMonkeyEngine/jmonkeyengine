@@ -34,6 +34,7 @@ package com.jme3.system;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -45,6 +46,9 @@ import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collections;
+import java.util.Locale;
+import com.jme3.nativebootstrap.common.OperatingSystem;
+import com.jme3.nativebootstrap.directories.NativeDirectories;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -53,8 +57,8 @@ class NativeLibraryExtractionTest {
 
     @Test
     void createsUniquePrivateDirectories() throws Exception {
-        Path first = NativeLibraryExtraction.createDirectory(root, "native-");
-        Path second = NativeLibraryExtraction.createDirectory(root, "native-");
+        Path first = createDirectory(root);
+        Path second = createDirectory(root);
         assertNotEquals(first, second);
         if (Files.getFileStore(first).supportsFileAttributeView("posix")) {
             assertEquals(PosixFilePermissions.fromString("rwx------"), Files.getPosixFilePermissions(first));
@@ -75,10 +79,9 @@ class NativeLibraryExtractionTest {
         Path shared = Files.createTempDirectory(publicTemp, "native-shared-test-");
         try {
             Files.setPosixFilePermissions(shared, PosixFilePermissions.fromString("rwxrwxrwx"));
-            IOException failure = assertThrows(IOException.class,
-                    () -> NativeLibraryExtraction.createDirectory(shared, "native-"));
-            assertEquals("Native extraction ancestor is writable by other users: " + shared.toRealPath(),
-                    failure.getMessage());
+            UncheckedIOException failure = assertThrows(UncheckedIOException.class,
+                    () -> createDirectory(shared));
+            assertTrue(failure.getCause().getMessage().contains(shared.toRealPath().toString()));
         } finally {
             try (DirectoryStream<Path> children = Files.newDirectoryStream(shared)) {
                 for (Path child : children) Files.deleteIfExists(child);
@@ -91,8 +94,14 @@ class NativeLibraryExtractionTest {
     void refusesFilesystemsWithoutPrivatePermissions() throws Exception {
         URI zip = URI.create("jar:" + root.resolve("unsupported.zip").toUri());
         try (FileSystem fs = FileSystems.newFileSystem(zip, Collections.singletonMap("create", "true"))) {
-            assertThrows(IOException.class, () -> NativeLibraryExtraction.createDirectory(fs.getPath("/"), "native-"));
+            assertThrows(UncheckedIOException.class, () -> createDirectory(fs.getPath("/")));
         }
+    }
+
+    private static Path createDirectory(Path root) {
+        return NativeDirectories.fromRoots("native", Collections.singletonList(root),
+                () -> OperatingSystem.valueOf(JmeSystem.getPlatform().getOs().name().toUpperCase(Locale.ROOT)))
+                .get(0).get();
     }
 
     private static java.nio.file.attribute.UserPrincipal viewOwner(Path directory) {
