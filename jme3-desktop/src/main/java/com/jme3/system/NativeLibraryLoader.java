@@ -39,6 +39,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -47,6 +49,9 @@ import java.util.logging.Logger;
 
 import com.jme3.system.NativeLibraries.LibraryInfo;
 import com.jme3.util.res.Resources;
+import com.jme3.nativebootstrap.common.OperatingSystem;
+import com.jme3.nativebootstrap.directories.NativeDirectories;
+import com.jme3.nativebootstrap.directories.DirectoryCandidate;
 
 /**
  * Utility class to register, extract, and load native libraries.
@@ -91,7 +96,7 @@ public final class NativeLibraryLoader {
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
     private static File extractionFolderOverride = null;
     private static File extractionFolder = null;
-    private static final int EXTRACTION_ROOT_COUNT = 4; // configured, temp, cache, home
+    private static List<DirectoryCandidate> extractionCandidates = null;
     private static int extractionRootIndex = 0; // extraction root to try next
     private static Boolean extractNativeLibrariesOverride = null;
     private static final Map<NativeLibrary, String> loadedLibraries = new HashMap<>();
@@ -99,6 +104,7 @@ public final class NativeLibraryLoader {
     private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap = new HashMap<>();
 
     static {
+        configureNativeProperties();
         NativeLibraries.registerDefaultLibraries();
     }
 
@@ -196,6 +202,8 @@ public final class NativeLibraryLoader {
         extractionFolderOverride = path == null ? null : new File(path).getAbsoluteFile();
         extractionFolder = null;
         extractionRootIndex = 0;
+        extractionCandidates = null;
+        configureNativeProperties();
     }
 
     /**
@@ -274,114 +282,66 @@ public final class NativeLibraryLoader {
 
         UnsatisfiedLinkError error = new UnsatisfiedLinkError(
                 "Cannot find a suitable extraction folder for native libraries.");
-        exit:
-        while (true) {
-            Path root = null;
+        if (extractionCandidates == null) {
             try {
-                switch (extractionRootIndex) {
-                    case 0: { // configured directory
-                        File custom = getCustomExtractionFolder();
-                        if (custom == null) {
-                            extractionRootIndex++;
-                            continue;
-                        }
-                        root = custom.toPath();
-                        break;
-                    }
-                    case 1: { // temp directory
-                        String tmp = System.getProperty("java.io.tmpdir", "").trim();
-                        if (tmp.isEmpty()) throw new IllegalArgumentException("java.io.tmpdir is not set");
-                        root = Paths.get(tmp);
-                        if (!root.isAbsolute() || !Files.isDirectory(root)) throw new IllegalArgumentException("java.io.tmpdir is not a valid extraction root");
-                        break;
-                    }
-                    case 2: { // platform cache
-                        root = getJmeUserCacheFolder();
-                        if (root == null) throw new IOException("No usable cache directory");
-                        root = root.resolve(".jme3");
-                        break;
-                    }
-                    case 3: { // user home directory
-                        String home = System.getProperty("user.home", "").trim();
-                        if (home.isEmpty()) throw new IllegalArgumentException("user.home is not set");
-                        root = Paths.get(home);
-                        if (!root.isAbsolute() || (root.getParent() != null
-                                && !Files.isDirectory(root.getParent()))) throw new IllegalArgumentException("user.home is not a valid extraction root");
-                        root = root.resolve(".jme3");
-                        break;
-                    }
-                    default: {
-                        break exit;
-                    }
-                }
-
-                extractionFolder = NativeLibraryExtraction.createDirectory(root, "jme3-natives-").toFile();
-                return extractionFolder;
-            } catch (IOException | SecurityException | IllegalArgumentException
-                    | UnsupportedOperationException failure) {
-                error.addSuppressed(new IOException("Cannot use native extraction root: " + root, failure));
+                extractionCandidates = getExtractionCandidates();
+            } catch (SecurityException | IllegalArgumentException | UnsupportedOperationException failure) {
+                error.addSuppressed(failure);
+                throw error;
             }
-            extractionRootIndex++; // next call tries the next root
         }
-        extractionRootIndex = 0; // let a later call try every root again
+        while (extractionRootIndex < extractionCandidates.size()) {
+            DirectoryCandidate candidate = extractionCandidates.get(extractionRootIndex);
+            try {
+                File directory = candidate.get().toFile();
+                extractionFolder = directory;
+                return directory;
+            } catch (UncheckedIOException | SecurityException | IllegalArgumentException
+                    | UnsupportedOperationException failure) {
+                error.addSuppressed(new IOException("Cannot use native extraction root: " + candidate.root(), failure));
+            }
+            extractionRootIndex++;
+        }
+        extractionRootIndex = 0;
+        extractionCandidates = null;
         throw error;
     }
 
- /**
-     * Returns the platform cache folder
-     */
-    private static Path getJmeUserCacheFolder() {
-        Path base = null;
-        String cacheFolder = System.getProperty(CACHE_FOLDER_PROPERTY);
-        if (cacheFolder != null && !cacheFolder.trim().isEmpty()) {
-            base = Paths.get(cacheFolder);
-            if (!base.isAbsolute() || !Files.isDirectory(base)) {
-                base = null;
+    private static List<DirectoryCandidate> getExtractionCandidates() {
+        configureNativeProperties();
+        List<DirectoryCandidate> candidates = new ArrayList<>(
+                NativeDirectories.candidates("jme3", NativeLibraryLoader::getOperatingSystem));
+        File custom = getCustomExtractionFolder();
+        if (custom != null) {
+            Path customPath = custom.toPath();
+            candidates.removeIf(candidate -> candidate.root().equals(customPath.toAbsolutePath().normalize()));
+            candidates.add(0, new DirectoryCandidate(customPath, "jme3", getOperatingSystem()));
+        }
+        return candidates;
+    }
+
+    private static void configureNativeProperties() {
+        String cache = System.getProperty(CACHE_FOLDER_PROPERTY);
+        if (cache != null && !cache.trim().isEmpty()) {
+            File directory = new File(cache);
+            if (!directory.isAbsolute() || !directory.isDirectory()) {
                 logger.warning(CACHE_FOLDER_PROPERTY
                         + " must be an absolute path and must exist. Falling back to default cache location.");
+                return;
             }
+            System.setProperty("natives.cacheDir", cache);
         }
+    }
 
-        if (base == null) {
-            String loc = null;
-            Platform.Os os = JmeSystem.getPlatform().getOs();
-            if (os == Platform.Os.Windows) {
-                loc = System.getenv("LOCALAPPDATA");
-            } else if (os == Platform.Os.Linux) {
-                loc = System.getenv("XDG_CACHE_HOME");
-            }
-
-            if (loc != null && !loc.trim().isEmpty()) {
-                base = Paths.get(loc);
-                if (!base.isAbsolute() || !Files.isDirectory(base)) base = null;
-            }
+    private static OperatingSystem getOperatingSystem() {
+        switch (JmeSystem.getPlatform().getOs()) {
+            case Windows: return OperatingSystem.WINDOWS;
+            case MacOS: return OperatingSystem.MACOS;
+            case Linux: return OperatingSystem.LINUX;
+            case Android: return OperatingSystem.ANDROID;
+            case iOS: return OperatingSystem.IOS;
+            default: return OperatingSystem.UNKNOWN;
         }
-
-        if (base == null) {
-            Platform.Os os = JmeSystem.getPlatform().getOs();
-            Path home = Paths.get(System.getProperty("user.home"));
-            try{
-                switch (os) {
-                    case Windows:
-                        base = home.resolve("AppData").resolve("Local");
-                        break;
-                    case MacOS:
-                        base = home.resolve("Library").resolve("Caches");
-                        break;
-                    default:
-                        base = home.resolve(".cache");
-                        break;
-                }
-            } catch (Exception e) {
-                logger.warning("Failed to determine default cache location: " + e.getMessage());
-            }
-
-            if (base != null && (!base.isAbsolute() || !Files.isDirectory(base))) {
-                base = null;
-            }
-        }
-
-        return base;
     }
 
     /**
@@ -580,7 +540,7 @@ public final class NativeLibraryLoader {
             }
             UnsatisfiedLinkError error = new UnsatisfiedLinkError(
                     "Cannot extract/load native libraries from the configured directory, temp, user cache, or ~/.jme3.");
-            while (extractionRootIndex < EXTRACTION_ROOT_COUNT) {
+            while (extractionCandidates == null || extractionRootIndex < extractionCandidates.size()) {
                 Path target = null;
                 boolean created = false;
                 try {
@@ -620,6 +580,7 @@ public final class NativeLibraryLoader {
                 }
             }
             extractionRootIndex = 0;
+            extractionCandidates = null;
             if (isRequired) {
                 throw error;
             }
