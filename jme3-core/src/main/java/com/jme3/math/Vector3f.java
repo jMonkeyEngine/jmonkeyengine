@@ -829,6 +829,29 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Computes the absolute value of each component and returns the result as a
+     * new instance. The current instance is unaffected.
+     *
+     * @return a new Vector3f with non-negative components
+     */
+    public Vector3f abs() {
+        return new Vector3f(Math.abs(x), Math.abs(y), Math.abs(z));
+    }
+
+    /**
+     * Computes the absolute value of each component and returns the (modified)
+     * current instance.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector3f absLocal() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        z = Math.abs(z);
+        return this;
+    }
+
+    /**
      * Compares this vector component-wise with the argument (keeping the most
      * positive value for each component) and returns the (modified) current
      * instance.
