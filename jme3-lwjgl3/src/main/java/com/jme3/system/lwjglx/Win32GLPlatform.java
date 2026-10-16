@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,17 @@ import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
  * @author wil
  */
 final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
+
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#getVideoDriver() 
+     * 
+     * @return String
+     */
+    @Override
+    public String getVideoDriver() {
+        return "Win32 WGL";
+    }
 
     /* (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#dispose()
