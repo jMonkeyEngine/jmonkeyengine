@@ -46,6 +46,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public class ChildCollisionShape implements Savable {
 
     /**

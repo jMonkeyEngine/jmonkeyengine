@@ -41,6 +41,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
+@Deprecated
 public abstract class RagdollPreset {
 
     /**

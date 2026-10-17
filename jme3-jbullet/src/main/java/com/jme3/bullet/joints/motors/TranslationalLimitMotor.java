@@ -35,17 +35,19 @@ import com.jme3.bullet.util.Converter;
 import com.jme3.math.Vector3f;
 
 /**
- *
  * @author normenhansen
  */
+@Deprecated
 public class TranslationalLimitMotor {
 
     private com.bulletphysics.dynamics.constraintsolver.TranslationalLimitMotor motor;
 
+    @Deprecated
     public TranslationalLimitMotor(com.bulletphysics.dynamics.constraintsolver.TranslationalLimitMotor motor) {
         this.motor = motor;
     }
 
+    @Deprecated
     public com.bulletphysics.dynamics.constraintsolver.TranslationalLimitMotor getMotor() {
         return motor;
     }

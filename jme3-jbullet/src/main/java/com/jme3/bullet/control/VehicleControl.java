@@ -57,6 +57,7 @@ import java.util.Iterator;
  *
  * @author normenhansen
  */
+@Deprecated
 public class VehicleControl extends PhysicsVehicle implements PhysicsControl, JmeCloneable {
 
     /**
