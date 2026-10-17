@@ -630,6 +630,28 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Computes the absolute value of each component and returns the result as a
+     * new instance. The current instance is unaffected.
+     *
+     * @return a new Vector2f with non-negative components
+     */
+    public Vector2f abs() {
+        return new Vector2f(Math.abs(x), Math.abs(y));
+    }
+
+    /**
+     * Computes the absolute value of each component and returns the (modified)
+     * current instance.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector2f absLocal() {
+        x = Math.abs(x);
+        y = Math.abs(y);
+        return this;
+    }
+
+    /**
      * Returns the unsigned angle between the current instance and the argument,
      * provided both vectors have length=1. If {@code otherVector} is null, Pi/2
      * is returned. The current instance is unaffected.
