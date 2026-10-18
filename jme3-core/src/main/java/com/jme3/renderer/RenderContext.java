@@ -339,6 +339,12 @@ public class RenderContext {
     public final WeakReference<VertexBuffer>[] boundAttribs = newWeakReferenceArray(16);
 
     /**
+     * Numeric instance divisor last set for each vertex attribute slot.
+     * Cached separately because vertex buffers can change or be collected.
+     */
+    public final int[] boundAttribDivisors = new int[boundAttribs.length];
+
+    /**
      * IDList for vertex attributes.
      */
     public final IDList attribIndexList = new IDList();
@@ -441,6 +447,7 @@ public class RenderContext {
 
         for (int i = 0; i < boundAttribs.length; i++) {
             boundAttribs[i] = null;
+            boundAttribDivisors[i] = 0;
         }
 
         attribIndexList.reset();
