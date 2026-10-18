@@ -164,7 +164,8 @@ public abstract class BlendableAction extends Action {
     public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
         collectTransformDelegate = cloner.clone(collectTransformDelegate);
-        transition = cloner.clone(transition);
+        // Rebind the inner tween to this action instead of retaining its original owner.
+        transition = new TransitionTween(transition.getLength());
     }
 
     private class TransitionTween extends AbstractTween {
