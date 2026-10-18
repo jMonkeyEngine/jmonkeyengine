@@ -32,9 +32,6 @@
 package com.jme3.font;
 
 import com.jme3.math.ColorRGBA;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 /**
  * LetterQuad contains the position, color, and UV texture information for a character in text.
@@ -495,69 +492,6 @@ class LetterQuad {
         idx[0] = i0; idx[1] = i1; idx[2] = i2;
         idx[3] = i0; idx[4] = i2; idx[5] = i3;
     }
-
-    public void appendPositions(FloatBuffer fb) {
-        float sx = x0+alignX;
-        float sy = y0-alignY;
-        float ex = sx+width;
-        float ey = sy-height;
-        // NOTE: subtracting the height here
-        // because OGL's Ortho origin is at lower-left
-        fb.put(sx).put(sy).put(0f);
-        fb.put(sx).put(ey).put(0f);
-        fb.put(ex).put(ey).put(0f);
-        fb.put(ex).put(sy).put(0f);
-    }
-
-    public void appendPositions(ShortBuffer sb) {
-        final float x1 = getX1();
-        final float y1 = getY1();
-        short x = (short) x0;
-        short y = (short) y0;
-        short xpw = (short) (x1);
-        short ymh = (short) (y1);
-
-        sb.put(x).put(y).put((short)0);
-        sb.put(x).put(ymh).put((short)0);
-        sb.put(xpw).put(ymh).put((short)0);
-        sb.put(xpw).put(y).put((short)0);
-    }
-
-    public void appendTexCoords(FloatBuffer fb) {
-        // flip coords to be compatible with OGL
-        float v0 = 1 - this.v0;
-        float v1 = 1 - this.v1;
-
-        // upper left
-        fb.put(u0).put(v0);
-        // lower left
-        fb.put(u0).put(v1);
-        // lower right
-        fb.put(u1).put(v1);
-        // upper right
-        fb.put(u1).put(v0);
-    }
-
-    public void appendColors(ByteBuffer bb) {
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-    }
-
-    public void appendIndices(ShortBuffer sb, int quadIndex) {
-        // each quad has 4 indices
-        short v0 = (short) (quadIndex * 4);
-        short v1 = (short) (v0 + 1);
-        short v2 = (short) (v0 + 2);
-        short v3 = (short) (v0 + 3);
-
-        sb.put(v0).put(v1).put(v2);
-        sb.put(v0).put(v2).put(v3);
-//        sb.put(new short[]{ v0, v1, v2,
-//                            v0, v2, v3 });
-    }
-
 
     @Override
     public String toString() {
