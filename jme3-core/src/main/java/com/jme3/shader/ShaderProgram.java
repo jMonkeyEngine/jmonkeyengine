@@ -33,7 +33,7 @@ package com.jme3.shader;
 
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.util.ListMap;
+import com.jme3.util.collections.ListMap;
 import com.jme3.util.NativeObject;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -47,7 +47,7 @@ import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.scene.mesh.*;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.mesh.attribute.*;

@@ -15,8 +15,8 @@ import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
-import com.jme3.util.IntMap.Entry;
+import com.jme3.util.collections.IntMap;
+import com.jme3.util.collections.IntMap.Entry;
 
 public class FbxMesh extends FbxObject {
 

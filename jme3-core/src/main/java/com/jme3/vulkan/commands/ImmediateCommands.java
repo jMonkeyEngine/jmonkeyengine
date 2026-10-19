@@ -5,8 +5,9 @@ import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.TimelineSemaphore;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 public class ImmediateCommands {
 
@@ -41,11 +42,10 @@ public class ImmediateCommands {
     public CommandBuffer acquire() {
         CachedCmdBuffer cmd = buffers.peek();
         if (cmd == null || (!cmd.event.signaled() && (maxAlloc <= 0 || numAllocs < maxAlloc))) {
-            synchronized (pool) {
-                cmd = pool.allocate(CommandBuffer.Level.Primary, CachedCmdBuffer::new);
-            }
+            cmd = pool.allocate(CommandBuffer.Level.Primary, CachedCmdBuffer::new);
             numAllocs++;
         } else {
+            //noinspection DataFlowIssue
             (cmd = buffers.poll()).event.awaitSignal(TimeUnit.SECONDS.toMillis(5));
         }
         cmd.reset();
@@ -60,7 +60,7 @@ public class ImmediateCommands {
         return maxAlloc;
     }
 
-    private class CachedCmdBuffer extends CommandBuffer {
+    private class CachedCmdBuffer extends VulkanCommandBuffer {
 
         private TimelineSemaphore.SignalEvent event;
 

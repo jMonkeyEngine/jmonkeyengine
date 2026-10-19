@@ -60,7 +60,7 @@ import com.jme3.shader.*;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
-import com.jme3.util.ListMap;
+import com.jme3.util.collections.ListMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.buffers.MappableBuffer;
 

@@ -4,6 +4,6 @@ import com.jme3.vulkan.util.Flag;
 
 public interface VulkanBuffer extends DeviceBuffer {
 
-    Flag<EngineBuffer.Role> getUsage();
+    Flag<GpuBuffer.Role> getUsage();
 
 }

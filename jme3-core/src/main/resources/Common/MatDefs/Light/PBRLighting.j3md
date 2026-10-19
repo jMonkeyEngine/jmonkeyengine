@@ -58,9 +58,9 @@ MaterialDef PBR Lighting {
 
         // Specular-AA
         Boolean UseSpecularAA : true
-        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        // screen space variance,Use the slider to binding the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
         Float SpecularAASigma
-        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        // clamping threshold,Use the slider to binding a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
         Float SpecularAAKappa
 
         //Set to true if parallax map is stored in the alpha channel of the normal map
@@ -142,7 +142,7 @@ MaterialDef PBR Lighting {
         Texture2D SunLightExposureMap
         Boolean UseVertexColorsAsSunIntensity
         Float StaticSunIntensity
-        Boolean BrightenIndoorShadows  //should be set true when shadows are enabled, in order to prevent areas with low SunExposure from being way too dark when shadows are cast
+        Boolean BrightenIndoorShadows  //should be binding true when shadows are enabled, in order to prevent areas with low SunExposure from being way too dark when shadows are cast
 
          // debug the final value of the selected layer as a color output            
         Int DebugValuesMode

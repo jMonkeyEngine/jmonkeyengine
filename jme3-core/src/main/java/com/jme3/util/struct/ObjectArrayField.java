@@ -2,6 +2,7 @@ package com.jme3.util.struct;
 
 import java.util.function.IntFunction;
 
+@Deprecated
 public class ObjectArrayField <T> extends ArrayField<T[], T> {
 
     private final Class<T> type;

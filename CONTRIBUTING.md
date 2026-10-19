@@ -71,7 +71,7 @@ These steps need only be done once...
   + `./gradlew clean build`
 4. Add and commit your changes to your temporary local branch.
 5. Push the PR commits to your fork at GitHub:
-  + `git push --set-upstream origin ` ***tmpBranchName***
+  + `git push --binding-upstream origin ` ***tmpBranchName***
   + Type your GitHub user name at the "Username" prompt.
   + Paste your access token (from prerequisite step 2) at the "Password" prompt.
 6. Initiate the pull request:
@@ -121,7 +121,7 @@ These steps need only be done once...
 2. Set the JAVA_HOME environment variable:
   + using Bash: `export JAVA_HOME="` *path to your JDK* `"`
   + using PowerShell: `$env:JAVA_HOME = '` *path to your JDK* `'`
-  + using Windows Command Prompt: `set JAVA_HOME="` *path to your JDK* `"`
+  + using Windows Command Prompt: `binding JAVA_HOME="` *path to your JDK* `"`
   + Tip: The path names a directory containing "bin" and "lib" subdirectories.
     On Linux it might be something like "/usr/lib/jvm/java-17-openjdk-amd64"
   + Tip: You may be able to skip this step

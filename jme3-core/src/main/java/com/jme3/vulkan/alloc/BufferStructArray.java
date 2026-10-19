@@ -1,33 +1,34 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.util.struct.StructArray;
+import com.jme3.vulkan.buffer.GpuBuffer;
 
 import java.util.function.IntFunction;
 
-public class BufferStructArray <T extends Struct> extends StructArray<T> implements EngineBuffer {
+public class BufferStructArray <T extends Struct> extends StructArray<T> implements GpuBuffer {
 
-    private final IntFunction<EngineBuffer> bufferFactory;
-    private EngineBuffer buffer;
+    private final IntFunction<GpuBuffer> bufferFactory;
+    private GpuBuffer buffer;
 
-    public BufferStructArray(T struct, int length, IntFunction<EngineBuffer> bufferFactory) {
+    public BufferStructArray(T struct, int length, IntFunction<GpuBuffer> bufferFactory) {
         super(struct, length);
         this.bufferFactory = bufferFactory;
         this.buffer = bufferFactory.apply(getByteSize());
     }
 
     @Override
-    public void copyToPreferOptimal(EngineBuffer dst) {
+    public void copyToPreferOptimal(GpuBuffer dst) {
         buffer.copyToPreferOptimal(dst);
     }
 
     @Override
-    public void copyToPreferHost(EngineBuffer dst) {
+    public void copyToPreferHost(GpuBuffer dst) {
         buffer.copyToPreferHost(dst);
     }
 
     @Override
-    public void copyToPreferDevice(EngineBuffer dst) {
+    public void copyToPreferDevice(GpuBuffer dst) {
         buffer.copyToPreferDevice(dst);
     }
 

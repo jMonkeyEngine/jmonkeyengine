@@ -36,7 +36,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.util.SceneIterationListener;
 
 /**
  * A standalone, purely mathematical class for doing camera-related computations.
@@ -74,17 +73,33 @@ public interface Camera {
          * Defines a constant assigned to spatials that are completely outside
          * of this camera's view frustum.
          */
-        Outside,
+        Outside(false, true),
         /**
          * Defines a constant assigned to spatials that are completely inside
          * the camera's view frustum.
          */
-        Inside,
+        Inside(true, false),
         /**
          * Defines a constant assigned to spatials that are intersecting one of
          * the six planes that define the view frustum.
          */
-        Intersects,
+        Intersects(true, true);
+
+        private final boolean inside, outside;
+
+        FrustumIntersect(boolean inside, boolean outside) {
+            this.inside = inside;
+            this.outside = outside;
+        }
+
+        public boolean isInside() {
+            return inside;
+        }
+
+        public boolean isOutside() {
+            return outside;
+        }
+
     }
 
     void setLocation(float x, float y, float z);

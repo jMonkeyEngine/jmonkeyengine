@@ -2,7 +2,7 @@ package com.jme3.vulkan.images.newimage;
 
 import com.jme3.math.IntVector;
 import com.jme3.texture.Texture;
-import com.jme3.util.natives.Destructable;
+import com.jme3.util.destruction.Destructable;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.formats.Format;

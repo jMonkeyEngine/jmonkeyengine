@@ -22,8 +22,8 @@ The addition of Vulkan has forced Material to change rather drastically. Vulkan 
 ```java
 Material myMat = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
 UnshadedParams params = myMat.get("Parameters");
-params.color.set(ColorRGBA.Blue);
-params.vertexColor.set(true);
+params.color.binding(ColorRGBA.Blue);
+params.vertexColor.binding(true);
 ```
 
 In many ways this system is already easier to use due to the reduction in parameter names to remember.
@@ -39,7 +39,7 @@ Camera has been split up into a main interface with multiple concrete classes ha
 * PerspectiveCamera handles the "primary" view mode with field-of-view.
 * ParallelCamera handles parallel projection.
 * GuiCamera handles gui projection.
-* ObliqueCamera handles near planes set at skewed angles (for portal or mirror rendering)
+* ObliqueCamera handles near planes binding at skewed angles (for portal or mirror rendering)
 
 We still wanted cameras to easily change viewing modes, so most implementations are designed to receive properties from a "base camera", and decide which properties to tweak or override. So to change a perspective view to a parallel view:
 

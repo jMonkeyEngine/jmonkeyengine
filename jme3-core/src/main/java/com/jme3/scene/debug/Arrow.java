@@ -36,9 +36,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.JmePlatform;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.buffers.mapping.BufferMapping;
-import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffer.IdxBuffer;
 import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
@@ -65,7 +65,7 @@ public class Arrow extends AdaptiveMesh {
     };
 
     private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
-            JmePlatform.allocateStandardBuffer(1, EngineBuffer.Role.Vertex, UpdateHint.Static));
+            JmePlatform.allocateStandardBuffer(1, GpuBuffer.Role.Vertex, UpdateHint.Static));
 
     /**
      * Serialization only. Do not use.
@@ -96,7 +96,7 @@ public class Arrow extends AdaptiveMesh {
             }
         }
 
-        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(10 * Short.BYTES, EngineBuffer.Role.Index, UpdateHint.Static));
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(10 * Short.BYTES, GpuBuffer.Role.Index, UpdateHint.Static));
         try (BufferMapping m = index.map()) {
             m.getShorts().put(new short[]{0, 1, 1, 2, 1, 3, 1, 4, 1, 5});
         }

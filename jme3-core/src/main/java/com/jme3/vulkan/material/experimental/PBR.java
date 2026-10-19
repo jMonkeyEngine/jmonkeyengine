@@ -1,55 +1,75 @@
 package com.jme3.vulkan.material.experimental;
 
 import com.jme3.backend.Engine;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
-import com.jme3.texture.Texture;
-import com.jme3.util.cache.InlineTimedCache;
-import com.jme3.util.natives.Destructor;
+import com.jme3.scene.Mesh;
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.alloc.SparseStructList;
-import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.util.struct.StructArray;
+import com.jme3.util.struct.StructField;
+import com.jme3.vulkan.alloc.ReservedStructArray;
 import com.jme3.vulkan.buffer.AutoBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffer.alloc.BufferType;
+import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.pipeline.DynamicState;
-import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.scene.ComponentInheritance;
+import com.jme3.vulkan.pipeline.CullMode;
+import com.jme3.vulkan.pipeline.FaceWinding;
+import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.scene.Scene;
-import com.jme3.vulkan.scene.SceneComponent;
+import com.jme3.vulkan.scene.components.*;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Renders simple PBR materials using flat color, metallic, and roughness, and a normal texture.
  */
-public class PBR {
+@TriggeredOn({"PBR"})
+public class PBR implements ShadingTechnique {
 
-    protected static AutoBuffer<SparseStructList<Params>> parameters;
+    private final Scene scene;
 
     // for passing in textures directly instead of bindless
     private DescriptorPool pool;
     private final DescriptorSetLayout textureLayout;
 
-    public PBR(Engine engine, int materials) {
-        if (parameters == null) {
-            parameters = new AutoBuffer<>(engine, new SparseStructList<>(materials, new Params()), BufferType.Dynamic, EngineBuffer.Role.Storage);
-        }
+    private ParamPipe params;
+    private TexturePipe textures;
+
+    public PBR(Scene scene, Engine engine, int materials) {
+        this.scene = scene;
         pool = engine.createDescriptorPool(materials, new PoolSize(DescriptorType.CombinedImageSampler, materials * 2));
         textureLayout = engine.createDescriptorSetLayout(new DescriptorSetLayout.Info()
                 .addBinding(0, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment)
                 .addBinding(1, DescriptorType.CombinedImageSampler, 1, ShaderStage.Fragment));
     }
 
-    public void renderScene(CommandBuffer cmd, Scene.Subset geometries) {
+    @Override
+    public boolean acceptNode(int node) {
+        return scene.hasTag("pbr", node);
+    }
+
+    @Override
+    public void render(CommandBuffer cmd, Scene.Group nodes) {
+
+    }
+
+    @Override
+    public void tagAdded(Scene scene, int node, String tag) {
+        scene.getPipe(ParamPipe.class, s -> new ParamPipe(s, new ReservedStructArray<>()));
+    }
+
+    @Override
+    public void tagRemoved(Scene scene, int node, String tag) {
+
+    }
+
+    public void renderScene(CommandBuffer cmd, Scene.Group geometries) {
         // For each geometry, we need to generate a pipeline. This will be done by the technique managing
         // a "pipeline pool" where each pipeline in the pool shares some base properties. Variations are
         // requested from the pool. Geometries are then sorted based on what pipeline they are to be
@@ -57,9 +77,21 @@ public class PBR {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             Constants constants = new Constants();
             constants.bind(new DataBuffer(stack.malloc(constants.getSize())), 0);
-            Scene.SubsetIterator it = geometries.iterator();
+            Scene scene = geometries.getScene();
+            params = scene.getPipe(ParamPipe.class, s -> new ParamPipe(s, new AutoBuffer<>()));
+            textures = scene.getPipe(TexturePipe.class, s -> new TexturePipe(s, this::createTexturesSet));
+            archetype = scene.getPipe(PbrArchetype.class, s -> new PbrArchetype(s, this));
+            Scene.GroupIterator it = geometries.iterator();
             for (int g : it) {
-                Material mat = geometries.getScene().getUserData(g, Material.class);
+                // Stands in for a real "tag added" event, which doesn't exist yet - this should only
+                // need to happen once, when a node is first tagged for PBR, not every frame for every
+                // candidate geometry. activate() is cheap to call repeatedly in the meantime since it
+                // no-ops once a node is already complete.
+                archetype.activate(g);
+                if (archetype.get(g) == null) {
+                    continue; // node isn't tagged for PBR (or isn't geometric); nothing to render
+                }
+                MaterialImpl mat = geometries.getScene().getUserData(g, MaterialImpl.class);
                 constants.worldViewProjection.set(geometries.getWorldMatrix(g));
                 constants.paramsIndex.set(mat.paramElement);
                 VK10.vkCmdPushConstants(cmd, pipelinelayout, ShaderStage.AllGraphics, 0, constants.cache());
@@ -69,62 +101,53 @@ public class PBR {
         }
     }
 
-    public Material createMaterial(CommandBuffer cmd) {
-        return new Material(cmd);
-    }
-
-    protected DescriptorSet createTexturesSet() {
+    private DescriptorSet createTexturesSet() {
         DescriptorSet set = pool.allocateSets(textureLayout).orElseThrow(RuntimeException::new)[0];
         set.setBinding(0, TextureBinding::new);
         set.setBinding(1, TextureBinding::new);
         return set;
     }
 
-    @ComponentInheritance(allow=false)
-    public static class Material implements SceneComponent {
+    private static class ParamPipe extends StructPipe<Params> {
 
-        protected final MaterialData data;
-
-        // index that this material's data is stored at for Params.class
-        protected final int paramElement;
-
-        // for if we want to pass textures directly into the shader w/o bindless textures
-        protected final DescriptorSet textures = createTexturesSet();
-
-        // attributes
-        protected StructArray.Field position, texCoord, normal;
-
-        protected Material(CommandBuffer cmd, MaterialData data) {
-            this.data = data;
-            paramElement = data.acquire(cmd, Params.class);
-            Destructor.run(this, () -> data.release(Params.class, paramElement));
+        private ParamPipe(Scene scene, StructArray<Params> array) {
+            super(scene, array);
+            scene.getComponent(BaseColor.class).addListener(this::colorChanged);
         }
 
-        public void setMetallic(float metallic) {
-            data.get(Params.class, paramElement).metallic.set(metallic);
-        }
-
-        public void setRoughness(float roughness) {
-            data.get(Params.class, paramElement).roughness.set(roughness);
-        }
-
-        public void setColorMap(Texture colorMap) {
-            textures.getBinding(0).set(0, colorMap);
-        }
-
-        public void setNormalMap(Texture normalMap) {
-            textures.getBinding(1).set(0, normalMap);
+        private void colorChanged(Property<ColorRGBA> color, int node) {
+            getArray().index(node).color.set(color.get(node));
         }
 
     }
 
-    protected static class Params extends Struct {
+    @Observes(components = {ColorMap.class, NormalMap.class})
+    private static class TexturePipe extends DescriptorPipe {
 
+        private final Supplier<DescriptorSet> factory;
+
+        public TexturePipe(Scene scene, Supplier<DescriptorSet> factory) {
+            super(scene);
+            this.factory = factory;
+            map(ColorMap.class, 0, 0);
+            map(NormalMap.class, 1, 0);
+        }
+
+        @Override
+        protected DescriptorSet createDescriptorSet(int node) {
+            return factory.get();
+        }
+
+    }
+
+    protected static class Params extends Struct<StructField> {
+
+        public final Field<ColorRGBA> color = new Field<>(new ColorRGBA());
         public final Field<Float> metallic = new Field<>(0f);
         public final Field<Float> roughness = new Field<>(0f);
 
         public Params() {
-            addFields(metallic, roughness);
+            add(color, metallic, roughness);
         }
 
     }
@@ -136,17 +159,52 @@ public class PBR {
 
     }
 
-    private static class PipelinePool <K, T extends Pipeline> {
+    /**
+     * Identifies which {@code GraphicsPipeline} variant a node needs. PBR's shaders and
+     * topology-independent state never vary, so the only things that actually change
+     * which pipeline a node requires are properties of its mesh that feed directly into
+     * {@code VkGraphicsPipelineCreateInfo}'s input-assembly/rasterization state: a
+     * different {@link Topology}, {@link FaceWinding}, or primitive-restart setting each
+     * require a distinct pipeline, regardless of material parameters (those go through
+     * {@link ParamPipe}/{@link TexturePipe} instead, and never affect pipeline identity).
+     */
+    private class PBRKey {
 
-        private final Map<K, T> pipelines = new InlineTimedCache<>(2000);
-        private final Set<DynamicState> dynamics = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
+        private final Topology topology;
+        private final FaceWinding faceWinding;
+        private final boolean primitiveRestart;
+        private final Flag<CullMode> cullMode;
 
-        public T getPipeline(K state) {
-            T pipeline = pipelines.get(state);
-            if (pipeline == null) {
-                // create
+        private PBRKey(int node) {
+            Mesh mesh = scene.getComponent(Scene.MeshType.class, node);
+            topology = mesh.getTopology();
+            faceWinding = mesh.getFaceWinding();
+            primitiveRestart = mesh.isPrimitiveRestart();
+            cullMode = Flag.of(scene.getWorldCullHint(node));
+        }
+
+        private PBRKey(Topology topology, FaceWinding faceWinding, boolean primitiveRestart, Flag<CullMode> cullMode) {
+            this.topology = topology;
+            this.faceWinding = faceWinding;
+            this.primitiveRestart = primitiveRestart;
+            this.cullMode = cullMode;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
             }
-            return pipeline;
+            if (!(o instanceof PBRKey)) {
+                return false;
+            }
+            PBRKey k = (PBRKey)o;
+            return primitiveRestart == k.primitiveRestart && topology == k.topology && faceWinding == k.faceWinding;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(topology, faceWinding, primitiveRestart);
         }
 
     }

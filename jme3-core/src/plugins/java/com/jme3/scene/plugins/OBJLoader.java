@@ -44,7 +44,7 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

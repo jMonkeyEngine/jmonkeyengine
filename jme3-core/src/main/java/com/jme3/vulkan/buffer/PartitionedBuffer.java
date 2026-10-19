@@ -6,12 +6,12 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public class PartitionedBuffer implements EngineBuffer {
+public class PartitionedBuffer implements GpuBuffer {
 
-    private final EngineBuffer buffer;
+    private final GpuBuffer buffer;
     private final BufferTracker consumed = new ExactBufferTracker();
 
-    public PartitionedBuffer(EngineBuffer buffer) {
+    public PartitionedBuffer(GpuBuffer buffer) {
         this.buffer = buffer;
     }
 
@@ -95,7 +95,7 @@ public class PartitionedBuffer implements EngineBuffer {
         return p;
     }
 
-    public class Partition implements EngineBuffer {
+    public class Partition implements GpuBuffer {
 
         private final int offset, capacity;
 

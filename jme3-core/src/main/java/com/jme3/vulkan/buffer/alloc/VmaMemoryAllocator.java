@@ -2,11 +2,12 @@ package com.jme3.vulkan.buffer.alloc;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.IntVector;
+import com.jme3.util.destruction.Destructable;
+import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.util.natives.*;
 import com.jme3.vulkan.VulkanEnums;
-import com.jme3.vulkan.alloc.RemoteBuffer;
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.buffer.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -34,18 +35,18 @@ import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.util.vma.Vma.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
+public class VmaMemoryAllocator implements MemoryAllocator, Destructable {
 
     private final LogicalDevice<?> device;
     private final long allocator;
-    private final DisposableReference ref;
+    private final ResourceLifecycle lifecycle;
 
     public VmaMemoryAllocator(LogicalDevice<?> device) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VmaAllocatorCreateInfo create = VmaAllocatorCreateInfo.calloc(stack)
-                    .instance(device.getInstance().getNativeObject())
-                    .device(device.getNativeObject())
+                    .instance(device.getInstance().getHandle())
+                    .device(device.getHandle())
                     .physicalDevice(device.getPhysicalDevice().getHandle())
                     .vulkanApiVersion(device.getInstance().getApiVersion().getEnum())
                     .flags(allocatorCreateFlags(device.getEnabledExtensions()));
@@ -53,8 +54,8 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
             vmaCreateAllocator(create, ptr);
             allocator = ptr.get(0);
         }
-        ref = DisposableManager.reference(this);
-        device.getReference().addDependent(ref);
+        lifecycle = new ResourceLifecycle(this, () -> vmaDestroyAllocator(allocator));
+        device.getLifecycle().addDependent(lifecycle);
     }
 
     private int allocatorCreateFlags(Set<String> enabledExtensions) {
@@ -74,16 +75,11 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
     }
 
     @Override
-    public Runnable createDestroyer() {
-        return () -> vmaDestroyAllocator(allocator);
+    public ResourceLifecycle getLifecycle() {
+        return null;
     }
 
-    @Override
-    public DisposableReference getReference() {
-        return ref;
-    }
-
-    private VmaBuffer createBuffer(int capacity, Flag<EngineBuffer.Role> roles, int allocUsage, int allocFlags) {
+    private VmaBuffer createBuffer(int capacity, Flag<GpuBuffer.Role> roles, VmaMemoryUsage allocUsage, Flag<VmaAllocation> allocFlags) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer bufferPtr = stack.mallocLong(1);
             PointerBuffer allocPtr = stack.mallocPointer(1);
@@ -92,44 +88,49 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
                     .size(capacity)
                     .usage(roles.bits());
             VmaAllocationCreateInfo allocCreate = VmaAllocationCreateInfo.calloc(stack)
-                    .usage(allocUsage)
-                    .flags(allocFlags);
+                    .usage(allocUsage.getEnum())
+                    .flags(allocFlags.bits());
             vmaCreateBuffer(allocator, bufCreate, allocCreate, bufferPtr, allocPtr, null);
-            return new VmaBuffer(bufferPtr.get(0), allocPtr.get(0), capacity, roles);
+            return new VmaBuffer(bufferPtr.get(0), allocPtr.get(0), capacity, roles, allocFlags);
         }
     }
 
-    /* THE FOLLOWING PRESETS ARE RECOMMENDED BY VMA.
-       https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html */
-
+    /**
+     * Dispatches to the VMA-recommended preset for {@code type}.
+     * See <a href="https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/usage_patterns.html">here</a>
+     * for more details.
+     */
     @Override
-    public EngineBuffer createDynamicBuffer(int capacity, Flag<EngineBuffer.Role> roles) {
-        VmaBuffer buf = createBuffer(capacity, roles.add(EngineBuffer.Role.TransferDst), VMA_MEMORY_USAGE_AUTO,
-                VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT);
-        if (!buf.getMemoryProperties().contains(MemoryProp.HostVisible)) {
-            return new RemoteBuffer(buf);
+    public GpuBuffer createBuffer(BufferType type, int capacity, Flag<GpuBuffer.Role> roles) {
+        switch (type) {
+            case Dynamic: return createDynamicBuffer(capacity, roles);
+            case Readback: return createReadbackBuffer(capacity, roles);
+            case Local: return createLocalBuffer(capacity, roles);
+            case Streaming: return createStreamingBuffer(capacity, roles);
+            default: throw new IllegalArgumentException("Unsupported buffer type: " + type);
         }
-        return buf;
     }
 
-    @Override
-    public EngineBuffer createReadbackBuffer(int capacity, Flag<EngineBuffer.Role> roles) {
-        return createBuffer(capacity, roles.add(EngineBuffer.Role.TransferDst), VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT);
+    private GpuBuffer createDynamicBuffer(int capacity, Flag<GpuBuffer.Role> roles) {
+        return createBuffer(capacity, roles.add(GpuBuffer.Role.TransferDst), VmaMemoryUsage.Auto,
+                Flag.of(VmaAllocation.HostAccessSequentialWrite, VmaAllocation.HostAccessAllowTransferInstead));
     }
 
-    @Override
-    public EngineBuffer createLocalBuffer(int capacity, Flag<EngineBuffer.Role> roles) {
-        return createBuffer(capacity, roles.add(EngineBuffer.Role.TransferDst), VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE, 0);
+    private GpuBuffer createReadbackBuffer(int capacity, Flag<GpuBuffer.Role> roles) {
+        return createBuffer(capacity, roles.add(GpuBuffer.Role.TransferDst), VmaMemoryUsage.Auto, VmaAllocation.HostAccessRandom);
     }
 
-    @Override
-    public EngineBuffer createStreamingBuffer(int capacity, Flag<EngineBuffer.Role> roles) {
-        return createBuffer(capacity, roles.add(EngineBuffer.Role.TransferSrc), VMA_MEMORY_USAGE_AUTO_PREFER_HOST, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+    private GpuBuffer createLocalBuffer(int capacity, Flag<GpuBuffer.Role> roles) {
+        return createBuffer(capacity, roles.add(GpuBuffer.Role.TransferDst), VmaMemoryUsage.AutoPreferDevice, Flag.empty());
+    }
+
+    private GpuBuffer createStreamingBuffer(int capacity, Flag<GpuBuffer.Role> roles) {
+        return createBuffer(capacity, roles.add(GpuBuffer.Role.TransferSrc), VmaMemoryUsage.AutoPreferHost, VmaAllocation.HostAccessSequentialWrite);
     }
 
     /* IMAGES */
 
-    private VmaImage createImage(ImageInfo info, int allocUsage, int allocFlags) {
+    private VmaImage createImage(ImageInfo info, VmaMemoryUsage allocUsage, Flag<VmaAllocation> allocFlags) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCreateInfo imgCreate = VkImageCreateInfo.calloc(stack)
                 .sType$Default()
@@ -145,8 +146,8 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
                 .flags(info.getArrayLayers());
             imgCreate.extent().set(info.getSize().x, info.getSize().y, info.getSize().z);
             VmaAllocationCreateInfo allocCreate = VmaAllocationCreateInfo.calloc(stack)
-                .usage(allocUsage)
-                .flags(allocFlags);
+                .usage(allocUsage.getEnum())
+                .flags(allocFlags.bits());
             LongBuffer imgPtr = stack.mallocLong(1);
             PointerBuffer allocPtr = stack.mallocPointer(1);
             vmaCreateImage(allocator, imgCreate, allocCreate, imgPtr, allocPtr, null);
@@ -156,31 +157,32 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
 
     @Override
     public EngineImage createImage(ImageInfo info) {
-        return createImage(info, VMA_MEMORY_USAGE_AUTO, 0);
+        return createImage(info, VmaMemoryUsage.Auto, Flag.empty());
     }
 
-    private class VmaBuffer implements EngineBuffer {
+    private class VmaBuffer implements GpuBuffer {
 
         private final long buffer, alloc;
-        private final Destructor destructor;
         private final Flag<Role> roles;
         private final Flag<MemoryProp> memProps;
         private final DataBuffer mapping;
         private final int capacity;
+        private final ResourceLifecycle lifecycle;
 
-        public VmaBuffer(long buffer, long alloc, int capacity, Flag<Role> roles) {
+        public VmaBuffer(long buffer, long alloc, int capacity, Flag<Role> roles, Flag<VmaAllocation> allocFlags) {
             this.buffer = buffer;
             this.alloc = alloc;
-            this.destructor = new Destructor(this) { @Override protected void runDestroy() {
-                vmaDestroyBuffer(allocator, buffer, alloc);
-            }};
             this.roles = roles;
             this.capacity = capacity;
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer memPropBuf = stack.mallocInt(1);
                 vmaGetAllocationMemoryProperties(allocator, alloc, memPropBuf);
                 memProps = Flag.of(memPropBuf.get(0));
-                if (memProps.contains(MemoryProp.HostVisible)) {
+                // Mapping an AUTO*-usage allocation that wasn't created with one of these
+                // flags is undefined per VMA's contract, even if the memory type VMA chose
+                // happens to also be host-visible.
+                boolean hostAccessRequested = allocFlags.containsAny(VmaAllocation.HostAccessSequentialWrite, VmaAllocation.HostAccessRandom);
+                if (hostAccessRequested && memProps.contains(MemoryProp.HostVisible)) {
                     PointerBuffer pmap = stack.mallocPointer(1);
                     vmaMapMemory(allocator, alloc, pmap);
                     mapping = new DataBuffer(MemoryUtil.memByteBuffer(pmap.get(0), capacity));
@@ -188,28 +190,19 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
                     mapping = null;
                 }
             }
+            this.lifecycle = new ResourceLifecycle(this, () -> vmaDestroyBuffer(allocator, buffer, alloc));
         }
 
         @Override
-        public void update(CommandBuffer cmd) {
+        public void flushCache() {
             if (mapping != null && !memProps.contains(MemoryProp.HostCoherent)) {
                 vmaFlushAllocation(allocator, alloc, 0, mapping.capacity());
             }
         }
 
         @Override
-        public boolean isDeviceAccessible() {
-            return false;
-        }
-
-        @Override
         public long getHandle() {
             return buffer;
-        }
-
-        @Override
-        public long getDeviceAddress() {
-            return 0;
         }
 
         @Override
@@ -233,7 +226,7 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
         }
 
         @Override
-        public int getBufferLocalOffset() {
+        public int offset() {
             return 0;
         }
 
@@ -248,8 +241,8 @@ public class VmaMemoryAllocator implements MemoryAllocator, Disposable {
         }
 
         @Override
-        public Destructor getDestructor() {
-            return destructor;
+        public ResourceLifecycle getLifecycle() {
+            return lifecycle;
         }
 
     }

@@ -13,17 +13,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
 
-public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
+@Deprecated
+public class VertexBuffer <T extends Struct<VertexAttr>> extends SingletonStructArray<T> {
 
-    @Final private InputRate rate;
-    @Final private T struct;
-    @Final private MappableBuffer buffer;
+    private final InputRate rate;
+    private T struct;
+    private MappableBuffer buffer;
     private final Map<String, VertexAttr> attributeCache = new HashMap<>();
 
     @SerializationOnly
     protected VertexBuffer() {}
 
-    public VertexBuffer(InputRate rate, T struct, MappableBuffer buffer) {
+    public VertexBuffer(InputRate rate, T struct) {
         this.rate = rate;
         this.struct = struct;
         this.buffer = buffer;
@@ -34,24 +35,7 @@ public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
         this.rate = rate;
         this.struct = struct;
         this.struct.bind(StructLayout.optimal);
-        this.buffer = buffer.apply(elements * this.struct.getAlignedSize());
-    }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(rate, "rate", InputRate.Vertex);
-        out.write(struct, "struct", null);
-        out.write(buffer, "buffer", null);
-    }
-
-    @Override
-    @FinalWriter
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        rate = in.readEnum("rate", InputRate.class, InputRate.Vertex);
-        struct = (T)in.readSavable("struct", null);
-        buffer = (MappableBuffer)in.readSavable("buffer", null);
+        this.buffer = buffer.apply(elements * this.struct.alignedSize());
     }
 
     public StructMapping<T> map(long offset, long elements) {
@@ -63,11 +47,11 @@ public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
     }
 
     public void resize(long elements) {
-        buffer.resize(buffer.size().setBytes(elements * struct.getAlignedSize()));
+        buffer.resize(buffer.size().setBytes(elements * struct.alignedSize()));
     }
 
     public void stage(long offset, long elements) {
-        int stride = struct.getAlignedSize();
+        int stride = struct.alignedSize();
         buffer.stage(offset * stride, elements * stride);
     }
 
@@ -75,6 +59,7 @@ public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
         return rate;
     }
 
+    @Override
     public Struct<VertexAttr> getStruct() {
         return struct;
     }
@@ -84,7 +69,7 @@ public class VertexBuffer <T extends Struct<VertexAttr>> implements Savable {
     }
 
     public int getStride() {
-        return struct.getAlignedSize();
+        return struct.alignedSize();
     }
 
     public <E extends StructField> E getAttribute(String name) {

@@ -2,7 +2,7 @@ package com.jme3.vulkan.material.experimental;
 
 import com.jme3.backend.Engine;
 import com.jme3.math.ColorRGBA;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 
 public class MyCustomPBR extends PBR {
 
@@ -20,7 +20,7 @@ public class MyCustomPBR extends PBR {
 
     public MyCustomPBR(Engine engine) {
         super(engine);
-        materialData.addArrayIfAbsent(new MyParams(), new DynamicallySizedBuffer(n -> engine.createBuffer(n, EngineBuffer.Role.Vertex, UpdateHint.Dynamic)));
+        materialData.addArrayIfAbsent(new MyParams(), new DynamicallySizedBuffer(n -> engine.createBuffer(GpuBuffer.Role.Vertex, UpdateHint.Dynamic)));
 
     }
 

@@ -42,7 +42,8 @@ import com.jme3.scene.*;
 import com.jme3.scene.GlVertexBuffer.*;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.util.*;
-import com.jme3.util.IntMap.Entry;
+import com.jme3.util.collections.IntMap;
+import com.jme3.util.collections.IntMap.Entry;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 

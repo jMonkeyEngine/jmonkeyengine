@@ -48,7 +48,7 @@ import com.jme3.scene.mesh.MorphTarget;
 import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.io.*;
 import java.net.URLDecoder;

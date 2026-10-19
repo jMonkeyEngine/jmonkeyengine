@@ -32,69 +32,90 @@
 package com.jme3.scene;
 
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.export.Savable;
-import com.jme3.vulkan.buffers.IdxBuffer;
-import com.jme3.vulkan.mesh.*;
-import com.jme3.vulkan.mesh.attributes.AttributeMapping;
+import com.jme3.math.Vector3f;
+import com.jme3.util.struct.FieldArray;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructArray;
+import com.jme3.util.struct.StructField;
+import com.jme3.vulkan.buffer.IdxBuffer;
+import com.jme3.vulkan.mesh.VertexAttr;
 import com.jme3.vulkan.mesh.VertexBuffer;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.FaceWinding;
 import com.jme3.vulkan.pipeline.Topology;
-import com.jme3.vulkan.pipeline.VertexPipeline;
 
 import java.util.Collection;
-import java.util.function.Function;
 
 /**
  * Stores the vertex, index, and instance data for drawing indexed meshes.
  *
- * <p>Each mesh is made up of at least one vertex buffer, at least one
- * index buffer, and at least one vertex attribute. Vertex attributes are
- * stored in vertex buffers and are identified by string. Implementations
- * are free to format the vertex attributes among the vertex buffers however
- * they choose, but the format and number of each vertex attributes' components
- * must be as previously or externally specified.</p>
- *
  * @author codex
  */
-public interface Mesh extends Savable {
+public interface Mesh {
 
-    VertexInput declareVertexInput(Function<String, Integer> attributeMapper);
+    /**
+     * Attribute name every mesh's position data must be stored under - every mesh is
+     * required to have position data, unlike other attributes which are optional.
+     */
+    String POSITION_ATTRIBUTE = CommonAttributes.Position;
 
-    int selectLevelOfDetail(int lod);
+    void setIndexBuffer(IdxBuffer buffer);
 
-    void setIndexBuffer(int lod, IdxBuffer buffer);
+    /**
+     * Gets this mesh's required position data: the vertex buffer containing
+     * {@link #POSITION_ATTRIBUTE}, paired with that attribute itself via
+     * {@link FieldArray}. Every mesh is required to have position data, so
+     * implementations must guarantee this never returns null.
+     *
+     * @return position field array
+     */
+    FieldArray getPositionField();
 
-    IdxBuffer getIndexBuffer(int lod);
+    void addVertexBuffer(StructArray<? extends Struct<VertexAttr>> vertexBuffer);
 
-    IdxBuffer getLevelOfDetail(int lod);
+    Collection<StructArray<? extends Struct<VertexAttr>>> getVertexBuffers();
 
-    void addVertexBuffer(VertexBuffer vertexBuffer);
+    Collection<StructArray<? extends Struct<VertexAttr>>> getInstanceBuffers();
 
-    Collection<VertexBuffer> getVertexBuffers();
+    /**
+     * Finds the {@link VertexBuffer} among {@link #getVertexBuffers()} that contains
+     * {@code attribute}, e.g. one of the names in
+     * {@link com.jme3.vulkan.mesh.attributes.CommonAttributes}.
+     *
+     * @param attribute attribute name
+     * @return the vertex buffer containing {@code attribute}, or null if none does
+     */
+    default StructArray<? extends Struct<VertexAttr>> getVertexBuffer(String attribute) {
+        for (StructArray<? extends Struct<VertexAttr>> vb : getVertexBuffers()) {
+            for (VertexAttr a : vb.getStruct().getFields()) {
+                if (attribute.equals(a.getName())) {
+                    return vb;
+                }
+            }
+        }
+        for (StructArray<? extends Struct<VertexAttr>> vb : getInstanceBuffers()) {
+            for (VertexAttr a : vb.getStruct().getFields()) {
+                if (attribute.equals(a.getName())) {
+                    return vb;
+                }
+            }
+        }
+        return null;
+    }
 
-    AttributeMapping mapAttributes(InputRate rate, String... attributes);
+    default int getVertexCount() {
+        return getVertexBuffers().stream().findAny().map(StructArray::length).orElse(0);
+    }
 
-    int setVertexCount(int vertices);
-
-    int setInstanceCount(int instances);
-
-    void setVertexCapacity(int vertexCapacity);
-
-    void setInstanceCapacity(int instanceCapacity);
+    default int getInstanceCount() {
+        return getInstanceBuffers().stream().findAny().map(StructArray::length).orElse(0);
+    }
 
     void setTopology(Topology topology);
 
     void setFaceWinding(FaceWinding winding);
 
     void setPrimitiveRestart(boolean primitiveRestart);
-
-    int getVertexCount();
-
-    int getInstanceCount();
-
-    int getVertexCapacity();
-
-    int getInstanceCapacity();
 
     BoundingVolume getBounds();
 
@@ -103,43 +124,5 @@ public interface Mesh extends Savable {
     FaceWinding getFaceWinding();
 
     boolean isPrimitiveRestart();
-
-    default void setBaseIndexBuffer(IdxBuffer buffer) {
-        setIndexBuffer(0, buffer);
-    }
-
-    default IdxBuffer getBaseIndexBuffer() {
-        return getIndexBuffer(0);
-    }
-
-    default void setVertexCount(int vertices, int resizePadding) {
-        if (resizePadding >= 0 && vertices > getVertexCapacity()) {
-            setVertexCapacity(vertices + resizePadding);
-        }
-        setVertexCount(vertices);
-    }
-
-    default void setInstanceCount(int instances, int resizePadding) {
-        if (resizePadding >= 0 && instances > getInstanceCapacity()) {
-            setInstanceCapacity(instances + resizePadding);
-        }
-        setInstanceCount(instances);
-    }
-
-    default int getElementCount(InputRate rate) {
-        switch (rate) {
-            case Vertex: return getVertexCount();
-            case Instance: return getInstanceCount();
-            default: return 0;
-        }
-    }
-
-    default int getElementCapacity(InputRate rate) {
-        switch (rate) {
-            case Vertex: return getVertexCapacity();
-            case Instance: return getInstanceCapacity();
-            default: return 0;
-        }
-    }
 
 }

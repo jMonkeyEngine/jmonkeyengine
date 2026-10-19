@@ -35,7 +35,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.shader.ShaderProgram;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 
 /**
  * Allows tracking of real-time rendering statistics.

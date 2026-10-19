@@ -7,7 +7,14 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class StructLayout {
+public abstract class StructLayout {
+
+    @Deprecated
+    public enum Type {
+
+        std140, std430, optimal
+
+    }
     
     private static final Logger logger = Logger.getLogger(StructLayout.class.getName());
     
@@ -15,9 +22,61 @@ public class StructLayout {
     private static final int VEC3_WIDTH = Float.BYTES * 3;
     private static final int VEC4_WIDTH = Float.BYTES * 4;
 
-    public static final StructLayout std140 = new StructLayout("std140", VEC4_WIDTH, VEC4_WIDTH);
-    public static final StructLayout std430 = new StructLayout("std430", VEC4_WIDTH, Float.BYTES);
-    public static final StructLayout optimal = new StructLayout("optimal", Byte.BYTES, Byte.BYTES);
+    public static final StructLayout std140 = new StructLayout("std140") {
+        @Override
+        public int getStructAlignment(int minAlignment) {
+            return FastMath.toMultipleOfPow2(minAlignment, VEC4_WIDTH);
+        }
+        @Override
+        public int getStructSize(int alignment, int minSize) {
+            return FastMath.toMultipleOfPow2(minSize, VEC4_WIDTH);
+        }
+        @Override
+        public int getArrayElementAlignment(int minAlignment) {
+            return FastMath.toMultipleOfPow2(minAlignment, VEC4_WIDTH);
+        }
+        @Override
+        public int getArrayElementSize(int elementAlignment, int minSize) {
+            return FastMath.toMultipleOfPow2(minSize, VEC4_WIDTH);
+        }
+    };
+    public static final StructLayout std430 = new StructLayout("std430") {
+        @Override
+        public int getStructAlignment(int minAlignment) {
+            return minAlignment;
+        }
+        @Override
+        public int getStructSize(int alignment, int minSize) {
+            return FastMath.toMultipleOfPow2(minSize, alignment);
+        }
+        @Override
+        public int getArrayElementAlignment(int minAlignment) {
+            return minAlignment;
+        }
+        @Override
+        public int getArrayElementSize(int elementAlignment, int minSize) {
+            return FastMath.toMultipleOfPow2(minSize, elementAlignment);
+        }
+    };
+    public static final StructLayout optimal = new StructLayout("optimal") {
+        @Override
+        public int getStructAlignment(int minAlignment) {
+            return minAlignment;
+        }
+        @Override
+        public int getStructSize(int alignment, int minSize) {
+            return minSize;
+        }
+        @Override
+        public int getArrayElementAlignment(int minAlignment) {
+            return minAlignment;
+        }
+        @Override
+        public int getArrayElementSize(int elementAlignment, int minSize) {
+            return minSize;
+        }
+    };
+
     private static final Map<String, StructLayout> layouts = new HashMap<>();
 
     private static void addToAllLayouts(FieldDescription desc, Class... types) {
@@ -217,14 +276,10 @@ public class StructLayout {
     }
     
     private final String identifier;
-    private final int minStructAlignment, minArrayAlignment;
     private final Map<Class, FieldDescription> fields = new HashMap<>();
-    private final Map<Class, Class> typeRemappings = new HashMap<>();
 
-    public StructLayout(String identifier, int minStructAlignment, int minArrayAlignment) {
+    public StructLayout(String identifier) {
         this.identifier = identifier;
-        this.minStructAlignment = minStructAlignment;
-        this.minArrayAlignment = minArrayAlignment;
         if (layouts.put(identifier, this) != null) {
             logger.log(Level.WARNING, "Overwriting layout \"{0}\" can result in incoherent data.", identifier);
         }
@@ -242,30 +297,17 @@ public class StructLayout {
         }
     }
 
-    public void remapType(Class src, Class dst) {
-        typeRemappings.put(src, dst);
-    }
+    public abstract int getStructAlignment(int minAlignment);
 
-    public int getMinStructAlignment() {
-        return minStructAlignment;
-    }
+    public abstract int getStructSize(int alignment, int minSize);
 
-    public int getMinArrayAlignment() {
-        return minArrayAlignment;
-    }
+    public abstract int getArrayElementAlignment(int minAlignment);
 
+    public abstract int getArrayElementSize(int elementAlignment, int minSize);
+
+    @SuppressWarnings("unchecked")
     public <T> FieldDescription<T> getFieldDescription(Class type) {
-        return getFieldDescription(type, type);
-    }
-
-    protected FieldDescription getFieldDescription(Class origin, Class type) {
-        if (type == null) {
-            throw new NullPointerException(origin + " is not described.");
-        }
-        type = typeRemappings.getOrDefault(type, type);
-        FieldDescription d = fields.get(type);
-        if (d != null) return d;
-        else return getFieldDescription(type.getSuperclass());
+        return fields.get(type);
     }
 
     public static abstract class ObjectDesc <T> implements FieldDescription<T> {

@@ -278,7 +278,7 @@
         surface.viewDir = wViewDir;
         surface.geometryNormal = normalize(wNormal);
 
-        //set default values
+        //binding default values
         surface.hasTangents = false;
         surface.hasBasicLightMap = false;        
         surface.albedo = vec3(1.0);

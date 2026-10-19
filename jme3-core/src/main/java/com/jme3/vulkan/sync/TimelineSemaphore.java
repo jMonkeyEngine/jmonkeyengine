@@ -34,7 +34,7 @@ public class TimelineSemaphore extends AbstractNative<Long> implements Semaphore
             VkSemaphoreCreateInfo create = VkSemaphoreCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO)
                     .pNext(type);
-            object = getLong(stack, ptr -> check(vkCreateSemaphore(device.getNativeObject(), create, null, ptr),
+            object = getLong(stack, ptr -> check(vkCreateSemaphore(device.getHandle(), create, null, ptr),
                     "Failed to create timeline semaphore."));
         }
         ref = DisposableManager.reference(this);
@@ -53,7 +53,7 @@ public class TimelineSemaphore extends AbstractNative<Long> implements Semaphore
 
     @Override
     public Runnable createDestroyer() {
-        return () -> vkDestroySemaphore(device.getNativeObject(), object, null);
+        return () -> vkDestroySemaphore(device.getHandle(), object, null);
     }
 
     public TimelineSemaphore setTargetPayload(long payload) {
@@ -92,6 +92,10 @@ public class TimelineSemaphore extends AbstractNative<Long> implements Semaphore
 
         private SignalEvent(long payload) {
             this.payload = payload;
+        }
+
+        public TimelineSemaphore getSemaphore() {
+            return TimelineSemaphore.this;
         }
 
         /**

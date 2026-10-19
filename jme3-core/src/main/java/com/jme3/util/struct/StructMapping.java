@@ -12,6 +12,7 @@ import java.util.Iterator;
  *
  * @param <T>
  */
+@Deprecated
 public class StructMapping <T extends Struct> implements StructSequence<T>, ResourceHandle<T> {
 
     private final T struct;
@@ -26,7 +27,7 @@ public class StructMapping <T extends Struct> implements StructSequence<T>, Reso
 
     public StructMapping(T struct, BufferMapping mapping, int offset) {
         this.struct = struct;
-        this.stride = struct.getAlignedSize();
+        this.stride = struct.alignedSize();
         this.offset = offset;
         this.mapping = new VirtualBufferMapping(mapping);
         sample(0);
@@ -42,7 +43,7 @@ public class StructMapping <T extends Struct> implements StructSequence<T>, Reso
 
     public StructMapping(T struct, MappableBuffer buffer, int offset, int bytes) {
         this.struct = struct;
-        this.stride = struct.getAlignedSize();
+        this.stride = struct.alignedSize();
         this.offset = offset * stride;
         this.mapping = buffer.map(this.offset, bytes == 0 ? buffer.size().getBytes() - offset : bytes);
         sample(0);

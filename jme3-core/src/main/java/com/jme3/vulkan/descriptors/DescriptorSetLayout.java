@@ -2,7 +2,6 @@ package com.jme3.vulkan.descriptors;
 
 import com.jme3.util.natives.*;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.experimental.ShaderBindingLayout;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -16,7 +15,7 @@ import java.util.*;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DescriptorSetLayout implements ShaderBindingLayout, NativeHandle<Long> {
+public class DescriptorSetLayout implements NativeHandle<Long> {
 
     private final Info info;
     private final long handle;

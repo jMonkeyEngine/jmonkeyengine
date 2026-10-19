@@ -1,5 +1,6 @@
 package com.jme3.util.struct;
 
+@Deprecated
 public class StructOfArrays <T extends ArrayField> extends Struct<T> {
 
     private final int length;

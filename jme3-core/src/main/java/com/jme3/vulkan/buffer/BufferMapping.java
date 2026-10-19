@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 
 public class BufferMapping {
 
-    private final EngineBuffer source;
+    private final GpuBuffer source;
     private final ByteBuffer buffer;
 
-    public BufferMapping(EngineBuffer source, ByteBuffer buffer) {
+    public BufferMapping(GpuBuffer source, ByteBuffer buffer) {
         this.source = source;
         this.buffer = buffer;
     }
@@ -31,7 +31,7 @@ public class BufferMapping {
         source.stage(buffer.position(), buffer.remaining());
     }
 
-    public EngineBuffer getSource() {
+    public GpuBuffer getSource() {
         return source;
     }
 

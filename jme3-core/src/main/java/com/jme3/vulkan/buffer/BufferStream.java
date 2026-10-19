@@ -30,7 +30,7 @@ public class BufferStream {
         this.pageByteSize = pageByteSize;
     }
 
-    public void streamToRemote(CommandBuffer cmd, DataBuffer local, EngineBuffer remote) {
+    public void streamToRemote(CommandBuffer cmd, DataBuffer local, GpuBuffer remote) {
         streamToRemote(cmd, local.getBytes(), remote, local.getTracker());
     }
 
@@ -39,12 +39,12 @@ public class BufferStream {
      * streaming page partition.
      *
      * @param local buffer to stream from
-     * @param remote vulkan buffer to stream to (must be created with the {@link EngineBuffer.Role#TransferDst} flag set)
+     * @param remote vulkan buffer to stream to (must be created with the {@link GpuBuffer.Role#TransferDst} flag set)
      * @throws IllegalArgumentException if {@code remote} to not a transfer destination
      * @throws IllegalStateException if {@code regions} gives a region not fully within {@code src}
      */
-    public void streamToRemote(CommandBuffer cmd, ByteBuffer local, EngineBuffer remote, BufferTracker regions) {
-        if (!remote.getRoles().contains(EngineBuffer.Role.TransferDst)) {
+    public void streamToRemote(CommandBuffer cmd, ByteBuffer local, GpuBuffer remote, BufferTracker regions) {
+        if (!remote.getRoles().contains(GpuBuffer.Role.TransferDst)) {
             throw new IllegalArgumentException("Cannot stream to " + remote + ": not a transfer destination.");
         }
         if (regions.isEmpty()) return;
@@ -63,23 +63,23 @@ public class BufferStream {
                 partitionOffset += i.getSize();
             }
         }
-        cmd.cmdFlatCopy(partition.page, partition.start, remote, 0, regions, false, OpLocation.PreferDevice);
+        cmd.cmdCopy(partition, remote, new BufferCopy().addExpand(0, 0, regions), OpLocation.Device);
         cmd.addListener(partition);
     }
 
-    public void streamFromRemote(CommandBuffer cmd, EngineBuffer remote, ByteBuffer local) {
-        streamFromRemote(cmd, remote, local, null);
+    public void streamFromRemoteAsync(CommandBuffer cmd, GpuBuffer remote, ByteBuffer local) {
+        streamFromRemoteAsync(cmd, remote, local, null);
     }
 
-    public void streamFromRemote(CommandBuffer cmd, EngineBuffer remote, ByteBuffer local, Runnable callback) {
-        if (!remote.getRoles().contains(EngineBuffer.Role.TransferSrc)) {
+    public void streamFromRemoteAsync(CommandBuffer cmd, GpuBuffer remote, ByteBuffer local, Runnable callback) {
+        if (!remote.getRoles().contains(GpuBuffer.Role.TransferSrc)) {
             throw new IllegalArgumentException("Cannot stream from " + remote + ": not a transfer source.");
         }
         Partition partition = allocatePartition(Math.min(remote.capacity(), local.remaining()));
         if (partition == null) {
             throw new NullPointerException("Failed to allocate streaming page partition.");
         }
-        cmd.cmdCopy(remote, 0, partition, 0, Integer.MAX_VALUE, OpLocation.PreferDevice);
+        cmd.cmdCopy(remote, partition, new BufferCopy().add(0, 0, partition.capacity()), OpLocation.Device);
         ByteBuffer localDup = local.duplicate();
         cmd.addListener(new CommandCycleListener() {
             @Override
@@ -108,17 +108,17 @@ public class BufferStream {
         }
         StreamingPage s = new StreamingPage(allocator.createStreamingBuffer(
                 Math.max(bytes, pageByteSize),
-                Flag.of(EngineBuffer.Role.TransferSrc, EngineBuffer.Role.TransferDst)));
+                Flag.of(GpuBuffer.Role.TransferSrc, GpuBuffer.Role.TransferDst)));
         pages.add(s);
         return s.allocatePartition(bytes);
     }
 
-    private static class StreamingPage implements EngineBuffer {
+    private static class StreamingPage implements GpuBuffer {
 
-        private final EngineBuffer buffer;
+        private final GpuBuffer buffer;
         private final BufferTracker allocated = new ExactBufferTracker();
 
-        public StreamingPage(EngineBuffer buffer) {
+        public StreamingPage(GpuBuffer buffer) {
             this.buffer = buffer;
         }
 
@@ -135,16 +135,6 @@ public class BufferStream {
         @Override
         public void invalidateCache() {
             buffer.invalidateCache();
-        }
-
-        @Override
-        public int getBufferLocalOffset() {
-            return buffer.getBufferLocalOffset();
-        }
-
-        @Override
-        public long getDeviceAddress() {
-            return buffer.getDeviceAddress() + getBufferLocalOffset();
         }
 
         @Override
@@ -168,23 +158,8 @@ public class BufferStream {
         }
 
         @Override
-        public void update(CommandBuffer cmd) {
-            buffer.update(cmd);
-        }
-
-        @Override
-        public boolean isDeviceAccessible() {
-            return buffer.isDeviceAccessible();
-        }
-
-        @Override
-        public void acquireControl() {
-            buffer.acquireControl();
-        }
-
-        @Override
-        public void releaseControl() {
-            buffer.releaseControl();
+        public int offset() {
+            return buffer.offset();
         }
 
         public Partition allocatePartition(int bytes) {
@@ -214,7 +189,7 @@ public class BufferStream {
 
     }
 
-    private static class Partition implements EngineBuffer, CommandCycleListener {
+    private static class Partition implements GpuBuffer, CommandCycleListener {
 
         private final StreamingPage page;
         private final DataBuffer cache;
@@ -227,31 +202,13 @@ public class BufferStream {
         }
 
         @Override
-        public void update(CommandBuffer cmd) {
-
+        public void onCmdSubmit() {
+            page.flushCache();
         }
-
-        @Override
-        public boolean isDeviceAccessible() {
-            return page.isDeviceAccessible();
-        }
-
-        @Override
-        public void onCmdSubmit() {}
 
         @Override
         public void onCmdComplete() {
             page.releasePartition(this);
-        }
-
-        @Override
-        public void acquireControl() {
-            page.acquireControl();
-        }
-
-        @Override
-        public void releaseControl() {
-            page.releaseControl();
         }
 
         @Override
@@ -267,11 +224,6 @@ public class BufferStream {
         @Override
         public void invalidateCache() {
             page.invalidateCache();
-        }
-
-        @Override
-        public long getDeviceAddress() {
-            return page.getDeviceAddress() + getBufferLocalOffset();
         }
 
         @Override
@@ -295,8 +247,8 @@ public class BufferStream {
         }
 
         @Override
-        public int getBufferLocalOffset() {
-            return start;
+        public int offset() {
+            return page.offset() + start;
         }
 
         public DataBuffer getCache() {

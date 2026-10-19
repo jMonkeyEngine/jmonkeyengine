@@ -2,8 +2,6 @@ package com.jme3.vulkan.pipeline.state;
 
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.material.DepthBias;
-import com.jme3.vulkan.material.experimental.ShaderBindingLayout;
-import com.jme3.vulkan.material.experimental.ShaderBindingSet;
 import com.jme3.vulkan.material.shader.ShaderModule;
 import com.jme3.vulkan.mesh.VertexInput;
 import com.jme3.vulkan.pipeline.*;

@@ -4,23 +4,18 @@ import com.jme3.math.*;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.tracking.NullBufferTracker;
 import com.jme3.vulkan.buffer.tracking.SliceBufferTracker;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class DataBuffer implements EngineBuffer {
-
-    private static final Flag<Role> ROLES = Flag.empty();
+public class DataBuffer {
 
     private static final int VEC2 = Float.BYTES * 2;
     private static final int VEC3 = Float.BYTES * 3;
     private static final int VEC4 = Float.BYTES * 4;
 
     private final ByteBuffer buffer;
-    private final BufferTracker tracker;
+    private BufferTracker tracker;
     private int markedPos = -1;
     private int markedLim = -1;
 
@@ -33,60 +28,6 @@ public class DataBuffer implements EngineBuffer {
         this.tracker = tracker;
     }
 
-    @Override
-    public DataBuffer cache() {
-        return clear();
-    }
-
-    @Override
-    public void flushCache() {}
-
-    @Override
-    public void invalidateCache() {}
-
-    @Override
-    public int getBufferLocalOffset() {
-        return 0;
-    }
-
-    @Override
-    public long getHandle() {
-        return MemoryUtil.NULL;
-    }
-
-    @Override
-    public long getDeviceAddress() {
-        return MemoryUtil.NULL;
-    }
-
-    @Override
-    public Flag<Role> getRoles() {
-        return ROLES;
-    }
-
-    @Override
-    public int capacity() {
-        return buffer.capacity();
-    }
-
-    @Override
-    public void update(CommandBuffer cmd) {}
-
-    @Override
-    public boolean isHostAccessible() {
-        return true;
-    }
-
-    @Override
-    public boolean isDeviceAccessible() {
-        return false;
-    }
-
-    @Override
-    public Flag<MemoryProp> getMemoryProperties() {
-        return null;
-    }
-
     public long getAddress() {
         return MemoryUtil.memAddress(buffer);
     }
@@ -95,26 +36,37 @@ public class DataBuffer implements EngineBuffer {
         return buffer;
     }
 
+    public void setTracker(BufferTracker tracker) {
+        this.tracker = tracker;
+    }
+
     public BufferTracker getTracker() {
         return tracker;
     }
 
-    public DataBuffer copyTo(int srcOffset, DataBuffer dst, int dstOffset, int size) {
-        int spos = buffer.position();
-        int slimit = buffer.limit();
-        int dpos = dst.buffer.position();
-        int dlimit = dst.buffer.limit();
-        MemoryUtil.memCopy(buffer.position(srcOffset).limit(srcOffset + size),
-                dst.buffer.position(dstOffset).limit(dstOffset + size));
-        buffer.position(spos).limit(slimit);
-        dst.buffer.position(dpos).limit(dlimit);
-        dst.tracker.add(dstOffset, size);
+    public DataBuffer copyTo(DataBuffer dst, BufferCopy copy) {
+        dst.getTracker().addDst(copy);
+        DataBuffer src = duplicate();
+        dst = dst.duplicate();
+        for (BufferCopy.Region r : copy.getRegions()) {
+            src.region(r.getSrcOffset(), r.getSize());
+            dst.region(r.getDstOffset(), r.getSize());
+            MemoryUtil.memCopy(src.getBytes(), dst.getBytes());
+        }
         return this;
     }
 
     public DataBuffer copyTo(DataBuffer dst) {
         MemoryUtil.memCopy(buffer, dst.getBytes());
         dst.tracker.add(dst.position(), Math.min(remaining(), dst.remaining()));
+        return this;
+    }
+
+    public DataBuffer copyAllTo(DataBuffer dst) {
+        DataBuffer src = duplicate().clear();
+        dst = dst.duplicate().clear();
+        MemoryUtil.memCopy(src.getBytes(), dst.getBytes());
+        dst.tracker.add(0, Math.min(src.capacity(), dst.capacity()));
         return this;
     }
 
@@ -207,6 +159,7 @@ public class DataBuffer implements EngineBuffer {
 
     public DataBuffer resetLimit() {
         buffer.limit(markedLim);
+        return this;
     }
 
     public DataBuffer slice(int p, int l) {
@@ -231,6 +184,10 @@ public class DataBuffer implements EngineBuffer {
 
     public int limit() {
         return buffer.limit();
+    }
+
+    public int capacity() {
+        return buffer.capacity();
     }
 
     public int remaining() {

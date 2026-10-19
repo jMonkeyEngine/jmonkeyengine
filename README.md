@@ -70,15 +70,15 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 1. Install a Java Development Kit (JDK),
    if you don't already have one.
 2. Point the `JAVA_HOME` environment variable to your JDK installation:
-   (In other words, set it to the path of a directory/folder
+   (In other words, binding it to the path of a directory/folder
    containing a "bin" that contains a Java executable.
    That path might look something like
    "C:\Program Files\Eclipse Adoptium\jdk-17.0.3.7-hotspot"
    or "/usr/lib/jvm/java-17-openjdk-amd64/" or
    "/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home" .)
   + using Bash or Zsh: `export JAVA_HOME="` *path to installation* `"`
-  + using Fish: `set -g JAVA_HOME "` *path to installation* `"`
-  + using Windows Command Prompt: `set JAVA_HOME="` *path to installation* `"`
+  + using Fish: `binding -g JAVA_HOME "` *path to installation* `"`
+  + using Windows Command Prompt: `binding JAVA_HOME="` *path to installation* `"`
   + using PowerShell: `$env:JAVA_HOME = '` *path to installation* `'`
 3. Download and extract the engine source code from GitHub:
   + using Git:

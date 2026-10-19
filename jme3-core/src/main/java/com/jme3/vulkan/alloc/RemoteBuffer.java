@@ -1,18 +1,20 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.pointer.Memory;
 
 import java.nio.ByteBuffer;
 
-public class RemoteBuffer implements EngineBuffer, Memory {
+@Deprecated
+public class RemoteBuffer implements GpuBuffer, Memory {
 
-    private final EngineBuffer remote;
+    private final GpuBuffer remote;
     private final DataBuffer cache;
 
-    public RemoteBuffer(EngineBuffer remote) {
+    public RemoteBuffer(GpuBuffer remote) {
         this.remote = remote;
         this.cache = new DataBuffer(ByteBuffer.wrap(new byte[remote.capacity()]));
     }

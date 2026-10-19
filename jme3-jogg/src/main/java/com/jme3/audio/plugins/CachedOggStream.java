@@ -31,7 +31,7 @@
  */
 package com.jme3.audio.plugins;
 
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import de.jarnbjo.ogg.LogicalOggStream;
 import de.jarnbjo.ogg.LogicalOggStreamImpl;
 import de.jarnbjo.ogg.OggPage;

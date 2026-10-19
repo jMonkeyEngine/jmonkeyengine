@@ -1,7 +1,7 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.alloc.StructArray;
+import com.jme3.util.struct.StructArray;
 
 /**
  * Buffer that allocates sets of adjacent elements in a struct array on demand.

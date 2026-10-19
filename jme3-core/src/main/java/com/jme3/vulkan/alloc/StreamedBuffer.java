@@ -1,12 +1,12 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.commands.RenderCommands;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
-public class StreamedBuffer implements EngineBuffer, Memory {
+public class StreamedBuffer implements GpuBuffer, Memory {
 
 
 

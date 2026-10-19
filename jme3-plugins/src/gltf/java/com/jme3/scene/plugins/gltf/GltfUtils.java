@@ -42,6 +42,8 @@ import com.jme3.plugins.json.JsonParser;
 import com.jme3.scene.*;
 import com.jme3.texture.GlTexture;
 import com.jme3.util.*;
+import com.jme3.util.collections.IntMap;
+
 import java.io.*;
 import java.nio.*;
 import java.util.*;

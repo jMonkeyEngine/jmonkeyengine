@@ -47,7 +47,7 @@ import com.jme3.scene.plugins.fbx.anim.FbxSkinDeformer;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
 import com.jme3.scene.plugins.fbx.node.FbxNodeAttribute;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;

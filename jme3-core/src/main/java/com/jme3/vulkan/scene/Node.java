@@ -4,10 +4,13 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Mesh;
+import com.jme3.vulkan.material.experimental.Material;
+import com.jme3.vulkan.scene.components.Component;
 
-import java.util.Iterator;
+import java.util.Set;
 
-public class Node implements Iterable<Integer> {
+public class Node {
 
     private final Scene scene;
     private final int id;
@@ -15,6 +18,10 @@ public class Node implements Iterable<Integer> {
     public Node(Scene scene, int id) {
         this.scene = scene;
         this.id = id;
+    }
+
+    private void requireSameScene(Node n) {
+        assert scene == n.scene : "Nodes must belong to the same scene.";
     }
 
     public Scene getScene() {
@@ -25,8 +32,36 @@ public class Node implements Iterable<Integer> {
         return id;
     }
 
-    private void requireSameScene(Node n) {
-        assert scene == n.scene : "Nodes must belong to the same scene.";
+    public int getGeometricId() {
+        return scene.getGeometricId(id);
+    }
+
+    public void addMaterial(Material material) {
+        scene.addMaterial(id, material);
+    }
+
+    public void removeMaterial(Material material) {
+        scene.removeMaterial(id, material);
+    }
+
+    public void removeMaterial(Class<? extends Material> type) {
+        scene.removeMaterial(id, type);
+    }
+
+    public void clearMaterials() {
+        scene.clearMaterials(id);
+    }
+
+    public void setComponent(Class<? extends Component> type, Object value) {
+        scene.setComponent(type, id, value);
+    }
+
+    public <T> T getComponent(Class<? extends Component> type) {
+        return scene.getComponent(type, id);
+    }
+
+    public Mesh getMesh() {
+        return scene.getComponent(Scene.MeshType.class, id);
     }
 
     /*=================*\
@@ -157,7 +192,7 @@ public class Node implements Iterable<Integer> {
     |      LIGHTS       |
     \*=================*/
 
-    public void addLight()
+    public void addLight() {}
 
     /*=================*\
     |       FLAGS       |
@@ -200,13 +235,20 @@ public class Node implements Iterable<Integer> {
         scene.detach(id);
     }
 
+    public Set<Integer> children() {
+        return scene.children(id);
+    }
+
     public boolean isRoot() {
         return scene.isRoot(id);
     }
 
-    @Override
-    public Iterator<Integer> iterator() {
-        return scene.children(id);
+    public Scene.DepthFirstIterator depthFirst(boolean skipOrigin) {
+        return scene.depthFirst(id, skipOrigin);
+    }
+
+    public Scene.DepthFirstIterator depthFirst() {
+        return scene.depthFirst(id);
     }
 
 }

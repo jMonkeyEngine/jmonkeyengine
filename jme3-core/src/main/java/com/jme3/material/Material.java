@@ -31,7 +31,6 @@
  */
 package com.jme3.material;
 
-import com.jme3.vulkan.material.experimental.ShadingInterface;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 
 /**
@@ -40,15 +39,15 @@ import com.jme3.vulkan.pipeline.state.GraphicsState;
  */
 public interface Material {
 
-    <T extends ShadingInterface> T setInterface(Class<T> type, T shaderInterface);
+    <T> T setInterface(Class<T> type, T shaderInterface);
 
-    <T extends ShadingInterface> T getInterface(Class<T> type);
+    <T> T getInterface(Class<T> type);
 
     boolean containsInterface(Class<? extends ShadingInterface> type);
 
     GraphicsState getGraphicsState();
 
-    default <T extends ShadingInterface> void setInterface(T shaderInterface) {
+    default <T> void setInterface(T shaderInterface) {
         setInterface((Class<T>)shaderInterface.getClass(), shaderInterface);
     }
 

@@ -56,7 +56,7 @@ import com.jme3.scene.plugins.fbx.material.FbxMaterial;
 import com.jme3.scene.plugins.fbx.material.FbxTexture;
 import com.jme3.scene.plugins.fbx.mesh.FbxMesh;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

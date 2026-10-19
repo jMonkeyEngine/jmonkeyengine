@@ -1,8 +1,8 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.alloc.StructArray;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.util.struct.StructArray;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.AutoBuffer;
 import com.jme3.vulkan.buffer.tracking.ExactBufferTracker;
@@ -19,7 +19,7 @@ public class CongregateVertexBuffer <T extends Struct<VertexAttr>> {
     private final AutoBuffer<StructArray<T>> array;
     private final BufferTracker usedVertices = new ExactBufferTracker();
 
-    public CongregateVertexBuffer(MemoryAllocator alloc, int vertexCapacity, T struct, BufferType type, Flag<EngineBuffer.Role> roles) {
+    public CongregateVertexBuffer(MemoryAllocator alloc, int vertexCapacity, T struct, BufferType type, Flag<GpuBuffer.Role> roles) {
         array = new AutoBuffer<>(alloc, new StructArray<>(vertexCapacity, struct), type, roles);
     }
 

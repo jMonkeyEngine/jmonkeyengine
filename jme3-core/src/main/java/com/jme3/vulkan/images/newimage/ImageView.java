@@ -1,7 +1,7 @@
 package com.jme3.vulkan.images.newimage;
 
 import com.jme3.util.natives.Destructor;
-import com.jme3.util.natives.Destructable;
+import com.jme3.util.destruction.Destructable;
 import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.ColorSwizzle;

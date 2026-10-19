@@ -114,7 +114,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposab
     }
 
     @Override
-    public Runnable createDestroyer() {
+    public Runnable createDestructor() {
         return info;
     }
 

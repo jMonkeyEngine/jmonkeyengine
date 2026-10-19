@@ -11,7 +11,7 @@ attribute vec3 inNormal;
 varying vec3 direction;
 
 void main(){
-    // set w coordinate to 0
+    // binding w coordinate to 0
     vec4 pos = vec4(inPosition, 0.0);
 
     // compute rotation only for view matrix

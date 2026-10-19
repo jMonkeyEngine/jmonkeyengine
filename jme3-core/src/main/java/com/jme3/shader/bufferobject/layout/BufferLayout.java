@@ -129,7 +129,7 @@ public abstract class  BufferLayout {
      * @return the aligned position
      */
     public int align(int pos, int basicAlignment) {
-        return pos == 0 ? pos : FastMath.toMultipleOf(pos, basicAlignment);
+        return pos == 0 ? pos : FastMath.toMultipleOfPow2(pos, basicAlignment);
     }
 
     /**

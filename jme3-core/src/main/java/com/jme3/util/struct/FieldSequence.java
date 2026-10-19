@@ -2,6 +2,7 @@ package com.jme3.util.struct;
 
 import java.util.Iterator;
 
+@Deprecated
 public class FieldSequence <T> implements StructSequence<Struct> {
 
     private final StructSequence sequence;

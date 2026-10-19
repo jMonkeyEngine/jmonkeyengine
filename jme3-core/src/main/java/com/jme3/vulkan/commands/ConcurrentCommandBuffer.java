@@ -2,7 +2,7 @@ package com.jme3.vulkan.commands;
 
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.BufferCopy;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -34,17 +34,17 @@ public class ConcurrentCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public OpLocation cmdCopy(EngineBuffer src, EngineBuffer dst, BufferCopy copy, OpLocation location) {
+    public OpLocation cmdCopy(GpuBuffer src, GpuBuffer dst, BufferCopy copy, OpLocation location) {
         return getCurrent().cmdCopy(src, dst, copy, location);
     }
 
     @Override
-    public void cmdStreamToRemote(ByteBuffer src, EngineBuffer dst, BufferTracker regions) {
+    public void cmdStreamToRemote(ByteBuffer src, GpuBuffer dst, BufferTracker regions) {
         getCurrent().cmdStreamToRemote(src, dst, regions);
     }
 
     @Override
-    public void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst, Runnable callback) {
+    public void cmdStreamFromRemote(GpuBuffer src, ByteBuffer dst, Runnable callback) {
         getCurrent().cmdStreamFromRemote(src, dst, callback);
     }
 

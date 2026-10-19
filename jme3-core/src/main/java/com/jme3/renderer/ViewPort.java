@@ -38,12 +38,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
-import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.jme3.vulkan.render.Bucket;
 import com.jme3.vulkan.scene.Scene;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -70,7 +68,7 @@ import java.util.logging.Logger;
  */
 public class ViewPort {
 
-    private static final Logger logger = Logger.getLogger(ViewPort.class.getName());
+    private static final Bucket DEFAULT_BUCKET = (scene, camera) -> Integer::compare;
 
     protected final Camera cam;
     protected final SafeArrayList<Scene> sceneList = new SafeArrayList<>(Scene.class);
@@ -85,8 +83,7 @@ public class ViewPort {
     private boolean enabled = true;
 
     private final ViewPortArea area;
-    private final LinkedHashMap<String, GeometryBucket> buckets = new LinkedHashMap<>();
-    private Predicate<Geometry> geometryFilter;
+    private final Map<Integer, Bucket> buckets = new HashMap<>();
 
     /**
      * Creates a new viewport.
@@ -100,70 +97,8 @@ public class ViewPort {
         this.area = area;
     }
 
-    /**
-     * Gathers all unculled geometries into a set of buckets for rendering.
-     * The natural iteration order of the returned collection is the order the
-     * buckets are meant to be rendered in.
-     *
-     * @param onVisible if not null, called for each visible spatial
-     * @return unmodifiable collection of buckets containing geometries to render
-     */
-    public Collection<GeometryBucket> gatherGeometry(Consumer<Spatial> onVisible) {
-        if (buckets.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        buckets.values().forEach(GeometryBucket::clear);
-        for (Scene scene : sceneList) {
-            Scene.Subset visibleGeometries = scene.createHierarchalSubset(node -> !scene.getNodeDataById(node).isCulled(cam))
-                    .filter(node -> scene.getNodeDataById(node).isGeometric());
-            int[] opaque = visibleGeometries.transfer(node -> "opaque".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
-            int[] sky = visibleGeometries.transfer(node -> "sky".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
-            int[] transparent = visibleGeometries.transfer(node -> "translucent".equals(scene.getNodeDataById(node).getWorldBucketHint())).toArray();
-            for (Spatial child : scene.iterator(cullHint, batchHint, intersect)) {
-                if (child.getLocalQueueBucket() == null) {
-                    batchHint.push(batchHint.isEmpty() ? buckets.firstEntry().getKey() : batchHint.peek());
-                } else {
-                    batchHint.push(child.getLocalQueueBucket());
-                }
-                if (child.getLocalCullHint() == Spatial.CullHint.Inherit) {
-                    cullHint.push(cullHint.isEmpty() ? Spatial.CullHint.Dynamic : cullHint.peek());
-                } else {
-                    cullHint.push(child.getLocalCullHint());
-                }
-                Camera.FrustumIntersect result = intersect.peek();
-                if (cullHint.peek() == Spatial.CullHint.Dynamic && (result == null
-                        || result == Camera.FrustumIntersect.Intersects)) {
-                    result = cam.contains(child.getWorldBound());
-                }
-                intersect.push(result);
-                if (cullHint.peek() != Spatial.CullHint.Always && (result != Camera.FrustumIntersect.Outside
-                        || cullHint.peek() == Spatial.CullHint.Never)) {
-                    if (onVisible != null) onVisible.accept(child);
-                    if (child instanceof Geometry) {
-                        GeometryBucket bucket = buckets.get(batchHint.peek());
-                        if (bucket != null) {
-                            Geometry g = (Geometry)child;
-                            if (g.getMaterial() != null) {
-                                bucket.add((Geometry) child);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableCollection(buckets.values());
-    }
-
-    public void addGeometryBucket(String name, GeometryBucket bucket) {
-        buckets.put(name, bucket);
-    }
-
-    public Predicate<Geometry> getGeometryFilter() {
-        return geometryFilter;
-    }
-
-    public void setGeometryFilter(Predicate<Geometry> geometryFilter) {
-        this.geometryFilter = geometryFilter;
+    public Map<Integer, Bucket> getBuckets() {
+        return buckets;
     }
 
     /**

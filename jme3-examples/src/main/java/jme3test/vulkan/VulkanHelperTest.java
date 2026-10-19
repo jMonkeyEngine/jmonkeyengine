@@ -10,7 +10,7 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
@@ -256,7 +256,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 s -> new OldPersistentBuffer(device, s));
         for (OldPersistentBuffer buf : transformBuffer) {
             try (OldPersistentBuffer.Builder b = buf.build()) {
-                b.setUsage(EngineBuffer.Role.Uniform);
+                b.setUsage(GpuBuffer.Role.Uniform);
             }
         }
         t.getTransforms().set(transformBuffer);

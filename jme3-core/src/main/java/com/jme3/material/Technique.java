@@ -44,7 +44,7 @@ import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.VarType;
-import com.jme3.util.ListMap;
+import com.jme3.util.collections.ListMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.material.technique.NewTechnique;
 import com.jme3.vulkan.material.shader.ShaderStage;

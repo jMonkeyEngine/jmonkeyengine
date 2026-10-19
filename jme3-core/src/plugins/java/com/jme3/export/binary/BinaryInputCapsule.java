@@ -35,7 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;

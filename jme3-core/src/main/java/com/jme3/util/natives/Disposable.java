@@ -1,5 +1,6 @@
 package com.jme3.util.natives;
 
+@Deprecated
 public interface Disposable {
 
     Runnable createDestroyer();

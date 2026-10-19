@@ -1,5 +1,6 @@
 package com.jme3.util.struct;
 
+@Deprecated
 public class IntArrayField extends ArrayField<int[], Integer> {
 
     public IntArrayField(int size) {

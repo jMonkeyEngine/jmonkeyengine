@@ -1,20 +1,27 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.util.struct.FieldDescription;
-import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructField;
+import com.jme3.util.struct.StructLayout;
+import com.jme3.vulkan.buffer.BufferBindingInfo;
+import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.compile.Final;
-import com.jme3.vulkan.compile.FinalWriter;
-import com.jme3.vulkan.compile.SerializationOnly;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VertexAttr <T extends Savable> implements StructField<T>, Savable, Cloneable {
+/**
+ * A named attribute within a vertex {@link com.jme3.util.struct.Struct}, such as
+ * {@link com.jme3.vulkan.mesh.attributes.CommonAttributes#Position}, describing both how
+ * it is read and written on the host (via {@link #get()}/{@link #set}, like
+ * {@link com.jme3.util.struct.Struct.Field}) and the device vertex format(s) it occupies
+ * (via {@link #getFormats()}).
+ *
+ * @param <T> value type of this attribute
+ */
+public class VertexAttr <T> implements StructField, Cloneable {
 
     public static final Map<Class, Format[]> implicitFormats = new HashMap<>();
 
@@ -36,16 +43,12 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
         addImplicitFormat(Matrix4f.class, Format.RGBA32_SFloat, Format.RGBA32_SFloat, Format.RGBA32_SFloat, Format.RGBA32_SFloat);
     }
 
-    @Final private String name;
-    @Final private Format[] formats;
+    private final String name;
+    private final Format[] formats;
+    private final BufferBindingInfo binding = new BufferBindingInfo();
 
     private T alias;
-    private Struct struct;
-    private FieldDescription<T> description;
-    private int offset;
-
-    @SerializationOnly
-    public VertexAttr() {}
+    private FieldDescription<T> desc;
 
     public VertexAttr(String name, T alias) {
         assert name != null : "Attribute name cannot be null.";
@@ -67,71 +70,78 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     }
 
     @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(name, "name", null);
-        out.write(formats, "formats", null);
-        out.write(alias, "alias", null);
+    public void setupLayout(StructLayout layout) {
+        desc = layout.getFieldDescription(alias.getClass());
     }
 
     @Override
-    @FinalWriter
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        name = in.readString("name", null);
-        formats = in.readEnumArray("formats", Format.values(), null);
-        alias = (T)in.readSavable("alias", null);
+    public void bind(GpuBuffer buffer, int offset) {
+        binding.setBuffer(buffer);
+        binding.setOffset(offset);
+        binding.setLimit(offset + desc.getSize());
     }
 
     @Override
-    public int bind(Struct struct,  int offset) {
-        this.struct = struct;
-        this.description = struct.getLayout().getFieldDescription(alias.getClass());
-        return this.offset = FastMath.toMultipleOf(offset, alignment());
+    public void unbind() {
+        binding.unbind();
     }
 
     @Override
-    public void set(T value) {
-        description.write(, value);
-    }
-
-    @Override
-    public T get() {
-        return alias = description.read(, alias);
-    }
-
-    @Override
-    public T alias() {
-        return alias;
-    }
-
-    @Override
-    public int getSize() {
-        return description.getSize();
+    public DataBuffer cache() {
+        return binding.cache();
     }
 
     @Override
     public int alignment() {
-        return description.getAlignment();
+        return desc.getAlignment();
     }
 
     @Override
+    public int size() {
+        return desc.getSize();
+    }
+
+    /**
+     * Writes {@code value} into this attribute's bound location.
+     *
+     * @param value value to write
+     */
+    public void set(T value) {
+        desc.write(binding.cache(), value);
+    }
+
+    /**
+     * Reads this attribute's bound location into {@code store}.
+     *
+     * @param store object to read into
+     * @return {@code store}
+     */
+    public T get(T store) {
+        return desc.read(binding.cache(), store);
+    }
+
+    /**
+     * Reads this attribute's bound location into this attribute's own alias, the same
+     * object given at construction, and returns it.
+     *
+     * @return this attribute's alias, updated in place
+     */
+    public T get() {
+        return alias = desc.read(binding.cache(), alias);
+    }
+
+    /**
+     * Gets this attribute's name, e.g. one of
+     * {@link com.jme3.vulkan.mesh.attributes.CommonAttributes}.
+     *
+     * @return attribute name
+     */
     public String getName() {
         return name;
     }
 
     public Format[] getFormats() {
         return formats;
-    }
-
-    @Override
-    public Struct getStruct() {
-        return struct;
-    }
-
-    @Override
-    public int getStructLocalOffset() {
-        return offset;
     }
 
 }

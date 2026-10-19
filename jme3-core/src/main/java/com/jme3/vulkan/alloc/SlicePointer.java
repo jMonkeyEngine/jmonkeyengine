@@ -2,7 +2,7 @@ package com.jme3.vulkan.alloc;
 
 import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
@@ -10,7 +10,7 @@ import com.jme3.vulkan.util.Flag;
 public class SlicePointer implements RelativeBuffer {
 
     private int offset, size;
-    private EngineBuffer source;
+    private GpuBuffer source;
 
     public SlicePointer(int offset) {
         this(offset, -1);
@@ -28,7 +28,7 @@ public class SlicePointer implements RelativeBuffer {
     }
 
     @Override
-    public void bind(EngineBuffer source) {
+    public void bind(GpuBuffer source) {
         this.source = source;
     }
 

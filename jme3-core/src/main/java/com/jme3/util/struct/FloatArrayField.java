@@ -1,5 +1,6 @@
 package com.jme3.util.struct;
 
+@Deprecated
 public class FloatArrayField extends ArrayField<float[], Float> {
 
     public FloatArrayField(int size) {

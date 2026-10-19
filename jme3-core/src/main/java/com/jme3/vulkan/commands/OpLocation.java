@@ -6,7 +6,9 @@ public enum OpLocation {
     Device(false, true),
     PreferHost(true, false),
     PreferDevice(false, true),
-    DontCare(false, false);
+    DontCare(false, false),
+    NoOp(false, false),
+    Failed(false, false);
 
     private final boolean host, device;
 

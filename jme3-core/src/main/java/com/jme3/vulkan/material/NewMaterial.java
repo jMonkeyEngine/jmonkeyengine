@@ -5,7 +5,6 @@ import com.jme3.vulkan.buffers.mapping.BufferMapping;
 import com.jme3.vulkan.buffers.mapping.DirectBufferMapping;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
-import com.jme3.vulkan.material.experimental.ShadingInterface;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.material.technique.PushConstantRange;
 import com.jme3.vulkan.material.uniforms.VulkanUniform;

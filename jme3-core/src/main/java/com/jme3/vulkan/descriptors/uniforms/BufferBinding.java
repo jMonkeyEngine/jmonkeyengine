@@ -1,6 +1,6 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.descriptors.DescriptorBinding;
 import com.jme3.vulkan.descriptors.DescriptorType;
 import org.lwjgl.system.MemoryStack;
@@ -8,13 +8,13 @@ import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public class BufferBinding extends DescriptorBinding<EngineBuffer> {
+public class BufferBinding extends DescriptorBinding<GpuBuffer> {
 
     public BufferBinding(DescriptorType type, int descriptorCount) {
-        super(type, new EngineBuffer[descriptorCount]);
+        super(type, new GpuBuffer[descriptorCount]);
     }
 
-    public BufferBinding(DescriptorType type, EngineBuffer... buffers) {
+    public BufferBinding(DescriptorType type, GpuBuffer... buffers) {
         super(type, buffers);
     }
 
@@ -22,7 +22,7 @@ public class BufferBinding extends DescriptorBinding<EngineBuffer> {
     protected void populateElementInfo(MemoryStack stack, VkWriteDescriptorSet write, int start, int count) {
         VkDescriptorBufferInfo.Buffer bufInfo = VkDescriptorBufferInfo.calloc(count, stack);
         for (int i = 0; i < count; i++) {
-            EngineBuffer b = resources[start + i];
+            GpuBuffer b = resources[start + i];
             if (b != null) {
                 bufInfo.get().buffer(b.getHandle()).offset(b.getBufferLocalOffset()).range(b.capacity());
             } else {

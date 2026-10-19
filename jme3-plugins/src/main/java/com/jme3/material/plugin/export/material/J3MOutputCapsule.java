@@ -40,7 +40,7 @@ import com.jme3.math.*;
 import com.jme3.shader.VarType;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.GlTexture.WrapMode;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.ByteBuffer;

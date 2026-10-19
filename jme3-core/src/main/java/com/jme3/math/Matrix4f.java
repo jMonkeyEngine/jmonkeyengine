@@ -34,6 +34,7 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
@@ -2725,6 +2726,27 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     public static Matrix4f storage(Matrix4f store) {
         return store != null ? store : new Matrix4f();
+    }
+
+    public static Matrix4f extract(float[] d, int i, @Nullable Matrix4f store) {
+        store = storage(store);
+        store.m00 = d[i];
+        store.m10 = d[i + 1];
+        store.m20 = d[i + 2];
+        store.m30 = d[i + 3];
+        store.m01 = d[i + 4];
+        store.m11 = d[i + 5];
+        store.m21 = d[i + 6];
+        store.m31 = d[i + 7];
+        store.m02 = d[i + 8];
+        store.m12 = d[i + 9];
+        store.m22 = d[i + 10];
+        store.m32 = d[i + 11];
+        store.m03 = d[i + 12];
+        store.m13 = d[i + 13];
+        store.m23 = d[i + 14];
+        store.m33 = d[i + 15];
+        return store;
     }
 
 }

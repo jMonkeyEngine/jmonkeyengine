@@ -42,7 +42,7 @@ import com.jme3.texture.GlImage;
 import java.lang.ref.WeakReference;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.GlTexture;
-import com.jme3.util.IntMap;
+import com.jme3.util.collections.IntMap;
 import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.mesh.InputRate;
 

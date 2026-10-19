@@ -3,6 +3,7 @@ package com.jme3.util.struct;
 import java.util.BitSet;
 import java.util.function.IntFunction;
 
+@Deprecated
 public class SlotStruct <T extends StructField> extends Struct<T> {
 
     private final int length;

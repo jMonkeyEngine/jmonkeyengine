@@ -1,12 +1,10 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.util.struct.Struct;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.util.struct.StructArray;
+import com.jme3.vulkan.buffer.GpuBuffer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.IntFunction;
-import java.util.function.Supplier;
 
 public class ConcurrentStructArray <T extends Struct> extends StructArray<T> {
 
@@ -17,7 +15,7 @@ public class ConcurrentStructArray <T extends Struct> extends StructArray<T> {
         this(length, factory, null);
     }
 
-    public ConcurrentStructArray(int length, IntFunction<T> factory, EngineBuffer source) {
+    public ConcurrentStructArray(int length, IntFunction<T> factory, GpuBuffer source) {
         super(length, factory.apply(0), source);
         this.factory = factory;
         //noinspection unchecked

@@ -1,10 +1,10 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.buffer.BufferCopy;
-import com.jme3.vulkan.buffer.BufferStream;
 import com.jme3.vulkan.buffer.DataBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
-import com.jme3.vulkan.buffer.tracking.BufferTracker;
+import com.jme3.vulkan.buffer.GpuBuffer;
+import com.jme3.vulkan.concurrent.Access;
 import com.jme3.vulkan.images.BufferImageCopy;
 import com.jme3.vulkan.images.ImageCopy;
 import com.jme3.vulkan.images.newimage.EngineImage;
@@ -17,7 +17,6 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
@@ -35,13 +34,11 @@ public class VulkanCommandBuffer implements CommandBuffer {
     private final VkCommandBuffer buffer;
     private final Collection<Sync> signals = new ArrayList<>();
     private final Collection<WaitSync> waits = new ArrayList<>();
-    private final Collection<Object> resourcesInUse = new ArrayList<>();
-    private final Collection<Commandable> cmdResInUse = new ArrayList<>();
+    private final Collection<PendingAccess> pendingAccess = new ArrayList<>();
     private final Collection<CommandCycleListener> cycleListeners = new ArrayList<>();
     private final TimelineSemaphore completionSignal;
     private final Executor listenerThread = Executors.newFixedThreadPool(1);
     private TimelineSemaphore.SignalEvent completionEvent;
-    private BufferStream stream;
     private boolean recording = false;
     private boolean executing = false;
 
@@ -55,13 +52,9 @@ public class VulkanCommandBuffer implements CommandBuffer {
     | GRAPHICS COMMANDS |
     \*-----------------*/
 
-    private boolean isPerformHostBufferCopy(EngineBuffer src, EngineBuffer dst, OpLocation location) {
+    public static boolean isPerformHostBufferCopy(GpuBuffer src, GpuBuffer dst, OpLocation location) {
         boolean hostAble = src.isHostAccessible() && dst.isHostAccessible();
-        boolean deviceAble = src.isDeviceAccessible() && dst.isDeviceAccessible();
-        if (!hostAble && !deviceAble) {
-            throw new IllegalArgumentException("Buffers are not accessible from any one location.");
-        }
-        boolean hostOp = hostAble && (!deviceAble || location.isHostBiased() || (location == OpLocation.DontCare
+        boolean hostOp = hostAble && (location.isHostBiased() || (location == OpLocation.DontCare
                 && src.getMemoryProperties().contains(MemoryProp.HostCached)
                 && !dst.getMemoryProperties().contains(MemoryProp.HostCached)));
         if (hostOp && location == OpLocation.Device) {
@@ -74,13 +67,16 @@ public class VulkanCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public OpLocation cmdCopy(EngineBuffer src, EngineBuffer dst, BufferCopy copy, OpLocation location) {
+    public OpLocation cmdCopy(GpuBuffer src, GpuBuffer dst, BufferCopy copy, OpLocation location) {
+        if (location == OpLocation.NoOp) {
+            return location;
+        }
         if (isPerformHostBufferCopy(src, dst, location)) {
             DataBuffer srcCache = src.cache().mark();
             DataBuffer dstCache = dst.cache().mark();
             for (BufferCopy.Region r : copy.getRegions()) {
-                srcCache.reset().offset(r.getSrcOffset(), r.getSize());
-                dstCache.reset().offset(r.getDstOffset(), r.getSize());
+                srcCache.reset().offset(r.getSrcOffset() + src.offset(), r.getSize());
+                dstCache.reset().offset(r.getDstOffset() + dst.offset(), r.getSize());
                 srcCache.copyTo(dstCache);
             }
             return OpLocation.Host;
@@ -88,24 +84,14 @@ public class VulkanCommandBuffer implements CommandBuffer {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 VkBufferCopy.Buffer vkCopy = VkBufferCopy.calloc(copy.getRegions().size(), stack);
                 for (BufferCopy.Region r : copy.getRegions()) {
-                    vkCopy.get().set(r.getSrcOffset(), r.getDstOffset(), r.getSize());
+                    vkCopy.get().set(r.getSrcOffset() + src.offset(), r.getDstOffset() + dst.offset(), r.getSize());
                 }
                 vkCmdCopyBuffer(buffer, src.getHandle(), dst.getHandle(), vkCopy.flip());
             }
-            addResource(src);
-            addResource(dst);
+            useResource(src.getLifecycle(), Access.Read, PipelineStage.Transfer);
+            useResource(dst.getLifecycle(), Access.Write, PipelineStage.Transfer);
             return OpLocation.Device;
         }
-    }
-
-    @Override
-    public void cmdStreamToRemote(ByteBuffer src, EngineBuffer dst, BufferTracker regions) {
-        stream.streamToRemote(this, src, dst, regions);
-    }
-
-    @Override
-    public void cmdStreamFromRemote(EngineBuffer src, ByteBuffer dst, Runnable callback) {
-        stream.streamFromRemote(this, src, dst, callback);
     }
 
     @Override
@@ -188,23 +174,23 @@ public class VulkanCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public void cmdCopy(EngineBuffer src, EngineImage dst, BufferImageCopy copy) {
+    public void cmdCopy(GpuBuffer src, EngineImage dst, BufferImageCopy copy) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             vkCmdCopyBufferToImage(buffer, src.getHandle(), dst.getHandle(), dst.getLayout().getEnum(),
-                    populateBufferImageCopyInfo(stack, src.getBufferLocalOffset(), copy));
+                    populateBufferImageCopyInfo(stack, src.offset(), copy));
         }
-        addResource(src);
+        useResource(src.getLifecycle(), Access.Read, PipelineStage.Transfer);
         addResource(dst);
     }
 
     @Override
-    public void cmdCopy(EngineImage src, EngineBuffer dst, BufferImageCopy copy) {
+    public void cmdCopy(EngineImage src, GpuBuffer dst, BufferImageCopy copy) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             vkCmdCopyImageToBuffer(buffer, src.getHandle(), src.getLayout().getEnum(), dst.getHandle(),
-                    populateBufferImageCopyInfo(stack, dst.getBufferLocalOffset(), copy));
+                    populateBufferImageCopyInfo(stack, dst.offset(), copy));
         }
         addResource(src);
-        addResource(dst);
+        useResource(dst.getLifecycle(), Access.Write, PipelineStage.Transfer);
     }
 
     /*-------------------------*\
@@ -240,17 +226,12 @@ public class VulkanCommandBuffer implements CommandBuffer {
     }
 
     @Override
-    public void addResource(Object resource) {
+    public void useResource(ResourceLifecycle lifecycle, Access access, Flag<PipelineStage> stageMask) {
         if (executing) {
             throw new IllegalStateException("Buffer is executing.");
         }
-        if (resource instanceof Commandable) {
-            Commandable c = (Commandable)resource;
-            c.acquireControl();
-            cmdResInUse.add(c);
-        } else {
-            resourcesInUse.add(resource);
-        }
+        lifecycle.awaitPreviousAccesses(this, access, stageMask);
+        pendingAccess.add(new PendingAccess(lifecycle, access));
     }
 
     @Override
@@ -279,6 +260,10 @@ public class VulkanCommandBuffer implements CommandBuffer {
             VkSubmitInfo.Buffer submit = VkSubmitInfo.calloc(1, stack);
             populateSubmitInfo(stack, submit.get());
             pool.getQueue().submit(submit.flip(), fence);
+            for (PendingAccess p : pendingAccess) {
+                p.record(this);
+            }
+            pendingAccess.clear();
             executing = true;
             completionEvent = completionSignal.createEvent();
             listenerThread.execute(this::listenForCompletion);
@@ -320,9 +305,6 @@ public class VulkanCommandBuffer implements CommandBuffer {
         completionEvent.awaitSignal(TimeUnit.SECONDS.toMillis(5));
         cycleListeners.forEach(CommandCycleListener::onCmdComplete);
         cycleListeners.clear();
-        resourcesInUse.clear();
-        cmdResInUse.forEach(Commandable::releaseControl);
-        cmdResInUse.clear();
         signals.clear();
         waits.clear();
         executing = false;
@@ -339,6 +321,7 @@ public class VulkanCommandBuffer implements CommandBuffer {
         if (!pool.getFlags().contains(CommandPool.Create.ResetCommandBuffer)) {
             throw new UnsupportedOperationException("Reseting is not supported by the allocating pool.");
         }
+        pendingAccess.clear();
         vkResetCommandBuffer(buffer, 0);
     }
 
@@ -425,6 +408,22 @@ public class VulkanCommandBuffer implements CommandBuffer {
         public WaitSync(Semaphore semaphore, Flag<PipelineStage> stageMask) {
             super(semaphore);
             this.stageMask = stageMask;
+        }
+
+    }
+
+    private static class PendingAccess {
+
+        public final ResourceLifecycle lifecycle;
+        public final Access access;
+
+        public PendingAccess(ResourceLifecycle lifecycle, Access access) {
+            this.lifecycle = lifecycle;
+            this.access = access;
+        }
+
+        public void record(CommandBuffer cmd) {
+            lifecycle.recordDeviceAccess(cmd, access);
         }
 
     }

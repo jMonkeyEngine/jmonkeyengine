@@ -2,6 +2,7 @@ package com.jme3.util.struct;
 
 import com.jme3.util.VersionedValue;
 
+@Deprecated
 public class VersionedField <T> extends Struct.Field<T> {
 
     private long version = -1L;

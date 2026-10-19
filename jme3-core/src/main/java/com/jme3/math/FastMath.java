@@ -1205,7 +1205,7 @@ public final class FastMath {
     /**
      * Round n to a multiple of p, if p is a power of 2.
      */
-    public static int toMultipleOf(int n, int p) {
+    public static int toMultipleOfPow2(int n, int p) {
         return ((n - 1) | (p - 1)) + 1;
     }
 

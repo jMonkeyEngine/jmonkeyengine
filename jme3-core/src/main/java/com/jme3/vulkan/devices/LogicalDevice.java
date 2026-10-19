@@ -1,7 +1,9 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.*;
+import com.jme3.util.destruction.Destructable;
+import com.jme3.util.destruction.ResourceLifecycle;
+import com.jme3.util.natives.Destructor;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
@@ -19,10 +21,11 @@ import java.util.stream.Collectors;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class LogicalDevice <T extends PhysicalDevice> implements NativeHandle<VkDevice> {
+public class LogicalDevice <T extends PhysicalDevice> implements Destructable {
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
+    private ResourceLifecycle lifecycle;
     private VkDevice object;
     private Destructor destructor = Destructor.NULL;
     private PNextChain enabledFeatures;
@@ -30,16 +33,6 @@ public class LogicalDevice <T extends PhysicalDevice> implements NativeHandle<Vk
 
     protected LogicalDevice(VulkanInstance instance) {
         this.instance = instance;
-    }
-
-    @Override
-    public Destructor getDestructor() {
-        return destructor;
-    }
-
-    @Override
-    public VkDevice getHandle() {
-        return object;
     }
 
     @Override
@@ -52,6 +45,15 @@ public class LogicalDevice <T extends PhysicalDevice> implements NativeHandle<Vk
     @Override
     public int hashCode() {
         return Objects.hash(instance, object.address());
+    }
+
+    @Override
+    public ResourceLifecycle getLifecycle() {
+        return lifecycle;
+    }
+
+    public VkDevice getHandle() {
+        return object;
     }
 
     public void waitIdle() {
@@ -161,12 +163,9 @@ public class LogicalDevice <T extends PhysicalDevice> implements NativeHandle<Vk
             check(vkCreateDevice(physical.getHandle(), create, null, ptr),
                     "Failed to create logical device.");
             object = new VkDevice(ptr.get(0), physical.getHandle(), create);
-            destructor = physical.getDestructor().addDependent(new Destructor(LogicalDevice.this) {
-                @Override
-                protected void runDestroy() {
-                    vkDestroyDevice(object, null);
-                    enabledFeatures.free();
-                }
+            lifecycle = new ResourceLifecycle(LogicalDevice.this, () -> {
+                vkDestroyDevice(object, null);
+                enabledFeatures.free();
             });
             physical.createQueues(LogicalDevice.this);
             VmaAllocatorCreateInfo alloc = VmaAllocatorCreateInfo.calloc(stack);

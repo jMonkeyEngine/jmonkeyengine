@@ -5,6 +5,7 @@ package com.jme3.util.struct;
  *
  * @param <T>
  */
+@Deprecated
 public interface StructuredArray <T extends Struct> {
 
     T index(int i);

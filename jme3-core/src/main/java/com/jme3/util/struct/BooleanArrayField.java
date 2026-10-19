@@ -1,5 +1,6 @@
 package com.jme3.util.struct;
 
+@Deprecated
 public class BooleanArrayField extends ArrayField<boolean[], Boolean> {
 
     public BooleanArrayField(int size) {

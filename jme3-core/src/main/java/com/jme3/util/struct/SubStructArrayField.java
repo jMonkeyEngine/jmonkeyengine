@@ -1,14 +1,18 @@
 package com.jme3.util.struct;
 
-import com.jme3.vulkan.alloc.StructArray;
 import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Deprecated
 public class SubStructArrayField <T extends Struct> implements StructField<StructArray<T>>, StructuredArray<T> {
 
     private final String name;
     private StructArray<T> alias;
     private Struct struct;
     private int offset, alignment;
+    private GpuBuffer buffer;
+    private int bufferOffset;
 
     public SubStructArrayField(StructArray<T> alias) {
         this(null, alias);
@@ -18,17 +22,44 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
         assert alias != null : "Alias cannot be null.";
         this.name = name;
         this.alias = alias;
-        this.alias.bind(this);
     }
 
     @Override
-    public int bind(Struct struct, int offset) {
+    public void bind(Struct struct) {
         this.struct = struct;
-        for (T a : alias) {
-            a.bind(struct.getLayout());
-        }
+    }
+
+    @Override
+    public int bind(StructLayout layout, int offset) {
         alignment = Math.max(alias.getStruct().getAlignment(), struct.getLayout().getMinStructAlignment());
-        return this.offset = offset + alias.capacity();
+        return this.offset = offset + alias.size();
+    }
+
+    @Override
+    public int getStructLocalOffset() {
+        return offset;
+    }
+
+    @Override
+    public void bind(@Nullable GpuBuffer buffer, int baseOffset) {
+        this.buffer = buffer;
+        this.bufferOffset = baseOffset;
+        alias.bind(buffer, bufferOffset + offset);
+    }
+
+    @Override
+    public GpuBuffer getBuffer() {
+        return buffer;
+    }
+
+    @Override
+    public int offset() {
+        return bufferOffset + offset;
+    }
+
+    @Override
+    public int size() {
+        return alias.size();
     }
 
     @Override
@@ -70,28 +101,13 @@ public class SubStructArrayField <T extends Struct> implements StructField<Struc
     }
 
     @Override
-    public int capacity() {
-        return alias.capacity();
-    }
-
-    @Override
     public int alignment() {
         return alignment;
     }
 
     @Override
-    public int getBufferLocalOffset() {
-        return struct.getBufferLocalOffset() + offset;
-    }
-
-    @Override
     public T index(int index) {
         return alias.index(index);
-    }
-
-    @Override
-    public int getIndex() {
-        return alias.getIndex();
     }
 
     @Override

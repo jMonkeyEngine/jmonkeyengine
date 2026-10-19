@@ -5,7 +5,7 @@ import java.util.Iterator;
 public class NullBufferTracker implements BufferTracker {
 
     public static final NullBufferTracker INSTANCE = new NullBufferTracker();
-    private static final Iterator<Island> ITERATOR = new Iterator<Island>() {
+    public static final Iterator<Island> ITERATOR = new Iterator<Island>() {
         @Override
         public boolean hasNext() {
             return false;

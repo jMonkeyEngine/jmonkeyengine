@@ -1,32 +1,29 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.math.Vector4f;
-import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructField;
-import com.jme3.util.struct.SubStructArrayField;
-import com.jme3.util.struct.SubStructField;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.util.struct.*;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 
 import java.util.function.IntFunction;
 
-public interface RelativeBuffer extends EngineBuffer {
+public interface RelativeBuffer extends GpuBuffer {
 
     /**
      * Binds this address to a parent address to which this address is relative to.
      *
      * @param parent memory to bind
      */
-    void bind(EngineBuffer parent);
+    void bind(GpuBuffer parent);
 
-    default RelativeBuffer bind(IntFunction<EngineBuffer> factory) {
+    default RelativeBuffer bind(IntFunction<GpuBuffer> factory) {
         bind(factory.apply(capacity()));
         return this;
     }
 
     // todo: remove api test code
     @Deprecated
-    public static void exp(CommandBuffer cmd, EngineBuffer data) {
+    public static void exp(CommandBuffer cmd, GpuBuffer data) {
 
         StructArray<MyStruct> array = new StructArray<>(new MyStruct(), 100);
 
@@ -49,7 +46,7 @@ public interface RelativeBuffer extends EngineBuffer {
         array.index(10).value.set(4f);
 
         // iterate over float field using a shared struct
-        StructArray.Field<StructField<Float>> fArray = array.field(s -> s.value);
+        FieldArray<StructField<Float>> fArray = array.field(s -> s.value);
         for (StructField<Float> f : fArray) {
             f.set(1f);
         }

@@ -5,7 +5,7 @@ import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.descriptors.PoolSize;
-import com.jme3.vulkan.material.experimental.MaterialData;
+import com.jme3.vulkan.material.experimental.MaterialBuffer;
 import com.jme3.vulkan.util.Flag;
 
 public interface Engine extends MemoryAllocator {
@@ -18,6 +18,6 @@ public interface Engine extends MemoryAllocator {
 
     DescriptorSetLayout createDescriptorSetLayout(DescriptorSetLayout.Info info);
 
-    MaterialData getMaterialData();
+    MaterialBuffer getMaterialData();
 
 }

@@ -3,7 +3,6 @@ package com.jme3.vulkan.render.experimental;
 import com.jme3.renderer.ViewPort;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.material.exp2.RenderSession;
-import com.jme3.vulkan.material.experimental.OldPBRTechnique;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 
 import java.util.ArrayList;

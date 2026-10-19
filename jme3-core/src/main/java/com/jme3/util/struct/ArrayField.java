@@ -1,83 +1,35 @@
 package com.jme3.util.struct;
 
-import com.jme3.math.FastMath;
+import com.jme3.vulkan.buffer.BufferBindingInfo;
 import com.jme3.vulkan.buffer.DataBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 
-public abstract class ArrayField <T, E> implements StructField<T> {
+public class ArrayField <T> implements StructField {
 
-    private final String name;
-    private Struct struct;
-    private int offset;
-    private int alignment, stride;
+    private final int length;
     private T alias;
-    private FieldDescription<E> desc;
 
-    public ArrayField(int size) {
-        this(null, size);
-    }
+    private final BufferBindingInfo binding = new BufferBindingInfo();
+    private FieldDescription<T> desc;
+    private int alignment, stride;
 
-    public ArrayField(String name, int size) {
-        this.name = name;
-        this.alias = createArray(size);
-    }
-
-    public ArrayField(T array) {
-        this(null, array);
-    }
-
-    public ArrayField(String name, T array) {
-        this.name = name;
-        this.alias = array;
+    public ArrayField(int length, T alias) {
+        this.length = length;
+        this.alias = alias;
     }
 
     @Override
-    public int bind(Struct struct, int offset) {
-        this.struct = struct;
-        this.offset = offset;
-        desc = getElementDescription(struct.getLayout());
-        alignment = Math.max(struct.getLayout().getMinArrayAlignment(), desc.getAlignment());
-        stride = FastMath.toMultipleOf(desc.getSize(), alignment);
-        return offset + getArrayLength(alias) * stride;
+    public void setupLayout(StructLayout layout) {
+        desc = layout.getFieldDescription(alias.getClass());
+        alignment = layout.getArrayElementAlignment(desc.getAlignment());
+        stride = layout.getArrayElementSize(alignment, desc.getSize());
     }
 
     @Override
-    public void set(T value) {
-        DataBuffer cache = cache();
-        for (int i = 0, l = Math.min(getArrayLength(value), getArrayLength(alias)); i < l; i++) {
-            E e = getArrayElement(value, i);
-            if (e != null) {
-                desc.write(cache, e);
-            }
-            cache.offset(stride);
-        }
-    }
-
-    @Override
-    public void alias(T value) {
-        alias = value;
-    }
-
-    @Override
-    public T get() {
-        DataBuffer cache = cache();
-        for (int i = 0, l = getArrayLength(alias); i < l; i++) {
-            E e = getArrayElement(alias, i);
-            if (e != null) {
-                setArrayElement(alias, i, desc.read(cache, e));
-            }
-            cache.offset(stride);
-        }
-        return alias;
-    }
-
-    @Override
-    public T alias() {
-        return alias;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+    public void bind(GpuBuffer buffer, int offset) {
+        binding.setBuffer(buffer);
+        binding.setOffset(offset);
+        binding.setLimit(offset + stride * length);
     }
 
     @Override
@@ -86,74 +38,37 @@ public abstract class ArrayField <T, E> implements StructField<T> {
     }
 
     @Override
+    public void unbind() {
+        binding.setBuffer(null);
+    }
+
+    @Override
     public DataBuffer cache() {
-        return struct.cache().offset(offset);
+        return binding.cache();
     }
 
     @Override
-    public Struct getStruct() {
-        return struct;
+    public int size() {
+        return binding.getSize();
     }
 
-    @Override
-    public int capacity() {
-        return getArrayLength(alias) * stride;
+    private DataBuffer elementCache(int i) {
+        return binding.getBuffer().cache().slice(binding.getOffset() + stride * i, binding.getOffset() + stride * (i + 1));
     }
 
-    @Override
-    public int getBufferLocalOffset() {
-        return offset;
-    }
-
-    @Override
-    public int getStructLocalOffset() {
-        return offset;
-    }
-
-    public void set(int i, E e) {
-        desc.write(cache().offset(i * stride), e);
-    }
-
-    public void alias(int i, E e) {
-        setArrayElement(alias, i, e);
-    }
-
-    public E get(int i) {
-        E e = getArrayElement(alias, i);
-        if (e != null) {
-            setArrayElement(alias, i, e = desc.read(cache().offset(i * stride), e));
+    public void set(int i, T value) {
+        if (i > length) {
+            throw new IndexOutOfBoundsException("Index " + i + " out of bounds for length " + length);
         }
-        return e;
+        desc.write(elementCache(i), value);
     }
 
-    public E alias(int i) {
-        return getArrayElement(alias, i);
+    public T index(int i, T store) {
+        return desc.read(elementCache(i), store);
     }
 
-    public void set(int i) {
-        E e = getArrayElement(alias, i);
-        if (e != null) {
-            set(i, e);
-        }
+    public T index(int i) {
+        return alias = index(i, alias);
     }
-
-    public void aliasAndSet(int i, E e) {
-        set(i, e);
-        alias(i, e);
-    }
-
-    public int length() {
-        return getArrayLength(alias);
-    }
-
-    protected abstract T createArray(int length);
-
-    protected abstract FieldDescription<E> getElementDescription(StructLayout layout);
-
-    protected abstract void setArrayElement(T array, int index, E value);
-
-    protected abstract E getArrayElement(T array, int index);
-
-    protected abstract int getArrayLength(T array);
 
 }

@@ -6,47 +6,54 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.util.IntList;
 import com.jme3.util.TempVars;
+import com.jme3.util.collections.DynamicObjectArray;
+import com.jme3.util.collections.IntList;
 import com.jme3.util.struct.Struct;
 import com.jme3.vulkan.alloc.ConcurrentStructArray;
 import com.jme3.vulkan.alloc.SlicePointer;
 import com.jme3.vulkan.buffer.AutoBuffer;
-import com.jme3.vulkan.buffer.EngineBuffer;
+import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.OpLocation;
 import com.jme3.vulkan.compile.Final;
 import com.jme3.vulkan.compile.FinalWriter;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import com.jme3.vulkan.material.experimental.ShadingTechnique;
+import com.jme3.vulkan.material.experimental.TriggeredOn;
+import com.jme3.vulkan.scene.components.Property;
+import com.jme3.vulkan.scene.components.Component;
+import com.jme3.vulkan.scene.components.ComponentPipe;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.function.*;
+import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 /**
  * A scene of spatials trees optimized for traversal and data retrieval.
  */
 public class Scene {
 
+    private static final Logger log = Logger.getLogger(Scene.class.getName());
+
     // fast-access node properties
     private static final int ORDER_INDEX = 0;   // type: hierarchy order index
     private static final int PARENT = 1;        // type: node index
     private static final int SIBLING = 2;       // type: node index
     private static final int FIRST_CHILD = 3;   // type: node index
-    private static final int FLAGS = 4;
+    private static final int FLAGS = 4;         // misc boolean fields
     private static final int HINTS = 5;         // local cull hint, world cull hint, local bucket hint, world bucket hint (1 byte each)
-    private static final int UNUSED_NODE_INFO_1 = 6;
-    private static final int UNUSED_NODE_INFO_2 = 7;
+    private static final int GEOMETRY = 6;      // type: geometric index
+    private static final int UNUSED_NODE_INFO = 7;
 
     private static final int LOCAL_TRANSLATION_X = 0;
     private static final int LOCAL_TRANSLATION_Y = 1;
@@ -68,20 +75,22 @@ public class Scene {
     private static final int BOUNDS_EXTENT_Z = 41;
 
     // refresh flags
-    public static final int TRANSFORM_REFRESH_BIT = 1;
-    public static final int BOUNDS_REFRESH_BIT = 1 << 1;
-    public static final int LIGHT_REFRESH_BIT = 1 << 2;         // only refresh lights with flag set
-    public static final int LIGHT_REFRESH_ALL_BIT = 1 << 3;     // refresh all lights
-    public static final int IGNORE_PARENT_TRANSFORM_BIT = 1 << 4;
-    public static final int IGNORE_NONLOCAL_LIGHTS_BIT = 1 << 5;
-    private static final int CHILD_TRANSFORM_REFRESH_BIT = 1 << 6;
-    private static final int CHILD_LIGHT_REFRESH_BIT = 1 << 7;
-    private static final int IGNORE_PARENT_COMPONENTS_BIT = 1 << 8;
+    public static final int IGNORE_PARENT_TRANSFORM_BIT = 1;
+    public static final int IGNORE_NONLOCAL_LIGHTS_BIT = 1 << 1;
+    public static final int IGNORE_PARENT_COMPONENTS_BIT = 1 << 2;
+    public static final int TRANSFORM_REFRESH_BIT = 1 << 3;
+    public static final int BOUNDS_REFRESH_BIT = 1 << 4;
+    public static final int LIGHT_REFRESH_BIT = 1 << 5;         // only refresh lights with flag set
+    public static final int LIGHT_REFRESH_ALL_BIT = 1 << 6;     // refresh all lights
+    public static final int COMPONENT_REFRESH_BIT = 1 << 7;
+    private static final int CHILD_TRANSFORM_REFRESH_BIT = 1 << 8;
+    private static final int CHILD_LIGHT_REFRESH_BIT = 1 << 9;
+    private static final int CHILD_COMPONENT_REFRESH_BIT = 1 << 10;
 
     private static final int INFO_SIZE = 8;
     private static final int TRANSFORMS_SIZE = 42;
 
-    private static final int NULL = -1000;
+    private static final int NULL = -1;
     private static final int INHERIT = 0;
 
     private static final int HINT_MASK = 0xFF;
@@ -89,6 +98,18 @@ public class Scene {
     private static final int WORLD_CULL_HINT = 8;
     private static final int LOCAL_BUCKET_HINT = 16;
     private static final int WORLD_BUCKET_HINT = 24;
+
+    private static final byte INHERIT_OFF = 0;
+    private static final byte INHERIT_PULL = 1;
+    private static final byte INHERIT_PUSH = 2;
+    private static final byte INHERIT_OFF_IGNORE_PARENT = 3;
+    private static final byte INHERIT_PUSH_IGNORE_PARENT = 4;
+
+    private static final Map<Class<? extends Component>, Function<Scene, Component>> componentFactories = new HashMap<>();
+
+    public static void addComponentFactory(Class<? extends Component> type, Function<Scene, Component> factory) {
+        componentFactories.put(type, factory);
+    }
 
     private static int info(int node) {
         return node * INFO_SIZE;
@@ -138,20 +159,17 @@ public class Scene {
         return node * TRANSFORMS_SIZE + BOUNDS_CENTER_X;
     }
 
-    private static final AtomicInteger nextUserDataId = new AtomicInteger();
-
-    public static int generateUserDataId() {
-        return nextUserDataId.getAndIncrement();
-    }
-
     private int[] nodeInfo, hierarchyOrder;
     private final float[] transforms;     // local transform, world transform, world bounds
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
-    private final Map<Class<? extends SceneComponent>, ComponentArray> components = new HashMap<>();
-    private final Map<String, UserDataArray> userData = new HashMap<>();
-    private final AutoBuffer<ConcurrentStructArray<Light>> lights;
-    private final AutoBuffer<SlicePointer> geometricLightMasks;
+    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private final Map<Class<? extends ComponentPipe>, ComponentPipe> pipes = new HashMap<>();
+    private final Map<Class<? extends ShadingTechnique>, ShadingTechnique> techniques = new HashMap<>();
+    private final Map<String, Tag> tags = new HashMap<>();
+
+    private final Collection<IntConsumer> transformListeners = new ArrayList<>();
+    private final Collection<IntConsumer> boundsListeners = new ArrayList<>();
 
     private final BitSet usedOrderSlots = new BitSet();
     private final BitSet usedNodeSlots = new BitSet();
@@ -170,10 +188,10 @@ public class Scene {
         hierarchyOrder = new int[nodeCapacity];
         lights = new AutoBuffer<>(alloc,
                 new ConcurrentStructArray<>(lightCapacity, Light::new),
-                BufferType.Dynamic, EngineBuffer.Role.Storage);
+                BufferType.Dynamic, GpuBuffer.Role.Storage);
         geometricLightMasks = new AutoBuffer<>(alloc,
                 new SlicePointer(0, 1028), // i'm too tired to figure out the math for size here again
-                BufferType.Streaming, EngineBuffer.Role.Storage);
+                BufferType.Streaming, GpuBuffer.Role.Storage);
     }
 
     private static int[] grow(int[] array) {
@@ -265,6 +283,10 @@ public class Scene {
         return (nodeInfo[node * INFO_SIZE + HINTS] >> WORLD_BUCKET_HINT) & HINT_MASK;
     }
 
+    public int getGeometricId(int node) {
+        return nodeInfo[node * INFO_SIZE + GEOMETRY];
+    }
+
     public boolean isIgnoreParentTransform(int node) {
         return (nodeInfo[node * INFO_SIZE + FLAGS] & IGNORE_PARENT_TRANSFORM_BIT) != 0;
     }
@@ -318,8 +340,8 @@ public class Scene {
         return nodeInfo[node * INFO_SIZE + PARENT] >= 0;
     }
 
-    public void requireValidNodeId(int node) {
-        assert node >= 0 && usedNodeSlots.get(node) : "Invalid node ID: " + node;
+    public boolean isGeometric(int node) {
+        return nodeInfo[node * INFO_SIZE + GEOMETRY] >= 0;
     }
 
     public Vector3f getLocalTranslation(int node, @Nullable Vector3f store) {
@@ -358,6 +380,10 @@ public class Scene {
         return BoundingBox.extractLiteral(transforms, worldBounds(node), store);
     }
 
+    public Matrix4f getWorldMatrix(int node, @Nullable Matrix4f store) {
+        return Matrix4f.extract(transforms, worldMatrix(node), store);
+    }
+
     /**
      * Returns true if {@code id} is a null id or index.
      *
@@ -384,7 +410,11 @@ public class Scene {
         nodeInfo[node * INFO_SIZE + FIRST_CHILD] = firstChild;
     }
 
-    public void setFlags(int node, int flags) {
+    private void setGeometricId(int node, int geometricId) {
+        nodeInfo[node * INFO_SIZE + GEOMETRY] = geometricId;
+    }
+
+    private void setFlags(int node, int flags) {
         nodeInfo[node * INFO_SIZE + FLAGS] = flags;
     }
 
@@ -410,12 +440,7 @@ public class Scene {
         nodeInfo[index + FIRST_CHILD] = NULL;
         nodeInfo[index + FLAGS] = TRANSFORM_REFRESH_BIT | BOUNDS_REFRESH_BIT | LIGHT_REFRESH_ALL_BIT;
         nodeInfo[index + HINTS] = 0;
-        for (ComponentArray c : components.values()) {
-            c.set(id, null);
-        }
-        for (UserDataArray d : userData.values()) {
-            d.set(id, null);
-        }
+        nodeInfo[index + GEOMETRY] = NULL;
         return new Node(this, id);
     }
 
@@ -438,7 +463,7 @@ public class Scene {
             nodeInfo[i + FLAGS] = TRANSFORM_REFRESH_BIT | BOUNDS_REFRESH_BIT | LIGHT_REFRESH_ALL_BIT;
             i = next;
         }
-        usedNodeSlots.clear(node);
+        cleanDeadNode(node);
     }
 
     /**
@@ -449,8 +474,16 @@ public class Scene {
     public void destroyTree(int node) {
         detach(node);
         for (int i : depthFirst(node)) {
-            usedNodeSlots.clear(i);
+            cleanDeadNode(node);
         }
+    }
+
+    private void cleanDeadNode(int node) {
+        usedNodeSlots.clear(node);
+        for (Component c : components.values()) {
+            c.onNodeDestroyed(node);
+        }
+        clearAllTags(node);
     }
 
     /**
@@ -460,9 +493,9 @@ public class Scene {
      * @param parent id of node to attach to
      * @param child id of node to be attached
      */
-    public void attachChild(int parent, int child) {
+    public boolean attachChild(int parent, int child) {
         if (getParentId(child) == parent) {
-            return;
+            return false;
         }
         detach(child);
         int firstChild = getFirstChildId(parent);
@@ -481,6 +514,7 @@ public class Scene {
         }
         nodeInfo[child * INFO_SIZE + FLAGS] |= TRANSFORM_REFRESH_BIT | LIGHT_REFRESH_ALL_BIT;
         nodeInfo[parent * INFO_SIZE + FLAGS] |= BOUNDS_REFRESH_BIT;
+        return true;
     }
 
     /**
@@ -488,13 +522,12 @@ public class Scene {
      *
      * @param node id of node to attach
      */
-    public void makeRoot(int node) {
+    public boolean makeRoot(int node) {
         if (hasParent(node)) {
-            detachChildToRoot(node);
-            return;
+            return detachChildToRoot(node);
         }
         if (isAttached(node)) {
-            return;
+            return false;
         }
         for (int i : depthFirst(node)) {
             int order = nodeInfo[i] = usedOrderSlots.nextClearBit(nodeInfo[nodeInfo[i + PARENT]] + 1);
@@ -505,6 +538,7 @@ public class Scene {
             hierarchyOrder[order] = i;
         }
         nodeInfo[node + FLAGS] |= LIGHT_REFRESH_BIT;
+        return true;
     }
 
     /**
@@ -744,6 +778,9 @@ public class Scene {
             }
             flags &= ~TRANSFORM_REFRESH_BIT;
             flags |= CHILD_TRANSFORM_REFRESH_BIT;
+            for (IntConsumer l : transformListeners) {
+                l.accept(id);
+            }
         } else {
             flags &= ~CHILD_TRANSFORM_REFRESH_BIT;
         }
@@ -772,11 +809,9 @@ public class Scene {
 
     private void updateWorldBounds(int id) {
         int flags = getFlags(id);
-        Geometry geom = getComponent(id, Geometry.class);
-        if ((flags & BOUNDS_REFRESH_BIT) != 0 || ) {
+        if ((flags & BOUNDS_REFRESH_BIT) != 0) {
             BoundingBox.makeNull(transforms, worldBounds(id)); // merging with a null box will just copy the non-null box
             if (isGeometric(id)) {
-                //vol = mesh.getBounds().transform(worldTransform, worldBounds);
                 BoundingBox.inject(transforms, worldBounds(id), geom.getMesh().getBounds());
                 BoundingBox.transform(transforms, worldTransform(id), transforms, worldBounds(id), transforms, worldBounds(id));
             }
@@ -789,6 +824,9 @@ public class Scene {
             }
             flags &= ~BOUNDS_REFRESH_BIT;
             flags |= LIGHT_REFRESH_ALL_BIT; // bound changed, recompute culling for all lights
+            for (IntConsumer l : boundsListeners) {
+                l.accept(id);
+            }
         }
         setFlags(id, flags);
     }
@@ -850,107 +888,203 @@ public class Scene {
         nodeInfo[id + FLAGS] = flags;
     }
 
-    /**
-     * Sets the local component of {@code node} according to the type of {@code component}.
-     *
-     * @param node node to set
-     * @param component component to use
-     */
-    public void setComponent(int node, @NonNull SceneComponent component) {
-        components.computeIfAbsent(component.getClass(), k ->
-                new ComponentArray(k.getAnnotation(ComponentInheritance.class))).set(node, component);
+    public <T extends Component> T getComponent(Class<T> type) {
+        return getComponent(type, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Component> T getComponent(Class<T> type, @Nullable Function<Scene, Component> factory) {
+        Component t = components.get(type);
+        if (t == null) {
+            if (factory == null) {
+                factory = componentFactories.get(type);
+            }
+            if (factory != null) {
+                t = factory.apply(this);
+            } else try {
+                Constructor c = type.getDeclaredConstructor(Scene.class);
+                c.setAccessible(true);
+                t = (Component)c.newInstance(this);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Failed to invoke constructor for " + type, e);
+            } catch (NoSuchMethodException e) {
+                try {
+                    Constructor c = type.getDeclaredConstructor();
+                    c.setAccessible(true);
+                    t = (Component)c.newInstance();
+                } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                    throw new RuntimeException("Failed to invoke parameterless constructor for " + type, ex);
+                } catch (NoSuchMethodException ex) {
+                    throw new RuntimeException(type + " does not have an parameterless constructor or a constructor accepting "
+                            + Scene.class + ". Register a builder directly or add a usable constructor.", e);
+                }
+            }
+            if (t == null) {
+                throw new NullPointerException("Produced component type for " + type + " is null.");
+            }
+            components.put(type, t);
+        }
+        return (T)t;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends ComponentPipe> T getPipe(Class<T> type, Function<Scene, T> compute) {
+        T l = (T)pipes.get(type);
+        if (l == null) {
+            pipes.put(type, l = compute.apply(this));
+            for (Class t : l.getObservedTypes()) {
+                getComponent(t).addPipe(l);
+            }
+        }
+        return l;
     }
 
     /**
-     * Clears the local component of {@code type} in {@code node}.
+     * Gets this scene's instance of {@code type}, creating it with {@code compute} if this
+     * is the first time it has been requested. Unlike {@link #getPipe} and
+     * {@link #getComponent}, there is no reflective fallback: a {@link ShadingTechnique}
+     * is always built by {@code compute}, since it is otherwise just as likely to need
+     * scene-specific construction arguments as not. Every {@link Scene} gets its own
+     * instance even for the same {@code type}, so a technique never ends up resolving node
+     * ids against more than one scene.
      *
-     * @param node node to clear the component of
-     * @param type type of component to clear
+     * @param type concrete technique type, used as the registry key
+     * @param compute builds the technique for this scene if it does not already exist
+     * @return this scene's instance of {@code type}
      */
-    public void clearComponent(int node, Class<? extends SceneComponent> type) {
-        ComponentArray array = components.get(type);
-        if (array != null) {
-            array.set(node, null);
+    @SuppressWarnings("unchecked")
+    public <T extends ShadingTechnique> T getOrCreateTechnique(Class<T> type, Function<Scene, T> compute) {
+        T technique = (T)techniques.get(type);
+        if (technique == null) {
+            technique = compute.apply(this);
+            if (technique.getClass() != type) {
+                throw new IllegalStateException("Created technique type must match the queried type.");
+            }
+            TriggeredOn triggered = technique.getClass().getAnnotation(TriggeredOn.class);
+            if (triggered != null) {
+                for (String tag : triggered.value()) {
+                    addTagListener(tag, technique);
+                }
+            }
+            techniques.put(type, technique);
+        }
+        return technique;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends ShadingTechnique> T getTechnique(Class<T> type) {
+        return (T)techniques.get(type);
+    }
+
+    /**
+     * Returns true if {@code node} currently has {@code tag}.
+     *
+     * @param tag tag name
+     * @param node node id
+     * @return true if tagged
+     */
+    public boolean hasTag(String tag, int node) {
+        Tag t = tags.get(tag);
+        return t != null && t.taggedNodes.get(node);
+    }
+
+    /**
+     * Tags {@code node} with {@code tag}, notifying every {@link TagListener} registered
+     * for {@code tag} via {@link TagListener#tagAdded} if {@code node} was not already
+     * tagged. Does nothing if {@code node} already has {@code tag}.
+     *
+     * @param tag tag name
+     * @param node node id
+     */
+    public void setTag(String tag, int node) {
+        Tag t = tags.computeIfAbsent(tag, k -> new Tag());
+        if (!t.taggedNodes.get(node)) {
+            t.taggedNodes.set(node);
+            for (TagListener l : t.listeners) {
+                l.tagAdded(this, node, tag);
+            }
         }
     }
 
     /**
-     * Initializes the component array of {@code type} if it has not already been initialized.
-     * This can be used to override the presence (or lack) of the {@link ComponentInheritance} annotation
-     * on the component type.
+     * Removes {@code tag} from {@code node}, notifying every {@link TagListener} registered
+     * for {@code tag} via {@link TagListener#tagRemoved} if {@code node} was tagged. Does
+     * nothing if {@code node} does not have {@code tag}.
      *
-     * @param type type to initialize
-     * @param allowInheritance true to allow inheritance for the component type
+     * @param tag tag name
+     * @param node node id
      */
-    public void initComponent(Class<? extends SceneComponent> type, boolean allowInheritance) {
-        components.computeIfAbsent(type, k -> new ComponentArray(allowInheritance));
+    public void clearTag(String tag, int node) {
+        Tag t = tags.get(tag);
+        if (t != null && t.taggedNodes.get(node)) {
+            t.taggedNodes.clear(node);
+            for (TagListener l : t.listeners) {
+                l.tagRemoved(this, node, tag);
+            }
+        }
     }
 
     /**
-     * Gets the local component of {@code node} set by {@link #setComponent(int, SceneComponent)}.
+     * Registers {@code listener} to be notified when {@code tag} is added to or removed
+     * from any node.
      *
-     * @param node node to get the component of
-     * @param type type of component to get
-     * @return local component of {@code node}, or null if it does not exist
-     * @param <T> component type
+     * @param tag tag name
+     * @param listener listener to notify
      */
-    @SuppressWarnings("unchecked")
-    public <T extends SceneComponent> T getLocalComponent(int node, Class<T> type) {
-        ComponentArray array = components.get(type);
-        return array != null ? (T)array.getLocal(node) : null;
+    public void addTagListener(String tag, TagListener listener) {
+        tags.computeIfAbsent(tag, k -> new Tag()).listeners.add(listener);
     }
 
     /**
-     * Gets the world component of {@code node} computed from the local component of
-     * {@code node} and the world component of the node's parent (if any).
+     * Unregisters {@code listener} from {@code tag}. Does nothing if {@code listener} was
+     * not registered for {@code tag}.
      *
-     * @param node node to get the component of
-     * @param type type of component to get
-     * @return world component of {@code node}, or null if it does not exist
-     * @param <T> component type
+     * @param tag tag name
+     * @param listener listener to unregister
      */
-    @SuppressWarnings("unchecked")
-    public <T extends SceneComponent> T getComponent(int node, Class<T> type) {
-        ComponentArray array = components.get(type);
-        return array != null ? (T)array.getWorld(node) : null;
+    public void removeTagListener(String tag, TagListener listener) {
+        Tag t = tags.get(tag);
+        if (t != null) {
+            t.listeners.remove(listener);
+        }
     }
 
     /**
-     * Sets the userdata of {@code node} under {@code name}. Userdata should be reserved
-     * for marking a handful of nodes (one node is optimal). If many nodes need to use the same
-     * key or inheritance is required, consider using {@link #setComponent(int, SceneComponent)}
-     * instead.
+     * Removes every tag currently on {@code node}, notifying listeners for each one that
+     * was actually present. Node ids are recycled by {@link #createNode()}, so this must
+     * run before a destroyed node's id can be reused - otherwise a brand new node could
+     * appear to already carry whatever tags the previous occupant of its id had.
      *
-     * @param name userdata key
-     * @param node node to set the userdata of
-     * @param value value to assign
+     * @param node node id
      */
-    public void setUserData(String name, int node, @Nullable Object value) {
-        userData.computeIfAbsent(name, k -> new UserDataArray()).set(node, value);
+    private void clearAllTags(int node) {
+        for (Map.Entry<String, Tag> e : tags.entrySet()) {
+            Tag t = e.getValue();
+            if (t.taggedNodes.get(node)) {
+                t.taggedNodes.clear(node);
+                for (TagListener l : t.listeners) {
+                    l.tagRemoved(this, node, e.getKey());
+                }
+            }
+        }
+    }
+
+    public void addTransformListener(IntConsumer listener) {
+        transformListeners.add(listener);
+    }
+
+    public void addBoundsListener(IntConsumer listener) {
+        boundsListeners.add(listener);
     }
 
     /**
-     * Gets the userdata of {@code node} under {@code name}.
+     * Creates a group of nodes from this scene where each node in the group satisfies {@code filter}
      *
-     * @param name userdata key
-     * @param node node to get the userdata of
-     * @return the assigned value, or null
-     * @param <T> value type to return
+     * @param filter filters nodes to be in the group
+     * @return node group
      */
-    @SuppressWarnings("unchecked")
-    public <T> T getUserData(String name, int node) {
-        UserDataArray array = userData.get(name);
-        return array != null ? (T)array.get(node) : null;
-    }
-
-    /**
-     * Creates a subset of this scene where each node in the subset satisfies {@code filter}
-     *
-     * @param filter filters nodes to be in the subset
-     * @return subset of this scene
-     */
-    public Subset createSubset(Predicate<Integer> filter) {
-        Subset subset = new Subset();
+    public Group createGroup(Predicate<Integer> filter) {
+        Group subset = new Group();
         for (int i : unordered()) {
             if (filter.test(i)) {
                 subset.members.set(i);
@@ -960,14 +1094,25 @@ public class Scene {
     }
 
     /**
-     * Creates a subset of this scene where each node in the subset satisfies {@code filter}
-     * and all its ancestors are also in the subset.
+     * Creates a group containing all nodes that exist in the scene (nodes do not have to be attached).
+     *
+     * @return node group
+     */
+    public Group createGroup() {
+        Group set = new Group();
+        set.members.or(usedNodeSlots);
+        return set;
+    }
+
+    /**
+     * Creates a group of nodes from this scene where each node in the group satisfies {@code filter}
+     * and all its ancestors are also in the group.
      *
      * @param filter node filter
-     * @return subset
+     * @return group
      */
-    public Subset createHierarchalSubset(Predicate<Integer> filter) {
-        Subset subset = new Subset();
+    public Group createHierarchalGroup(Predicate<Integer> filter) {
+        Group subset = new Group();
         for (int i : hierarchyOrdered()) {
             int parent = getParentId(i);
             if ((parent < 0 || subset.members.get(parent)) && filter.test(i)) {
@@ -977,21 +1122,20 @@ public class Scene {
         return subset;
     }
 
-    public Subset createFullSubset() {
-        Subset set = new Subset();
-        set.members.or(usedNodeSlots);
-        return set;
-    }
-
-    public Subset createEmptySubset() {
-        return new Subset();
+    /**
+     * Creates a new group containing no nodes.
+     *
+     * @return enpty node group
+     */
+    public Group createEmptyGroup() {
+        return new Group();
     }
 
     public Light createLight(CommandBuffer cmd) {
         int i = usedLightSlots.nextClearBit(0);
         usedLightSlots.set(i);
         if (i >= lights.getStructure().getLength()) {
-            lights.update(cmd, BufferType.Dynamic, EngineBuffer.Role.Storage, OpLocation.PreferHost);
+            lights.update(cmd, BufferType.Dynamic, GpuBuffer.Role.Storage, OpLocation.PreferHost);
         }
         return lights.getStructure().index(i);
     }
@@ -1031,14 +1175,19 @@ public class Scene {
         refreshGlobalLights = refreshGlobalLights | notempty;
     }
 
+    public int getAvailableNodeSlots() {
+        return nodeInfo.length / INFO_SIZE;
+    }
+
     /**
-     * Creates an iterable that iterates over each child of {@code parent}.
+     * Gets the set of child nodes of {@code parent}. Modifying the set modifies the scene
+     * graph and vise versa.
      *
      * @param parent id of parent node
-     * @return child iterable
+     * @return child set
      */
-    public ChildIterator children(int parent) {
-        return new ChildIterator(parent);
+    public Set<Integer> children(int parent) {
+        return new Children(parent);
     }
 
     /**
@@ -1094,135 +1243,142 @@ public class Scene {
         return new UnorderedSceneIterator();
     }
 
-    protected class ComponentArray {
+    private static class Tag {
 
-        private final boolean allowInherit;
-        private final InheritMode onNull;
-        private final int stride;
-        private SceneComponent[] array;
-
-        protected ComponentArray(boolean allowInherit, InheritMode onNull) {
-            this.allowInherit = allowInherit;
-            this.onNull = onNull;
-            this.stride = allowInherit ? 2 : 1;
-        }
-
-        protected ComponentArray(ComponentInheritance i) {
-            this(i == null || i.allow(), i != null ? i.onNull() : InheritMode.Pull);
-        }
-
-        protected void growToContain(int node) {
-            if (array == null) {
-                array = new SceneComponent[nodeInfo.length * stride / INFO_SIZE];
-            } else if (node * stride >= array.length) {
-                SceneComponent[] temp = new SceneComponent[nodeInfo.length * stride / INFO_SIZE];
-                System.arraycopy(array, 0, temp, 0, array.length);
-                array = temp;
-            }
-        }
-
-        protected void updateWorldValues(int originNode) {
-            if (!allowInherit) {
-                return;
-            }
-            DepthFirstIterator it = depthFirst(originNode);
-            for (int child : it) {
-                SceneComponent newWorldValue = array[child * stride];
-                InheritMode mode = newWorldValue != null ? newWorldValue.getInheritMode() : onNull;
-                if (!mode.isIgnoreParent() && (getFlags(child) & IGNORE_PARENT_COMPONENTS_BIT) == 0) {
-                    SceneComponent parentWorldValue = hasParent(child) ? array[getParentId(child) * stride + 1] : null;
-                    InheritMode parentMode = parentWorldValue != null ? parentWorldValue.getInheritMode() : onNull;
-                    if (parentMode.isPush() || (mode.isPull() && parentWorldValue != null)) {
-                        newWorldValue = parentWorldValue;
-                    }
-                }
-                child = child * stride + 1;
-                if (array[child] != newWorldValue) {
-                    array[child] = newWorldValue;
-                } else {
-                    it.skipChildren();
-                }
-            }
-        }
-
-        public void set(int node, SceneComponent value) {
-            growToContain(node);
-            int i = node * stride;
-            if (array[i] != value) {
-                array[i] = value;
-                updateWorldValues(node);
-            }
-        }
-
-        public SceneComponent getLocal(int node) {
-            return array[node * stride];
-        }
-
-        public SceneComponent getWorld(int node) {
-            return array[node * stride + (!allowInherit ? 0 : 1)];
-        }
+        private final BitSet taggedNodes = new BitSet();
+        private final Collection<TagListener> listeners = new ArrayList<>(2);
 
     }
 
-    protected static class UserDataArray {
-
-        private Object[] array;
-        private int offset;
-
-        protected void growToFit(int node) {
-            if (array == null) {
-                array = new Object[1];
-            } else if (node < offset || node >= offset + array.length) {
-                Object[] temp = new Object[Math.max(offset - node + array.length, node - offset)];
-                System.arraycopy(array, 0, temp, Math.max(offset - node, 0), array.length);
-                array = temp;
-                offset = Math.min(offset, node);
-            }
-        }
-
-        public void set(int node, Object value) {
-            if (value != null) {
-                growToFit(node);
-                array[node] = value;
-            } else if (node >= offset && node < offset + array.length) {
-                array[node] = null;
-            }
-        }
-
-        public Object get(int node) {
-            return node >= offset && node < offset + array.length ? array[node] : null;
-        }
-
-    }
-
-    @ComponentInheritance(allow=false)
-    private static class GeometryData implements SceneComponent {
-
-        private Mesh mesh;
-
-        public Mesh getMesh() {
-            return mesh;
-        }
-
-        public void setMesh(Mesh mesh) {
-            this.mesh = mesh;
-        }
-
-    }
-
-    public class Subset implements Iterable<Integer> {
+    public class Group implements Set<Integer> {
 
         private final BitSet members = new BitSet();
 
-        protected Subset() {}
+        protected Group() {}
 
         @Override
-        public SubsetIterator iterator() {
-            return new SubsetIterator(this);
+        public int size() {
+            return members.cardinality();
         }
 
-        public Subset filter(Predicate<Integer> filter) {
-            Subset target = new Subset();
+        @Override
+        public boolean isEmpty() {
+            return members.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            if (o == null || o.getClass() == Integer.class) {
+                return false;
+            }
+            return members.get((Integer)o);
+        }
+
+        @Override
+        public GroupIterator iterator() {
+            return new GroupIterator(this);
+        }
+
+        @Override
+        public Object[] toArray() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] a) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean add(Integer integer) {
+            if (!members.get(integer)) {
+                members.set(integer);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            if (o == null || o.getClass() != Integer.class) {
+                return false;
+            }
+            int i = (Integer)o;
+            boolean present = members.get(i);
+            members.clear(i);
+            return present;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            for (Object o : c) {
+                if (!contains(o)) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends Integer> c) {
+            boolean changed = false;
+            for (int i : c) {
+                changed = changed || !members.get(i);
+                members.set(i);
+            }
+            return changed;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            boolean changed = false;
+            for (Object o : c) {
+                changed = remove(o) | changed;
+            }
+            return changed;
+        }
+
+        @Override
+        public void clear() {
+            members.clear();
+        }
+
+        public void render(CommandBuffer cmd, Queue<Class<? extends ShadingTechnique>> techniques) {
+            for (Class<? extends ShadingTechnique> type : techniques) {
+                if (members.isEmpty()) break;
+                ShadingTechnique tech = getTechnique(type);
+                if (tech == null) continue;
+                Group g = new Group();
+                for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
+                    if (tech.acceptNode(i)) {
+                        members.clear(i);
+                        g.members.set(i);
+                    }
+                }
+                tech.render(cmd, g);
+            }
+        }
+
+        /**
+         * Returns an IntStream of all nodes in this group.
+         *
+         * @return int stream
+         */
+        public IntStream intStream() {
+            return members.stream();
+        }
+
+        /**
+         * Adds filtered nodes from this group to a new group.
+         *
+         * @param filter filters nodes
+         * @return new group containing the filtered nodes
+         */
+        public Group filter(IntPredicate filter) {
+            Group target = new Group();
             for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
                 if (filter.test(i)) {
                     target.members.set(i);
@@ -1231,8 +1387,14 @@ public class Scene {
             return target;
         }
 
-        public Subset transfer(Predicate<Integer> filter) {
-            Subset target = new Subset();
+        /**
+         * Moves filtered nodes from this group to a new group.
+         *
+         * @param filter filters nodes
+         * @return group containing the filtered nodes
+         */
+        public Group transfer(IntPredicate filter) {
+            Group target = new Group();
             for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
                 if (!filter.test(i)) {
                     members.clear(i);
@@ -1242,20 +1404,38 @@ public class Scene {
             return target;
         }
 
-        public int[] toArray() {
-            return members.stream().toArray();
+        public boolean removeIf(IntPredicate filter) {
+            boolean changed = false;
+            for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
+                if (!filter.test(i)) {
+                    members.clear(i);
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
+        /**
+         * Creates a copy of this group.
+         *
+         * @return group copy
+         */
+        public Group copy() {
+            Group g = new Group();
+            g.members.or(members);
+            return g;
         }
 
         public Scene getScene() {
             return Scene.this;
         }
 
-        public BitSet getMemberIndices() {
-            return members;
-        }
+    }
 
-        public boolean contains(int node) {
-            return members.get(node);
+    public static class MeshType extends Property<Mesh> {
+
+        protected MeshType(Scene scene) {
+            super(scene, () -> new DynamicObjectArray<>(128));
         }
 
     }
@@ -1267,8 +1447,7 @@ public class Scene {
         private final Field<Vector4f> position = new Field<>(new Vector4f());
         private final Field<Vector4f> direction = new Field<>(new Vector4f());
 
-        @Final
-        private int index;
+        @Final private int index;
         private float radius, innerCos, outerCos;
         private final ColorRGBA colorRGB = new ColorRGBA(0f, 0f, 0f, 1f);
         private final Vector3f positionVec = new Vector3f();
@@ -1406,13 +1585,13 @@ public class Scene {
 
     }
 
-    public static class SubsetIterator implements Iterable<Integer>, Iterator<Integer> {
+    public static class GroupIterator implements Iterable<Integer>, Iterator<Integer> {
 
-        private final Subset set;
+        private final Group set;
         private int nextIndex;
         private int currentIndex = -1;
 
-        protected SubsetIterator(Subset set) {
+        protected GroupIterator(Group set) {
             this.set = set;
             computeNextIndex();
         }
@@ -1445,61 +1624,156 @@ public class Scene {
 
     }
 
-    public class ChildIterator implements Iterable<Integer>, Iterator<Integer> {
+    private class Children implements Set<Integer> {
 
         private final int parent;
-        private final int[] queue = {NULL, NULL, NULL};
 
-        private ChildIterator(int parent) {
+        private Children(int parent) {
             this.parent = parent;
-            queue[2] = nodeInfo[parent + FIRST_CHILD];
+        }
+
+        @Override
+        public int size() {
+            int size = 0;
+            for (int node = getFirstChildId(parent); node >= 0; node = getSiblingId(node)) {
+                size++;
+            }
+            return size;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return !hasChildren(parent);
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            if (o == null || o.getClass() != Integer.class) {
+                return false;
+            }
+            int n = (int)o;
+            for (int node = getFirstChildId(parent); node >= 0; node = getSiblingId(node)) {
+                if (n == node) return true;
+            }
+            return false;
         }
 
         @Override
         public Iterator<Integer> iterator() {
-            return this;
+            return new IteratorImpl();
         }
 
         @Override
-        public boolean hasNext() {
-            return queue[2] >= 0;
-        }
-
-        @Override
-        public Integer next() {
-            queue[0] = queue[1];
-            queue[1] = queue[2];
-            queue[2] = nodeInfo[queue[2] + SIBLING];
-            return queue[1];
-        }
-
-        @Override
-        public void remove() {
-            removeCurrentFromChain();
-            detach(queue[1]);
-            queue[1] = queue[0];
-        }
-
-        private void removeCurrentFromChain() {
-            if (queue[0] < 0) {
-                nodeInfo[parent + FIRST_CHILD] = queue[2];
-            } else {
-                nodeInfo[queue[0] + SIBLING] = queue[2];
+        public Integer[] toArray() {
+            Integer[] array = new Integer[size()];
+            for (int node = getFirstChildId(parent), i = 0; node >= 0; node = getSiblingId(node), i++) {
+                array[i] = node;
             }
-            nodeInfo[queue[1] + PARENT] = NULL;
-            nodeInfo[queue[1] + SIBLING] = NULL;
+            return array;
         }
 
-        public void destroy() {
-            removeCurrentFromChain();
-            destroyNode(queue[1]);
-            queue[1] = queue[0];
+        @Override @SuppressWarnings({"unchecked", "WrapperTypeMayBePrimitive"})
+        public <T> T[] toArray(T[] a) {
+            int size = size();
+            if (a.length < size) {
+                a = (T[])Array.newInstance(a.getClass().getComponentType(), size);
+            }
+            for (Integer node = getFirstChildId(parent), i = 0; node >= 0; node = getSiblingId(node), i++) {
+                a[i] = (T)node;
+            }
+            return a;
         }
 
-        public void destroyTree() {
-            removeCurrentFromChain();
-            Scene.this.destroyTree(queue[1]);
-            queue[1] = queue[0];
+        @Override
+        public boolean add(Integer integer) {
+            return attachChild(parent, integer);
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            if (o == null || o.getClass() != Integer.class) {
+                return false;
+            }
+            int node = (int)o;
+            if (getParentId(node) != parent) {
+                return false;
+            }
+            detach(node);
+            return true;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            for (int node = getFirstChildId(parent); node >= 0; node = getSiblingId(node)) {
+                if (!c.contains(node)) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends Integer> c) {
+            boolean changed = false;
+            for (int node : c) {
+                changed = attachChild(parent, node) | changed;
+            }
+            return changed;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            boolean changed = false;
+            for (int node = getFirstChildId(parent); node >= 0;) {
+                int next = getSiblingId(node);
+                if (!c.contains(node)) {
+                    detach(node);
+                    changed = true;
+                }
+                node = next;
+            }
+            return changed;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            boolean changed = false;
+            for (int node = getFirstChildId(parent); node >= 0;) {
+                int next = getSiblingId(node);
+                if (c.contains(node)) {
+                    detach(node);
+                    changed = true;
+                }
+                node = next;
+            }
+            return changed;
+        }
+
+        @Override
+        public void clear() {
+            detachAllChildren(parent);
+        }
+
+        public class IteratorImpl implements Iterator<Integer> {
+
+            private int next = getFirstChildId(parent);
+            private int current = NULL;
+
+            @Override
+            public boolean hasNext() {
+                return next >= 0;
+            }
+
+            @Override
+            public Integer next() {
+                current = next;
+                next = getSiblingId(next);
+                return current;
+            }
+
+            @Override
+            public void remove() {
+                detach(current);
+            }
+
         }
 
     }

@@ -100,7 +100,7 @@ inline bool randBool(__global ulong* seed) {
 /**
  * Retrieves the next random double value.
  * The buffer used as seed must be read-write.
- * To use this function, the preprocessor define RANDOM_DOUBLES must be set.
+ * To use this function, the preprocessor define RANDOM_DOUBLES must be binding.
  * Usage: 
  * <code>
  *  __kernel void TestRandom(__global ulong* seeds) {
@@ -162,7 +162,7 @@ inline float2 randGaussianf(__global ulong* seed) {
  * Retrieves the next random double values with a gaussian distribution of mean 0
  * and derivation 1.
  * The buffer used as seed must be read-write.
- * To use this function, the preprocessor define RANDOM_DOUBLES must be set.
+ * To use this function, the preprocessor define RANDOM_DOUBLES must be binding.
  * Usage: 
  * <code>
  *  __kernel void TestRandom(__global ulong* seeds) {

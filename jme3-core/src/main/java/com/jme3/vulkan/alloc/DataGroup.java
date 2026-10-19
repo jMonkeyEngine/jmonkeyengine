@@ -1,6 +1,7 @@
 package com.jme3.vulkan.alloc;
 
 import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructArray;
 import com.jme3.vulkan.buffers.MappableBuffer;
 
 import java.util.BitSet;
