@@ -57,20 +57,20 @@ public abstract class MathVar <SELF extends MathVar> extends AbstractVar<SELF> {
         return create(fmt("(%s/%s)", exp, n));
     }
 
-    public SELF addLocal(Num n) {
-        return create(fmt("%s+=%s;", exp, n));
+    public void addLocal(Num v) {
+        emit("%s+=%s;", exp, v);
     }
 
-    public SELF subLocal(Num n) {
-        return create(fmt("%s-=%s;", exp, n));
+    public void subLocal(Num v) {
+        emit("%s-=%s;", exp, v);
     }
 
-    public SELF multLocal(Num n) {
-        return create(fmt("%s*=%s;", exp, n));
+    public void multLocal(Num v) {
+        emit("%s*=%s;", exp, v);
     }
 
-    public SELF divLocal(Num n) {
-        return create(fmt("%s/=%s;", exp, n));
+    public void divLocal(Num v) {
+        emit("%s/=%s;", exp, v);
     }
     
 }

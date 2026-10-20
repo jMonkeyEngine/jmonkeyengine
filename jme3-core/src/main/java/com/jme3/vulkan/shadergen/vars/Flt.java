@@ -1,6 +1,6 @@
 package com.jme3.vulkan.shadergen.vars;
 
-public final class Flt extends Num<Flt, Float> {
+public class Flt extends Num<Flt, Float> {
 
     public static final String TYPE = "float";
 

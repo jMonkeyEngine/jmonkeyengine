@@ -37,15 +37,15 @@ public class MyShader extends Shader {
         }
     }
 
-    @Uniform @Binding(set=0, binding=0)
+    @Uniform @Binding(set=0)
     private final SceneData scene = new SceneData();
 
     @EntryPoint(ShaderStage.Vertex)
-    public void vertex(ClipPosition clipPos, VertexId vertexId, @In(0) Vec3 position, @In(1) Vec2 texCoord, @Out(0) Vec2 outTexCoord) {
+    public void vertex(@In(0) Vec3 position, @In(1) Vec2 texCoord, @Out(0) Vec2 outTexCoord) {
         outTexCoord.set(texCoord);
         scene.a.var().add(1);
         scene.s.idx(3).b.var().add(1f);
-        clipPos.swizzle('x', 'y', 'z').set(position);
+        gl.clipPosition.swizzle('x', 'y', 'z').set(position);
     }
 
     @EntryPoint(ShaderStage.Fragment)
@@ -69,13 +69,17 @@ public class MyShader extends Shader {
         });
         doSomething(Float(2), Int(3), vec2(5, 6));
         sumIntegers(Int(3), Int(4)).Void();
-        color.set(texCoord.zw(Float(0f), sumIntegers(Int(3), Int(4)).get().flt()));
+        color.set(texCoord.zw(Float(0f), sumIntegers(Int(3), Int(4)).use().flt()));
     }
 
     @EntryPoint(ShaderStage.Compute)
     @Work(x=16, y=16)
-    public void compute() {
-
+    public void compute(@In @ArraySpec(type=Int.class, sizes=3) Array1D<Int> array) {
+        MyShaderLib lib = Import(new MyShaderLib());
+        SMath math = Import(new SMath());
+        Int remainder = Int(0);
+        lib.divideIntegers(array.index(0), array.index(1), remainder).Void();
+        remainder.set(math.max(remainder, array.index(2)).use());
     }
 
     public Result<Int> sumIntegers(Int a, Int b) {

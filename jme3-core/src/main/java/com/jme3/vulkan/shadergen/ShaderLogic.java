@@ -1,5 +1,6 @@
 package com.jme3.vulkan.shadergen;
 
+import com.jme3.backend.GraphicsAPI;
 import com.jme3.vulkan.shadergen.vars.Var;
 
 import java.util.*;
@@ -8,8 +9,8 @@ public class ShaderLogic {
 
     private static final Map<Thread, ShaderLogic> logic = new HashMap<>();
 
-    public static ShaderLogic init(boolean debug) {
-        ShaderLogic l = new ShaderLogic(debug);
+    public static ShaderLogic init(GraphicsAPI target, boolean debug) {
+        ShaderLogic l = new ShaderLogic(target, debug);
         logic.put(Thread.currentThread(), l);
         return l;
     }
@@ -23,10 +24,12 @@ public class ShaderLogic {
     private final Map<Integer, Var> inputVaryings = new HashMap<>();
     private final Map<Integer, Var> outputVaryings = new HashMap<>();
     private final Header header = new Header();
+    private final GraphicsAPI target;
     private final boolean debug;
     private int nextVarId = 0;
 
-    private ShaderLogic(boolean debug) {
+    private ShaderLogic(GraphicsAPI target, boolean debug) {
+        this.target = target;
         this.debug = debug;
     }
 
@@ -108,6 +111,10 @@ public class ShaderLogic {
         if (outputVaryings.putIfAbsent(location, varying) != null) {
             throw new IllegalArgumentException("Only one output varying can occupy a location.");
         }
+    }
+
+    public GraphicsAPI getTarget() {
+        return target;
     }
 
     public boolean isDebug() {

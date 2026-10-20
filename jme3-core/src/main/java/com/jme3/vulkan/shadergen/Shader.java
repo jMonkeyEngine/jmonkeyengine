@@ -5,6 +5,7 @@ import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +22,13 @@ public abstract class Shader {
     private final IfChain ifchain = new IfChain();
     private final String namespace = getClass().getName().replace('.', '_');
     private final Map<Integer, BitSet> bindings = new HashMap<>();
+    private final int version = getSourceVersion();
+    protected BuiltIn gl;
+
+    private int getSourceVersion() {
+        ShadingLangVersion v = getClass().getAnnotation(ShadingLangVersion.class);
+        return v != null ? v.glsl() : 460;
+    }
 
     public String compile(GraphicsAPI target, ShaderStage stage) {
         return compile(target, stage, false);
@@ -36,16 +44,32 @@ public abstract class Shader {
      */
     public String compile(GraphicsAPI target, ShaderStage stage, boolean debug) {
         bindings.clear();
-        logic = ShaderLogic.init(debug);
-        ShadingLangVersion version = getClass().getAnnotation(ShadingLangVersion.class);
-        logic.addHeaderLine("#version %d", version != null ? version.glsl() : 460);
-        compileGlobals(target);
+        logic = ShaderLogic.init(target, debug);
+        logic.addHeaderLine("#version %d", version);
+        gl = new BuiltIn();
+        compileGlobals();
         Method entry = findEntryPoint(stage);
-        Var[] args = compileFunction(entry, "main");
-        if (args != null) {
-            compileEntryPointArguments(entry, args);
+        Work work = entry.getAnnotation(Work.class);
+        if (work != null) {
+            logic.addHeaderLine("layout(local_size_x=%d,local_size_y=%d,local_size_z=%d)in;",
+                    work.x(), work.y(), work.z());
         }
+        Var[] args = compileFunction(entry, "main", false);
+        if (args == null) {
+            throw new IllegalStateException("Entry point was not compiled.");
+        }
+        compileEntryPointArguments(entry, args);
         return logic.compileBlocks();
+    }
+
+    protected void compileAsLibrary(Shader host) {
+        if (host.version < version) {
+            throw new IllegalStateException("Library uses a newer source version than its host.");
+        }
+        bindings.clear();
+        logic = host.logic;
+        gl = new BuiltIn();
+        compileGlobals();
     }
 
     private Method findEntryPoint(ShaderStage stage) {
@@ -65,25 +89,16 @@ public abstract class Shader {
             Parameter p = params[i];
             In in = p.getAnnotation(In.class);
             Out out = p.getAnnotation(Out.class);
-            if ((in != null || out != null) && BuiltIn.class.isAssignableFrom(p.getType())) {
-                throw new IllegalStateException("Built-in variables cannot be in or out.");
-            }
             if (in != null) {
                 if (out != null) throw new IllegalStateException("Shader parameter cannot be both in and out.");
-                if (BuiltIn.class.isAssignableFrom(p.getType())) {
-                    throw new IllegalStateException("Built-in variables cannot be inputs.");
-                }
                 logic.addInputVarying(in.value(), args[i]);
             } else if (out != null) {
-                if (BuiltIn.class.isAssignableFrom(p.getType())) {
-                    throw new IllegalStateException("Built-in variables cannot be outputs.");
-                }
                 logic.addOutputVarying(out.value(), args[i]);
             }
         }
     }
 
-    private Var[] compileFunction(Method func, String shaderName) {
+    private Var[] compileFunction(Method func, String shaderName, boolean writeArguments) {
         if (logic.startBlock(func)) {
             Parameter[] params = func.getParameters();
             Var[] args = new Var[params.length];
@@ -92,16 +107,18 @@ public abstract class Shader {
             signiture.append(' ').append(shaderName).append('(');
             for (int i = 0; i < params.length; i++) {
                 Parameter p = params[i];
-                args[i] = Var.createVariable(p.getType(), p.getName());
-                if (i > 0) signiture.append(',');
-                if (p.getAnnotation(Out.class) != null) {
-                    if (p.getAnnotation(In.class) != null) {
-                        signiture.append("inout ");
-                    } else {
-                        signiture.append("out ");
+                args[i] = Var.createElementVariable(p.getType(), p, p.getName());
+                if (writeArguments) {
+                    if (i > 0) signiture.append(',');
+                    if (p.getAnnotation(Out.class) != null) {
+                        if (p.getAnnotation(In.class) != null) {
+                            signiture.append("inout ");
+                        } else {
+                            signiture.append("out ");
+                        }
                     }
+                    signiture.append(args[i].getType()).append(' ').append(p.getName());
                 }
-                signiture.append(args[i].getType()).append(' ').append(p.getName());
             }
             signiture.append("){");
             logic.add(signiture.toString());
@@ -155,7 +172,7 @@ public abstract class Shader {
      * slang assigns bindings that aren't explicitly reserved) when {@link Binding} is
      * absent or its {@code binding} is left at its default of -1.
      */
-    private void compileGlobals(GraphicsAPI target) {
+    private void compileGlobals() {
         for (Field f : getClass().getDeclaredFields()) {
             Uniform uniform = f.getAnnotation(Uniform.class);
             Storage storage = f.getAnnotation(Storage.class);
@@ -181,13 +198,13 @@ public abstract class Shader {
             }
             if (logic.startBlock(f)) {
                 Binding location = f.getAnnotation(Binding.class);
-                int set = location != null && target != GraphicsAPI.OpenGL ? location.set() : 0;
+                int set = location != null && logic.getTarget() != GraphicsAPI.OpenGL ? location.set() : 0;
                 int binding = getBindingNum(set, location != null ? location.binding() : -1);
                 Layout layout = f.getAnnotation(Layout.class);
                 String layoutType = layout != null ? layout.value() : StructLayout.std140.getIdentifier();
                 String id = logic.generateVariableName();
                 StringBuilder decl = new StringBuilder("layout(").append(layoutType);
-                if (target != GraphicsAPI.OpenGL) {
+                if (logic.getTarget() != GraphicsAPI.OpenGL) {
                     decl.append(",set=").append(set);
                 }
                 // the block name is essentially lost here, which is fine since we're using the binding numbers instead
@@ -240,12 +257,15 @@ public abstract class Shader {
      */
     @SuppressWarnings("unchecked")
     private <T extends Var> Result<T> call(Method func, Var... args) {
+        if (func.getAnnotation(EntryPoint.class) != null) {
+            throw new IllegalArgumentException("Cannot invoke entry point from a shader.");
+        }
         String shaderName = namespace + '_' + func.getName();
-        compileFunction(func, shaderName);
+        compileFunction(func, shaderName, true);
         String callSite = buildFunctionCallSite(shaderName, args);
         Class ret = getFunctionReturnType(func);
         if (ret != void.class) {
-            return new Result<>((T)Var.createVariable(ret, callSite));
+            return new Result<>((T)Var.createElementVariable(ret, func, callSite));
         } else {
             logic.add(callSite);
             logic.add(";");
@@ -284,6 +304,12 @@ public abstract class Shader {
         logic.add(String.format("while(%s){", condition));
         body.run();
         logic.add("}");
+    }
+
+    protected void DoWhile(Runnable body, Bool condition) {
+        logic.add("do{");
+        body.run();
+        logic.add("}while(%s);", condition);
     }
 
     protected <T extends Var> void For(T iterator, Function<T, Bool> condition, Consumer<T> update, Consumer<T> body) {
@@ -351,6 +377,11 @@ public abstract class Shader {
         logic.add(String.format("return %s;", ret));
     }
 
+    protected <T extends Shader> T Import(T library) {
+        library.compileAsLibrary(this);
+        return library;
+    }
+
     /**
      * If in debug mode, inserts a line directive into the shader source code that more
      * accurately pinpoints where the following shader code is generated from in Java.
@@ -397,7 +428,7 @@ public abstract class Shader {
             this.var = var;
         }
 
-        public T get() {
+        public T use() {
             return var;
         }
 
@@ -407,31 +438,17 @@ public abstract class Shader {
 
     }
 
-    private interface BuiltIn { }
+    protected class BuiltIn {
 
-    public static class VertexId extends Int implements BuiltIn {
+        private BuiltIn() {}
 
-        public VertexId() {
-            super("gl_VertexId");
-        }
+        public final Int vertexIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_VertexIndex" : "gl_VertexID");
+        public final Int instanceIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_InstanceIndex" : "gl_InstanceID");
+        public final Flt pointSize = new Flt("gl_PointSize");
+        public final Int drawId = new Int("gl_DrawID");
+        public final Int baseVertex = new Int("gl_BaseVertex");
+        public final Vec4 clipPosition = new Vec4("gl_Position");
 
-        @Override
-        public Int declare(String variableName) {
-            throw new UnsupportedOperationException("Build-in variables cannot be declared.");
-        }
-
-    }
-
-    public static class ClipPosition extends Vec4 implements BuiltIn {
-
-        public ClipPosition() {
-            super("gl_Position");
-        }
-
-        @Override
-        public Vec4 declare(String variableName) {
-            throw new UnsupportedOperationException("Built-in variables cannot be declared.");
-        }
     }
 
 }

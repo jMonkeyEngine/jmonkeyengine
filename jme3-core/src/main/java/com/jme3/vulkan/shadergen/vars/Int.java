@@ -45,6 +45,14 @@ public class Int extends Num<Int, Integer> {
         return new Int(fmt("(%s>>%s)", exp, n));
     }
 
+    public Int mod(int n) {
+        return new Int(fmt("mod(%s,%d)", exp, n));
+    }
+
+    public Int mod(Int n) {
+        return new Int(fmt("mod(%s,%s)", exp, n));
+    }
+
     public void shiftLeftLocal(int n) {
         emit("%s<<=%s;", exp, n);
     }
