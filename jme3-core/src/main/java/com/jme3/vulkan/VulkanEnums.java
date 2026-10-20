@@ -111,7 +111,7 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
-    public int getImageViewType(ImageView.Type type) {
+    public int getImageViewTypeEnum(ImageView.Type type) {
         switch (type) {
             case OneDimensional: return VK_IMAGE_VIEW_TYPE_1D;
             case OneDimensionalArray: return VK_IMAGE_VIEW_TYPE_1D_ARRAY;

@@ -26,10 +26,19 @@ public abstract class Shader {
         return compile(target, stage, false);
     }
 
+    /**
+     * Compiles the shader stage for the target graphics API.
+     *
+     * @param target target graphics API
+     * @param stage stage to compile (must be present)
+     * @param debug true to make the compiled shader code as debuggable as possible
+     * @return shader code
+     */
     public String compile(GraphicsAPI target, ShaderStage stage, boolean debug) {
-        logic = ShaderLogic.init(debug);
-        logic.addHeaderLine("#version 460"); // hardcoded version, change eventually
         bindings.clear();
+        logic = ShaderLogic.init(debug);
+        ShadingLangVersion version = getClass().getAnnotation(ShadingLangVersion.class);
+        logic.addHeaderLine("#version %d", version != null ? version.glsl() : 460);
         compileGlobals(target);
         Method entry = findEntryPoint(stage);
         Var[] args = compileFunction(entry, "main");
@@ -56,10 +65,19 @@ public abstract class Shader {
             Parameter p = params[i];
             In in = p.getAnnotation(In.class);
             Out out = p.getAnnotation(Out.class);
+            if ((in != null || out != null) && BuiltIn.class.isAssignableFrom(p.getType())) {
+                throw new IllegalStateException("Built-in variables cannot be in or out.");
+            }
             if (in != null) {
                 if (out != null) throw new IllegalStateException("Shader parameter cannot be both in and out.");
+                if (BuiltIn.class.isAssignableFrom(p.getType())) {
+                    throw new IllegalStateException("Built-in variables cannot be inputs.");
+                }
                 logic.addInputVarying(in.value(), args[i]);
             } else if (out != null) {
+                if (BuiltIn.class.isAssignableFrom(p.getType())) {
+                    throw new IllegalStateException("Built-in variables cannot be outputs.");
+                }
                 logic.addOutputVarying(out.value(), args[i]);
             }
         }
@@ -126,40 +144,108 @@ public abstract class Shader {
         return callSite.append(')').toString();
     }
 
-    protected <T extends Var> T call(String name, Var... args) {
-        return call(name, false, args);
+    /**
+     * Scans this shader's declared instance fields for ones annotated {@link Uniform}
+     * or {@link Storage}, and declares each as a uniform or shader storage buffer,
+     * assigning it a descriptor set/binding and re-pointing the field's current
+     * {@link StructVar} value at the declared instance so ordinary field access (e.g.
+     * {@code scene.someField}) reaches it directly, without an intermediate accessor.
+     * <p>
+     * A binding is only auto-assigned the next free index within its set (the same way
+     * slang assigns bindings that aren't explicitly reserved) when {@link Binding} is
+     * absent or its {@code binding} is left at its default of -1.
+     */
+    private void compileGlobals(GraphicsAPI target) {
+        for (Field f : getClass().getDeclaredFields()) {
+            Uniform uniform = f.getAnnotation(Uniform.class);
+            Storage storage = f.getAnnotation(Storage.class);
+            if (uniform == null && storage == null) {
+                continue;
+            }
+            if (uniform != null && storage != null) {
+                throw new IllegalStateException("Field \"" + f.getName() + "\" cannot be both @Uniform and @Storage.");
+            }
+            String kind = uniform != null ? "uniform" : "buffer";
+            if (!StructVar.class.isAssignableFrom(f.getType())) {
+                throw new IllegalStateException("Field \"" + f.getName() + "\" must be a StructVar to be a " + kind + " buffer.");
+            }
+            f.setAccessible(true);
+            StructVar value;
+            try {
+                value = (StructVar)f.get(this);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            if (value == null) {
+                throw new IllegalStateException("Field \"" + f.getName() + "\" must be initialized to declare it as a " + kind + " buffer.");
+            }
+            if (logic.startBlock(f)) {
+                Binding location = f.getAnnotation(Binding.class);
+                int set = location != null && target != GraphicsAPI.OpenGL ? location.set() : 0;
+                int binding = getBindingNum(set, location != null ? location.binding() : -1);
+                Layout layout = f.getAnnotation(Layout.class);
+                String layoutType = layout != null ? layout.value() : StructLayout.std140.getIdentifier();
+                String id = logic.generateVariableName();
+                StringBuilder decl = new StringBuilder("layout(").append(layoutType);
+                if (target != GraphicsAPI.OpenGL) {
+                    decl.append(",set=").append(set);
+                }
+                // the block name is essentially lost here, which is fine since we're using the binding numbers instead
+                decl.append(",binding=").append(binding).append(") ").append(kind)
+                        .append(' ').append(logic.generateVariableName()).append('{');
+                for (StructVar.Member m : value.getFields()) {
+                    decl.append(m.getType()).append(' ').append(m.getName()).append(';');
+                }
+                logic.add(decl.append("} ").append(id).append(';').toString());
+                logic.endBlock();
+                value.bindAsBlock(id);
+            }
+        }
     }
 
-    protected <T extends Var> T call(String name, Class<T> returnType, Var... args) {
-        return call(name, false, args);
-    }
-
-    protected void callvoid(String name, Var... args) {
-        call(name, true, args);
-    }
-
-    private <T extends Var> T call(String methodName, boolean voided, Var[] args) {
-        return call(getFunction(methodName), voided, args);
+    private int getBindingNum(int set, int binding) {
+        BitSet bits = bindings.computeIfAbsent(set, k -> new BitSet());
+        if (binding < 0 || bits.get(binding)) {
+            binding = bits.nextClearBit(Math.max(binding, 0));
+        }
+        bits.set(binding);
+        return binding;
     }
 
     /**
-     * Compiles the function and emits a call to that function.
+     * Compiles the function and emits a variable that captures the return type.
+     * Only emits code at the call site if the function returns void.
+     *
+     * @param name name of the function to call
+     * @param returnType return variable type
+     * @param args arguments passed to the function
+     * @return variable capturing the return value
+     * @param <T> return variable type
+     */
+    protected <T extends Var> Result<T> call(String name, Class<T> returnType, Var... args) {
+        return call(name, args);
+    }
+
+    protected <T extends Var> Result<T> call(String name, Var... args) {
+        return call(getFunction(name), args);
+    }
+
+    /**
+     * Compiles the function and emits a variable representing the function call site.
      *
      * @param func function to compile and call
-     * @param voided true to discard the returned variable and call as a complete statement
      * @param args arguments to pass into the function
-     * @return variable returned from the function, or null if the function returned void or
-     * the output was voided
+     * @return variable returned from the function, or null if the function returned void
      * @param <T> returned variable type
      */
     @SuppressWarnings("unchecked")
-    private <T extends Var> T call(Method func, boolean voided, Var[] args) {
+    private <T extends Var> Result<T> call(Method func, Var... args) {
         String shaderName = namespace + '_' + func.getName();
         compileFunction(func, shaderName);
         String callSite = buildFunctionCallSite(shaderName, args);
         Class ret = getFunctionReturnType(func);
-        if (!voided && ret != void.class) {
-            return (T)Var.createVariable(ret, callSite);
+        if (ret != void.class) {
+            return new Result<>((T)Var.createVariable(ret, callSite));
         } else {
             logic.add(callSite);
             logic.add(";");
@@ -249,6 +335,10 @@ public abstract class Shader {
         logic.add("}");
     }
 
+    protected void Discard() {
+        logic.add("discard;");
+    }
+
     protected void Break() {
         logic.add("break;");
     }
@@ -265,7 +355,7 @@ public abstract class Shader {
      * If in debug mode, inserts a line directive into the shader source code that more
      * accurately pinpoints where the following shader code is generated from in Java.
      *
-     * <p>The method calling this method is assumed to be generating the shader code.
+     * <p>The call site to this method is assumed to be generating the shader code.
      * Otherwise, the line directive will be inaccurate.</p>
      */
     protected void insertDebugTrace() {
@@ -276,74 +366,6 @@ public abstract class Shader {
             }
             logic.addDirective("#line %d \"%s.%s\"", el[1].getLineNumber(), el[1].getClassName(), el[1].getMethodName());
         }
-    }
-
-    /**
-     * Scans this shader's declared instance fields for ones annotated {@link Uniform}
-     * or {@link Storage}, and declares each as a uniform or shader storage buffer,
-     * assigning it a descriptor set/binding and re-pointing the field's current
-     * {@link StructVar} value at the declared instance so ordinary field access (e.g.
-     * {@code scene.someField}) reaches it directly, without an intermediate accessor.
-     * <p>
-     * A binding is only auto-assigned the next free index within its set (the same way
-     * slang assigns bindings that aren't explicitly reserved) when {@link Binding} is
-     * absent or its {@code binding} is left at its default of -1.
-     */
-    private void compileGlobals(GraphicsAPI target) {
-        for (Field f : getClass().getDeclaredFields()) {
-            Uniform uniform = f.getAnnotation(Uniform.class);
-            Storage storage = f.getAnnotation(Storage.class);
-            if (uniform == null && storage == null) {
-                continue;
-            }
-            if (uniform != null && storage != null) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" cannot be both @Uniform and @Storage.");
-            }
-            String kind = uniform != null ? "uniform" : "buffer";
-            if (!StructVar.class.isAssignableFrom(f.getType())) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" must be a StructVar to be a " + kind + " buffer.");
-            }
-            f.setAccessible(true);
-            StructVar value;
-            try {
-                value = (StructVar)f.get(this);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            if (value == null) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" must be initialized to declare it as a " + kind + " buffer.");
-            }
-            if (logic.startBlock(f)) {
-                Binding location = f.getAnnotation(Binding.class);
-                int set = location != null && target != GraphicsAPI.OpenGL ? location.set() : 0;
-                int binding = getBindingNum(set, location != null ? location.binding() : -1);
-                Layout layout = f.getAnnotation(Layout.class);
-                String layoutType = layout != null ? layout.value() : StructLayout.std140.getIdentifier();
-                String id = logic.generateVariableName();
-                StringBuilder decl = new StringBuilder("layout(").append(layoutType);
-                if (target != GraphicsAPI.OpenGL) {
-                    decl.append(",set=").append(set);
-                }
-                // the block name is essentially lost here, which is fine since we're using the binding numbers instead
-                decl.append(",binding=").append(binding).append(") ").append(kind)
-                        .append(' ').append(logic.generateVariableName()).append('{');
-                for (StructVar.Member m : value.getFields()) {
-                    decl.append(m.getType()).append(' ').append(m.getName()).append(';');
-                }
-                logic.add(decl.append("} ").append(id).append(';').toString());
-                logic.endBlock();
-                value.bindAsBlock(id);
-            }
-        }
-    }
-
-    private int getBindingNum(int set, int binding) {
-        BitSet bits = bindings.computeIfAbsent(set, k -> new BitSet());
-        if (binding < 0 || bits.get(binding)) {
-            binding = bits.nextClearBit(Math.max(binding, 0));
-        }
-        bits.set(binding);
-        return binding;
     }
 
     protected class IfChain {
@@ -365,6 +387,51 @@ public abstract class Shader {
             logic.add("}");
         }
 
+    }
+
+    public class Result <T extends Var> {
+
+        private final T var;
+
+        private Result(T var) {
+            this.var = var;
+        }
+
+        public T get() {
+            return var;
+        }
+
+        public void Void() {
+            logic.add("%s;", var);
+        }
+
+    }
+
+    private interface BuiltIn { }
+
+    public static class VertexId extends Int implements BuiltIn {
+
+        public VertexId() {
+            super("gl_VertexId");
+        }
+
+        @Override
+        public Int declare(String variableName) {
+            throw new UnsupportedOperationException("Build-in variables cannot be declared.");
+        }
+
+    }
+
+    public static class ClipPosition extends Vec4 implements BuiltIn {
+
+        public ClipPosition() {
+            super("gl_Position");
+        }
+
+        @Override
+        public Vec4 declare(String variableName) {
+            throw new UnsupportedOperationException("Built-in variables cannot be declared.");
+        }
     }
 
 }

@@ -20,7 +20,7 @@ public class ImageView <T extends EngineImage> implements Destructable {
         CubeArray;
 
         public int getEnum(EnumInterpreter interpreter) {
-            return interpreter.getImageViewType(this);
+            return interpreter.getImageViewTypeEnum(this);
         }
 
     }

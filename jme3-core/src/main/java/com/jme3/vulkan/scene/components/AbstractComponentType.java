@@ -3,6 +3,7 @@ package com.jme3.vulkan.scene.components;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Deprecated
 public abstract class AbstractComponentType <T> implements Component<T> {
 
     private final Collection<Component> observers = new ArrayList<>(4);

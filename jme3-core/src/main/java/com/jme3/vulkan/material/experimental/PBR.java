@@ -5,10 +5,9 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.scene.Mesh;
 import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructArray;
 import com.jme3.util.struct.StructField;
+import com.jme3.util.struct.StructList;
 import com.jme3.vulkan.alloc.ReservedStructArray;
-import com.jme3.vulkan.buffer.AutoBuffer;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
@@ -76,13 +75,12 @@ public class PBR implements ShadingTechnique {
         // rendered with.
         try (MemoryStack stack = MemoryStack.stackPush()) {
             Constants constants = new Constants();
-            constants.bind(new DataBuffer(stack.malloc(constants.getSize())), 0);
+            constants.bind(new DataBuffer(stack.malloc(constants.size())), 0);
             Scene scene = geometries.getScene();
-            params = scene.getPipe(ParamPipe.class, s -> new ParamPipe(s, new AutoBuffer<>()));
             textures = scene.getPipe(TexturePipe.class, s -> new TexturePipe(s, this::createTexturesSet));
-            archetype = scene.getPipe(PbrArchetype.class, s -> new PbrArchetype(s, this));
-            Scene.GroupIterator it = geometries.iterator();
-            for (int g : it) {
+            params = scene.getPipe(ParamPipe.class, s -> new ParamPipe(s, new StructList<>(
+                    new Params(), 100, size -> )));
+            for (int g : geometries) {
                 // Stands in for a real "tag added" event, which doesn't exist yet - this should only
                 // need to happen once, when a node is first tagged for PBR, not every frame for every
                 // candidate geometry. activate() is cheap to call repeatedly in the meantime since it
@@ -97,12 +95,13 @@ public class PBR implements ShadingTechnique {
                 VK10.vkCmdPushConstants(cmd, pipelinelayout, ShaderStage.AllGraphics, 0, constants.cache());
                 // ... bind constants to pipeline
                 // ... bind vertex buffers to pipeline
+                VK10.vkCmdBindDescriptorSets();
             }
         }
     }
 
     private DescriptorSet createTexturesSet() {
-        DescriptorSet set = pool.allocateSets(textureLayout).orElseThrow(RuntimeException::new)[0];
+        DescriptorSet set = pool.allocateSet(textureLayout).orElseThrow(RuntimeException::new);
         set.setBinding(0, TextureBinding::new);
         set.setBinding(1, TextureBinding::new);
         return set;
@@ -110,18 +109,15 @@ public class PBR implements ShadingTechnique {
 
     private static class ParamPipe extends StructPipe<Params> {
 
-        private ParamPipe(Scene scene, StructArray<Params> array) {
+        private ParamPipe(Scene scene, StructList<Params> array) {
             super(scene, array);
-            scene.getComponent(BaseColor.class).addListener(this::colorChanged);
-        }
-
-        private void colorChanged(Property<ColorRGBA> color, int node) {
-            getArray().index(node).color.set(color.get(node));
+            map(BaseColor.class, p -> p.color);
+            map(Metallic.class, p -> p.metallic);
+            map(Roughness.class, p -> p.roughness);
         }
 
     }
 
-    @Observes(components = {ColorMap.class, NormalMap.class})
     private static class TexturePipe extends DescriptorPipe {
 
         private final Supplier<DescriptorSet> factory;

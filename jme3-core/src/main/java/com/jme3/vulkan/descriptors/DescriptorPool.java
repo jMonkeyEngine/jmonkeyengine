@@ -74,6 +74,10 @@ public class DescriptorPool implements NativeHandle<Long> {
         return object;
     }
 
+    public Optional<DescriptorSet> allocateSet(DescriptorSetLayout layout) {
+        return allocateSets(Collections.singletonList(layout)).map(s -> s[0]);
+    }
+
     /**
      * Allocates a {@link DescriptorSet} for each {@link DescriptorSetLayout} provided.
      *

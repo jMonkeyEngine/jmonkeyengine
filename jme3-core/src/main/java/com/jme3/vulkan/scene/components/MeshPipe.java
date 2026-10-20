@@ -35,7 +35,7 @@ import com.jme3.vulkan.scene.Scene;
  * any {@link com.jme3.vulkan.material.experimental.ShadingTechnique} that needs mesh data
  * fetches the one shared instance via {@link Scene#getPipe}.
  */
-@Observes(components = {Scene.MeshType.class})
+@Deprecated
 public class MeshPipe implements ComponentPipe {
 
     public static final int POSITION_BIT = 1;

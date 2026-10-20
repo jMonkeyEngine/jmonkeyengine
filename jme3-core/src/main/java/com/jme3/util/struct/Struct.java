@@ -127,7 +127,7 @@ public class Struct <T extends StructField> implements StructField {
         throw new IllegalArgumentException(field + " is not a field of this struct.");
     }
 
-    public static class Field <T> implements StructField {
+    public static class Field <T> implements ValueField<T> {
 
         private final BufferBindingInfo binding = new BufferBindingInfo();
         private FieldDescription<T> desc;
@@ -170,14 +170,17 @@ public class Struct <T extends StructField> implements StructField {
             return desc.getSize();
         }
 
+        @Override
         public void set(T value) {
             desc.write(binding.cache(), value);
         }
 
+        @Override
         public T get(T store) {
             return desc.read(binding.cache(), store);
         }
 
+        @Override
         public T get() {
             return alias = desc.read(binding.cache(), alias);
         }

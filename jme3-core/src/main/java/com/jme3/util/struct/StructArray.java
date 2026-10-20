@@ -16,6 +16,6 @@ public interface StructArray <T extends Struct<StructField>> extends StructField
 
     default <E extends StructField> FieldArray<T, E> getField(Function<T, E> field) {
         return new FieldArray<>(this, field);
-    }V
+    }
 
 }

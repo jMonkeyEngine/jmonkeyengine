@@ -7,6 +7,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.material.experimental.Material;
 import com.jme3.vulkan.scene.components.Component;
+import com.jme3.vulkan.scene.components.Property;
 
 import java.util.Set;
 
@@ -52,12 +53,8 @@ public class Node {
         scene.clearMaterials(id);
     }
 
-    public void setComponent(Class<? extends Component> type, Object value) {
-        scene.setComponent(type, id, value);
-    }
-
-    public <T> T getComponent(Class<? extends Component> type) {
-        return scene.getComponent(type, id);
+    public <T> T getProperty(Class<? extends Property<T>> type) {
+        return scene.getComponent(type).get(id);
     }
 
     public Mesh getMesh() {

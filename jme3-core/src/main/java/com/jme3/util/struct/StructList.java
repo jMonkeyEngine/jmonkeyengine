@@ -4,8 +4,8 @@ import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.ImmediateCommands;
 import com.jme3.vulkan.commands.OpLocation;
+import com.jme3.vulkan.commands.Commands;
 
 import java.util.Iterator;
 import java.util.function.IntFunction;
@@ -53,12 +53,12 @@ public class StructList <T extends Struct<StructField>> implements StructArray<T
 
     private final T struct;
     private final IntFunction<GpuBuffer> bufferFactory;
-    private final ImmediateCommands commands;
 
     private GpuBuffer buffer;
     private int alignment, stride;
     private int capacity;
     private int length;
+    private int currentIndex = -1;
 
     /**
      * @param struct reusable view bound to whichever element {@link #index(int)} is
@@ -67,15 +67,11 @@ public class StructList <T extends Struct<StructField>> implements StructArray<T
      * @param bufferFactory allocates a new buffer of the given byte capacity; called once
      *                      up front and again every time this array outgrows its current
      *                      buffer
-     * @param commands used to record and submit the copy from the old buffer to the new
-     *                 one on resize, in case it must be performed as a device copy
-     *                 rather than a direct host memory copy
      */
-    public StructList(T struct, int initialCapacity, IntFunction<GpuBuffer> bufferFactory, ImmediateCommands commands) {
+    public StructList(T struct, int initialCapacity, IntFunction<GpuBuffer> bufferFactory) {
         this.struct = struct;
         this.capacity = Math.max(initialCapacity, 1);
         this.bufferFactory = bufferFactory;
-        this.commands = commands;
     }
 
     @Override
@@ -225,7 +221,10 @@ public class StructList <T extends Struct<StructField>> implements StructArray<T
     }
 
     private T bindAt(int i, T target) {
-        target.bind(buffer, i * stride);
+        if (i != currentIndex) {
+            target.bind(buffer, i * stride);
+            currentIndex = i;
+        }
         return target;
     }
 
@@ -248,14 +247,12 @@ public class StructList <T extends Struct<StructField>> implements StructArray<T
         GpuBuffer grown = bufferFactory.apply(newCapacity * stride);
         int usedBytes = length * stride;
         if (usedBytes > 0) {
-            CommandBuffer cmd = commands.acquire();
-            cmd.beginRecording();
-            cmd.cmdCopy(old, grown, new BufferCopy().add(0, 0, usedBytes), OpLocation.PreferHost);
-            cmd.endRecording();
-            cmd.submit();
+            Commands.get().cmdCopy(old, grown, new BufferCopy().add(0, 0, usedBytes), OpLocation.PreferHost);
         }
         buffer = grown;
         capacity = newCapacity;
+        currentIndex = -1;
+        struct.unbind();
         old.destroy();
     }
 

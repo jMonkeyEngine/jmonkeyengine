@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-public abstract class DescriptorPipe implements ComponentPipe {
+public abstract class DescriptorPipe implements Component {
 
     private final Scene scene;
     private final DynamicArray<DescriptorSet> sets = new DynamicObjectArray<>(32);
@@ -20,31 +20,6 @@ public abstract class DescriptorPipe implements ComponentPipe {
 
     protected DescriptorPipe(Scene scene) {
         this.scene = scene;
-    }
-
-    @Override
-    public void onComponentChanged(Component type, int node) {
-        DescriptorSet s = sets.get(node);
-        if (s != null) {
-            Tuple2<Integer, Integer> m = mappings.get(type.getClass());
-            if (m != null) {
-                s.getBinding(m.item1).set(m.item2, type.get(node));
-            }
-        }
-    }
-
-    @Override
-    public void activate(int node) {
-        if (sets.fillIfNull(node, this::createOrRecycleSet)) {
-            for (Class<? extends Component> t : getObservedTypes()) {
-                onComponentChanged(scene.getComponent(t), node);
-            }
-        }
-    }
-
-    @Override
-    public void deactivate(int node) {
-        sets.clear(node, recycle::add);
     }
 
     protected final void map(Class<? extends Component> type, int binding, int descriptor) {

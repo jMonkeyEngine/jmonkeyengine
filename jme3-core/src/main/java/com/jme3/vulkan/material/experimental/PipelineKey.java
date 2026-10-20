@@ -1,6 +1,7 @@
 package com.jme3.vulkan.material.experimental;
 
 import com.jme3.scene.Mesh;
+import com.jme3.vulkan.StencilOp;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.scene.Node;
 import com.jme3.vulkan.scene.Scene;
@@ -32,7 +33,8 @@ import java.util.Optional;
 public class PipelineKey {
 
     public static Optional<PipelineKey> create(Node node) {
-        Mesh mesh = node.getComponent()
+        Mesh mesh = node.getProperty(Scene.MeshType.class);
+
     }
 
     private final PolygonMode polygonMode;
@@ -55,13 +57,13 @@ public class PipelineKey {
 
     private final boolean stencilTestEnabled;
     private final CompareOp frontStencilCompareOp;
-    private final int frontStencilFailOp;
-    private final int frontStencilDepthFailOp;
-    private final int frontStencilPassOp;
+    private final StencilOp frontStencilFailOp;
+    private final StencilOp frontStencilDepthFailOp;
+    private final StencilOp frontStencilPassOp;
     private final CompareOp backStencilCompareOp;
-    private final int backStencilFailOp;
-    private final int backStencilDepthFailOp;
-    private final int backStencilPassOp;
+    private final StencilOp backStencilFailOp;
+    private final StencilOp backStencilDepthFailOp;
+    private final StencilOp backStencilPassOp;
 
     protected PipelineKey(PolygonMode polygonMode, CullMode cullMode,
             boolean depthTestEnabled, boolean depthWriteEnabled, CompareOp depthCompareOp, boolean depthBiasEnabled,
@@ -70,8 +72,8 @@ public class PipelineKey {
             BlendFactor srcColorBlendFactor, BlendFactor dstColorBlendFactor, BlendOp colorBlendOp,
             BlendFactor srcAlphaBlendFactor, BlendFactor dstAlphaBlendFactor, BlendOp alphaBlendOp,
             boolean stencilTestEnabled,
-            CompareOp frontStencilCompareOp, int frontStencilFailOp, int frontStencilDepthFailOp, int frontStencilPassOp,
-            CompareOp backStencilCompareOp, int backStencilFailOp, int backStencilDepthFailOp, int backStencilPassOp) {
+            CompareOp frontStencilCompareOp, StencilOp frontStencilFailOp, StencilOp frontStencilDepthFailOp, StencilOp frontStencilPassOp,
+            CompareOp backStencilCompareOp, StencilOp backStencilFailOp, StencilOp backStencilDepthFailOp, StencilOp backStencilPassOp) {
         this.polygonMode = polygonMode;
         this.cullMode = cullMode;
         this.depthTestEnabled = depthTestEnabled;

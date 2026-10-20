@@ -1,5 +1,6 @@
 package com.jme3.vulkan.formats;
 
+import com.jme3.vulkan.StencilOp;
 import com.jme3.vulkan.images.ColorSwizzle;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.images.newimage.ImageView;
@@ -37,8 +38,12 @@ public interface EnumInterpreter {
         throw new UnsupportedOperationException(component.name());
     }
 
-    default int getImageViewType(ImageView.Type type) {
+    default int getImageViewTypeEnum(ImageView.Type type) {
         throw new UnsupportedOperationException(type.name());
+    }
+
+    default int getStencilOpEnum(StencilOp op) {
+        throw new UnsupportedOperationException(op.name());
     }
 
 }

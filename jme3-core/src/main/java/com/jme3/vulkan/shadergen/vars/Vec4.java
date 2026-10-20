@@ -1,6 +1,6 @@
 package com.jme3.vulkan.shadergen.vars;
 
-public final class Vec4 extends MathVar<Vec4> {
+public class Vec4 extends MathVar<Vec4> {
 
     public static final String TYPE = "vec4";
 

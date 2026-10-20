@@ -4,6 +4,7 @@ import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.*;
 
+@ShadingLangVersion(glsl = 450)
 public class MyShader extends Shader {
 
     public static class Something extends StructVar {
@@ -40,13 +41,11 @@ public class MyShader extends Shader {
     private final SceneData scene = new SceneData();
 
     @EntryPoint(ShaderStage.Vertex)
-    public void vertex(Int gl_VertexId, @In(0) Vec3 position, @In(1) Vec2 texCoord, @Out(0) Vec2 outTexCoord) {
+    public void vertex(ClipPosition clipPos, VertexId vertexId, @In(0) Vec3 position, @In(1) Vec2 texCoord, @Out(0) Vec2 outTexCoord) {
         outTexCoord.set(texCoord);
         scene.a.var().add(1);
         scene.s.idx(3).b.var().add(1f);
-        SceneData d;
-        d.s.index(0);
-        d.thing.struct().b.set(0f);
+        clipPos.swizzle('x', 'y', 'z').set(position);
     }
 
     @EntryPoint(ShaderStage.Fragment)
@@ -60,15 +59,17 @@ public class MyShader extends Shader {
         For(0, 10, i -> {
             texCoord.x().addLocal(i.flt());
             If(i.gte(threshold), () -> {
-                Continue();
                 Break();
             }).ElseIf(i.lt(threshold.sub(3)), () -> {
-                // do something here?
+                Continue();
+            }).Else(() -> {
+                // do something
             });
             texCoord.y().addLocal(i.flt());
         });
         doSomething(Float(2), Int(3), vec2(5, 6));
-        color.set(texCoord.zw(Float(0f), sumIntegers(Int(3), Int(4)).flt()));
+        sumIntegers(Int(3), Int(4)).Void();
+        color.set(texCoord.zw(Float(0f), sumIntegers(Int(3), Int(4)).get().flt()));
     }
 
     @EntryPoint(ShaderStage.Compute)
@@ -77,7 +78,7 @@ public class MyShader extends Shader {
 
     }
 
-    public Int sumIntegers(Int a, Int b) {
+    public Result<Int> sumIntegers(Int a, Int b) {
         return call("_sumIntegers", a, b);
     }
     private @Return(Int.class) void _sumIntegers(Int a, Int b) {

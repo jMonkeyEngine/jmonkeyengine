@@ -42,7 +42,6 @@ import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
-import com.jme3.vulkan.commands.RenderCommands;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 

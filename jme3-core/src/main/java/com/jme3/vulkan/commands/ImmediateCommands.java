@@ -9,6 +9,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
+@Deprecated
 public class ImmediateCommands {
 
     private final CommandPool pool;
