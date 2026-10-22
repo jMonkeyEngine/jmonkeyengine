@@ -77,6 +77,14 @@ public class Vec4 extends MathVar<Vec4> {
         return new Flt(fmt("%s.a", exp));
     }
 
+    public Vec3 xyz() {
+        return new Vec3(fmt("%s.xyz", exp));
+    }
+
+    public Vec3 rgb() {
+        return new Vec3(fmt("%s.xyz", exp));
+    }
+
     public Vec2 swizzle(char x, char y) {
         return new Vec2(fmt("%s.%c%c", exp, x, y));
     }

@@ -1,11 +1,9 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
-import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.*;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,20 +11,20 @@ import java.lang.reflect.Parameter;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class Shader {
 
     protected ShaderLogic logic;
-    private final IfChain ifchain = new IfChain();
     private final String namespace = getClass().getName().replace('.', '_');
     private final Map<Integer, BitSet> bindings = new HashMap<>();
     private final int version = getSourceVersion();
     protected BuiltIn gl;
 
     private int getSourceVersion() {
-        ShadingLangVersion v = getClass().getAnnotation(ShadingLangVersion.class);
+        ShadingLangs v = getClass().getAnnotation(ShadingLangs.class);
         return v != null ? v.glsl() : 460;
     }
 
@@ -161,62 +159,18 @@ public abstract class Shader {
         return callSite.append(')').toString();
     }
 
-    /**
-     * Scans this shader's declared instance fields for ones annotated {@link Uniform}
-     * or {@link Storage}, and declares each as a uniform or shader storage buffer,
-     * assigning it a descriptor set/binding and re-pointing the field's current
-     * {@link StructVar} value at the declared instance so ordinary field access (e.g.
-     * {@code scene.someField}) reaches it directly, without an intermediate accessor.
-     * <p>
-     * A binding is only auto-assigned the next free index within its set (the same way
-     * slang assigns bindings that aren't explicitly reserved) when {@link Binding} is
-     * absent or its {@code binding} is left at its default of -1.
-     */
     private void compileGlobals() {
-        for (Field f : getClass().getDeclaredFields()) {
-            Uniform uniform = f.getAnnotation(Uniform.class);
-            Storage storage = f.getAnnotation(Storage.class);
-            if (uniform == null && storage == null) {
-                continue;
-            }
-            if (uniform != null && storage != null) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" cannot be both @Uniform and @Storage.");
-            }
-            String kind = uniform != null ? "uniform" : "buffer";
-            if (!StructVar.class.isAssignableFrom(f.getType())) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" must be a StructVar to be a " + kind + " buffer.");
-            }
-            f.setAccessible(true);
-            StructVar value;
-            try {
-                value = (StructVar)f.get(this);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            if (value == null) {
-                throw new IllegalStateException("Field \"" + f.getName() + "\" must be initialized to declare it as a " + kind + " buffer.");
-            }
-            if (logic.startBlock(f)) {
-                Binding location = f.getAnnotation(Binding.class);
-                int set = location != null && logic.getTarget() != GraphicsAPI.OpenGL ? location.set() : 0;
-                int binding = getBindingNum(set, location != null ? location.binding() : -1);
-                Layout layout = f.getAnnotation(Layout.class);
-                String layoutType = layout != null ? layout.value() : StructLayout.std140.getIdentifier();
-                String id = logic.generateVariableName();
-                StringBuilder decl = new StringBuilder("layout(").append(layoutType);
-                if (logic.getTarget() != GraphicsAPI.OpenGL) {
-                    decl.append(",set=").append(set);
+        try {
+            for (Class clazz = getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
+                for (Field f : clazz.getDeclaredFields()) {
+                    if (Global.class.isAssignableFrom(f.getType())) {
+                        f.setAccessible(true);
+                        logic.registerPossibleGlobal((Global)f.get(this));
+                    }
                 }
-                // the block name is essentially lost here, which is fine since we're using the binding numbers instead
-                decl.append(",binding=").append(binding).append(") ").append(kind)
-                        .append(' ').append(logic.generateVariableName()).append('{');
-                for (StructVar.Member m : value.getFields()) {
-                    decl.append(m.getType()).append(' ').append(m.getName()).append(';');
-                }
-                logic.add(decl.append("} ").append(id).append(';').toString());
-                logic.endBlock();
-                value.bindAsBlock(id);
             }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -273,8 +227,24 @@ public abstract class Shader {
         }
     }
 
+    protected Bool Bool(boolean b) {
+        return new Bool(b);
+    }
+
+    protected Bool True() {
+        return new Bool(true);
+    }
+
+    protected Bool False() {
+        return new Bool(false);
+    }
+
     protected Int Int(int i) {
         return new Int(i);
+    }
+
+    protected UInt UInt(int i) {
+        return new UInt(i);
     }
 
     protected Flt Float(float f) {
@@ -297,7 +267,19 @@ public abstract class Shader {
         logic.add(String.format("if(%s){", condition));
         body.run();
         logic.add("}");
-        return ifchain;
+        return new IfChain();
+    }
+
+    protected DirectiveIfChain IfDir(Bool condition, Runnable body) {
+        logic.addDirective("#if %s", condition);
+        body.run();
+        return new DirectiveIfChain();
+    }
+
+    protected void IfDirEnd(Bool condition, Runnable body) {
+        logic.addDirective("#if %s", condition);
+        body.run();
+        logic.addDirective("#endif");
     }
 
     protected void While(Bool condition, Runnable body) {
@@ -361,6 +343,11 @@ public abstract class Shader {
         logic.add("}");
     }
 
+    protected <T extends Var> Switch<T> Switch(T value) {
+        logic.add("switch(%s){", value);
+        return new Switch<>();
+    }
+
     protected void Discard() {
         logic.add("discard;");
     }
@@ -420,6 +407,72 @@ public abstract class Shader {
 
     }
 
+    protected class DirectiveIfChain {
+
+        private DirectiveIfChain() {}
+
+        public DirectiveIfChain ElseIf(Bool condition, Runnable body) {
+            logic.addDirective("#elseif %s", condition);
+            body.run();
+            return this;
+        }
+
+        public void ElseIfEnd(Bool condition, Runnable body) {
+            logic.addDirective("#elseif %s", condition);
+            body.run();
+            logic.addDirective("#endif");
+        }
+
+        public void Else(Runnable body) {
+            logic.addDirective("#else");
+            body.run();
+            logic.addDirective("#endif");
+        }
+
+        public void end() {
+            logic.addDirective("#endif");
+        }
+
+    }
+
+    protected class Switch <T extends Var> {
+
+        private Switch() {}
+
+        public Switch<T> Case(T value, Runnable body) {
+            logic.add("case %s:{", value);
+            body.run();
+            logic.add("}break;");
+            return this;
+        }
+
+        public void CaseEnd(T value, Runnable body) {
+            logic.add("case %s:{", value);
+            body.run();
+            logic.add("}break;}");
+        }
+
+        public void Default(Runnable body) {
+            logic.add("default:{");
+            body.run();
+            logic.add("}break;}");
+        }
+
+    }
+
+    protected class BuiltIn {
+
+        private BuiltIn() {}
+
+        public final Int vertexIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_VertexIndex" : "gl_VertexID");
+        public final Int instanceIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_InstanceIndex" : "gl_InstanceID");
+        public final Flt pointSize = new Flt("gl_PointSize");
+        public final Int drawId = new Int("gl_DrawID");
+        public final Int baseVertex = new Int("gl_BaseVertex");
+        public final Vec4 clipPosition = new Vec4("gl_Position");
+
+    }
+
     public class Result <T extends Var> {
 
         private final T var;
@@ -438,17 +491,149 @@ public abstract class Shader {
 
     }
 
-    protected class BuiltIn {
+    public class Uniform <T extends StructVar> implements Global<Binding, T> {
 
-        private BuiltIn() {}
+        private final Binding key;
+        private final T value;
+        private T ref;
 
-        public final Int vertexIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_VertexIndex" : "gl_VertexID");
-        public final Int instanceIndex = new Int(logic.getTarget() == GraphicsAPI.Vulkan ? "gl_InstanceIndex" : "gl_InstanceID");
-        public final Flt pointSize = new Flt("gl_PointSize");
-        public final Int drawId = new Int("gl_DrawID");
-        public final Int baseVertex = new Int("gl_BaseVertex");
-        public final Vec4 clipPosition = new Vec4("gl_Position");
+        public Uniform(Binding key, T value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public Uniform(int set, int binding, T value) {
+            this(new Binding(set, binding), value);
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T use() {
+            return (T)logic.getPossibleGlobal(key).compile();
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T compile() {
+            if (logic.startBlock(this)) {
+                ref = (T)value.create(logic.generateUniqueName());
+                logic.registerUsedGlobal(logic.addUniformDeclaration(key, value, ref.toString()), this);
+                logic.endBlock();
+            }
+            return ref;
+        }
+
+        @Override
+        public Binding getKey() {
+            return key;
+        }
 
     }
 
+    public class Storage <T extends StructVar> implements Global<Binding, T> {
+
+        private final Binding key;
+        private final T value;
+        private T ref;
+
+        public Storage(Binding key, T value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public Storage(int set, int binding, T value) {
+            this(new Binding(set, binding), value);
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T use() {
+            return (T)logic.getPossibleGlobal(key).compile();
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T compile() {
+            if (logic.startBlock(this)) {
+                ref = (T)value.create(logic.generateUniqueName());
+                logic.registerUsedGlobal(logic.addStorageDeclaration(key, value, ref.toString()), this);
+                logic.endBlock();
+            }
+            return ref;
+        }
+
+        @Override
+        public Binding getKey() {
+            return key;
+        }
+
+    }
+
+    public class PushConstants <T extends StructVar> implements Global<Class, T> {
+
+        private final T value;
+        private T ref;
+
+        public PushConstants(T value) {
+            this.value = value;
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T use() {
+            return (T)logic.getPossibleGlobal(getKey()).compile();
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T compile() {
+            if (logic.startBlock(this)) {
+                ref = (T)value.create(logic.generateUniqueName());
+                Optional<Binding> binding = logic.addPushConstantsDeclaration(value, ref.toString());
+                logic.registerUsedGlobal(binding.isPresent() ? binding.get() : getKey(), this);
+                logic.endBlock();
+            }
+            return ref;
+        }
+
+        @Override
+        public Class getKey() {
+            return PushConstants.class;
+        }
+
+    }
+
+    public class Specialization <T extends Var> implements Global<ConstantId, T> {
+
+        private final ConstantId key;
+        private final T value;
+        private T ref;
+
+        public Specialization(ConstantId key, T value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public Specialization(int id, T value) {
+            this(new ConstantId(id), value);
+        }
+
+        public String getType() {
+            return value.getType();
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T use() {
+            return (T)logic.getPossibleGlobal(key).compile();
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public T compile() {
+            if (logic.startBlock(this)) {
+                ref = (T)value.create(logic.generateUniqueName());
+                logic.add("layout(constant_id=%d) const %s %s=%s;", key.getId(), value.getType(), ref, value);
+                logic.endBlock();
+            }
+            return ref;
+        }
+
+        @Override
+        public ConstantId getKey() {
+            return key;
+        }
+    }
 }

@@ -18,13 +18,8 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
     protected String exp;
     private boolean isBlock = false;
 
-    public StructVar(Var... vars) {
-        StringBuilder dec = new StringBuilder(type).append('(');
-        for (int i = 0; i < vars.length; i++) {
-            if (i > 0) dec.append(',');
-            dec.append(vars[i]);
-        }
-        exp = dec.append(')').toString();
+    public StructVar() {
+        exp = logic.generateUniqueName();
     }
 
     public StructVar(String exp) {
@@ -44,7 +39,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
 
     @Override
     public StructVar declare() {
-        return declare(logic.generateVariableName());
+        return declare(logic.generateUniqueName());
     }
 
     @Override
@@ -139,7 +134,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
         private final V var;
 
         public Field(T alias, Function<String, V> factory) {
-            this(logic.generateVariableName(), alias, factory);
+            this(logic.generateUniqueName(), alias, factory);
         }
 
         public Field(String name, T alias, Function<String, V> factory) {
@@ -178,7 +173,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
             return (V) var.create(exp);
         }
 
-        public V var() {
+        public V use() {
             return var;
         }
 
@@ -195,7 +190,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
         private final T struct;
 
         public SubStruct(T struct) {
-            this(logic.generateVariableName(), struct);
+            this(logic.generateUniqueName(), struct);
         }
 
         public SubStruct(String name, T struct) {
@@ -312,7 +307,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
 
         @Override
         public StructArrayVar<T> declare() {
-            return declare(logic.generateVariableName());
+            return declare(logic.generateUniqueName());
         }
 
         @Override
@@ -414,7 +409,7 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
 
         @Override
         public StructArrayVar<T> declare() {
-            return declare(logic.generateVariableName());
+            return declare(logic.generateUniqueName());
         }
 
         @Override

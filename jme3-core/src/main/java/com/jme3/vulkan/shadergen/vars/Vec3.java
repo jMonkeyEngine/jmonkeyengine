@@ -28,6 +28,10 @@ public class Vec3 extends MathVar<Vec3> {
         this(fmt("vec3(%s)", xyz));
     }
 
+    public Vec3(Flt xyz) {
+        this(fmt("vec3(%s)", xyz));
+    }
+
     public Vec3(String exp) {
         super(TYPE, exp);
     }
@@ -35,6 +39,10 @@ public class Vec3 extends MathVar<Vec3> {
     @Override
     public Vec3 create(String exp) {
         return new Vec3(exp);
+    }
+
+    public Flt dot(Vec3 v) {
+        return new Flt(fmt("dot(%s,%s)", exp, v));
     }
 
     public Flt x() {
@@ -61,6 +69,10 @@ public class Vec3 extends MathVar<Vec3> {
         return new Flt(fmt("%s.b", exp));
     }
 
+    public Vec3 xyz() {
+        return new Vec3(fmt("%s.xyz", exp));
+    }
+
     public Vec2 swizzle(char x, char y) {
         return new Vec2(fmt("%s.%c%c", exp, x, y));
     }
@@ -75,6 +87,10 @@ public class Vec3 extends MathVar<Vec3> {
 
     public UVec3 uvec3() {
         return new UVec3(fmt("uvec3(%s)", exp));
+    }
+
+    public Vec3 mix(Vec3 v, Flt factor) {
+        return new Vec3(fmt("mix(%s,%s,%s)", exp, v, factor));
     }
 
 }

@@ -7,18 +7,18 @@ package com.jme3.util;
  *
  * @param <T>
  */
-public class IdentityHashKey <T> {
+public class IdentityKey<T> {
 
     private final T key;
 
-    public IdentityHashKey(T key) {
+    public IdentityKey(T key) {
         this.key = key;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        IdentityHashKey that = (IdentityHashKey)o;
+        IdentityKey that = (IdentityKey)o;
         return key == that.key;
     }
 

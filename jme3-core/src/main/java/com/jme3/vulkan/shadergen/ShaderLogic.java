@@ -1,6 +1,7 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
+import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.shadergen.vars.Var;
 
 import java.util.*;
@@ -23,10 +24,14 @@ public class ShaderLogic {
     private final Map<Object, Block> blocks = new HashMap<>();
     private final Map<Integer, Var> inputVaryings = new HashMap<>();
     private final Map<Integer, Var> outputVaryings = new HashMap<>();
+    private final Map<Object, Global> possibleGlobals = new HashMap<>();
+    private final Map<Object, Global> usedGlobals = new HashMap<>();
     private final Header header = new Header();
     private final GraphicsAPI target;
     private final boolean debug;
     private int nextVarId = 0;
+    private int nextUniformId = 0;
+    private int nextStorageId = 0;
 
     private ShaderLogic(GraphicsAPI target, boolean debug) {
         this.target = target;
@@ -42,8 +47,22 @@ public class ShaderLogic {
         return glsl.toString();
     }
 
-    public String generateVariableName() {
+    public String generateUniqueName() {
         return "_v" + nextVarId++;
+    }
+
+    public boolean registerPossibleGlobal(Global global) {
+        return possibleGlobals.putIfAbsent(global.getKey(), global) == null;
+    }
+
+    public Global getPossibleGlobal(Object key) {
+        return possibleGlobals.get(key);
+    }
+
+    public void registerUsedGlobal(Object key, Global global) {
+        if (usedGlobals.putIfAbsent(key, global) != null) {
+            throw new IllegalStateException("Globals collision on " + key);
+        }
     }
 
     public boolean startBlock(Object signiture) {
@@ -111,6 +130,54 @@ public class ShaderLogic {
         if (outputVaryings.putIfAbsent(location, varying) != null) {
             throw new IllegalArgumentException("Only one output varying can occupy a location.");
         }
+    }
+
+    public Binding addUniformDeclaration(Binding binding, StructVar struct, String refName) {
+        if (target == GraphicsAPI.Vulkan) {
+            add("layout(%s,set=%d,binding=%d) uniform %s{", struct.getLayout().getIdentifier(),
+                    binding.getSet(), binding.getBinding(), generateUniqueName());
+        } else {
+            binding = new Binding(nextUniformId++);
+            add("layout(%s,binding=%d) uniform %s{", struct.getLayout().getIdentifier(),
+                    binding.getBinding(), generateUniqueName());
+        }
+        for (StructVar.Member f : struct.getFields()) {
+            add("%s %s;", f.getType(), f.getName());
+        }
+        add("}%s;", refName);
+        return binding;
+    }
+
+    public Binding addStorageDeclaration(Binding binding, StructVar struct, String refName) {
+        if (target == GraphicsAPI.Vulkan) {
+            add("layout(%s,set=%d,binding=%d) buffer %s{", struct.getLayout().getIdentifier(),
+                    binding.getSet(), binding.getBinding(), generateUniqueName());
+        } else {
+            binding = new Binding(nextStorageId++);
+            add("layout(%s,binding=%d) buffer %s{", struct.getLayout().getIdentifier(),
+                    binding.getBinding(), generateUniqueName());
+        }
+        for (StructVar.Member f : struct.getFields()) {
+            add("%s %s;", f.getType(), f.getName());
+        }
+        add("}%s;", refName);
+        return binding;
+    }
+
+    public Optional<Binding> addPushConstantsDeclaration(StructVar struct, String refName) {
+        Optional<Binding> key;
+        if (target == GraphicsAPI.Vulkan) {
+            key = Optional.empty();
+            add("layout(push_constant,%s) uniform %s{", struct.getLayout().getIdentifier(), generateUniqueName());
+        } else {
+            key = Optional.of(new Binding(nextUniformId++));
+            add("layout(%s,binding=%d) uniform %s{", struct.getLayout().getIdentifier(), key.get().getBinding(), generateUniqueName());
+        }
+        for (StructVar.Member f : struct.getFields()) {
+            add("%s %s;", f.getType(), f.getName());
+        }
+        add("}%s;", refName);
+        return key;
     }
 
     public GraphicsAPI getTarget() {

@@ -17,4 +17,12 @@ public class Bool extends AbstractVar<Bool> {
         return new Bool(exp);
     }
 
+    public Bool and(Bool b) {
+        return new Bool(fmt("(%s&&%s)", exp, b));
+    }
+
+    public Bool or(Bool b) {
+        return new Bool(fmt("(%s||%s)", exp, b));
+    }
+
 }

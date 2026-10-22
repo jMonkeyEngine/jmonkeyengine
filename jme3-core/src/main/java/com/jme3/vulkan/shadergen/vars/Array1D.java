@@ -265,7 +265,7 @@ public class Array1D <T extends Var> implements Var {
 
     @Override
     public Array1D<T> declare() {
-        return declare(logic.generateVariableName());
+        return declare(logic.generateUniqueName());
     }
 
     @Override

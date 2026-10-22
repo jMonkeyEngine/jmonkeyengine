@@ -21,14 +21,14 @@ public abstract class AbstractVar <SELF extends AbstractVar> implements Var {
     @Override @SuppressWarnings("unchecked")
     public SELF declare() {
         String exp = this.exp;
-        emit("%s %s=%s;", type, this.exp = logic.generateVariableName(), exp);
+        emit("%s %s=%s;", type, this.exp = logic.generateUniqueName(), exp);
         return (SELF)this;
     }
 
     @Override @SuppressWarnings("unchecked")
     public SELF declare(String variableName) {
         String exp = this.exp;
-        emit("%s %s=%s;", type, this.exp = logic.generateVariableName(), exp);
+        emit("%s %s=%s;", type, this.exp = logic.generateUniqueName(), exp);
         return (SELF)this;
     }
 

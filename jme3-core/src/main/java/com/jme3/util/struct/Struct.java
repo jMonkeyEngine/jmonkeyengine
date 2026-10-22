@@ -100,6 +100,10 @@ public class Struct <T extends StructField> implements StructField {
         return field;
     }
 
+    public StructLayout getLayout() {
+        return layout;
+    }
+
     public List<T> getFields() {
         return Collections.unmodifiableList(fields);
     }

@@ -4,7 +4,7 @@ import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.*;
 
-@ShadingLangVersion(glsl = 450)
+@ShadingLangs(glsl = 460)
 public class MyShader extends Shader {
 
     public static class Something extends StructVar {
@@ -43,8 +43,8 @@ public class MyShader extends Shader {
     @EntryPoint(ShaderStage.Vertex)
     public void vertex(@In(0) Vec3 position, @In(1) Vec2 texCoord, @Out(0) Vec2 outTexCoord) {
         outTexCoord.set(texCoord);
-        scene.a.var().add(1);
-        scene.s.idx(3).b.var().add(1f);
+        scene.a.use().add(1);
+        scene.s.idx(3).b.use().add(1f);
         gl.clipPosition.swizzle('x', 'y', 'z').set(position);
     }
 
