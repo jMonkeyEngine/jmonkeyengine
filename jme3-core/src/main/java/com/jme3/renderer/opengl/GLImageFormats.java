@@ -318,8 +318,8 @@ public final class GLImageFormats {
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT, false, true, false);
         
         
-        if (caps.contains(Caps.WebGL)) {
-            // NOTE: fallback to 24-bit depth as workaround for firefox bug in WebGL 2 where DEPTH_COMPONENT16 is not handled properly
+        if (opengles3 || caps.contains(Caps.WebGL)) {
+            // Default to 24 bit depth in GLES3 and WebGL
             format(formatToGL, Format.Depth, GL2.GL_DEPTH_COMPONENT24, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         } else if (caps.contains(Caps.OpenGLES20)) {
             // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.
