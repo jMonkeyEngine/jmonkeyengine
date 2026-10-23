@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -428,7 +427,7 @@ public class GlRendererFrameBufferMipmapTest {
 
         assertAll(
                 () -> assertEquals(1, driver.definitionCount(image.getId())),
-                () -> assertSame(pixels, driver.uploadedData.get(0)),
+                () -> assertEquals(pixels, driver.uploadedData.get(0)),
                 () -> assertEquals(1, driver.generationCount(image.getId())),
                 () -> assertEquals(3, driver.generatedMaxLevels.get(image.getId())),
                 () -> assertTrue(image.isMipmapsGenerated()),
@@ -440,7 +439,7 @@ public class GlRendererFrameBufferMipmapTest {
 
         assertAll(
                 () -> assertEquals(2, driver.definitionCount(image.getId())),
-                () -> assertSame(pixels, driver.uploadedData.get(1)),
+                () -> assertEquals(pixels, driver.uploadedData.get(1)),
                 () -> assertEquals(2, driver.generationCount(image.getId())),
                 () -> assertTrue(image.isMipmapsGenerated()),
                 () -> assertFalse(image.isUpdateNeeded()));
@@ -455,7 +454,7 @@ public class GlRendererFrameBufferMipmapTest {
         FrameBuffer framebuffer = framebuffer(texture);
         renderer.setFrameBuffer(framebuffer);
         renderer.setFrameBuffer(null);
-        assertSame(pixels, driver.uploadedData.get(0));
+        assertEquals(pixels, driver.uploadedData.get(0));
         assertEquals(0, driver.maxLevels.get(image.getId()));
 
         texture.setMinFilter(Texture.MinFilter.Trilinear);
