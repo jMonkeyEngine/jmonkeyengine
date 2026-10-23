@@ -7,7 +7,8 @@ jacoco = "0.8.12"
 lwjgl3 = "3.4.3"
 angle = "2026-05-09"
 libjglios = "0.10"
-saferalloc = "0.0.10"
+saferalloc = "0.0.11"
+native-bootstrap = "0.1.1"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 jmeAndroidNatives = "3.10.0-xt16kb-alloc"
@@ -79,6 +80,7 @@ libjglios-gles-ios = { module = "org.ngengine:libjglios-gles-ios", version.ref =
 libjglios-gradle-plugin = { module = "org.ngengine:libjglios-gradle-plugin", version.ref = "libjglios" }
 libjglios-openal-ios = { module = "org.ngengine:libjglios-openal-ios", version.ref = "libjglios" }
 libjglios-sdl3-ios = { module = "org.ngengine:libjglios-sdl3-ios", version.ref = "libjglios" }
+native-directories = { module = "org.jmonkeyengine:native-directories", version.ref = "native-bootstrap" }
 saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
 saferalloc-natives-linux-x8664 = { module = "org.ngengine:saferalloc-natives-linux-x86_64", version.ref = "saferalloc" }
 saferalloc-natives-linux-aarch64 = { module = "org.ngengine:saferalloc-natives-linux-aarch64", version.ref = "saferalloc" }
