@@ -41,6 +41,7 @@ import com.jme3.animation.Bone;
  *
  * @author Nehon
  */
+@Deprecated
 public interface RagdollCollisionListener {
     
     /**
