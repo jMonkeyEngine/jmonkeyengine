@@ -22,13 +22,13 @@ ShadingTechnique is meant to solve several limitations from the current material
 * Material data and shading logic is tightly coupled, which makes it unnecessarily difficult to use custom PBR shaders.
 * It's easy to forget the names of material parameters. I've been using jme3 for years and I always needed to have `PBRLighting.j3md` open when working with PBR.
 * Shader globals are "black-boxed".
-* One binding of fixed implementations have to interface with all shaders, which limits how those shaders can be implemented. I'm talking especially about TechniqueDefLogic implementations here, which are infamously difficult to customize.
+* One location of fixed implementations have to interface with all shaders, which limits how those shaders can be implemented. I'm talking especially about TechniqueDefLogic implementations here, which are infamously difficult to customize.
 
 ShadingTechnique solves these problems using an ECS-like system. Components carrying data only are attached to geometries. At render time, each geometry is rendered by a submitted ShadingTechnique based on what types of components the geometry is carrying. For those of you who use with Zay-ES, this should be familiar. A couple key differences being that components are mutable and that components can be inherited between nodes.
 
 ### Lights
 
-Lighting received massive optimization in 4.0. Before, due to uniform and shader storage buffers not having very good integration, light data was uploaded to the graphics device every single time a lit geometry is rendered. Now we upload only a bit-binding per geometry, where each bit specifies whether the corresponding light influences that geometry or not. We only have to update this bit-binding on the device whenever the light composition of a geometry changes.
+Lighting received massive optimization in 4.0. Before, due to uniform and shader storage buffers not having very good integration, light data was uploaded to the graphics device every single time a lit geometry is rendered. Now we upload only a bit-location per geometry, where each bit specifies whether the corresponding light influences that geometry or not. We only have to update this bit-location on the device whenever the light composition of a geometry changes.
 
 The light data itself is kept in one large SSBO that only needs to be bound once per render frame (for vulkan) or once per shader (for opengl). This reduces the number of shader recompilations required, since the `NB_LIGHTS` macro is no longer required, and we won't have any wasted light iterations in the shader.
 
@@ -97,8 +97,8 @@ Scene is specifically structured to make `hierarchyOrdered` (where a node is onl
 Subsets can be created from a Scene:
 
 ```java
-Scene.Subset binding = scene.createSubset(node -> someCondition(node));
-Scene.Subset set2 = binding.filter(node -> someCondition2(node));
+Scene.Subset location = scene.createSubset(node -> someCondition(node));
+Scene.Subset set2 = location.filter(node -> someCondition2(node));
 ```
 
 `Group` is just a wrapper over a BitSet.
@@ -129,7 +129,7 @@ MyStruct struct = new MyStruct();
 EngineBuffer buffer = ...
 struct.bind(buffer, 0);
 // changing struct changes buffer
-struct.index.binding(1);
+struct.index.location(1);
 ```
 
 To describe an array of structs:
@@ -139,14 +139,14 @@ StructArray<MyStruct> array = new StructArray(10, new MyStruct());
 EngineBuffer buffer = allocator.createBuffer(BufferType.Dynamic, array.size(), BufferRole.Vertex);
 array.bind(buffer, 0);
 // changing array changes buffer
-array.index(2).vector.binding(Vector4f.ZERO);
+array.index(2).vector.location(Vector4f.ZERO);
 ```
 
 Note that StructArray repositions the underlying struct on each `index` call, so the following code will not work as intended.
 
 ```java
 MyStruct e = array.index(3);
-array.index(4).vector.binding(e.vector.get());
+array.index(4).vector.location(e.vector.get());
 ```
 
 AutoBuffer is used when the Struct/StructArray can change size and make it necessary the underlying buffer to be resized.

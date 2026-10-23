@@ -33,8 +33,8 @@ public class Unshaded extends Shader {
     private final Specialization<UInt> NUM_BONES = new Specialization<>(1, UInt(0));
     private final Specialization<UInt> MORPH_TARGETS = new Specialization<>(2, UInt(0));
 
-    private final PushConstants<Transforms> transforms = new PushConstants<>(new Transforms());
-    private final Uniform<Visuals> visuals = new Uniform<>(1, 0, new Visuals());
+    private final Uniform<Transforms> transforms = Uniform(1, new Transforms());
+    private final Uniform<Visuals> visuals = Uniform(1, new Visuals());
 
     @EntryPoint(ShaderStage.Vertex)
     public void vertex(@In(0) Vec3 inPosition, @In(1) Vec2 inTexCoord, @In(2) Vec2 inTexCoord2, @In(3) Vec4 inColor,
@@ -67,7 +67,7 @@ public class Unshaded extends Shader {
         });
         IfDirEnd (DESATURATE.defined(), () -> {
             Vec3 gray = new Vec3(new Vec3(0.2126f, 0.7152f, 0.0722f).dot(color.rgb()));
-            color.rgb().set(color.rgb().mix(gray, visuals.desaturation.use()));
+            color.rgb().set(color.rgb().mix(gray, visuals.use().desaturation.use()));
         });
         fragColor.set(color);
     }

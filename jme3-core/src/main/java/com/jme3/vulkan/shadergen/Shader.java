@@ -11,7 +11,6 @@ import java.lang.reflect.Parameter;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -165,7 +164,7 @@ public abstract class Shader {
                 for (Field f : clazz.getDeclaredFields()) {
                     if (Global.class.isAssignableFrom(f.getType())) {
                         f.setAccessible(true);
-                        logic.registerPossibleGlobal((Global)f.get(this));
+                        logic.registerGlobal((Global)f.get(this));
                     }
                 }
             }
@@ -225,6 +224,22 @@ public abstract class Shader {
             logic.add(";");
             return null;
         }
+    }
+
+    protected <T extends StructVar> Uniform<T> Uniform(int set, T value) {
+        return new Uniform<>(false, set, value, null);
+    }
+
+    protected <T extends StructVar> Uniform<T> Uniform(int set, T value, Uniform<? super T> override) {
+        return new Uniform<>(false, set, value, override);
+    }
+
+    protected <T extends StructVar> Uniform<T> Storage(int set, T value) {
+        return new Uniform<>(true, set, value, null);
+    }
+
+    protected <T extends StructVar> Uniform<T> Storage(int set, T value, Uniform<? super T> override) {
+        return new Uniform<>(true, set, value, override);
     }
 
     protected Bool Bool(boolean b) {
@@ -491,24 +506,24 @@ public abstract class Shader {
 
     }
 
-    public class Uniform <T extends StructVar> implements Global<Binding, T> {
+    public class Uniform <T extends StructVar> implements Global<T> {
 
-        private final Binding key;
+        private final boolean storage;
+        private final int set;
         private final T value;
+        private final Global<? super T> override;
         private T ref;
 
-        public Uniform(Binding key, T value) {
-            this.key = key;
+        public Uniform(boolean storage, int set, T value, Global<? super T> override) {
+            this.storage = storage;
+            this.set = set;
             this.value = value;
-        }
-
-        public Uniform(int set, int binding, T value) {
-            this(new Binding(set, binding), value);
+            this.override = override;
         }
 
         @Override @SuppressWarnings("unchecked")
         public T use() {
-            return (T)logic.getPossibleGlobal(key).compile();
+            return (T)logic.fetchGlobal(this).compile();
         }
 
         @Override @SuppressWarnings("unchecked")
@@ -522,77 +537,12 @@ public abstract class Shader {
         }
 
         @Override
-        public Binding getKey() {
-            return key;
+        public Global getOverridenGlobal() {
+            return override;
         }
 
-    }
-
-    public class Storage <T extends StructVar> implements Global<Binding, T> {
-
-        private final Binding key;
-        private final T value;
-        private T ref;
-
-        public Storage(Binding key, T value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public Storage(int set, int binding, T value) {
-            this(new Binding(set, binding), value);
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T use() {
-            return (T)logic.getPossibleGlobal(key).compile();
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T compile() {
-            if (logic.startBlock(this)) {
-                ref = (T)value.create(logic.generateUniqueName());
-                logic.registerUsedGlobal(logic.addStorageDeclaration(key, value, ref.toString()), this);
-                logic.endBlock();
-            }
-            return ref;
-        }
-
-        @Override
-        public Binding getKey() {
-            return key;
-        }
-
-    }
-
-    public class PushConstants <T extends StructVar> implements Global<Class, T> {
-
-        private final T value;
-        private T ref;
-
-        public PushConstants(T value) {
-            this.value = value;
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T use() {
-            return (T)logic.getPossibleGlobal(getKey()).compile();
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T compile() {
-            if (logic.startBlock(this)) {
-                ref = (T)value.create(logic.generateUniqueName());
-                Optional<Binding> binding = logic.addPushConstantsDeclaration(value, ref.toString());
-                logic.registerUsedGlobal(binding.isPresent() ? binding.get() : getKey(), this);
-                logic.endBlock();
-            }
-            return ref;
-        }
-
-        @Override
-        public Class getKey() {
-            return PushConstants.class;
+        public T getStruct() {
+            return value;
         }
 
     }
@@ -636,4 +586,5 @@ public abstract class Shader {
             return key;
         }
     }
+
 }

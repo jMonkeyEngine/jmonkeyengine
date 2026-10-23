@@ -26,43 +26,43 @@
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
-binding DIRNAME=%~dp0
-if "%DIRNAME%"=="" binding DIRNAME=.
+location DIRNAME=%~dp0
+if "%DIRNAME%"=="" location DIRNAME=.
 @rem This is normally unused
-binding APP_BASE_NAME=%~n0
-binding APP_HOME=%DIRNAME%
+location APP_BASE_NAME=%~n0
+location APP_HOME=%DIRNAME%
 
 @rem Resolve any "." and ".." in APP_HOME to make it shorter.
-for %%i in ("%APP_HOME%") do binding APP_HOME=%%~fi
+for %%i in ("%APP_HOME%") do location APP_HOME=%%~fi
 
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-binding DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+location DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
 
-binding JAVA_EXE=java.exe
+location JAVA_EXE=java.exe
 %JAVA_EXE% -version >NUL 2>&1
 if %ERRORLEVEL% equ 0 goto execute
 
 echo. 1>&2
-echo ERROR: JAVA_HOME is not binding and no 'java' command could be found in your PATH. 1>&2
+echo ERROR: JAVA_HOME is not location and no 'java' command could be found in your PATH. 1>&2
 echo. 1>&2
-echo Please binding the JAVA_HOME variable in your environment to match the 1>&2
+echo Please location the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
 
 goto fail
 
 :findJavaFromJavaHome
-binding JAVA_HOME=%JAVA_HOME:"=%
-binding JAVA_EXE=%JAVA_HOME%/bin/java.exe
+location JAVA_HOME=%JAVA_HOME:"=%
+location JAVA_EXE=%JAVA_HOME%/bin/java.exe
 
 if exist "%JAVA_EXE%" goto execute
 
 echo. 1>&2
-echo ERROR: JAVA_HOME is binding to an invalid directory: %JAVA_HOME% 1>&2
+echo ERROR: JAVA_HOME is location to an invalid directory: %JAVA_HOME% 1>&2
 echo. 1>&2
-echo Please binding the JAVA_HOME variable in your environment to match the 1>&2
+echo Please location the JAVA_HOME variable in your environment to match the 1>&2
 echo location of your Java installation. 1>&2
 
 goto fail
@@ -82,8 +82,8 @@ if %ERRORLEVEL% equ 0 goto mainEnd
 :fail
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
-binding EXIT_CODE=%ERRORLEVEL%
-if %EXIT_CODE% equ 0 binding EXIT_CODE=1
+location EXIT_CODE=%ERRORLEVEL%
+if %EXIT_CODE% equ 0 location EXIT_CODE=1
 if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
 exit /b %EXIT_CODE%
 

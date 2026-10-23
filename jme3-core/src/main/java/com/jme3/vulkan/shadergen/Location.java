@@ -2,15 +2,15 @@ package com.jme3.vulkan.shadergen;
 
 import java.util.Objects;
 
-public class Binding {
+public class Location {
 
     private final int set, binding;
 
-    public Binding(int binding) {
+    public Location(int binding) {
         this(0, binding);
     }
 
-    public Binding(int set, int binding) {
+    public Location(int set, int binding) {
         this.set = set;
         this.binding = binding;
     }
@@ -26,13 +26,17 @@ public class Binding {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Binding binding1 = (Binding) o;
-        return set == binding1.set && binding == binding1.binding;
+        Location location1 = (Location) o;
+        return set == location1.set && binding == location1.binding;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(set, binding);
+    }
+
+    public boolean bindingUnknown() {
+        return binding < 0;
     }
 
 }

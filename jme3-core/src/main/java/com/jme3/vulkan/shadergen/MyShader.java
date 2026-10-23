@@ -37,7 +37,7 @@ public class MyShader extends Shader {
         }
     }
 
-    @Uniform @Binding(set=0)
+    @Uniform @Location(set=0)
     private final SceneData scene = new SceneData();
 
     @EntryPoint(ShaderStage.Vertex)

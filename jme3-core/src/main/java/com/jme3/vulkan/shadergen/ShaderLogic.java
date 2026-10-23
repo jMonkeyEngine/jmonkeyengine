@@ -1,6 +1,7 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
+import com.jme3.util.IdentityKey;
 import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.shadergen.vars.Var;
 
@@ -11,7 +12,7 @@ public class ShaderLogic {
     private static final Map<Thread, ShaderLogic> logic = new HashMap<>();
 
     public static ShaderLogic init(GraphicsAPI target, boolean debug) {
-        ShaderLogic l = new ShaderLogic(target, debug);
+        ShaderLogic l = new ShaderLogic(target, , debug);
         logic.put(Thread.currentThread(), l);
         return l;
     }
@@ -24,17 +25,19 @@ public class ShaderLogic {
     private final Map<Object, Block> blocks = new HashMap<>();
     private final Map<Integer, Var> inputVaryings = new HashMap<>();
     private final Map<Integer, Var> outputVaryings = new HashMap<>();
-    private final Map<Object, Global> possibleGlobals = new HashMap<>();
-    private final Map<Object, Global> usedGlobals = new HashMap<>();
+    private final Map<IdentityKey<Global>, Global> globalOverrideRules = new HashMap<>();
+    private final Map<Integer, BitSet> consumedBindings = new HashMap<>();
     private final Header header = new Header();
     private final GraphicsAPI target;
+    private final Global pushConstants;
     private final boolean debug;
     private int nextVarId = 0;
     private int nextUniformId = 0;
     private int nextStorageId = 0;
 
-    private ShaderLogic(GraphicsAPI target, boolean debug) {
+    private ShaderLogic(GraphicsAPI target, Global pushConstants, boolean debug) {
         this.target = target;
+        this.pushConstants = pushConstants;
         this.debug = debug;
     }
 
@@ -51,17 +54,42 @@ public class ShaderLogic {
         return "_v" + nextVarId++;
     }
 
-    public boolean registerPossibleGlobal(Global global) {
-        return possibleGlobals.putIfAbsent(global.getKey(), global) == null;
+    public void registerGlobal(Global global) {
+        Global dst = globalOverrideRules.putIfAbsent(new IdentityKey<>(global), global);
+        if (global.isOverriding()) {
+            globalOverrideRules.put(new IdentityKey<>(global.getOverridenGlobal()), dst == null ? global : dst);
+        }
     }
 
-    public Global getPossibleGlobal(Object key) {
-        return possibleGlobals.get(key);
+    public Global fetchGlobal(Global global) {
+        return globalOverrideRules.get(new IdentityKey<>(global));
     }
 
-    public void registerUsedGlobal(Object key, Global global) {
-        if (usedGlobals.putIfAbsent(key, global) != null) {
-            throw new IllegalStateException("Globals collision on " + key);
+    private int consumeBinding(int set) {
+        BitSet consumed = consumedBindings.computeIfAbsent(set, k -> new BitSet());
+        int binding = consumed.nextClearBit(0);
+        consumed.set(binding);
+        return binding;
+    }
+
+    public void compileUniform(Shader.Uniform uniform) {
+        if (startBlock(new IdentityKey<>(uniform))) {
+            int binding = consumeBinding(uniform.getSet());
+            if (target == GraphicsAPI.OpenGL) {
+                add("layout(%s,binding=%d)", uniform.getStruct().getLayout().getIdentifier(), binding);
+            } else if (uniform == pushConstants) {
+                if (uniform.isStorage()) {
+                    throw new IllegalStateException("Push constants must be a uniform buffer.");
+                }
+                add("layout(push_constant,%s)", uniform.getStruct().getLayout().getIdentifier());
+            } else {
+                add("layout(%s,set=%d,binding=%d)", uniform.getStruct().getLayout().getIdentifier(), uniform.getSet(), binding);
+            }
+            add(" %s %s{", uniform.isStorage() ? "storage" : "uniform");
+            for (StructVar.Member f : uniform.getStruct().getFields()) {
+                add("%s %s;", f.getType(), f.getName());
+            }
+            endBlock();
         }
     }
 
@@ -132,45 +160,45 @@ public class ShaderLogic {
         }
     }
 
-    public Binding addUniformDeclaration(Binding binding, StructVar struct, String refName) {
+    public Location addUniformDeclaration(Location location, StructVar struct, String refName) {
         if (target == GraphicsAPI.Vulkan) {
             add("layout(%s,set=%d,binding=%d) uniform %s{", struct.getLayout().getIdentifier(),
-                    binding.getSet(), binding.getBinding(), generateUniqueName());
+                    location.getSet(), location.getBinding(), generateUniqueName());
         } else {
-            binding = new Binding(nextUniformId++);
+            location = new Location(nextUniformId++);
             add("layout(%s,binding=%d) uniform %s{", struct.getLayout().getIdentifier(),
-                    binding.getBinding(), generateUniqueName());
+                    location.getBinding(), generateUniqueName());
         }
         for (StructVar.Member f : struct.getFields()) {
             add("%s %s;", f.getType(), f.getName());
         }
         add("}%s;", refName);
-        return binding;
+        return location;
     }
 
-    public Binding addStorageDeclaration(Binding binding, StructVar struct, String refName) {
+    public Location addStorageDeclaration(Location location, StructVar struct, String refName) {
         if (target == GraphicsAPI.Vulkan) {
             add("layout(%s,set=%d,binding=%d) buffer %s{", struct.getLayout().getIdentifier(),
-                    binding.getSet(), binding.getBinding(), generateUniqueName());
+                    location.getSet(), location.getBinding(), generateUniqueName());
         } else {
-            binding = new Binding(nextStorageId++);
+            location = new Location(nextStorageId++);
             add("layout(%s,binding=%d) buffer %s{", struct.getLayout().getIdentifier(),
-                    binding.getBinding(), generateUniqueName());
+                    location.getBinding(), generateUniqueName());
         }
         for (StructVar.Member f : struct.getFields()) {
             add("%s %s;", f.getType(), f.getName());
         }
         add("}%s;", refName);
-        return binding;
+        return location;
     }
 
-    public Optional<Binding> addPushConstantsDeclaration(StructVar struct, String refName) {
-        Optional<Binding> key;
+    public Optional<Location> addPushConstantsDeclaration(StructVar struct, String refName) {
+        Optional<Location> key;
         if (target == GraphicsAPI.Vulkan) {
             key = Optional.empty();
             add("layout(push_constant,%s) uniform %s{", struct.getLayout().getIdentifier(), generateUniqueName());
         } else {
-            key = Optional.of(new Binding(nextUniformId++));
+            key = Optional.of(new Location(nextUniformId++));
             add("layout(%s,binding=%d) uniform %s{", struct.getLayout().getIdentifier(), key.get().getBinding(), generateUniqueName());
         }
         for (StructVar.Member f : struct.getFields()) {

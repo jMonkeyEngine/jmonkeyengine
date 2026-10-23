@@ -1,6 +1,6 @@
 // Instancing GLSL library.
 // 
-// When the INSTANCING define is binding in the shader,
+// When the INSTANCING define is location in the shader,
 // all global matrices are replaced with "instanced" versions.
 // One exception is g_NormalMatrix which becomes unusable,
 // instead the function ApplyNormalTransform is used to transform
