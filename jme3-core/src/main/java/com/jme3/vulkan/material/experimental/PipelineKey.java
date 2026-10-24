@@ -3,9 +3,13 @@ package com.jme3.vulkan.material.experimental;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.StencilOp;
 import com.jme3.vulkan.pipeline.*;
+import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
+import com.jme3.vulkan.pipeline.graphics.StencilTest;
 import com.jme3.vulkan.scene.Node;
 import com.jme3.vulkan.scene.Scene;
 import com.jme3.vulkan.util.Flag;
+import org.checkerframework.checker.units.qual.C;
+import sun.awt.X11.ToplevelStateListener;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -32,72 +36,26 @@ import java.util.Optional;
  */
 public class PipelineKey {
 
-    public static Optional<PipelineKey> create(Node node) {
+    public static PipelineKey create(Node node) {
+        PipelineKey key = new PipelineKey();
         Mesh mesh = node.getProperty(Scene.MeshType.class);
-
+        if (mesh != null) {
+            key.topology = mesh.getTopology();
+            key.winding = mesh.getFaceWinding();
+        }
     }
 
-    private final PolygonMode polygonMode;
-    private final CullMode cullMode;
-
-    private final boolean depthTestEnabled;
-    private final boolean depthWriteEnabled;
-    private final CompareOp depthCompareOp;
-    private final boolean depthBiasEnabled;
-
-    private final Flag<ColorComponent> colorWriteMask;
-
-    private final boolean blendEnabled;
-    private final BlendFactor srcColorBlendFactor;
-    private final BlendFactor dstColorBlendFactor;
-    private final BlendOp colorBlendOp;
-    private final BlendFactor srcAlphaBlendFactor;
-    private final BlendFactor dstAlphaBlendFactor;
-    private final BlendOp alphaBlendOp;
-
-    private final boolean stencilTestEnabled;
-    private final CompareOp frontStencilCompareOp;
-    private final StencilOp frontStencilFailOp;
-    private final StencilOp frontStencilDepthFailOp;
-    private final StencilOp frontStencilPassOp;
-    private final CompareOp backStencilCompareOp;
-    private final StencilOp backStencilFailOp;
-    private final StencilOp backStencilDepthFailOp;
-    private final StencilOp backStencilPassOp;
-
-    protected PipelineKey(PolygonMode polygonMode, CullMode cullMode,
-            boolean depthTestEnabled, boolean depthWriteEnabled, CompareOp depthCompareOp, boolean depthBiasEnabled,
-            Flag<ColorComponent> colorWriteMask,
-            boolean blendEnabled,
-            BlendFactor srcColorBlendFactor, BlendFactor dstColorBlendFactor, BlendOp colorBlendOp,
-            BlendFactor srcAlphaBlendFactor, BlendFactor dstAlphaBlendFactor, BlendOp alphaBlendOp,
-            boolean stencilTestEnabled,
-            CompareOp frontStencilCompareOp, StencilOp frontStencilFailOp, StencilOp frontStencilDepthFailOp, StencilOp frontStencilPassOp,
-            CompareOp backStencilCompareOp, StencilOp backStencilFailOp, StencilOp backStencilDepthFailOp, StencilOp backStencilPassOp) {
-        this.polygonMode = polygonMode;
-        this.cullMode = cullMode;
-        this.depthTestEnabled = depthTestEnabled;
-        this.depthWriteEnabled = depthWriteEnabled;
-        this.depthCompareOp = depthCompareOp;
-        this.depthBiasEnabled = depthBiasEnabled;
-        this.colorWriteMask = colorWriteMask;
-        this.blendEnabled = blendEnabled;
-        this.srcColorBlendFactor = srcColorBlendFactor;
-        this.dstColorBlendFactor = dstColorBlendFactor;
-        this.colorBlendOp = colorBlendOp;
-        this.srcAlphaBlendFactor = srcAlphaBlendFactor;
-        this.dstAlphaBlendFactor = dstAlphaBlendFactor;
-        this.alphaBlendOp = alphaBlendOp;
-        this.stencilTestEnabled = stencilTestEnabled;
-        this.frontStencilCompareOp = frontStencilCompareOp;
-        this.frontStencilFailOp = frontStencilFailOp;
-        this.frontStencilDepthFailOp = frontStencilDepthFailOp;
-        this.frontStencilPassOp = frontStencilPassOp;
-        this.backStencilCompareOp = backStencilCompareOp;
-        this.backStencilFailOp = backStencilFailOp;
-        this.backStencilDepthFailOp = backStencilDepthFailOp;
-        this.backStencilPassOp = backStencilPassOp;
-    }
+    private Topology topology = Topology.TriangleList;
+    private FaceWinding winding = FaceWinding.Clockwise;
+    private PolygonMode polygonMode = PolygonMode.Fill;
+    private CullMode cullMode = CullMode.Back;
+    private boolean depthTestEnabled = true;
+    private boolean depthWriteEnabled = true;
+    private CompareOp depthCompareOp = CompareOp.LessOrEqual;
+    private boolean depthBiasEnabled = false;
+    private Flag<ColorComponent> colorWriteMask = ColorComponent.All;
+    private ColorBlendAttachment blend = new ColorBlendAttachment(false);
+    private StencilTest stencil = new StencilTest();
 
     @Override
     public boolean equals(Object o) {
@@ -108,38 +66,23 @@ public class PipelineKey {
             return false;
         }
         PipelineKey k = (PipelineKey)o;
-        return depthTestEnabled == k.depthTestEnabled
+        return topology == k.topology
+                && winding == k.winding
+                && depthTestEnabled == k.depthTestEnabled
                 && depthWriteEnabled == k.depthWriteEnabled
                 && depthBiasEnabled == k.depthBiasEnabled
-                && blendEnabled == k.blendEnabled
-                && stencilTestEnabled == k.stencilTestEnabled
-                && frontStencilFailOp == k.frontStencilFailOp
-                && frontStencilDepthFailOp == k.frontStencilDepthFailOp
-                && frontStencilPassOp == k.frontStencilPassOp
-                && backStencilFailOp == k.backStencilFailOp
-                && backStencilDepthFailOp == k.backStencilDepthFailOp
-                && backStencilPassOp == k.backStencilPassOp
                 && polygonMode == k.polygonMode
                 && cullMode == k.cullMode
                 && depthCompareOp == k.depthCompareOp
-                && Objects.equals(colorWriteMask, k.colorWriteMask)
-                && srcColorBlendFactor == k.srcColorBlendFactor
-                && dstColorBlendFactor == k.dstColorBlendFactor
-                && colorBlendOp == k.colorBlendOp
-                && srcAlphaBlendFactor == k.srcAlphaBlendFactor
-                && dstAlphaBlendFactor == k.dstAlphaBlendFactor
-                && alphaBlendOp == k.alphaBlendOp
-                && frontStencilCompareOp == k.frontStencilCompareOp
-                && backStencilCompareOp == k.backStencilCompareOp;
+                && Flag.equals(colorWriteMask, k.colorWriteMask)
+                && Objects.equals(blend, k.blend)
+                && Objects.equals(stencil, k.stencil);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(polygonMode, cullMode, depthTestEnabled, depthWriteEnabled, depthCompareOp,
-                depthBiasEnabled, colorWriteMask, blendEnabled, srcColorBlendFactor, dstColorBlendFactor,
-                colorBlendOp, srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp, stencilTestEnabled,
-                frontStencilCompareOp, frontStencilFailOp, frontStencilDepthFailOp, frontStencilPassOp,
-                backStencilCompareOp, backStencilFailOp, backStencilDepthFailOp, backStencilPassOp);
+        return Objects.hash(topology, winding, polygonMode, cullMode, depthTestEnabled, depthWriteEnabled,
+                            depthCompareOp, depthBiasEnabled, colorWriteMask, blend, stencil);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.util.natives.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
@@ -19,7 +20,7 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
 
     private final Info info;
     private final long handle;
-    private final Destructor destructor;
+    private final ResourceLifecycle lifecycle;
 
     public DescriptorSetLayout(LogicalDevice<?> device, Info info) {
         this.info = info;
@@ -41,12 +42,8 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
             handle = idBuf.get(0);
         }
         VkDevice deviceHandle = device.getHandle();
-        this.destructor = device.getDestructor().addDependent(new Destructor(this) {
-            @Override
-            protected void runDestroy() {
-                vkDestroyDescriptorSetLayout(deviceHandle, handle, null);
-            }
-        });
+        lifecycle = new ResourceLifecycle(this, () -> vkDestroyDescriptorSetLayout(deviceHandle, handle, null));
+        device.getLifecycle().addDependent(lifecycle);
     }
 
     @Override
@@ -55,8 +52,8 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
     }
 
     @Override
-    public Destructor getDestructor() {
-        return destructor;
+    public ResourceLifecycle getLifecycle() {
+        return lifecycle;
     }
 
     @Override

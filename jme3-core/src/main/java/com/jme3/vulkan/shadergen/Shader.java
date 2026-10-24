@@ -29,7 +29,11 @@ public abstract class Shader {
     }
 
     public String compile(GraphicsAPI target, ShaderStage stage) {
-        return compile(target, stage, false);
+        return compile(target, stage, "default");
+    }
+
+    public String compile(GraphicsAPI target, ShaderStage stage, String name) {
+        return compile(target, stage, name, false);
     }
 
     /**
@@ -40,18 +44,14 @@ public abstract class Shader {
      * @param debug true to make the compiled shader code as debuggable as possible
      * @return shader code
      */
-    public String compile(GraphicsAPI target, ShaderStage stage, boolean debug) {
+    public String compile(GraphicsAPI target, ShaderStage stage, String name, boolean debug) {
         bindings.clear();
-        logic = ShaderLogic.init(target, debug);
+        logic = ShaderLogic.init(target, stage, debug);
         logic.addHeaderLine("#version %d", version);
         gl = new BuiltIn();
         compileGlobals();
-        Method entry = findEntryPoint(stage);
-        Work work = entry.getAnnotation(Work.class);
-        if (work != null) {
-            logic.addHeaderLine("layout(local_size_x=%d,local_size_y=%d,local_size_z=%d)in;",
-                    work.x(), work.y(), work.z());
-        }
+        Method entry = findEntryPoint(stage, name);
+        compileComputeWork(entry, stage);
         Var[] args = compileFunction(entry, "main", false);
         if (args == null) {
             throw new IllegalStateException("Entry point was not compiled.");
@@ -70,11 +70,24 @@ public abstract class Shader {
         compileGlobals();
     }
 
-    private Method findEntryPoint(ShaderStage stage) {
+    private void compileComputeWork(Method entry, ShaderStage stage) {
+        Work work = entry.getAnnotation(Work.class);
+        if (work != null) {
+            if (stage != ShaderStage.Compute) {
+                throw new IllegalStateException("@Work can only be attached to compute shaders.");
+            }
+            logic.addHeaderLine("layout(local_size_x=%d,local_size_y=%d,local_size_z=%d)in;",
+                    work.x(), work.y(), work.z());
+        } else if (stage == ShaderStage.Compute) {
+            throw new IllegalStateException("Work group size not defined on compute shader.");
+        }
+    }
+
+    private Method findEntryPoint(ShaderStage stage, String name) {
         Method[] methods = getClass().getDeclaredMethods();
         for (Method m : methods) {
             EntryPoint entry = m.getAnnotation(EntryPoint.class);
-            if (entry != null && entry.value() == stage) {
+            if (entry != null && entry.value() == stage && name.equals(entry.name())) {
                 return m;
             }
         }

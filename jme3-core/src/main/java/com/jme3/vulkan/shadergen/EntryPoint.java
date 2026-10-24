@@ -13,4 +13,6 @@ public @interface EntryPoint {
 
     ShaderStage value();
 
+    String name() default "default";
+
 }

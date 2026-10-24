@@ -1,6 +1,7 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.shadergen.vars.Var;
 
@@ -10,8 +11,8 @@ public class ShaderLogic {
 
     private static final Map<Thread, ShaderLogic> logic = new HashMap<>();
 
-    public static ShaderLogic init(GraphicsAPI target, boolean debug) {
-        ShaderLogic l = new ShaderLogic(target, debug);
+    public static ShaderLogic init(GraphicsAPI target, ShaderStage stage, boolean debug) {
+        ShaderLogic l = new ShaderLogic(target, stage, debug);
         logic.put(Thread.currentThread(), l);
         return l;
     }
@@ -28,13 +29,15 @@ public class ShaderLogic {
     private final Map<Object, Global> usedGlobals = new HashMap<>();
     private final Header header = new Header();
     private final GraphicsAPI target;
+    private final ShaderStage stage;
     private final boolean debug;
     private int nextVarId = 0;
     private int nextUniformId = 0;
     private int nextStorageId = 0;
 
-    private ShaderLogic(GraphicsAPI target, boolean debug) {
+    private ShaderLogic(GraphicsAPI target, ShaderStage stage, boolean debug) {
         this.target = target;
+        this.stage = stage;
         this.debug = debug;
     }
 
