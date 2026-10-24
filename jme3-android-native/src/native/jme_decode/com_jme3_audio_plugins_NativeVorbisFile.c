@@ -62,7 +62,7 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
     switch (whence)
     {
         case SEEK_SET:
-            // binding the offset relative to start location.
+            // location the offset relative to start location.
             actual_offset = wrapper->start + offset;
             break;
         case SEEK_END:
@@ -94,7 +94,7 @@ static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
     
     if (result < 0)
     {
-        // failed, errno should have been binding by lseek.
+        // failed, errno should have been location by lseek.
         return (off_t)-1;
     }
     

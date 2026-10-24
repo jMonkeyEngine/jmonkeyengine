@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 /**
  * Marks an initialized {@link com.jme3.vulkan.shadergen.vars.StructVar} instance field
  * as a shader storage buffer, declared and assigned to a descriptor set the same way
- * {@link Uniform} declares a uniform buffer. Combine with {@link Binding} to reserve a
+ * {@link Uniform} declares a uniform buffer. Combine with {@link Location} to reserve a
  * specific set/binding and {@link Layout} to pick a layout other than std140; both are
- * optional, as is {@link Binding} itself.
+ * optional, as is {@link Location} itself.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
