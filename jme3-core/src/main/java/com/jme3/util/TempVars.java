@@ -201,9 +201,11 @@ public class TempVars implements Closeable {
      * General quaternions.
      */
     public final Quaternion quat1 = new Quaternion();
-    public final Quaternion quat2 = new Quaternion();
-
+    /**
+     * Transforms
+     */
     public final Transform tr1 = new Transform();
+    public final Transform tr2 = new Transform();
     public final Transform tr2 = new Transform();
     
     /**
