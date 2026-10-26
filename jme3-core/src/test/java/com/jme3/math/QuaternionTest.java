@@ -31,11 +31,12 @@
  */
 package com.jme3.math;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that the {@link Quaternion} class works correctly.
@@ -45,12 +46,11 @@ import org.junit.jupiter.api.Test;
 public class QuaternionTest {
 
     /**
-     * Verify that the
-     * {@link Quaternion#isValidQuaternion(com.jme3.math.Quaternion)} method works
-     * correctly. Testing for NaNs and infinities (which are not "valid")
+     * Verify that the {@link Quaternion#isValidQuaternion(com.jme3.math.Quaternion)} method works correctly. Testing
+     * for NaNs and infinities (which are not "valid")
      */
     @Test
-    public void testIsValidQuaternion() {
+    public void testIsValidQuaternion(){
         assertFalse(Quaternion.isValidQuaternion(new Quaternion(Float.NaN, 2.1f, 3.0f, 1.5f)));
         assertFalse(Quaternion.isValidQuaternion(new Quaternion(1f, Float.NaN, 3.0f, 1.5f)));
         assertFalse(Quaternion.isValidQuaternion(new Quaternion(1f, 2.1f, Float.NaN, 1.5f)));
@@ -62,7 +62,7 @@ public class QuaternionTest {
         assertTrue(Quaternion.isValidQuaternion(new Quaternion()));
         assertTrue(Quaternion.isValidQuaternion(new Quaternion(1.5f, -5.7f, 8.2f, 3.0f)));
     }
-
+    
     @Test
     public void testInverseWithSeparateStore() {
         // Non-unit quaternion to test non-trivial inverse calculation
