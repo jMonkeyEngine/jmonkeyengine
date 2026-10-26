@@ -969,13 +969,10 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        IntBuffer tmp = BufferUtils.createIntBuffer(16);
-        gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
-        tmp.rewind();
-        int fbOnLoad = tmp.get();
-        // The presentation framebuffer can be nonzero, notably on iOS.
-        defaultFBO = fbOnLoad;
-        context.boundFBO = fbOnLoad;
+        // Without FBO support, even querying GL_FRAMEBUFFER_BINDING is invalid.
+        // Otherwise the presentation framebuffer can be nonzero, notably on iOS.
+        defaultFBO = caps.contains(Caps.FrameBuffer) ? getInteger(GL.GL_FRAMEBUFFER_BINDING) : 0;
+        context.boundFBO = defaultFBO;
         context.boundFB = null;
     }
 
@@ -2576,8 +2573,16 @@ public final class GLRenderer implements Renderer {
         }
 
         if (!caps.contains(Caps.FrameBuffer)) {
-            throw new RendererException("Framebuffer objects are not supported"
-                    + " by the video hardware");
+            if (fb != null) {
+                throw new RendererException("Framebuffer objects are not supported"
+                        + " by the video hardware");
+            }
+            // The window-system framebuffer is the only possible destination.
+            // Restore the cache after invalidation without an unsupported GL call.
+            context.boundFBO = 0;
+            context.boundFB = null;
+            toggleFramebufferSrgb(null);
+            return;
         }
 
         // generate mipmaps for last FB if needed
