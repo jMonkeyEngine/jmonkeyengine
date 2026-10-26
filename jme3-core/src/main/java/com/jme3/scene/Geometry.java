@@ -587,6 +587,7 @@ public class Geometry extends Spatial {
         }
 
         this.cachedWorldMat = cloner.clone(cachedWorldMat);
+        this.morphState = cloner.clone(morphState);
 
         // See if we are doing a shallow clone or a deep mesh clone
         boolean shallowClone = (cloner.getCloneFunction(Mesh.class) instanceof IdentityCloneFunction);
