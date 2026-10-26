@@ -31,6 +31,7 @@
  */
 package com.jme3.network.serializing;
 
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.Message;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,28 @@ public class RecordSerializerTest {
         @Override
         public Message setReliable(boolean f) {
             return new NestedMessageRecord(this.data, f);
+        }
+    }
+    
+    @Serializable
+    public static class LegacyPojoMessage extends AbstractMessage {
+        private int id;
+        private String text;
+
+        // Required default constructor for FieldSerializer
+        public LegacyPojoMessage() {}
+
+        public LegacyPojoMessage(int id, String text) {
+            this.id = id;
+            this.text = text;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            LegacyPojoMessage that = (LegacyPojoMessage) o;
+            return id == that.id && java.util.Objects.equals(text, that.text);
         }
     }
 
@@ -154,5 +177,29 @@ public class RecordSerializerTest {
         
         // Sanity check: 50,000 serializations with cached reflection should easily finish under 1 second
         assertTrue(durationMs < 1000, "Performance test took too long, caching might be failing: " + durationMs + " ms");
+    }
+
+    @Test
+    public void testLegacyPojoSerializationRegression() throws Exception {
+        // Register the legacy POJO class
+        Serializer.registerClass(LegacyPojoMessage.class);
+
+        // Verify it was correctly assigned the legacy FieldSerializer instead of RecordSerializer
+        SerializerRegistration registration = Serializer.getExactSerializerRegistration(LegacyPojoMessage.class);
+        assertNotNull(registration);
+        assertEquals("FieldSerializer", registration.getSerializer().getClass().getSimpleName());
+
+        // Verify read/write roundtrip works exactly as it always did
+        LegacyPojoMessage original = new LegacyPojoMessage(777, "BackwardCompatibilityTest");
+        ByteBuffer buffer = ByteBuffer.allocate(256);
+
+        Serializer.writeClassAndObject(buffer, original);
+        buffer.flip();
+
+        Object result = Serializer.readClassAndObject(buffer);
+
+        assertNotNull(result);
+        assertTrue(result instanceof LegacyPojoMessage);
+        assertEquals(original, result);
     }
 }
