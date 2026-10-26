@@ -105,4 +105,36 @@ public class GlRendererDefaultFrameBufferTest extends FrameBufferTestSupport {
         assertEquals(override.getId(), driver.blitReadFramebuffer);
         assertEquals(override.getId(), driver.blitDrawFramebuffer);
     }
+
+    @Test
+    void overrideAfterInvalidationBindsNonzeroDefaultReplacement() {
+        initializeRenderer(77);
+        renderer.invalidateState();
+        FrameBuffer override = framebuffer(texture());
+        renderer.setMainFrameBufferOverride(override);
+        assertEquals(override.getId(), driver.drawFramebuffer);
+        assertEquals(override.getId(), driver.readFramebuffer);
+    }
+
+    @Test
+    void screenBindAfterInvalidationRestoresDiscoveredDefault() {
+        initializeRenderer(77);
+        renderer.setFrameBuffer(framebuffer(texture()));
+        renderer.invalidateState();
+        renderer.setFrameBuffer(null);
+        assertEquals(77, driver.drawFramebuffer);
+        assertEquals(77, driver.readFramebuffer);
+    }
+
+    @Test
+    void copyAfterInvalidationRestoresDiscoveredDefault() {
+        initializeRenderer(77);
+        FrameBuffer fb = framebuffer(texture());
+        renderer.setFrameBuffer(fb);
+        renderer.invalidateState();
+        renderer.copyFrameBuffer(fb, null, true, false);
+        assertEquals(77, driver.blitDrawFramebuffer);
+        assertEquals(77, driver.drawFramebuffer);
+        assertEquals(77, driver.readFramebuffer);
+    }
 }

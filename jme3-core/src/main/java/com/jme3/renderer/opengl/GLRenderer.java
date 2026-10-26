@@ -114,12 +114,55 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    /** Snapshot of the image actually attached, independent of Texture.setImage(). */
+    private static final class ColorAttachmentState {
+        Texture texture;
+        Image image;
+        int imageId;
+    }
+
     /** Native attachment state, without a reference to the owning FrameBuffer. */
     private static final class FrameBufferState {
         // Bits 0..15 are color slots; 16 and 17 are depth and depth-stencil.
         int attachmentSlots;
         final ArrayList<RenderBufferState> renderBuffers = new ArrayList<>();
-        final ArrayList<Texture> colorTextures = new ArrayList<>();
+        final ColorAttachmentState[] colorTextures = new ColorAttachmentState[16];
+        int colorTextureSlots;
+
+        void setColorTexture(int slot, Texture texture) {
+            if (slot < 0) {
+                return;
+            }
+            ColorAttachmentState attachment = colorTextures[slot];
+            if (texture == null) {
+                colorTextureSlots &= ~(1 << slot);
+                if (attachment != null) {
+                    attachment.texture = null;
+                    attachment.image = null;
+                    attachment.imageId = NativeObject.INVALID_ID;
+                }
+            } else {
+                if (attachment == null) {
+                    attachment = new ColorAttachmentState();
+                    colorTextures[slot] = attachment;
+                }
+                attachment.texture = texture;
+                attachment.image = texture.getImage();
+                attachment.imageId = attachment.image.getId();
+                colorTextureSlots |= 1 << slot;
+            }
+        }
+
+        void invalidateImage(int imageId) {
+            int slots = colorTextureSlots;
+            while (slots != 0) {
+                int slot = Integer.numberOfTrailingZeros(slots);
+                slots &= slots - 1;
+                if (colorTextures[slot].imageId == imageId) {
+                    setColorTexture(slot, null);
+                }
+            }
+        }
 
         RenderBufferState getRenderBuffer(RenderBuffer target) {
             for (int i = 0; i < renderBuffers.size(); i++) {
@@ -939,6 +982,7 @@ public final class GLRenderer implements Renderer {
     @Override
     public void invalidateState() {
         context.reset();
+        context.boundFBO = -1;
         if (gl2 != null) {
             context.initialDrawBuf = getInteger(GL2.GL_DRAW_BUFFER);
             context.initialReadBuf = getInteger(GL2.GL_READ_BUFFER);
@@ -2055,7 +2099,7 @@ public final class GLRenderer implements Renderer {
             int dstX1;
             int dstY1;
 
-            int prevFBO = context.boundFBO;
+            final int previousFramebuffer = context.boundFBO < 0 ? defaultFBO : context.boundFBO;
             FrameBuffer prevFB = context.boundFB;
 
             if (mainFbOverride != null) {
@@ -2115,8 +2159,8 @@ public final class GLRenderer implements Renderer {
                     GL.GL_NEAREST);
 
 
-            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, prevFBO);
-            context.boundFBO = prevFBO;
+            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, previousFramebuffer);
+            context.boundFBO = previousFramebuffer;
             context.boundFB = prevFB;
             toggleFramebufferSrgb(prevFB);
         } else {
@@ -2218,7 +2262,23 @@ public final class GLRenderer implements Renderer {
         return GLFbo.GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
+    /**
+     * Synchronizes and binds the framebuffer containing this texture target.
+     * All pending attachment changes are applied, as in
+     * {@link #updateFrameBufferAttachment(FrameBuffer, RenderBuffer)}.
+     *
+     * @param fb the framebuffer (not null)
+     * @param rb one of its current texture targets (not null)
+     * @throws IllegalArgumentException if the target is not a texture target of {@code fb}
+     */
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
+        if (rb == null || rb.getTexture() == null) {
+            throw new IllegalArgumentException("A texture target is required.");
+        }
+        updateFrameBufferAttachment(fb, rb);
+    }
+
+    private void updateRenderTextureInternal(FrameBuffer fb, RenderBuffer rb) {
         Texture tex = rb.getTexture();
         Image image = tex.getImage();
         if (image.isUpdateNeeded()) {
@@ -2248,8 +2308,21 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    /**
+     * Synchronizes and binds the framebuffer containing this target. Reconciles
+     * all pending target changes so native attachments and their cleanup/mipmap
+     * snapshots cannot diverge. An uninitialized framebuffer is initialized first.
+     *
+     * @param fb the framebuffer (not null)
+     * @param rb one of its current targets (not null)
+     * @throws IllegalArgumentException if the target is not attached to {@code fb}
+     */
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
-        updateFrameBufferAttachment(fb, rb, frameBufferStates.get(fb.getId()));
+        if (fb == null || rb == null || !isFrameBufferTarget(fb, rb)) {
+            throw new IllegalArgumentException("The target must belong to this framebuffer.");
+        }
+        fb.setUpdateNeeded();
+        setFrameBuffer(fb);
     }
 
     private void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
@@ -2274,9 +2347,10 @@ public final class GLRenderer implements Renderer {
                     GLFbo.GL_RENDERBUFFER_EXT,
                     rb.getId());
         } else {
-            updateRenderTexture(fb, rb);
+            updateRenderTextureInternal(fb, rb);
         }
         state.attachmentSlots |= attachmentSlotMask(rb.getSlot());
+        state.setColorTexture(rb.getSlot(), rb.getTexture());
     }
 
     private void bindFrameBuffer(FrameBuffer fb) {
@@ -2348,6 +2422,7 @@ public final class GLRenderer implements Renderer {
             glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(slot), GLFbo.GL_RENDERBUFFER_EXT, 0);
             state.attachmentSlots &= ~(1 << index);
+            state.setColorTexture(slot, null);
             removedSlots &= removedSlots - 1;
         }
         for (int i = state.renderBuffers.size() - 1; i >= 0; i--) {
@@ -2357,8 +2432,8 @@ public final class GLRenderer implements Renderer {
                 state.renderBuffers.remove(i);
             }
         }
-        state.colorTextures.clear();
-
+        // Successful attachments update their own snapshot. Preserve untouched
+        // slots if a later upload/attachment fails part-way through this update.
         FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf, state);
@@ -2367,9 +2442,6 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < fb.getNumColorTargets(); i++) {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorTarget(i);
             updateFrameBufferAttachment(fb, colorBuf, state);
-            if (colorBuf.getTexture() != null) {
-                state.colorTextures.add(colorBuf.getTexture());
-            }
         }
 
         setReadDrawBuffers(fb);
@@ -2421,7 +2493,7 @@ public final class GLRenderer implements Renderer {
     @Override
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = null;
-        if (context.boundFBO == defaultFBO) {
+        if (context.boundFB == null) {
             // Main FB is now set to fb, make sure its bound
             setFrameBuffer(fb);
         }
@@ -2495,7 +2567,8 @@ public final class GLRenderer implements Renderer {
             fb = mainFbOverride;
         }
 
-        if (context.boundFB == fb) {
+        if (context.boundFB == fb
+                && context.boundFBO == (fb == null ? defaultFBO : fb.getId())) {
             if (fb == null || !fb.isUpdateNeeded()) {
                 toggleFramebufferSrgb(fb);
                 return;
@@ -2515,13 +2588,21 @@ public final class GLRenderer implements Renderer {
             // Use the native attachment snapshot: the Java targets may already
             // have been replaced with textures that have not been allocated yet.
             FrameBufferState state = frameBufferStates.get(boundFB.getId());
-            for (int i = 0; i < state.colorTextures.size(); i++) {
-                Texture tex = state.colorTextures.get(i);
-                if (tex != null && tex.getMinFilter().usesMipMapLevels()
-                        && isMipmapGenerationSupported(tex.getImage().getFormat(),
+            int textureSlots = state == null ? 0 : state.colorTextureSlots;
+            while (textureSlots != 0) {
+                int slot = Integer.numberOfTrailingZeros(textureSlots);
+                textureSlots &= textureSlots - 1;
+                ColorAttachmentState attachment = state.colorTextures[slot];
+                Texture tex = attachment.texture;
+                Image image = attachment.image;
+                if (image.getId() <= 0 || image.getId() != attachment.imageId) {
+                    state.setColorTexture(slot, null);
+                    continue;
+                }
+                if (tex.getMinFilter().usesMipMapLevels()
+                        && isMipmapGenerationSupported(image.getFormat(),
                                 linearizeSrgbImages && boundFB.isSrgb()
                                         ? ColorSpace.sRGB : ColorSpace.Linear)) {
-                    Image image = tex.getImage();
                     if (image.getMultiSamples() > 1) {
                         throw new RendererException("Multisample textures do not support mipmaps");
                     }
@@ -2541,7 +2622,7 @@ public final class GLRenderer implements Renderer {
                     image.setMipmapsGenerated(true);
                 } else if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     logger.warning("Cannot generate mipmaps for framebuffer texture: " + tex
-                            + " with image format: " + tex.getImage().getFormat());
+                            + " with image format: " + image.getFormat());
                 }
             }
         }
@@ -3343,6 +3424,19 @@ public final class GLRenderer implements Renderer {
             intBuf1.put(0, texId);
             intBuf1.position(0).limit(1);
             gl.glDeleteTextures(intBuf1);
+            // Clear native-name snapshots before the driver can reuse this name,
+            // even if the same Image is uploaded again before the next FBO bind.
+            for (IntMap.Entry<FrameBufferState> entry : frameBufferStates) {
+                entry.getValue().invalidateImage(texId);
+            }
+            for (int unit = 0; unit < context.boundTextures.length; unit++) {
+                WeakReference<Image> reference = context.boundTextures[unit];
+                Image boundImage = reference == null ? null : reference.get();
+                if (boundImage != null && boundImage.getId() == texId) {
+                    context.boundTextures[unit] = null;
+                }
+            }
+            objManager.unregisterObject(image);
             image.resetObject();
 
             statistics.onDeleteTexture();

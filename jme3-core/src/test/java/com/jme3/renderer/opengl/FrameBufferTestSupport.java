@@ -116,6 +116,7 @@ abstract class FrameBufferTestSupport {
         int nextObjectId = 100;
         int reuseRenderbufferId = -1;
         int reuseFramebufferId = -1;
+        int reuseTextureId = -1;
         int boundRenderbuffer;
         int drawFramebuffer;
         int readFramebuffer;
@@ -124,6 +125,7 @@ abstract class FrameBufferTestSupport {
         int activeTextureUnit;
         int framebufferStatus = GLFbo.GL_FRAMEBUFFER_COMPLETE_EXT;
         boolean failNextStorage;
+        int failTextureAttachmentSlot = -1;
 
         RecordingGL(int defaultFramebuffer) {
             this.defaultFramebuffer = defaultFramebuffer;
@@ -152,12 +154,15 @@ abstract class FrameBufferTestSupport {
                     ((IntBuffer) args[1]).put(0, getInteger((Integer) args[0]));
                     return null;
                 case "glGenTextures":
-                    int texture = nextObjectId++;
+                    int texture = reuseTextureId >= 0 ? reuseTextureId : nextObjectId++;
+                    reuseTextureId = -1;
                     liveTextures.add(texture);
                     ((IntBuffer) args[0]).put(0, texture);
                     return null;
                 case "glDeleteTextures":
-                    liveTextures.remove(((IntBuffer) args[0]).get(0));
+                    int deletedTexture = ((IntBuffer) args[0]).get(0);
+                    liveTextures.remove(deletedTexture);
+                    boundTextures.replaceAll((unit, name) -> name == deletedTexture ? 0 : name);
                     return null;
                 case "glActiveTexture":
                     activeTextureUnit = (Integer) args[0] - GL.GL_TEXTURE0;
@@ -218,6 +223,7 @@ abstract class FrameBufferTestSupport {
                 case "glBindFramebufferEXT":
                     int target = (Integer) args[0];
                     int id = (Integer) args[1];
+                    assertTrue(id >= 0, "Cannot bind an invalid framebuffer name");
                     if (target == GLFbo.GL_FRAMEBUFFER_EXT || target == GLFbo.GL_DRAW_FRAMEBUFFER_EXT) {
                         drawFramebuffer = id;
                     }
@@ -229,6 +235,11 @@ abstract class FrameBufferTestSupport {
                 case "glFramebufferRenderbufferEXT":
                     int slot = (Integer) args[1];
                     int attachment = (Integer) args[3];
+                    if (method.getName().equals("glFramebufferTexture2DEXT")
+                            && slot == GLFbo.GL_COLOR_ATTACHMENT0_EXT + failTextureAttachmentSlot) {
+                        failTextureAttachmentSlot = -1;
+                        throw new RendererException("Simulated texture attachment failure");
+                    }
                     if (slot == GL3.GL_DEPTH_STENCIL_ATTACHMENT) {
                         attachments.get(drawFramebuffer).put(GLFbo.GL_DEPTH_ATTACHMENT_EXT, attachment);
                         attachments.get(drawFramebuffer).put(GL_STENCIL_ATTACHMENT, attachment);

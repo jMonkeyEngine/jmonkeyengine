@@ -133,6 +133,11 @@ public class NativeObjectManager {
         // the renderer. Only a still-queued object needs this identity scan.
         if (pendingUserDeletions.remove(obj) != null) {
             userDeletionQueue.removeIf(queued -> queued == obj);
+            // The renderer deleted the native name, not the CPU buffers that
+            // the pending dispose() explicitly requested us to release.
+            if (UNSAFE) {
+                obj.deleteNativeBuffersInternal();
+            }
         }
     }
 
@@ -235,9 +240,9 @@ public class NativeObjectManager {
             deleteNativeObject(rendererObject, ref.objClone, ref, true, false);
         }
         assert refMap.size() == 0;
-        // deleteUnused is bounded; the remaining objects were deleted via clones.
-        userDeletionQueue.clear();
-        pendingUserDeletions.clear();
+        // deleteUnused is bounded; the remaining GL objects were deleted via
+        // clones, but queued requests still own their CPU-buffer cleanup.
+        finishPendingDeletions();
     }
 
     /**
@@ -272,9 +277,19 @@ public class NativeObjectManager {
         }
         refMap.clear();
         refQueue = new ReferenceQueue<Object>();
-        // Queued deletions belong to the lost context, not to recreated objects.
-        userDeletionQueue.clear();
-        pendingUserDeletions.clear();
+        // Old native names must never be deleted in the new context. Losing
+        // the context does not, however, release explicitly disposed CPU buffers.
+        finishPendingDeletions();
+    }
+
+    private void finishPendingDeletions() {
+        while (!userDeletionQueue.isEmpty()) {
+            NativeObject obj = userDeletionQueue.pop();
+            pendingUserDeletions.remove(obj);
+            if (UNSAFE) {
+                obj.deleteNativeBuffersInternal();
+            }
+        }
     }
 
 //    public void printObjects(){
