@@ -32,11 +32,18 @@
 package org.jmonkeyengine.screenshottests.light.pbr;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.LightProbe;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -49,9 +56,11 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -156,10 +165,199 @@ public class TestPbrSunExposure {
                 assertPixel(pixels, 4, left, variant);
                 assertPixel(pixels, 12, right, variant);
             }
+            verifyProbeLighting(manager, assets, target);
         } finally {
             renderer.setFrameBuffer(null);
             target.dispose();
         }
+    }
+
+
+    /** Verifies sunlight adjustments separately from the actual direct-light attenuation. */
+    private static void verifyProbeLighting(RenderManager manager, AssetManager assets, FrameBuffer target) {
+        LightProbe probe = constantProbe();
+        ByteBuffer mapData = BufferUtils.createByteBuffer(4);
+        mapData.put(new byte[]{64, 0, 0, (byte) 255}).flip();
+        Texture2D map = new Texture2D(new Image(Image.Format.RGBA8, 1, 1, mapData, ColorSpace.Linear));
+        map.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        map.setMagFilter(Texture.MagFilter.Nearest);
+        try {
+            int reference = renderLighting(manager, target, lightingMaterial(assets, "none", map), probe, null);
+            assertTrue(reference > 10 && reference < 60, "Probe reference must be nonzero and not saturated");
+
+            // A black light contributes no direct radiance, but still exercises its falloff.
+            // The unpatched shader multiplies this probe reference by approximately four.
+            for (String input : new String[]{"none", "false", "brighten", "one"}) {
+                Material material = lightingMaterial(assets, input, map);
+                assertEquals(reference, renderLighting(manager, target, material, probe, point(0.5f, 0)),
+                        2, input + " must not amplify the probe");
+            }
+            float[] halfColors = new float[]{
+                    0.5f, 0, 0, 1, 0.5f, 0, 0, 1, 0.5f, 0, 0, 1, 0.5f, 0, 0, 1};
+            for (String input : new String[]{"static", "vertex", "map", "combined",
+                    "legacy-static", "legacy-vertex", "legacy-combined"}) {
+                Material material = lightingMaterial(assets, input, map);
+                float[] vColors = (input.equals("combined") || input.equals("legacy-combined")) ? halfColors : null;
+                assertEquals(reference * 0.25f, renderLighting(manager, target, material, probe, null, vColors),
+                        2, input + " must still attenuate the probe");
+                assertEquals(reference, renderLighting(manager, target, material, probe, point(0.5f, 0), vColors),
+                        2, input + " indoor compensation must be capped at one");
+                assertEquals(reference * 0.5f,
+                        renderLighting(manager, target, material, probe, point(FastMath.sqrt(2), 0), vColors),
+                        2, input + " must preserve subunit indoor compensation");
+            }
+
+            SpotLight spot = new SpotLight();
+            spot.setPosition(new Vector3f(0.0625f, 0.0625f, 0.5f));
+            spot.setDirection(new Vector3f(0, 0, -1));
+            spot.setSpotRange(100);
+            spot.setSpotInnerAngle(0.3f);
+            spot.setSpotOuterAngle(0.5f);
+            spot.setColor(ColorRGBA.Black);
+            assertEquals(reference,
+                    renderLighting(manager, target, lightingMaterial(assets, "none", map), probe, spot),
+                    2, "Spot falloff must not amplify a probe without sunlight inputs");
+
+            // Both distances yield falloff > 1. Clamping the actual light or classifying it
+            // after clamping would fail these assertions, including with exposure enabled.
+            int direct = renderLighting(manager, target, lightingMaterial(assets, "none", map),
+                    null, point(0.5f, 0.1f));
+            assertTrue(direct > 10 && direct < 60, "Direct reference must be nonzero and not saturated");
+            assertEquals(direct * 4, renderLighting(manager, target, lightingMaterial(assets, "none", map),
+                    null, point(0.25f, 0.1f)), 2, "Direct falloff must remain inverse-square");
+            assertEquals(direct, renderLighting(manager, target, lightingMaterial(assets, "static", map),
+                    null, point(0.5f, 0.1f)), 2, "Sun exposure must not clamp direct point lighting");
+            assertEquals(direct * 4, renderLighting(manager, target, lightingMaterial(assets, "static", map),
+                    null, point(0.25f, 0.1f)), 2, "Direct falloff must remain inverse-square with exposure");
+
+            DirectionalLight sun = new DirectionalLight(new Vector3f(0, 0, -1),
+                    new ColorRGBA(0.5f, 0.5f, 0.5f, 1));
+            int directional = renderLighting(manager, target, lightingMaterial(assets, "none", map), null, sun);
+            assertEquals(directional * 0.25f,
+                    renderLighting(manager, target, lightingMaterial(assets, "static", map), null, sun),
+                    2, "Explicit sunlight input must still attenuate directional lighting");
+        } finally {
+            probe.getPrefilteredEnvMap().getImage().dispose();
+            map.getImage().dispose();
+        }
+    }
+
+    private static Material lightingMaterial(AssetManager assets, String input, Texture2D map) {
+        boolean legacy = input.startsWith("legacy-");
+        Material material = new Material(assets, legacy
+                ? "TestMatDefs/PbrSunExposureLegacyAliases.j3md"
+                : "Common/MatDefs/Light/PBRLighting.j3md");
+        material.setColor("BaseColor", new ColorRGBA(0.8f, 0.8f, 0.8f, 1));
+        material.setFloat("Metallic", 0);
+        material.setFloat("Roughness", 1);
+        material.setBoolean("UseSpecularAA", false);
+        material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
+        switch (input) {
+            case "static":
+                material.setFloat("StaticSunIntensity", 0.25f);
+                break;
+            case "one":
+                material.setFloat("StaticSunIntensity", 1);
+                break;
+            case "false":
+                material.setBoolean("UseVertexColorsAsSunIntensity", false);
+                break;
+            case "brighten":
+                material.setBoolean("BrightenIndoorShadows", true);
+                break;
+            case "vertex":
+                material.setBoolean("UseVertexColorsAsSunIntensity", true);
+                break;
+            case "map":
+                material.setTexture("SunLightExposureMap", map);
+                break;
+            case "combined":
+                material.setFloat("StaticSunIntensity", 0.5f);
+                material.setBoolean("UseVertexColorsAsSunIntensity", true);
+                break;
+            case "legacy-static":
+                material.setFloat("StaticSunIntensity", 0.25f);
+                break;
+            case "legacy-vertex":
+                material.setBoolean("UseVertexColorsAsSunExposure", true);
+                break;
+            case "legacy-combined":
+                material.setFloat("StaticSunIntensity", 0.5f);
+                material.setBoolean("UseVertexColorsAsSunExposure", true);
+                break;
+            default:
+                break;
+        }
+        return material;
+    }
+
+    private static PointLight point(float distance, float intensity) {
+        PointLight light = new PointLight();
+        // Pixel (8, 8) in the 16x16 orthographic target is at this world-space XY.
+        light.setPosition(new Vector3f(0.0625f, 0.0625f, distance));
+        light.setRadius(100);
+        light.setColor(new ColorRGBA(intensity, intensity, intensity, 1));
+        return light;
+    }
+
+    private static LightProbe constantProbe() {
+        LightProbe probe = new LightProbe();
+        probe.getArea().setRadius(100);
+        probe.setPosition(Vector3f.ZERO);
+        probe.setNbMipMaps(1);
+        Vector3f[] coefficients = new Vector3f[9];
+        for (int i = 0; i < coefficients.length; i++) {
+            coefficients[i] = new Vector3f();
+        }
+        coefficients[0].set(0.25f, 0.25f, 0.25f);
+        probe.setShCoeffs(coefficients);
+        ArrayList<ByteBuffer> faces = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            faces.add(BufferUtils.createByteBuffer(4));
+        }
+        TextureCubeMap environment = new TextureCubeMap(
+                new Image(Image.Format.RGBA8, 1, 1, 0, faces, ColorSpace.Linear));
+        environment.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        environment.setMagFilter(Texture.MagFilter.Nearest);
+        probe.setPrefilteredMap(environment);
+        // A deterministic, already-baked probe avoids asynchronous baking and external assets.
+        probe.setReady(true);
+        return probe;
+    }
+
+    private static int renderLighting(RenderManager manager, FrameBuffer target, Material material,
+            LightProbe probe, Light light) {
+        return renderLighting(manager, target, material, probe, light, null);
+    }
+
+    private static int renderLighting(RenderManager manager, FrameBuffer target, Material material,
+            LightProbe probe, Light light, float[] vertexColors) {
+        Geometry geometry = new Geometry("probe exposure", new Quad(2, 2));
+        geometry.move(-1, -1, 0);
+        geometry.setMaterial(material);
+        float[] colors = vertexColors != null ? vertexColors : new float[]{
+                0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1};
+        geometry.getMesh().setBuffer(VertexBuffer.Type.Color, 4, colors);
+        if (probe != null) {
+            geometry.addLight(probe);
+        }
+        if (light != null) {
+            geometry.addLight(light);
+        }
+        geometry.updateGeometricState();
+        Renderer renderer = manager.getRenderer();
+        renderer.setFrameBuffer(target);
+        renderer.setBackgroundColor(ColorRGBA.Black);
+        renderer.clearBuffers(true, true, true);
+        manager.renderGeometry(geometry);
+        ByteBuffer pixels = BufferUtils.createByteBuffer(16 * 16 * 4);
+        renderer.readFrameBufferWithFormat(target, pixels, Image.Format.RGBA8);
+        int offset = (8 * 16 + 8) * 4;
+        int red = pixels.get(offset) & 255;
+        assertEquals(red, pixels.get(offset + 1) & 255, 1, "Green channel");
+        assertEquals(red, pixels.get(offset + 2) & 255, 1, "Blue channel");
+        assertEquals(255, pixels.get(offset + 3) & 255, "Alpha channel");
+        return red;
     }
 
     private static Texture2D exposureMap() {
