@@ -848,8 +848,26 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
 
         if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
-            frameBuffer.setDepthTarget(FrameBufferTarget
-                    .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
+            Format depthFormat;
+            if (settings.getStencilBits() > 0) {
+                depthFormat = Format.Depth24Stencil8;
+            } else {
+                switch (settings.getDepthBits()) {
+                    case 16:
+                        depthFormat = Format.Depth16;
+                        break;
+                    case 24:
+                        depthFormat = Format.Depth24;
+                        break;
+                    case 32:
+                        depthFormat = renderer.getCaps().contains(Caps.Depth32) ? Format.Depth32 : Format.Depth32F;
+                        break;
+                    default:
+                        depthFormat = Format.Depth;
+                        break;
+                }
+            }
+            frameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
         }
 
         blitColorTexture = colorTexture;
