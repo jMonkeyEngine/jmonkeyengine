@@ -102,7 +102,7 @@ public class RecordSerializer extends Serializer {
      * Reads record fields from the buffer and creates a new record instance using its constructor.
      * 
      * @param data  The buffer to read from.
-     * @param clazz The class of the record.
+     * @param cls The class of the record.
      * @param <T>   The record type.
      * @return The deserialized record instance.
      * @throws IOException If deserialization fails.
