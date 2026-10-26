@@ -617,9 +617,9 @@ public class BoundingSphere extends BoundingVolume {
         if (rCenter == null) {
             rVal.setCenter(rCenter = new Vector3f());
         }
-        if (length > RADIUS_EPSILON && Float.isFinite(length)) {
+        if (length > 0f && Float.isFinite(length)) {
             float coeff = (length + radiusDiff) / (2.0f * length);
-            rCenter.set(center.addLocal(diff.multLocal(coeff)));
+            center.add(diff.multLocal(coeff), rCenter);
         } else {
             rCenter.set(center);
         }
