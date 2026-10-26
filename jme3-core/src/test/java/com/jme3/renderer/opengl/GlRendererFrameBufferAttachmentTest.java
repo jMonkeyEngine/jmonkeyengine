@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jme3.renderer.Limits;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -221,5 +222,25 @@ public class GlRendererFrameBufferAttachmentTest extends FrameBufferTestSupport 
         renderer.setFrameBuffer(fb);
         assertNotEquals(oldFormat, driver.renderbufferFormats.get(id));
         assertEquals(GLExt.GL_SRGB8_ALPHA8_EXT, driver.renderbufferFormats.get(id));
+    }
+
+    @Test
+    void highestColorSlotDoesNotOverlapDepthStencilBookkeeping() {
+        renderer.getLimits().put(Limits.FrameBufferAttachments, 16);
+        FrameBuffer fb = bufferedFramebuffer(16);
+        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.Depth24Stencil8));
+        renderer.setFrameBuffer(fb);
+        final int depthId = fb.getDepthTarget().getId();
+        fb.removeColorTarget(15);
+        renderer.setFrameBuffer(fb);
+        assertEquals(0, driver.attachment(fb, 15));
+        assertEquals(depthId, driver.attachmentAt(fb, GLFbo.GL_DEPTH_ATTACHMENT_EXT));
+        assertEquals(depthId, driver.attachmentAt(fb, GL_STENCIL_ATTACHMENT));
+        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.Depth));
+        renderer.setFrameBuffer(fb);
+        assertEquals(0, driver.attachmentAt(fb, GL_STENCIL_ATTACHMENT));
+        assertEquals(16, driver.liveRenderbuffers.size());
+        renderer.cleanup();
+        assertEquals(0, driver.liveRenderbuffers.size());
     }
 }

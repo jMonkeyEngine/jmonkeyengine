@@ -38,6 +38,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,6 +81,7 @@ public class NativeObjectManager {
      * List of real objects requested by user for deletion.
      */
     private final ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<>();
+    private final IdentityHashMap<NativeObject, Boolean> pendingUserDeletions = new IdentityHashMap<>();
 
     private static class NativeObjectRef extends PhantomReference<Object> {
         
@@ -127,7 +129,11 @@ public class NativeObjectManager {
         if (ref != null) {
             ref.clear();
         }
-        userDeletionQueue.removeIf(queued -> queued == obj);
+        // Managed deletion already removed the pending request before calling
+        // the renderer. Only a still-queued object needs this identity scan.
+        if (pendingUserDeletions.remove(obj) != null) {
+            userDeletionQueue.removeIf(queued -> queued == obj);
+        }
     }
 
     private void deleteNativeObject(Object rendererObject, NativeObject obj, NativeObjectRef ref, 
@@ -192,6 +198,7 @@ public class NativeObjectManager {
         while (removed < MAX_REMOVES_PER_FRAME && !userDeletionQueue.isEmpty()) {
             // Remove user requested objects.
             NativeObject obj = userDeletionQueue.pop();
+            pendingUserDeletions.remove(obj);
             deleteNativeObject(rendererObject, obj, null, true, true);
             removed++;
         }
@@ -228,6 +235,9 @@ public class NativeObjectManager {
             deleteNativeObject(rendererObject, ref.objClone, ref, true, false);
         }
         assert refMap.size() == 0;
+        // deleteUnused is bounded; the remaining objects were deleted via clones.
+        userDeletionQueue.clear();
+        pendingUserDeletions.clear();
     }
 
     /**
@@ -240,7 +250,9 @@ public class NativeObjectManager {
      * @param obj The object to mark as unused.
      */
     void enqueueUnusedObject(NativeObject obj) {
-        userDeletionQueue.push(obj);
+        if (pendingUserDeletions.put(obj, Boolean.TRUE) == null) {
+            userDeletionQueue.push(obj);
+        }
     }
     
     /**
@@ -260,6 +272,9 @@ public class NativeObjectManager {
         }
         refMap.clear();
         refQueue = new ReferenceQueue<Object>();
+        // Queued deletions belong to the lost context, not to recreated objects.
+        userDeletionQueue.clear();
+        pendingUserDeletions.clear();
     }
 
 //    public void printObjects(){

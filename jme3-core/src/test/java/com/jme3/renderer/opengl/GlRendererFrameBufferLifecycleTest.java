@@ -33,13 +33,16 @@ package com.jme3.renderer.opengl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture2D;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import org.junit.jupiter.api.Test;
 
 /** Tests ownership, deletion, native-name reuse, and context reset. */
@@ -212,5 +215,158 @@ public class GlRendererFrameBufferLifecycleTest extends FrameBufferTestSupport {
         renderer.deleteFrameBuffer(fb);
         assertTrue(driver.deletedRenderbuffers.isEmpty());
         assertEquals(1, driver.liveTextures.size());
+    }
+
+    @Test
+    void disposingOneFramebufferPreservesSharedColorAndDepthTextures() {
+        Texture2D color = texture();
+        Texture2D depth = new Texture2D(8, 8, Image.Format.Depth);
+        FrameBuffer first = framebuffer(color);
+        FrameBuffer second = framebuffer(color);
+        first.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depth));
+        second.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depth));
+        renderer.setFrameBuffer(first);
+        renderer.setFrameBuffer(second);
+        final int colorId = color.getImage().getId();
+        final int depthId = depth.getImage().getId();
+        first.dispose();
+        renderer.postFrame();
+        assertEquals(colorId, driver.attachment(second, 0));
+        assertEquals(depthId, driver.attachmentAt(second, GLFbo.GL_DEPTH_ATTACHMENT_EXT));
+        assertEquals(2, driver.liveTextures.size());
+        assertTrue(driver.deletedRenderbuffers.isEmpty());
+        second.setUpdateNeeded();
+        renderer.setFrameBuffer(second);
+        second.dispose();
+        renderer.postFrame();
+        assertTrue(driver.liveFramebuffers.isEmpty());
+        assertEquals(2, driver.liveTextures.size());
+        assertEquals(colorId, color.getImage().getId());
+        assertEquals(depthId, depth.getImage().getId());
+    }
+
+    @Test
+    void disposalDoesNotAllowTargetTransferButOriginalFramebufferCanBeReused() {
+        FrameBuffer first = bufferedFramebuffer(1);
+        final FrameBuffer.FrameBufferBufferTarget target
+                = (FrameBuffer.FrameBufferBufferTarget) first.getColorTarget(0);
+        renderer.setFrameBuffer(first);
+        first.dispose();
+        renderer.postFrame();
+        FrameBuffer second = framebuffer(texture());
+        assertThrows(IllegalArgumentException.class, () -> second.addColorTarget(target));
+        renderer.setFrameBuffer(first);
+        assertEquals(target.getId(), driver.attachment(first, 0));
+        renderer.cleanup();
+        assertTrue(driver.liveRenderbuffers.isEmpty());
+    }
+
+    @Test
+    void duplicateDisposalRequestsCannotDeleteAReinitializedFramebuffer() {
+        FrameBuffer fb = bufferedFramebuffer(1);
+        renderer.setFrameBuffer(fb);
+        for (int i = 0; i < 150; i++) {
+            fb.dispose();
+        }
+        renderer.postFrame();
+        assertTrue(driver.liveFramebuffers.isEmpty());
+        renderer.setFrameBuffer(fb);
+        int newId = fb.getId();
+        renderer.postFrame();
+        assertEquals(newId, fb.getId());
+        assertTrue(driver.liveFramebuffers.contains(newId));
+        assertEquals(2, driver.liveRenderbuffers.size());
+        renderer.cleanup();
+    }
+
+    @Test
+    void batchDisposalStillHonorsThePerFrameLimit() {
+        for (int i = 0; i < 250; i++) {
+            FrameBuffer fb = bufferedFramebuffer(1);
+            renderer.setFrameBuffer(fb);
+            fb.dispose();
+            fb.dispose();
+        }
+        renderer.postFrame();
+        assertEquals(150, driver.liveFramebuffers.size());
+        assertEquals(300, driver.liveRenderbuffers.size());
+        renderer.postFrame();
+        assertEquals(50, driver.liveFramebuffers.size());
+        renderer.postFrame();
+        assertTrue(driver.liveFramebuffers.isEmpty());
+        assertTrue(driver.liveRenderbuffers.isEmpty());
+    }
+
+    @Test
+    void retainedTargetDoesNotPreventOwnerGcOrNativeCleanup() throws InterruptedException {
+        final FrameBuffer.FrameBufferBufferTarget target
+                = FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8);
+        WeakReference<FrameBuffer> owner = initializeCollectibleFramebuffer(target);
+        try {
+            // Keep the target strongly reachable, but not its owning framebuffer.
+            for (int i = 0; i < 100 && !driver.liveFramebuffers.isEmpty(); i++) {
+                System.gc();
+                Thread.sleep(25);
+                renderer.postFrame();
+            }
+            assertNull(owner.get(), "The target must not retain its owner");
+            assertTrue(driver.liveFramebuffers.isEmpty(), "The phantom handle must also be collectible");
+            assertTrue(driver.liveRenderbuffers.isEmpty());
+            assertEquals(-1, target.getId());
+        } finally {
+            Reference.reachabilityFence(target);
+        }
+    }
+
+    private WeakReference<FrameBuffer> initializeCollectibleFramebuffer(
+            FrameBuffer.FrameBufferBufferTarget target) {
+        FrameBuffer fb = new FrameBuffer(8, 8, 1);
+        fb.addColorTarget(target);
+        renderer.setFrameBuffer(fb);
+        renderer.setFrameBuffer(null);
+        return new WeakReference<>(fb);
+    }
+
+    @Test
+    void contextResetDiscardsPendingDisposalOfOldNativeNames() {
+        FrameBuffer fb = bufferedFramebuffer(1);
+        renderer.setFrameBuffer(fb);
+        fb.dispose();
+        renderer.resetGLObjects();
+        driver.liveRenderbuffers.clear();
+        driver.liveFramebuffers.clear();
+        driver.attachments.clear();
+        driver.boundRenderbuffer = 0;
+        renderer.setFrameBuffer(fb);
+        int newId = fb.getId();
+        renderer.postFrame();
+        assertEquals(newId, fb.getId());
+        assertTrue(driver.liveFramebuffers.contains(newId));
+        assertEquals(2, driver.liveRenderbuffers.size());
+        fb.dispose();
+        renderer.postFrame();
+        assertTrue(driver.liveRenderbuffers.isEmpty());
+    }
+
+    @Test
+    void fullCleanupDiscardsRequestsBeyondThePerFrameLimit() {
+        FrameBuffer[] buffers = new FrameBuffer[150];
+        for (int i = 0; i < buffers.length; i++) {
+            buffers[i] = bufferedFramebuffer(1);
+            renderer.setFrameBuffer(buffers[i]);
+            buffers[i].dispose();
+        }
+        renderer.cleanup();
+        assertTrue(driver.liveFramebuffers.isEmpty());
+        assertTrue(driver.liveRenderbuffers.isEmpty());
+        FrameBuffer reused = buffers[0];
+        renderer.setFrameBuffer(reused);
+        int newId = reused.getId();
+        renderer.postFrame();
+        assertEquals(newId, reused.getId());
+        assertTrue(driver.liveFramebuffers.contains(newId));
+        reused.dispose();
+        renderer.postFrame();
+        assertTrue(driver.liveRenderbuffers.isEmpty());
     }
 }

@@ -65,6 +65,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.IntMap;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObject;
@@ -103,16 +104,39 @@ public final class GLRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
 
+    /** Native storage state, allocated once per owned renderbuffer. */
+    private static final class RenderBufferState {
+        final RenderBuffer target;
+        int internalFormat;
+
+        RenderBufferState(RenderBuffer target) {
+            this.target = target;
+        }
+    }
+
     /** Native attachment state, without a reference to the owning FrameBuffer. */
     private static final class FrameBufferState {
-        final Set<Integer> attachmentSlots = new HashSet<>();
-        final Map<RenderBuffer, Integer> renderBuffers = new HashMap<>();
+        // Bits 0..15 are color slots; 16 and 17 are depth and depth-stencil.
+        int attachmentSlots;
+        final ArrayList<RenderBufferState> renderBuffers = new ArrayList<>();
         final ArrayList<Texture> colorTextures = new ArrayList<>();
+
+        RenderBufferState getRenderBuffer(RenderBuffer target) {
+            for (int i = 0; i < renderBuffers.size(); i++) {
+                RenderBufferState buffer = renderBuffers.get(i);
+                if (buffer.target == target) {
+                    return buffer;
+                }
+            }
+            RenderBufferState buffer = new RenderBufferState(target);
+            renderBuffers.add(buffer);
+            return buffer;
+        }
     }
 
     // Destructible framebuffer clones contain only an ID. Keep their resources
     // here so allocations and target changes after registration are also tracked.
-    private final Map<Integer, FrameBufferState> frameBufferStates = new HashMap<>();
+    private final IntMap<FrameBufferState> frameBufferStates = new IntMap<>();
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -925,9 +949,10 @@ public final class GLRenderer implements Renderer {
     public void resetGLObjects() {
         logger.log(Level.FINE, "Resetting objects and invalidating state");
         objManager.resetObjects();
-        for (FrameBufferState state : frameBufferStates.values()) {
-            for (RenderBuffer rb : state.renderBuffers.keySet()) {
-                rb.resetObject();
+        for (IntMap.Entry<FrameBufferState> entry : frameBufferStates) {
+            FrameBufferState state = entry.getValue();
+            for (int i = 0; i < state.renderBuffers.size(); i++) {
+                state.renderBuffers.get(i).target.resetObject();
             }
         }
         frameBufferStates.clear();
@@ -2121,14 +2146,15 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
+    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
         int id = rb.getId();
-        FrameBufferState state = frameBufferStates.get(fb.getId());
-        state.renderBuffers.putIfAbsent(rb, 0);
+        // Track before allocating so failures still leave a cleanup path.
+        RenderBufferState buffer = state.getRenderBuffer(rb);
         if (id == -1) {
             glfbo.glGenRenderbuffersEXT(intBuf1);
             id = intBuf1.get(0);
             rb.setId(id);
+            buffer.internalFormat = 0;
         }
 
         if (context.boundRB != id) {
@@ -2143,7 +2169,7 @@ public final class GLRenderer implements Renderer {
         }
 
         GLImageFormat glFmt = texUtil.getImageFormatWithError(rb.getFormat(), fb.isSrgb());
-        if (state.renderBuffers.get(rb) == glFmt.internalFormat) {
+        if (buffer.internalFormat == glFmt.internalFormat) {
             // Reattaching an unchanged buffer must not discard its contents.
             return;
         }
@@ -2165,7 +2191,7 @@ public final class GLRenderer implements Renderer {
                     fb.getWidth(),
                     fb.getHeight());
         }
-        state.renderBuffers.put(rb, glFmt.internalFormat);
+        buffer.internalFormat = glFmt.internalFormat;
     }
 
     private int convertAttachmentSlot(int attachmentSlot) {
@@ -2214,6 +2240,10 @@ public final class GLRenderer implements Renderer {
     }
 
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
+        updateFrameBufferAttachment(fb, rb, frameBufferStates.get(fb.getId()));
+    }
+
+    private void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
         Image.Format format = rb.getFormat();
         boolean depthTarget = rb.getSlot() == FrameBuffer.SLOT_DEPTH
                 || rb.getSlot() == FrameBuffer.SLOT_DEPTH_STENCIL;
@@ -2228,7 +2258,7 @@ public final class GLRenderer implements Renderer {
         }
 
         if (rb.getTexture() == null) {
-            updateRenderBuffer(fb, rb);
+            updateRenderBuffer(fb, rb, state);
             // A surviving renderbuffer may have moved to a different color slot.
             glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
@@ -2237,7 +2267,7 @@ public final class GLRenderer implements Renderer {
         } else {
             updateRenderTexture(fb, rb);
         }
-        frameBufferStates.get(fb.getId()).attachmentSlots.add(rb.getSlot());
+        state.attachmentSlots |= attachmentSlotMask(rb.getSlot());
     }
 
     private void bindFrameBuffer(FrameBuffer fb) {
@@ -2294,42 +2324,40 @@ public final class GLRenderer implements Renderer {
 
         bindFrameBuffer(fb);
         FrameBufferState state = frameBufferStates.get(id);
-        Set<Integer> slots = new HashSet<>();
-        Set<RenderBuffer> buffers = new HashSet<>();
+        int slots = 0;
         if (fb.getDepthTarget() != null) {
-            slots.add(fb.getDepthTarget().getSlot());
-            buffers.add(fb.getDepthTarget());
+            slots |= attachmentSlotMask(fb.getDepthTarget().getSlot());
         }
         for (int i = 0; i < fb.getNumColorTargets(); i++) {
-            RenderBuffer rb = fb.getColorTarget(i);
-            slots.add(rb.getSlot());
-            buffers.add(rb);
+            slots |= attachmentSlotMask(fb.getColorTarget(i).getSlot());
         }
-        for (Iterator<Integer> it = state.attachmentSlots.iterator(); it.hasNext();) {
-            int slot = it.next();
-            if (!slots.contains(slot)) {
-                glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
-                        convertAttachmentSlot(slot), GLFbo.GL_RENDERBUFFER_EXT, 0);
-                it.remove();
-            }
+        int removedSlots = state.attachmentSlots & ~slots;
+        while (removedSlots != 0) {
+            int index = Integer.numberOfTrailingZeros(removedSlots);
+            int slot = index == 16 ? FrameBuffer.SLOT_DEPTH
+                    : index == 17 ? FrameBuffer.SLOT_DEPTH_STENCIL : index;
+            glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
+                    convertAttachmentSlot(slot), GLFbo.GL_RENDERBUFFER_EXT, 0);
+            state.attachmentSlots &= ~(1 << index);
+            removedSlots &= removedSlots - 1;
         }
-        for (Iterator<RenderBuffer> it = state.renderBuffers.keySet().iterator(); it.hasNext();) {
-            RenderBuffer rb = it.next();
-            if (!buffers.contains(rb)) {
+        for (int i = state.renderBuffers.size() - 1; i >= 0; i--) {
+            RenderBuffer rb = state.renderBuffers.get(i).target;
+            if (!isFrameBufferTarget(fb, rb)) {
                 deleteRenderBuffer(rb);
-                it.remove();
+                state.renderBuffers.remove(i);
             }
         }
         state.colorTextures.clear();
 
         FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
-            updateFrameBufferAttachment(fb, depthBuf);
+            updateFrameBufferAttachment(fb, depthBuf, state);
         }
 
         for (int i = 0; i < fb.getNumColorTargets(); i++) {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorTarget(i);
-            updateFrameBufferAttachment(fb, colorBuf);
+            updateFrameBufferAttachment(fb, colorBuf, state);
             if (colorBuf.getTexture() != null) {
                 state.colorTextures.add(colorBuf.getTexture());
             }
@@ -2339,6 +2367,25 @@ public final class GLRenderer implements Renderer {
         checkFrameBufferError();
 
         fb.clearUpdateNeeded();
+    }
+
+    private static int attachmentSlotMask(int slot) {
+        if (slot == FrameBuffer.SLOT_DEPTH) {
+            return 1 << 16;
+        } else if (slot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+            return 1 << 17;
+        } else if (slot < 0 || slot >= 16) {
+            throw new UnsupportedOperationException("Invalid FBO attachment slot: " + slot);
+        }
+        return 1 << slot;
+    }
+
+    private static boolean isFrameBufferTarget(FrameBuffer fb, RenderBuffer rb) {
+        if (fb.getDepthTarget() == rb) {
+            return true;
+        }
+        int slot = rb.getSlot();
+        return slot >= 0 && slot < fb.getNumColorTargets() && fb.getColorTarget(slot) == rb;
     }
 
     public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
@@ -2459,7 +2506,8 @@ public final class GLRenderer implements Renderer {
             // Use the native attachment snapshot: the Java targets may already
             // have been replaced with textures that have not been allocated yet.
             FrameBufferState state = frameBufferStates.get(boundFB.getId());
-            for (Texture tex : state.colorTextures) {
+            for (int i = 0; i < state.colorTextures.size(); i++) {
+                Texture tex = state.colorTextures.get(i);
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()
                         && isMipmapGenerationSupported(tex.getImage().getFormat(),
                                 linearizeSrgbImages && boundFB.isSrgb()
@@ -2564,8 +2612,8 @@ public final class GLRenderer implements Renderer {
 
             FrameBufferState state = frameBufferStates.remove(fb.getId());
             if (state != null) {
-                for (RenderBuffer rb : state.renderBuffers.keySet()) {
-                    deleteRenderBuffer(rb);
+                for (int i = 0; i < state.renderBuffers.size(); i++) {
+                    deleteRenderBuffer(state.renderBuffers.get(i).target);
                 }
             }
 
