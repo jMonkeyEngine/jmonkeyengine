@@ -307,7 +307,8 @@ public abstract class Serializer {
                 serializer = isRecord(cls) ? getRecordSerializer() : fieldSerializer;
             } else {
                 // A specific custom serializer was explicitly requested by the user
-                serializer = getSerializer(serializerClass, false);
+                SerializerRegistration serializerReg = getExactSerializerRegistration(serializerClass);
+                serializer = serializerReg == null ? null : serializerReg.getSerializer();
                 if (serializer == null) {
                     try {
                         serializer = (Serializer) serializerClass.getDeclaredConstructor().newInstance();

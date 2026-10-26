@@ -35,6 +35,7 @@ import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 
  * @author thkluge
  */
+@SuppressWarnings("unchecked")
 public class RecordSerializer extends Serializer {
     
     private static final Map<Class<?>, RecordCache> CACHE = new ConcurrentHashMap<>();
@@ -52,6 +54,8 @@ public class RecordSerializer extends Serializer {
     private static class RecordCache {
         Constructor<?> constructor;
         Method[] accessors;
+        Class<?>[] componentTypes;
+        Serializer[] componentSerializers;
     }
     
     /**
@@ -66,21 +70,27 @@ public class RecordSerializer extends Serializer {
             Method getRecordComponents = Class.class.getMethod("getRecordComponents");
             Object[] components = (Object[]) getRecordComponents.invoke(clazz);
             
-            Class<?>[] types = new Class<?>[components.length];
+            rc.componentTypes = new Class<?>[components.length];
             rc.accessors = new Method[components.length];
+            rc.componentSerializers = new Serializer[components.length];
             
             if (components.length > 0) {
                 Method getType = components[0].getClass().getMethod("getType");
                 Method getAccessor = components[0].getClass().getMethod("getAccessor");
                 
                 for (int i = 0; i < components.length; i++) {
-                    types[i] = (Class<?>) getType.invoke(components[i]);
+                    rc.componentTypes[i] = (Class<?>) getType.invoke(components[i]);
                     rc.accessors[i] = (Method) getAccessor.invoke(components[i]);
                     rc.accessors[i].setAccessible(true);
+                    
+                    // Match FieldSerializer: resolve and register final/primitive/array types upfront during init
+                    if (Modifier.isFinal(rc.componentTypes[i].getModifiers()) || rc.componentTypes[i].isPrimitive() || rc.componentTypes[i].isArray()) {
+                        rc.componentSerializers[i] = Serializer.getSerializer(rc.componentTypes[i], false);
+                    }
                 }
             }
             
-            rc.constructor = clazz.getDeclaredConstructor(types);
+            rc.constructor = clazz.getDeclaredConstructor(rc.componentTypes);
             rc.constructor.setAccessible(true);
             CACHE.put(clazz, rc);
         } catch (Exception e) {
@@ -104,10 +114,14 @@ public class RecordSerializer extends Serializer {
             Object[] args = new Object[rc.accessors.length];
             
             for (int i = 0; i < rc.accessors.length; i++) {
-                args[i] = Serializer.readClassAndObject(data);
+                if (rc.componentSerializers[i] != null) {
+                    args[i] = rc.componentSerializers[i].readObject(data, rc.componentTypes[i]);
+                } else {
+                    args[i] = Serializer.readClassAndObject(data);
+                }
             }
             
-            return (T) rc.constructor.newInstance(args);
+            return cls.cast(rc.constructor.newInstance(args));
         } catch (Exception e) {
             throw new IOException("Failed to deserialize record: " + cls.getName(), e);
         }
@@ -125,9 +139,13 @@ public class RecordSerializer extends Serializer {
         try {
             RecordCache rc = CACHE.get(object.getClass());
             
-            for (Method accessor : rc.accessors) {
-                Object value = accessor.invoke(object);
-                Serializer.writeClassAndObject(buffer, value);
+            for (int i = 0; i < rc.accessors.length; i++) {
+                Object value = rc.accessors[i].invoke(object);
+                if (rc.componentSerializers[i] != null) {
+                    rc.componentSerializers[i].writeObject(buffer, value);
+                } else {
+                    Serializer.writeClassAndObject(buffer, value);
+                }
             }
         } catch (Exception e) {
             throw new IOException("Failed to serialize record: " + object.getClass().getName(), e);
