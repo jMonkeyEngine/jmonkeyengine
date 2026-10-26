@@ -607,12 +607,16 @@
 
             vec3 directLighting = surface.diffuseColor.rgb * directDiffuse + directSpecular;
 
-            if(light.fallOff == 1.0){
-                directLighting.rgb *= surface.exposure;// is used to scale down how intense just the sun is indoors, and so the ambientLighting can be scaled back up indoors based on nearest pointlight intensity (ambient and direct light are 1.0 fallOff)                
-            }
-            else{
-                surface.brightestNonGlobalLightStrength = max(light.fallOff, surface.brightestNonGlobalLightStrength);
-            }
+            #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                if (light.fallOff == 1.0) {
+                    directLighting.rgb *= surface.exposure;
+                } else {
+                    // Bound only the indoor probe compensation, not the direct-light attenuation.
+                    float indoorLightStrength = clamp(light.fallOff, 0.0, 1.0);
+                    surface.brightestNonGlobalLightStrength = max(indoorLightStrength,
+                            surface.brightestNonGlobalLightStrength);
+                }
+            #endif
 
             surface.directLightContribution.rgb += directLighting * light.fallOff;
         }
@@ -626,15 +630,17 @@
 
         void PBRLightingUtils_computeProbesContribution(inout PBRSurface surface){   
 
-            #ifdef BRIGHTEN_INDOOR_SHADOWS
-                float minVertLighting = 0.0833; //enable this when using shadows, in order to brighten indoor areas (which are naturally covered from the DL shadows) so that indoor areas are not way too dark when using IndoorLighting with shadows compared to when shadows are off
-            #else
-                float minVertLighting = 0.0533;
-            #endif
+            #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                #ifdef BRIGHTEN_INDOOR_SHADOWS
+                    float minVertLighting = 0.0833;
+                #else
+                    float minVertLighting = 0.0533;
+                #endif
 
-            float finalLightingScale = surface.exposure;
-            finalLightingScale = max(finalLightingScale, surface.brightestNonGlobalLightStrength);    
-            finalLightingScale = max(finalLightingScale, minVertLighting); //essentially just the vertColors.r (aka indoor light exposure) multiplied by the time of day scale.   
+                float finalLightingScale = surface.exposure;
+                finalLightingScale = max(finalLightingScale, surface.brightestNonGlobalLightStrength);
+                finalLightingScale = max(finalLightingScale, minVertLighting);
+            #endif
 
             #if NB_PROBES >= 1
                 vec3 color1 = vec3(0.0);
@@ -721,9 +727,11 @@
                     color3.rgb *= g_AmbientLightColor.rgb;
                 #endif
                 
-                color1.rgb *= finalLightingScale;
-                color2.rgb *= finalLightingScale;
-                color3.rgb *= finalLightingScale;
+                #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                    color1.rgb *= finalLightingScale;
+                    color2.rgb *= finalLightingScale;
+                    color3.rgb *= finalLightingScale;
+                #endif
 
                 surface.envLightContribution.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
                 
