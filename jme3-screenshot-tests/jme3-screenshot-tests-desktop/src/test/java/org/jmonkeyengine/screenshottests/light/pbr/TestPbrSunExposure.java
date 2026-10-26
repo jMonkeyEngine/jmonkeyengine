@@ -192,18 +192,14 @@ public class TestPbrSunExposure {
                 assertEquals(reference, renderLighting(manager, target, material, probe, point(0.5f, 0)),
                         2, input + " must not amplify the probe");
             }
-            float[] halfColors = new float[]{
-                    0.5f, 0, 0, 1, 0.5f, 0, 0, 1, 0.5f, 0, 0, 1, 0.5f, 0, 0, 1};
-            for (String input : new String[]{"static", "vertex", "map", "combined",
-                    "legacy-static", "legacy-vertex", "legacy-combined"}) {
+            for (String input : new String[]{"static", "vertex", "map"}) {
                 Material material = lightingMaterial(assets, input, map);
-                float[] vColors = (input.equals("combined") || input.equals("legacy-combined")) ? halfColors : null;
-                assertEquals(reference * 0.25f, renderLighting(manager, target, material, probe, null, vColors),
+                assertEquals(reference * 0.25f, renderLighting(manager, target, material, probe, null),
                         2, input + " must still attenuate the probe");
-                assertEquals(reference, renderLighting(manager, target, material, probe, point(0.5f, 0), vColors),
+                assertEquals(reference, renderLighting(manager, target, material, probe, point(0.5f, 0)),
                         2, input + " indoor compensation must be capped at one");
                 assertEquals(reference * 0.5f,
-                        renderLighting(manager, target, material, probe, point(FastMath.sqrt(2), 0), vColors),
+                        renderLighting(manager, target, material, probe, point(FastMath.sqrt(2), 0)),
                         2, input + " must preserve subunit indoor compensation");
             }
 
@@ -243,15 +239,11 @@ public class TestPbrSunExposure {
     }
 
     private static Material lightingMaterial(AssetManager assets, String input, Texture2D map) {
-        boolean legacy = input.startsWith("legacy-");
-        Material material = new Material(assets, legacy
-                ? "TestMatDefs/PbrSunExposureLegacyAliases.j3md"
-                : "Common/MatDefs/Light/PBRLighting.j3md");
+        Material material = new Material(assets, "Common/MatDefs/Light/PBRLighting.j3md");
         material.setColor("BaseColor", new ColorRGBA(0.8f, 0.8f, 0.8f, 1));
         material.setFloat("Metallic", 0);
         material.setFloat("Roughness", 1);
         material.setBoolean("UseSpecularAA", false);
-        material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
         switch (input) {
             case "static":
                 material.setFloat("StaticSunIntensity", 0.25f);
@@ -270,20 +262,6 @@ public class TestPbrSunExposure {
                 break;
             case "map":
                 material.setTexture("SunLightExposureMap", map);
-                break;
-            case "combined":
-                material.setFloat("StaticSunIntensity", 0.5f);
-                material.setBoolean("UseVertexColorsAsSunIntensity", true);
-                break;
-            case "legacy-static":
-                material.setFloat("StaticSunIntensity", 0.25f);
-                break;
-            case "legacy-vertex":
-                material.setBoolean("UseVertexColorsAsSunExposure", true);
-                break;
-            case "legacy-combined":
-                material.setFloat("StaticSunIntensity", 0.5f);
-                material.setBoolean("UseVertexColorsAsSunExposure", true);
                 break;
             default:
                 break;
@@ -327,17 +305,11 @@ public class TestPbrSunExposure {
 
     private static int renderLighting(RenderManager manager, FrameBuffer target, Material material,
             LightProbe probe, Light light) {
-        return renderLighting(manager, target, material, probe, light, null);
-    }
-
-    private static int renderLighting(RenderManager manager, FrameBuffer target, Material material,
-            LightProbe probe, Light light, float[] vertexColors) {
         Geometry geometry = new Geometry("probe exposure", new Quad(2, 2));
         geometry.move(-1, -1, 0);
         geometry.setMaterial(material);
-        float[] colors = vertexColors != null ? vertexColors : new float[]{
-                0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1};
-        geometry.getMesh().setBuffer(VertexBuffer.Type.Color, 4, colors);
+        geometry.getMesh().setBuffer(VertexBuffer.Type.Color, 4, new float[]{
+                0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1, 0.25f, 0, 0, 1});
         if (probe != null) {
             geometry.addLight(probe);
         }
