@@ -62,6 +62,13 @@ public class RecordSerializerTest {
     
     @Serializable
     public record RecordWithArray(int id, byte[] payload) {}
+    
+    public enum TestStatus {
+        ACTIVE, PENDING, INACTIVE
+    }
+
+    @Serializable
+    public record RecordWithEnum(int id, TestStatus status) {}
 
     @Serializable
     public record UnregisteredNestedRecord(SimpleRecord nested, String label) {}
@@ -235,9 +242,19 @@ public class RecordSerializerTest {
 
     @Test
     public void testNestedRecordAutoRegistrationUnderLockedRegistry() throws Exception {
+        // Reset registry to ensure SimpleRecord is NOT pre-registered
+        Serializer.initialize();
+        
+        assertNull(Serializer.getExactSerializerRegistration(SimpleRecord.class), 
+                "SimpleRecord should not be registered yet");
+
         // Register ONLY the outer record. The inner SimpleRecord should be 
         // automatically registered during initialization of UnregisteredNestedRecord.
         Serializer.registerClass(UnregisteredNestedRecord.class);
+
+        // Verify that the inner record was successfully auto-registered as a side effect
+        assertNotNull(Serializer.getExactSerializerRegistration(SimpleRecord.class), 
+                "SimpleRecord should have been auto-registered during outer record initialization");
 
         // Lock the registry
         Serializer.setReadOnly(true);
@@ -257,6 +274,29 @@ public class RecordSerializerTest {
             assertEquals(original, result);
         } finally {
             Serializer.setReadOnly(false);
+            // Re-initialize for any subsequent tests sharing the @BeforeEach lifecycle
+            Serializer.initialize();
+            Serializer.registerClass(SimpleRecord.class);
+            Serializer.registerClass(NestedMessageRecord.class);
         }
+    }
+    
+    @Test
+    public void testRecordWithEnumComponentSerialization() throws Exception {
+        // Register only the outer record (TestStatus should be auto-registered during RecordSerializer init)
+        Serializer.registerClass(RecordWithEnum.class);
+
+        RecordWithEnum original = new RecordWithEnum(500, TestStatus.PENDING);
+        ByteBuffer buffer = ByteBuffer.allocate(256);
+
+        Serializer.writeClassAndObject(buffer, original);
+        buffer.flip();
+
+        Object result = Serializer.readClassAndObject(buffer);
+
+        assertNotNull(result);
+        assertTrue(result instanceof RecordWithEnum);
+        assertEquals(original, result);
+        assertEquals(TestStatus.PENDING, ((RecordWithEnum) result).status());
     }
 }
