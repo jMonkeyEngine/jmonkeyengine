@@ -25,4 +25,12 @@ public class Bool extends AbstractVar<Bool> {
         return new Bool(fmt("(%s||%s)", exp, b));
     }
 
+    public Bool eq(Bool b) {
+        return new Bool(fmt("(%s==%s)", exp, b));
+    }
+
+    public Bool neq(Bool b) {
+        return new Bool(fmt("(%s!=%s)", exp, b));
+    }
+
 }

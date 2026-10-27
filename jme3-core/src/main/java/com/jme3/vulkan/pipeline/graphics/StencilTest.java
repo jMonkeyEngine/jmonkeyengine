@@ -18,6 +18,78 @@ public class StencilTest {
     private StencilOp backStencilDepthFailOp = StencilOp.DecrementClamped;
     private StencilOp backStencilPassOp = StencilOp.DecrementClamped;
 
+    public boolean isStencilTestEnabled() {
+        return stencilTestEnabled;
+    }
+
+    public void setStencilTestEnabled(boolean stencilTestEnabled) {
+        this.stencilTestEnabled = stencilTestEnabled;
+    }
+
+    public CompareOp getFrontStencilCompareOp() {
+        return frontStencilCompareOp;
+    }
+
+    public void setFrontStencilCompareOp(CompareOp frontStencilCompareOp) {
+        this.frontStencilCompareOp = frontStencilCompareOp;
+    }
+
+    public StencilOp getFrontStencilFailOp() {
+        return frontStencilFailOp;
+    }
+
+    public void setFrontStencilFailOp(StencilOp frontStencilFailOp) {
+        this.frontStencilFailOp = frontStencilFailOp;
+    }
+
+    public StencilOp getFrontStencilDepthFailOp() {
+        return frontStencilDepthFailOp;
+    }
+
+    public void setFrontStencilDepthFailOp(StencilOp frontStencilDepthFailOp) {
+        this.frontStencilDepthFailOp = frontStencilDepthFailOp;
+    }
+
+    public StencilOp getFrontStencilPassOp() {
+        return frontStencilPassOp;
+    }
+
+    public void setFrontStencilPassOp(StencilOp frontStencilPassOp) {
+        this.frontStencilPassOp = frontStencilPassOp;
+    }
+
+    public CompareOp getBackStencilCompareOp() {
+        return backStencilCompareOp;
+    }
+
+    public void setBackStencilCompareOp(CompareOp backStencilCompareOp) {
+        this.backStencilCompareOp = backStencilCompareOp;
+    }
+
+    public StencilOp getBackStencilFailOp() {
+        return backStencilFailOp;
+    }
+
+    public void setBackStencilFailOp(StencilOp backStencilFailOp) {
+        this.backStencilFailOp = backStencilFailOp;
+    }
+
+    public StencilOp getBackStencilDepthFailOp() {
+        return backStencilDepthFailOp;
+    }
+
+    public void setBackStencilDepthFailOp(StencilOp backStencilDepthFailOp) {
+        this.backStencilDepthFailOp = backStencilDepthFailOp;
+    }
+
+    public StencilOp getBackStencilPassOp() {
+        return backStencilPassOp;
+    }
+
+    public void setBackStencilPassOp(StencilOp backStencilPassOp) {
+        this.backStencilPassOp = backStencilPassOp;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

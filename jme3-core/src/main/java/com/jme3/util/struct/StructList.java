@@ -49,7 +49,7 @@ import java.util.function.IntFunction;
  *
  * @param <T> struct type stored in this array
  */
-public class StructList <T extends Struct<StructField>> implements StructArray<T> {
+public class StructList <T extends Struct> implements StructArray<T> {
 
     private final T struct;
     private final IntFunction<GpuBuffer> bufferFactory;

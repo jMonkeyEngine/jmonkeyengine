@@ -6,7 +6,7 @@ import com.jme3.vulkan.scene.Scene;
 import java.util.*;
 import java.util.function.Function;
 
-public abstract class StructPipe <T extends Struct<StructField>> implements Component {
+public abstract class StructPipe <T extends Struct> implements Component {
 
     private final Scene scene;
     private final StructList<T> array;

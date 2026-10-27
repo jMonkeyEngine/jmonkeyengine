@@ -2,8 +2,8 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.math.*;
 import com.jme3.util.struct.FieldDescription;
-import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructLayout;
+import com.jme3.util.struct.ValueField;
 import com.jme3.vulkan.buffer.BufferBindingInfo;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.GpuBuffer;
@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @param <T> value type of this attribute
  */
-public class VertexAttr <T> implements StructField, Cloneable {
+public class VertexAttr <T> implements ValueField<T> {
 
     public static final Map<Class, Format[]> implicitFormats = new HashMap<>();
 
@@ -106,6 +106,7 @@ public class VertexAttr <T> implements StructField, Cloneable {
      *
      * @param value value to write
      */
+    @Override
     public void set(T value) {
         desc.write(binding.cache(), value);
     }
@@ -116,6 +117,7 @@ public class VertexAttr <T> implements StructField, Cloneable {
      * @param store object to read into
      * @return {@code store}
      */
+    @Override
     public T get(T store) {
         return desc.read(binding.cache(), store);
     }
@@ -126,6 +128,7 @@ public class VertexAttr <T> implements StructField, Cloneable {
      *
      * @return this attribute's alias, updated in place
      */
+    @Override
     public T get() {
         return alias = desc.read(binding.cache(), alias);
     }

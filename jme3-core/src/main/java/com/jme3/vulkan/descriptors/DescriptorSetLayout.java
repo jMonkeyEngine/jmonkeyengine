@@ -72,6 +72,10 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
         return info;
     }
 
+    public static Info build() {
+        return new Info();
+    }
+
     public static class Info {
 
         private final Map<Integer, Binding> bindings = new HashMap<>();
@@ -79,9 +83,28 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
 
         public Info() {}
 
+        /**
+         * Declares a binding at {@code bindingSlot}. If a binding was already declared at that
+         * slot (e.g. by another shader stage that references the same resource), this merges
+         * {@code stages} into the existing binding's stage flags instead of replacing it,
+         * provided the type and descriptor count agree.
+         *
+         * @throws IllegalStateException if {@code bindingSlot} is already declared with a
+         *         different type or descriptor count
+         */
         public Info addBinding(int bindingSlot, DescriptorType type, int descriptors, Flag<ShaderStage> stages) {
-            bindings.put(bindingSlot, new Binding(type, descriptors, stages));
-            usedBindings.set(bindingSlot);
+            Binding existing = bindings.get(bindingSlot);
+            if (existing != null) {
+                if (existing.type != type || existing.descriptors != descriptors) {
+                    throw new IllegalStateException("Binding " + bindingSlot + " is already declared as "
+                            + existing.descriptors + "x" + existing.type + ", cannot redeclare as "
+                            + descriptors + "x" + type + ".");
+                }
+                bindings.put(bindingSlot, new Binding(type, descriptors, existing.stages.add(stages)));
+            } else {
+                bindings.put(bindingSlot, new Binding(type, descriptors, stages));
+                usedBindings.set(bindingSlot);
+            }
             return this;
         }
 
@@ -106,6 +129,10 @@ public class DescriptorSetLayout implements NativeHandle<Long> {
 
         public Map<Integer, Binding> getBindings() {
             return Collections.unmodifiableMap(bindings);
+        }
+
+        public DescriptorSetLayout build(LogicalDevice<?> device) {
+            return new DescriptorSetLayout(device, this);
         }
 
     }

@@ -1,18 +1,26 @@
 package com.jme3.vulkan.shadergen;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.jme3.vulkan.descriptors.DescriptorType;
+import com.jme3.vulkan.shadergen.vars.StructVar;
 
-/**
- * Marks an initialized {@link com.jme3.vulkan.shadergen.vars.StructVar} instance field
- * as a uniform buffer, declared and assigned to a descriptor set the same way
- * {@link Storage} declares a shader storage buffer. Combine with {@link Location} to
- * reserve a specific set/binding and {@link Layout} to pick a layout other than
- * std140; both are optional, as is {@link Location} itself.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Uniform {
+public class Uniform <T extends StructVar> extends Global<T> {
+
+    public Uniform(Location location, T value) {
+        super(DescriptorType.UniformBuffer, 1, location, value);
+    }
+
+    public Uniform(int set, int binding, T value) {
+        this(new Location(set, binding), value);
+    }
+
+    @Override
+    protected void compile(ShaderLogic logic, T value, T ref) {
+        logic.add("layout(%s,set=%d,binding=%d) uniform %s_t{", getValue().getLayout().getIdentifier(),
+                getLocation().getSet(), getLocation().getBinding(), logic.generateUniqueName());
+        for (StructVar.Member f : value.getFields()) {
+            logic.add("%s %s;", f.getType(), f.getName());
+        }
+        logic.add("}%s;", ref);
+    }
+
 }

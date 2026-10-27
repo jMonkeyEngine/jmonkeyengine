@@ -36,10 +36,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.struct.FieldArray;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructArray;
-import com.jme3.util.struct.StructField;
+import com.jme3.util.struct.ValueField;
 import com.jme3.vulkan.buffer.IdxBuffer;
 import com.jme3.vulkan.mesh.VertexAttr;
-import com.jme3.vulkan.mesh.VertexBuffer;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.FaceWinding;
 import com.jme3.vulkan.pipeline.Topology;
@@ -53,55 +52,15 @@ import java.util.Collection;
  */
 public interface Mesh {
 
-    /**
-     * Attribute name every mesh's position data must be stored under - every mesh is
-     * required to have position data, unlike other attributes which are optional.
-     */
-    String POSITION_ATTRIBUTE = CommonAttributes.Position;
-
     void setIndexBuffer(IdxBuffer buffer);
 
-    /**
-     * Gets this mesh's required position data: the vertex buffer containing
-     * {@link #POSITION_ATTRIBUTE}, paired with that attribute itself via
-     * {@link FieldArray}. Every mesh is required to have position data, so
-     * implementations must guarantee this never returns null.
-     *
-     * @return position field array
-     */
-    FieldArray getPositionField();
-
     void addVertexBuffer(StructArray<? extends Struct<VertexAttr>> vertexBuffer);
+
+    void addInstanceBuffer(StructArray<? extends Struct<VertexAttr>> instanceBuffer);
 
     Collection<StructArray<? extends Struct<VertexAttr>>> getVertexBuffers();
 
     Collection<StructArray<? extends Struct<VertexAttr>>> getInstanceBuffers();
-
-    /**
-     * Finds the {@link VertexBuffer} among {@link #getVertexBuffers()} that contains
-     * {@code attribute}, e.g. one of the names in
-     * {@link com.jme3.vulkan.mesh.attributes.CommonAttributes}.
-     *
-     * @param attribute attribute name
-     * @return the vertex buffer containing {@code attribute}, or null if none does
-     */
-    default StructArray<? extends Struct<VertexAttr>> getVertexBuffer(String attribute) {
-        for (StructArray<? extends Struct<VertexAttr>> vb : getVertexBuffers()) {
-            for (VertexAttr a : vb.getStruct().getFields()) {
-                if (attribute.equals(a.getName())) {
-                    return vb;
-                }
-            }
-        }
-        for (StructArray<? extends Struct<VertexAttr>> vb : getInstanceBuffers()) {
-            for (VertexAttr a : vb.getStruct().getFields()) {
-                if (attribute.equals(a.getName())) {
-                    return vb;
-                }
-            }
-        }
-        return null;
-    }
 
     default int getVertexCount() {
         return getVertexBuffers().stream().findAny().map(StructArray::length).orElse(0);
@@ -110,6 +69,16 @@ public interface Mesh {
     default int getInstanceCount() {
         return getInstanceBuffers().stream().findAny().map(StructArray::length).orElse(0);
     }
+
+    /**
+     * Gets this mesh's required position data: the vertex buffer containing
+     * {@link CommonAttributes#Position}, paired with that attribute itself via
+     * {@link FieldArray}. Every mesh is required to have position data, so
+     * implementations must guarantee this never returns null.
+     *
+     * @return position field array
+     */
+    FieldArray<? extends ValueField<Vector3f>> getPosition();
 
     void setTopology(Topology topology);
 

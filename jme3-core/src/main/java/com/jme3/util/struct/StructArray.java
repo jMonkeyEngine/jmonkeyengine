@@ -1,8 +1,6 @@
 package com.jme3.util.struct;
 
-import java.util.function.Function;
-
-public interface StructArray <T extends Struct<StructField>> extends StructField, Iterable<T> {
+public interface StructArray <T extends Struct> extends StructField, Iterable<T> {
 
     T index(int i);
 
@@ -13,9 +11,5 @@ public interface StructArray <T extends Struct<StructField>> extends StructField
     int stride();
 
     T getStruct();
-
-    default <E extends StructField> FieldArray<T, E> getField(Function<T, E> field) {
-        return new FieldArray<>(this, field);
-    }
 
 }

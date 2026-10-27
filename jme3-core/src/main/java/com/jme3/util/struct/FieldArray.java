@@ -1,31 +1,23 @@
 package com.jme3.util.struct;
 
-import java.util.function.Function;
+import java.util.function.IntFunction;
 
-public class FieldArray <T extends Struct<StructField>, E extends StructField> {
+public class FieldArray <E extends StructField> {
 
-    private final StructArray<T> array;
-    private final Function<T, E> field;
+    private final StructArray<Struct<StructField>> array;
+    private final IntFunction<E> field;
 
-    public FieldArray(StructArray<T> array, Function<T, E> field) {
+    public FieldArray(StructArray<Struct<StructField>> array, IntFunction<E> field) {
         this.array = array;
         this.field = field;
     }
 
-    public StructArray<T> getStructArray() {
+    public StructArray<Struct<StructField>> getStructArray() {
         return array;
     }
 
-    public T getStruct() {
-        return array.getStruct();
-    }
-
     public E index(int i) {
-        return field.apply(array.index(i));
-    }
-
-    public E index(int i, T struct) {
-        return field.apply(array.index(i, struct));
+        return field.apply(i);
     }
 
     public int length() {
@@ -39,8 +31,8 @@ public class FieldArray <T extends Struct<StructField>, E extends StructField> {
      * @return byte offset of this array's field within its struct
      */
     public int offset() {
-        T struct = getStruct();
-        return struct.getFieldOffset(field.apply(struct));
+        Struct<StructField> struct = array.getStruct();
+        return struct.getFieldOffset(field.apply(0));
     }
 
 }

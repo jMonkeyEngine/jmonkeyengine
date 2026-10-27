@@ -8,6 +8,10 @@ public class Macro implements Var {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String getType() {
         return "NULL_TYPE";

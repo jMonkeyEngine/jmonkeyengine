@@ -892,6 +892,21 @@ public class Scene {
         return getComponent(type, null);
     }
 
+    /**
+     * Gets {@code node}'s value for the property type {@code type}, or {@code defaultValue}
+     * if {@code node} has no value for it (it was never set, or was cleared).
+     *
+     * @param type property component type
+     * @param node node id
+     * @param defaultValue value to return if {@code node} has no value for {@code type}
+     * @return {@code node}'s value for {@code type}, or {@code defaultValue}
+     * @param <T> property value type
+     */
+    public <T> T getProperty(Class<? extends Property<T>> type, int node, T defaultValue) {
+        Property<T> property = getComponent(type);
+        return property.isNull(node) ? defaultValue : property.get(node);
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Component> T getComponent(Class<T> type, @Nullable Function<Scene, Component> factory) {
         Component t = components.get(type);

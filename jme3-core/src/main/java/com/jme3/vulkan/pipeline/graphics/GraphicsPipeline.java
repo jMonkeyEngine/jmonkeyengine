@@ -18,6 +18,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.material.experimental.PipelineKey;
 import com.jme3.vulkan.material.shader.ShaderModule;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.mesh.VulkanMesh;
@@ -577,6 +578,44 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         public void applyPipelineState(GraphicsState state) {
             setDepthTest(state.isDepthTest());
+        }
+
+        /**
+         * Applies every render-state property {@code key} describes to this builder:
+         * topology, primitive restart, vertex input, face winding, cull mode, polygon mode,
+         * depth test/write/compare/bias, stencil test enable, and a blend attachment with
+         * {@code key}'s color write mask applied over it. {@code key}'s blend attachment is
+         * cloned first, so later changes to {@code key} never retroactively affect an
+         * already-built pipeline.
+         * <p>
+         * Note that only the stencil test's enable flag is applied - the per-face compare
+         * and pass/fail/depth-fail ops {@link StencilTest} also carries are not, since this
+         * builder does not yet fill {@code VkPipelineDepthStencilStateCreateInfo}'s
+         * {@code front}/{@code back} fields at all.
+         * <p>
+         * This only covers what {@link PipelineKey} itself knows about. A technique whose
+         * key extends {@link PipelineKey} with its own properties still needs to apply
+         * those separately - see {@link PipelineKey#populate}.
+         *
+         * @param key pipeline identity key to apply
+         */
+        public void applyKey(PipelineKey key) {
+            setTopology(key.getTopology());
+            setPrimitiveRestart(key.isPrimitiveRestart());
+            setVertexInput(key.getVertexInput());
+            setFaceWinding(key.getWinding());
+            setCullMode(key.getCullMode());
+            setPolygonMode(key.getPolygonMode());
+            setDepthTest(key.getDepthTest().isTestEnabled());
+            setDepthWrite(key.getDepthTest().isWriteEnabled());
+            setDepthCompare(key.getDepthTest().getCompareOp());
+            setDepthBias(key.getDepthTest().isBiasEnabled());
+            // key's colorWriteMask stands in for the mask Vulkan actually stores on the
+            // blend attachment itself, so it wins over whatever the attachment already carries
+            ColorBlendAttachment blend = key.getBlend().clone();
+            blend.setWriteMask(key.getColorWriteMask());
+            addBlendAttachment(blend);
+            setStencilTest(key.getStencil().isStencilTestEnabled());
         }
 
         public void createLayoutFromSets(DescriptorSet[] sets) {

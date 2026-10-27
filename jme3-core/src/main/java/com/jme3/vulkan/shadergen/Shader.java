@@ -1,6 +1,8 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
+import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.*;
 
@@ -16,39 +18,49 @@ import java.util.function.Function;
 
 public abstract class Shader {
 
+    protected final GraphicsAPI target = GraphicsAPI.Vulkan;
+    protected final String name;
     protected ShaderLogic logic;
     private final String namespace = getClass().getName().replace('.', '_');
     private final Map<Integer, BitSet> bindings = new HashMap<>();
     private final int version = getSourceVersion();
+    private final Map<Location, Global<Var>> availableGlobals = new HashMap<>();
+    private final Map<Integer, Map<Integer, Global<Var>>> usedGlobals = new HashMap<>();
     protected BuiltIn gl;
+    protected final GlslMath math = new GlslMath();
+
+    public Shader() {
+        this("default");
+    }
+
+    public Shader(String name) {
+        this.name = name;
+    }
 
     private int getSourceVersion() {
         ShadingLangs v = getClass().getAnnotation(ShadingLangs.class);
         return v != null ? v.glsl() : 460;
     }
 
-    public String compile(GraphicsAPI target, ShaderStage stage) {
-        return compile(target, stage, "default");
-    }
-
-    public String compile(GraphicsAPI target, ShaderStage stage, String name) {
-        return compile(target, stage, name, false);
+    public String compile(ShaderStage stage) {
+        return compile(stage);
     }
 
     /**
      * Compiles the shader stage for the target graphics API.
      *
-     * @param target target graphics API
      * @param stage stage to compile (must be present)
      * @param debug true to make the compiled shader code as debuggable as possible
-     * @return shader code
+     * @return the compiled stage, including the GLSL source and the resource binding
+     *         metadata a {@link com.jme3.vulkan.material.experimental.ShadingTechnique}
+     *         needs to bind it
      */
-    public String compile(GraphicsAPI target, ShaderStage stage, String name, boolean debug) {
+    public String compile(ShaderStage stage, boolean debug) {
         bindings.clear();
-        logic = ShaderLogic.init(target, stage, debug);
+        logic = ShaderLogic.init(this, target, stage, debug);
         logic.addHeaderLine("#version %d", version);
         gl = new BuiltIn();
-        compileGlobals();
+        compileGlobals(this);
         Method entry = findEntryPoint(stage, name);
         compileComputeWork(entry, stage);
         Var[] args = compileFunction(entry, "main", false);
@@ -59,6 +71,20 @@ public abstract class Shader {
         return logic.compileBlocks();
     }
 
+    public Map<Integer, DescriptorSetLayout> createLayouts(LogicalDevice<?> device) {
+        Map<Integer, DescriptorSetLayout> results = new HashMap<>();
+        for (Map.Entry<Integer, Map<Integer, Global<Var>>> e : usedGlobals.entrySet()) {
+            if (Location.isDescriptorSet(e.getKey())) {
+                DescriptorSetLayout.Info info = DescriptorSetLayout.build();
+                for (Global<Var> g : e.getValue().values()) {
+                    info.addBinding(g.getLocation().getBinding(), g.getType(), g.getDescriptorCount(), g.getStages());
+                }
+                results.put(e.getKey(), info.build(device));
+            }
+        }
+        return results;
+    }
+
     protected void compileAsLibrary(Shader host) {
         if (host.version < version) {
             throw new IllegalStateException("Library uses a newer source version than its host.");
@@ -66,7 +92,7 @@ public abstract class Shader {
         bindings.clear();
         logic = host.logic;
         gl = new BuiltIn();
-        compileGlobals();
+        compileGlobals(host);
     }
 
     private void compileComputeWork(Method entry, ShaderStage stage) {
@@ -171,13 +197,15 @@ public abstract class Shader {
         return callSite.append(')').toString();
     }
 
-    private void compileGlobals() {
+    @SuppressWarnings("unchecked")
+    private void compileGlobals(Shader host) {
         try {
             for (Class clazz = getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
                 for (Field f : clazz.getDeclaredFields()) {
-                    if (Global.class.isAssignableFrom(f.getType())) {
+                    if (Uniform.class.isAssignableFrom(f.getType())) {
                         f.setAccessible(true);
-                        logic.registerGlobal((Global)f.get(this));
+                        Global g = (Global)f.get(this);
+                        host.availableGlobals.putIfAbsent(g.getLocation(), g);
                     }
                 }
             }
@@ -193,6 +221,12 @@ public abstract class Shader {
         }
         bits.set(binding);
         return binding;
+    }
+
+    public Global useGlobalByLocation(Location location) {
+        Global<Var> g = availableGlobals.get(location);
+        usedGlobals.computeIfAbsent(g.getLocation().getSet(), k -> new HashMap<>()).put(g.getLocation().getBinding(), g);
+        return g;
     }
 
     /**
@@ -237,22 +271,6 @@ public abstract class Shader {
             logic.add(";");
             return null;
         }
-    }
-
-    protected <T extends StructVar> Uniform<T> Uniform(int set, T value) {
-        return new Uniform<>(false, set, value, null);
-    }
-
-    protected <T extends StructVar> Uniform<T> Uniform(int set, T value, Uniform<? super T> override) {
-        return new Uniform<>(false, set, value, override);
-    }
-
-    protected <T extends StructVar> Uniform<T> Storage(int set, T value) {
-        return new Uniform<>(true, set, value, null);
-    }
-
-    protected <T extends StructVar> Uniform<T> Storage(int set, T value, Uniform<? super T> override) {
-        return new Uniform<>(true, set, value, override);
     }
 
     protected Bool Bool(boolean b) {
@@ -329,6 +347,34 @@ public abstract class Shader {
         logic.add(";){");
         body.accept(iterator);
         update.accept(iterator);
+        logic.add("}");
+    }
+
+    protected <T extends Var> void For(T iterator, Function<T, Bool> condition, Consumer<T> body) {
+        logic.add("for(");
+        iterator.declare();
+        logic.add(condition.apply(iterator).toString());
+        logic.add(";){");
+        body.accept(iterator);
+        logic.add("}");
+    }
+
+    protected <T extends Var> void For(T iterator, Bool condition, Consumer<T> update, Consumer<T> body) {
+        logic.add("for(");
+        iterator.declare();
+        logic.add(condition.toString());
+        logic.add(";){");
+        body.accept(iterator);
+        update.accept(iterator);
+        logic.add("}");
+    }
+
+    protected <T extends Var> void For(T iterator, Bool condition, Consumer<T> body) {
+        logic.add("for(");
+        iterator.declare();
+        logic.add(condition.toString());
+        logic.add(";){");
+        body.accept(iterator);
         logic.add("}");
     }
 
@@ -501,6 +547,219 @@ public abstract class Shader {
 
     }
 
+    /**
+     * GLSL's built-in math functions (angle/trigonometry, exponential, and common), exposed
+     * as plain expression builders rather than through {@link #call}: these already exist in
+     * every shader stage, so wrapping each one in a generated helper function - as the
+     * removed {@code SMath} class used to - only adds an indirect call the driver has to
+     * inline back out, and risks name clashes with the real built-in of the same name.
+     */
+    protected static class GlslMath {
+
+        private GlslMath() {}
+
+        public Int min(Int a, Int b) {
+            return new Int(String.format("min(%s,%s)", a, b));
+        }
+
+        public Int max(Int a, Int b) {
+            return new Int(String.format("max(%s,%s)", a, b));
+        }
+
+        public UInt min(UInt a, UInt b) {
+            return new UInt(String.format("min(%s,%s)", a, b));
+        }
+
+        public UInt max(UInt a, UInt b) {
+            return new UInt(String.format("max(%s,%s)", a, b));
+        }
+
+        public Flt min(Flt a, Flt b) {
+            return new Flt(String.format("min(%s,%s)", a, b));
+        }
+
+        public Flt max(Flt a, Flt b) {
+            return new Flt(String.format("max(%s,%s)", a, b));
+        }
+
+        public Int abs(Int a) {
+            return new Int(String.format("abs(%s)", a));
+        }
+
+        public Int sign(Int a) {
+            return new Int(String.format("sign(%s)", a));
+        }
+
+        public Int clamp(Int a, Int min, Int max) {
+            return new Int(String.format("clamp(%s,%s,%s)", a, min, max));
+        }
+
+        public UInt clamp(UInt a, UInt min, UInt max) {
+            return new UInt(String.format("clamp(%s,%s,%s)", a, min, max));
+        }
+
+        /*------------------------*\
+        | ANGLE & TRIGONOMETRY     |
+        \*------------------------*/
+
+        public Flt radians(Flt degrees) {
+            return new Flt(String.format("radians(%s)", degrees));
+        }
+
+        public Flt degrees(Flt radians) {
+            return new Flt(String.format("degrees(%s)", radians));
+        }
+
+        public Flt sin(Flt a) {
+            return new Flt(String.format("sin(%s)", a));
+        }
+
+        public Flt cos(Flt a) {
+            return new Flt(String.format("cos(%s)", a));
+        }
+
+        public Flt tan(Flt a) {
+            return new Flt(String.format("tan(%s)", a));
+        }
+
+        public Flt asin(Flt a) {
+            return new Flt(String.format("asin(%s)", a));
+        }
+
+        public Flt acos(Flt a) {
+            return new Flt(String.format("acos(%s)", a));
+        }
+
+        public Flt atan(Flt yOverX) {
+            return new Flt(String.format("atan(%s)", yOverX));
+        }
+
+        public Flt atan(Flt y, Flt x) {
+            return new Flt(String.format("atan(%s,%s)", y, x));
+        }
+
+        public Flt sinh(Flt a) {
+            return new Flt(String.format("sinh(%s)", a));
+        }
+
+        public Flt cosh(Flt a) {
+            return new Flt(String.format("cosh(%s)", a));
+        }
+
+        public Flt tanh(Flt a) {
+            return new Flt(String.format("tanh(%s)", a));
+        }
+
+        public Flt asinh(Flt a) {
+            return new Flt(String.format("asinh(%s)", a));
+        }
+
+        public Flt acosh(Flt a) {
+            return new Flt(String.format("acosh(%s)", a));
+        }
+
+        public Flt atanh(Flt a) {
+            return new Flt(String.format("atanh(%s)", a));
+        }
+
+        /*------------------------*\
+        | EXPONENTIAL              |
+        \*------------------------*/
+
+        public Flt pow(Flt a, Flt exponent) {
+            return new Flt(String.format("pow(%s,%s)", a, exponent));
+        }
+
+        public Flt exp(Flt a) {
+            return new Flt(String.format("exp(%s)", a));
+        }
+
+        public Flt log(Flt a) {
+            return new Flt(String.format("log(%s)", a));
+        }
+
+        public Flt exp2(Flt a) {
+            return new Flt(String.format("exp2(%s)", a));
+        }
+
+        public Flt log2(Flt a) {
+            return new Flt(String.format("log2(%s)", a));
+        }
+
+        public Flt sqrt(Flt a) {
+            return new Flt(String.format("sqrt(%s)", a));
+        }
+
+        public Flt inversesqrt(Flt a) {
+            return new Flt(String.format("inversesqrt(%s)", a));
+        }
+
+        /*------------------------*\
+        | COMMON                   |
+        \*------------------------*/
+
+        public Flt abs(Flt a) {
+            return new Flt(String.format("abs(%s)", a));
+        }
+
+        public Flt sign(Flt a) {
+            return new Flt(String.format("sign(%s)", a));
+        }
+
+        public Flt floor(Flt a) {
+            return new Flt(String.format("floor(%s)", a));
+        }
+
+        public Flt ceil(Flt a) {
+            return new Flt(String.format("ceil(%s)", a));
+        }
+
+        public Flt trunc(Flt a) {
+            return new Flt(String.format("trunc(%s)", a));
+        }
+
+        public Flt round(Flt a) {
+            return new Flt(String.format("round(%s)", a));
+        }
+
+        public Flt roundEven(Flt a) {
+            return new Flt(String.format("roundEven(%s)", a));
+        }
+
+        public Flt fract(Flt a) {
+            return new Flt(String.format("fract(%s)", a));
+        }
+
+        public Flt mod(Flt a, Flt b) {
+            return new Flt(String.format("mod(%s,%s)", a, b));
+        }
+
+        public Flt clamp(Flt a, Flt min, Flt max) {
+            return new Flt(String.format("clamp(%s,%s,%s)", a, min, max));
+        }
+
+        public Flt mix(Flt a, Flt b, Flt t) {
+            return new Flt(String.format("mix(%s,%s,%s)", a, b, t));
+        }
+
+        public Flt step(Flt edge, Flt a) {
+            return new Flt(String.format("step(%s,%s)", edge, a));
+        }
+
+        public Flt smoothstep(Flt edge0, Flt edge1, Flt a) {
+            return new Flt(String.format("smoothstep(%s,%s,%s)", edge0, edge1, a));
+        }
+
+        public Bool isnan(Flt a) {
+            return new Bool(String.format("isnan(%s)", a));
+        }
+
+        public Bool isinf(Flt a) {
+            return new Bool(String.format("isinf(%s)", a));
+        }
+
+    }
+
     public class Result <T extends Var> {
 
         private final T var;
@@ -517,87 +776,6 @@ public abstract class Shader {
             logic.add("%s;", var);
         }
 
-    }
-
-    public class Uniform <T extends StructVar> implements Global<T> {
-
-        private final boolean storage;
-        private final int set;
-        private final T value;
-        private final Global<? super T> override;
-        private T ref;
-
-        public Uniform(boolean storage, int set, T value, Global<? super T> override) {
-            this.storage = storage;
-            this.set = set;
-            this.value = value;
-            this.override = override;
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T use() {
-            return (T)logic.fetchGlobal(this).compile();
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T compile() {
-            if (logic.startBlock(this)) {
-                ref = (T)value.create(logic.generateUniqueName());
-                logic.registerUsedGlobal(logic.addUniformDeclaration(key, value, ref.toString()), this);
-                logic.endBlock();
-            }
-            return ref;
-        }
-
-        @Override
-        public Global getOverridenGlobal() {
-            return override;
-        }
-
-        public T getStruct() {
-            return value;
-        }
-
-    }
-
-    public class Specialization <T extends Var> implements Global<ConstantId, T> {
-
-        private final ConstantId key;
-        private final T value;
-        private T ref;
-
-        public Specialization(ConstantId key, T value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public Specialization(int id, T value) {
-            this(new ConstantId(id), value);
-        }
-
-        public String getType() {
-            return value.getType();
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T use() {
-            return (T)logic.getPossibleGlobal(key).compile();
-        }
-
-        @Override @SuppressWarnings("unchecked")
-        public T compile() {
-            if (logic.startBlock(this)) {
-                ref = (T)value.create(logic.generateUniqueName());
-                logic.add("layout(constant_id=%d) const %s %s=%s;", key.getId(), value.getType(), ref, value);
-                logic.endBlock();
-            }
-            return ref;
-        }
-
-        @Override
-        public ConstantId getKey() {
-            return key;
-        }
     }
 
 }

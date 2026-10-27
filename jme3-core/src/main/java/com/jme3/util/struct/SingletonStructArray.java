@@ -6,7 +6,7 @@ import com.jme3.vulkan.buffer.GpuBuffer;
 
 import java.util.Iterator;
 
-public class SingletonStructArray <T extends Struct<StructField>> implements StructArray<T> {
+public class SingletonStructArray <T extends Struct> implements StructArray<T> {
 
     private final int length;
     private final T struct;

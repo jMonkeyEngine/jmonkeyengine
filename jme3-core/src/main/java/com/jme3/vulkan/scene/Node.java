@@ -57,6 +57,19 @@ public class Node {
         return scene.getComponent(type).get(id);
     }
 
+    /**
+     * Gets this node's value for the property type {@code type}, or {@code defaultValue}
+     * if this node has no value for it (it was never set, or was cleared).
+     *
+     * @param type property component type
+     * @param defaultValue value to return if this node has no value for {@code type}
+     * @return this node's value for {@code type}, or {@code defaultValue}
+     * @param <T> property value type
+     */
+    public <T> T getProperty(Class<? extends Property<T>> type, T defaultValue) {
+        return scene.getProperty(type, id, defaultValue);
+    }
+
     public Mesh getMesh() {
         return scene.getComponent(Scene.MeshType.class, id);
     }

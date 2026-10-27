@@ -5,23 +5,16 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.scene.Mesh;
 import com.jme3.util.struct.FieldArray;
-import com.jme3.util.struct.FieldSequence;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructArray;
-import com.jme3.util.struct.StructField;
-import com.jme3.vulkan.VulkanEnums;
-import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.buffer.IdxBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.mesh.attributes.AttributeMapping;
 import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.FaceWinding;
 import com.jme3.vulkan.pipeline.Topology;
-import com.jme3.vulkan.pipeline.VertexPipeline;
 
-import java.util.*;
-
-import static org.lwjgl.vulkan.VK10.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class AdaptiveMesh implements Mesh {
 
@@ -43,12 +36,12 @@ public class AdaptiveMesh implements Mesh {
 
     @Override
     @SuppressWarnings("unchecked")
-    public FieldArray getPositionField() {
-        for (StructArray<? extends Struct<VertexAttr>> vb : vertexBuffers) {
-            for (VertexAttr a : vb.getStruct().getFields()) {
-                if (POSITION_ATTRIBUTE.equals(a.getName())) {
-                    VertexAttr position = a;
-                    return new FieldArray(vb, s -> position);
+    public FieldArray getPosition() {
+        for (StructArray vb : vertexBuffers) {
+            Struct<VertexAttr> struct = (Struct<VertexAttr>)vb.getStruct();
+            for (VertexAttr a : struct.getFields()) {
+                if (CommonAttributes.Position.equals(a.getName())) {
+                    return new FieldArray(vb, s -> a);
                 }
             }
         }
@@ -71,6 +64,7 @@ public class AdaptiveMesh implements Mesh {
      *
      * @param instanceBuffer buffer to add
      */
+    @Override
     public void addInstanceBuffer(StructArray<? extends Struct<VertexAttr>> instanceBuffer) {
         instanceBuffers.add(instanceBuffer);
     }
@@ -121,9 +115,7 @@ public class AdaptiveMesh implements Mesh {
     }
 
     public void updateBound() {
-        try (AttributeMapping m = mapAttributes(InputRate.Vertex, CommonAttributes.Position)) {
-            volume.computeFromPoints(new FieldSequence<>(m, m.poll()));
-        }
+
     }
 
 }

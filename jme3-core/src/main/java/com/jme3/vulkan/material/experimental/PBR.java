@@ -1,11 +1,7 @@
 package com.jme3.vulkan.material.experimental;
 
 import com.jme3.backend.Engine;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix4f;
-import com.jme3.scene.Mesh;
 import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructField;
 import com.jme3.util.struct.StructList;
 import com.jme3.vulkan.alloc.ReservedStructArray;
 import com.jme3.vulkan.buffer.DataBuffer;
@@ -13,16 +9,17 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.descriptors.uniforms.TextureBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
-import com.jme3.vulkan.pipeline.CullMode;
-import com.jme3.vulkan.pipeline.FaceWinding;
-import com.jme3.vulkan.pipeline.Topology;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.scene.Scene;
+import com.jme3.vulkan.shadergen.impl.PBR.Material;
+import com.jme3.vulkan.shadergen.impl.PBR.Transforms;
 import com.jme3.vulkan.scene.components.*;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -36,6 +33,21 @@ public class PBR implements ShadingTechnique {
     // for passing in textures directly instead of bindless
     private DescriptorPool pool;
     private final DescriptorSetLayout textureLayout;
+
+    /**
+     * Maps the vertex attributes this technique's shader reads to the location each
+     * occupies. Stands in for a real shader's declared input locations until PBR has an
+     * actual compiled shader program to ask instead.
+     */
+    private static final Map<String, Integer> ATTRIBUTE_LOCATIONS = new HashMap<>();
+    static {
+        ATTRIBUTE_LOCATIONS.put(CommonAttributes.Position, 0);
+        ATTRIBUTE_LOCATIONS.put(CommonAttributes.TexCoord, 1);
+        ATTRIBUTE_LOCATIONS.put(CommonAttributes.Normal, 2);
+        ATTRIBUTE_LOCATIONS.put(CommonAttributes.Tangent, 3);
+    }
+
+    private final Map<PipelineKey, GraphicsPipeline> pipelineCache = new HashMap<>();
 
     private ParamPipe params;
     private TexturePipe textures;
@@ -55,7 +67,30 @@ public class PBR implements ShadingTechnique {
 
     @Override
     public void render(CommandBuffer cmd, Scene.Group nodes) {
+        for (int node : nodes) {
+            PipelineKey key = PipelineKey.create(scene.getNode(node), ATTRIBUTE_LOCATIONS::get);
+            GraphicsPipeline pipeline = getOrCreatePipeline(key);
+            // ... bind pipeline, descriptor sets, and vertex buffers, then issue the draw call
+        }
+    }
 
+    /**
+     * Gets the {@link GraphicsPipeline} for {@code key}, building and caching one first if
+     * this is the first node that has needed it.
+     *
+     * @param key pipeline identity key
+     * @return the pipeline {@code key} describes
+     */
+    private GraphicsPipeline getOrCreatePipeline(PipelineKey key) {
+        return pipelineCache.computeIfAbsent(key, this::buildPipeline);
+    }
+
+    private GraphicsPipeline buildPipeline(PipelineKey key) {
+        return GraphicsPipeline.build(pool.getDevice(), b -> {
+            b.applyKey(key);
+            // TODO: setLayout/addShaders still need this technique's actual shader program,
+            // which doesn't exist yet
+        });
     }
 
     @Override
@@ -107,11 +142,11 @@ public class PBR implements ShadingTechnique {
         return set;
     }
 
-    private static class ParamPipe extends StructPipe<Params> {
+    private static class ParamPipe extends StructPipe<Material> {
 
-        private ParamPipe(Scene scene, StructList<Params> array) {
+        private ParamPipe(Scene scene, StructList<Material> array) {
             super(scene, array);
-            map(BaseColor.class, p -> p.color);
+            map(BaseColor.class, p -> p.baseColor);
             map(Metallic.class, p -> p.metallic);
             map(Roughness.class, p -> p.roughness);
         }
@@ -152,56 +187,6 @@ public class PBR implements ShadingTechnique {
 
         public final Field<Matrix4f> worldViewProjection = new Field<>(new Matrix4f());
         public final Field<Integer> paramsIndex = new Field<>(0);
-
-    }
-
-    /**
-     * Identifies which {@code GraphicsPipeline} variant a node needs. PBR's shaders and
-     * topology-independent state never vary, so the only things that actually change
-     * which pipeline a node requires are properties of its mesh that feed directly into
-     * {@code VkGraphicsPipelineCreateInfo}'s input-assembly/rasterization state: a
-     * different {@link Topology}, {@link FaceWinding}, or primitive-restart setting each
-     * require a distinct pipeline, regardless of material parameters (those go through
-     * {@link ParamPipe}/{@link TexturePipe} instead, and never affect pipeline identity).
-     */
-    private class PBRKey {
-
-        private final Topology topology;
-        private final FaceWinding faceWinding;
-        private final boolean primitiveRestart;
-        private final Flag<CullMode> cullMode;
-
-        private PBRKey(int node) {
-            Mesh mesh = scene.getComponent(Scene.MeshType.class, node);
-            topology = mesh.getTopology();
-            faceWinding = mesh.getFaceWinding();
-            primitiveRestart = mesh.isPrimitiveRestart();
-            cullMode = Flag.of(scene.getWorldCullHint(node));
-        }
-
-        private PBRKey(Topology topology, FaceWinding faceWinding, boolean primitiveRestart, Flag<CullMode> cullMode) {
-            this.topology = topology;
-            this.faceWinding = faceWinding;
-            this.primitiveRestart = primitiveRestart;
-            this.cullMode = cullMode;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof PBRKey)) {
-                return false;
-            }
-            PBRKey k = (PBRKey)o;
-            return primitiveRestart == k.primitiveRestart && topology == k.topology && faceWinding == k.faceWinding;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(topology, faceWinding, primitiveRestart);
-        }
 
     }
 
