@@ -108,7 +108,8 @@ public abstract class Serializer {
         // Reset all of the indices and tracking variables just in case
         idRegistrations.clear();
         classRegistrations.clear();
-        registrations.clear();        
+        registrations.clear();
+        predicateSerializers.clear();       
 
         nextAvailableId = -2; // historically the first ID was always -2
 

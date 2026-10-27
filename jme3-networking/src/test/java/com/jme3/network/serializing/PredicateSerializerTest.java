@@ -53,6 +53,13 @@ public class PredicateSerializerTest {
         public int id;
         public StandardMessage() {}
     }
+    
+    public static class SecondMockSerializer extends Serializer {
+        @Override
+        public <T> T readObject(ByteBuffer data, Class<T> c) { return null; }
+        @Override
+        public void writeObject(ByteBuffer buffer, Object object) {}
+    }
 
     // A mock custom serializer to test the routing mechanism
     public static class MockCustomSerializer extends Serializer {
@@ -116,5 +123,31 @@ public class PredicateSerializerTest {
         assertNotNull(registration, "Auto-registration should successfully create a registration");
         assertEquals(MockCustomSerializer.class, registration.getSerializer().getClass(), 
                 "Auto-registration should respect the registered predicates");
+    }
+    
+    @Test
+    public void testInitializeClearsPredicateRegistrations() {
+        // @BeforeEach already called initialize() and registered MockCustomSerializer for SpecialMessage.
+        
+        // Re-initialize the registry. This MUST clear the predicateSerializers list.
+        Serializer.initialize();
+        
+        // Register the exact same predicate condition, but with a different serializer (SecondMockSerializer)
+        Serializer.registerSerializerPredicate(
+            cls -> cls == SpecialMessage.class, 
+            new SecondMockSerializer()
+        );
+        
+        // Register the class
+        Serializer.registerClass(SpecialMessage.class);
+        
+        SerializerRegistration registration = Serializer.getExactSerializerRegistration(SpecialMessage.class);
+        
+        assertNotNull(registration, "Registration should not be null");
+        
+        // If initialize() failed to clear the list, MockCustomSerializer would still be first and win.
+        // If it correctly cleared the list, SecondMockSerializer should be assigned.
+        assertEquals(SecondMockSerializer.class, registration.getSerializer().getClass(), 
+                "initialize() failed to clear predicateSerializers, causing a stale serializer to be selected.");
     }
 }
