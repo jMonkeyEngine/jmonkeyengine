@@ -600,13 +600,15 @@ public abstract class Serializer {
     }
     
     /**
-     * Registers a custom serializer that will be automatically selected for any class
-     * matching the given predicate, provided the class does not explicitly specify a serializer.
-     * This is useful for feature-specific serializers (like Java Records) without hardcoding
-     * them into the engine core.
+     * Registers a predicate-based dynamic serializer. 
+     * <p>
+     * <b>Important Ordering Behavior:</b> Predicates are evaluated in registration order 
+     * using a <b>first-match-wins</b> strategy. Furthermore, predicates only affect classes 
+     * registered <i>afterwards</i>; any classes already registered prior to this call will 
+     * not be re-evaluated against the predicate.
      * 
-     * @param predicate The condition the class must meet.
-     * @param serializer The serializer to use.
+     * @param predicate the condition used to match classes dynamically
+     * @param serializer the serializer instance to assign when the predicate matches
      */
     public static void registerSerializerPredicate(Predicate<Class<?>> predicate, Serializer serializer) {
         if (locked) {
