@@ -308,6 +308,14 @@ public class Geometry extends Spatial {
         setBoundRefresh();
     }
 
+    @Override
+    protected void setBoundRefresh() {
+        super.setBoundRefresh();
+        if (isGrouped()) {
+            groupNode.onBoundChange(this);
+        }
+    }
+
     /**
      * <code>updateWorldBound</code> updates the bounding volume that contains
      * this geometry. The location of the geometry is based on the location of

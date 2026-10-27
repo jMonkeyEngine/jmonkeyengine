@@ -199,17 +199,6 @@ public class InstancedNode extends GeometryGroupNode {
         addControl(control);
     }
 
-    @Override
-    protected void updateWorldBound() {
-        // Source geometries can change their bounds without changing the
-        // transform of the InstancedGeometry that renders them. Refresh the
-        // aggregate bounds after all source children have been updated.
-        for (InstancedGeometry ig : instancesMap.values()) {
-            ig.updateWorldBound();
-        }
-        super.updateWorldBound();
-    }
-
     private void renderFromControl(Camera cam) {
         for (InstancedGeometry ig : instancesMap.values()) {
             ig.updateInstances(cam);
@@ -402,6 +391,15 @@ public class InstancedNode extends GeometryGroupNode {
     @Override
     public void onTransformChange(Geometry geom) {
         // Handled automatically
+    }
+
+    @Override
+    public void onBoundChange(Geometry geom) {
+        InstancedGeometry ig = igByGeom.get(geom);
+        if (ig != null) {
+            // Keep the group's bound lazy and coalesce changes to its sources.
+            ig.forceRefresh(false, true, false);
+        }
     }
 
     @Override
