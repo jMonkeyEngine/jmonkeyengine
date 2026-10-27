@@ -294,8 +294,18 @@ public abstract class Serializer {
 
             Serializer serializer = null;
 
-            // if the default FieldSerializer is requested, check predicates first
-            if (serializerClass == FieldSerializer.class) {
+            // ignore both FieldSerializer and Serializer defaults.
+            if (serializerClass != null && serializerClass != FieldSerializer.class && serializerClass != Serializer.class) {
+                try {
+                    // Directly instantiate the custom serializer
+                    serializer = (Serializer) serializerClass.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    log.log(Level.SEVERE, "Could not instantiate explicit custom serializer: " + serializerClass, e);
+                }
+            }
+            
+            // no explicit custom serializer was requested
+            if (serializer == null) {
                 for (PredicateRegistration pr : predicateSerializers) {
                     if (pr.predicate.test(cls)) {
                         serializer = pr.serializer;
@@ -306,14 +316,12 @@ public abstract class Serializer {
 
             // Fallback to standard resolution if no predicate matched
             if (serializer == null) {
-                serializer = getSerializer(serializerClass, false);
-                if (serializer == null) serializer = fieldSerializer;
+                serializer = fieldSerializer;
             }
 
             SerializerRegistration existingReg = getExactSerializerRegistration(cls);
             if (existingReg != null) classId = existingReg.getId();
             
-            SerializerRegistration reg = new SerializerRegistration(serializer, cls, classId);
             return registerClassForId(classId, cls, serializer);
         }
         if (failOnMiss) {

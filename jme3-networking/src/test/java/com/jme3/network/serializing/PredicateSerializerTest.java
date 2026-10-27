@@ -54,6 +54,17 @@ public class PredicateSerializerTest {
         public StandardMessage() {}
     }
     
+    @Serializable(serializer = Serializer.class)
+    public static class SpecialMessageWithAlternateDefault {
+        public SpecialMessageWithAlternateDefault() {}
+    }
+
+    // Simulates a class where the user EXPLICITLY requested a custom serializer
+    @Serializable(serializer = SecondMockSerializer.class)
+    public static class ExplicitCustomMessage {
+        public ExplicitCustomMessage() {}
+    }
+    
     public static class SecondMockSerializer extends Serializer {
         @Override
         public <T> T readObject(ByteBuffer data, Class<T> c) { return null; }
@@ -149,5 +160,44 @@ public class PredicateSerializerTest {
         // If it correctly cleared the list, SecondMockSerializer should be assigned.
         assertEquals(SecondMockSerializer.class, registration.getSerializer().getClass(), 
                 "initialize() failed to clear predicateSerializers, causing a stale serializer to be selected.");
+    }
+    
+    @Test
+    public void testPredicateEvaluatesForAlternateDefaultSerializer() {
+        Serializer.initialize();
+        Serializer.registerSerializerPredicate(
+            cls -> cls == SpecialMessageWithAlternateDefault.class, 
+            new MockCustomSerializer()
+        );
+        
+        Serializer.registerClass(SpecialMessageWithAlternateDefault.class);
+        SerializerRegistration registration = Serializer.getExactSerializerRegistration(SpecialMessageWithAlternateDefault.class);
+        
+        assertNotNull(registration);
+        
+        // FAILS HERE in the flawed implementation: 
+        // The registry sees `Serializer.class`, skips the predicate loop, 
+        // and falls back to `FieldSerializer`, ignoring your mock!
+        assertEquals(MockCustomSerializer.class, registration.getSerializer().getClass(), 
+                "Predicate should intercept the alternate default (Serializer.class)");
+    }
+
+    @Test
+    public void testExplicitCustomSerializerOverridesPredicate() {
+        Serializer.initialize();
+        // Register a predicate that TRIES to intercept this class
+        Serializer.registerSerializerPredicate(
+            cls -> cls == ExplicitCustomMessage.class, 
+            new MockCustomSerializer()
+        );
+        
+        // Because the user explicitly annotated this with `@Serializable(serializer = SecondMockSerializer.class)`,
+        // the explicit request must win, and the predicate must be ignored.
+        Serializer.registerClass(ExplicitCustomMessage.class);
+        SerializerRegistration registration = Serializer.getExactSerializerRegistration(ExplicitCustomMessage.class);
+        
+        assertNotNull(registration);
+        assertEquals(SecondMockSerializer.class, registration.getSerializer().getClass(), 
+                "Explicit custom serializer must override predicate selection");
     }
 }
