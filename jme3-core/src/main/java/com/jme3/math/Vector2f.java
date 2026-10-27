@@ -636,7 +636,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * @return a new Vector2f with non-negative components
      */
     public Vector2f abs() {
-        return new Vector2f(Math.abs(x), Math.abs(y));
+        return new Vector2f(FastMath.abs(x), FastMath.abs(y));
     }
 
     /**
@@ -646,8 +646,8 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * @return the (modified) current instance (for chaining)
      */
     public Vector2f absLocal() {
-        x = Math.abs(x);
-        y = Math.abs(y);
+        x = FastMath.abs(x);
+        y = FastMath.abs(y);
         return this;
     }
 
