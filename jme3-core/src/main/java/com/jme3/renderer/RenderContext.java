@@ -331,12 +331,34 @@ public class RenderContext {
      * Stencil test function for back-facing polygons.
      */
     public RenderState.TestFunction backStencilFunction;
+    /**
+     * Stencil reference value for front-facing polygons.
+     */
+    public int frontStencilReference;
+    /**
+     * Stencil reference value for back-facing polygons.
+     */
+    public int backStencilReference;
+    /**
+     * Stencil comparison mask for front-facing polygons.
+     */
+    public int frontStencilMask;
+    /**
+     * Stencil comparison mask for back-facing polygons.
+     */
+    public int backStencilMask;
 
     /**
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
     public final WeakReference<VertexBuffer>[] boundAttribs = newWeakReferenceArray(16);
+
+    /**
+     * Numeric instance divisor last set for each vertex attribute slot.
+     * Cached separately because vertex buffers can change or be collected.
+     */
+    public final int[] boundAttribDivisors = new int[boundAttribs.length];
 
     /**
      * IDList for vertex attributes.
@@ -417,6 +439,10 @@ public class RenderContext {
         backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
         frontStencilFunction = RenderState.TestFunction.Always;
         backStencilFunction = RenderState.TestFunction.Always;
+        frontStencilReference = 0;
+        backStencilReference = 0;
+        frontStencilMask = -1;
+        backStencilMask = -1;
 
         depthFunc = RenderState.TestFunction.Less;
         alphaFunc = RenderState.TestFunction.Greater;
@@ -441,6 +467,7 @@ public class RenderContext {
 
         for (int i = 0; i < boundAttribs.length; i++) {
             boundAttribs[i] = null;
+            boundAttribDivisors[i] = 0;
         }
 
         attribIndexList.reset();
