@@ -38,12 +38,12 @@ import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.message.GZIPCompressedMessage;
 import com.jme3.network.message.ZIPCompressedMessage;
 import com.jme3.network.serializing.serializers.*;
-import java.lang.reflect.Method;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,9 +70,17 @@ public abstract class Serializer {
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
-    private static Serializer                               recordSerializer;
     
-    private static final Method IS_RECORD_METHOD;
+    // Predicate-based registry for dynamic serializer resolution
+    private static class PredicateRegistration {
+        final Predicate<Class<?>> predicate;
+        final Serializer serializer;
+        PredicateRegistration(Predicate<Class<?>> p, Serializer s) {
+            this.predicate = p;
+            this.serializer = s;
+        }
+    }
+    private static final List<PredicateRegistration> predicateSerializers = new ArrayList<>();
 
     private static short nextAvailableId = -2; // historically the first ID was always -2
 
@@ -89,14 +97,6 @@ public abstract class Serializer {
 
     // Registers the classes we already have serializers for.
     static {
-        Method method = null;
-        try {
-            method = Class.class.getMethod("isRecord");
-        } catch (NoSuchMethodException | SecurityException e) {
-            // Java 8 to 15: Records are not supported by the runtime
-            method = null;
-        }
-        IS_RECORD_METHOD = method;
         initialize();
     }
     
@@ -173,13 +173,6 @@ public abstract class Serializer {
         registerClass(ZIPCompressedMessage.class, new ZIPSerializer());
 
         registerClass(ChannelInfoMessage.class);
-    }
-    
-    private static synchronized Serializer getRecordSerializer() {
-        if (recordSerializer == null) {
-            recordSerializer = new RecordSerializer();
-        }
-        return recordSerializer;
     }
     
     /**
@@ -300,23 +293,20 @@ public abstract class Serializer {
 
             Serializer serializer = null;
 
-            // If the annotation specifies the default (FieldSerializer.class or Serializer.class),
-            // or if no custom serializer was assigned, automatically route records to RecordSerializer
-            // and standard classes to FieldSerializer:
-            if (serializerClass == null || serializerClass == FieldSerializer.class || serializerClass == Serializer.class) {
-                serializer = isRecord(cls) ? getRecordSerializer() : fieldSerializer;
-            } else {
-                // A specific custom serializer was explicitly requested by the user
-                SerializerRegistration serializerReg = getExactSerializerRegistration(serializerClass);
-                serializer = serializerReg == null ? null : serializerReg.getSerializer();
-                if (serializer == null) {
-                    try {
-                        serializer = (Serializer) serializerClass.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        log.log(Level.WARNING, "Failed to instantiate custom serializer: " + serializerClass, e);
-                        serializer = isRecord(cls) ? getRecordSerializer() : fieldSerializer;
+            // if the default FieldSerializer is requested, check predicates first
+            if (serializerClass == FieldSerializer.class) {
+                for (PredicateRegistration pr : predicateSerializers) {
+                    if (pr.predicate.test(cls)) {
+                        serializer = pr.serializer;
+                        break;
                     }
                 }
+            }
+
+            // Fallback to standard resolution if no predicate matched
+            if (serializer == null) {
+                serializer = getSerializer(serializerClass, false);
+                if (serializer == null) serializer = fieldSerializer;
             }
 
             SerializerRegistration existingReg = getExactSerializerRegistration(cls);
@@ -500,7 +490,20 @@ public abstract class Serializer {
         if( failOnMiss ) {
             throw new IllegalArgumentException( "Class has not been registered:" + cls );
         }
-        return registerClass(cls, isRecord(cls) ? getRecordSerializer() : fieldSerializer);
+        
+        // check predicates for auto-registration fallback
+        Serializer fallbackSerializer = null;
+        for (PredicateRegistration pr : predicateSerializers) {
+            if (pr.predicate.test(cls)) {
+                fallbackSerializer = pr.serializer;
+                break;
+            }
+        }
+        if (fallbackSerializer == null) {
+            fallbackSerializer = fieldSerializer;
+        }
+        
+        return registerClass(cls, fallbackSerializer);
     }
 
 
@@ -588,18 +591,19 @@ public abstract class Serializer {
     }
     
     /**
-     * Safely checks if a class is a record using cached reflection.
-     * Compliant with Java 16+ JVM semantics while cleanly returning false on Java 8–15.
+     * Registers a custom serializer that will be automatically selected for any class
+     * matching the given predicate, provided the class does not explicitly specify a serializer.
+     * This is useful for feature-specific serializers (like Java Records) without hardcoding
+     * them into the engine core.
+     * 
+     * @param predicate The condition the class must meet.
+     * @param serializer The serializer to use.
      */
-    private static boolean isRecord(Class<?> cls) {
-        if (IS_RECORD_METHOD == null || cls == null) {
-            return false;
+    public static void registerSerializerPredicate(Predicate<Class<?>> predicate, Serializer serializer) {
+        if (locked) {
+            throw new RuntimeException("Serializer registry locked trying to register predicate");
         }
-        try {
-            return (Boolean) IS_RECORD_METHOD.invoke(cls);
-        } catch (Exception e) {
-            return false;
-        }
+        predicateSerializers.add(new PredicateRegistration(predicate, serializer));
     }
 
     /**

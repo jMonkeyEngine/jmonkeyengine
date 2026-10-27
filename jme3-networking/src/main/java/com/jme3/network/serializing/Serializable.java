@@ -31,6 +31,7 @@
  */
 package com.jme3.network.serializing;
 
+import com.jme3.network.serializing.serializers.FieldSerializer;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -47,7 +48,7 @@ public @interface Serializable {
      *
      * @return the serializer class
      */
-    Class serializer() default Serializer.class;
+    Class serializer() default FieldSerializer.class;
     /**
      * Returns the fixed serializer id for the annotated type, or {@code 0} for auto-assignment.
      *
