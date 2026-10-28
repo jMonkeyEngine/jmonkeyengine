@@ -32,6 +32,8 @@
 package com.jme3.anim.tween;
 
 import com.jme3.anim.util.Primitives;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,6 +44,17 @@ import java.util.logging.Logger;
 
 /**
  * Static utility methods for creating common generic Tween objects.
+ *
+ * <p>Cloning a built-in tween container copies its playback state and clones
+ * delegates that implement {@link JmeCloneable} or have a mapping or clone
+ * function in the {@link Cloner}. Other custom delegates remain shared.
+ * Callback targets and argument payloads remain shared and are not
+ * automatically retargeted when cloning.</p>
+ *
+ * <p>Custom subclasses of {@link AbstractTween} inherit shallow field copying:
+ * primitive fields are copied and referenced objects remain shared. Override
+ * {@link AbstractTween#cloneFields(Cloner, Object)} to clone or remap those
+ * referenced fields; an override is not required to preserve their values.</p>
  *
  * @author Paul Speed
  */
@@ -235,6 +248,33 @@ public class Tweens {
         return sequence(delegate, invert(delegate));
     }
 
+    private static Tween cloneTween(Cloner cloner, Tween tween) {
+        if (tween == null) {
+            return null;
+        }
+        if (tween instanceof JmeCloneable || cloner.isCloned(tween)
+                || cloner.getCloneFunction(tween.getClass()) != null) {
+            return cloner.clone(tween);
+        }
+        return tween;
+    }
+
+    private static Tween[] cloneTweens(Cloner cloner, Tween[] tweens) {
+        if (tweens == null) {
+            return null;
+        }
+        if (cloner.isCloned(tweens) || cloner.getCloneFunction(tweens.getClass()) != null) {
+            return cloner.clone(tweens);
+        }
+        // Preserve shared delegate arrays without requiring custom tweens to clone.
+        Tween[] result = tweens.clone();
+        cloner.setClonedValue(tweens, result);
+        for (int i = 0; i < result.length; i++) {
+            result[i] = cloneTween(cloner, result[i]);
+        }
+        return result;
+    }
+
     private static interface CurveFunction {
         public double curve(double input);
     }
@@ -270,8 +310,8 @@ public class Tweens {
         }
     }
 
-    private static class Curve implements Tween {
-        private final Tween delegate;
+    private static class Curve implements Tween, JmeCloneable {
+        private Tween delegate;
         private final CurveFunction func;
         private final double length;
 
@@ -279,6 +319,20 @@ public class Tweens {
             this.delegate = delegate;
             this.func = func;
             this.length = delegate.getLength();
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            delegate = cloneTween(cloner, delegate);
         }
 
         @Override
@@ -308,8 +362,8 @@ public class Tweens {
         }
     }
 
-    private static class Sequence implements Tween, ContainsTweens {
-        private final Tween[] delegates;
+    private static class Sequence implements Tween, ContainsTweens, JmeCloneable {
+        private Tween[] delegates;
         private int current = 0;
         private double baseTime;
         private double length;
@@ -319,6 +373,20 @@ public class Tweens {
             for (Tween t : delegates) {
                 length += t.getLength();
             }
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            delegates = cloneTweens(cloner, delegates);
         }
 
         @Override
@@ -373,9 +441,9 @@ public class Tweens {
         }
     }
 
-    private static class Parallel implements Tween, ContainsTweens {
-        private final Tween[] delegates;
-        private final boolean[] done;
+    private static class Parallel implements Tween, ContainsTweens, JmeCloneable {
+        private Tween[] delegates;
+        private boolean[] done;
         private double length;
         private double lastTime;
 
@@ -388,6 +456,21 @@ public class Tweens {
                     length = t.getLength();
                 }
             }
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            delegates = cloneTweens(cloner, delegates);
+            done = cloner.clone(done);
         }
 
         @Override
@@ -453,9 +536,9 @@ public class Tweens {
         }
     }
 
-    private static class Stretch implements Tween, ContainsTweens {
+    private static class Stretch implements Tween, ContainsTweens, JmeCloneable {
 
-        private final Tween[] delegate = new Tween[1];
+        private Tween[] delegate = new Tween[1];
         private final double length;
         private final double scale;
 
@@ -473,6 +556,20 @@ public class Tweens {
             } else {
                 this.scale = 0;
             }
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            delegate = cloneTweens(cloner, delegate);
         }
 
         @Override
@@ -701,9 +798,9 @@ public class Tweens {
         }
     }
 
-    private static class Loop implements Tween, ContainsTweens {
+    private static class Loop implements Tween, ContainsTweens, JmeCloneable {
 
-        private final Tween[] delegate = new Tween[1];
+        private Tween[] delegate = new Tween[1];
         private final double length;
         private final int loopCount;
         private double baseTime;
@@ -730,6 +827,20 @@ public class Tweens {
             this.delegate[0] = delegate;
             this.length = count * delegate.getLength();
             this.loopCount = count;
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            delegate = cloneTweens(cloner, delegate);
         }
 
         @Override
@@ -786,11 +897,17 @@ public class Tweens {
 
     private static class Invert extends AbstractTween implements ContainsTweens {
 
-        private final Tween[] delegate = new Tween[1];
+        private Tween[] delegate = new Tween[1];
 
         public Invert( Tween delegate ) {
             super(delegate.getLength());
             this.delegate[0] = delegate;
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            super.cloneFields(cloner, original);
+            delegate = cloneTweens(cloner, delegate);
         }
 
         @Override
