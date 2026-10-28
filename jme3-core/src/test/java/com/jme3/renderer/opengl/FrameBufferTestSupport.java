@@ -113,6 +113,13 @@ abstract class FrameBufferTestSupport {
         final Map<Integer, List<Integer>> drawBuffers = new HashMap<>();
         final List<Integer> mipmapGenerations = new ArrayList<>();
         final Map<Integer, Integer> boundTextures = new HashMap<>();
+        final Map<Integer, Integer> textureVersions = new HashMap<>();
+        final Map<Integer, Map<Integer, Integer>> attachedTextureVersions = new HashMap<>();
+        int nextTextureVersion;
+        int textureAttachmentCalls;
+        int framebufferChecks;
+        int viewportWidth;
+        int viewportHeight;
         int nextObjectId = 100;
         int reuseRenderbufferId = -1;
         int reuseFramebufferId = -1;
@@ -157,11 +164,15 @@ abstract class FrameBufferTestSupport {
                     int texture = reuseTextureId >= 0 ? reuseTextureId : nextObjectId++;
                     reuseTextureId = -1;
                     liveTextures.add(texture);
+                    textureVersions.put(texture, ++nextTextureVersion);
                     ((IntBuffer) args[0]).put(0, texture);
                     return null;
                 case "glDeleteTextures":
                     int deletedTexture = ((IntBuffer) args[0]).get(0);
                     liveTextures.remove(deletedTexture);
+                    Integer deletedVersion = textureVersions.remove(deletedTexture);
+                    detachDeletedTexture(drawFramebuffer, deletedTexture, deletedVersion);
+                    detachDeletedTexture(readFramebuffer, deletedTexture, deletedVersion);
                     boundTextures.replaceAll((unit, name) -> name == deletedTexture ? 0 : name);
                     return null;
                 case "glActiveTexture":
@@ -182,6 +193,7 @@ abstract class FrameBufferTestSupport {
                     reuseFramebufferId = -1;
                     liveFramebuffers.add(framebuffer);
                     attachments.put(framebuffer, new HashMap<>());
+                    attachedTextureVersions.put(framebuffer, new HashMap<>());
                     ((IntBuffer) args[0]).put(0, framebuffer);
                     return null;
                 case "glGenRenderbuffersEXT":
@@ -219,6 +231,7 @@ abstract class FrameBufferTestSupport {
                     assertTrue(liveFramebuffers.remove(deletedFramebuffer),
                             "Deleting a stale framebuffer name");
                     attachments.remove(deletedFramebuffer);
+                    attachedTextureVersions.remove(deletedFramebuffer);
                     return null;
                 case "glBindFramebufferEXT":
                     int target = (Integer) args[0];
@@ -240,11 +253,15 @@ abstract class FrameBufferTestSupport {
                         failTextureAttachmentSlot = -1;
                         throw new RendererException("Simulated texture attachment failure");
                     }
+                    boolean textureAttachment = method.getName().equals("glFramebufferTexture2DEXT");
+                    if (textureAttachment) {
+                        textureAttachmentCalls++;
+                    }
                     if (slot == GL3.GL_DEPTH_STENCIL_ATTACHMENT) {
-                        attachments.get(drawFramebuffer).put(GLFbo.GL_DEPTH_ATTACHMENT_EXT, attachment);
-                        attachments.get(drawFramebuffer).put(GL_STENCIL_ATTACHMENT, attachment);
+                        setAttachment(GLFbo.GL_DEPTH_ATTACHMENT_EXT, attachment, textureAttachment);
+                        setAttachment(GL_STENCIL_ATTACHMENT, attachment, textureAttachment);
                     } else {
-                        attachments.get(drawFramebuffer).put(slot, attachment);
+                        setAttachment(slot, attachment, textureAttachment);
                     }
                     return null;
                 case "glDrawBuffer":
@@ -259,7 +276,12 @@ abstract class FrameBufferTestSupport {
                     drawBuffers.put(drawFramebuffer, targets);
                     return null;
                 case "glCheckFramebufferStatusEXT":
+                    framebufferChecks++;
                     return framebufferStatus;
+                case "glViewport":
+                    viewportWidth = (Integer) args[2];
+                    viewportHeight = (Integer) args[3];
+                    return null;
                 case "glBlitFramebufferEXT":
                     blitDrawFramebuffer = drawFramebuffer;
                     blitReadFramebuffer = readFramebuffer;
@@ -273,6 +295,33 @@ abstract class FrameBufferTestSupport {
                     }
                     throw new AssertionError("Unexpected GL query: " + method.getName());
             }
+        }
+
+        private void setAttachment(int slot, int name, boolean texture) {
+            attachments.get(drawFramebuffer).put(slot, name);
+            Map<Integer, Integer> versions = attachedTextureVersions.get(drawFramebuffer);
+            if (texture && name != 0) {
+                versions.put(slot, textureVersions.get(name));
+            } else {
+                versions.remove(slot);
+            }
+        }
+
+        private void detachDeletedTexture(int framebuffer, int name, Integer version) {
+            Map<Integer, Integer> versions = attachedTextureVersions.get(framebuffer);
+            if (versions == null || version == null) {
+                return;
+            }
+            // Deletion only detaches from bound FBOs, and only this native object
+            // generation. An unbound FBO can retain an older object with this name.
+            versions.entrySet().removeIf(entry -> {
+                if (entry.getValue().equals(version)
+                        && attachments.get(framebuffer).get(entry.getKey()) == name) {
+                    attachments.get(framebuffer).put(entry.getKey(), 0);
+                    return true;
+                }
+                return false;
+            });
         }
 
         private static String getString(int name) {

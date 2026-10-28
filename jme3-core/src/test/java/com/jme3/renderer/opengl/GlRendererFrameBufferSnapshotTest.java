@@ -99,8 +99,8 @@ public class GlRendererFrameBufferSnapshotTest extends FrameBufferTestSupport {
         assertEquals(originalId, texture.getImage().getId());
         renderer.setFrameBuffer(null);
         assertTrue(driver.mipmapGenerations.isEmpty(), "The recreated image was not rendered into");
-        fb.setUpdateNeeded();
         renderer.setFrameBuffer(fb);
+        assertEquals(originalId, driver.attachment(fb, 0));
         renderer.setFrameBuffer(null);
         assertEquals(Collections.singletonList(originalId), driver.mipmapGenerations);
         renderer.cleanup();
@@ -214,7 +214,7 @@ public class GlRendererFrameBufferSnapshotTest extends FrameBufferTestSupport {
     }
 
     @Test
-    void deletingSharedImageInvalidatesEveryFramebufferSnapshot() {
+    void deletingSharedImageRebuildsSnapshotsOnlyWhenFramebufferIsReused() {
         Texture2D shared = mipmappedTexture();
         FrameBuffer first = framebuffer(shared);
         FrameBuffer second = framebuffer(shared);
@@ -223,9 +223,12 @@ public class GlRendererFrameBufferSnapshotTest extends FrameBufferTestSupport {
         renderer.deleteImage(shared.getImage());
         driver.mipmapGenerations.clear();
         renderer.setFrameBuffer(null);
+        assertTrue(driver.mipmapGenerations.isEmpty(), "Deleted attachments must not generate mipmaps");
         renderer.setFrameBuffer(first);
+        assertTrue(shared.getImage().getId() > 0);
+        assertEquals(shared.getImage().getId(), driver.attachment(first, 0));
         renderer.setFrameBuffer(null);
-        assertTrue(driver.mipmapGenerations.isEmpty());
+        assertEquals(Collections.singletonList(shared.getImage().getId()), driver.mipmapGenerations);
         renderer.cleanup();
     }
 
