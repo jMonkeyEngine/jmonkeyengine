@@ -559,12 +559,11 @@ public class FrameBuffer extends NativeObject {
      * @param enabled True to enable MRT (multiple rendering targets).
      */
     public void setMultiTarget(boolean enabled) {
-        if (enabled) {
-            colorBufIndex = -1;
-        } else {
-            colorBufIndex = 0;
+        int targetIndex = enabled ? -1 : 0;
+        if (colorBufIndex != targetIndex) {
+            colorBufIndex = targetIndex;
+            setUpdateNeeded();
         }
-        setUpdateNeeded();
     }
 
     /**
@@ -579,18 +578,21 @@ public class FrameBuffer extends NativeObject {
      * If MRT is not enabled ({@link FrameBuffer#setMultiTarget(boolean) } is false)
      * then this specifies the color target to which the scene should be rendered.
      * <p>
-     * By default the value is 0.
+     * By default the value is 0. Index 0 can also be selected before any color
+     * targets are added, or for a depth-only framebuffer.
      *
      * @param index The color attachment index.
-     * @throws IllegalArgumentException If index is negative or doesn't map
-     * to any attachment on this framebuffer.
+     * @throws IllegalArgumentException If index is out of range or is nonzero
+     * and doesn't map to any attachment on this framebuffer.
      */
     public void setTargetIndex(int index) {
         if (index < 0 || index >= 16) {
             throw new IllegalArgumentException("Target index must be between 0 and 16");
         }
 
-        if (colorBufs.size() <= index) {
+        // Index zero also selects the default for an empty/depth-only FBO.
+        // Applications may configure this before adding their color targets.
+        if (index != 0 && colorBufs.size() <= index) {
             throw new IllegalArgumentException("The target at " + index + " is not set!");
         }
 

@@ -2271,9 +2271,9 @@ public final class GLRenderer implements Renderer {
     }
 
     /**
-     * Synchronizes and binds the framebuffer containing this texture target.
-     * All pending attachment changes and rendering-state side effects described
-     * by {@link #updateFrameBufferAttachment(FrameBuffer, RenderBuffer)} apply.
+     * Updates this texture attachment without changing the viewport, sRGB write
+     * state or read/draw selection, or generating framebuffer mipmaps. See
+     * {@link #updateFrameBufferAttachment(FrameBuffer, RenderBuffer)}.
      *
      * @param fb the framebuffer (not null)
      * @param rb one of its current texture targets (not null)
@@ -2317,15 +2317,21 @@ public final class GLRenderer implements Renderer {
     }
 
     /**
-     * Synchronizes and binds the framebuffer containing this target. Reconciles
-     * all pending target changes so native attachments and their cleanup/mipmap
-     * snapshots cannot diverge. An uninitialized framebuffer is initialized first.
+     * Updates one attachment and its native-resource/mipmap bookkeeping. Creates
+     * and temporarily binds {@code fb} if necessary, restoring the previous
+     * framebuffer binding on return (also on failure). Does not change the
+     * viewport, sRGB write state or read/draw selection, or generate framebuffer mipmaps.
      * <p>
-     * Like {@link #setFrameBuffer(FrameBuffer)}, this leaves {@code fb} bound,
-     * resets the viewport to its full dimensions, applies its sRGB write state,
-     * and may generate mipmaps for the previous attachments. It updates all
-     * current targets, not only {@code rb}; the previous framebuffer and viewport
-     * are not restored. Set a custom viewport after calling this method.
+     * This low-level operation permits temporarily incomplete framebuffers while
+     * attachments are updated in stages. Removed targets are detached and their
+     * owned renderbuffers released, but other target changes remain pending.
+     * Use {@link #updateFrameBuffer(FrameBuffer)} or {@link #setFrameBuffer(FrameBuffer)}
+     * to apply all pending changes and check framebuffer completeness.
+     * <p>
+     * Unlike {@code setFrameBuffer}, this method does not start a new rendering
+     * pass; custom viewport and mip level rendering can continue unchanged.
+     * Select {@code fb} explicitly with {@code setFrameBuffer} before rendering
+     * into it if it was not already current.
      *
      * @param fb the framebuffer (not null)
      * @param rb one of its current targets (not null)
@@ -2335,8 +2341,29 @@ public final class GLRenderer implements Renderer {
         if (fb == null || rb == null || !isFrameBufferTarget(fb, rb)) {
             throw new IllegalArgumentException("The target must belong to this framebuffer.");
         }
-        fb.setUpdateNeeded();
-        setFrameBuffer(fb);
+        int previousFbo = context.boundFBO;
+        FrameBuffer previousFb = context.boundFB;
+        // Invalidation forgets the binding without changing native GL state.
+        int restoreFbo = previousFbo < 0 && caps.contains(Caps.FrameBuffer)
+                ? getInteger(GL.GL_FRAMEBUFFER_BINDING) : previousFbo;
+        try {
+            FrameBufferState state = prepareFrameBuffer(fb);
+            final boolean wasDirty = state.attachmentsDirty;
+            // Failures must leave recovery pending. Success must not clear other
+            // invalid attachments or make a clean FBO restart its rendering pass.
+            state.attachmentsDirty = true;
+            if (fb.isUpdateNeeded()) {
+                removeUnusedFrameBufferAttachments(fb, state);
+            }
+            updateFrameBufferAttachment(fb, rb, state);
+            state.attachmentsDirty = wasDirty;
+        } finally {
+            if (context.boundFBO != previousFbo) {
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, restoreFbo);
+                context.boundFBO = previousFbo;
+                context.boundFB = previousFb;
+            }
+        }
     }
 
     private void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
@@ -2403,7 +2430,10 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBuffer(FrameBuffer fb) {
+    private FrameBufferState prepareFrameBuffer(FrameBuffer fb) {
+        if (!caps.contains(Caps.FrameBuffer)) {
+            throw new RendererException("Framebuffer objects are not supported by the video hardware");
+        }
         if (fb.getNumColorTargets() == 0 && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
@@ -2420,7 +2450,10 @@ public final class GLRenderer implements Renderer {
         }
 
         bindFrameBuffer(fb);
-        FrameBufferState state = frameBufferStates.get(id);
+        return frameBufferStates.get(id);
+    }
+
+    private void removeUnusedFrameBufferAttachments(FrameBuffer fb, FrameBufferState state) {
         int slots = 0;
         if (fb.getDepthTarget() != null) {
             slots |= attachmentSlotMask(fb.getDepthTarget().getSlot());
@@ -2446,6 +2479,12 @@ public final class GLRenderer implements Renderer {
                 state.renderBuffers.remove(i);
             }
         }
+    }
+
+    public void updateFrameBuffer(FrameBuffer fb) {
+        FrameBufferState state = prepareFrameBuffer(fb);
+        state.attachmentsDirty = true;
+        removeUnusedFrameBufferAttachments(fb, state);
         // Successful attachments update their own snapshot. Preserve untouched
         // slots if a later upload/attachment fails part-way through this update.
         FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();

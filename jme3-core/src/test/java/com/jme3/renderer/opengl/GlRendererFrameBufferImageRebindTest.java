@@ -314,29 +314,33 @@ public class GlRendererFrameBufferImageRebindTest extends FrameBufferTestSupport
     }
 
     @Test
-    void publicTextureUpdateSelectsFramebufferAndResetsViewport() {
+    void publicTextureUpdatePreservesCurrentFramebufferAndViewport() {
         FrameBuffer previous = framebuffer(texture());
         renderer.setFrameBuffer(previous);
         final int previousAttachment = driver.attachment(previous, 0);
         renderer.setViewPort(2, 3, 4, 5);
         FrameBuffer next = framebuffer(texture());
         renderer.updateRenderTexture(next, next.getColorTarget(0));
-        assertEquals(next.getId(), driver.drawFramebuffer);
+        assertEquals(previous.getId(), driver.drawFramebuffer);
         assertEquals(previousAttachment, driver.attachment(previous, 0));
-        assertEquals(8, driver.viewportWidth);
-        assertEquals(8, driver.viewportHeight);
+        assertEquals(2, driver.viewportX);
+        assertEquals(3, driver.viewportY);
+        assertEquals(4, driver.viewportWidth);
+        assertEquals(5, driver.viewportHeight);
         renderer.cleanup();
     }
 
     @Test
-    void publicAttachmentUpdateResetsViewportEvenOnSameFramebuffer() {
+    void publicAttachmentUpdatePreservesViewportOnSameFramebuffer() {
         FrameBuffer fb = framebuffer(texture());
         renderer.setFrameBuffer(fb);
         renderer.setViewPort(2, 3, 4, 5);
         renderer.updateFrameBufferAttachment(fb, fb.getColorTarget(0));
         assertEquals(fb.getId(), driver.drawFramebuffer);
-        assertEquals(8, driver.viewportWidth);
-        assertEquals(8, driver.viewportHeight);
+        assertEquals(2, driver.viewportX);
+        assertEquals(3, driver.viewportY);
+        assertEquals(4, driver.viewportWidth);
+        assertEquals(5, driver.viewportHeight);
         renderer.cleanup();
     }
 }

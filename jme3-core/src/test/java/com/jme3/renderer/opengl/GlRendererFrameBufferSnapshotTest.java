@@ -149,7 +149,7 @@ public class GlRendererFrameBufferSnapshotTest extends FrameBufferTestSupport {
     }
 
     @Test
-    void directAttachmentUpdateInitializesAndBindsNewFramebuffer() {
+    void directAttachmentUpdateInitializesWithoutSwitchingFramebuffer() {
         FrameBuffer previous = framebuffer(texture());
         renderer.setFrameBuffer(previous);
         final int previousTexture = driver.attachment(previous, 0);
@@ -157,21 +157,23 @@ public class GlRendererFrameBufferSnapshotTest extends FrameBufferTestSupport {
         FrameBuffer fb = framebuffer(texture);
         renderer.updateFrameBufferAttachment(fb, fb.getColorTarget(0));
         assertTrue(fb.getId() > 0);
-        assertEquals(fb.getId(), driver.drawFramebuffer);
+        assertEquals(previous.getId(), driver.drawFramebuffer);
         assertEquals(previousTexture, driver.attachment(previous, 0));
         assertEquals(texture.getImage().getId(), driver.attachment(fb, 0));
+        renderer.setFrameBuffer(fb);
         renderer.setFrameBuffer(null);
         assertEquals(Collections.singletonList(texture.getImage().getId()), driver.mipmapGenerations);
         renderer.cleanup();
     }
 
     @Test
-    void directTextureUpdateInitializesNewFramebuffer() {
+    void directTextureUpdateInitializesWithoutSwitchingFramebuffer() {
         Texture2D texture = mipmappedTexture();
         FrameBuffer fb = framebuffer(texture);
         renderer.updateRenderTexture(fb, fb.getColorTarget(0));
-        assertEquals(fb.getId(), driver.drawFramebuffer);
+        assertEquals(0, driver.drawFramebuffer);
         assertEquals(texture.getImage().getId(), driver.attachment(fb, 0));
+        renderer.setFrameBuffer(fb);
         renderer.setFrameBuffer(null);
         assertEquals(Collections.singletonList(texture.getImage().getId()), driver.mipmapGenerations);
         renderer.cleanup();

@@ -118,6 +118,12 @@ abstract class FrameBufferTestSupport {
         int nextTextureVersion;
         int textureAttachmentCalls;
         int framebufferChecks;
+        int viewportX;
+        int viewportY;
+        int viewportCalls;
+        int srgbChanges;
+        int drawBufferChanges;
+        int readBufferChanges;
         int viewportWidth;
         int viewportHeight;
         int nextObjectId = 100;
@@ -265,9 +271,11 @@ abstract class FrameBufferTestSupport {
                     }
                     return null;
                 case "glDrawBuffer":
+                    drawBufferChanges++;
                     drawBuffers.put(drawFramebuffer, java.util.Collections.singletonList((Integer) args[0]));
                     return null;
                 case "glDrawBuffers":
+                    drawBufferChanges++;
                     List<Integer> targets = new ArrayList<>();
                     IntBuffer source = ((IntBuffer) args[0]).duplicate();
                     while (source.hasRemaining()) {
@@ -278,7 +286,19 @@ abstract class FrameBufferTestSupport {
                 case "glCheckFramebufferStatusEXT":
                     framebufferChecks++;
                     return framebufferStatus;
+                case "glReadBuffer":
+                    readBufferChanges++;
+                    return null;
+                case "glEnable":
+                case "glDisable":
+                    if ((Integer) args[0] == GLExt.GL_FRAMEBUFFER_SRGB_EXT) {
+                        srgbChanges++;
+                    }
+                    return null;
                 case "glViewport":
+                    viewportCalls++;
+                    viewportX = (Integer) args[0];
+                    viewportY = (Integer) args[1];
                     viewportWidth = (Integer) args[2];
                     viewportHeight = (Integer) args[3];
                     return null;
@@ -344,7 +364,7 @@ abstract class FrameBufferTestSupport {
         private int getInteger(int name) {
             switch (name) {
                 case GL.GL_FRAMEBUFFER_BINDING:
-                    return defaultFramebuffer;
+                    return drawFramebuffer;
                 case GL.GL_MAX_TEXTURE_SIZE:
                 case GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE:
                 case GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT:
