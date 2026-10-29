@@ -65,6 +65,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.ByteBufferUtils;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.IntMap;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObject;
@@ -103,6 +104,92 @@ public final class GLRenderer implements Renderer {
 
     private FrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
+
+    /** Native storage state, allocated once per owned renderbuffer. */
+    private static final class RenderBufferState {
+        final RenderBuffer target;
+        int internalFormat;
+
+        RenderBufferState(RenderBuffer target) {
+            this.target = target;
+        }
+    }
+
+    /** Snapshot of the image actually attached, independent of Texture.setImage(). */
+    private static final class ColorAttachmentState {
+        Texture texture;
+        Image image;
+        int imageId;
+    }
+
+    /** Native attachment state, without a reference to the owning FrameBuffer. */
+    private static final class FrameBufferState {
+        // Bits 0..15 are color slots; 16 and 17 are depth and depth-stencil.
+        int attachmentSlots;
+        final ArrayList<RenderBufferState> renderBuffers = new ArrayList<>();
+        final ColorAttachmentState[] colorTextures = new ColorAttachmentState[16];
+        int colorTextureSlots;
+        int depthTextureId = NativeObject.INVALID_ID;
+        // Native image deletion can invalidate an otherwise unchanged Java FBO.
+        boolean attachmentsDirty;
+
+        void setTextureAttachment(int slot, Texture texture) {
+            if (slot < 0) {
+                depthTextureId = texture == null ? NativeObject.INVALID_ID : texture.getImage().getId();
+                return;
+            }
+            ColorAttachmentState attachment = colorTextures[slot];
+            if (texture == null) {
+                colorTextureSlots &= ~(1 << slot);
+                if (attachment != null) {
+                    attachment.texture = null;
+                    attachment.image = null;
+                    attachment.imageId = NativeObject.INVALID_ID;
+                }
+            } else {
+                if (attachment == null) {
+                    attachment = new ColorAttachmentState();
+                    colorTextures[slot] = attachment;
+                }
+                attachment.texture = texture;
+                attachment.image = texture.getImage();
+                attachment.imageId = attachment.image.getId();
+                colorTextureSlots |= 1 << slot;
+            }
+        }
+
+        void invalidateImage(int imageId) {
+            int slots = colorTextureSlots;
+            while (slots != 0) {
+                int slot = Integer.numberOfTrailingZeros(slots);
+                slots &= slots - 1;
+                if (colorTextures[slot].imageId == imageId) {
+                    setTextureAttachment(slot, null);
+                    attachmentsDirty = true;
+                }
+            }
+            if (depthTextureId == imageId) {
+                depthTextureId = NativeObject.INVALID_ID;
+                attachmentsDirty = true;
+            }
+        }
+
+        RenderBufferState getRenderBuffer(RenderBuffer target) {
+            for (int i = 0; i < renderBuffers.size(); i++) {
+                RenderBufferState buffer = renderBuffers.get(i);
+                if (buffer.target == target) {
+                    return buffer;
+                }
+            }
+            RenderBufferState buffer = new RenderBufferState(target);
+            renderBuffers.add(buffer);
+            return buffer;
+        }
+    }
+
+    // Destructible framebuffer clones contain only an ID. Keep their resources
+    // here so allocations and target changes after registration are also tracked.
+    private final IntMap<FrameBufferState> frameBufferStates = new IntMap<>();
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -892,20 +979,17 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        IntBuffer tmp = BufferUtils.createIntBuffer(16);
-        gl.glGetInteger(GL.GL_FRAMEBUFFER_BINDING, tmp);
-        tmp.rewind();
-        int fbOnLoad = tmp.get();
-        if(fbOnLoad > 0)
-        {
-            // Override default FB to fbOnLoad. Mostly an iOS fix for scene processors and filters.
-            defaultFBO = fbOnLoad;
-        }
+        // Without FBO support, even querying GL_FRAMEBUFFER_BINDING is invalid.
+        // Otherwise the presentation framebuffer can be nonzero, notably on iOS.
+        defaultFBO = caps.contains(Caps.FrameBuffer) ? getInteger(GL.GL_FRAMEBUFFER_BINDING) : 0;
+        context.boundFBO = defaultFBO;
+        context.boundFB = null;
     }
 
     @Override
     public void invalidateState() {
         context.reset();
+        context.boundFBO = -1;
         Arrays.fill(vertexAttribDivisorsInvalid, true);
         if (gl2 != null) {
             context.initialDrawBuf = getInteger(GL2.GL_DRAW_BUFFER);
@@ -917,6 +1001,13 @@ public final class GLRenderer implements Renderer {
     public void resetGLObjects() {
         logger.log(Level.FINE, "Resetting objects and invalidating state");
         objManager.resetObjects();
+        for (IntMap.Entry<FrameBufferState> entry : frameBufferStates) {
+            FrameBufferState state = entry.getValue();
+            for (int i = 0; i < state.renderBuffers.size(); i++) {
+                state.renderBuffers.get(i).target.resetObject();
+            }
+        }
+        frameBufferStates.clear();
         statistics.clearMemory();
         invalidateState();
     }
@@ -2016,7 +2107,7 @@ public final class GLRenderer implements Renderer {
             int dstX1;
             int dstY1;
 
-            int prevFBO = context.boundFBO;
+            final int previousFramebuffer = context.boundFBO < 0 ? defaultFBO : context.boundFBO;
             FrameBuffer prevFB = context.boundFB;
 
             if (mainFbOverride != null) {
@@ -2028,16 +2119,16 @@ public final class GLRenderer implements Renderer {
                 }
             }
 
-            if (src != null && src.isUpdateNeeded()) {
+            if (src != null && isFrameBufferUpdateNeeded(src)) {
                 updateFrameBuffer(src);
             }
 
-            if (dst != null && dst.isUpdateNeeded()) {
+            if (dst != null && isFrameBufferUpdateNeeded(dst)) {
                 updateFrameBuffer(dst);
             }
 
             if (src == null) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, defaultFBO);
                 srcX0 = vpX;
                 srcY0 = vpY;
                 srcX1 = vpX + vpW;
@@ -2048,7 +2139,7 @@ public final class GLRenderer implements Renderer {
                 srcY1 = src.getHeight();
             }
             if (dst == null) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, defaultFBO);
                 dstX0 = vpX;
                 dstY0 = vpY;
                 dstX1 = vpX + vpW;
@@ -2076,8 +2167,8 @@ public final class GLRenderer implements Renderer {
                     GL.GL_NEAREST);
 
 
-            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, prevFBO);
-            context.boundFBO = prevFBO;
+            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, previousFramebuffer);
+            context.boundFBO = previousFramebuffer;
             context.boundFB = prevFB;
             toggleFramebufferSrgb(prevFB);
         } else {
@@ -2116,12 +2207,15 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
+    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
         int id = rb.getId();
+        // Track before allocating so failures still leave a cleanup path.
+        RenderBufferState buffer = state.getRenderBuffer(rb);
         if (id == -1) {
             glfbo.glGenRenderbuffersEXT(intBuf1);
             id = intBuf1.get(0);
             rb.setId(id);
+            buffer.internalFormat = 0;
         }
 
         if (context.boundRB != id) {
@@ -2136,6 +2230,10 @@ public final class GLRenderer implements Renderer {
         }
 
         GLImageFormat glFmt = texUtil.getImageFormatWithError(rb.getFormat(), fb.isSrgb());
+        if (buffer.internalFormat == glFmt.internalFormat) {
+            // Reattaching an unchanged buffer must not discard its contents.
+            return;
+        }
 
         if (fb.getSamples() > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             int samples = fb.getSamples();
@@ -2154,6 +2252,7 @@ public final class GLRenderer implements Renderer {
                     fb.getWidth(),
                     fb.getHeight());
         }
+        buffer.internalFormat = glFmt.internalFormat;
     }
 
     private int convertAttachmentSlot(int attachmentSlot) {
@@ -2171,7 +2270,23 @@ public final class GLRenderer implements Renderer {
         return GLFbo.GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
+    /**
+     * Updates this texture attachment without changing the viewport, sRGB write
+     * state or read/draw selection, or generating framebuffer mipmaps. See
+     * {@link #updateFrameBufferAttachment(FrameBuffer, RenderBuffer)}.
+     *
+     * @param fb the framebuffer (not null)
+     * @param rb one of its current texture targets (not null)
+     * @throws IllegalArgumentException if the target is not a texture target of {@code fb}
+     */
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
+        if (rb == null || rb.getTexture() == null) {
+            throw new IllegalArgumentException("A texture target is required.");
+        }
+        updateFrameBufferAttachment(fb, rb);
+    }
+
+    private void updateRenderTextureInternal(FrameBuffer fb, RenderBuffer rb) {
         Texture tex = rb.getTexture();
         Image image = tex.getImage();
         if (image.isUpdateNeeded()) {
@@ -2201,7 +2316,57 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    /**
+     * Updates one attachment and its native-resource/mipmap bookkeeping. Creates
+     * and temporarily binds {@code fb} if necessary, restoring the previous
+     * framebuffer binding on return (also on failure). Does not change the
+     * viewport, sRGB write state or read/draw selection, or generate framebuffer mipmaps.
+     * <p>
+     * This low-level operation permits temporarily incomplete framebuffers while
+     * attachments are updated in stages. Removed targets are detached and their
+     * owned renderbuffers released, but other target changes remain pending.
+     * Use {@link #updateFrameBuffer(FrameBuffer)} or {@link #setFrameBuffer(FrameBuffer)}
+     * to apply all pending changes and check framebuffer completeness.
+     * <p>
+     * Unlike {@code setFrameBuffer}, this method does not start a new rendering
+     * pass; custom viewport and mip level rendering can continue unchanged.
+     * Select {@code fb} explicitly with {@code setFrameBuffer} before rendering
+     * into it if it was not already current.
+     *
+     * @param fb the framebuffer (not null)
+     * @param rb one of its current targets (not null)
+     * @throws IllegalArgumentException if the target is not attached to {@code fb}
+     */
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
+        if (fb == null || rb == null || !isFrameBufferTarget(fb, rb)) {
+            throw new IllegalArgumentException("The target must belong to this framebuffer.");
+        }
+        int previousFbo = context.boundFBO;
+        FrameBuffer previousFb = context.boundFB;
+        // Invalidation forgets the binding without changing native GL state.
+        int restoreFbo = previousFbo < 0 && caps.contains(Caps.FrameBuffer)
+                ? getInteger(GL.GL_FRAMEBUFFER_BINDING) : previousFbo;
+        try {
+            FrameBufferState state = prepareFrameBuffer(fb);
+            final boolean wasDirty = state.attachmentsDirty;
+            // Failures must leave recovery pending. Success must not clear other
+            // invalid attachments or make a clean FBO restart its rendering pass.
+            state.attachmentsDirty = true;
+            if (fb.isUpdateNeeded()) {
+                removeUnusedFrameBufferAttachments(fb, state);
+            }
+            updateFrameBufferAttachment(fb, rb, state);
+            state.attachmentsDirty = wasDirty;
+        } finally {
+            if (context.boundFBO != previousFbo) {
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, restoreFbo);
+                context.boundFBO = previousFbo;
+                context.boundFB = previousFb;
+            }
+        }
+    }
+
+    private void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb, FrameBufferState state) {
         Image.Format format = rb.getFormat();
         boolean depthTarget = rb.getSlot() == FrameBuffer.SLOT_DEPTH
                 || rb.getSlot() == FrameBuffer.SLOT_DEPTH_STENCIL;
@@ -2215,21 +2380,18 @@ public final class GLRenderer implements Renderer {
                     + " is not depth-renderable and cannot be used as a depth attachment.");
         }
 
-        boolean needAttach;
         if (rb.getTexture() == null) {
-            // if it hasn't been created yet, then attach is required.
-            needAttach = rb.getId() == -1;
-            updateRenderBuffer(fb, rb);
-        } else {
-            needAttach = false;
-            updateRenderTexture(fb, rb);
-        }
-        if (needAttach) {
+            updateRenderBuffer(fb, rb, state);
+            // A surviving renderbuffer may have moved to a different color slot.
             glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
                     GLFbo.GL_RENDERBUFFER_EXT,
                     rb.getId());
+        } else {
+            updateRenderTextureInternal(fb, rb);
         }
+        state.attachmentSlots |= attachmentSlotMask(rb.getSlot());
+        state.setTextureAttachment(rb.getSlot(), rb.getTexture());
     }
 
     private void bindFrameBuffer(FrameBuffer fb) {
@@ -2268,7 +2430,10 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBuffer(FrameBuffer fb) {
+    private FrameBufferState prepareFrameBuffer(FrameBuffer fb) {
+        if (!caps.contains(Caps.FrameBuffer)) {
+            throw new RendererException("Framebuffer objects are not supported by the video hardware");
+        }
         if (fb.getNumColorTargets() == 0 && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
@@ -2279,26 +2444,93 @@ public final class GLRenderer implements Renderer {
             glfbo.glGenFramebuffersEXT(intBuf1);
             id = intBuf1.get(0);
             fb.setId(id);
+            frameBufferStates.put(id, new FrameBufferState());
             objManager.registerObject(fb);
             statistics.onNewFrameBuffer();
         }
 
         bindFrameBuffer(fb);
+        return frameBufferStates.get(id);
+    }
 
+    private void removeUnusedFrameBufferAttachments(FrameBuffer fb, FrameBufferState state) {
+        int slots = 0;
+        if (fb.getDepthTarget() != null) {
+            slots |= attachmentSlotMask(fb.getDepthTarget().getSlot());
+        }
+        for (int i = 0; i < fb.getNumColorTargets(); i++) {
+            slots |= attachmentSlotMask(fb.getColorTarget(i).getSlot());
+        }
+        int removedSlots = state.attachmentSlots & ~slots;
+        while (removedSlots != 0) {
+            int index = Integer.numberOfTrailingZeros(removedSlots);
+            int slot = index == 16 ? FrameBuffer.SLOT_DEPTH
+                    : index == 17 ? FrameBuffer.SLOT_DEPTH_STENCIL : index;
+            glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
+                    convertAttachmentSlot(slot), GLFbo.GL_RENDERBUFFER_EXT, 0);
+            state.attachmentSlots &= ~(1 << index);
+            state.setTextureAttachment(slot, null);
+            removedSlots &= removedSlots - 1;
+        }
+        for (int i = state.renderBuffers.size() - 1; i >= 0; i--) {
+            RenderBuffer rb = state.renderBuffers.get(i).target;
+            if (!isFrameBufferTarget(fb, rb)) {
+                deleteRenderBuffer(rb);
+                state.renderBuffers.remove(i);
+            }
+        }
+    }
+
+    public void updateFrameBuffer(FrameBuffer fb) {
+        FrameBufferState state = prepareFrameBuffer(fb);
+        state.attachmentsDirty = true;
+        removeUnusedFrameBufferAttachments(fb, state);
+        // Successful attachments update their own snapshot. Preserve untouched
+        // slots if a later upload/attachment fails part-way through this update.
         FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
-            updateFrameBufferAttachment(fb, depthBuf);
+            updateFrameBufferAttachment(fb, depthBuf, state);
         }
 
         for (int i = 0; i < fb.getNumColorTargets(); i++) {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorTarget(i);
-            updateFrameBufferAttachment(fb, colorBuf);
+            updateFrameBufferAttachment(fb, colorBuf, state);
         }
 
         setReadDrawBuffers(fb);
         checkFrameBufferError();
 
+        // Keep renderer-side invalidation pending through upload/attachment or
+        // completeness failures. The Java target list may never have changed.
+        state.attachmentsDirty = false;
         fb.clearUpdateNeeded();
+    }
+
+    private boolean isFrameBufferUpdateNeeded(FrameBuffer fb) {
+        if (fb.isUpdateNeeded()) {
+            return true;
+        }
+        FrameBufferState state = frameBufferStates.get(fb.getId());
+        return state != null && state.attachmentsDirty;
+    }
+
+    private static int attachmentSlotMask(int slot) {
+        if (slot == FrameBuffer.SLOT_DEPTH) {
+            return 1 << 16;
+        } else if (slot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+            return 1 << 17;
+        } else if (slot < 0 || slot >= 16) {
+            throw new UnsupportedOperationException("Invalid FBO attachment slot: " + slot);
+        }
+        return 1 << slot;
+    }
+
+    private static boolean isFrameBufferTarget(FrameBuffer fb, RenderBuffer rb) {
+        if (fb.getDepthTarget() == rb) {
+            return true;
+        }
+        int slot = rb.getSlot();
+        return slot >= 0 && slot < fb.getNumColorTargets() && fb.getColorTarget(slot) == rb;
     }
 
     public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
@@ -2325,7 +2557,7 @@ public final class GLRenderer implements Renderer {
     @Override
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = null;
-        if (context.boundFBO == 0) {
+        if (context.boundFB == null) {
             // Main FB is now set to fb, make sure its bound
             setFrameBuffer(fb);
         }
@@ -2399,16 +2631,26 @@ public final class GLRenderer implements Renderer {
             fb = mainFbOverride;
         }
 
-        if (context.boundFB == fb) {
-            if (fb == null || !fb.isUpdateNeeded()) {
+        boolean updateNeeded = fb != null && isFrameBufferUpdateNeeded(fb);
+        if (context.boundFB == fb
+                && context.boundFBO == (fb == null ? defaultFBO : fb.getId())) {
+            if (!updateNeeded) {
                 toggleFramebufferSrgb(fb);
                 return;
             }
         }
 
         if (!caps.contains(Caps.FrameBuffer)) {
-            throw new RendererException("Framebuffer objects are not supported"
-                    + " by the video hardware");
+            if (fb != null) {
+                throw new RendererException("Framebuffer objects are not supported"
+                        + " by the video hardware");
+            }
+            // The window-system framebuffer is the only possible destination.
+            // Restore the cache after invalidation without an unsupported GL call.
+            context.boundFBO = 0;
+            context.boundFB = null;
+            toggleFramebufferSrgb(null);
+            return;
         }
 
         // generate mipmaps for last FB if needed
@@ -2416,14 +2658,24 @@ public final class GLRenderer implements Renderer {
         if (boundFB != null && (boundFB.getMipMapsGenerationHint() != null
                 ? boundFB.getMipMapsGenerationHint()
                 : generateMipmapsForFramebuffers)) {
-            for (int i = 0; i < boundFB.getNumColorTargets(); i++) {
-                RenderBuffer rb = boundFB.getColorTarget(i);
-                Texture tex = rb.getTexture();
-                if (tex != null && tex.getMinFilter().usesMipMapLevels()
-                        && isMipmapGenerationSupported(tex.getImage().getFormat(),
+            // Use the native attachment snapshot: the Java targets may already
+            // have been replaced with textures that have not been allocated yet.
+            FrameBufferState state = frameBufferStates.get(boundFB.getId());
+            int textureSlots = state == null ? 0 : state.colorTextureSlots;
+            while (textureSlots != 0) {
+                int slot = Integer.numberOfTrailingZeros(textureSlots);
+                textureSlots &= textureSlots - 1;
+                ColorAttachmentState attachment = state.colorTextures[slot];
+                Texture tex = attachment.texture;
+                Image image = attachment.image;
+                if (image.getId() <= 0 || image.getId() != attachment.imageId) {
+                    state.setTextureAttachment(slot, null);
+                    continue;
+                }
+                if (tex.getMinFilter().usesMipMapLevels()
+                        && isMipmapGenerationSupported(image.getFormat(),
                                 linearizeSrgbImages && boundFB.isSrgb()
                                         ? ColorSpace.sRGB : ColorSpace.Linear)) {
-                    Image image = tex.getImage();
                     if (image.getMultiSamples() > 1) {
                         throw new RendererException("Multisample textures do not support mipmaps");
                     }
@@ -2443,7 +2695,7 @@ public final class GLRenderer implements Renderer {
                     image.setMipmapsGenerated(true);
                 } else if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     logger.warning("Cannot generate mipmaps for framebuffer texture: " + tex
-                            + " with image format: " + tex.getImage().getFormat());
+                            + " with image format: " + image.getFormat());
                 }
             }
         }
@@ -2451,7 +2703,7 @@ public final class GLRenderer implements Renderer {
         if (fb == null) {
             bindFrameBuffer(null);
         } else {
-            if (fb.isUpdateNeeded()) {
+            if (updateNeeded) {
                 updateFrameBuffer(fb);
             } else {
                 bindFrameBuffer(fb);
@@ -2500,28 +2752,37 @@ public final class GLRenderer implements Renderer {
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
     }
 
-    private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
-        intBuf1.put(0, rb.getId());
+    private void deleteRenderBuffer(RenderBuffer rb) {
+        int id = rb.getId();
+        if (id == -1 || rb.getTexture() != null) {
+            return;
+        }
+        intBuf1.put(0, id);
         glfbo.glDeleteRenderbuffersEXT(intBuf1);
+        if (context.boundRB == id) {
+            context.boundRB = 0;
+        }
+        rb.resetObject();
     }
 
     @Override
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
-                context.boundFBO = 0;
+                bindFrameBuffer(null);
+                toggleFramebufferSrgb(null);
             }
 
-            if (fb.getDepthTarget() != null) {
-                deleteRenderBuffer(fb, fb.getDepthTarget());
-            }
-            if (fb.getColorTarget() != null) {
-                deleteRenderBuffer(fb, fb.getColorTarget());
+            FrameBufferState state = frameBufferStates.remove(fb.getId());
+            if (state != null) {
+                for (int i = 0; i < state.renderBuffers.size(); i++) {
+                    deleteRenderBuffer(state.renderBuffers.get(i).target);
+                }
             }
 
             intBuf1.put(0, fb.getId());
             glfbo.glDeleteFramebuffersEXT(intBuf1);
+            objManager.unregisterObject(fb);
             fb.resetObject();
 
             statistics.onDeleteFrameBuffer();
@@ -3236,6 +3497,19 @@ public final class GLRenderer implements Renderer {
             intBuf1.put(0, texId);
             intBuf1.position(0).limit(1);
             gl.glDeleteTextures(intBuf1);
+            // Clear native-name snapshots before the driver can reuse this name,
+            // even if the same Image is uploaded again before the next FBO bind.
+            for (IntMap.Entry<FrameBufferState> entry : frameBufferStates) {
+                entry.getValue().invalidateImage(texId);
+            }
+            for (int unit = 0; unit < context.boundTextures.length; unit++) {
+                WeakReference<Image> reference = context.boundTextures[unit];
+                Image boundImage = reference == null ? null : reference.get();
+                if (boundImage != null && boundImage.getId() == texId) {
+                    context.boundTextures[unit] = null;
+                }
+            }
+            objManager.unregisterObject(image);
             image.resetObject();
 
             statistics.onDeleteTexture();
