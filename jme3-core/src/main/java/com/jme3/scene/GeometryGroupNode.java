@@ -42,6 +42,18 @@ public abstract class GeometryGroupNode extends Node {
      * @param geom The Geometry whose transform changed.
      */
     public abstract void onTransformChange(Geometry geom);
+
+    /**
+     * Called when a grouped geometry's world bound needs to be refreshed.
+     * The bound has not necessarily been recomputed yet. This notification
+     * includes changes to the model bound as well as transform changes.
+     *
+     * <p>The default implementation does nothing.</p>
+     *
+     * @param geom the geometry whose world bound was invalidated
+     */
+    public void onBoundChange(Geometry geom) {
+    }
     
     /**
      * Called by {@link Geometry geom} to specify that its 

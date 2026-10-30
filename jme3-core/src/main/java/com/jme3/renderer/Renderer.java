@@ -93,8 +93,20 @@ public interface Renderer {
     public Statistics getStatistics();
 
     /**
-     * Invalidates the current rendering state. Should be called after
+     * Invalidates the cached rendering state. Should be called after
      * the GL state was changed manually or through an external library.
+     * <p>
+     * The OpenGL renderer also immediately restores the states managed by
+     * {@link RenderState} to OpenGL defaults, selects texture unit zero, and
+     * binds the platform's default framebuffer for reading and drawing with
+     * its configured sRGB write state. Previous external framebuffer bindings
+     * are not preserved. Texture bindings are forgotten and rebound on use.
+     * A main-framebuffer override remains configured, but is not selected or
+     * allocated by this reset; select the intended target with
+     * {@link #setFrameBuffer(FrameBuffer)} before resuming rendering.
+     * <p>
+     * Call this method on the rendering thread with the renderer's graphics
+     * context current.
      */
     public void invalidateState();
 

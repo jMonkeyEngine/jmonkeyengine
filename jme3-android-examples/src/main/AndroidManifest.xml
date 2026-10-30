@@ -25,6 +25,20 @@
                 android:launchMode="singleTask"
                 android:screenOrientation="landscape">
         </activity>
+        <activity
+                android:name=".TestHarnessActivity"
+                android:exported="true"
+                android:label="Test Harness Activity"
+                android:launchMode="singleTask"
+                android:screenOrientation="landscape">
+        </activity>
+        <activity
+                android:name=".TestSurfaceViewActivity"
+                android:exported="true"
+                android:label="Test SurfaceView Activity"
+                android:launchMode="singleTask"
+                android:screenOrientation="landscape">
+        </activity>
     </application>
 
     <!-- Tell the system that you need ES 3.0. -->

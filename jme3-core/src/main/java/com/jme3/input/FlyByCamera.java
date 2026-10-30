@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -447,7 +447,7 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
         } else { // perspective projection
             float newFov = cam.getFov() + value * 0.1F * zoomSpeed;
             // Use a small epsilon to prevent near-zero FoV issues
-            if (newFov > 0.01f) {
+            if (newFov > 0.01f && newFov < 179f) {
                 cam.setFov(newFov);
             }
         }

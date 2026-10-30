@@ -13,6 +13,7 @@ class JmeNativeImagePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        project.extensions.create('jmeNativeImage', JmeNativeImageExtension)
         URL metadataScript = getClass().getResource('/org/jmonkeyengine/gradle/nativeimage/native-image-metadata.gradle')
         if (metadataScript == null) {
             throw new IllegalStateException('Unable to locate bundled native image Gradle script.')

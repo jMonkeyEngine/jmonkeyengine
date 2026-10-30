@@ -28,7 +28,7 @@ import static org.lwjgl.sdl.SDLTimer.*;
  *
  * @author Riccardo Balbo
  */
-public class SdlJoystickInput implements JoyInput {
+public class SdlJoystickInput implements JoyInput, SdlEventListener {
 
     private static final Logger LOGGER = Logger.getLogger(SdlJoystickInput.class.getName());
     private final AppSettings settings;
@@ -290,6 +290,7 @@ public class SdlJoystickInput implements JoyInput {
         return joystick != null && joystick.onPointerUp(pointerId, x, y, time);
     }
 
+    @Override
     public void onSDLEvent(SDL_Event evt) {
         int type = evt.type();
         if (!(listener instanceof InputManager)) {
@@ -356,6 +357,11 @@ public class SdlJoystickInput implements JoyInput {
                 for (JoystickButton button : js.getButtons()) {
                     int buttonId = button.getButtonId();
                     String jmeButtonId = button.getLogicalId();
+
+                    if (JoystickButton.BUTTON_XBOX_LT.equals(jmeButtonId)
+                            || JoystickButton.BUTTON_XBOX_RT.equals(jmeButtonId)) {
+                        continue;
+                    }
 
                     boolean pressed = SDL_GetGamepadButton(gp, buttonId);
                     updateButton(button, pressed);

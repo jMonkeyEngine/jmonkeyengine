@@ -83,7 +83,7 @@ public class TestGltfMorph extends SimpleApplication {
 
         // Add ambient light
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.multLocal(0.4f));
+        al.setColor(ColorRGBA.White.mult(0.4f));
         rootNode.addLight(al);
 
         final int SHADOWMAP_SIZE = 1024;

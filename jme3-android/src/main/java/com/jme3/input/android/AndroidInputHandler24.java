@@ -33,13 +33,13 @@
 package com.jme3.input.android;
 
 /**
- * <code>AndroidInputHandler24</code> extends <code>AndroidInputHandler14</code> to
+ * <code>AndroidInputHandler24</code> extends <code>AndroidInputHandler16</code> to
  * use AndroidMouseInput24 which adds usage of newer events and also enables cursor visibility
  * and cursor image change.
  *
  * @author joliver82
  */
-public class AndroidInputHandler24 extends AndroidInputHandler14 {
+public class AndroidInputHandler24 extends AndroidInputHandler16 {
 
     public AndroidInputHandler24() {
         super();

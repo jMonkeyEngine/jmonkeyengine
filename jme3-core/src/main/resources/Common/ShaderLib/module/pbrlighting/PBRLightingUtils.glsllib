@@ -1,6 +1,8 @@
 #ifndef __PBR_LIGHT_UTILS_MODULE__
     #define __PBR_LIGHT_UTILS_MODULE__
 
+    vec2 newTexCoord;
+
     #import "Common/ShaderLib/Math.glsllib"
     #import "Common/ShaderLib/PBR.glsllib"
     #import "Common/ShaderLib/Parallax.glsllib"
@@ -33,7 +35,7 @@
         varying vec4 wTangent;
     #endif 
 
-    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)
+    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)||defined(EXPOSUREMAP)
         varying vec2 texCoord;
         #ifdef SEPARATE_TEXCOORD
             varying vec2 texCoord2;
@@ -138,10 +140,10 @@
         #if defined(EXPOSUREMAP)
             uniform sampler2D m_SunLightExposureMap;
         #endif
-        #if defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+        #if defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
             varying vec4 vertColors;
         #endif
-        #ifdef STATIC_SUN_EXPOSURE
+        #if defined(STATIC_SUN_EXPOSURE) || defined(STATIC_SUN_INTENSITY)
             uniform float m_StaticSunIntensity;
         #endif
         
@@ -149,12 +151,15 @@
             
             surface.exposure = 1.0; //default value
             #ifdef EXPOSUREMAP
+                #ifndef ENABLE_PBRLightingUtils_readPBRSurface
+                    newTexCoord = texCoord;
+                #endif
                 surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord).r;
             #endif
-            #ifdef STATIC_SUN_EXPOSURE
+            #if defined(STATIC_SUN_EXPOSURE) || defined(STATIC_SUN_INTENSITY)
                 surface.exposure *= m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
             #endif
-            #ifdef USE_VERTEX_COLORS_AS_SUN_EXPOSURE
+            #if defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
                 surface.exposure *= vertColors.r;    // use red channel of vertexColors for non-uniform sunlighting accross a single model                          
             #endif 
         }    
@@ -222,6 +227,13 @@
             l.invRadius = invRadius;
             l.spotAngleCos = spotAngleCos;
             l.spotDirection = spotDirection;
+            l.NdotL = 0.0;
+            l.NdotH = 0.0;
+            l.LdotH = 0.0;
+            l.HdotV = 0.0;
+            l.vector = vec3(0.0);
+            l.dir = vec3(0.0);
+            l.fallOff = 0.0;
             l.ready = false;
             return l;
         }
@@ -287,6 +299,9 @@
         surface.geometryNormal = normalize(wNormal);
 
         //set default values
+        surface.frontFacing = true;
+        surface.depth = 0.0;
+        surface.tbnMat = mat3(1.0);
         surface.hasTangents = false;
         surface.hasBasicLightMap = false;        
         surface.albedo = vec3(1.0);
@@ -297,14 +312,20 @@
         surface.alpha = 1.0;
         surface.roughness = 1.0;
         surface.metallic = 0.0;
-        surface.alpha = 1.0;
-        surface.exposure = 1.0;        
+        surface.exposure = 1.0;
+        surface.diffuseColor = vec3(1.0);
+        surface.specularColor = vec3(0.04);
+        surface.fZero = vec3(0.04);
+        surface.NdotV = 1.0;
+        surface.bakedLightContribution = vec3(0.0);
+        surface.directLightContribution = vec3(0.0);
+        surface.envLightContribution = vec3(0.0);
+        surface.brightestNonGlobalLightStrength = 0.0;        
         
         return surface;
     }
 
     #ifdef ENABLE_PBRLightingUtils_readPBRSurface
-        vec2 newTexCoord;
         
         void PBRLightingUtils_readPBRSurface(inout PBRSurface surface){
 
@@ -329,6 +350,7 @@
             #endif
 
             
+            newTexCoord = texCoord;
             #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
                 if (surface.hasTangents) {
                     vec3 vViewDir =  surface.viewDir * surface.tbnMat;  
@@ -349,11 +371,7 @@
                         newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
                         #endif
                     #endif
-                } else {
-                    newTexCoord = texCoord;
                 }
-            #else
-            newTexCoord = texCoord;    
             #endif
 
             #ifdef BASECOLORMAP
@@ -495,7 +513,11 @@
     
 
         void PBRLightingUtils_calculatePreLightingValues(inout PBRSurface surface){
-            #ifdef SPECGLOSSPIPELINE      
+            surface.frontFacing = gl_FrontFacing;
+            surface.depth = gl_FragCoord.z;
+            surface.NdotV = clamp(abs(dot(surface.normal, surface.viewDir)), 0.001, 1.0);
+
+            #ifdef SPECGLOSSPIPELINE
                 float maxSpecular = max(max(surface.specularColor.r, surface.specularColor.g), surface.specularColor.b);
                 surface.diffuseColor = surface.albedo * (1.0 - clamp(maxSpecular, 0.0, 1.0));
                 surface.fZero = surface.specularColor.xyz;
@@ -585,12 +607,16 @@
 
             vec3 directLighting = surface.diffuseColor.rgb * directDiffuse + directSpecular;
 
-            if(light.fallOff == 1.0){
-                directLighting.rgb *= surface.exposure;// is used to scale down how intense just the sun is indoors, and so the ambientLighting can be scaled back up indoors based on nearest pointlight intensity (ambient and direct light are 1.0 fallOff)                
-            }
-            else{
-                surface.brightestNonGlobalLightStrength = max(light.fallOff, surface.brightestNonGlobalLightStrength);
-            }
+            #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                if (light.fallOff == 1.0) {
+                    directLighting.rgb *= surface.exposure;
+                } else {
+                    // Bound only the indoor probe compensation, not the direct-light attenuation.
+                    float indoorLightStrength = clamp(light.fallOff, 0.0, 1.0);
+                    surface.brightestNonGlobalLightStrength = max(indoorLightStrength,
+                            surface.brightestNonGlobalLightStrength);
+                }
+            #endif
 
             surface.directLightContribution.rgb += directLighting * light.fallOff;
         }
@@ -604,15 +630,17 @@
 
         void PBRLightingUtils_computeProbesContribution(inout PBRSurface surface){   
 
-            #ifdef BRIGHTEN_INDOOR_SHADOWS
-                float minVertLighting = 0.0833; //enable this when using shadows, in order to brighten indoor areas (which are naturally covered from the DL shadows) so that indoor areas are not way too dark when using IndoorLighting with shadows compared to when shadows are off
-            #else
-                float minVertLighting = 0.0533;
-            #endif
+            #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                #ifdef BRIGHTEN_INDOOR_SHADOWS
+                    float minVertLighting = 0.0833;
+                #else
+                    float minVertLighting = 0.0533;
+                #endif
 
-            float finalLightingScale = surface.exposure;
-            finalLightingScale = max(finalLightingScale, surface.brightestNonGlobalLightStrength);    
-            finalLightingScale = max(finalLightingScale, minVertLighting); //essentially just the vertColors.r (aka indoor light exposure) multiplied by the time of day scale.   
+                float finalLightingScale = surface.exposure;
+                finalLightingScale = max(finalLightingScale, surface.brightestNonGlobalLightStrength);
+                finalLightingScale = max(finalLightingScale, minVertLighting);
+            #endif
 
             #if NB_PROBES >= 1
                 vec3 color1 = vec3(0.0);
@@ -675,11 +703,11 @@
                         float invNdf3 = max(1.0 - ndf3,0.0);
                         sumNdf = max(sumNdf + ndf3, 1e-4);
                         sumInvNdf = max(sumInvNdf + invNdf3, 1e-4);
-                        weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
+                        weight3 =  ((1.0 - (ndf3 / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
                     #endif
 
-                    weight1 = ((1.0 - (ndf / sumNdf)) / (NB_PROBES - 1)) *  (invNdf / sumInvNdf);
-                    weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
+                    weight1 = ((1.0 - (ndf / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf / sumInvNdf);
+                    weight2 = ((1.0 - (ndf2 / sumNdf)) / float(NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
 
                     float weightSum = weight1 + weight2 + weight3;
                     if (weightSum > 1e-4) {
@@ -699,9 +727,11 @@
                     color3.rgb *= g_AmbientLightColor.rgb;
                 #endif
                 
-                color1.rgb *= finalLightingScale;
-                color2.rgb *= finalLightingScale;
-                color3.rgb *= finalLightingScale;
+                #if defined(EXPOSUREMAP) || defined(STATIC_SUN_INTENSITY) || defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_EXPOSURE) || defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+                    color1.rgb *= finalLightingScale;
+                    color2.rgb *= finalLightingScale;
+                    color3.rgb *= finalLightingScale;
+                #endif
 
                 surface.envLightContribution.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
                 

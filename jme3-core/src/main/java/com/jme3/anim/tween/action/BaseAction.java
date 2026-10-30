@@ -35,6 +35,8 @@ import com.jme3.anim.AnimationMask;
 import com.jme3.anim.tween.ContainsTweens;
 import com.jme3.anim.tween.Tween;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.util.List;
 
 /**
@@ -55,12 +57,11 @@ import java.util.List;
  * //run the action within this layer
  * animComposer.setCurrentAction("basicAction", ActionState.class.getSimpleName());
  * </pre>
- * </p>
  * Created by Nehon.
  */
 public class BaseAction extends Action {
 
-    final private Tween tween;
+    private Tween tween;
     private boolean maskPropagationEnabled = true;
 
     /**
@@ -123,6 +124,27 @@ public class BaseAction extends Action {
         return tween.interpolate(t);
     }
     
+    /**
+     * Clones the wrapped tween when it supports JME cloning or the cloner has
+     * an explicit mapping or clone function for it. Other custom tweens remain
+     * shared with the original action.
+     *
+     * <p>Custom subclasses of {@link com.jme3.anim.tween.AbstractTween} inherit
+     * shallow copying of their fields. They need to override cloneFields only
+     * when referenced fields should be cloned or remapped instead of shared.</p>
+     *
+     * @param cloner the cloner that's cloning this action (not null)
+     * @param original the action from which this action was shallow-cloned
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        if (tween != null && (tween instanceof JmeCloneable || cloner.isCloned(tween)
+                || cloner.getCloneFunction(tween.getClass()) != null)) {
+            tween = cloner.clone(tween);
+        }
+    }
+
     /**
      * Extracts the actions from a tween into a list.
      *

@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class VirtualJoystickTheme implements Savable {
 
-    private static final String DEFAULT_FONT = "Interface/Fonts/Default.fnt";
+    private static final String DEFAULT_FONT = "Interface/Fonts/Default.j3o";
 
     public enum TextureKey {
         BUTTON,

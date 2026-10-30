@@ -32,9 +32,6 @@
 package com.jme3.font;
 
 import com.jme3.math.ColorRGBA;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 /**
  * LetterQuad contains the position, color, and UV texture information for a character in text.
@@ -45,7 +42,7 @@ class LetterQuad {
     private static final float LINE_DIR = -1;
 
     private final BitmapFont font;
-    private final char c;
+    private char c;
     private final int index;
     private int style;
 
@@ -98,6 +95,38 @@ class LetterQuad {
         this.eol = isLineFeed();
         setBitmapChar(c);
         prev.insert(this);
+    }
+
+    /**
+     * Copies the character and its explicit style/color, rebuilding its layout.
+     *
+     * @param original the character to copy
+     * @param previous the previous quad in the new chain
+     */
+    LetterQuad(LetterQuad original, LetterQuad previous) {
+        this.font = previous.font;
+        this.rightToLeft = previous.rightToLeft;
+        this.c = original.c;
+        this.index = previous.index + 1;
+        this.style = original.style;
+        this.colorInt = original.colorInt;
+        invalidate();
+        previous.insert(this);
+    }
+
+    /**
+     * Reinitializes a cached quad as a newly created character at the same index.
+     *
+     * @param c the new character at this quad's index
+     */
+    void reset(char c) {
+        this.c = c;
+        style = 0;
+        colorInt = 0xFFFFFFFF;
+        xAdvance = 0;
+        lineY = 0;
+        sizeScale = 1;
+        invalidate();
     }
 
     LetterQuad addNextCharacter(char c) {
@@ -268,13 +297,11 @@ class LetterQuad {
 
     void setColor(ColorRGBA color) {
         this.colorInt = color.asIntRGBA();
-        invalidate();
     }
 
     void setAlpha(float alpha) {
         int i = (int) (alpha * 255) & 0xFF;
         colorInt = (colorInt & 0xffffff00) | i;
-        invalidate();
     }
 
     void setBitmapChar(char c) {
@@ -460,7 +487,7 @@ class LetterQuad {
         return c == ' ' || isTab();
     }
 
-    public void storeToArrays(float[] pos, float[] tc, short[] idx, byte[] colors, int quadIdx) {
+    void storeToArrays(float[] pos, float[] tc, byte[] colors) {
         float x = x0+alignX;
         float y = y0-alignY;
         float xpw = x+width;
@@ -479,85 +506,18 @@ class LetterQuad {
         tc[4] = u1; tc[5] = v1;
         tc[6] = u1; tc[7] = v0;
 
+        storeColors(colors);
+    }
+
+    void storeColors(byte[] colors) {
         colors[3] = (byte) (colorInt & 0xff);
         colors[2] = (byte) ((colorInt >> 8) & 0xff);
         colors[1] = (byte) ((colorInt >> 16) & 0xff);
         colors[0] = (byte) ((colorInt >> 24) & 0xff);
-        System.arraycopy(colors, 0, colors, 4,  4);
-        System.arraycopy(colors, 0, colors, 8,  4);
+        System.arraycopy(colors, 0, colors, 4, 4);
+        System.arraycopy(colors, 0, colors, 8, 4);
         System.arraycopy(colors, 0, colors, 12, 4);
-
-        short i0 = (short) (quadIdx * 4);
-        short i1 = (short) (i0 + 1);
-        short i2 = (short) (i0 + 2);
-        short i3 = (short) (i0 + 3);
-
-        idx[0] = i0; idx[1] = i1; idx[2] = i2;
-        idx[3] = i0; idx[4] = i2; idx[5] = i3;
     }
-
-    public void appendPositions(FloatBuffer fb) {
-        float sx = x0+alignX;
-        float sy = y0-alignY;
-        float ex = sx+width;
-        float ey = sy-height;
-        // NOTE: subtracting the height here
-        // because OGL's Ortho origin is at lower-left
-        fb.put(sx).put(sy).put(0f);
-        fb.put(sx).put(ey).put(0f);
-        fb.put(ex).put(ey).put(0f);
-        fb.put(ex).put(sy).put(0f);
-    }
-
-    public void appendPositions(ShortBuffer sb) {
-        final float x1 = getX1();
-        final float y1 = getY1();
-        short x = (short) x0;
-        short y = (short) y0;
-        short xpw = (short) (x1);
-        short ymh = (short) (y1);
-
-        sb.put(x).put(y).put((short)0);
-        sb.put(x).put(ymh).put((short)0);
-        sb.put(xpw).put(ymh).put((short)0);
-        sb.put(xpw).put(y).put((short)0);
-    }
-
-    public void appendTexCoords(FloatBuffer fb) {
-        // flip coords to be compatible with OGL
-        float v0 = 1 - this.v0;
-        float v1 = 1 - this.v1;
-
-        // upper left
-        fb.put(u0).put(v0);
-        // lower left
-        fb.put(u0).put(v1);
-        // lower right
-        fb.put(u1).put(v1);
-        // upper right
-        fb.put(u1).put(v0);
-    }
-
-    public void appendColors(ByteBuffer bb) {
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-        bb.putInt(colorInt);
-    }
-
-    public void appendIndices(ShortBuffer sb, int quadIndex) {
-        // each quad has 4 indices
-        short v0 = (short) (quadIndex * 4);
-        short v1 = (short) (v0 + 1);
-        short v2 = (short) (v0 + 2);
-        short v3 = (short) (v0 + 3);
-
-        sb.put(v0).put(v1).put(v2);
-        sb.put(v0).put(v2).put(v3);
-//        sb.put(new short[]{ v0, v1, v2,
-//                            v0, v2, v3 });
-    }
-
 
     @Override
     public String toString() {

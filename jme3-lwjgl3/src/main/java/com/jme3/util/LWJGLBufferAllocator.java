@@ -7,7 +7,7 @@ import java.lang.ref.ReferenceQueue;
 import java.nio.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.StampedLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,45 +38,13 @@ public class LWJGLBufferAllocator implements BufferAllocator {
     private static final Map<Long, Deallocator> DEALLOCATORS = new ConcurrentHashMap<>();
 
     /**
-     * Threadsafe implementation of the {@link LWJGLBufferAllocator}.
+     * Deprecated compatibility alias for {@link LWJGLBufferAllocator}.
      *
      * @author JavaSaBr
+     * @deprecated {@link LWJGLBufferAllocator} is thread-safe for allocation bookkeeping.
      */
+    @Deprecated
     public static class ConcurrentLWJGLBufferAllocator extends LWJGLBufferAllocator {
-
-        /**
-         * The synchronizer.
-         */
-        private final StampedLock stampedLock;
-
-        public ConcurrentLWJGLBufferAllocator() {
-            this.stampedLock = new StampedLock();
-        }
-
-        @Override
-        public void destroyDirectBuffer(final Buffer buffer) {
-            final long stamp = stampedLock.writeLock();
-            try {
-                super.destroyDirectBuffer(buffer);
-            } finally {
-                stampedLock.unlockWrite(stamp);
-            }
-        }
-
-        @Override
-        public ByteBuffer allocate(final int size) {
-            final long stamp = stampedLock.writeLock();
-            try {
-                return super.allocate(size);
-            } finally {
-                stampedLock.unlockWrite(stamp);
-            }
-        }
-
-        @Override
-        Deallocator createDeallocator(final Long address, final ByteBuffer byteBuffer) {
-            return new ConcurrentDeallocator(byteBuffer, DUMMY_QUEUE, address, stampedLock);
-        }
     }
 
     /**
@@ -87,55 +55,38 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         /**
          * The address of LWJGL byte buffer.
          */
-        volatile Long address;
+        final long address;
+        final AtomicBoolean freed = new AtomicBoolean(false);
 
-        Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final Long address) {
+        Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final long address) {
             super(referent, queue);
             this.address = address;
         }
 
         /**
-         * @param address the address of LWJGL byte buffer.
+         * Retire this deallocator when the caller will free the memory itself.
+         *
+         * @return true if the caller now owns the native free
          */
-        void setAddress(final Long address) {
-            this.address = address;
+        boolean retireForExternalFree() {
+            if (!freed.compareAndSet(false, true)) {
+                return false;
+            }
+            DEALLOCATORS.remove(address, this);
+            clear();
+            return true;
         }
 
         /**
          * Free memory.
          */
         void free() {
-            if (address == null) return;
-            freeMemory();
-            DEALLOCATORS.remove(address);
-        }
-
-        void freeMemory() {
-            MemoryUtil.nmemFree(address);
-        }
-    }
-
-    /**
-     * The LWJGL byte buffer deallocator.
-     */
-    static class ConcurrentDeallocator extends Deallocator {
-
-        final StampedLock stampedLock;
-
-        ConcurrentDeallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue,
-                              final Long address, final StampedLock stampedLock) {
-            super(referent, queue, address);
-            this.stampedLock = stampedLock;
-        }
-
-        @Override
-        protected void freeMemory() {
-            final long stamp = stampedLock.writeLock();
-            try {
-                super.freeMemory();
-            } finally {
-                stampedLock.unlockWrite(stamp);
+            if (!freed.compareAndSet(false, true)) {
+                return;
             }
+            DEALLOCATORS.remove(address, this);
+            clear();
+            MemoryUtil.nmemFree(address);
         }
     }
 
@@ -149,13 +100,16 @@ public class LWJGLBufferAllocator implements BufferAllocator {
      * Free unnecessary LWJGL byte buffers.
      */
     static void freeByteBuffers() {
-        try {
-            for (;;) {
+        for (;;) {
+            try {
                 final Deallocator deallocator = (Deallocator) DUMMY_QUEUE.remove();
                 deallocator.free();
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (final Throwable throwable) {
+                LOGGER.log(Level.SEVERE, "Error deallocating direct buffer", throwable);
             }
-        } catch (final InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -169,7 +123,6 @@ public class LWJGLBufferAllocator implements BufferAllocator {
             return;
         }
 
-        // disable deallocator
         final Deallocator deallocator = DEALLOCATORS.remove(address);
 
         if (deallocator == null) {
@@ -177,9 +130,9 @@ public class LWJGLBufferAllocator implements BufferAllocator {
             return;
         }
 
-        deallocator.setAddress(null);
-
-        MemoryUtil.memFree(buffer);
+        if (deallocator.retireForExternalFree()) {
+            MemoryUtil.nmemFree(address);
+        }
     }
 
     /**
@@ -211,7 +164,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
 
     @Override
     public ByteBuffer allocate(final int size) {
-        final Long address = MemoryUtil.nmemCalloc(size, 1);
+        final long address = MemoryUtil.nmemCallocChecked(size, 1);
         final ByteBuffer byteBuffer = MemoryUtil.memByteBuffer(address, size);
         DEALLOCATORS.put(address, createDeallocator(address, byteBuffer));
         return byteBuffer;

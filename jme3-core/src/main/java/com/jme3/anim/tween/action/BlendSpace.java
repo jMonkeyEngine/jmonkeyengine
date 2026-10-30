@@ -31,37 +31,34 @@
  */
 package com.jme3.anim.tween.action;
 
+import com.jme3.anim.util.HasLocalTransform;
+import com.jme3.math.Transform;
+
 /**
  * A provider interface which provides a value {@link BlendSpace#getWeight()} to control the blending between 2 successive actions in a {@link BlendAction}.
  * The blending weight is a read-only value, and it can be manipulated using the arbitrary value {@link BlendSpace#setValue(float)} during the application runtime.
  * 
- * <p>
- * Notes about the blending action and its relations with the blending weight:
+ * <p>Notes about the blending action and its relations with the blending weight:</p>
  * <ul>
  * <li> Blending is the action of mixing between 2 successive animation {@link BlendableAction}s by interpolating their transforms and 
  * then applying the result on the assigned {@link HasLocalTransform} object, the {@link BlendSpace} provides this blending action with a blend weight value. </li>
  * <li> The blend weight is the value for the interpolation for the target transforms. </li>
  * <li> The blend weight value must be in this interval [0, 1]. </li>
  * </ul>
- * </p>
  * 
- * <p>
- * Different blending weight case scenarios managed by {@link BlendAction} internally:
+ * <p>Different blending weight case scenarios managed by {@link BlendAction} internally:</p>
  * <ul>
- * <li> In case of (0 < Blending weight < 1), the blending is executed each update among 2 actions, the first action will use 
+ * <li> In case of (0 &lt; Blending weight &lt; 1), the blending is executed each update among 2 actions, the first action will use
  * a blend value of 1 and the second action will use the blend space weight as a value for the interpolation. </li>
  * <li> In case of (Blending weight = 0), the blending hasn't started yet, only the first action will be interpolated at (weight = 1). </li>
  * <li> In case of (Blending weight = 1), the blending is finished and only the second action will continue to run at (weight = 1). </li>
  * </ul>
- * </p>
  * 
- * <p>
- * Notes about the blending weight value:
+ * <p>Notes about the blending weight value:</p>
  * <ul>
  * <li> Negative values and values greater than 1 aren't allowed (i.e., extrapolations aren't allowed). </li>
  * <li> For more details, see {@link BlendAction#doInterpolate(double)} and {@link BlendAction#collectTransform(HasLocalTransform, Transform, float, BlendableAction)}. </li>
  * </ul>
- * </p> 
  *
  * Created by Nehon.
  * @see LinearBlendSpace an example of blendspace implementation

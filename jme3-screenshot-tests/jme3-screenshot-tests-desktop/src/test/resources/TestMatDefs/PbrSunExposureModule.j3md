@@ -1,0 +1,17 @@
+MaterialDef PbrSunExposureModule {
+    MaterialParameters {
+        Texture2D SunLightExposureMap
+    }
+    Technique {
+        VertexShader GLSL310 GLSL300 GLSL150: Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL310 GLSL300 GLSL150: TestMatDefs/PbrSunExposureModule.frag
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            NormalMatrix
+        }
+        Defines {
+            EXPOSUREMAP: SunLightExposureMap
+        }
+    }
+}

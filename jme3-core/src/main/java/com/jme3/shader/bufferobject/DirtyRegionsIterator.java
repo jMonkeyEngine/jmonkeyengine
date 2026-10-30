@@ -31,6 +31,8 @@
  */
 package com.jme3.shader.bufferobject;
 
+import com.jme3.util.ByteBufferUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,7 +51,7 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
         @Override
         public ByteBuffer getData() {
             ByteBuffer source = bo.getData();
-            ByteBuffer view = source.duplicate();
+            ByteBuffer view = ByteBufferUtils.duplicate(source);
             view.position(start);
             view.limit(end + 1);
             return view.slice().order(source.order());

@@ -3,10 +3,14 @@ import groovy.json.JsonSlurper
 import org.gradle.api.tasks.PathSensitivity
 
 def extraProperties = project.extensions.extraProperties
+def nativeImageExtension = project.extensions.findByName('jmeNativeImage')
 [
         'jmeNativeImageAdditionalTargetTypes',
         'jmeNativeImageAdditionalTargetAnnotations',
         'jmeNativeImageAdditionalProxyInterfaceSets',
+        'jmeNativeImageAdditionalUnsafeAllocatedTypes',
+        'jmeNativeImageAdditionalUnsafeAllocationContainerTypes',
+        'jmeNativeImageAdditionalRuntimeInitializedTypes',
         'jmeNativeImageAdditionalResourceGlobs',
         'jmeNativeImageIncludeResourcesPattern',
         'jmeNativeImageExcludeResourcesPattern'
@@ -28,12 +32,23 @@ if (!extraProperties.has('jmeApplyDefaultNativeImageResourceSettings')) {
             return
         }
 
-        String includeResourcesPattern = project.ext.jmeNativeImageIncludeResourcesPattern?.toString() ?: '.*'
-        String excludeResourcesPattern = project.ext.jmeNativeImageExcludeResourcesPattern?.toString() ?: '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$'
+        String includeResourcesPattern = nativeImageExtension?.includeResourcesPattern?.isPresent()
+                ? nativeImageExtension.includeResourcesPattern.get()
+                : project.ext.jmeNativeImageIncludeResourcesPattern?.toString() ?: '.*'
+        String excludeResourcesPattern = nativeImageExtension?.excludeResourcesPattern?.isPresent()
+                ? nativeImageExtension.excludeResourcesPattern.get()
+                : project.ext.jmeNativeImageExcludeResourcesPattern?.toString() ?: '(?i).*\\.(class|jar|dylib|so|dll|jnilib)$'
 
         nativeBinary.resources.autodetect()
-        nativeBinary.buildArgs.add("-H:IncludeResources=${includeResourcesPattern}")
-        nativeBinary.buildArgs.add("-H:ExcludeResources=${excludeResourcesPattern}")
+        List<String> currentBuildArgs = nativeBinary.buildArgs.getOrElse([])
+        String includeArg = "-H:IncludeResources=${includeResourcesPattern}".toString()
+        String excludeArg = "-H:ExcludeResources=${excludeResourcesPattern}".toString()
+        if (!currentBuildArgs.contains(includeArg)) {
+            nativeBinary.buildArgs.add(includeArg)
+        }
+        if (!currentBuildArgs.contains(excludeArg)) {
+            nativeBinary.buildArgs.add(excludeArg)
+        }
     })
 }
 
@@ -63,10 +78,12 @@ def defaultTargetTypes = [
         'com.jme3.opencl.PlatformChooser',
         'com.jme3.network.Message',
         'com.jme3.network.serializing.Serializer',
-        'com.jme3.app.Application'
+        'com.jme3.app.Application',
+        'com.jme3.app.IosApplicationLauncher'
 ]
 
 def defaultTargetAnnotations = [
+        'com.jme3.util.PreserveReflection',
         'com.jme3.network.serializing.Serializable'
 ]
 
@@ -96,6 +113,12 @@ def defaultProxyInterfaceSets = [
         ]
 ]
 
+def defaultUnsafeAllocationContainerTypes = [
+        'com.jme3.util.SafeArrayList'
+]
+
+def defaultRuntimeInitializedTypes = []
+
 def asStringList = { Object value ->
     if (value == null) {
         return []
@@ -120,6 +143,22 @@ def asStringMatrix = { Object value ->
     return outer.collect { entry ->
         asStringList(entry).findAll { !it.isEmpty() }
     }.findAll { !it.isEmpty() }
+}
+
+def extensionPropertyValue = { String propertyName ->
+    if (nativeImageExtension == null || !nativeImageExtension.hasProperty(propertyName)) {
+        return []
+    }
+    def property = nativeImageExtension[propertyName]
+    return property?.getOrElse([])
+}
+
+def configuredStringList = { String extraPropertyName, String extensionPropertyName ->
+    return asStringList(project.ext[extraPropertyName]) + asStringList(extensionPropertyValue(extensionPropertyName))
+}
+
+def configuredStringMatrix = { String extraPropertyName, String extensionPropertyName ->
+    return asStringMatrix(project.ext[extraPropertyName]) + asStringMatrix(extensionPropertyValue(extensionPropertyName))
 }
 
 def loadClassSafely = { ClassLoader loader, String className ->
@@ -242,6 +281,123 @@ def collectDescriptorClassReferences = { String descriptor ->
     return references
 }
 
+def unsafeAllocatedArrayTypeName = { String className ->
+    if (className == null || className.isEmpty()) {
+        return null
+    }
+    return "[L${className.replace('/', '.')};".toString()
+}
+
+def normalizeUnsafeAllocatedTypeName = { String value ->
+    if (value == null) {
+        return null
+    }
+    String raw = value.trim()
+    if (raw.isEmpty()) {
+        return null
+    }
+    if (raw.endsWith('[]')) {
+        String elementType = raw.substring(0, raw.length() - 2).trim()
+        if (elementType.isEmpty()) {
+            return null
+        }
+        return unsafeAllocatedArrayTypeName(elementType)
+    }
+    if (raw.startsWith('[L') && raw.endsWith(';')) {
+        return "[L${raw.substring(2, raw.length() - 1).replace('/', '.')};".toString()
+    }
+    if (raw.startsWith('[')) {
+        return raw.replace('/', '.')
+    }
+    return raw.replace('/', '.')
+}
+
+def opcodeOperandLength = { int opcode, byte[] code, int offset ->
+    switch (opcode) {
+        case 0x10: return 1
+        case 0x11: return 2
+        case 0x12: return 1
+        case 0x13:
+        case 0x14: return 2
+        case 0x15:
+        case 0x16:
+        case 0x17:
+        case 0x18:
+        case 0x19:
+        case 0x36:
+        case 0x37:
+        case 0x38:
+        case 0x39:
+        case 0x3a:
+        case 0xa9:
+        case 0xbc: return 1
+        case 0x84: return 2
+        case 0x99:
+        case 0x9a:
+        case 0x9b:
+        case 0x9c:
+        case 0x9d:
+        case 0x9e:
+        case 0x9f:
+        case 0xa0:
+        case 0xa1:
+        case 0xa2:
+        case 0xa3:
+        case 0xa4:
+        case 0xa5:
+        case 0xa6:
+        case 0xa7:
+        case 0xa8:
+        case 0xc6:
+        case 0xc7: return 2
+        case 0xb2:
+        case 0xb3:
+        case 0xb4:
+        case 0xb5:
+        case 0xb6:
+        case 0xb7:
+        case 0xb8:
+        case 0xbb:
+        case 0xbd:
+        case 0xc0:
+        case 0xc1: return 2
+        case 0xb9:
+        case 0xba: return 4
+        case 0xc5: return 3
+        case 0xc8:
+        case 0xc9: return 4
+        case 0xaa: {
+            int padding = (4 - ((offset + 1) % 4)) % 4
+            int cursor = offset + 1 + padding
+            if (cursor + 12 > code.length) {
+                return -1
+            }
+            int low = ((code[cursor + 4] & 0xff) << 24) | ((code[cursor + 5] & 0xff) << 16) | ((code[cursor + 6] & 0xff) << 8) | (code[cursor + 7] & 0xff)
+            int high = ((code[cursor + 8] & 0xff) << 24) | ((code[cursor + 9] & 0xff) << 16) | ((code[cursor + 10] & 0xff) << 8) | (code[cursor + 11] & 0xff)
+            int count = high >= low ? high - low + 1 : 0
+            return padding + 12 + count * 4
+        }
+        case 0xab: {
+            int padding = (4 - ((offset + 1) % 4)) % 4
+            int cursor = offset + 1 + padding
+            if (cursor + 8 > code.length) {
+                return -1
+            }
+            int pairs = ((code[cursor + 4] & 0xff) << 24) | ((code[cursor + 5] & 0xff) << 16) | ((code[cursor + 6] & 0xff) << 8) | (code[cursor + 7] & 0xff)
+            return padding + 8 + pairs * 8
+        }
+        case 0xc4: {
+            if (offset + 1 >= code.length) {
+                return -1
+            }
+            int widenedOpcode = code[offset + 1] & 0xff
+            return widenedOpcode == 0x84 ? 5 : 3
+        }
+        default:
+            return 0
+    }
+}
+
 def collectClassReferencesFromStream = { InputStream input ->
     SortedSet<String> references = new TreeSet<>()
     try {
@@ -311,10 +467,210 @@ def collectClassReferencesFromStream = { InputStream input ->
     return references
 }
 
+def collectUnsafeAllocatedTypesFromStream = { InputStream input, Set<String> unsafeAllocationContainerTypes ->
+    SortedSet<String> unsafeAllocatedTypes = new TreeSet<>()
+    try {
+        new DataInputStream(new BufferedInputStream(input)).withCloseable { stream ->
+            if (stream.readInt() != -889275714) {
+                return unsafeAllocatedTypes
+            }
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            int constantPoolCount = stream.readUnsignedShort()
+            String[] utf8Entries = new String[constantPoolCount]
+            int[] classNameIndices = new int[constantPoolCount]
+            int[] methodClassIndices = new int[constantPoolCount]
+            int[] methodNameAndTypeIndices = new int[constantPoolCount]
+            int[] nameAndTypeNameIndices = new int[constantPoolCount]
+            int[] nameAndTypeDescriptorIndices = new int[constantPoolCount]
+            for (int i = 1; i < constantPoolCount; i++) {
+                int tag = stream.readUnsignedByte()
+                switch (tag) {
+                    case 1:
+                        utf8Entries[i] = stream.readUTF()
+                        break
+                    case 3:
+                    case 4:
+                        stream.readInt()
+                        break
+                    case 5:
+                    case 6:
+                        stream.readLong()
+                        i++
+                        break
+                    case 7:
+                        classNameIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 8:
+                    case 16:
+                    case 19:
+                    case 20:
+                        stream.readUnsignedShort()
+                        break
+                    case 9:
+                    case 11:
+                    case 17:
+                    case 18:
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        break
+                    case 10:
+                        methodClassIndices[i] = stream.readUnsignedShort()
+                        methodNameAndTypeIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 12:
+                        nameAndTypeNameIndices[i] = stream.readUnsignedShort()
+                        nameAndTypeDescriptorIndices[i] = stream.readUnsignedShort()
+                        break
+                    case 15:
+                        stream.readUnsignedByte()
+                        stream.readUnsignedShort()
+                        break
+                    default:
+                        return unsafeAllocatedTypes
+                }
+            }
+
+            def classNameAt = { int cpIndex ->
+                int nameIndex = cpIndex > 0 && cpIndex < classNameIndices.length ? classNameIndices[cpIndex] : 0
+                return nameIndex > 0 && nameIndex < utf8Entries.length ? normalizeClassReference(utf8Entries[nameIndex]) : null
+            }
+            def isUnsafeAllocationContainerConstructor = { int cpIndex ->
+                if (cpIndex <= 0 || cpIndex >= methodClassIndices.length) {
+                    return false
+                }
+                String owner = classNameAt(methodClassIndices[cpIndex])
+                int nameAndTypeIndex = methodNameAndTypeIndices[cpIndex]
+                if (!unsafeAllocationContainerTypes.contains(owner) || nameAndTypeIndex <= 0 || nameAndTypeIndex >= nameAndTypeNameIndices.length) {
+                    return false
+                }
+                String methodName = utf8Entries[nameAndTypeNameIndices[nameAndTypeIndex]]
+                String descriptor = utf8Entries[nameAndTypeDescriptorIndices[nameAndTypeIndex]]
+                return methodName == '<init>' && descriptor != null && descriptor.startsWith('(Ljava/lang/Class;')
+            }
+
+            def skipAttributes = { int count ->
+                for (int i = 0; i < count; i++) {
+                    stream.readUnsignedShort()
+                    int length = stream.readInt()
+                    long skipped = 0
+                    while (skipped < length) {
+                        long justSkipped = stream.skip(length - skipped)
+                        if (justSkipped <= 0) {
+                            stream.readUnsignedByte()
+                            justSkipped = 1
+                        }
+                        skipped += justSkipped
+                    }
+                }
+            }
+
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            stream.readUnsignedShort()
+            int interfacesCount = stream.readUnsignedShort()
+            for (int i = 0; i < interfacesCount; i++) {
+                stream.readUnsignedShort()
+            }
+            int fieldsCount = stream.readUnsignedShort()
+            for (int i = 0; i < fieldsCount; i++) {
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                skipAttributes(stream.readUnsignedShort())
+            }
+            int methodsCount = stream.readUnsignedShort()
+            for (int i = 0; i < methodsCount; i++) {
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                stream.readUnsignedShort()
+                int attributesCount = stream.readUnsignedShort()
+                for (int j = 0; j < attributesCount; j++) {
+                    int attributeNameIndex = stream.readUnsignedShort()
+                    int attributeLength = stream.readInt()
+                    String attributeName = attributeNameIndex > 0 && attributeNameIndex < utf8Entries.length ? utf8Entries[attributeNameIndex] : null
+                    if (attributeName != 'Code') {
+                        long skipped = 0
+                        while (skipped < attributeLength) {
+                            long justSkipped = stream.skip(attributeLength - skipped)
+                            if (justSkipped <= 0) {
+                                stream.readUnsignedByte()
+                                justSkipped = 1
+                            }
+                            skipped += justSkipped
+                        }
+                        continue
+                    }
+
+                    stream.readUnsignedShort()
+                    stream.readUnsignedShort()
+                    int codeLength = stream.readInt()
+                    byte[] code = new byte[codeLength]
+                    stream.readFully(code)
+                    String recentClassLiteral = null
+                    int recentClassLiteralInstruction = -1
+                    int instructionIndex = 0
+                    int offset = 0
+                    while (offset < code.length) {
+                        int opcode = code[offset] & 0xff
+                        if (opcode == 0x12 || opcode == 0x13) {
+                            int cpIndex = opcode == 0x12
+                                    ? (code[offset + 1] & 0xff)
+                                    : (((code[offset + 1] & 0xff) << 8) | (code[offset + 2] & 0xff))
+                            String className = classNameAt(cpIndex)
+                            if (className != null) {
+                                recentClassLiteral = className
+                                recentClassLiteralInstruction = instructionIndex
+                            }
+                        } else if (opcode == 0xb7) {
+                            int cpIndex = ((code[offset + 1] & 0xff) << 8) | (code[offset + 2] & 0xff)
+                            if (recentClassLiteral != null && instructionIndex - recentClassLiteralInstruction <= 8 && isUnsafeAllocationContainerConstructor(cpIndex)) {
+                                String arrayType = unsafeAllocatedArrayTypeName(recentClassLiteral)
+                                if (arrayType != null) {
+                                    unsafeAllocatedTypes.add(arrayType)
+                                }
+                            }
+                            recentClassLiteral = null
+                            recentClassLiteralInstruction = -1
+                        }
+                        int operandLength = opcodeOperandLength(opcode, code, offset)
+                        if (operandLength < 0) {
+                            break
+                        }
+                        offset += 1 + operandLength
+                        instructionIndex++
+                    }
+
+                    int exceptionTableLength = stream.readUnsignedShort()
+                    for (int k = 0; k < exceptionTableLength; k++) {
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                        stream.readUnsignedShort()
+                    }
+                    skipAttributes(stream.readUnsignedShort())
+                }
+            }
+        }
+    } catch (Throwable ignored) {
+    }
+    return unsafeAllocatedTypes
+}
+
 def collectClassReferences = { File classFile ->
     try {
         return classFile.withInputStream { input ->
             collectClassReferencesFromStream(input)
+        }
+    } catch (Throwable ignored) {
+        return new TreeSet<String>()
+    }
+}
+
+def collectUnsafeAllocatedTypes = { File classFile, Set<String> unsafeAllocationContainerTypes ->
+    try {
+        return classFile.withInputStream { input ->
+            collectUnsafeAllocatedTypesFromStream(input, unsafeAllocationContainerTypes)
         }
     } catch (Throwable ignored) {
         return new TreeSet<String>()
@@ -332,27 +688,57 @@ def isJdkClassName = { String className ->
 }
 
 def normalizedTargetTypes = {
-    return (defaultTargetTypes + asStringList(project.ext.jmeNativeImageAdditionalTargetTypes))
+    return (defaultTargetTypes + configuredStringList('jmeNativeImageAdditionalTargetTypes', 'additionalTargetTypes'))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedTargetAnnotations = {
-    return (defaultTargetAnnotations + asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations))
+    return (defaultTargetAnnotations + configuredStringList('jmeNativeImageAdditionalTargetAnnotations', 'additionalTargetAnnotations'))
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
 }
 
 def normalizedProxyInterfaceSets = {
-    return (defaultProxyInterfaceSets + asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets)).collect { interfaceSet ->
+    return (defaultProxyInterfaceSets + configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets')).collect { interfaceSet ->
         new ArrayList<>(new LinkedHashSet<>(interfaceSet))
     }.findAll { !it.isEmpty() }
 }
 
+def normalizedAdditionalUnsafeAllocatedTypes = {
+    return configuredStringList('jmeNativeImageAdditionalUnsafeAllocatedTypes', 'additionalUnsafeAllocatedTypes')
+            .collect { normalizeUnsafeAllocatedTypeName(it) }
+            .findAll { it != null && !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def normalizedUnsafeAllocationContainerTypes = {
+    return (defaultUnsafeAllocationContainerTypes + configuredStringList('jmeNativeImageAdditionalUnsafeAllocationContainerTypes', 'additionalUnsafeAllocationContainerTypes'))
+            .collect { it == null ? null : it.trim().replace('/', '.') }
+            .findAll { it != null && !it.isEmpty() }
+            .toSorted()
+            .unique()
+}
+
+def normalizedRuntimeInitializedTypes = {
+    return (defaultRuntimeInitializedTypes + configuredStringList('jmeNativeImageAdditionalRuntimeInitializedTypes', 'additionalRuntimeInitializedTypes'))
+            .collect { it == null ? null : it.trim().replace('/', '.') }
+            .findAll { it != null && !it.isEmpty() }
+            .collect { String classOrPackageName ->
+                if (!(classOrPackageName ==~ /[A-Za-z_$][A-Za-z0-9_$]*(\.[A-Za-z_$][A-Za-z0-9_$]*)*/)) {
+                    throw new GradleException("Invalid Native Image runtime-initialization type or package '${classOrPackageName}'")
+                }
+                return classOrPackageName
+            }
+            .toSorted()
+            .unique()
+}
+
 def normalizedResourceGlobs = {
-    return asStringList(project.ext.jmeNativeImageAdditionalResourceGlobs)
+    return configuredStringList('jmeNativeImageAdditionalResourceGlobs', 'additionalResourceGlobs')
             .findAll { !it.isEmpty() }
             .toSorted()
             .unique()
@@ -436,9 +822,13 @@ project.afterEvaluate {
     }
 
     File generatedResourcesRoot = project.layout.buildDirectory.dir('generated/native-image-metadata/resources').get().asFile
-    File nativeImageMetadataDir = new File(generatedResourcesRoot, "META-INF/native-image/${project.group}/${project.name}")
+    String nativeImageMetadataRelativeDir = "META-INF/native-image/${project.group}/${project.name}"
+    File nativeImageMetadataDir = new File(generatedResourcesRoot, nativeImageMetadataRelativeDir)
     File metadataFile = new File(nativeImageMetadataDir, 'reachability-metadata.json')
     File reflectConfigFile = new File(nativeImageMetadataDir, 'reflect-config.json')
+    String runtimeInitializationPropertiesRelativePath = "${nativeImageMetadataRelativeDir}/jme-runtime-initialization/native-image.properties"
+    File nativeImagePropertiesFile = new File(generatedResourcesRoot, runtimeInitializationPropertiesRelativePath)
+    File legacyNativeImagePropertiesFile = new File(nativeImageMetadataDir, 'native-image.properties')
     File nativeRuntimeLibsDir = project.layout.buildDirectory.dir('native/nativeCompile/lib').get().asFile
     Set<File> originalResourceDirs = mainSourceSet.resources.srcDirs.collect { it.absoluteFile } as LinkedHashSet<File>
     File projectBuildDir = project.layout.buildDirectory.get().asFile.absoluteFile
@@ -484,10 +874,14 @@ project.afterEvaluate {
         inputs.property('jmeNativeImageTargetTypes', normalizedTargetTypes())
         inputs.property('jmeNativeImageTargetAnnotations', normalizedTargetAnnotations())
         inputs.property('jmeNativeImageProxyInterfaceSets', normalizedProxyInterfaceSets())
+        inputs.property('jmeNativeImageAdditionalUnsafeAllocatedTypes', normalizedAdditionalUnsafeAllocatedTypes())
+        inputs.property('jmeNativeImageUnsafeAllocationContainerTypes', normalizedUnsafeAllocationContainerTypes())
+        inputs.property('jmeNativeImageRuntimeInitializedTypes', normalizedRuntimeInitializedTypes())
         inputs.property('jmeNativeImageAdditionalResourceGlobs', normalizedResourceGlobs())
-        inputs.property('jmeNativeImageGeneratorVersion', 3)
+        inputs.property('jmeNativeImageGeneratorVersion', 7)
         outputs.file(metadataFile)
         outputs.file(reflectConfigFile)
+        outputs.file(nativeImagePropertiesFile)
 
         [mainSourceSet.compileJavaTaskName, 'compileGroovy', 'compileKotlin'].each { taskName ->
             def compileTask = project.tasks.findByName(taskName)
@@ -501,6 +895,23 @@ project.afterEvaluate {
 
         doLast {
             metadataFile.parentFile.mkdirs()
+            if (legacyNativeImagePropertiesFile.isFile() && !legacyNativeImagePropertiesFile.delete()) {
+                throw new GradleException("Could not remove legacy generated Native Image properties ${legacyNativeImagePropertiesFile}")
+            }
+            List<File> conflictingSourceProperties = metadataResourceDirs.collect { File resourceDir ->
+                new File(resourceDir, runtimeInitializationPropertiesRelativePath)
+            }.findAll { it.isFile() }
+            if (!conflictingSourceProperties.isEmpty()) {
+                throw new GradleException(
+                        "The Native Image resource path ${runtimeInitializationPropertiesRelativePath} is reserved by the jME Native Image plugin; " +
+                                "move ${conflictingSourceProperties.join(', ')} to another META-INF/native-image subdirectory."
+                )
+            }
+            nativeImagePropertiesFile.parentFile.mkdirs()
+            List<String> runtimeInitializedTypes = normalizedRuntimeInitializedTypes()
+            nativeImagePropertiesFile.text = runtimeInitializedTypes.isEmpty()
+                    ? '# No additional runtime-initialized classes configured.' + System.lineSeparator()
+                    : "Args = --initialize-at-run-time=${runtimeInitializedTypes.join(',')}" + System.lineSeparator()
 
             Set<File> scanPathFiles = new LinkedHashSet<>()
             scanPathFiles.addAll(mainSourceSet.output.classesDirs.files.findAll { it.exists() })
@@ -535,17 +946,30 @@ project.afterEvaluate {
                     }
                 }
 
-                def additionalTargetTypes = asStringList(project.ext.jmeNativeImageAdditionalTargetTypes).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalTargetAnnotations = asStringList(project.ext.jmeNativeImageAdditionalTargetAnnotations).findAll { !it.isEmpty() }.toSorted().unique()
-                def additionalProxyInterfaceSets = asStringMatrix(project.ext.jmeNativeImageAdditionalProxyInterfaceSets).collect { interfaceSet ->
+                def additionalTargetTypes = configuredStringList('jmeNativeImageAdditionalTargetTypes', 'additionalTargetTypes').findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalTargetAnnotations = configuredStringList('jmeNativeImageAdditionalTargetAnnotations', 'additionalTargetAnnotations').findAll { !it.isEmpty() }.toSorted().unique()
+                def additionalProxyInterfaceSets = configuredStringMatrix('jmeNativeImageAdditionalProxyInterfaceSets', 'additionalProxyInterfaceSets').collect { interfaceSet ->
                     new ArrayList<>(new LinkedHashSet<>(interfaceSet))
                 }.findAll { !it.isEmpty() }
+                def additionalUnsafeAllocatedTypes = normalizedAdditionalUnsafeAllocatedTypes()
+                def unsafeAllocationContainerTypes = normalizedUnsafeAllocationContainerTypes() as Set<String>
                 def targetTypes = normalizedTargetTypes()
                 def targetAnnotations = normalizedTargetAnnotations()
                 def proxyInterfaceSets = normalizedProxyInterfaceSets()
                 SortedSet<String> candidateClassNames = new TreeSet<>()
                 candidateClassNames.addAll(discoveredClassNames)
                 candidateClassNames.addAll(referencedClassNames)
+                SortedSet<String> unsafeAllocatedTypes = new TreeSet<>()
+                unsafeAllocatedTypes.addAll(additionalUnsafeAllocatedTypes)
+                mainSourceSet.output.classesDirs.files.findAll { it.exists() }.sort { it.absolutePath }.each { classesDir ->
+                    project.fileTree(classesDir).matching {
+                        include '**/*.class'
+                        exclude '**/module-info.class'
+                        exclude '**/package-info.class'
+                    }.files.sort { it.absolutePath }.each { classFile ->
+                        unsafeAllocatedTypes.addAll(collectUnsafeAllocatedTypes(classFile, unsafeAllocationContainerTypes))
+                    }
+                }
 
                 Map<String, Class<?>> loadedTargetTypes = new LinkedHashMap<>()
                 targetTypes.each { targetType ->
@@ -566,9 +990,10 @@ project.afterEvaluate {
                     throw new GradleException("${project.path}: configured native-image target annotations are not annotations: ${invalidAdditionalTargetAnnotations.join(', ')}")
                 }
                 List<Class<?>> targetAnnotationClasses = loadedTargetAnnotations.values().findAll { it != null && it.isAnnotation() }
+                Class<?> preserveReflectionAnnotationClass = loadedTargetAnnotations['com.jme3.util.PreserveReflection']
 
                 Map<String, Map<String, Object>> classEntries = new TreeMap<>()
-                def updateClassEntry = { String className, boolean includeConstructors, boolean includeFields, boolean includeMethods ->
+                def updateClassEntry = { String className, boolean includeConstructors, boolean includeFields, boolean includeMethods, boolean unsafeAllocated = false ->
                     Map<String, Object> entry = classEntries[className]
                     if (entry == null) {
                         entry = new LinkedHashMap<>()
@@ -584,6 +1009,9 @@ project.afterEvaluate {
                     if (includeMethods) {
                         entry.allDeclaredMethods = true
                         entry.allPublicMethods = true
+                    }
+                    if (unsafeAllocated) {
+                        entry.unsafeAllocated = true
                     }
                 }
                 def addMethodEntry = { String className, String methodName, List<String> parameterTypes ->
@@ -616,10 +1044,24 @@ project.afterEvaluate {
                     }
                 }
 
+                unsafeAllocatedTypes.each { unsafeAllocatedType ->
+                    updateClassEntry(unsafeAllocatedType, false, false, false, true)
+                }
+
                 candidateClassNames.each { className ->
                     Class<?> clazz = loadClassSafely(scanLoader, className)
                     if (clazz == null) {
                         return
+                    }
+                    boolean preserveReflectionUnsafeAllocation = false
+                    if (preserveReflectionAnnotationClass != null && safeAnnotationPresent(clazz, preserveReflectionAnnotationClass)) {
+                        try {
+                            def annotation = clazz.getAnnotation(preserveReflectionAnnotationClass)
+                            def method = preserveReflectionAnnotationClass.getMethod('allowUnsafeAllocation')
+                            preserveReflectionUnsafeAllocation = Boolean.TRUE.equals(method.invoke(annotation))
+                        } catch (Throwable ignored) {
+                            preserveReflectionUnsafeAllocation = true
+                        }
                     }
 
                     boolean regularMatch =
@@ -633,6 +1075,9 @@ project.afterEvaluate {
                             }
                             current = safeSuperclass(current)
                         }
+                    }
+                    if (preserveReflectionUnsafeAllocation) {
+                        updateClassEntry(clazz.name, false, false, false, true)
                     }
 
                     if (targetTypeClasses.any { it == Cloneable.class || it.name == 'java.lang.Cloneable' }
@@ -656,6 +1101,9 @@ project.afterEvaluate {
                     }
                     if (entry.allPublicMethods == true) {
                         orderedEntry.allPublicMethods = true
+                    }
+                    if (entry.unsafeAllocated == true) {
+                        orderedEntry.unsafeAllocated = true
                     }
                     if (entry.methods instanceof List && !entry.methods.isEmpty()) {
                         orderedEntry.methods = entry.methods.collect { method ->
@@ -745,6 +1193,9 @@ project.afterEvaluate {
                     if (entry.allPublicMethods == true) {
                         reflectEntry.allPublicMethods = true
                     }
+                    if (entry.unsafeAllocated == true) {
+                        reflectEntry.unsafeAllocated = true
+                    }
                     if (entry.methods instanceof List && !entry.methods.isEmpty()) {
                         reflectEntry.methods = entry.methods.collect { method ->
                             [
@@ -768,6 +1219,7 @@ project.afterEvaluate {
         dependsOn(generateTaskProvider)
         inputs.file(metadataFile)
         inputs.file(reflectConfigFile)
+        inputs.file(nativeImagePropertiesFile)
 
         doLast {
             def parsed = new JsonSlurper().parse(metadataFile)
@@ -777,6 +1229,15 @@ project.afterEvaluate {
             def parsedReflectConfig = new JsonSlurper().parse(reflectConfigFile)
             if (!(parsedReflectConfig instanceof List)) {
                 throw new GradleException("Malformed reflect-config metadata in ${reflectConfigFile}")
+            }
+            Properties nativeImageProperties = new Properties()
+            nativeImagePropertiesFile.withInputStream { nativeImageProperties.load(it) }
+            List<String> runtimeInitializedTypes = normalizedRuntimeInitializedTypes()
+            String expectedRuntimeInitializationArg = runtimeInitializedTypes.isEmpty()
+                    ? null
+                    : "--initialize-at-run-time=${runtimeInitializedTypes.join(',')}"
+            if (nativeImageProperties.getProperty('Args') != expectedRuntimeInitializationArg) {
+                throw new GradleException("Malformed runtime-initialization configuration in ${nativeImagePropertiesFile}")
             }
 
             Set<String> seenReflectionEntries = new LinkedHashSet<>()
@@ -805,7 +1266,7 @@ project.afterEvaluate {
                 } else {
                     throw new GradleException("Reflection entry ${index} must have a string type or proxy type in ${metadataFile}")
                 }
-                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods', 'unsafeAllocated'].each { flagName ->
                     if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
                         throw new GradleException("Reflection flag '${flagName}' must be boolean at entry ${index} in ${metadataFile}")
                     }
@@ -854,7 +1315,7 @@ project.afterEvaluate {
                 if (!reflectConfigNames.add(entry.name.toString())) {
                     throw new GradleException("Duplicate reflect-config entry '${entry.name}' in ${reflectConfigFile}")
                 }
-                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods'].each { flagName ->
+                ['allDeclaredConstructors', 'allDeclaredFields', 'allDeclaredMethods', 'allPublicMethods', 'unsafeAllocated'].each { flagName ->
                     if (entry.containsKey(flagName) && !(entry[flagName] instanceof Boolean)) {
                         throw new GradleException("Reflect-config flag '${flagName}' must be boolean at entry ${index} in ${reflectConfigFile}")
                     }
@@ -968,6 +1429,11 @@ project.afterEvaluate {
                 List<String> currentJvmArgs = nativeBinary.jvmArgs.getOrElse([])
                 if (!currentJvmArgs.contains(nativeImageRuntimeSupportExportArg)) {
                     nativeBinary.jvmArgs.add(nativeImageRuntimeSupportExportArg)
+                }
+                if (nativeImageExtension?.defaultResourceSettings?.getOrElse(false)
+                        || nativeImageExtension?.includeResourcesPattern?.isPresent()
+                        || nativeImageExtension?.excludeResourcesPattern?.isPresent()) {
+                    project.ext.jmeApplyDefaultNativeImageResourceSettings(nativeBinary)
                 }
             }
         }

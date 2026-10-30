@@ -113,6 +113,31 @@ public class DirtyRegionsIteratorTest {
     }
 
     @Test
+    public void testSetDataPreservesSourceOrder() {
+        BufferObject bo = new BufferObject();
+        ByteBuffer source = ByteBuffer.allocateDirect(4).order(ByteOrder.LITTLE_ENDIAN);
+        source.putInt(0x01020304);
+        source.flip();
+
+        bo.setData(source);
+
+        ByteBuffer result = bo.getData();
+        assertEquals(ByteOrder.LITTLE_ENDIAN, result.order());
+        assertEquals(0x01020304, result.getInt());
+    }
+
+    @Test
+    public void testGrowingDataPreservesExistingOrder() {
+        BufferObject bo = new BufferObject();
+        bo.setRegions(Arrays.asList(new BufferRegion(0, 3)));
+        bo.getData().order(ByteOrder.LITTLE_ENDIAN);
+
+        bo.setRegions(Arrays.asList(new BufferRegion(0, 7)));
+
+        assertEquals(ByteOrder.LITTLE_ENDIAN, bo.getData().order());
+    }
+
+    @Test
     public void testSetDataNullClearsBuffer() {
         BufferObject bo = new BufferObject();
         ByteBuffer source = ByteBuffer.allocateDirect(4);

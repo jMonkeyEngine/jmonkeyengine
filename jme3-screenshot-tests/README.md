@@ -8,6 +8,23 @@ The tests are run using the following command:
  ./gradlew :jme3-screenshot-test:screenshotTest
 ```
 
+This runs them with the OpenGL 4.5 renderer. To run them with the ANGLE GLES3 renderer instead:
+
+```
+ ./gradlew :jme3-screenshot-test:screenshotTestAngle
+```
+
+Note: ANGLE needs a Wayland compositor (its EGL binaries have no X11 platform support).
+On a headless machine start one first, e.g. `weston --backend=headless-backend.so --socket=wayland-1`,
+with `XDG_RUNTIME_DIR` set, `XDG_SESSION_TYPE=wayland` and `WAYLAND_DISPLAY=wayland-1` exported.
+
+## ANGLE reference images
+
+ANGLE renders into files suffixed with `_angle` (e.g. `..._f1_angle.png`), kept next to the
+OpenGL references in `src/test/resources` so the two backends never overwrite each other's
+reference images. When accepting new ANGLE images, copy the `*_angle.png` files from the
+`screenshot-test-report-angle` CI artifact (or `build/changed-images` locally).
+
 This will create a report in `jme3-screenshot-test/build/reports/ScreenshotDiffReport.html` that shows the differences between the reference images and the screenshots taken during the test run. Note that this is an ExtentReport. 
 
 This is most reliable when run on the CI server. The report can be downloaded from the artifacts section of the pipeline (once the full pipeline has completed). If you go into
@@ -17,6 +34,30 @@ the Actions tab (on GitHub) and find your pipeline you can download the report f
 
 It is important to be aware that the tests are sensitive to machine variability. Different GPUs may produce subtly different pixel outputs
 (that look identical to a human user). The tests are run on a specific machine and the reference images are generated on that machine. If the tests are run on a different machine, the images may not match the reference images and this is "fine". If you run these on your local machine compare the differences by eye in the report, don't wory about failing tests.
+
+### Renderer noise is tolerated
+
+The CI renders with software renderers (Mesa in the desktop job, the emulator's GLES renderer in
+the Android job) whose rounding depends on the machine hosting the runner. The same commit can
+therefore produce an image whose pixels are a little different from the reference image the tests
+were baked against. Requiring every pixel to match turns that noise into a red pipeline, and
+retrying the test on the same runner reproduces it exactly.
+
+A screenshot is therefore considered to match its reference image when no more than `0.02%` of its
+pixels (and never fewer than 10 pixels, so that small images still get a usable budget) differ by
+more than 3/255 on any colour channel - about 40 pixels on a 500x400 desktop screenshot and about
+200 pixels on a 1280x800 emulator screenshot. A change to what is actually drawn moves far more
+pixels than that and still fails the test; the numbers live in `ImageDifference` if they ever need
+tightening.
+
+Failures also now report the measurement that caused them, e.g.
+
+```
+Generated images is different from committed image. (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)
+```
+
+so a genuine change of the drawn scene (hundreds or thousands of pixels) can be told apart from a
+rendering hiccup (a handful of pixels) without downloading the artefacts.
 
 ## Parameterised tests
 

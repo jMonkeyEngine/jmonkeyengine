@@ -114,6 +114,18 @@ public interface Application {
     public void setSettings(AppSettings settings);
 
     /**
+     * Returns the display settings currently owned by this application.
+     * Before startup, custom implementations may return {@code null} when no
+     * settings have been assigned yet.
+     *
+     * @return the current settings, or {@code null}
+     */
+    public default AppSettings getSettings() {
+        JmeContext currentContext = getContext();
+        return currentContext == null ? null : currentContext.getSettings();
+    }
+
+    /**
      * Sets the Timer implementation that will be used for calculating
      * frame times.  By default, Application will use the Timer as returned
      * by the current JmeContext implementation.

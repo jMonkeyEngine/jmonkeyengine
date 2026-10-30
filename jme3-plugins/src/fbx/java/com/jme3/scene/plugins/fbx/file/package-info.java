@@ -32,7 +32,7 @@
 /**
  * Read and parse FBX files.
  *
- * @deprecated FBX support is deprecated and will be removed in a future release.
+ * FBX support is deprecated and will be removed in a future release.
  * Prefer glTF assets instead.
  */
 @Deprecated

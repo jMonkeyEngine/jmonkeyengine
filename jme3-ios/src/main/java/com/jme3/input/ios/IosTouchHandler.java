@@ -99,6 +99,9 @@ public class IosTouchHandler {
     }
     
     public void actionUp(int pointerId, long time, float x, float y) {
+        if (!activePointers.contains(pointerId)) {
+            return;
+        }
         float jmeX = iosInput.getJmeX(x);
         float jmeY = iosInput.invertY(iosInput.getJmeY(y));
         TouchEvent touch = iosInput.getFreeTouchEvent();
@@ -118,6 +121,9 @@ public class IosTouchHandler {
     }
     
     public void actionMove(int pointerId, long time, float x, float y) {
+        if (!activePointers.contains(pointerId)) {
+            return;
+        }
         float jmeX = iosInput.getJmeX(x);
         float jmeY = iosInput.invertY(iosInput.getJmeY(y));
         Vector2f lastPos = lastPositions.get(pointerId);

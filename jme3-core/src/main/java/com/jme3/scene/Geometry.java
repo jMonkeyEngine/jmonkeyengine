@@ -308,6 +308,14 @@ public class Geometry extends Spatial {
         setBoundRefresh();
     }
 
+    @Override
+    protected void setBoundRefresh() {
+        super.setBoundRefresh();
+        if (isGrouped()) {
+            groupNode.onBoundChange(this);
+        }
+    }
+
     /**
      * <code>updateWorldBound</code> updates the bounding volume that contains
      * this geometry. The location of the geometry is based on the location of
@@ -587,6 +595,7 @@ public class Geometry extends Spatial {
         }
 
         this.cachedWorldMat = cloner.clone(cachedWorldMat);
+        this.morphState = cloner.clone(morphState);
 
         // See if we are doing a shallow clone or a deep mesh clone
         boolean shallowClone = (cloner.getCloneFunction(Mesh.class) instanceof IdentityCloneFunction);
@@ -629,7 +638,7 @@ public class Geometry extends Spatial {
     public void setMorphState(String morphTarget, float state) {
         int index = mesh.getMorphIndex(morphTarget);
         if (index >= 0) {
-            morphState[index] = state;
+            getMorphState()[index] = state;
             this.dirtyMorph = true;
         }
     }
@@ -677,7 +686,7 @@ public class Geometry extends Spatial {
         if (index < 0) {
             return -1;
         } else {
-            return morphState[index];
+            return getMorphState()[index];
         }
     }
 

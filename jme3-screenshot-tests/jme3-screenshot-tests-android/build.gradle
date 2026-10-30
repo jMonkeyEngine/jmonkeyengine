@@ -1,0 +1,68 @@
+plugins {
+    id "io.github.0ffz.github-packages" version "1.2.1" // Plugin for anonymous inclusion of artifacts hosted in github package registry
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    namespace "org.jmonkeyengine.screenshottests.android"
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "org.jmonkeyengine.screenshottests.android"
+        minSdk 28
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    configurations.all {
+        exclude group:"org.jmonkeyengine",module:"jme3-desktop"
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+        resources {
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
+        }
+    }
+}
+
+dependencies {
+    implementation libs.androidxAppcompat
+    implementation libs.googleMaterial
+    implementation libs.androidxConstraintlayout
+
+    implementation project(":jme3-android")
+    implementation libs.jme3.android.natives
+
+    implementation libs.androidx.test.core
+    implementation libs.androidx.test.ext.junit
+    implementation libs.androidx.test.rules
+    implementation libs.androidx.test.espresso.core
+    implementation libs.androidx.fragment.testing
+    implementation libs.jackson
+    debugImplementation libs.androidx.fragment.testing.manifest
+    androidTestImplementation libs.androidx.fragment.testing.manifest
+    debugImplementation libs.androidx.storage
+
+    implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
+    implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-proto-report')
+
+    implementation project(':jme3-testdata')
+
+    // Allows the test to communicate with the orchestrator storage
+    androidTestImplementation libs.androidx.test.services
+    debugImplementation libs.androidx.test.services
+}

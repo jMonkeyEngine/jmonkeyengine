@@ -34,6 +34,7 @@ package com.jme3.awt;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -42,7 +43,6 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -125,11 +125,13 @@ public final class AWTSettingsDialog extends JFrame {
     private JCheckBox vsyncBox = null;
     private JCheckBox gammaBox = null;
     private JCheckBox fullscreenBox = null;
+    private JCheckBox x11PlatformPreferredBox = null;
     private JComboBox<String> displayResCombo = null;
     private JComboBox<String> colorDepthCombo = null;
     private JComboBox<String> displayFreqCombo = null;
     private JComboBox<String> antialiasCombo = null;
     private JComboBox<String> rendererCombo = null;
+    private JComboBox<DisplayScaleModeOption> displayScaleModeCombo = null;
     private JLabel icon = null;
     private int selection = 0;
     private SelectionListener selectionListener = null;
@@ -466,6 +468,8 @@ public final class AWTSettingsDialog extends JFrame {
         antialiasCombo.addKeyListener(aListener);
         rendererCombo = setUpRendererChooser();
         rendererCombo.addKeyListener(aListener);
+        displayScaleModeCombo = setUpDisplayScaleModeChooser();
+        displayScaleModeCombo.addKeyListener(aListener);
         fullscreenBox = new JCheckBox(resourceBundle.getString("checkbox.fullscreen"));
         fullscreenBox.setSelected(source.isFullscreen());
         fullscreenBox.addActionListener(new ActionListener() {
@@ -480,6 +484,10 @@ public final class AWTSettingsDialog extends JFrame {
 
         gammaBox = new JCheckBox(resourceBundle.getString("checkbox.gamma"));
         gammaBox.setSelected(source.isGammaCorrection());
+
+        x11PlatformPreferredBox = new JCheckBox(resourceBundle.getString("checkbox.x11PlatformPreferred"));
+        x11PlatformPreferredBox.setSelected(source.isX11PlatformPreferred());
+        boolean linux = JmeSystem.getPlatform().getOs() == Platform.Os.Linux;
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
@@ -562,9 +570,33 @@ public final class AWTSettingsDialog extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 4;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = linux ? 1 : 3;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(rendererCombo, gbc);
+
+        if (linux) {
+            gbc = new GridBagConstraints();
+            gbc.insets = new Insets(4, 16, 4, 4);
+            gbc.gridx = 2;
+            gbc.gridy = 4;
+            gbc.gridwidth = 2;
+            gbc.anchor = GridBagConstraints.WEST;
+            mainPanel.add(x11PlatformPreferredBox, gbc);
+        }
+
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.5;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.displayScaleMode")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.gridwidth = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(displayScaleModeCombo, gbc);
 
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
@@ -600,14 +632,14 @@ public final class AWTSettingsDialog extends JFrame {
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.EAST;
         mainPanel.add(ok, gbc);
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 16, 4, 4);
         gbc.gridx = 2;
         gbc.gridwidth = 2;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(cancel, gbc);
 
@@ -739,6 +771,12 @@ public final class AWTSettingsDialog extends JFrame {
             source.setFullscreen(fullscreen);
             source.setVSync(vsync);
             source.setGammaCorrection(gamma);
+            source.setX11PlatformPreferred(x11PlatformPreferredBox.isSelected());
+            DisplayScaleModeOption displayScaleMode
+                    = (DisplayScaleModeOption) displayScaleModeCombo.getSelectedItem();
+            if (displayScaleMode != null) {
+                source.setDisplayScaleMode(displayScaleMode.value);
+            }
             source.setRenderer(renderer);
             source.setSamples(multisample);
 
@@ -802,6 +840,55 @@ public final class AWTSettingsDialog extends JFrame {
         }
         rendererBox.setSelectedItem(currentRenderer);
         return rendererBox;
+    }
+
+    private JComboBox<DisplayScaleModeOption> setUpDisplayScaleModeChooser() {
+        JComboBox<DisplayScaleModeOption> scaleModeBox = new JComboBox<>();
+        float currentMode = source.getDisplayScaleMode();
+        float[] standardModes = {
+            AppSettings.DISPLAY_SCALE_DISABLED,
+            AppSettings.DISPLAY_SCALE_NATIVE_PIXELS,
+            AppSettings.DISPLAY_SCALE_DPI_AWARE,
+            2f,
+            3f,
+            4f,
+            5f,
+            6f,
+            7f,
+            8f
+        };
+
+        boolean currentModeAdded = false;
+        for (float mode : standardModes) {
+            DisplayScaleModeOption option = createDisplayScaleModeOption(mode);
+            scaleModeBox.addItem(option);
+            if (Float.compare(mode, currentMode) == 0) {
+                scaleModeBox.setSelectedItem(option);
+                currentModeAdded = true;
+            }
+        }
+
+        if (!currentModeAdded) {
+            DisplayScaleModeOption option = createDisplayScaleModeOption(currentMode);
+            scaleModeBox.addItem(option);
+            scaleModeBox.setSelectedItem(option);
+        }
+
+        return scaleModeBox;
+    }
+
+    private DisplayScaleModeOption createDisplayScaleModeOption(float mode) {
+        String label;
+        if (mode == AppSettings.DISPLAY_SCALE_DISABLED) {
+            label = resourceBundle.getString("displayScaleMode.disabled");
+        } else if (mode == AppSettings.DISPLAY_SCALE_NATIVE_PIXELS) {
+            label = resourceBundle.getString("displayScaleMode.nativePixels");
+        } else if (mode == AppSettings.DISPLAY_SCALE_DPI_AWARE) {
+            label = resourceBundle.getString("displayScaleMode.dpiAware");
+        } else {
+            label = MessageFormat.format(resourceBundle.getString("displayScaleMode.supersampling"), mode);
+        }
+        return new DisplayScaleModeOption(label, mode);
     }
 
     /**
@@ -1067,6 +1154,21 @@ public final class AWTSettingsDialog extends JFrame {
             }
             // All fields are equal
             return 0;
+        }
+    }
+
+    private static final class DisplayScaleModeOption {
+        private final String label;
+        private final float value;
+
+        private DisplayScaleModeOption(String label, float value) {
+            this.label = label;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return label;
         }
     }
 }

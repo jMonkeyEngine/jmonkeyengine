@@ -1630,6 +1630,19 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }
     }
 
+    /**
+     * Retrieves user-defined data stored with this spatial.
+     *
+     * @param <T> The expected type of the user data.
+     * @param key The key under which the data is stored (not null).
+     * @param defaultValue the value to return if no data is associated with the key.
+     * @return the stored value, or {@code defaultValue} if the key is not present.
+     */
+    public <T> T getUserData(String key, T defaultValue) {
+        T value = getUserData(key);
+        return value != null ? value : defaultValue;
+    }
+
     @SuppressWarnings("unchecked")
     public Collection<String> getUserDataKeys() {
         if (userData != null) {
@@ -1701,10 +1714,18 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         shadowMode = ic.readEnum("shadow_mode", ShadowMode.class,
                 ShadowMode.Inherit);
 
-        localTransform = (Transform) ic.readSavable("transform", Transform.IDENTITY);
+        localTransform = (Transform) ic.readSavable("transform", Transform.IDENTITY.clone());
 
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
+        // Rebuild derived world state without invoking overridable refresh methods during loading.
+        refreshFlags |= RF_TRANSFORM | RF_BOUND | RF_LIGHTLIST | RF_MATPARAM_OVERRIDE;
+        for (Light light : localLights) {
+            if (light.isGlobal()) {
+                refreshFlags |= RF_GLOBAL_LIGHTS;
+                break;
+            }
+        }
 
         ArrayList<MatParamOverride> localOverridesList = ic.readSavableArrayList("overrides", null);
         if (localOverridesList == null) {

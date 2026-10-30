@@ -15,6 +15,12 @@ dependencies {
     api project(':jme3-core')
     implementation libs.jme3.android.natives
     compileOnly files(rootProject.file('lib/android.jar'))
+    testRuntimeOnly files(rootProject.file('lib/android.jar'))
+}
+
+compileJava {
+    options.sourcepath = files("src/androidx-stubs/java")
+    options.compilerArgs += ["-implicit:none"]
 }
 
 tasks.withType(Jar).configureEach {
@@ -26,5 +32,6 @@ tasks.named('sourcesJar') {
 }
 
 javadoc {
+    source += fileTree("src/androidx-stubs/java")
     exclude('androidx/**')
 }

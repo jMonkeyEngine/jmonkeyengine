@@ -77,7 +77,7 @@ import com.jme3.util.clone.JmeCloneable;
 public class ParticleEmitter extends Geometry {
 
     private boolean enabled = true;
-    private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
+    private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO.clone());
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
     private ParticleEmitterControl control;
     private EmitterShape shape = DEFAULT_SHAPE;
@@ -476,8 +476,10 @@ public class ParticleEmitter extends Geometry {
     public void setFaceNormal(Vector3f faceNormal) {
         if (faceNormal == null || !Vector3f.isValidVector(faceNormal)) {
             this.faceNormal.set(Vector3f.NAN);
+        } else if (this.faceNormal == null) {
+            this.faceNormal = faceNormal.clone();
         } else {
-            this.faceNormal = faceNormal;
+            this.faceNormal.set(faceNormal);
         }
     }
 

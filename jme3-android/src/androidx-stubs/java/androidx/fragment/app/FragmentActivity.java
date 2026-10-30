@@ -40,4 +40,8 @@ import android.app.Activity;
  * application. This class is excluded from jme3-android artifacts.</p>
  */
 public class FragmentActivity extends Activity {
+
+    public FragmentManager getSupportFragmentManager() {
+        return null;
+    }
 }

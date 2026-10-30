@@ -44,7 +44,9 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.ios.IosGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
@@ -68,6 +70,7 @@ public class IGLESContext implements JmeContext {
 
     private static final String BLIT_MATERIAL = "Common/MatDefs/Blit/Blit.j3md";
     private static final Logger logger = Logger.getLogger(IGLESContext.class.getName());
+    private static final String SAFER_BUFFER_ALLOCATOR_CLASS = "com.jme3.util.SaferBufferAllocator";
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
@@ -88,21 +91,40 @@ public class IGLESContext implements JmeContext {
     protected SystemListener listener;
     protected IosInputHandler input;
     protected IosJoyInput joyInput;
-    protected int minFrameDuration = 0; // No FPS cap
+    protected long minFrameDurationNanos;
+    protected long lastFrameTimeNanos;
+    private boolean allowSwapBuffers = true;
     private Application application;
     private Material blitMaterial;
     private Picture blitGeometry;
     private final Camera blitCamera = new Camera(1, 1);
     private FrameBuffer linearFrameBuffer;
+    private FrameBuffer linearResolveFrameBuffer;
+    // Cache the request, since a hardware fallback can use fewer samples.
+    private int linearRequestedSamples;
     private Texture2D linearFrameBufferColorTexture;
     private boolean linearFrameBufferDirty;
     private boolean multisampleTextureWarningIssued;
+    private boolean multisampleResolveWarningIssued;
 
     static {
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
 
         if (System.getProperty(implementation) == null) {
-            System.setProperty(implementation, LibJGLIOSNativeBufferAllocator.class.getName());
+            if (isClassPresent(SAFER_BUFFER_ALLOCATOR_CLASS)) {
+                System.setProperty(implementation, SAFER_BUFFER_ALLOCATOR_CLASS);
+            } else {
+                System.setProperty(implementation, LibJGLIOSNativeBufferAllocator.class.getName());
+            }
+        }
+    }
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, IGLESContext.class.getClassLoader());
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 
@@ -121,6 +143,11 @@ public class IGLESContext implements JmeContext {
     public void setSettings(AppSettings settings) {
         logger.log(Level.FINE, "IGLESContext setSettings");
         this.settings.copyFrom(settings);
+        allowSwapBuffers = settings.isSwapBuffers();
+        minFrameDurationNanos = settings.getFrameRate() > 0
+                ? 1_000_000_000L / settings.getFrameRate()
+                : 0;
+        lastFrameTimeNanos = 0;
         if (input != null) {
             input.loadSettings(settings);
         }
@@ -215,13 +242,24 @@ public class IGLESContext implements JmeContext {
         if (listener instanceof Application) {
             application = (Application) listener;
         }
-        IosGL gl = new IosGL();
+        GL gl = new IosGL();
 
-        if (settings.getBoolean("GraphicsDebug")) {
-            gl = (IosGL) GLDebug.createProxy(gl, gl, GL.class, GLExt.class, GLFbo.class);
+        if (settings.isGraphicsDebug()) {
+            gl = (GL) GLDebug.createProxy(
+                    gl, gl, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
+        }
+        if (settings.isGraphicsTiming()) {
+            GLTimingState timingState = new GLTimingState();
+            gl = (GL) GLTiming.createGLTiming(
+                    gl, timingState, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
+        }
+        if (settings.isGraphicsTrace()) {
+            gl = (GL) GLTracer.createGlesTracer(
+                    gl, GL.class, GL2.class, GLES_30.class, GLExt.class, GLFbo.class);
         }
 
-        renderer = new GLRenderer(gl, gl, gl);
+        renderer = new GLRenderer(gl, (GLExt) gl, (GLFbo) gl);
+        renderer.setDebugEnabled(settings.isGraphicsDebug());
         renderer.initialize();
         // ANGLE/Metal currently reports GLES3 but cannot reliably use hardware
         // shadow comparison through jME's shadow pipeline.
@@ -246,6 +284,7 @@ public class IGLESContext implements JmeContext {
         renderable.set(true);
         if (framebufferWidth > 0 && framebufferHeight > 0) {
             listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
+            listener.reshape(logicalWidth, logicalHeight);
         }
 
         if (waitFor) {
@@ -261,6 +300,9 @@ public class IGLESContext implements JmeContext {
         if (!created.get() || listener == null) {
             return;
         }
+        if (!isFrameDue()) {
+            return;
+        }
         if (!LibJGLIOSEglBridge.makeCurrent()) {
             throw new IllegalStateException("Unable to make iOS EGL context current: " + LibJGLIOSEglBridge.lastError());
         }
@@ -269,12 +311,24 @@ public class IGLESContext implements JmeContext {
         if (!renderFrameWithBlitSrgbConversion()) {
             listener.update();
         }
-        if (autoFlush) {
+        if (autoFlush && allowSwapBuffers) {
             LibJGLIOSEglBridge.swapBuffers();
         }
         if (renderer != null) {
             renderer.postFrame();
         }
+    }
+
+    private boolean isFrameDue() {
+        if (minFrameDurationNanos <= 0) {
+            return true;
+        }
+        long now = System.nanoTime();
+        if (lastFrameTimeNanos != 0 && now - lastFrameTimeNanos < minFrameDurationNanos) {
+            return false;
+        }
+        lastFrameTimeNanos = now;
+        return true;
     }
 
     public void resizeFramebuffer(int width, int height) {
@@ -305,7 +359,7 @@ public class IGLESContext implements JmeContext {
                 logger.log(Level.FINE, "iOS framebuffer resized, width: {0} height: {1}",
                         new Object[]{framebufferWidth, framebufferHeight});
                 listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-                listener.rescale(displayScale.x, displayScale.y);
+                listener.reshape(logicalWidth, logicalHeight);
             }
         }
     }
@@ -351,7 +405,7 @@ public class IGLESContext implements JmeContext {
         linearFrameBufferDirty = true;
         if (renderable.get() && listener != null) {
             listener.reshape(logicalWidth, logicalHeight, getRenderFramebufferWidth(), getRenderFramebufferHeight());
-            listener.rescale(displayScale.x, displayScale.y);
+            listener.reshape(logicalWidth, logicalHeight);
         }
     }
 
@@ -412,9 +466,9 @@ public class IGLESContext implements JmeContext {
     }
 
     private boolean useBlitFrameBuffer() {
-        float mode = settings.getDisplayScaleMode();
         return application != null && (useBlitSrgbConversion()
-                || DisplayScaleUtils.isDisabledMode(mode) || DisplayScaleUtils.isEmulatedScaleMode(mode));
+                || getRenderFramebufferWidth() != framebufferWidth
+                || getRenderFramebufferHeight() != framebufferHeight);
     }
 
     private int getRenderFramebufferWidth() {
@@ -441,16 +495,25 @@ public class IGLESContext implements JmeContext {
 
     private int getLinearFrameBufferSampleCount() {
         int samples = Math.max(settings.getSamples(), 1);
-        if (samples > 1 && renderer != null
-                && (!renderer.getCaps().contains(Caps.TextureMultisample)
-                || !renderer.getCaps().contains(Caps.OpenGL32))) {
-            if (!multisampleTextureWarningIssued) {
-                logger.log(Level.WARNING,
-                        "Display scale blit requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample linear framebuffer.",
-                        samples);
-                multisampleTextureWarningIssued = true;
+        int requested = samples;
+        if (samples > 1) {
+            boolean direct = renderer.getCaps().contains(Caps.TextureMultisample);
+            boolean resolve = renderer.getCaps().contains(Caps.FrameBufferBlit);
+            if (!renderer.getCaps().contains(Caps.FrameBufferMultisample) || (!direct && !resolve)) {
+                samples = 1;
+            } else {
+                samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.FrameBufferSamples, 1));
+                if (direct) {
+                    samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.ColorTextureSamples, 1));
+                }
+                samples = Math.max(samples, 1);
             }
-            return 1;
+        }
+        if (samples != requested && !multisampleTextureWarningIssued) {
+            logger.log(Level.WARNING,
+                    "Display scale blit requested {0}x MSAA; using {1}x.",
+                    new Object[]{requested, samples});
+            multisampleTextureWarningIssued = true;
         }
         return samples;
     }
@@ -463,27 +526,63 @@ public class IGLESContext implements JmeContext {
 
         int width = getRenderFramebufferWidth();
         int height = getRenderFramebufferHeight();
-        int samples = getLinearFrameBufferSampleCount();
 
         if (linearFrameBuffer != null && linearFrameBuffer.getWidth() == width
-                && linearFrameBuffer.getHeight() == height && linearFrameBuffer.getSamples() == samples) {
+                && linearFrameBuffer.getHeight() == height && linearRequestedSamples == settings.getSamples()) {
             return;
         }
 
         destroyLinearFrameBuffer();
+        linearRequestedSamples = settings.getSamples();
+        int samples = getLinearFrameBufferSampleCount();
+        boolean resolve = samples > 1 && !renderer.getCaps().contains(Caps.TextureMultisample);
+        createLinearFrameBuffer(width, height, samples, resolve);
+        if (!resolve) {
+            return;
+        }
+
+        // Allocate both targets now so unsupported MSAA can fall back before rendering.
+        try {
+            renderer.setFrameBuffer(linearFrameBuffer);
+            renderer.setFrameBuffer(linearResolveFrameBuffer);
+            return;
+        } catch (RendererException | IllegalStateException exception) {
+            if (!multisampleResolveWarningIssued) {
+                logger.log(Level.WARNING,
+                        "Multisample blit framebuffer unsupported; falling back to single-sample rendering.",
+                        exception);
+                multisampleResolveWarningIssued = true;
+            }
+        } finally {
+            renderer.setFrameBuffer(null);
+        }
+        destroyLinearFrameBuffer();
+        createLinearFrameBuffer(width, height, 1, false);
+    }
+
+    private void createLinearFrameBuffer(int width, int height, int samples, boolean resolve) {
+        Format colorFormat = resolve ? Format.RGBA8 : getLinearFrameBufferColorFormat();
 
         FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
         frameBuffer.setName("iOS Linear Blit FrameBuffer");
         frameBuffer.setSrgb(false);
 
         Texture2D colorTexture = new Texture2D(
-                new Image(getLinearFrameBufferColorFormat(), width, height, null, ColorSpace.Linear));
+                new Image(colorFormat, width, height, null, ColorSpace.Linear));
         colorTexture.setMagFilter(Texture.MagFilter.Bilinear);
         colorTexture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        if (samples > 1) {
+        if (samples > 1 && !resolve) {
             colorTexture.getImage().setMultiSamples(samples);
         }
-        frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        if (resolve) {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorFormat));
+            linearResolveFrameBuffer = new FrameBuffer(width, height, 1);
+            linearResolveFrameBuffer.setName("iOS Linear Blit Resolve FrameBuffer");
+            linearResolveFrameBuffer.setSrgb(false);
+            linearResolveFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        } else {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        }
 
         if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
             frameBuffer.setDepthTarget(FrameBufferTarget
@@ -530,7 +629,7 @@ public class IGLESContext implements JmeContext {
 
         if (linearFrameBufferDirty && linearFrameBufferColorTexture != null) {
             blitMaterial.setTexture("Texture", linearFrameBufferColorTexture);
-            if (linearFrameBuffer != null && linearFrameBuffer.getSamples() > 1) {
+            if (linearFrameBuffer != null && linearResolveFrameBuffer == null && linearFrameBuffer.getSamples() > 1) {
                 blitMaterial.setInt("NumSamples", linearFrameBuffer.getSamples());
             } else {
                 blitMaterial.clearParam("NumSamples");
@@ -546,6 +645,10 @@ public class IGLESContext implements JmeContext {
             linearFrameBuffer.dispose();
             linearFrameBuffer = null;
         }
+        if (linearResolveFrameBuffer != null) {
+            linearResolveFrameBuffer.dispose();
+            linearResolveFrameBuffer = null;
+        }
         if (linearFrameBufferColorTexture != null && linearFrameBufferColorTexture.getImage() != null) {
             linearFrameBufferColorTexture.getImage().dispose();
         }
@@ -558,6 +661,7 @@ public class IGLESContext implements JmeContext {
         blitMaterial = null;
         blitGeometry = null;
         multisampleTextureWarningIssued = false;
+        multisampleResolveWarningIssued = false;
     }
 
     private boolean renderFrameWithBlitSrgbConversion() {
@@ -592,6 +696,15 @@ public class IGLESContext implements JmeContext {
         RenderManager renderManager = application.getRenderManager();
         Camera previousCamera = renderManager.getCurrentCamera();
         try {
+            if (linearResolveFrameBuffer != null) {
+                try {
+                    renderer.copyFrameBuffer(linearFrameBuffer, linearResolveFrameBuffer, true, false);
+                } catch (RuntimeException | Error failure) {
+                    renderer.invalidateState();
+                    renderer.setFrameBuffer(null);
+                    throw failure;
+                }
+            }
             renderer.setFrameBuffer(null);
             int blitWidth = Math.max(1, framebufferWidth);
             int blitHeight = Math.max(1, framebufferHeight);

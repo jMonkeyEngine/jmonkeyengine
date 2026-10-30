@@ -4,4 +4,5 @@ dependencies {
     api libs.libjglios.gles.ios
     api libs.libjglios.sdl3.ios
     api libs.libjglios.openal.ios
+    api libs.libjglios.angle.ios
 }

@@ -222,6 +222,7 @@ public enum Platform {
     private final boolean is64bit;
     private final Os os;
     private static final boolean NATIVE_IMAGE_RUNTIME = detectNativeImageRuntime();
+    private static final boolean WINE_PROTON_RUNTIME = detectWineProtonRuntime();
 
     /**
      * Test for a 64-bit address space.
@@ -250,8 +251,24 @@ public enum Platform {
         return NATIVE_IMAGE_RUNTIME;
     }
 
+    /**
+     * Test whether this process is running through Wine or Proton.
+     *
+     * @return true if running through Wine or Proton, otherwise false
+     */
+    public boolean isWineProton() {
+        return os == Os.Windows && WINE_PROTON_RUNTIME;
+    }
+
     private static boolean detectNativeImageRuntime() {
         return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+    }
+
+    private static boolean detectWineProtonRuntime() {
+        return System.getenv("WINEPREFIX") != null
+                || System.getenv("WINELOADERNOEXEC") != null
+                || System.getenv("STEAM_COMPAT_DATA_PATH") != null
+                || System.getenv("PROTON_VERB") != null;
     }
 
     private Platform(Os os, boolean is64bit) {
