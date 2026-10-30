@@ -10,4 +10,8 @@ Used in `com.jme3.scene.plugins.gltf.GltfLoaderTest`
   11x11 vertices, and texture coordinates that are stored as (normalized) unsigned
   short values. The asset is draco-compressed, to check the behavior of the Draco
   extension handler.
+- `camera/perspectiveCamera.gltf` and `camera/perspectiveCameraNoAspectRatio.gltf`
+  contain a single node with a perspective camera, with and without an
+  `aspectRatio`, to check that the camera frustum uses the aspect ratio
+  from the file.
 

@@ -41,6 +41,9 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NativeLibraryLoaderTest {
 
@@ -116,5 +119,21 @@ class NativeLibraryLoaderTest {
 
         assertEquals(nativeLibraryFile.toAbsolutePath().toString(), result);
         assertEquals(result, loadedPath.get());
+    }
+
+    @Test
+    void disabledExtractionRequiresCustomFolder() {
+        NativeLibraryLoader.setExtractNativeLibraries(false);
+        String libraryName = "missingCustomFolderTest" + System.nanoTime();
+        NativeLibraryLoader.registerNativeLibrary(new NativeLibrary(
+                libraryName, JmeSystem.getPlatform(), "native/missing/libtest.so", "libtest.so", path -> {}));
+
+        IllegalStateException folderError = assertThrows(IllegalStateException.class,
+                NativeLibraryLoader::getExtractionFolder);
+        assertTrue(folderError.getMessage().contains(NativeLibraryLoader.CUSTOM_EXTRACTION_FOLDER_PROPERTY));
+        UnsatisfiedLinkError loadError = assertThrows(UnsatisfiedLinkError.class,
+                () -> NativeLibraryLoader.loadNativeLibrary(libraryName, true));
+        assertTrue(loadError.getMessage().contains(NativeLibraryLoader.CUSTOM_EXTRACTION_FOLDER_PROPERTY));
+        assertNull(NativeLibraryLoader.loadNativeLibrary(libraryName, false));
     }
 }
