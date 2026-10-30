@@ -211,6 +211,9 @@ public class GlRendererStateInvalidationTest {
         } else {
             assertFalse(recording.calls.contains("glPolygonMode"));
         }
+        recording.calls.clear();
+        recording.renderer.applyRenderState(state);
+        assertTrue(recording.calls.isEmpty(), recording.calls.toString());
     }
 
     @ParameterizedTest
@@ -384,6 +387,50 @@ public class GlRendererStateInvalidationTest {
         assertFalse(recording.enabled(GL.GL_STENCIL_TEST));
         assertFalse(recording.calls.contains("glStencilFuncSeparate"));
         assertFalse(recording.calls.contains("glStencilOpSeparate"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(Surface.class)
+    public void reenablingStencilAfterInvalidationRestoresRetainedParameters(Surface surface) {
+        RecordingGl recording = new RecordingGl(surface);
+        RenderState enabled = enabledState();
+        RenderState disabled = enabled.clone();
+        disabled.setStencil(false,
+                enabled.getFrontStencilStencilFailOperation(),
+                enabled.getFrontStencilDepthFailOperation(),
+                enabled.getFrontStencilDepthPassOperation(),
+                enabled.getBackStencilStencilFailOperation(),
+                enabled.getBackStencilDepthFailOperation(),
+                enabled.getBackStencilDepthPassOperation(),
+                enabled.getFrontStencilFunction(), enabled.getBackStencilFunction());
+        recording.renderer.applyRenderState(enabled);
+        recording.restoreNativeDefaults();
+        recording.renderer.invalidateState();
+        recording.calls.clear();
+
+        recording.renderer.applyRenderState(disabled);
+
+        assertFalse(recording.enabled(GL.GL_STENCIL_TEST));
+        assertFalse(recording.calls.contains("glStencilFuncSeparate"));
+        assertFalse(recording.calls.contains("glStencilOpSeparate"));
+        recording.calls.clear();
+        recording.renderer.applyRenderState(disabled);
+        assertTrue(recording.calls.isEmpty(), recording.calls.toString());
+
+        recording.renderer.applyRenderState(enabled);
+
+        assertTrue(recording.enabled(GL.GL_STENCIL_TEST));
+        recording.assertState("glStencilFuncSeparate:" + GL.GL_FRONT,
+                GL.GL_FRONT, GL.GL_EQUAL, 2, 0x0f);
+        recording.assertState("glStencilFuncSeparate:" + GL.GL_BACK,
+                GL.GL_BACK, GL.GL_NOTEQUAL, 3, 0xf0);
+        recording.assertState("glStencilOpSeparate:" + GL.GL_FRONT,
+                GL.GL_FRONT, GL.GL_REPLACE, GL.GL_INCR, GL.GL_DECR);
+        recording.assertState("glStencilOpSeparate:" + GL.GL_BACK,
+                GL.GL_BACK, GL.GL_ZERO, GL.GL_INVERT, GL.GL_KEEP);
+        recording.calls.clear();
+        recording.renderer.applyRenderState(enabled);
+        assertTrue(recording.calls.isEmpty(), recording.calls.toString());
     }
 
     @Test

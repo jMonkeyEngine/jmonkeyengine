@@ -76,6 +76,10 @@ public class RenderContextStateTest {
         assertEquals(RenderState.BlendEquation.Subtract, context.blendEquation);
         assertTrue(context.stencilTest);
         assertEquals(RenderState.TestFunction.Equal, context.frontStencilFunction);
+        assertEquals(2, context.frontStencilReference);
+        assertEquals(3, context.backStencilReference);
+        assertEquals(0x0f, context.frontStencilMask);
+        assertEquals(0xf0, context.backStencilMask);
         assertTrue(context.polyOffsetEnabled);
         assertEquals(2f, context.polyOffsetFactor);
         assertEquals(3f, context.polyOffsetUnits);
@@ -105,11 +109,13 @@ public class RenderContextStateTest {
         RenderContext context = new RenderContext();
         setNondefaultDrawState(context);
         context.invalidate();
+        context.boundAttribDivisors[0] = 7;
 
         context.reset();
 
         assertFreshDefaults(context);
         assertAllValid(context, true);
+        assertEquals(0, context.boundAttribDivisors[0]);
     }
 
     @Test
@@ -131,6 +137,7 @@ public class RenderContextStateTest {
         context.clearColor.set(ColorRGBA.Red);
         context.boundTextures[0] = new WeakReference<Image>(null);
         context.boundAttribs[0] = new WeakReference<VertexBuffer>(null);
+        context.boundAttribDivisors[0] = 7;
         context.textureIndexList.moveToNew(3);
         context.textureIndexList.copyNewToOld();
         context.attribIndexList.moveToNew(2);
@@ -156,6 +163,7 @@ public class RenderContextStateTest {
         assertEquals(new ColorRGBA(0f, 0f, 0f, 0f), context.clearColor);
         assertNull(context.boundTextures[0]);
         assertNull(context.boundAttribs[0]);
+        assertEquals(0, context.boundAttribDivisors[0]);
         assertEquals(0, context.textureIndexList.oldLen);
         assertEquals(0, context.textureIndexList.newLen);
         assertEquals(0, context.attribIndexList.oldLen);
@@ -202,6 +210,10 @@ public class RenderContextStateTest {
         assertEquals(RenderState.BlendEquation.Add, context.blendEquation);
         assertFalse(context.stencilTest);
         assertEquals(RenderState.TestFunction.Always, context.frontStencilFunction);
+        assertEquals(0, context.frontStencilReference);
+        assertEquals(0, context.backStencilReference);
+        assertEquals(-1, context.frontStencilMask);
+        assertEquals(-1, context.backStencilMask);
         assertFalse(context.polyOffsetEnabled);
         assertEquals(0f, context.polyOffsetFactor);
         assertEquals(0f, context.polyOffsetUnits);
@@ -220,6 +232,10 @@ public class RenderContextStateTest {
         context.blendEquation = RenderState.BlendEquation.Subtract;
         context.stencilTest = true;
         context.frontStencilFunction = RenderState.TestFunction.Equal;
+        context.frontStencilReference = 2;
+        context.backStencilReference = 3;
+        context.frontStencilMask = 0x0f;
+        context.backStencilMask = 0xf0;
         context.polyOffsetEnabled = true;
         context.polyOffsetFactor = 2f;
         context.polyOffsetUnits = 3f;

@@ -1313,11 +1313,29 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @return a new Quaternion or null
      */
     public Quaternion inverse() {
+        return inverse(null);
+    }
+
+    /**
+     * Calculates the multiplicative inverse and stores it in the specified
+     * quaternion. For a quaternion with norm=0, null is returned.
+     *
+     * <p>
+     * Unless {@code store} is the current instance, the current instance is
+     * unaffected. If {@code store} is the current instance, it will be modified
+     * in-place with its own inverse.
+     *
+     * @param store storage for the result, or null for a new Quaternion
+     * @return either {@code store} or a new Quaternion, or null if the norm is 0
+     */
+    public Quaternion inverse(Quaternion store) {
         float norm = norm();
-        if (norm > 0.0) {
+        if (norm > 0.0f) {
             float invNorm = 1.0f / norm;
-            return new Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w
-                    * invNorm);
+            if (store == null) {
+                store = new Quaternion();
+            }
+            return store.set(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
         }
         // return an invalid result to flag the error
         return null;
