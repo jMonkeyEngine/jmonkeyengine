@@ -42,7 +42,7 @@ import com.jme3.util.clone.Cloner;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * One page per BitmapText Font Texture.
@@ -50,13 +50,12 @@ import java.util.LinkedList;
  */
 class BitmapTextPage extends Geometry {
 
-    private final float[] pos;
-    private final float[] tc;
-    private final short[] idx;
-    private final byte[] color;
-    private final int page;
+    private float[] pos;
+    private float[] tc;
+    private byte[] color;
     private final Texture2D texture;
-    private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
+    private ArrayList<LetterQuad> pageQuads = new ArrayList<>();
+    private int initializedIndexQuads;
 
     /**
      * Creates the page at the given index for the specified font.
@@ -71,8 +70,6 @@ class BitmapTextPage extends Geometry {
         if (font == null) {
             throw new IllegalArgumentException("font cannot be null.");
         }
-
-        this.page = page;
 
         Material mat = font.getPage(page);
         if (mat == null) {
@@ -96,7 +93,6 @@ class BitmapTextPage extends Geometry {
         // arrays and reused for every quad of this page.
         pos = new float[4 * 3];  // 4 vertices * 3 floats
         tc = new float[4 * 2];  // 4 vertices * 2 floats
-        idx = new short[2 * 3];  // 2 triangles * 3 indices
         color = new byte[4 * 4];   // 4 vertices * 4 bytes
     }
 
@@ -135,105 +131,162 @@ class BitmapTextPage extends Geometry {
 
     @Override
     public BitmapTextPage clone() {
-        BitmapTextPage clone = (BitmapTextPage) super.clone();
-        //clone.mesh = mesh.deepClone();
-        return clone;
+        return (BitmapTextPage) super.clone();
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
      */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
-        
         Mesh originalMesh = this.mesh;
-    
         super.cloneFields(cloner, original);
-        
-        // BitmapTextPage always requires a new mesh or different
-        // BitmapText instances will clobber one another.
-        // But if we were already deep cloning meshes then we don't
-        // want to do it again... so we'll check first.
+
+        // Each text needs independent mesh data, even when the caller did not
+        // request deep mesh cloning.
         if (this.mesh == originalMesh) {
             this.mesh = mesh.deepClone();
-        }        
-    }        
-
-    // Here is where one might add JmeCloneable related stuff except
-    // the old clone() method doesn't actually bother to clone anything.
-    // The arrays and the pageQuads are shared across all BitmapTextPage
-    // clones, and it doesn't seem to bother anything.  That means the
-    // fields could probably just as well be static... but this code is
-    // all very fragile.  I'm not tipping that particular boat today. -pspeed
-
-    void assemble(Letters quads) {
-        pageQuads.clear();
-        quads.rewind();
-
-        while (quads.nextCharacter()) {
-            if (quads.isPrintable()) {
-                if (quads.getCharacterSetPage() == page) {
-                    pageQuads.add(quads.getQuad());
-                }
-            }
         }
+        pos = pos.clone();
+        tc = tc.clone();
+        color = color.clone();
+        // BitmapText rebuilds the clone's membership from its own Letters.
+        pageQuads = new ArrayList<>(pageQuads.size());
+        // A deep-cloned buffer may contain only its logical length, rather
+        // than the original buffer's spare, previously initialized capacity.
+        initializedIndexQuads = mesh.getBuffer(Type.Index).getData().limit() / 6;
+    }
 
+    /**
+     * Clears cached membership before BitmapText redistributes its letters.
+     */
+    void clearQuads() {
+        pageQuads.clear();
+    }
+
+    /**
+     * Adds a printable quad in text order during the layout pass.
+     *
+     * @param quad the quad belonging to this font page
+     */
+    void addQuad(LetterQuad quad) {
+        pageQuads.add(quad);
+    }
+
+    /**
+     * Rebuilds layout-dependent buffers from this page's cached quads.
+     */
+    void assemble() {
         Mesh m = getMesh();
-        int vertCount = pageQuads.size() * 4;
-        int triCount = pageQuads.size() * 2;
+        int quadCount = pageQuads.size();
+        boolean countChanged = m.getVertexCount() != quadCount * 4;
+        if (quadCount == 0 && !countChanged) {
+            return;
+        }
 
         VertexBuffer pb = m.getBuffer(Type.Position);
         VertexBuffer tb = m.getBuffer(Type.TexCoord);
-        VertexBuffer ib = m.getBuffer(Type.Index);
         VertexBuffer cb = m.getBuffer(Type.Color);
+        FloatBuffer fpb = prepare((FloatBuffer) pb.getData(), quadCount * 12);
+        FloatBuffer ftb = prepare((FloatBuffer) tb.getData(), quadCount * 8);
+        ByteBuffer bcb = prepare((ByteBuffer) cb.getData(), quadCount * 16);
 
-        FloatBuffer fpb = (FloatBuffer) pb.getData();
-        FloatBuffer ftb = (FloatBuffer) tb.getData();
-        ShortBuffer sib = (ShortBuffer) ib.getData();
-        ByteBuffer bcb = (ByteBuffer) cb.getData();
-
-        // increase capacity of buffers as needed
-        fpb.rewind();
-        fpb = BufferUtils.ensureLargeEnough(fpb, vertCount * 3);
-        fpb.limit(vertCount * 3);
-        pb.updateData(fpb);
-
-        ftb.rewind();
-        ftb = BufferUtils.ensureLargeEnough(ftb, vertCount * 2);
-        ftb.limit(vertCount * 2);
-        tb.updateData(ftb);
-
-        bcb.rewind();
-        bcb = BufferUtils.ensureLargeEnough(bcb, vertCount * 4);
-        bcb.limit(vertCount * 4);
-        cb.updateData(bcb);
-
-        sib.rewind();
-        sib = BufferUtils.ensureLargeEnough(sib, triCount * 3);
-        sib.limit(triCount * 3);
-        ib.updateData(sib);
-
-        m.updateCounts();
-
-        // go for each quad and append it to the buffers.
-        // pageQuads is a LinkedList, so iterate it with a for-each loop:
-        // indexed access (get(i)) repeatedly walks part of the list,
-        // which makes this loop quadratic in the number of quads.
-        int i = 0;
-        for (LetterQuad fq : pageQuads) {
-            fq.storeToArrays(pos, tc, idx, color, i);
+        for (int i = 0; i < quadCount; i++) {
+            LetterQuad quad = pageQuads.get(i);
+            quad.storeToArrays(pos, tc, color);
             fpb.put(pos);
             ftb.put(tc);
-            sib.put(idx);
             bcb.put(color);
-            i++;
         }
-
         fpb.rewind();
         ftb.rewind();
-        sib.rewind();
         bcb.rewind();
+        pb.updateData(fpb);
+        tb.updateData(ftb);
+        cb.updateData(bcb);
 
+        // Index topology depends only on how many quads this page contains.
+        if (countChanged) {
+            updateIndices(quadCount);
+            m.updateCounts();
+        }
         updateModelBound();
+    }
+
+    /**
+     * Refreshes vertex colors without changing layout, indices, or bounds.
+     */
+    void updateColors() {
+        if (pageQuads.isEmpty()) {
+            return;
+        }
+        VertexBuffer cb = getMesh().getBuffer(Type.Color);
+        ByteBuffer bcb = (ByteBuffer) cb.getData();
+        boolean changed = false;
+        for (int i = 0; i < pageQuads.size(); i++) {
+            pageQuads.get(i).storeColors(color);
+            int offset = i * color.length;
+            // All four vertices of a glyph have the same RGBA tuple. Compare
+            // bytes explicitly so the buffer's native byte order is irrelevant.
+            if (bcb.get(offset) != color[0] || bcb.get(offset + 1) != color[1]
+                    || bcb.get(offset + 2) != color[2] || bcb.get(offset + 3) != color[3]) {
+                bcb.position(offset);
+                bcb.put(color);
+                changed = true;
+            }
+        }
+        bcb.rewind();
+        if (changed) {
+            cb.updateData(bcb);
+        }
+    }
+
+    private void updateIndices(int quadCount) {
+        VertexBuffer ib = getMesh().getBuffer(Type.Index);
+        ShortBuffer indices = (ShortBuffer) ib.getData();
+        int required = quadCount * 6;
+        if (indices.capacity() < required) {
+            indices = BufferUtils.createShortBuffer(growCapacity(indices.capacity(), required));
+            initializedIndexQuads = 0;
+        }
+        indices.clear();
+        if (quadCount > initializedIndexQuads) {
+            indices.position(initializedIndexQuads * 6);
+            for (int i = initializedIndexQuads; i < quadCount; i++) {
+                short first = (short) (i * 4);
+                indices.put(first).put((short) (first + 1)).put((short) (first + 2));
+                indices.put(first).put((short) (first + 2)).put((short) (first + 3));
+            }
+            initializedIndexQuads = quadCount;
+        }
+        indices.rewind();
+        indices.limit(required);
+        // Even a shrink must notify the renderer of the changed draw length.
+        ib.updateData(indices);
+    }
+
+    private static FloatBuffer prepare(FloatBuffer buffer, int required) {
+        if (buffer.capacity() < required) {
+            buffer = BufferUtils.createFloatBuffer(growCapacity(buffer.capacity(), required));
+        }
+        buffer.clear();
+        buffer.limit(required);
+        return buffer;
+    }
+
+    private static ByteBuffer prepare(ByteBuffer buffer, int required) {
+        if (buffer.capacity() < required) {
+            buffer = BufferUtils.createByteBuffer(growCapacity(buffer.capacity(), required));
+        }
+        buffer.clear();
+        buffer.limit(required);
+        return buffer;
+    }
+
+    private static int growCapacity(int capacity, int required) {
+        // Leave spare capacity for incrementally growing text. All buffer
+        // limits still describe only the currently used vertices or indices.
+        long grown = (long) capacity + capacity / 2;
+        return (int) Math.min(Integer.MAX_VALUE, Math.max(grown, required));
     }
 }

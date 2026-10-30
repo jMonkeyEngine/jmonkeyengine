@@ -265,7 +265,7 @@ public class BitmapTextAssemblyTest {
         assertQuad(mesh(wrapped, 0), 2, font.getCharSet().getCharacter('C'), 14.5f, 18);
     }
 
-    private static BitmapFont createFont(int pageCount) {
+    static BitmapFont createFont(int pageCount) {
         BitmapCharacterSet characters = new BitmapCharacterSet();
         characters.setRenderedSize(16);
         characters.setLineHeight(20);
@@ -313,7 +313,7 @@ public class BitmapTextAssemblyTest {
         return text;
     }
 
-    private static Mesh mesh(BitmapText text, int page) {
+    static Mesh mesh(BitmapText text, int page) {
         return ((Geometry) text.getChild(page)).getMesh();
     }
 
@@ -367,7 +367,7 @@ public class BitmapTextAssemblyTest {
         }
     }
 
-    private static byte[] colors(Mesh mesh) {
+    static byte[] colors(Mesh mesh) {
         ByteBuffer buffer = ((ByteBuffer) mesh.getBuffer(Type.Color).getData()).duplicate();
         buffer.rewind();
         byte[] result = new byte[buffer.remaining()];
@@ -403,7 +403,7 @@ public class BitmapTextAssemblyTest {
         }
     }
 
-    private static void assertMeshEquals(BitmapText expected, BitmapText actual) {
+    static void assertMeshEquals(BitmapText expected, BitmapText actual) {
         assertLayoutEquals(expected, actual);
         for (int page = 0; page < expected.getQuantity(); page++) {
             assertArrayEquals(colors(mesh(expected, page)), colors(mesh(actual, page)),

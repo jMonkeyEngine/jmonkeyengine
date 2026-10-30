@@ -32,7 +32,7 @@
 package com.jme3.font;
 
 import com.jme3.math.ColorRGBA;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
 class ColorTags {
     private static final Pattern colorPattern = Pattern.compile("\\\\#([0-9a-fA-F]{8})#|\\\\#([0-9a-fA-F]{6})#|" +
                                                                 "\\\\#([0-9a-fA-F]{4})#|\\\\#([0-9a-fA-F]{3})#");
-    private final LinkedList<Range> colors = new LinkedList<>();
+    private final ArrayList<Range> colors = new ArrayList<>();
     private String text;
     private String original;
     private float baseAlpha = -1;
@@ -70,10 +70,31 @@ class ColorTags {
         return colors;
     }
 
+    /**
+     * Copies current range overrides as well as the original tagged text.
+     *
+     * @param source the color-tag state to copy
+     */
+    void copyFrom(ColorTags source) {
+        text = source.text;
+        original = source.original;
+        baseAlpha = source.baseAlpha;
+        colors.clear();
+        for (Range range : source.colors) {
+            colors.add(new Range(range.start, range.color));
+        }
+    }
+
     void setText(final String charSeq) {
         original = charSeq;
         colors.clear();
         if (charSeq == null) {
+            return;
+        }
+        // Plain text is the common case for counters and labels. Avoid a
+        // Matcher allocation when there cannot be any color tags.
+        if (charSeq.indexOf("\\#") < 0) {
+            text = charSeq;
             return;
         }
         Matcher m = colorPattern.matcher(charSeq);
@@ -85,12 +106,12 @@ class ColorTags {
                 for (int i = 1; i <= 4 && colorStr==null; i++) {
                     colorStr = m.group(i);
                 }
-                builder.append(charSeq.subSequence(startIndex, m.start()));
+                builder.append(charSeq, startIndex, m.start());
                 Range range = new Range(builder.length(), colorStr);
                 startIndex = m.end();
                 colors.add(range);
             } while (m.find());
-            builder.append(charSeq.subSequence(startIndex, charSeq.length()));
+            builder.append(charSeq, startIndex, charSeq.length());
             text = builder.toString();
         } else {
             text = charSeq;
@@ -106,8 +127,8 @@ class ColorTags {
         }
 
         // Else set the alpha for all of them
-        for (Range r : colors) {
-            r.color.a = alpha;
+        for (int i = 0; i < colors.size(); i++) {
+            colors.get(i).color.a = alpha;
         }
     }
 
@@ -120,14 +141,20 @@ class ColorTags {
         // and the caller may have passed a constant... so we
         // should clone it.
         color = color.clone();
-        for (Range r : colors) {
-            r.color = color;
+        for (int i = 0; i < colors.size(); i++) {
+            colors.get(i).color = color;
         }
     }
 
     class Range {
         int start;
         ColorRGBA color;
+
+        Range(int start, ColorRGBA color) {
+            this.start = start;
+            this.color = color.clone();
+        }
+
         Range(int start, String colorStr) {
             this.start = start;
             this.color = new ColorRGBA();

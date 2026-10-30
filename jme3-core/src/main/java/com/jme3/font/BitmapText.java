@@ -56,8 +56,10 @@ public class BitmapText extends Node {
     private BitmapFont font;
     // Stores the text content and its layout properties (size, box, alignment, etc.).
     private StringBlock block;
-    // A flag indicating whether the text needs to be re-assembled
+    // Layout changes rebuild page membership and vertex positions.
     private boolean needRefresh = true;
+    // Color changes can reuse the existing layout and update only vertex colors.
+    private boolean colorsNeedRefresh;
     // An array of `BitmapTextPage` instances, each corresponding to a font page.
     private BitmapTextPage[] textPages;
     // Manages the individual letter quads, their positions, colors, and styles.
@@ -131,13 +133,11 @@ public class BitmapText extends Node {
         //this.block = cloner.clone(block);
         this.block = block != null ? block.clone() : null;
 
-        // Change in behavior: The 'letters' field was not cloned or recreated
-        // before.  I'm not sure how this worked and suspect BitmapText was just
-        // not cloneable if you planned to change the text later. -pspeed
-        this.letters = new Letters(font, block, letters.getQuad().isRightToLeft());
-
-        // Just noticed BitmapText is not even writable/readable really...
-        // so I guess cloning doesn't come up that often.
+        this.letters = new Letters(letters, block);
+        // The cloned pages must refer to the cloned letters, including their
+        // substring styles and colors, before a color-only update can run.
+        needRefresh = true;
+        colorsNeedRefresh = false;
     }
 
     /**
@@ -155,6 +155,9 @@ public class BitmapText extends Node {
      * @param size The desired text size (e.g., in world units or pixels).
      */
     public void setSize(float size) {
+        if (block.getSize() == size) {
+            return;
+        }
         block.setSize(size);
         needRefresh = true;
         letters.invalidate();
@@ -228,8 +231,7 @@ public class BitmapText extends Node {
      */
     public void setColor(ColorRGBA color) {
         letters.setColor(color);
-        letters.invalidate(); // TODO: Don't have to align.
-        needRefresh = true;
+        colorsNeedRefresh = true;
     }
 
     /**
@@ -243,7 +245,7 @@ public class BitmapText extends Node {
      */
     public void setAlpha(float alpha) {
         letters.setBaseAlpha(alpha);
-        needRefresh = true;
+        colorsNeedRefresh = true;
     }
 
     /**
@@ -263,6 +265,13 @@ public class BitmapText extends Node {
      * of the text rendering area.
      */
     public void setBox(Rectangle rect) {
+        Rectangle previous = block.getTextBox();
+        // Rectangle coordinates are immutable, so equal bounds need no layout.
+        if (previous == rect || (previous != null && rect != null
+                && previous.x == rect.x && previous.y == rect.y
+                && previous.width == rect.width && previous.height == rect.height)) {
+            return;
+        }
         block.setTextBox(rect);
         letters.invalidate();
         needRefresh = true;
@@ -284,7 +293,7 @@ public class BitmapText extends Node {
      * @return The total height of the text block.
      */
     public float getHeight() {
-        if (needRefresh) {
+        if (needRefresh || colorsNeedRefresh) {
             assemble();
         }
         float height = getLineHeight() * block.getLineCount();
@@ -301,7 +310,7 @@ public class BitmapText extends Node {
      * @return The maximum line width of the text.
      */
     public float getLineWidth() {
-        if (needRefresh) {
+        if (needRefresh || colorsNeedRefresh) {
             assemble();
         }
         Rectangle textBox = block.getTextBox();
@@ -319,7 +328,7 @@ public class BitmapText extends Node {
      * @return The total number of lines.
      */
     public int getLineCount() {
-        if (needRefresh) {
+        if (needRefresh || colorsNeedRefresh) {
             assemble();
         }
         return block.getLineCount();
@@ -345,6 +354,9 @@ public class BitmapText extends Node {
         if (block.getTextBox() == null && align != Align.Left) {
             throw new RuntimeException("Bound is not set");
         }
+        if (block.getAlignment() == align) {
+            return;
+        }
         block.setAlignment(align);
         letters.invalidate();
         needRefresh = true;
@@ -360,6 +372,9 @@ public class BitmapText extends Node {
     public void setVerticalAlignment(BitmapFont.VAlign align) {
         if (block.getTextBox() == null && align != VAlign.Top) {
             throw new RuntimeException("Bound is not set");
+        }
+        if (block.getVerticalAlignment() == align) {
+            return;
         }
         block.setVerticalAlignment(align);
         letters.invalidate();
@@ -394,6 +409,8 @@ public class BitmapText extends Node {
      */
     public void setStyle(int start, int end, int style) {
         letters.setStyle(start, end, style);
+        letters.invalidate();
+        needRefresh = true;
     }
 
     /**
@@ -420,8 +437,7 @@ public class BitmapText extends Node {
      */
     public void setColor(int start, int end, ColorRGBA color) {
         letters.setColor(start, end, color);
-        letters.invalidate();
-        needRefresh = true;
+        colorsNeedRefresh = true;
     }
 
     /**
@@ -436,8 +452,7 @@ public class BitmapText extends Node {
         while (m.find()) {
             letters.setColor(m.start(), m.end(), color);
         }
-        letters.invalidate();
-        needRefresh = true;
+        colorsNeedRefresh = true;
     }
 
     /**
@@ -459,6 +474,9 @@ public class BitmapText extends Node {
      * @param width The default width for tabs in font units.
      */
     public void setTabWidth(float width) {
+        if (block.getTabWidth() == width) {
+            return;
+        }
         block.setTabWidth(width);
         letters.invalidate();
         needRefresh = true;
@@ -471,6 +489,9 @@ public class BitmapText extends Node {
      * @param c The character to use as the ellipsis.
      */
     public void setEllipsisChar(char c) {
+        if (block.getEllipsisChar() == c) {
+            return;
+        }
         block.setEllipsisChar(c);
         letters.invalidate();
         needRefresh = true;
@@ -501,25 +522,41 @@ public class BitmapText extends Node {
     @Override
     public void updateLogicalState(float tpf) {
         super.updateLogicalState(tpf);
-        if (needRefresh) {
+        if (needRefresh || colorsNeedRefresh) {
             assemble();
         }
     }
 
     /**
-     * Assembles the text by generating the quad list (character positions and sizes)
-     * and then populating the vertex buffers of each `BitmapTextPage`.
-     * This method is called internally when `needRefresh` is true.
+     * Updates layout and page buffers, or only colors when the layout is valid.
      */
     private void assemble() {
-        // First, generate or update the list of letter quads
-        // based on current text and layout properties.
-        letters.update();
-        // Then, for each font page, assemble its mesh data from the generated quads.
-        for (BitmapTextPage textPage : textPages) {
-            textPage.assemble(letters);
+        if (needRefresh) {
+            letters.update();
+            for (BitmapTextPage textPage : textPages) {
+                textPage.clearQuads();
+            }
+            // Distribute letters once, rather than rescanning the entire text
+            // for each texture page. Keep this membership for color updates.
+            letters.rewind();
+            while (letters.nextCharacter()) {
+                if (letters.isPrintable()) {
+                    int page = letters.getCharacterSetPage();
+                    if (page >= 0 && page < textPages.length) {
+                        textPages[page].addQuad(letters.getQuad());
+                    }
+                }
+            }
+            for (BitmapTextPage textPage : textPages) {
+                textPage.assemble();
+            }
+        } else if (colorsNeedRefresh) {
+            for (BitmapTextPage textPage : textPages) {
+                textPage.updateColors();
+            }
         }
         needRefresh = false;
+        colorsNeedRefresh = false;
     }
 
     /**
