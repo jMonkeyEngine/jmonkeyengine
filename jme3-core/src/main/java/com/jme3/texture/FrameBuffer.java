@@ -87,10 +87,23 @@ public class FrameBuffer extends NativeObject {
     private String name;
     private Boolean mipMapsGenerationHint = null;
 
+    // Not this FrameBuffer or NativeObject.handleRef: renderer-held targets must
+    // not keep the owner (or its phantom-reference handle) alive.
+    private final Object targetOwner = new Object();
+
     /**
      * <code>RenderBuffer</code> represents either a texture or a
      * buffer that will be rendered to. <code>RenderBuffer</code>s
      * are attached to an attachment slot on a <code>FrameBuffer</code>.
+     * <p>
+     * A target instance belongs to the first framebuffer to which it is added,
+     * even after removal or disposal. It cannot be transferred to another
+     * framebuffer or attached to multiple slots at once. A removed target may
+     * be added again to its original framebuffer.
+     * <p>
+     * To share a texture, create a separate target for each framebuffer using
+     * {@link FrameBufferTarget#newTarget(Texture)} with the same texture.
+     * Renderbuffer storage is owned exclusively by its framebuffer.
      */
     public static class RenderBuffer {
 
@@ -101,6 +114,7 @@ public class FrameBuffer extends NativeObject {
         int face = -1;
         int layer = -1;
         int level = 0;
+        private Object owner;
 
 
         public int getLevel() {
@@ -255,15 +269,34 @@ public class FrameBuffer extends NativeObject {
     private FrameBuffer() {
     }
 
+    /**
+     * Adds an exclusively owned color renderbuffer target.
+     *
+     * @param colorBuf the target (not null)
+     * @throws IllegalArgumentException if the target belongs to another
+     * framebuffer or is already attached to this framebuffer
+     */
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
+        claimTarget(colorBuf, null);
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
     
+    /**
+     * Adds an exclusively owned color texture target. The underlying texture
+     * may be shared through distinct target instances.
+     *
+     * @param colorBuf the target (not null)
+     * @throws IllegalArgumentException if the target belongs to another
+     * framebuffer or is already attached to this framebuffer
+     */
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
+        claimTarget(colorBuf, null);
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
     
     /**
@@ -274,13 +307,17 @@ public class FrameBuffer extends NativeObject {
      * 
      * @param i index of color target to replace
      * @param colorBuf color target to replace with
+     * @throws IllegalArgumentException if the target belongs to another
+     * framebuffer or is already attached to a different slot
      */
     public void replaceColorTarget(int i, FrameBufferTextureTarget colorBuf) {
         if (i < 0 || i >= colorBufs.size()) {
             throw new IndexOutOfBoundsException("No color target exists to replace at index=" + i);
         }
+        claimTarget(colorBuf, colorBufs.get(i));
         colorBuf.slot = i;
         colorBufs.set(i, colorBuf);
+        setUpdateNeeded();
     }
     
     /**
@@ -293,9 +330,15 @@ public class FrameBuffer extends NativeObject {
      */
     public void removeColorTarget(int i) {
         colorBufs.remove(i);
+        if (colorBufIndex > i) {
+            colorBufIndex--;
+        } else if (colorBufIndex == i && colorBufIndex == colorBufs.size()) {
+            colorBufIndex = Math.max(0, colorBufs.size() - 1);
+        }
         for (; i < colorBufs.size(); i++) {
             colorBufs.get(i).slot = i;
         }
+        setUpdateNeeded();
     }
 
     /**
@@ -304,25 +347,72 @@ public class FrameBuffer extends NativeObject {
      *
      * @param colorBuf texture to add to the color Buffer
      * @param face position to add to the color buffer
+     * @throws IllegalArgumentException if the target belongs to another
+     * framebuffer or is already attached to this framebuffer
      */
     public void addColorTarget(FrameBufferTextureTarget colorBuf, TextureCubeMap.Face face) {
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
+        int faceIndex = face.ordinal();
+        claimTarget(colorBuf, null);
         colorBuf.slot = colorBufs.size();
-        colorBuf.face = face.ordinal();
+        colorBuf.face = faceIndex;
         colorBufs.add(colorBuf);
+        setUpdateNeeded();
     }
 
+    /**
+     * Sets an exclusively owned depth renderbuffer target.
+     *
+     * @param depthBuf the depth target (not null)
+     * @throws IllegalArgumentException if the target is not a depth buffer,
+     * belongs to another framebuffer, or is already attached to another slot
+     */
     public void setDepthTarget(FrameBufferBufferTarget depthBuf){
         if (!depthBuf.getFormat().isDepthFormat())
             throw new IllegalArgumentException("Depth buffer format must be depth.");
+        claimTarget(depthBuf, this.depthBuf);
         this.depthBuf = depthBuf;
         this.depthBuf.slot =  this.depthBuf.getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        setUpdateNeeded();
     }
 
+    /**
+     * Sets an exclusively owned depth texture target. The texture itself may
+     * be shared through distinct target instances.
+     *
+     * @param depthBuf the depth target (not null)
+     * @throws IllegalArgumentException if the texture is not a valid depth
+     * target, the target belongs to another framebuffer, or it is already
+     * attached to another slot
+     */
     public void setDepthTarget(FrameBufferTextureTarget depthBuf){
         checkSetTexture(depthBuf.getTexture(), true);
+        claimTarget(depthBuf, this.depthBuf);
         this.depthBuf = depthBuf;
         this.depthBuf.slot = depthBuf.getTexture().getImage().getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        setUpdateNeeded();
+    }
+
+    private void claimTarget(RenderBuffer target, RenderBuffer replaced) {
+        if (target == null) {
+            throw new IllegalArgumentException("Framebuffer target cannot be null.");
+        }
+        if (target.owner != null && target.owner != targetOwner) {
+            throw new IllegalArgumentException("Framebuffer target belongs to another framebuffer. "
+                    + "Create a separate target for each framebuffer.");
+        }
+        if (target != replaced) {
+            if (target == depthBuf) {
+                throw new IllegalArgumentException("Framebuffer target is already attached.");
+            }
+            for (int i = 0; i < colorBufs.size(); i++) {
+                if (colorBufs.get(i) == target) {
+                    throw new IllegalArgumentException("Framebuffer target is already attached.");
+                }
+            }
+        }
+        // Keep the identity after removal: native detachment/deletion is deferred.
+        target.owner = targetOwner;
     }
 
     public int getNumColorTargets(){
@@ -469,10 +559,10 @@ public class FrameBuffer extends NativeObject {
      * @param enabled True to enable MRT (multiple rendering targets).
      */
     public void setMultiTarget(boolean enabled) {
-        if (enabled) {
-            colorBufIndex = -1;
-        } else {
-            colorBufIndex = 0;
+        int targetIndex = enabled ? -1 : 0;
+        if (colorBufIndex != targetIndex) {
+            colorBufIndex = targetIndex;
+            setUpdateNeeded();
         }
     }
 
@@ -488,18 +578,21 @@ public class FrameBuffer extends NativeObject {
      * If MRT is not enabled ({@link FrameBuffer#setMultiTarget(boolean) } is false)
      * then this specifies the color target to which the scene should be rendered.
      * <p>
-     * By default the value is 0.
+     * By default the value is 0. Index 0 can also be selected before any color
+     * targets are added, or for a depth-only framebuffer.
      *
      * @param index The color attachment index.
-     * @throws IllegalArgumentException If index is negative or doesn't map
-     * to any attachment on this framebuffer.
+     * @throws IllegalArgumentException If index is out of range or is nonzero
+     * and doesn't map to any attachment on this framebuffer.
      */
     public void setTargetIndex(int index) {
         if (index < 0 || index >= 16) {
             throw new IllegalArgumentException("Target index must be between 0 and 16");
         }
 
-        if (colorBufs.size() < index) {
+        // Index zero also selects the default for an empty/depth-only FBO.
+        // Applications may configure this before adding their color targets.
+        if (index != 0 && colorBufs.size() <= index) {
             throw new IllegalArgumentException("The target at " + index + " is not set!");
         }
 
@@ -568,6 +661,10 @@ public class FrameBuffer extends NativeObject {
      */
     public void clearColorTargets() {
         colorBufs.clear();
+        if (colorBufIndex >= 0) {
+            colorBufIndex = 0;
+        }
+        setUpdateNeeded();
     }
 
     /**

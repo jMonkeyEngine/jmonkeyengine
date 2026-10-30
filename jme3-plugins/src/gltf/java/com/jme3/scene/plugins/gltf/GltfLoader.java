@@ -972,7 +972,7 @@ public class GltfLoader implements AssetLoader {
             assertNotNull(type, "No type defined for camera");
             JsonObject camData = camObj.getAsJsonObject(type);
             if (type.equals("perspective")) {
-                float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
+                float aspectRatio = getAsFloat(camData, "aspectRatio", 1f);
                 Float yfov = getAsFloat(camData, "yfov");
                 assertNotNull(yfov, "No yfov for perspective camera");
                 Float zNear = getAsFloat(camData, "znear");

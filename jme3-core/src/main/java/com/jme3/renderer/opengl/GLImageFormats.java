@@ -185,8 +185,13 @@ public final class GLImageFormats {
             // sRGB formats
             if (caps.contains(Caps.Srgb)) {
                 formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE, opengl, false, true);
-                formatSrgb(formatToGL, Format.RGB565,       GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_SHORT_5_6_5, opengl, false, true);
-                formatSrgb(formatToGL, Format.RGB5A1,       GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_SHORT_5_5_5_1, opengl, false, true);
+                // GLES3 sRGB formats require unsigned bytes. TextureUtil expands packed source pixels.
+                formatSrgb(formatToGL, Format.RGB565, GLExt.GL_SRGB8_EXT, GL.GL_RGB,
+                        opengles3 ? GL.GL_UNSIGNED_BYTE : GL.GL_UNSIGNED_SHORT_5_6_5,
+                        opengl, false, true);
+                formatSrgb(formatToGL, Format.RGB5A1, GLExt.GL_SRGB8_ALPHA8_EXT, GL.GL_RGBA,
+                        opengles3 ? GL.GL_UNSIGNED_BYTE : GL.GL_UNSIGNED_SHORT_5_5_5_1,
+                        opengl || opengles3, false, true);
 
                 formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE, true, false, true);
                 if (!coreProfile) {
@@ -313,8 +318,8 @@ public final class GLImageFormats {
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT, false, true, false);
         
         
-        if (caps.contains(Caps.WebGL)) {
-            // NOTE: fallback to 24-bit depth as workaround for firefox bug in WebGL 2 where DEPTH_COMPONENT16 is not handled properly
+        if (opengles3 || caps.contains(Caps.WebGL)) {
+            // Default to 24 bit depth in GLES3 and WebGL
             format(formatToGL, Format.Depth, GL2.GL_DEPTH_COMPONENT24, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_INT, false, true, false);
         } else if (caps.contains(Caps.OpenGLES20)) {
             // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.

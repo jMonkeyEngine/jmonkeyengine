@@ -44,6 +44,8 @@ import com.jme3.material.RenderState;
 import com.jme3.material.plugin.TestMaterialWrite;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -166,6 +168,27 @@ public class GltfLoaderTest {
             ex.printStackTrace();
             Assertions.fail("Failed to import unitSquare11x11_unsignedShortTexCoords");
         }
+    }
+
+    @Test
+    public void testPerspectiveCameraAspectRatio() {
+        Camera camera = loadCamera("gltf/camera/perspectiveCamera.gltf");
+        float aspectRatio = camera.getFrustumRight() / camera.getFrustumTop();
+        Assertions.assertEquals(1.5f, aspectRatio, 1e-5f);
+    }
+
+    @Test
+    public void testPerspectiveCameraWithoutAspectRatio() {
+        Camera camera = loadCamera("gltf/camera/perspectiveCameraNoAspectRatio.gltf");
+        float aspectRatio = camera.getFrustumRight() / camera.getFrustumTop();
+        Assertions.assertEquals(1f, aspectRatio, 1e-5f);
+    }
+
+    private Camera loadCamera(String path) {
+        Node scene = (Node) assetManager.loadModel(path);
+        Spatial cameraNode = scene.getChild("cameraNode");
+        Assertions.assertInstanceOf(CameraNode.class, cameraNode, "Camera node not found");
+        return ((CameraNode) cameraNode).getCamera();
     }
 
     private void dumpScene(Spatial s, int indent) {
