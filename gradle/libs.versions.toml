@@ -17,7 +17,7 @@ androidx-fragment-testing = "1.9.0"
 
 [libraries]
 
-androidx-annotation = "androidx.annotation:annotation:1.10.0"
+androidx-annotation = "androidx.annotation:annotation:1.11.0"
 androidx-fragment = "androidx.fragment:fragment:1.9.0"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
 android-build-gradle = "com.android.tools.build:gradle:9.1.0"
@@ -34,7 +34,7 @@ androidx-fragment-testing = { module ="androidx.fragment:fragment-testing", vers
 androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "androidx-fragment-testing"}
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 androidx-test-runner = "androidx.test:runner:1.7.0"
-groovy-test = "org.apache.groovy:groovy-test:5.1.1"
+groovy-test = "org.apache.groovy:groovy-test:6.0.0"
 gson = "com.google.code.gson:gson:2.14.0"
 googleMaterial = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
@@ -60,8 +60,8 @@ lwjgl3-sdl      = { module = "org.lwjgl:lwjgl-sdl",      version.ref = "lwjgl3" 
 lwjgl3-opengles = { module = "org.lwjgl:lwjgl-opengles", version.ref = "lwjgl3" }
 lwjgl3-egl   = { module = "org.lwjgl:lwjgl-egl", version.ref = "lwjgl3" }
 
-mokito-core = "org.mockito:mockito-core:5.23.0"
-mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:5.23.0"
+mokito-core = "org.mockito:mockito-core:5.24.0"
+mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:5.24.0"
 
 nifty                  = { module = "com.github.nifty-gui:nifty",                  version.ref = "nifty" }
 nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls", version.ref = "nifty" }
@@ -93,7 +93,7 @@ saferalloc-natives-ios = { module = "org.ngengine:saferalloc-natives-ios", versi
 
 extent-reports = { module = "com.aventstack:extentreports", version = "5.1.2"}
 
-jackson = {module = "tools.jackson.core:jackson-databind", version ="3.2.2"}
+jackson = {module = "tools.jackson.core:jackson-databind", version ="3.2.3"}
 
 [bundles]
 saferalloc = ["saferalloc", "saferalloc-natives-linux-x8664", "saferalloc-natives-linux-aarch64", "saferalloc-natives-windows-x8664", "saferalloc-natives-windows-aarch64", "saferalloc-natives-macos-x8664", "saferalloc-natives-macos-aarch64", "saferalloc-natives-android", "saferalloc-natives-ios"]

@@ -88,8 +88,8 @@ vec4 main_multiSample(in int numSample){
     #endif
 
     #if (!defined(POINTLIGHT) && !defined(PSSM))
-        if( dot(m_LightDir,lightDir)<0){
-         return color;
+        if(dot(m_LightDir, lightDir) < 0.0) {
+            return color;
         }
     #endif
 
