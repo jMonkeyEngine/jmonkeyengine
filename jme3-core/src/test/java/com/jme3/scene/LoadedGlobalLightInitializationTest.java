@@ -40,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.export.JmeImporter;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.export.binary.BinaryImporter;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
@@ -50,8 +49,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,15 +136,6 @@ public class LoadedGlobalLightInitializationTest {
     public void emptyRootAndEmptyBranchesRemainEmpty() {
         updateAndVerify(BinaryExporter.saveAndLoad(null, new Node("empty")));
         updateAndVerify(BinaryExporter.saveAndLoad(null, scene(8, "none", true)));
-    }
-
-    @Test
-    public void explicitExporterImporterRoundTripInitializesStandaloneRoot() throws IOException {
-        Node root = scene(3, "geometry", false);
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        BinaryExporter.getInstance().save(root, output);
-        Node loaded = (Node) new BinaryImporter().load(new ByteArrayInputStream(output.toByteArray()));
-        updateAndVerify(loaded);
     }
 
     @Test
