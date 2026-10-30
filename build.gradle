@@ -44,7 +44,7 @@ allprojects {
         mavenCentral()
         google()
     }
-    tasks.withType(Jar) {
+    tasks.withType(Jar).configureEach {
         duplicatesStrategy = 'include'
     }
 }
@@ -67,7 +67,7 @@ subprojects {
             toolVersion = libs.versions.spotbugs.get()
         }
 
-        tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
+        tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
             reports {
                 html.required = !project.hasProperty("xml-reports")
                 xml.required = project.hasProperty("xml-reports")
@@ -146,7 +146,9 @@ tasks.register('runIosExamples') {
 defaultTasks 'run'
 
 def libDist = tasks.register('libDist') {
-    dependsOn(subprojects.collect { it.tasks.named('build') })
+    dependsOn(subprojects.findAll { !it.hasProperty('mainClassName') }.collect {
+        it.tasks.withType(Jar)
+    })
     description = 'Builds and copies the engine binaries, sources and javadoc to build/libDist'
 
     doLast {
