@@ -2,6 +2,7 @@ package com.jme3.anim;
 
 import com.jme3.anim.util.JointModelTransform;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 
 /**
@@ -32,7 +33,13 @@ public class SeparateJointModelTransform implements JointModelTransform {
     public void applyBindPose(Transform localTransform, Matrix4f inverseModelBindMatrix, Joint parent) {
         localTransform.fromTransformMatrix(inverseModelBindMatrix.invert());
         if (parent != null) {
-            localTransform.combineWithParent(parent.getModelTransform().invert());
+            // Undo the parent transform without decomposing its potentially sheared inverse.
+            Transform parentTransform = parent.getModelTransform();
+            parentTransform.transformInverseVector(
+                    localTransform.getTranslation(), localTransform.getTranslation());
+            Quaternion inverseRotation = parentTransform.getRotation().inverse();
+            inverseRotation.mult(localTransform.getRotation(), localTransform.getRotation());
+            localTransform.getScale().divideLocal(parentTransform.getScale());
         }
     }
 
