@@ -35,8 +35,8 @@ import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
 import com.jme3.font.ColorTags.Range;
 import com.jme3.math.ColorRGBA;
-
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manage and align LetterQuads
@@ -51,6 +51,8 @@ class Letters {
     private float totalWidth;
     private float totalHeight;
     private final ColorTags colorTags = new ColorTags();
+    // Retain one quad per parsed-character index and allocate only when text grows.
+    private final ArrayList<LetterQuad> letterCache = new ArrayList<>();
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;
@@ -62,6 +64,36 @@ class Letters {
         head = new LetterQuad(font, rightToLeft);
         tail = new LetterQuad(font, rightToLeft);
         setText(text);
+    }
+
+    /**
+     * Copies text styling without sharing mutable letter or color-tag state.
+     * The parsed character sequence is copied directly, so cloning does not run
+     * a potentially stateful glyph parser again.
+     *
+     * @param original the letters to copy
+     * @param block the independently cloned text block
+     */
+    Letters(Letters original, StringBlock block) {
+        this.block = block;
+        this.font = original.font;
+        head = new LetterQuad(font, original.head.isRightToLeft());
+        tail = new LetterQuad(font, original.head.isRightToLeft());
+        head.setNext(tail);
+        tail.setPrevious(head);
+        current = head;
+        baseColor = original.baseColor == null ? null : original.baseColor.clone();
+        baseAlpha = original.baseAlpha;
+        plainText = original.plainText;
+        colorTags.copyFrom(original.colorTags);
+
+        LetterQuad previous = head;
+        for (LetterQuad source = original.head.getNext(); !source.isTail(); source = source.getNext()) {
+            LetterQuad copy = new LetterQuad(source, previous);
+            letterCache.add(copy);
+            previous = copy;
+        }
+        invalidate();
     }
 
     void setText(final String text) {
@@ -79,7 +111,16 @@ class Letters {
             }
 
             for (int i = 0; i < characters.length(); i++) {
-                l = l.addNextCharacter(characters.charAt(i));
+                char character = characters.charAt(i);
+                if (i < letterCache.size()) {
+                    LetterQuad cached = letterCache.get(i);
+                    cached.reset(character);
+                    l.insert(cached);
+                    l = cached;
+                } else {
+                    l = l.addNextCharacter(character);
+                    letterCache.add(l);
+                }
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
@@ -88,18 +129,30 @@ class Letters {
             }
         }
 
-        LinkedList<Range> ranges = colorTags.getTags();
-        if (!ranges.isEmpty()) {
-            for (int i = 0; i < ranges.size()-1; i++) {
-                Range start = ranges.get(i);
-                Range end = ranges.get(i+1);
-                setColor(start.start, end.start, start.color);
-            }
-            Range end = ranges.getLast();
-            setColor(end.start, plainText.length(), end.color);
-        }
+        applyColorTags();
 
-        invalidate();
+        // Every active quad was reset above; only the sentinel and cached sizes
+        // still need invalidating. Avoid looking up every glyph a second time.
+        head.invalidate();
+        totalWidth = -1;
+        totalHeight = -1;
+    }
+
+    private void applyColorTags() {
+        List<Range> ranges = colorTags.getTags();
+        LetterQuad cursor = head.getNext();
+        for (int i = 0; i < ranges.size(); i++) {
+            Range range = ranges.get(i);
+            int end = i + 1 < ranges.size() ? ranges.get(i + 1).start : plainText.length();
+            // Both cursors advance only forward. Keep the plain-text end bound:
+            // a glyph parser may return a sequence of a different length.
+            while (!cursor.isTail() && cursor.getIndex() < end) {
+                if (cursor.getIndex() >= range.start) {
+                    cursor.setColor(range.color);
+                }
+                cursor = cursor.getNext();
+            }
+        }
     }
 
     LetterQuad getHead() {
@@ -336,7 +389,7 @@ class Letters {
         totalWidth = -1;
         totalHeight = -1;
 
-        while (!cursor.isTail() && !cursor.isInvalid()) {
+        while (!cursor.isTail()) {
             cursor.invalidate();
             cursor = cursor.getNext();
         }
@@ -447,19 +500,8 @@ class Letters {
         // since non-color tagged text is treated differently
         // even if part of a color tagged string.
         if (baseAlpha == -1) {
-            LinkedList<Range> ranges = colorTags.getTags();
-            if (!ranges.isEmpty()) {
-                for (int i = 0; i < ranges.size()-1; i++) {
-                    Range start = ranges.get(i);
-                    Range end = ranges.get(i+1);
-                    setColor(start.start, end.start, start.color);
-                }
-                Range end = ranges.getLast();
-                setColor(end.start, plainText.length(), end.color);
-            }
+            applyColorTags();
         }
-
-        invalidate();
     }
 
 }
