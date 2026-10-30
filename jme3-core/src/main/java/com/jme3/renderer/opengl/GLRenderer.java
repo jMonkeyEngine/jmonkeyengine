@@ -704,8 +704,10 @@ public final class GLRenderer implements Renderer {
             }
 
 
-            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGL32)
-                    || caps.contains(Caps.OpenGLES31)) { // GLES31 does not fully support it
+            // Current GLES backends do not implement multisample texture allocation,
+            // even when the context reports OpenGL ES 3.1 or later.
+            if (!caps.contains(Caps.OpenGLES20)
+                    && (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGL32))) {
                 caps.add(Caps.TextureMultisample);
                 limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
                 limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));
