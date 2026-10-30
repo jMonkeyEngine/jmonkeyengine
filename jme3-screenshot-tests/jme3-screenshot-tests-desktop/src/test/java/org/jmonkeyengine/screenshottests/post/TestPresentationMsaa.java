@@ -37,7 +37,6 @@ class TestPresentationMsaa {
     private void runScenario(int samples, int filterSamples) throws Exception {
         CompletableFuture<Void> result = new CompletableFuture<>();
         CountDownLatch finished = new CountDownLatch(1);
-        CountDownLatch destroyed = new CountDownLatch(1);
         TestContainingApp app = new TestContainingApp() {
             private int frames;
 
@@ -127,14 +126,6 @@ class TestPresentationMsaa {
                 finished.countDown();
             }
 
-            @Override
-            public void destroy() {
-                try {
-                    super.destroy();
-                } finally {
-                    destroyed.countDown();
-                }
-            }
         };
         AppSettings settings = new AppSettings(true);
         settings.setResolution(96, 96);
@@ -152,8 +143,16 @@ class TestPresentationMsaa {
             result.get(1, TimeUnit.SECONDS);
         } finally {
             app.stop(false);
+            // Application.destroy() runs before the window/context and SDL
+            // subsystem are released. Wait for the entire render thread so the
+            // next scenario cannot initialize SDL during the previous teardown.
+            Field threadField = LwjglWindow.class.getDeclaredField("mainThread");
+            threadField.setAccessible(true);
+            Thread renderThread = (Thread) threadField.get(app.getContext());
+            assertNotNull(renderThread, "render thread was not created");
+            renderThread.join(TimeUnit.SECONDS.toMillis(10));
+            assertFalse(renderThread.isAlive(), "render thread did not shut down");
         }
-        assertTrue(destroyed.await(10, TimeUnit.SECONDS), "context did not shut down");
     }
 
     private static FrameBuffer framebuffer(LwjglWindow window, String name) throws Exception {
