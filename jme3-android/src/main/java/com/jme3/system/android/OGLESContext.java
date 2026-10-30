@@ -59,7 +59,9 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
@@ -110,9 +112,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     private Picture blitGeometry;
     private final Camera blitCamera = new Camera(1, 1);
     private FrameBuffer linearFrameBuffer;
+    private FrameBuffer linearResolveFrameBuffer;
+    // Cache the request, since a hardware fallback can use fewer samples.
+    private int linearRequestedSamples;
     private Texture2D linearFrameBufferColorTexture;
     private boolean linearFrameBufferDirty;
     private boolean multisampleTextureWarningIssued;
+    private boolean multisampleResolveWarningIssued;
 
     static {
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
@@ -646,16 +652,25 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     private int getLinearFrameBufferSampleCount() {
         int samples = Math.max(settings.getSamples(), 1);
-        if (samples > 1 && renderer != null
-                && (!renderer.getCaps().contains(Caps.TextureMultisample)
-                || !renderer.getCaps().contains(Caps.OpenGL32))) {
-            if (!multisampleTextureWarningIssued) {
-                logger.log(Level.WARNING,
-                        "Display scale blit requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample linear framebuffer.",
-                        samples);
-                multisampleTextureWarningIssued = true;
+        int requested = samples;
+        if (samples > 1) {
+            boolean direct = renderer.getCaps().contains(Caps.TextureMultisample);
+            boolean resolve = renderer.getCaps().contains(Caps.FrameBufferBlit);
+            if (!renderer.getCaps().contains(Caps.FrameBufferMultisample) || (!direct && !resolve)) {
+                samples = 1;
+            } else {
+                samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.FrameBufferSamples, 1));
+                if (direct) {
+                    samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.ColorTextureSamples, 1));
+                }
+                samples = Math.max(samples, 1);
             }
-            return 1;
+        }
+        if (samples != requested && !multisampleTextureWarningIssued) {
+            logger.log(Level.WARNING,
+                    "Display scale blit requested {0}x MSAA; using {1}x.",
+                    new Object[]{requested, samples});
+            multisampleTextureWarningIssued = true;
         }
         return samples;
     }
@@ -668,27 +683,63 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         int width = getRenderFramebufferWidth();
         int height = getRenderFramebufferHeight();
-        int samples = getLinearFrameBufferSampleCount();
 
         if (linearFrameBuffer != null && linearFrameBuffer.getWidth() == width
-                && linearFrameBuffer.getHeight() == height && linearFrameBuffer.getSamples() == samples) {
+                && linearFrameBuffer.getHeight() == height && linearRequestedSamples == settings.getSamples()) {
             return;
         }
 
         destroyLinearFrameBuffer();
+        linearRequestedSamples = settings.getSamples();
+        int samples = getLinearFrameBufferSampleCount();
+        boolean resolve = samples > 1 && !renderer.getCaps().contains(Caps.TextureMultisample);
+        createLinearFrameBuffer(width, height, samples, resolve);
+        if (!resolve) {
+            return;
+        }
+
+        // Allocate both targets now so unsupported MSAA can fall back before rendering.
+        try {
+            renderer.setFrameBuffer(linearFrameBuffer);
+            renderer.setFrameBuffer(linearResolveFrameBuffer);
+            return;
+        } catch (RendererException | IllegalStateException exception) {
+            if (!multisampleResolveWarningIssued) {
+                logger.log(Level.WARNING,
+                        "Multisample blit framebuffer unsupported; falling back to single-sample rendering.",
+                        exception);
+                multisampleResolveWarningIssued = true;
+            }
+        } finally {
+            renderer.setFrameBuffer(null);
+        }
+        destroyLinearFrameBuffer();
+        createLinearFrameBuffer(width, height, 1, false);
+    }
+
+    private void createLinearFrameBuffer(int width, int height, int samples, boolean resolve) {
+        Format colorFormat = resolve ? Format.RGBA8 : getLinearFrameBufferColorFormat();
 
         FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
         frameBuffer.setName("Android Linear Blit FrameBuffer");
         frameBuffer.setSrgb(false);
 
         Texture2D colorTexture = new Texture2D(
-                new Image(getLinearFrameBufferColorFormat(), width, height, null, ColorSpace.Linear));
+                new Image(colorFormat, width, height, null, ColorSpace.Linear));
         colorTexture.setMagFilter(Texture.MagFilter.Bilinear);
         colorTexture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        if (samples > 1) {
+        if (samples > 1 && !resolve) {
             colorTexture.getImage().setMultiSamples(samples);
         }
-        frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        if (resolve) {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorFormat));
+            linearResolveFrameBuffer = new FrameBuffer(width, height, 1);
+            linearResolveFrameBuffer.setName("Android Linear Blit Resolve FrameBuffer");
+            linearResolveFrameBuffer.setSrgb(false);
+            linearResolveFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        } else {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        }
 
         if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
             frameBuffer.setDepthTarget(FrameBufferTarget
@@ -736,7 +787,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         if (linearFrameBufferDirty && linearFrameBufferColorTexture != null) {
             blitMaterial.setTexture("Texture", linearFrameBufferColorTexture);
-            if (linearFrameBuffer != null && linearFrameBuffer.getSamples() > 1) {
+            if (linearFrameBuffer != null && linearResolveFrameBuffer == null && linearFrameBuffer.getSamples() > 1) {
                 blitMaterial.setInt("NumSamples", linearFrameBuffer.getSamples());
             } else {
                 blitMaterial.clearParam("NumSamples");
@@ -752,6 +803,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             linearFrameBuffer.dispose();
             linearFrameBuffer = null;
         }
+        if (linearResolveFrameBuffer != null) {
+            linearResolveFrameBuffer.dispose();
+            linearResolveFrameBuffer = null;
+        }
         if (linearFrameBufferColorTexture != null && linearFrameBufferColorTexture.getImage() != null) {
             linearFrameBufferColorTexture.getImage().dispose();
         }
@@ -764,6 +819,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         blitMaterial = null;
         blitGeometry = null;
         multisampleTextureWarningIssued = false;
+        multisampleResolveWarningIssued = false;
     }
 
     private boolean renderFrameWithBlitSrgbConversion() {
@@ -798,6 +854,15 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         RenderManager renderManager = application.getRenderManager();
         Camera previousCamera = renderManager.getCurrentCamera();
         try {
+            if (linearResolveFrameBuffer != null) {
+                try {
+                    renderer.copyFrameBuffer(linearFrameBuffer, linearResolveFrameBuffer, true, false);
+                } catch (RuntimeException | Error failure) {
+                    renderer.invalidateState();
+                    renderer.setFrameBuffer(null);
+                    throw failure;
+                }
+            }
             renderer.setFrameBuffer(null);
             int blitWidth = Math.max(getFramebufferWidth(), 1);
             int blitHeight = Math.max(getFramebufferHeight(), 1);

@@ -18,6 +18,7 @@
 
 uniform vec4 g_LightData[NB_LIGHTS];
 uniform int g_LightCount;
+uniform bool g_IsFirstLightPass;
 uniform vec3 g_CameraPosition;
 
 #ifdef USE_FOG
@@ -58,11 +59,13 @@ void main(){
     PBRLightingUtils_computeProbesContribution(surface);
 
     // Put it all together
-    gl_FragColor.rgb = vec3(0.0);
-    gl_FragColor.rgb += surface.bakedLightContribution;
-    gl_FragColor.rgb += surface.directLightContribution;
-    gl_FragColor.rgb += surface.envLightContribution;
-    gl_FragColor.rgb += surface.emission;
+    gl_FragColor.rgb = surface.directLightContribution;
+    // Additional passes accumulate only their batch of direct lights.
+    if (g_IsFirstLightPass) {
+        gl_FragColor.rgb += surface.bakedLightContribution;
+        gl_FragColor.rgb += surface.envLightContribution;
+        gl_FragColor.rgb += surface.emission;
+    }
     gl_FragColor.a = surface.alpha;    
 
     #ifdef USE_FOG

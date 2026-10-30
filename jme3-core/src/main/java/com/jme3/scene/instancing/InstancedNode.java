@@ -394,6 +394,15 @@ public class InstancedNode extends GeometryGroupNode {
     }
 
     @Override
+    public void onBoundChange(Geometry geom) {
+        InstancedGeometry ig = igByGeom.get(geom);
+        if (ig != null) {
+            // Keep the group's bound lazy and coalesce changes to its sources.
+            ig.forceRefresh(false, true, false);
+        }
+    }
+
+    @Override
     public void onMaterialChange(Geometry geom) {
         relocateInInstancedGeometry(geom);
     }
