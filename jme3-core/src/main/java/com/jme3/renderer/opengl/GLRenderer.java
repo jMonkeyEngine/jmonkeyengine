@@ -988,10 +988,31 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void invalidateState() {
+        // Restore native draw state before resetting the cache to the same defaults.
+        // Do not use applyRenderState(): cached values may no longer match OpenGL.
+        gl.glDisable(GL.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL.GL_LESS);
+        gl.glDepthMask(true);
+        gl.glColorMask(true, true, true, true);
+        gl.glDisable(GL.GL_POLYGON_OFFSET_FILL);
+        gl.glPolygonOffset(0f, 0f);
+        gl.glDisable(GL.GL_CULL_FACE);
+        gl.glCullFace(GL.GL_BACK);
+        gl.glDisable(GL.GL_BLEND);
+        gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+        gl.glBlendFunc(GL.GL_ONE, GL.GL_ZERO);
+        gl.glDisable(GL.GL_STENCIL_TEST);
+        gl.glStencilOpSeparate(GL.GL_FRONT_AND_BACK, GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
+        gl.glStencilFuncSeparate(GL.GL_FRONT_AND_BACK, GL.GL_ALWAYS, 0, -1);
+        gl.glLineWidth(1f);
+        if (gl2 != null) {
+            gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        }
+
         context.reset();
         context.boundFBO = -1;
         Arrays.fill(vertexAttribDivisorsInvalid, true);
-        if (gl2 != null) {
+        if (caps.contains(Caps.OpenGL20)) {
             context.initialDrawBuf = getInteger(GL2.GL_DRAW_BUFFER);
             context.initialReadBuf = getInteger(GL2.GL_READ_BUFFER);
         }
