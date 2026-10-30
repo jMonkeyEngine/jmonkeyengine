@@ -365,8 +365,6 @@ abstract class FrameBufferTestSupport {
             switch (name) {
                 case GL.GL_FRAMEBUFFER_BINDING:
                     return drawFramebuffer;
-                case GLFbo.GL_READ_FRAMEBUFFER_BINDING_EXT:
-                    return readFramebuffer;
                 case GL.GL_MAX_TEXTURE_SIZE:
                 case GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE:
                 case GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT:

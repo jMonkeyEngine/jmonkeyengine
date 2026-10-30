@@ -107,15 +107,11 @@ public class GlRendererDefaultFrameBufferTest extends FrameBufferTestSupport {
     }
 
     @Test
-    void overrideAfterInvalidationWaitsForExplicitMainSelection() {
+    void overrideAfterInvalidationBindsNonzeroDefaultReplacement() {
         initializeRenderer(77);
         renderer.invalidateState();
         FrameBuffer override = framebuffer(texture());
         renderer.setMainFrameBufferOverride(override);
-        // An unknown binding must not be assumed to be the main framebuffer.
-        assertEquals(77, driver.drawFramebuffer);
-        assertEquals(77, driver.readFramebuffer);
-        renderer.setFrameBuffer(null);
         assertEquals(override.getId(), driver.drawFramebuffer);
         assertEquals(override.getId(), driver.readFramebuffer);
     }
@@ -131,16 +127,13 @@ public class GlRendererDefaultFrameBufferTest extends FrameBufferTestSupport {
     }
 
     @Test
-    void copyAfterInvalidationUsesDiscoveredDefaultAndRestoresNativeBinding() {
+    void copyAfterInvalidationRestoresDiscoveredDefault() {
         initializeRenderer(77);
         FrameBuffer fb = framebuffer(texture());
         renderer.setFrameBuffer(fb);
         renderer.invalidateState();
         renderer.copyFrameBuffer(fb, null, true, false);
         assertEquals(77, driver.blitDrawFramebuffer);
-        assertEquals(fb.getId(), driver.drawFramebuffer);
-        assertEquals(fb.getId(), driver.readFramebuffer);
-        renderer.setFrameBuffer(null);
         assertEquals(77, driver.drawFramebuffer);
         assertEquals(77, driver.readFramebuffer);
     }

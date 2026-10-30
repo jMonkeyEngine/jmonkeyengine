@@ -122,10 +122,13 @@ public class GlRendererBindingInvalidationTest {
         driver.setDefaultFramebuffer(defaultId);
         driver.setNativeFramebuffer(9);
         driver.renderer.invalidateState();
+        assertEquals(defaultId, driver.drawFramebuffer);
+        assertEquals(defaultId, driver.readFramebuffer);
+        assertEquals(defaultId, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
         driver.calls.clear();
         driver.renderer.setFrameBuffer(null);
-        assertEquals(defaultId, driver.drawFramebuffer);
-        assertEquals(1, driver.calls.stream().filter("glBindFramebufferEXT"::equals).count());
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
         driver.calls.clear();
         driver.renderer.setFrameBuffer(null);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
@@ -150,15 +153,28 @@ public class GlRendererBindingInvalidationTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void invalidationDoesNotMutateBindings(boolean desktop) throws Exception {
+    public void invalidationImmediatelyRestoresBindingsOnEveryCall(boolean desktop) throws Exception {
         Recording driver = new Recording(desktop);
-        driver.activeUnit = 3;
-        driver.setNativeFramebuffer(9);
-        driver.renderer.invalidateState();
-        assertEquals(3, driver.activeUnit);
-        assertEquals(9, driver.drawFramebuffer);
-        assertFalse(driver.calls.contains("glActiveTexture"));
-        assertFalse(driver.calls.contains("glBindFramebufferEXT"));
+        for (int i = 0; i < 2; i++) {
+            // The second iteration starts with a cache already claiming defaults.
+            driver.activeUnit = 3;
+            driver.readFramebuffer = 9;
+            driver.drawFramebuffer = 10;
+            driver.textureBindings[3] = 19;
+            driver.calls.clear();
+            driver.renderer.invalidateState();
+            assertEquals(0, driver.activeUnit);
+            assertEquals(0, driver.context.boundTextureUnit);
+            assertEquals(0, driver.readFramebuffer);
+            assertEquals(0, driver.drawFramebuffer);
+            assertEquals(0, driver.context.boundFBO);
+            assertNull(driver.context.boundFB);
+            assertEquals(1, driver.countCalls("glActiveTexture"));
+            assertEquals(1, driver.countCalls("glBindFramebufferEXT"));
+            assertEquals(desktop ? 2 : 0, driver.countCalls("glGetInteger"));
+            assertEquals(19, driver.textureBindings[3]);
+            assertEquals(0, driver.countCalls("glBindTexture"));
+        }
     }
 
     @ParameterizedTest
@@ -174,6 +190,7 @@ public class GlRendererBindingInvalidationTest {
     public void nullFramebufferDoesNotRequireFramebufferSupport(boolean desktop) throws Exception {
         Recording driver = new Recording(desktop);
         driver.renderer.getCaps().remove(Caps.FrameBuffer);
+        driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
         driver.renderer.setFrameBuffer(null);
         driver.renderer.invalidateState();
         driver.calls.clear();
@@ -181,6 +198,9 @@ public class GlRendererBindingInvalidationTest {
         driver.renderer.setFrameBuffer(null);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
         assertThrows(RendererException.class, () -> driver.renderer.setFrameBuffer(framebuffer(12)));
+        assertThrows(RendererException.class,
+                () -> driver.renderer.setMainFrameBufferOverride(framebuffer(12)));
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
     }
 
     @ParameterizedTest
@@ -218,8 +238,23 @@ public class GlRendererBindingInvalidationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"0, 9, 9", "0, 9, 10", "7, 9, 9", "7, 9, 10"})
-    public void unknownCopyRestoresNativeBindingsWithoutValidatingCache(
+    @ValueSource(ints = {0, 77})
+    public void clearImmediatelyAfterInvalidationUsesPlatformFramebuffer(int defaultId) throws Exception {
+        Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(defaultId);
+        driver.setNativeFramebuffer(9);
+        driver.renderer.invalidateState();
+        driver.calls.clear();
+
+        driver.renderer.clearBuffers(true, true, false);
+
+        assertEquals(defaultId, driver.lastClearFramebuffer);
+        assertEquals(0, driver.countCalls("glBindFramebufferEXT"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0, 9, 9", "0, 9, 10", "77, 9, 9", "77, 9, 10"})
+    public void copyAfterInvalidationRestoresDefaultWithoutQueries(
             int defaultId, int readId, int drawId) throws Exception {
         Recording driver = new Recording(false);
         driver.setDefaultFramebuffer(defaultId);
@@ -227,17 +262,14 @@ public class GlRendererBindingInvalidationTest {
         driver.drawFramebuffer = drawId;
         driver.renderer.invalidateState();
         driver.calls.clear();
+
         driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
-        assertEquals(readId, driver.readFramebuffer);
-        assertEquals(drawId, driver.drawFramebuffer);
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        assertEquals(2, driver.countCalls("glGetInteger"));
-        assertEquals(List.of("glGetInteger", "glGetInteger"), driver.calls.subList(0, 2));
-        driver.calls.clear();
-        driver.renderer.setFrameBuffer(null);
+
         assertEquals(defaultId, driver.readFramebuffer);
         assertEquals(defaultId, driver.drawFramebuffer);
-        assertEquals(1, driver.countCalls("glBindFramebufferEXT"));
+        assertEquals(defaultId, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
+        assertEquals(0, driver.countCalls("glGetInteger"));
         driver.calls.clear();
         driver.renderer.setFrameBuffer(null);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
@@ -245,8 +277,9 @@ public class GlRendererBindingInvalidationTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void unknownCopySnapshotsBindingsBeforeAttachmentUpdates(boolean desktop) throws Exception {
+    public void copyCanUpdateAttachmentsAfterInvalidationWithoutQueries(boolean desktop) throws Exception {
         Recording driver = new Recording(desktop);
+        driver.setDefaultFramebuffer(77);
         driver.readFramebuffer = 9;
         driver.drawFramebuffer = 10;
         driver.renderer.invalidateState();
@@ -255,75 +288,55 @@ public class GlRendererBindingInvalidationTest {
         FrameBuffer destination = new FrameBuffer(4, 4, 1);
         destination.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
         driver.calls.clear();
+
         driver.renderer.copyFrameBuffer(source, destination, true, false);
+
         assertTrue(source.getId() > 0);
         assertTrue(destination.getId() > 0);
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(10, driver.drawFramebuffer);
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        assertEquals(List.of("glGetInteger", "glGetInteger"), driver.calls.subList(0, 2));
-        driver.renderer.setFrameBuffer(null);
-        assertEquals(0, driver.drawFramebuffer);
-    }
-
-    @Test
-    public void unknownCopyPreservesTheUntrustedNameAndKnownTextures() throws Exception {
-        Recording driver = new Recording(false);
-        Texture2D texture = texture(17);
-        driver.renderer.setTexture(3, texture);
-        driver.context.setFrameBufferBinding(framebuffer(27), 27);
-        driver.context.invalidateFrameBufferBinding();
-        driver.setNativeFramebuffer(9);
-
-        driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
-
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(9, driver.drawFramebuffer);
-        assertEquals(27, driver.context.boundFBO);
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        assertEquals(3, driver.context.boundTextureUnit);
-        assertSame(texture.getImage().getWeakRef(), driver.context.boundTextures[3]);
-        driver.calls.clear();
-        driver.renderer.setTexture(3, texture);
-        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
-        driver.renderer.setFrameBuffer(null);
-        assertEquals(0, driver.drawFramebuffer);
+        assertEquals(77, driver.readFramebuffer);
+        assertEquals(77, driver.drawFramebuffer);
+        assertEquals(77, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
+        assertEquals(0, driver.countCalls("glGetInteger"));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void knownCopyUsesCachedBindingAndPreservesElision(boolean desktop) throws Exception {
+    public void copyPreservesKnownFramebufferAndTextureCache(boolean desktop) throws Exception {
         Recording driver = new Recording(desktop);
         FrameBuffer previous = framebuffer(14);
+        Texture2D texture = texture(17);
         driver.renderer.setFrameBuffer(previous);
+        driver.renderer.setTexture(3, texture);
         driver.calls.clear();
+
         driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
+
         assertEquals(14, driver.readFramebuffer);
         assertEquals(14, driver.drawFramebuffer);
-        assertTrue(driver.context.isFrameBufferBindingValid());
         assertSame(previous, driver.renderer.getCurrentFrameBuffer());
         assertEquals(0, driver.countCalls("glGetInteger"));
         assertEquals(3, driver.countCalls("glBindFramebufferEXT"));
+        assertEquals(3, driver.context.boundTextureUnit);
+        assertSame(texture.getImage().getWeakRef(), driver.context.boundTextures[3]);
         driver.calls.clear();
         driver.renderer.setFrameBuffer(previous);
+        driver.renderer.setTexture(3, texture);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, 7})
-    public void unknownOverrideDefersBindingUntilNullSelection(int defaultId) throws Exception {
+    @ValueSource(ints = {0, 77})
+    public void overrideInstalledAfterInvalidationBindsImmediately(int defaultId) throws Exception {
         Recording driver = new Recording(false);
         driver.setDefaultFramebuffer(defaultId);
         driver.setNativeFramebuffer(9);
         driver.renderer.invalidateState();
-        driver.calls.clear();
         FrameBuffer override = framebuffer(12);
         driver.renderer.setMainFrameBufferOverride(override);
-        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
-        assertEquals(9, driver.drawFramebuffer);
-        driver.renderer.setFrameBuffer(null);
         assertEquals(12, driver.drawFramebuffer);
-        assertTrue(driver.context.isFrameBufferBindingValid());
+        assertEquals(12, driver.readFramebuffer);
+        assertSame(override, driver.context.boundFB);
         driver.calls.clear();
         driver.renderer.setFrameBuffer(null);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
@@ -331,20 +344,65 @@ public class GlRendererBindingInvalidationTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, 77})
-    public void knownMainOverrideRetainsImmediateBinding(int defaultId) throws Exception {
+    public void invalidationRetainsOverrideWithoutAllocatingIt(int defaultId) throws Exception {
         Recording driver = new Recording(false);
         driver.setDefaultFramebuffer(defaultId);
+        driver.renderer.setFrameBuffer(framebuffer(14));
+        FrameBuffer override = new FrameBuffer(4, 4, 1);
+        override.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        driver.renderer.setMainFrameBufferOverride(override);
+        driver.calls.clear();
+
+        driver.renderer.invalidateState();
+
+        assertEquals(defaultId, driver.drawFramebuffer);
+        assertEquals(defaultId, driver.readFramebuffer);
+        assertEquals(defaultId, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
+        assertSame(override, driver.renderer.getCurrentFrameBuffer());
+        assertEquals(-1, override.getId());
+        assertEquals(0, driver.countCalls("glGenFramebuffersEXT"));
+        assertEquals(0, driver.countCalls("glGenRenderbuffersEXT"));
         driver.renderer.setFrameBuffer(null);
-        driver.renderer.setMainFrameBufferOverride(framebuffer(12));
-        assertEquals(12, driver.drawFramebuffer);
-        assertTrue(driver.context.isFrameBufferBindingValid());
+        assertTrue(override.getId() > 0);
+        assertEquals(override.getId(), driver.drawFramebuffer);
+        assertSame(override, driver.context.boundFB);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void unknownAttachmentUpdateRestoresSplitBindingsAndKeepsUploadedTexture(
-            boolean textureHelper) throws Exception {
+    public void lifecycleResetDoesNotRecreateMainOverride(boolean cleanup) throws Exception {
         Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(77);
+        driver.renderer.setFrameBuffer(null);
+        FrameBuffer override = new FrameBuffer(4, 4, 1);
+        override.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        driver.renderer.setMainFrameBufferOverride(override);
+        assertTrue(override.getId() > 0);
+        driver.calls.clear();
+
+        if (cleanup) {
+            driver.renderer.cleanup();
+        } else {
+            driver.renderer.resetGLObjects();
+        }
+
+        assertEquals(-1, override.getId());
+        assertEquals(77, driver.drawFramebuffer);
+        assertEquals(77, driver.readFramebuffer);
+        assertEquals(77, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
+        assertSame(override, driver.renderer.getCurrentFrameBuffer());
+        assertEquals(0, driver.countCalls("glGenFramebuffersEXT"));
+        assertEquals(0, driver.countCalls("glGenRenderbuffersEXT"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"false, 0", "true, 0", "false, 77", "true, 77"})
+    public void attachmentUpdateRestoresDefaultAndKeepsUploadedTexture(
+            boolean textureHelper, int defaultId) throws Exception {
+        Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(defaultId);
         Texture2D texture = new Texture2D(4, 4, Image.Format.RGBA8);
         texture.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         FrameBuffer target = new FrameBuffer(4, 4, 1);
@@ -353,30 +411,30 @@ public class GlRendererBindingInvalidationTest {
         driver.readFramebuffer = 9;
         driver.drawFramebuffer = 10;
         driver.renderer.invalidateState();
+        driver.calls.clear();
 
         updateAttachment(driver, target, textureHelper);
 
-        assertTrue(target.getId() > 0);
         assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(10, driver.drawFramebuffer);
-        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertEquals(defaultId, driver.readFramebuffer);
+        assertEquals(defaultId, driver.drawFramebuffer);
+        assertEquals(defaultId, driver.context.boundFBO);
         assertNull(driver.context.boundFB);
         assertEquals(texture.getImage().getId(), driver.lastUploadedTexture);
         assertEquals(0, driver.activeUnit);
+        assertEquals(0, driver.countCalls("glGetInteger"));
         assertSame(texture.getImage().getWeakRef(), driver.context.boundTextures[0]);
         driver.calls.clear();
         driver.renderer.setTexture(0, texture);
-        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
         driver.renderer.setFrameBuffer(null);
-        assertEquals(0, driver.readFramebuffer);
-        assertEquals(0, driver.drawFramebuffer);
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    public void failedAttachmentUpdateRestoresUnknownSplitBindings(boolean textureHelper) throws Exception {
+    @CsvSource({"false, 0", "true, 0", "false, 77", "true, 77"})
+    public void failedAttachmentUpdateRestoresDefault(boolean textureHelper, int defaultId) throws Exception {
         Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(defaultId);
         FrameBuffer target = new FrameBuffer(4, 4, 1);
         target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture(17)));
         driver.readFramebuffer = 9;
@@ -384,48 +442,24 @@ public class GlRendererBindingInvalidationTest {
         driver.renderer.invalidateState();
         IllegalStateException failure = new IllegalStateException("Attachment failure");
         driver.attachmentFailure = failure;
+        driver.calls.clear();
 
         assertSame(failure, assertThrows(IllegalStateException.class,
                 () -> updateAttachment(driver, target, textureHelper)));
 
         assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(10, driver.drawFramebuffer);
-        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertEquals(defaultId, driver.readFramebuffer);
+        assertEquals(defaultId, driver.drawFramebuffer);
+        assertEquals(defaultId, driver.context.boundFBO);
         assertNull(driver.context.boundFB);
+        assertEquals(0, driver.countCalls("glGetInteger"));
         driver.attachmentFailure = null;
         driver.renderer.setFrameBuffer(target);
-        assertEquals(target.getId(), driver.drawFramebuffer);
-        assertTrue(driver.context.isFrameBufferBindingValid());
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = {false, true})
-    public void attachmentUpdateDoesNotTrustAnInvalidNameMatchingItsTarget(
-            boolean textureHelper) throws Exception {
-        Recording driver = new Recording(false);
-        FrameBuffer target = new FrameBuffer(4, 4, 1);
-        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture(17)));
-        driver.renderer.setFrameBuffer(target);
-        // Framebuffer-only invalidation deliberately retains the old native name.
-        driver.context.invalidateFrameBufferBinding();
-        driver.readFramebuffer = 9;
-        driver.drawFramebuffer = 10;
-
-        updateAttachment(driver, target, textureHelper);
-
-        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(10, driver.drawFramebuffer);
-        assertEquals(target.getId(), driver.context.boundFBO);
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        driver.renderer.setFrameBuffer(target);
-        assertEquals(target.getId(), driver.readFramebuffer);
         assertEquals(target.getId(), driver.drawFramebuffer);
     }
 
     @Test
-    public void unknownAttachmentUpdateSupportsCombinedBindingsWithoutBlit() throws Exception {
+    public void attachmentUpdateDoesNotRequireBlitSupport() throws Exception {
         Recording driver = new Recording(false);
         driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
         driver.setNativeFramebuffer(9);
@@ -437,16 +471,15 @@ public class GlRendererBindingInvalidationTest {
         driver.renderer.updateFrameBufferAttachment(target, target.getColorTarget());
 
         assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
-        assertEquals(9, driver.readFramebuffer);
-        assertEquals(9, driver.drawFramebuffer);
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        assertEquals(1, driver.countCalls("glGetInteger"));
+        assertEquals(0, driver.readFramebuffer);
+        assertEquals(0, driver.drawFramebuffer);
+        assertEquals(0, driver.context.boundFBO);
+        assertEquals(0, driver.countCalls("glGetInteger"));
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void attachmentUpdateWithoutFramebufferSupportMakesNoNativeCalls(
-            boolean textureHelper) throws Exception {
+    public void attachmentUpdateWithoutFramebufferSupportMakesNoNativeCalls(boolean textureHelper) throws Exception {
         Recording driver = new Recording(false);
         driver.renderer.getCaps().remove(Caps.FrameBuffer);
         driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
@@ -458,12 +491,12 @@ public class GlRendererBindingInvalidationTest {
         assertThrows(RendererException.class, () -> updateAttachment(driver, target, textureHelper));
 
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
-        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertEquals(0, driver.context.boundFBO);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void knownAttachmentUpdateRetainsQueryFreeBindingRestoration(boolean sameTarget) throws Exception {
+    public void knownAttachmentUpdateRetainsQueryFreeRestoration(boolean sameTarget) throws Exception {
         Recording driver = new Recording(false);
         FrameBuffer previous = new FrameBuffer(4, 4, 1);
         previous.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
@@ -481,101 +514,85 @@ public class GlRendererBindingInvalidationTest {
         assertEquals(previous.getId(), driver.readFramebuffer);
         assertEquals(previous.getId(), driver.drawFramebuffer);
         assertSame(previous, driver.context.boundFB);
-        assertTrue(driver.context.isFrameBufferBindingValid());
         assertEquals(0, driver.countCalls("glGetInteger"));
         assertEquals(sameTarget ? 0 : 2, driver.countCalls("glBindFramebufferEXT"));
     }
 
     @ParameterizedTest
-    @CsvSource({"0, 9", "0, 10", "7, 9", "7, 10"})
-    public void deletingWhileUnknownDoesNotValidateOrEagerlyRebind(
-            int defaultId, int deletedId) throws Exception {
+    @CsvSource({"0, 9", "0, 10", "77, 9", "77, 10"})
+    public void deletingAfterInvalidationKeepsDefaultBound(int defaultId, int deletedId) throws Exception {
         Recording driver = new Recording(false);
         driver.setDefaultFramebuffer(defaultId);
         driver.setNativeFramebuffer(9);
         driver.renderer.invalidateState();
         driver.calls.clear();
         driver.renderer.deleteFrameBuffer(framebuffer(deletedId));
-        assertEquals(deletedId == 9 ? 0 : 9, driver.drawFramebuffer);
-        assertEquals(0, driver.countCalls("glBindFramebufferEXT"));
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        driver.renderer.setFrameBuffer(null);
         assertEquals(defaultId, driver.drawFramebuffer);
-        assertTrue(driver.context.isFrameBufferBindingValid());
+        assertEquals(defaultId, driver.context.boundFBO);
+        assertEquals(0, driver.countCalls("glBindFramebufferEXT"));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {0, 77})
-    public void deletingKnownFramebufferKeepsCacheConsistentAndRestoresMain(int defaultId) throws Exception {
+    public void deletingBoundFramebufferRestoresDefault(int defaultId) throws Exception {
         Recording driver = new Recording(false);
         driver.setDefaultFramebuffer(defaultId);
         FrameBuffer framebuffer = framebuffer(12);
         driver.renderer.setFrameBuffer(framebuffer);
-
         driver.renderer.deleteFrameBuffer(framebuffer);
-
-        assertEquals(driver.drawFramebuffer, driver.context.boundFBO);
-        assertNull(driver.context.boundFB);
-        assertTrue(driver.context.isFrameBufferBindingValid());
-        driver.renderer.setFrameBuffer(null);
         assertEquals(defaultId, driver.drawFramebuffer);
+        assertEquals(defaultId, driver.context.boundFBO);
+        assertNull(driver.context.boundFB);
         driver.calls.clear();
         driver.renderer.setFrameBuffer(null);
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
     }
 
-    @Test
-    public void knownUntrackedFramebufferDoesNotReceiveMainSrgbConfiguration() throws Exception {
-        Recording driver = new Recording(false);
+    @ParameterizedTest
+    @CsvSource({"false, false", "false, true", "true, false", "true, true"})
+    public void invalidationImmediatelyRestoresMainSrgb(boolean desktop, boolean mainSrgb) throws Exception {
+        Recording driver = new Recording(desktop);
+        driver.renderer.getCaps().add(Caps.Srgb);
+        driver.renderer.getCaps().add(Caps.SrgbWriteControl);
         driver.setDefaultFramebuffer(77);
-        driver.renderer.getCaps().add(Caps.Srgb);
-        driver.renderer.getCaps().add(Caps.SrgbWriteControl);
-        driver.context.setFrameBufferBinding(null, 0);
-        driver.calls.clear();
-
-        driver.renderer.setMainFrameBufferSrgb(true);
+        driver.renderer.setMainFrameBufferSrgb(mainSrgb);
+        for (int i = 0; i < 2; i++) {
+            driver.srgbEnabled = !mainSrgb;
+            driver.readFramebuffer = 9;
+            driver.drawFramebuffer = 10;
+            driver.calls.clear();
+            driver.renderer.invalidateState();
+            assertEquals(mainSrgb, driver.srgbEnabled);
+            assertEquals(mainSrgb, driver.context.srgbWriteEnabled);
+            assertEquals(77, driver.drawFramebuffer);
+            driver.calls.clear();
+            driver.renderer.setFrameBuffer(null);
+            assertTrue(driver.calls.isEmpty(), driver.calls.toString());
+        }
         driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
-
-        assertEquals(0, driver.drawFramebuffer);
-        assertEquals(0, driver.countCalls("glEnable"));
-        assertEquals(0, driver.countCalls("glGetInteger"));
-        driver.renderer.setFrameBuffer(null);
-        assertEquals(77, driver.drawFramebuffer);
-        assertEquals(1, driver.countCalls("glEnable"));
+        assertEquals(mainSrgb, driver.srgbEnabled);
+        assertEquals(mainSrgb, driver.context.srgbWriteEnabled);
     }
 
-    @Test
-    public void unknownCopyRestorationDoesNotAssumeMainSrgbTarget() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void resetDoesNotToggleSrgbWithoutBothCapabilities(boolean writeControl) throws Exception {
         Recording driver = new Recording(false);
-        driver.renderer.getCaps().add(Caps.Srgb);
-        driver.renderer.getCaps().add(Caps.SrgbWriteControl);
-        driver.setNativeFramebuffer(9);
+        driver.renderer.getCaps().add(writeControl ? Caps.SrgbWriteControl : Caps.Srgb);
         driver.renderer.invalidateState();
-        driver.renderer.setMainFrameBufferSrgb(true);
-        driver.calls.clear();
-        driver.renderer.copyFrameBuffer(framebuffer(12), framebuffer(13), true, false);
-        assertEquals(9, driver.drawFramebuffer);
-        assertEquals(0, driver.countCalls("glEnable"));
-        assertFalse(driver.context.isFrameBufferBindingValid());
-        driver.renderer.setFrameBuffer(null);
-        assertEquals(1, driver.countCalls("glEnable"));
+        assertFalse(driver.srgbEnabled);
     }
 
-    @Test
-    public void mainSrgbConfigurationDoesNotToggleAnUnknownTarget() throws Exception {
-        Recording driver = new Recording(false);
-        driver.renderer.getCaps().add(Caps.Srgb);
-        driver.renderer.getCaps().add(Caps.SrgbWriteControl);
-        driver.setNativeFramebuffer(9);
+    @ParameterizedTest
+    @ValueSource(ints = {0, 77})
+    public void desktopBufferSelectionQueriesFollowTheDefaultBind(int defaultId) throws Exception {
+        Recording driver = new Recording(true);
+        driver.setDefaultFramebuffer(defaultId);
+        driver.readFramebuffer = 9;
+        driver.drawFramebuffer = 10;
         driver.renderer.invalidateState();
-        driver.calls.clear();
-        driver.renderer.setMainFrameBufferSrgb(true);
-        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
-        driver.renderer.setFrameBuffer(null);
-        assertEquals(1, driver.countCalls("glEnable"));
-        driver.calls.clear();
-        driver.renderer.setMainFrameBufferSrgb(false);
-        assertEquals(1, driver.countCalls("glDisable"));
+        assertEquals(defaultId, driver.lastDrawBufferQueryFramebuffer);
+        assertEquals(defaultId, driver.lastReadBufferQueryFramebuffer);
     }
 
     private static void updateAttachment(Recording driver, FrameBuffer target, boolean textureHelper) {
@@ -611,6 +628,10 @@ public class GlRendererBindingInvalidationTest {
         private int lastUploadedTexture;
         private int lastParameterTexture;
         private int lastAttachmentFramebuffer;
+        private int lastClearFramebuffer = -1;
+        private int lastDrawBufferQueryFramebuffer = -1;
+        private int lastReadBufferQueryFramebuffer = -1;
+        private boolean srgbEnabled;
         private IllegalStateException attachmentFailure;
         private final int[] textureBindings = new int[16];
         private final List<String> calls = new ArrayList<>();
@@ -659,6 +680,13 @@ public class GlRendererBindingInvalidationTest {
                 int unit = (Integer) args[0] - GL.GL_TEXTURE0;
                 assertTrue(unit >= 0, "Unknown texture unit passed to GL");
                 activeUnit = unit;
+            } else if (name.equals("glClear")) {
+                lastClearFramebuffer = drawFramebuffer;
+            } else if ((name.equals("glEnable") || name.equals("glDisable"))
+                    && (Integer) args[0] == GLExt.GL_FRAMEBUFFER_SRGB_EXT) {
+                assertTrue(renderer.getCaps().contains(Caps.Srgb)
+                        && renderer.getCaps().contains(Caps.SrgbWriteControl), "Unsupported sRGB toggle");
+                srgbEnabled = name.equals("glEnable");
             } else if (name.equals("glBindTexture")) {
                 textureBindings[activeUnit] = (Integer) args[1];
             } else if (name.equals("glTexImage2D")) {
@@ -681,6 +709,14 @@ public class GlRendererBindingInvalidationTest {
                 }
             } else if (name.equals("glGetInteger")) {
                 int parameter = (Integer) args[0];
+                if (parameter == GL2.GL_DRAW_BUFFER || parameter == GL2.GL_READ_BUFFER) {
+                    assertTrue(renderer.getCaps().contains(Caps.OpenGL20), "Desktop-only query on GLES");
+                    if (parameter == GL2.GL_DRAW_BUFFER) {
+                        lastDrawBufferQueryFramebuffer = drawFramebuffer;
+                    } else {
+                        lastReadBufferQueryFramebuffer = readFramebuffer;
+                    }
+                }
                 if (parameter == GL.GL_FRAMEBUFFER_BINDING
                         || parameter == GLFbo.GL_READ_FRAMEBUFFER_BINDING_EXT) {
                     assertTrue(renderer.getCaps().contains(Caps.FrameBuffer),

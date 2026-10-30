@@ -207,20 +207,14 @@ public class RenderContext {
     public Shader boundShader;
 
     /**
-     * ID of the bound FrameBuffer. This value is untrusted while
-     * {@link #isFrameBufferBindingValid()} is false.
+     * ID of the bound FrameBuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public int boundFBO;
 
-    private boolean frameBufferBindingValid = true;
-
     /**
-     * Java object associated with the known framebuffer binding, or null when
-     * there is no associated object or the binding is unknown. A null value
-     * does not imply a native framebuffer name of zero; presentation and
-     * externally managed framebuffers can have nonzero names.
+     * Currently bound FrameBuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
@@ -295,7 +289,7 @@ public class RenderContext {
     public final IDList textureIndexList = new IDList();
 
     /**
-     * Currently bound texture unit, or -1 when the active unit is unknown.
+     * Currently bound texture unit.
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
@@ -402,52 +396,6 @@ public class RenderContext {
         init();
     }
 
-    /**
-     * Tests whether the cached framebuffer binding can suppress a GL bind.
-     *
-     * @return true if the binding is known
-     */
-    public boolean isFrameBufferBindingValid() {
-        return frameBufferBindingValid;
-    }
-
-    /**
-     * Records the object and native name of a known framebuffer binding.
-     * Call after establishing native state or restoring a known binding.
-     *
-     * @param fb the associated Java framebuffer, or null if there is none
-     * @param fbo the known native framebuffer name
-     */
-    public void setFrameBufferBinding(FrameBuffer fb, int fbo) {
-        boundFB = fb;
-        boundFBO = fbo;
-        frameBufferBindingValid = true;
-    }
-
-    /**
-     * Invalidates only the framebuffer binding, leaving texture bindings alone.
-     * The numeric name is retained as an untrusted value, and the associated
-     * Java object is cleared. This does not modify native state.
-     */
-    public void invalidateFrameBufferBinding() {
-        frameBufferBindingValid = false;
-        boundFB = null;
-    }
-
-    /**
-     * Invalidates texture and framebuffer bindings after external GL changes.
-     * This does not modify native state. Unlike reset(), it does not assume
-     * that texture unit zero or the default framebuffer is bound.
-     */
-    public void invalidateBindings() {
-        boundTextureUnit = -1;
-        invalidateFrameBufferBinding();
-        for (int i = 0; i < boundTextures.length; i++) {
-            boundTextures[i] = null;
-        }
-        textureIndexList.reset();
-    }
-
 
     private void init() {
         cullMode = RenderState.FaceCullMode.Off;
@@ -473,7 +421,6 @@ public class RenderContext {
         boundShader = null;
         boundFBO = 0;
         boundFB = null;
-        frameBufferBindingValid = true;
         boundRB = 0;
 
         boundElementArrayVBO = 0;
