@@ -38,7 +38,6 @@ import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
-import com.jme3.renderer.RenderContext.RenderStateCategory;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -209,6 +208,7 @@ public final class GLRenderer implements Renderer {
     private final TextureUtil texUtil;
     private boolean debug = false;
     private int debugGroupId = 0;
+
 
     public GLRenderer(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
@@ -986,22 +986,33 @@ public final class GLRenderer implements Renderer {
         context.boundFB = null;
     }
 
-    private boolean isDesktopGl() {
-        // Some GLES adapters expose GL2 as well. Prefer the runtime profile,
-        // falling back to the adapter type before capabilities are loaded.
-        return gl2 != null
-                && !caps.contains(Caps.OpenGLES20)
-                && !caps.contains(Caps.OpenGLES30)
-                && !caps.contains(Caps.WebGL)
-                && (caps.contains(Caps.OpenGL20) || !(gl instanceof GLES_30));
-    }
-
     @Override
     public void invalidateState() {
-        context.invalidate();
+        // Restore native draw state before resetting the cache to the same defaults.
+        // Do not use applyRenderState(): cached values may no longer match OpenGL.
+        gl.glDisable(GL.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL.GL_LESS);
+        gl.glDepthMask(true);
+        gl.glColorMask(true, true, true, true);
+        gl.glDisable(GL.GL_POLYGON_OFFSET_FILL);
+        gl.glPolygonOffset(0f, 0f);
+        gl.glDisable(GL.GL_CULL_FACE);
+        gl.glCullFace(GL.GL_BACK);
+        gl.glDisable(GL.GL_BLEND);
+        gl.glBlendEquationSeparate(GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+        gl.glBlendFunc(GL.GL_ONE, GL.GL_ZERO);
+        gl.glDisable(GL.GL_STENCIL_TEST);
+        gl.glStencilOpSeparate(GL.GL_FRONT_AND_BACK, GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
+        gl.glStencilFuncSeparate(GL.GL_FRONT_AND_BACK, GL.GL_ALWAYS, 0, -1);
+        gl.glLineWidth(1f);
+        if (gl2 != null) {
+            gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        }
+
+        context.reset();
         context.boundFBO = -1;
         Arrays.fill(vertexAttribDivisorsInvalid, true);
-        if (isDesktopGl()) {
+        if (caps.contains(Caps.OpenGL20)) {
             context.initialDrawBuf = getInteger(GL2.GL_DRAW_BUFFER);
             context.initialReadBuf = getInteger(GL2.GL_READ_BUFFER);
         }
@@ -1044,10 +1055,9 @@ public final class GLRenderer implements Renderer {
         int bits = 0;
         if (color) {
             //See explanations of the depth below, we must enable color write to be able to clear the color buffer
-            if (!context.isRenderStateValid(RenderStateCategory.ColorWrite) || !context.colorWriteEnabled) {
+            if (context.colorWriteEnabled == false) {
                 gl.glColorMask(true, true, true, true);
                 context.colorWriteEnabled = true;
-                context.setRenderStateValid(RenderStateCategory.ColorWrite);
             }
             bits = GL.GL_COLOR_BUFFER_BIT;
         }
@@ -1056,10 +1066,9 @@ public final class GLRenderer implements Renderer {
             // Here is a link to the openGL discussion:
             // http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
             // If depth clear is requested, we enable the depth mask.
-            if (!context.isRenderStateValid(RenderStateCategory.DepthWrite) || !context.depthWriteEnabled) {
+            if (context.depthWriteEnabled == false) {
                 gl.glDepthMask(true);
                 context.depthWriteEnabled = true;
-                context.setRenderStateValid(RenderStateCategory.DepthWrite);
             }
             bits |= GL.GL_DEPTH_BUFFER_BIT;
         }
@@ -1102,49 +1111,46 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void applyRenderState(RenderState state) {
-        if (isDesktopGl()
-                && (!context.isRenderStateValid(RenderStateCategory.Wireframe)
-                || state.isWireframe() != context.wireframe)) {
-            gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, state.isWireframe() ? GL2.GL_LINE : GL2.GL_FILL);
-            context.wireframe = state.isWireframe();
-            context.setRenderStateValid(RenderStateCategory.Wireframe);
+        if (gl2 != null) {
+            if (state.isWireframe() && !context.wireframe) {
+                gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_LINE);
+                context.wireframe = true;
+            } else if (!state.isWireframe() && context.wireframe) {
+                gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+                context.wireframe = false;
+            }
         }
 
-        if (!context.isRenderStateValid(RenderStateCategory.DepthTest)
-                || state.isDepthTest() != context.depthTestEnabled) {
-            if (state.isDepthTest()) {
-                gl.glEnable(GL.GL_DEPTH_TEST);
-            } else {
-                gl.glDisable(GL.GL_DEPTH_TEST);
-            }
-            context.depthTestEnabled = state.isDepthTest();
-            context.setRenderStateValid(RenderStateCategory.DepthTest);
+        if (state.isDepthTest() && !context.depthTestEnabled) {
+            gl.glEnable(GL.GL_DEPTH_TEST);
+            context.depthTestEnabled = true;
+        } else if (!state.isDepthTest() && context.depthTestEnabled) {
+            gl.glDisable(GL.GL_DEPTH_TEST);
+            context.depthTestEnabled = false;
         }
-        if (state.isDepthTest() && (!context.isRenderStateValid(RenderStateCategory.DepthFunction)
-                || state.getDepthFunc() != context.depthFunc)) {
+        if (state.isDepthTest() && state.getDepthFunc() != context.depthFunc) {
             gl.glDepthFunc(convertTestFunction(state.getDepthFunc()));
             context.depthFunc = state.getDepthFunc();
-            context.setRenderStateValid(RenderStateCategory.DepthFunction);
         }
 
-        if (!context.isRenderStateValid(RenderStateCategory.DepthWrite)
-                || state.isDepthWrite() != context.depthWriteEnabled) {
-            gl.glDepthMask(state.isDepthWrite());
-            context.depthWriteEnabled = state.isDepthWrite();
-            context.setRenderStateValid(RenderStateCategory.DepthWrite);
+        if (state.isDepthWrite() && !context.depthWriteEnabled) {
+            gl.glDepthMask(true);
+            context.depthWriteEnabled = true;
+        } else if (!state.isDepthWrite() && context.depthWriteEnabled) {
+            gl.glDepthMask(false);
+            context.depthWriteEnabled = false;
         }
 
-        if (!context.isRenderStateValid(RenderStateCategory.ColorWrite)
-                || state.isColorWrite() != context.colorWriteEnabled) {
-            boolean colorWrite = state.isColorWrite();
-            gl.glColorMask(colorWrite, colorWrite, colorWrite, colorWrite);
-            context.colorWriteEnabled = colorWrite;
-            context.setRenderStateValid(RenderStateCategory.ColorWrite);
+        if (state.isColorWrite() && !context.colorWriteEnabled) {
+            gl.glColorMask(true, true, true, true);
+            context.colorWriteEnabled = true;
+        } else if (!state.isColorWrite() && context.colorWriteEnabled) {
+            gl.glColorMask(false, false, false, false);
+            context.colorWriteEnabled = false;
         }
 
         if (state.isPolyOffset()) {
-            if (!context.isRenderStateValid(RenderStateCategory.PolygonOffset)
-                    || !context.polyOffsetEnabled) {
+            if (!context.polyOffsetEnabled) {
                 gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
                 gl.glPolygonOffset(state.getPolyOffsetFactor(),
                         state.getPolyOffsetUnits());
@@ -1161,7 +1167,7 @@ public final class GLRenderer implements Renderer {
                 }
             }
         } else {
-            if (!context.isRenderStateValid(RenderStateCategory.PolygonOffset) || context.polyOffsetEnabled) {
+            if (context.polyOffsetEnabled) {
                 gl.glDisable(GL.GL_POLYGON_OFFSET_FILL);
                 context.polyOffsetEnabled = false;
                 context.polyOffsetFactor = 0;
@@ -1169,10 +1175,7 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        context.setRenderStateValid(RenderStateCategory.PolygonOffset);
-
-        if (!context.isRenderStateValid(RenderStateCategory.FaceCull)
-                || state.getFaceCullMode() != context.cullMode) {
+        if (state.getFaceCullMode() != context.cullMode) {
             if (state.getFaceCullMode() == RenderState.FaceCullMode.Off) {
                 gl.glDisable(GL.GL_CULL_FACE);
             } else {
@@ -1197,7 +1200,6 @@ public final class GLRenderer implements Renderer {
             }
 
             context.cullMode = state.getFaceCullMode();
-            context.setRenderStateValid(RenderStateCategory.FaceCull);
         }
 
         // Always update the blend equations and factors when using custom blend mode.
@@ -1212,8 +1214,7 @@ public final class GLRenderer implements Renderer {
             blendEquationSeparate(state.getBlendEquation(), state.getBlendEquationAlpha());
 
         // Update the blend equations and factors only on a mode change for all the other (common) blend modes.
-        } else if (!context.isRenderStateValid(RenderStateCategory.BlendMode)
-                || state.getBlendMode() != context.blendMode) {
+        } else if (state.getBlendMode() != context.blendMode) {
             changeBlendMode(state.getBlendMode());
 
             switch (state.getBlendMode()) {
@@ -1262,8 +1263,7 @@ public final class GLRenderer implements Renderer {
             blendEquationSeparate(RenderState.BlendEquation.Add, RenderState.BlendEquationAlpha.InheritColor);
         }
 
-        if (!context.isRenderStateValid(RenderStateCategory.Stencil)
-                || context.stencilTest != state.isStencilTest()
+        if (context.stencilTest != state.isStencilTest()
                 || context.frontStencilStencilFailOperation != state.getFrontStencilStencilFailOperation()
                 || context.frontStencilDepthFailOperation != state.getFrontStencilDepthFailOperation()
                 || context.frontStencilDepthPassOperation != state.getFrontStencilDepthPassOperation()
@@ -1310,37 +1310,27 @@ public final class GLRenderer implements Renderer {
             } else {
                 gl.glDisable(GL.GL_STENCIL_TEST);
             }
-            context.setRenderStateValid(RenderStateCategory.Stencil);
         }
-        setLineWidth(state.getLineWidth());
-    }
-
-    private void setLineWidth(float lineWidth) {
-        if (!context.isRenderStateValid(RenderStateCategory.LineWidth) || context.lineWidth != lineWidth) {
-            gl.glLineWidth(lineWidth);
-            context.lineWidth = lineWidth;
-            context.setRenderStateValid(RenderStateCategory.LineWidth);
+        if (context.lineWidth != state.getLineWidth()) {
+            gl.glLineWidth(state.getLineWidth());
+            context.lineWidth = state.getLineWidth();
         }
     }
 
     private void changeBlendMode(RenderState.BlendMode blendMode) {
-        if (!context.isRenderStateValid(RenderStateCategory.BlendMode) || blendMode != context.blendMode) {
+        if (blendMode != context.blendMode) {
             if (blendMode == RenderState.BlendMode.Off) {
                 gl.glDisable(GL.GL_BLEND);
-            } else if (!context.isRenderStateValid(RenderStateCategory.BlendMode)
-                    || context.blendMode == RenderState.BlendMode.Off) {
+            } else if (context.blendMode == RenderState.BlendMode.Off) {
                 gl.glEnable(GL.GL_BLEND);
             }
 
             context.blendMode = blendMode;
-            context.setRenderStateValid(RenderStateCategory.BlendMode);
         }
     }
 
     private void blendEquationSeparate(RenderState.BlendEquation blendEquation, RenderState.BlendEquationAlpha blendEquationAlpha) {
-        if (!context.isRenderStateValid(RenderStateCategory.BlendEquations)
-                || blendEquation != context.blendEquation
-                || blendEquationAlpha != context.blendEquationAlpha) {
+        if (blendEquation != context.blendEquation || blendEquationAlpha != context.blendEquationAlpha) {
             int glBlendEquation = convertBlendEquation(blendEquation);
             int glBlendEquationAlpha = blendEquationAlpha == RenderState.BlendEquationAlpha.InheritColor
                     ? glBlendEquation
@@ -1348,13 +1338,11 @@ public final class GLRenderer implements Renderer {
             gl.glBlendEquationSeparate(glBlendEquation, glBlendEquationAlpha);
             context.blendEquation = blendEquation;
             context.blendEquationAlpha = blendEquationAlpha;
-            context.setRenderStateValid(RenderStateCategory.BlendEquations);
         }
     }
 
     private void blendFunc(RenderState.BlendFunc sfactor, RenderState.BlendFunc dfactor) {
-        if (!context.isRenderStateValid(RenderStateCategory.BlendFactors)
-                || sfactor != context.sfactorRGB
+        if (sfactor != context.sfactorRGB
                 || dfactor != context.dfactorRGB
                 || sfactor != context.sfactorAlpha
                 || dfactor != context.dfactorAlpha) {
@@ -1366,14 +1354,12 @@ public final class GLRenderer implements Renderer {
             context.dfactorRGB = dfactor;
             context.sfactorAlpha = sfactor;
             context.dfactorAlpha = dfactor;
-            context.setRenderStateValid(RenderStateCategory.BlendFactors);
         }
     }
 
     private void blendFuncSeparate(RenderState.BlendFunc sfactorRGB, RenderState.BlendFunc dfactorRGB,
             RenderState.BlendFunc sfactorAlpha, RenderState.BlendFunc dfactorAlpha) {
-        if (!context.isRenderStateValid(RenderStateCategory.BlendFactors)
-                || sfactorRGB != context.sfactorRGB
+        if (sfactorRGB != context.sfactorRGB
                 || dfactorRGB != context.dfactorRGB
                 || sfactorAlpha != context.sfactorAlpha
                 || dfactorAlpha != context.dfactorAlpha) {
@@ -1387,7 +1373,6 @@ public final class GLRenderer implements Renderer {
             context.dfactorRGB = dfactorRGB;
             context.sfactorAlpha = sfactorAlpha;
             context.dfactorAlpha = dfactorAlpha;
-            context.setRenderStateValid(RenderStateCategory.BlendFactors);
         }
     }
 
@@ -4155,8 +4140,9 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
-        if (!context.isRenderStateValid(RenderStateCategory.LineWidth) || mesh.getLineWidth() != 1f) {
-            setLineWidth(mesh.getLineWidth());
+        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
+            gl.glLineWidth(mesh.getLineWidth());
+            context.lineWidth = mesh.getLineWidth();
         }
 
         if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {

@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.RenderContext.RenderStateCategory;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.Image;
@@ -47,7 +46,7 @@ import java.lang.ref.WeakReference;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verifies cache-owned validity without changing the public cached field types.
+ * Verifies the cached defaults used after native draw state is reset.
  */
 public class RenderContextStateTest {
 
@@ -56,70 +55,22 @@ public class RenderContextStateTest {
         RenderContext context = new RenderContext();
 
         assertFreshDefaults(context);
-        assertAllValid(context, true);
-    }
-
-    @Test
-    public void invalidationPreservesCachedValuesButMakesThemUnknown() {
-        RenderContext context = new RenderContext();
-        setNondefaultDrawState(context);
-
-        context.invalidate();
-
-        assertEquals(RenderState.FaceCullMode.Front, context.cullMode);
-        assertTrue(context.depthTestEnabled);
-        assertFalse(context.depthWriteEnabled);
-        assertFalse(context.colorWriteEnabled);
-        assertEquals(RenderState.TestFunction.Never, context.depthFunc);
-        assertEquals(RenderState.BlendMode.Custom, context.blendMode);
-        assertEquals(RenderState.BlendFunc.Src_Alpha, context.sfactorRGB);
-        assertEquals(RenderState.BlendEquation.Subtract, context.blendEquation);
-        assertTrue(context.stencilTest);
-        assertEquals(RenderState.TestFunction.Equal, context.frontStencilFunction);
-        assertEquals(2, context.frontStencilReference);
-        assertEquals(3, context.backStencilReference);
-        assertEquals(0x0f, context.frontStencilMask);
-        assertEquals(0xf0, context.backStencilMask);
-        assertTrue(context.polyOffsetEnabled);
-        assertEquals(2f, context.polyOffsetFactor);
-        assertEquals(3f, context.polyOffsetUnits);
-        assertEquals(3f, context.lineWidth);
-        assertTrue(context.wireframe);
-        assertAllValid(context, false);
-    }
-
-    @Test
-    public void aPartialWriteValidatesOnlyItsOwnCategory() {
-        RenderContext context = new RenderContext();
-        context.invalidate();
-        context.depthWriteEnabled = true;
-
-        context.setRenderStateValid(RenderStateCategory.DepthWrite);
-
-        for (RenderStateCategory category : RenderStateCategory.values()) {
-            assertEquals(category == RenderStateCategory.DepthWrite,
-                    context.isRenderStateValid(category), category.toString());
-        }
-        context.invalidate();
-        assertAllValid(context, false);
     }
 
     @Test
     public void resetRestoresKnownFreshDefaults() {
         RenderContext context = new RenderContext();
         setNondefaultDrawState(context);
-        context.invalidate();
         context.boundAttribDivisors[0] = 7;
 
         context.reset();
 
         assertFreshDefaults(context);
-        assertAllValid(context, true);
         assertEquals(0, context.boundAttribDivisors[0]);
     }
 
     @Test
-    public void invalidationRetainsExistingCleanupForOtherCaches() {
+    public void resetRetainsExistingCleanupForOtherCaches() {
         RenderContext context = new RenderContext();
         context.clipRectEnabled = true;
         context.pointSize = 8f;
@@ -145,7 +96,7 @@ public class RenderContextStateTest {
         WeakReference<BufferObject> previousBuffer = new WeakReference<>(null);
         context.boundBO[0] = previousBuffer;
 
-        context.invalidate();
+        context.reset();
 
         assertFalse(context.clipRectEnabled);
         assertEquals(1f, context.pointSize);
@@ -173,27 +124,15 @@ public class RenderContextStateTest {
     }
 
     @Test
-    public void constructorDoesNotCallOverridableResetMethods() {
+    public void constructorDoesNotCallOverridableReset() {
         RenderContext context = new RenderContext() {
             @Override
             public void reset() {
                 throw new AssertionError("Constructor called public reset");
             }
-
-            @Override
-            public void invalidate() {
-                throw new AssertionError("Constructor called public invalidate");
-            }
         };
 
         assertFreshDefaults(context);
-        assertAllValid(context, true);
-    }
-
-    private static void assertAllValid(RenderContext context, boolean valid) {
-        for (RenderStateCategory category : RenderStateCategory.values()) {
-            assertEquals(valid, context.isRenderStateValid(category), category.toString());
-        }
     }
 
     private static void assertFreshDefaults(RenderContext context) {
@@ -208,8 +147,16 @@ public class RenderContextStateTest {
         assertEquals(RenderState.BlendFunc.One, context.sfactorAlpha);
         assertEquals(RenderState.BlendFunc.Zero, context.dfactorAlpha);
         assertEquals(RenderState.BlendEquation.Add, context.blendEquation);
+        assertEquals(RenderState.BlendEquationAlpha.InheritColor, context.blendEquationAlpha);
         assertFalse(context.stencilTest);
         assertEquals(RenderState.TestFunction.Always, context.frontStencilFunction);
+        assertEquals(RenderState.TestFunction.Always, context.backStencilFunction);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilStencilFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilDepthFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilDepthPassOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilStencilFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilDepthFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilDepthPassOperation);
         assertEquals(0, context.frontStencilReference);
         assertEquals(0, context.backStencilReference);
         assertEquals(-1, context.frontStencilMask);
@@ -229,9 +176,20 @@ public class RenderContextStateTest {
         context.depthFunc = RenderState.TestFunction.Never;
         context.blendMode = RenderState.BlendMode.Custom;
         context.sfactorRGB = RenderState.BlendFunc.Src_Alpha;
+        context.dfactorRGB = RenderState.BlendFunc.One;
+        context.sfactorAlpha = RenderState.BlendFunc.Zero;
+        context.dfactorAlpha = RenderState.BlendFunc.One;
         context.blendEquation = RenderState.BlendEquation.Subtract;
+        context.blendEquationAlpha = RenderState.BlendEquationAlpha.ReverseSubtract;
         context.stencilTest = true;
         context.frontStencilFunction = RenderState.TestFunction.Equal;
+        context.backStencilFunction = RenderState.TestFunction.NotEqual;
+        context.frontStencilStencilFailOperation = RenderState.StencilOperation.Replace;
+        context.frontStencilDepthFailOperation = RenderState.StencilOperation.Increment;
+        context.frontStencilDepthPassOperation = RenderState.StencilOperation.Decrement;
+        context.backStencilStencilFailOperation = RenderState.StencilOperation.Zero;
+        context.backStencilDepthFailOperation = RenderState.StencilOperation.Invert;
+        context.backStencilDepthPassOperation = RenderState.StencilOperation.Increment;
         context.frontStencilReference = 2;
         context.backStencilReference = 3;
         context.frontStencilMask = 0x0f;

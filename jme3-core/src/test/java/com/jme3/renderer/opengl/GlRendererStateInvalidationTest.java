@@ -77,50 +77,48 @@ public class GlRendererStateInvalidationTest {
 
     @ParameterizedTest
     @EnumSource(Surface.class)
-    public void invalidationRestoresDisabledAndDefaultDrawState(Surface surface) {
+    public void invalidationImmediatelyRestoresNativeDrawDefaults(Surface surface) {
         RecordingGl recording = new RecordingGl(surface);
         RenderState state = disabledState();
         recording.renderer.applyRenderState(state);
         recording.changeNativeState();
+
         recording.renderer.invalidateState();
-        recording.calls.clear();
 
+        recording.assertNativeDefaults();
+        // A second external renderer can change the state while our cache
+        // already contains defaults. Invalidation must still write them.
+        recording.changeNativeState();
+        recording.renderer.invalidateState();
+        recording.assertNativeDefaults();
+
+        recording.calls.clear();
         recording.renderer.applyRenderState(state);
-
-        assertAll(
-                () -> assertFalse(recording.enabled(GL.GL_DEPTH_TEST), "depth test"),
-                () -> recording.assertState("glDepthMask", true),
-                () -> recording.assertState("glColorMask", true, true, true, true),
-                () -> assertFalse(recording.enabled(GL.GL_CULL_FACE), "face culling"),
-                () -> assertFalse(recording.enabled(GL.GL_BLEND), "blending"),
-                () -> assertFalse(recording.enabled(GL.GL_STENCIL_TEST), "stencil test"),
-                () -> assertFalse(recording.enabled(GL.GL_POLYGON_OFFSET_FILL), "polygon offset"),
-                () -> recording.assertState("glLineWidth", 1f));
-        if (surface.desktop) {
-            recording.assertState("glPolygonMode", GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        } else {
-            assertFalse(recording.calls.contains("glPolygonMode"));
-        }
-        recording.calls.clear();
         recording.renderer.applyRenderState(state);
         assertTrue(recording.calls.isEmpty(), recording.calls.toString());
     }
 
     @ParameterizedTest
     @EnumSource(Surface.class)
-    public void disabledDepthDoesNotValidateAnUnknownComparisonFunction(Surface surface) {
+    public void invalidationResetsInactiveDepthFunctionBeforeDepthIsEnabled(Surface surface) {
         RecordingGl recording = new RecordingGl(surface);
         RenderState state = disabledState();
         recording.renderer.applyRenderState(state);
         recording.gl.glDepthFunc(GL.GL_NEVER);
         recording.renderer.invalidateState();
+
+        assertFalse(recording.enabled(GL.GL_DEPTH_TEST));
+        recording.assertState("glDepthFunc", GL.GL_LESS);
+        recording.calls.clear();
         recording.renderer.applyRenderState(state);
+        assertTrue(recording.calls.isEmpty(), recording.calls.toString());
 
         state.setDepthTest(true);
         recording.renderer.applyRenderState(state);
 
         assertTrue(recording.enabled(GL.GL_DEPTH_TEST));
         recording.assertState("glDepthFunc", GL.GL_LESS);
+        assertFalse(recording.calls.contains("glDepthFunc"));
         recording.calls.clear();
         recording.renderer.applyRenderState(state);
         assertTrue(recording.calls.isEmpty(), recording.calls.toString());
@@ -128,7 +126,7 @@ public class GlRendererStateInvalidationTest {
 
     @ParameterizedTest
     @EnumSource(BlendMode.class)
-    public void disabledBlendDoesNotValidateUnknownFactors(BlendMode mode) {
+    public void blendModesUseDefaultsEstablishedByImmediateInvalidation(BlendMode mode) {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
         RenderState state = disabledState();
         recording.renderer.applyRenderState(state);
@@ -136,7 +134,13 @@ public class GlRendererStateInvalidationTest {
         recording.gl.glBlendEquationSeparate(GL2.GL_FUNC_SUBTRACT, GL2.GL_FUNC_REVERSE_SUBTRACT);
         recording.gl.glEnable(GL.GL_BLEND);
         recording.renderer.invalidateState();
+
+        assertFalse(recording.enabled(GL.GL_BLEND));
+        recording.assertState("glBlendEquationSeparate", GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD);
+        recording.assertState("glBlendFuncSeparate", GL.GL_ONE, GL.GL_ZERO, GL.GL_ONE, GL.GL_ZERO);
+        recording.calls.clear();
         recording.renderer.applyRenderState(state);
+        assertTrue(recording.calls.isEmpty(), recording.calls.toString());
 
         state.setBlendMode(mode);
         recording.renderer.applyRenderState(state);
@@ -153,18 +157,23 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void customBlendRestoresFactorsEqualToTheNativeDefaultsAfterADisabledApply() {
+    public void customBlendCanReuseDefaultsEstablishedByInvalidation() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
         RenderState state = disabledState();
         state.setCustomBlendFactors(BlendFunc.One, BlendFunc.Zero, BlendFunc.One, BlendFunc.Zero);
         recording.gl.glBlendFunc(GL.GL_ZERO, GL.GL_ONE);
         recording.renderer.invalidateState();
+
+        recording.assertState("glBlendFuncSeparate", GL.GL_ONE, GL.GL_ZERO, GL.GL_ONE, GL.GL_ZERO);
+        recording.calls.clear();
         recording.renderer.applyRenderState(state);
 
         state.setBlendMode(BlendMode.Custom);
         recording.renderer.applyRenderState(state);
 
         recording.assertState("glBlendFuncSeparate", GL.GL_ONE, GL.GL_ZERO, GL.GL_ONE, GL.GL_ZERO);
+        assertFalse(recording.calls.contains("glBlendFunc"));
+        assertFalse(recording.calls.contains("glBlendFuncSeparate"));
         recording.calls.clear();
         recording.renderer.applyRenderState(state);
         assertTrue(recording.calls.isEmpty(), recording.calls.toString());
@@ -172,12 +181,13 @@ public class GlRendererStateInvalidationTest {
 
     @ParameterizedTest
     @EnumSource(Surface.class)
-    public void invalidationRestoresEnabledNondefaultDrawState(Surface surface) {
+    public void materialsReapplyTheirRequestedStateAfterImmediateInvalidation(Surface surface) {
         RecordingGl recording = new RecordingGl(surface);
         RenderState state = enabledState();
         recording.renderer.applyRenderState(state);
-        recording.restoreNativeDefaults();
+        recording.changeNativeState();
         recording.renderer.invalidateState();
+        recording.assertNativeDefaults();
         recording.calls.clear();
 
         recording.renderer.applyRenderState(state);
@@ -264,32 +274,26 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void uninitializedGlesAdapterDoesNotUseDesktopState() {
-        RecordingGl recording = new RecordingGl(Surface.GLES_ADAPTER);
-        recording.renderer.getCaps().clear();
-        RenderState state = disabledState();
-        state.setWireframe(true);
-
-        recording.renderer.invalidateState();
-        recording.renderer.applyRenderState(state);
-
-        assertTrue(recording.queries.isEmpty());
-        assertFalse(recording.calls.contains("glPolygonMode"));
-    }
-
-    @Test
-    public void clearingOneBufferDoesNotValidateTheOtherWriteMask() {
+    public void partialClearsReuseMasksRestoredByInvalidation() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
         recording.gl.glDepthMask(false);
         recording.gl.glColorMask(false, false, false, false);
         recording.renderer.invalidateState();
 
+        recording.assertState("glColorMask", true, true, true, true);
+        recording.assertState("glDepthMask", true);
+        recording.calls.clear();
         recording.renderer.clearBuffers(true, false, false);
 
         recording.assertState("glColorMask", true, true, true, true);
-        recording.assertState("glDepthMask", false);
-        recording.renderer.clearBuffers(false, true, false);
         recording.assertState("glDepthMask", true);
+        recording.assertState("glClear", GL.GL_COLOR_BUFFER_BIT);
+        assertEquals(Arrays.asList("glClear"), recording.calls);
+        recording.calls.clear();
+        recording.renderer.clearBuffers(false, true, false);
+        recording.assertState("glClear", GL.GL_DEPTH_BUFFER_BIT);
+        recording.assertState("glDepthMask", true);
+        assertEquals(Arrays.asList("glClear"), recording.calls);
         recording.calls.clear();
         recording.renderer.clearBuffers(false, false, false);
         assertTrue(recording.calls.isEmpty());
@@ -304,6 +308,7 @@ public class GlRendererStateInvalidationTest {
         recording.renderer.applyRenderState(state);
         recording.gl.glLineWidth(5f);
         recording.renderer.invalidateState();
+        recording.assertState("glLineWidth", 1f);
 
         recording.renderer.renderMesh(mesh, 0, 1, null);
 
@@ -320,17 +325,18 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void defaultMeshWidthRestoresAnUnknownLineWidthWithoutAMaterialApply() {
+    public void defaultMeshUsesWidthEstablishedByInvalidationWithoutAMaterialApply() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
         recording.gl.glLineWidth(5f);
         recording.renderer.invalidateState();
+        recording.assertState("glLineWidth", 1f);
         recording.calls.clear();
         Mesh mesh = lineMesh(1f);
 
         recording.renderer.renderMesh(mesh, 0, 1, null);
 
         recording.assertState("glLineWidth", 1f);
-        assertTrue(recording.calls.contains("glLineWidth"));
+        assertFalse(recording.calls.contains("glLineWidth"));
         recording.calls.clear();
         recording.renderer.renderMesh(mesh, 0, 1, null);
         assertFalse(recording.calls.contains("glLineWidth"));
@@ -353,24 +359,27 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void clearingAfterInvalidationRestoresOnlyTheRequestedWriteMasks() {
+    public void clearingAfterAMaterialApplyRestoresOnlyTheRequestedWriteMasks() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
-        recording.renderer.applyRenderState(disabledState());
-        recording.gl.glDepthMask(false);
-        recording.gl.glColorMask(false, true, false, true);
-        recording.gl.glEnable(GL.GL_DEPTH_TEST);
         recording.renderer.invalidateState();
+        RenderState state = disabledState();
+        state.setColorWrite(false);
+        state.setDepthWrite(false);
+        recording.renderer.applyRenderState(state);
 
-        recording.renderer.clearBuffers(true, true, false);
+        recording.renderer.clearBuffers(true, false, false);
 
-        recording.assertState("glDepthMask", true);
+        recording.assertState("glDepthMask", false);
         recording.assertState("glColorMask", true, true, true, true);
-        recording.assertState("glClear", GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        recording.assertState("glClear", GL.GL_COLOR_BUFFER_BIT);
+        recording.renderer.applyRenderState(state);
+        recording.assertState("glColorMask", false, false, false, false);
+        recording.renderer.clearBuffers(false, true, false);
+        recording.assertState("glColorMask", false, false, false, false);
+        recording.assertState("glDepthMask", true);
         recording.calls.clear();
-        recording.renderer.clearBuffers(true, true, false);
+        recording.renderer.clearBuffers(false, true, false);
         assertEquals(Arrays.asList("glClear"), recording.calls);
-        recording.renderer.applyRenderState(disabledState());
-        assertFalse(recording.enabled(GL.GL_DEPTH_TEST));
     }
 
     @Test
@@ -391,7 +400,7 @@ public class GlRendererStateInvalidationTest {
 
     @ParameterizedTest
     @EnumSource(Surface.class)
-    public void reenablingStencilAfterInvalidationRestoresRetainedParameters(Surface surface) {
+    public void reenablingStencilAfterInvalidationRestoresMaterialParameters(Surface surface) {
         RecordingGl recording = new RecordingGl(surface);
         RenderState enabled = enabledState();
         RenderState disabled = enabled.clone();
@@ -406,6 +415,7 @@ public class GlRendererStateInvalidationTest {
         recording.renderer.applyRenderState(enabled);
         recording.restoreNativeDefaults();
         recording.renderer.invalidateState();
+        recording.assertNativeDefaults();
         recording.calls.clear();
 
         recording.renderer.applyRenderState(disabled);
@@ -434,11 +444,12 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void enablingPolygonOffsetAfterDisabledRecoveryRestoresItsParameters() {
+    public void enablingPolygonOffsetAfterInvalidationAppliesItsParameters() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
-        RenderState state = disabledState();
         recording.gl.glPolygonOffset(9f, 8f);
         recording.renderer.invalidateState();
+        recording.assertState("glPolygonOffset", 0f, 0f);
+        RenderState state = disabledState();
         recording.renderer.applyRenderState(state);
 
         state.setPolyOffset(2f, 3f);
@@ -449,17 +460,15 @@ public class GlRendererStateInvalidationTest {
     }
 
     @Test
-    public void objectResetAndCleanupInvalidateDrawState() {
+    public void objectResetAndCleanupImmediatelyRestoreDrawState() {
         RecordingGl recording = new RecordingGl(Surface.GLES2);
         RenderState state = disabledState();
         recording.renderer.applyRenderState(state);
         recording.gl.glDepthMask(false);
         recording.renderer.resetGLObjects();
-        recording.renderer.applyRenderState(state);
         recording.assertState("glDepthMask", true);
         recording.gl.glColorMask(false, false, false, false);
         recording.renderer.cleanup();
-        recording.renderer.applyRenderState(state);
         recording.assertState("glColorMask", true, true, true, true);
     }
 
@@ -594,6 +603,36 @@ public class GlRendererStateInvalidationTest {
             assertEquals(Arrays.asList(expected), state.get(name), name);
         }
 
+        private void assertNativeDefaults() {
+            assertAll(
+                    () -> assertFalse(enabled(GL.GL_DEPTH_TEST), "depth test"),
+                    () -> assertState("glDepthFunc", GL.GL_LESS),
+                    () -> assertState("glDepthMask", true),
+                    () -> assertState("glColorMask", true, true, true, true),
+                    () -> assertFalse(enabled(GL.GL_CULL_FACE), "face culling"),
+                    () -> assertState("glCullFace", GL.GL_BACK),
+                    () -> assertFalse(enabled(GL.GL_BLEND), "blending"),
+                    () -> assertState("glBlendEquationSeparate", GL2.GL_FUNC_ADD, GL2.GL_FUNC_ADD),
+                    () -> assertState("glBlendFuncSeparate", GL.GL_ONE, GL.GL_ZERO, GL.GL_ONE, GL.GL_ZERO),
+                    () -> assertFalse(enabled(GL.GL_STENCIL_TEST), "stencil test"),
+                    () -> assertState("glStencilFuncSeparate:" + GL.GL_FRONT,
+                            GL.GL_FRONT, GL.GL_ALWAYS, 0, -1),
+                    () -> assertState("glStencilFuncSeparate:" + GL.GL_BACK,
+                            GL.GL_BACK, GL.GL_ALWAYS, 0, -1),
+                    () -> assertState("glStencilOpSeparate:" + GL.GL_FRONT,
+                            GL.GL_FRONT, GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP),
+                    () -> assertState("glStencilOpSeparate:" + GL.GL_BACK,
+                            GL.GL_BACK, GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP),
+                    () -> assertFalse(enabled(GL.GL_POLYGON_OFFSET_FILL), "polygon offset"),
+                    () -> assertState("glPolygonOffset", 0f, 0f),
+                    () -> assertState("glLineWidth", 1f));
+            if (surface.desktop) {
+                assertState("glPolygonMode", GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
+            } else {
+                assertFalse(calls.contains("glPolygonMode"));
+            }
+        }
+
         private void restoreNativeDefaults() {
             gl.glDisable(GL.GL_DEPTH_TEST);
             gl.glDepthFunc(GL.GL_LESS);
@@ -630,6 +669,8 @@ public class GlRendererStateInvalidationTest {
             gl.glEnable(GL.GL_STENCIL_TEST);
             gl.glStencilFuncSeparate(GL.GL_FRONT, GL.GL_NEVER, 1, 0x0f);
             gl.glStencilFuncSeparate(GL.GL_BACK, GL.GL_NEVER, 2, 0xf0);
+            gl.glStencilOpSeparate(GL.GL_FRONT, GL.GL_REPLACE, GL.GL_INCR, GL.GL_DECR);
+            gl.glStencilOpSeparate(GL.GL_BACK, GL.GL_ZERO, GL.GL_INVERT, GL.GL_INCR);
             gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
             gl.glPolygonOffset(8f, 9f);
             gl.glLineWidth(3f);
@@ -641,6 +682,11 @@ public class GlRendererStateInvalidationTest {
         @Override
         public Object invoke(Object proxy, Method method, Object[] arguments) {
             String name = method.getName();
+            // Production GLES/WebGL adapters expose GL2 for compatibility,
+            // but glPolygonMode is a no-op rather than a native GL call.
+            if (name.equals("glPolygonMode") && !surface.desktop) {
+                return null;
+            }
             if (name.equals("glGetInteger")) {
                 int parameter = (Integer) arguments[0];
                 queries.add(parameter);
@@ -657,6 +703,12 @@ public class GlRendererStateInvalidationTest {
             } else if (name.equals("glBlendFunc")) {
                 state.put("glBlendFuncSeparate", Arrays.asList(arguments[0], arguments[1],
                         arguments[0], arguments[1]));
+            } else if (name.startsWith("glStencil") && (Integer) arguments[0] == GL.GL_FRONT_AND_BACK) {
+                for (int face : new int[]{GL.GL_FRONT, GL.GL_BACK}) {
+                    Object[] faceArguments = arguments.clone();
+                    faceArguments[0] = face;
+                    state.put(name + ":" + face, Arrays.asList(faceArguments));
+                }
             } else {
                 String key = name.startsWith("glStencil") ? name + ":" + arguments[0] : name;
                 state.put(key, Arrays.asList(arguments));
