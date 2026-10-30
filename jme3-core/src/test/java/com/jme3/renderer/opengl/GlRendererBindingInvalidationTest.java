@@ -479,7 +479,8 @@ public class GlRendererBindingInvalidationTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
-    public void attachmentUpdateWithoutFramebufferSupportMakesNoNativeCalls(boolean textureHelper) throws Exception {
+    public void attachmentUpdateWithoutFramebufferSupportMakesNoNativeCalls(
+            boolean textureHelper) throws Exception {
         Recording driver = new Recording(false);
         driver.renderer.getCaps().remove(Caps.FrameBuffer);
         driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
