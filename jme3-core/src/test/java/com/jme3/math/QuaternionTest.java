@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assertions;
+
 /**
  * Verifies that the {@link Quaternion} class works correctly.
  *
@@ -59,5 +61,77 @@ public class QuaternionTest {
 
         assertTrue(Quaternion.isValidQuaternion(new Quaternion()));
         assertTrue(Quaternion.isValidQuaternion(new Quaternion(1.5f, -5.7f, 8.2f, 3.0f)));
+    }
+    
+    @Test
+    public void testInverseWithSeparateStore() {
+        // Non-unit quaternion to test non-trivial inverse calculation
+        Quaternion q = new Quaternion(1f, 2f, 3f, 4f);
+        Quaternion originalCopy = new Quaternion(q);
+        Quaternion store = new Quaternion();
+
+        Quaternion result = q.inverse(store);
+
+        // Verify returned object is the store (zero-allocation)
+        Assertions.assertSame(store, result);
+
+        // Verify source quaternion remains unaffected
+        Assertions.assertEquals(originalCopy, q);
+
+        // Verify store holds the correct inverse values (norm = 1^2+2^2+3^2+4^2 = 30)
+        float invNorm = 1.0f / 30.0f;
+        Assertions.assertEquals(-1f * invNorm, store.getX(), 1e-6f);
+        Assertions.assertEquals(-2f * invNorm, store.getY(), 1e-6f);
+        Assertions.assertEquals(-3f * invNorm, store.getZ(), 1e-6f);
+        Assertions.assertEquals(4f * invNorm, store.getW(), 1e-6f);
+    }
+
+    @Test
+    public void testInverseWithNullStore() {
+        Quaternion q = new Quaternion(0.5f, 0.5f, 0.5f, 0.5f);
+        Quaternion result = q.inverse(null);
+
+        Assertions.assertNotNull(result);
+
+        // Compare with baseline parameterless inverse()
+        Assertions.assertEquals(q.inverse(), result);
+    }
+
+    @Test
+    public void testInverseWithAliasingStore() {
+        Quaternion q = new Quaternion(1f, 2f, 3f, 4f);
+        Quaternion expectedInverse = q.inverse(); // independent allocation
+
+        // Pass 'q' as its own store (aliasing case)
+        Quaternion result = q.inverse(q);
+
+        Assertions.assertSame(q, result);
+        Assertions.assertEquals(expectedInverse, q);
+    }
+
+    @Test
+    public void testInverseZeroQuaternionReturnsNull() {
+        Quaternion zeroQuat = new Quaternion(0f, 0f, 0f, 0f);
+        Quaternion store = new Quaternion(1f, 2f, 3f, 4f);
+        Quaternion originalStoreCopy = new Quaternion(store);
+
+        Quaternion result = zeroQuat.inverse(store);
+
+        // Zero quaternion inverse should yield null and leave the store untouched
+        Assertions.assertNull(result);
+        Assertions.assertEquals(originalStoreCopy, store);
+    }
+
+    @Test
+    public void testParameterlessInverseBehavior() {
+        Quaternion q = new Quaternion(2f, 1f, -1f, 3f);
+        Quaternion result = q.inverse();
+
+        Assertions.assertNotNull(result);
+
+        // Verify cross-check with separate store version
+        Quaternion storeCheck = new Quaternion();
+        q.inverse(storeCheck);
+        Assertions.assertEquals(storeCheck, result);
     }
 }

@@ -93,8 +93,13 @@ public interface Renderer {
     public Statistics getStatistics();
 
     /**
-     * Invalidates the current rendering state. Should be called after
+     * Invalidates the cached rendering state. Should be called after
      * the GL state was changed manually or through an external library.
+     * <p>
+     * The OpenGL renderer also immediately restores the states managed by
+     * {@link RenderState} to OpenGL defaults. Call this method on the rendering
+     * thread with the renderer's graphics context current, before resuming
+     * rendering.
      */
     public void invalidateState();
 

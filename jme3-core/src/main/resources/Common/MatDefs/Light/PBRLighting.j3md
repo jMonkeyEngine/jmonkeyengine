@@ -142,10 +142,13 @@ MaterialDef PBR Lighting {
         Float ExpFog
         Float ExpSqFog
 
+        // Optional sunlight/probe exposure adjustment, disabled when all three inputs are unset.
+        // A false UseVertexColorsAsSunIntensity does not enable the adjustment.
         Texture2D SunLightExposureMap
         Boolean UseVertexColorsAsSunIntensity
         Float StaticSunIntensity
-        Boolean BrightenIndoorShadows  //should be set true when shadows are enabled, in order to prevent areas with low SunExposure from being way too dark when shadows are cast
+        // Only affects the minimum probe brightness when a sunlight exposure input is enabled.
+        Boolean BrightenIndoorShadows
 
          // debug the final value of the selected layer as a color output            
         Int DebugValuesMode

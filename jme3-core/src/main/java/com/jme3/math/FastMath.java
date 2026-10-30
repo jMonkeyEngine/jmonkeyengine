@@ -590,10 +590,7 @@ public final class FastMath {
      * @see java.lang.Math#abs(float)
      */
     public static float abs(float fValue) {
-        if (fValue < 0) {
-            return -fValue;
-        }
-        return fValue;
+        return Math.abs(fValue);
     }
 
     /**

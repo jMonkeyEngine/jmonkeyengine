@@ -329,12 +329,161 @@ public class GlRendererBindingInvalidationTest {
         assertTrue(driver.calls.isEmpty(), driver.calls.toString());
     }
 
-    @Test
-    public void knownMainOverrideRetainsImmediateBinding() throws Exception {
+    @ParameterizedTest
+    @ValueSource(ints = {0, 77})
+    public void knownMainOverrideRetainsImmediateBinding(int defaultId) throws Exception {
         Recording driver = new Recording(false);
+        driver.setDefaultFramebuffer(defaultId);
+        driver.renderer.setFrameBuffer(null);
         driver.renderer.setMainFrameBufferOverride(framebuffer(12));
         assertEquals(12, driver.drawFramebuffer);
         assertTrue(driver.context.isFrameBufferBindingValid());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void unknownAttachmentUpdateRestoresSplitBindingsAndKeepsUploadedTexture(
+            boolean textureHelper) throws Exception {
+        Recording driver = new Recording(false);
+        Texture2D texture = new Texture2D(4, 4, Image.Format.RGBA8);
+        texture.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        FrameBuffer target = new FrameBuffer(4, 4, 1);
+        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture));
+        driver.activeUnit = 3;
+        driver.readFramebuffer = 9;
+        driver.drawFramebuffer = 10;
+        driver.renderer.invalidateState();
+
+        updateAttachment(driver, target, textureHelper);
+
+        assertTrue(target.getId() > 0);
+        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
+        assertEquals(9, driver.readFramebuffer);
+        assertEquals(10, driver.drawFramebuffer);
+        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertNull(driver.context.boundFB);
+        assertEquals(texture.getImage().getId(), driver.lastUploadedTexture);
+        assertEquals(0, driver.activeUnit);
+        assertSame(texture.getImage().getWeakRef(), driver.context.boundTextures[0]);
+        driver.calls.clear();
+        driver.renderer.setTexture(0, texture);
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
+        driver.renderer.setFrameBuffer(null);
+        assertEquals(0, driver.readFramebuffer);
+        assertEquals(0, driver.drawFramebuffer);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void failedAttachmentUpdateRestoresUnknownSplitBindings(boolean textureHelper) throws Exception {
+        Recording driver = new Recording(false);
+        FrameBuffer target = new FrameBuffer(4, 4, 1);
+        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture(17)));
+        driver.readFramebuffer = 9;
+        driver.drawFramebuffer = 10;
+        driver.renderer.invalidateState();
+        IllegalStateException failure = new IllegalStateException("Attachment failure");
+        driver.attachmentFailure = failure;
+
+        assertSame(failure, assertThrows(IllegalStateException.class,
+                () -> updateAttachment(driver, target, textureHelper)));
+
+        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
+        assertEquals(9, driver.readFramebuffer);
+        assertEquals(10, driver.drawFramebuffer);
+        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertNull(driver.context.boundFB);
+        driver.attachmentFailure = null;
+        driver.renderer.setFrameBuffer(target);
+        assertEquals(target.getId(), driver.drawFramebuffer);
+        assertTrue(driver.context.isFrameBufferBindingValid());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void attachmentUpdateDoesNotTrustAnInvalidNameMatchingItsTarget(
+            boolean textureHelper) throws Exception {
+        Recording driver = new Recording(false);
+        FrameBuffer target = new FrameBuffer(4, 4, 1);
+        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture(17)));
+        driver.renderer.setFrameBuffer(target);
+        // Framebuffer-only invalidation deliberately retains the old native name.
+        driver.context.invalidateFrameBufferBinding();
+        driver.readFramebuffer = 9;
+        driver.drawFramebuffer = 10;
+
+        updateAttachment(driver, target, textureHelper);
+
+        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
+        assertEquals(9, driver.readFramebuffer);
+        assertEquals(10, driver.drawFramebuffer);
+        assertEquals(target.getId(), driver.context.boundFBO);
+        assertFalse(driver.context.isFrameBufferBindingValid());
+        driver.renderer.setFrameBuffer(target);
+        assertEquals(target.getId(), driver.readFramebuffer);
+        assertEquals(target.getId(), driver.drawFramebuffer);
+    }
+
+    @Test
+    public void unknownAttachmentUpdateSupportsCombinedBindingsWithoutBlit() throws Exception {
+        Recording driver = new Recording(false);
+        driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
+        driver.setNativeFramebuffer(9);
+        driver.renderer.invalidateState();
+        FrameBuffer target = new FrameBuffer(4, 4, 1);
+        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        driver.calls.clear();
+
+        driver.renderer.updateFrameBufferAttachment(target, target.getColorTarget());
+
+        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
+        assertEquals(9, driver.readFramebuffer);
+        assertEquals(9, driver.drawFramebuffer);
+        assertFalse(driver.context.isFrameBufferBindingValid());
+        assertEquals(1, driver.countCalls("glGetInteger"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void attachmentUpdateWithoutFramebufferSupportMakesNoNativeCalls(
+            boolean textureHelper) throws Exception {
+        Recording driver = new Recording(false);
+        driver.renderer.getCaps().remove(Caps.FrameBuffer);
+        driver.renderer.getCaps().remove(Caps.FrameBufferBlit);
+        driver.renderer.invalidateState();
+        FrameBuffer target = new FrameBuffer(4, 4, 1);
+        target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture(17)));
+        driver.calls.clear();
+
+        assertThrows(RendererException.class, () -> updateAttachment(driver, target, textureHelper));
+
+        assertTrue(driver.calls.isEmpty(), driver.calls.toString());
+        assertFalse(driver.context.isFrameBufferBindingValid());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void knownAttachmentUpdateRetainsQueryFreeBindingRestoration(boolean sameTarget) throws Exception {
+        Recording driver = new Recording(false);
+        FrameBuffer previous = new FrameBuffer(4, 4, 1);
+        previous.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        driver.renderer.setFrameBuffer(previous);
+        FrameBuffer target = previous;
+        if (!sameTarget) {
+            target = new FrameBuffer(4, 4, 1);
+            target.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
+        }
+        driver.calls.clear();
+
+        driver.renderer.updateFrameBufferAttachment(target, target.getColorTarget());
+
+        assertEquals(target.getId(), driver.lastAttachmentFramebuffer);
+        assertEquals(previous.getId(), driver.readFramebuffer);
+        assertEquals(previous.getId(), driver.drawFramebuffer);
+        assertSame(previous, driver.context.boundFB);
+        assertTrue(driver.context.isFrameBufferBindingValid());
+        assertEquals(0, driver.countCalls("glGetInteger"));
+        assertEquals(sameTarget ? 0 : 2, driver.countCalls("glBindFramebufferEXT"));
     }
 
     @ParameterizedTest
@@ -429,6 +578,14 @@ public class GlRendererBindingInvalidationTest {
         assertEquals(1, driver.countCalls("glDisable"));
     }
 
+    private static void updateAttachment(Recording driver, FrameBuffer target, boolean textureHelper) {
+        if (textureHelper) {
+            driver.renderer.updateRenderTexture(target, target.getColorTarget());
+        } else {
+            driver.renderer.updateFrameBufferAttachment(target, target.getColorTarget());
+        }
+    }
+
     private static Texture2D texture(int id) {
         Image image = new Image(Image.Format.RGBA8, 1, 1, (ByteBuffer) null, ColorSpace.Linear);
         image.setId(id);
@@ -453,6 +610,8 @@ public class GlRendererBindingInvalidationTest {
         private int nextObject = 100;
         private int lastUploadedTexture;
         private int lastParameterTexture;
+        private int lastAttachmentFramebuffer;
+        private IllegalStateException attachmentFailure;
         private final int[] textureBindings = new int[16];
         private final List<String> calls = new ArrayList<>();
         private final GLRenderer renderer;
@@ -509,6 +668,10 @@ public class GlRendererBindingInvalidationTest {
             } else if (name.equals("glBindFramebufferEXT")) {
                 int target = (Integer) args[0];
                 int framebuffer = (Integer) args[1];
+                assertTrue(renderer.getCaps().contains(Caps.FrameBuffer), "Unsupported framebuffer bind");
+                assertTrue(target == GLFbo.GL_FRAMEBUFFER_EXT
+                        || renderer.getCaps().contains(Caps.FrameBufferBlit),
+                        "Unsupported split framebuffer bind");
                 assertTrue(framebuffer >= 0, "Unknown framebuffer ID passed to GL");
                 if (target != GLFbo.GL_DRAW_FRAMEBUFFER_EXT) {
                     readFramebuffer = framebuffer;
@@ -518,9 +681,24 @@ public class GlRendererBindingInvalidationTest {
                 }
             } else if (name.equals("glGetInteger")) {
                 int parameter = (Integer) args[0];
+                if (parameter == GL.GL_FRAMEBUFFER_BINDING
+                        || parameter == GLFbo.GL_READ_FRAMEBUFFER_BINDING_EXT) {
+                    assertTrue(renderer.getCaps().contains(Caps.FrameBuffer),
+                            "Unsupported framebuffer query");
+                }
+                if (parameter == GLFbo.GL_READ_FRAMEBUFFER_BINDING_EXT) {
+                    assertTrue(renderer.getCaps().contains(Caps.FrameBufferBlit),
+                            "Unsupported read framebuffer query");
+                }
                 int result = parameter == GLFbo.GL_READ_FRAMEBUFFER_BINDING_EXT ? readFramebuffer
                         : parameter == GLFbo.GL_DRAW_FRAMEBUFFER_BINDING_EXT ? drawFramebuffer : 0;
                 ((IntBuffer) args[1]).put(0, result);
+            } else if (name.equals("glFramebufferTexture2DEXT")
+                    || name.equals("glFramebufferRenderbufferEXT")) {
+                lastAttachmentFramebuffer = drawFramebuffer;
+                if (attachmentFailure != null) {
+                    throw attachmentFailure;
+                }
             } else if (name.equals("glGenFramebuffersEXT") || name.equals("glGenRenderbuffersEXT")
                     || name.equals("glGenTextures")) {
                 ((IntBuffer) args[0]).put(0, nextObject++);
