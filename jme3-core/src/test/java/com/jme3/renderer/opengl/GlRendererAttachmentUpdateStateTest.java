@@ -232,16 +232,18 @@ public class GlRendererAttachmentUpdateStateTest extends FrameBufferTestSupport 
     }
 
     @Test
-    void lowLevelUpdateAfterInvalidationRestoresNativeBindingAndUnknownCache() {
+    void lowLevelUpdateAfterInvalidationRestoresDefaultBinding() {
         FrameBuffer previous = framebuffer(texture());
         final FrameBuffer other = framebuffer(texture());
         renderer.setFrameBuffer(previous);
         renderer.invalidateState();
+        assertEquals(0, driver.drawFramebuffer, "Invalidation must immediately select the screen");
+        assertEquals(0, driver.readFramebuffer);
         renderer.updateRenderTexture(other, other.getColorTarget(0));
-        assertEquals(previous.getId(), driver.drawFramebuffer);
-        assertEquals(previous.getId(), driver.readFramebuffer);
+        assertEquals(0, driver.drawFramebuffer);
+        assertEquals(0, driver.readFramebuffer);
         renderer.setFrameBuffer(null);
-        assertEquals(0, driver.drawFramebuffer, "The invalid cache must still force a real screen bind");
+        assertEquals(0, driver.drawFramebuffer);
         renderer.cleanup();
     }
 }

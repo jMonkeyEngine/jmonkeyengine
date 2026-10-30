@@ -1011,8 +1011,25 @@ public final class GLRenderer implements Renderer {
             gl2.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
         }
 
+        // Establish native binding defaults without trusting the old cache.
+        gl.glActiveTexture(GL.GL_TEXTURE0);
+        if (caps.contains(Caps.FrameBuffer)) {
+            // Reset both read and draw bindings, including nonzero platform defaults.
+            // Do not select mainFbOverride here: cleanup/resetGLObjects also call
+            // invalidation, and must not allocate or recreate its resources.
+            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, defaultFBO);
+        }
+        if (caps.contains(Caps.SrgbWriteControl) && caps.contains(Caps.Srgb)) {
+            if (mainFrameBufferSrgb) {
+                gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+            } else {
+                gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+            }
+        }
+
         context.reset();
-        context.boundFBO = -1;
+        context.boundFBO = defaultFBO;
+        context.srgbWriteEnabled = mainFrameBufferSrgb;
         Arrays.fill(vertexAttribDivisorsInvalid, true);
         if (caps.contains(Caps.OpenGL20)) {
             context.initialDrawBuf = getInteger(GL2.GL_DRAW_BUFFER);
@@ -2130,7 +2147,7 @@ public final class GLRenderer implements Renderer {
             int dstX1;
             int dstY1;
 
-            final int previousFramebuffer = context.boundFBO < 0 ? defaultFBO : context.boundFBO;
+            final int previousFramebuffer = context.boundFBO;
             FrameBuffer prevFB = context.boundFB;
 
             if (mainFbOverride != null) {
@@ -2364,11 +2381,11 @@ public final class GLRenderer implements Renderer {
         if (fb == null || rb == null || !isFrameBufferTarget(fb, rb)) {
             throw new IllegalArgumentException("The target must belong to this framebuffer.");
         }
+        if (!caps.contains(Caps.FrameBuffer)) {
+            throw new RendererException("Framebuffer objects are not supported by the video hardware");
+        }
         int previousFbo = context.boundFBO;
         FrameBuffer previousFb = context.boundFB;
-        // Invalidation forgets the binding without changing native GL state.
-        int restoreFbo = previousFbo < 0 && caps.contains(Caps.FrameBuffer)
-                ? getInteger(GL.GL_FRAMEBUFFER_BINDING) : previousFbo;
         try {
             FrameBufferState state = prepareFrameBuffer(fb);
             final boolean wasDirty = state.attachmentsDirty;
@@ -2382,7 +2399,7 @@ public final class GLRenderer implements Renderer {
             state.attachmentsDirty = wasDirty;
         } finally {
             if (context.boundFBO != previousFbo) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, restoreFbo);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, previousFbo);
                 context.boundFBO = previousFbo;
                 context.boundFB = previousFb;
             }
@@ -2579,8 +2596,11 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void setMainFrameBufferOverride(FrameBuffer fb) {
+        if (fb != null && !caps.contains(Caps.FrameBuffer)) {
+            throw new RendererException("Framebuffer objects are not supported by the video hardware");
+        }
         mainFbOverride = null;
-        if (context.boundFB == null) {
+        if (context.boundFB == null && context.boundFBO == defaultFBO) {
             // Main FB is now set to fb, make sure its bound
             setFrameBuffer(fb);
         }
@@ -4171,7 +4191,7 @@ public final class GLRenderer implements Renderer {
         }
 
         mainFrameBufferSrgb = enableSrgb;
-        if (context.boundFB == null) {
+        if (context.boundFB == null && context.boundFBO == defaultFBO) {
             toggleFramebufferSrgb(null);
         }
     }
