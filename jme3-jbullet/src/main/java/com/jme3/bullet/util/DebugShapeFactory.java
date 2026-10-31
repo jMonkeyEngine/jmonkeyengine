@@ -57,6 +57,7 @@ import javax.vecmath.Vector3f;
  *
  * @author CJ Hare, normenhansen
  */
+@Deprecated
 public class DebugShapeFactory {
 
     /** The maximum corner for the aabb used for triangles to include in ConcaveShape processing.*/

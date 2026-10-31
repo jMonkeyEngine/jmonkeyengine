@@ -48,6 +48,7 @@ import com.jme3.scene.debug.Arrow;
  *
  * @author normenhansen
  */
+@Deprecated
 public class DebugTools {
 
     protected final AssetManager manager;
