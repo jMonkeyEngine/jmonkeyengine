@@ -185,9 +185,6 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         for (int i = 0; i < listSize; i++)
             list[i] = null;
 
-        if (tlist != null)
-            Arrays.fill(tlist, null);
-
         listSize = 0;
     }
 
@@ -211,22 +208,25 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
                 // Distances were already updated before the NaN fallback.
                 transformChanged = false;
             }
-            // resize or populate our temporary array as necessary
-            if (tlist == null || tlist.length != list.length) {
-                tlist = list.clone();
-            } else {
-                System.arraycopy(list, 0, tlist, 0, listSize);
-            }
-
             if (transformChanged) {
-                // check distance of each light
+                // Distance updates can reenter this list's sort through the owner.
                 for (int i = 0; i < listSize; i++) {
                     list[i].computeLastDistance(owner);
                 }
             }
 
-            // now merge sort tlist into list
-            SortUtil.msort(tlist, list, 0, listSize - 1, c);
+            if (tlist == null || tlist.length != list.length) {
+                tlist = new Light[list.length];
+            }
+            Light[] scratch = tlist;
+            int sortSize = listSize;
+            try {
+                System.arraycopy(list, 0, scratch, 0, sortSize);
+                SortUtil.msort(scratch, list, 0, sortSize - 1, c);
+            } finally {
+                // Scratch must not retain lights between sorts, even on failure.
+                Arrays.fill(scratch, 0, sortSize, null);
+            }
         }
     }
 
@@ -279,31 +279,45 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         // using the arguments
         clear();
 
-        int requiredSize = local.listSize + (parent == null ? 0 : parent.listSize);
-        while (list.length < requiredSize) {
-            doubleSize();
-        }
-        
+        int parentSize = parent == null ? 0 : parent.listSize;
         int localListSize;
         if (filter == null) {
             localListSize = local.listSize;
+            int requiredSize = localListSize + parentSize;
+            while (list.length < requiredSize) {
+                doubleSize();
+            }
             System.arraycopy(local.list, 0, list, 0, localListSize);
         } else {
             localListSize = 0;
-            for(int i=0;i<local.listSize;i++){
-                Light l = local.list[i];
-                if (!filter.test(l))  continue;
-                list[localListSize] = l;
+            for (int i = 0; i < local.listSize; i++) {
+                Light light = local.list[i];
+                if (!filter.test(light)) {
+                    continue;
+                }
+                Light[] target = list;
+                if (localListSize < target.length) {
+                    target[localListSize] = light;
+                } else {
+                    doubleSize();
+                    list[localListSize] = light;
+                }
                 localListSize++;
+            }
+            // The predicate may have changed the parent list.
+            parentSize = parent == null ? 0 : parent.listSize;
+            int requiredSize = localListSize + parentSize;
+            while (list.length < requiredSize) {
+                doubleSize();
             }
         }
 
         // if the spatial has a parent node, add the lights
         // from the parent list as well
         if (parent != null) {
-            System.arraycopy(parent.list, 0, list, localListSize, parent.listSize);
+            System.arraycopy(parent.list, 0, list, localListSize, parentSize);
 
-            listSize = localListSize + parent.listSize;
+            listSize = localListSize + parentSize;
         } else {
             listSize = localListSize;
         }
