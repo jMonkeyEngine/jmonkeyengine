@@ -67,7 +67,7 @@ public class TestAssetLinkNode extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         AssetLinkNode loaderNode=new AssetLinkNode();
-        loaderNode.addLinkedChild(new ModelKey("Models/MonkeyHead/MonkeyHead.mesh.xml"));
+        loaderNode.addLinkedChild(new ModelKey("Models/MonkeyHead/MonkeyHead.j3o"));
         //load/attach the children (happens automatically on load)
 //        loaderNode.attachLinkedChildren(assetManager);
 //        rootNode.attachChild(loaderNode);

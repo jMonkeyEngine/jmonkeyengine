@@ -71,7 +71,7 @@ public class HelloAnimation extends SimpleApplication {
     rootNode.addLight(dl);
 
     /* Load a model that contains animation */
-    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.j3o");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
 

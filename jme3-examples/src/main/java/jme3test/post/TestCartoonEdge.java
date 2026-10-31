@@ -103,7 +103,7 @@ public class TestCartoonEdge extends SimpleApplication {
     }
 
     public void setupModel(){
-        Spatial model = assetManager.loadModel("Models/MonkeyHead/MonkeyHead.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/MonkeyHead/MonkeyHead.j3o");
         makeToonish(model);
         model.rotate(0, FastMath.PI, 0);
 //        signpost.setLocalTranslation(12, 3.5f, 30);

@@ -71,7 +71,7 @@ public class TestRayCasting extends SimpleApplication {
         q.updateBound();
 //        Geometry teapot = new Geometry("MyGeom", q);
 
-        teapot = assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        teapot = assetManager.loadModel("Models/Teapot/Teapot.j3o");
 //        teapot.scale(2f, 2f, 2f);
 //        teapot.move(2f, 2f, -.5f);
         teapot.rotate(FastMath.HALF_PI, FastMath.HALF_PI, FastMath.HALF_PI);

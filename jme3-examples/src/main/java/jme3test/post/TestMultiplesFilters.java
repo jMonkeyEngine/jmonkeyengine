@@ -80,12 +80,12 @@ public class TestMultiplesFilters extends SimpleApplication {
         // load the level from zip or http zip
         if (useHttp) {
             assetManager.registerLocator(
-                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
+                    "https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/wildhouse.zip", 
                     HttpZipLocator.class);
         } else {
             assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }
-        Spatial scene = assetManager.loadModel("main.scene");
+        Spatial scene = assetManager.loadModel("main.j3o");
 
 
         DirectionalLight sun = new DirectionalLight();

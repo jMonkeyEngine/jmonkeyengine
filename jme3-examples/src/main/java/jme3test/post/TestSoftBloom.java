@@ -120,7 +120,7 @@ public class TestSoftBloom extends SimpleApplication implements ActionListener, 
         tankMat.setFloat("EmissivePower", emissionPower);
         tankMat.setFloat("EmissiveIntensity", 50);
         tankMat.setFloat("Metallic", .5f);
-        Spatial tank = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
+        Spatial tank = assetManager.loadModel("Models/HoverTank/Tank2.j3o");
         tank.setLocalTranslation(-10, 5, -10);
         tank.setMaterial(tankMat);
         rootNode.attachChild(tank);

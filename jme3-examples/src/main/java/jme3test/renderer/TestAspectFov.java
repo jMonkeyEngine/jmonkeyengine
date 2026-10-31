@@ -79,9 +79,9 @@ public class TestAspectFov extends SimpleApplication implements AnalogListener {
         dl.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
         rootNode.addLight(dl);
 
-        assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip",
+        assetManager.registerLocator("https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/town.zip",
                 HttpZipLocator.class);
-        Spatial sceneModel = assetManager.loadModel("main.scene");
+        Spatial sceneModel = assetManager.loadModel("main.j3o");
         sceneModel.setLocalScale(2f);
 
         rootNode.attachChild(sceneModel);
