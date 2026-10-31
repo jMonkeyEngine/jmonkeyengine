@@ -3,7 +3,6 @@ package com.jme3.asset;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.UrlLocator;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.plugins.AWTLoader;
@@ -45,9 +44,11 @@ public class TestLocators {
                 "https://github.com/jMonkeyEngine/wiki/raw/master/docs/modules/tutorials/assets/images/beginner/",
                 UrlLocator.class);
 
-        am.registerLocator("../jme3-examples/town.zip", ZipLocator.class);
         am.registerLocator(
-                "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip",
+                "https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/town.zip",
+                HttpZipLocator.class);
+        am.registerLocator(
+                "https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/wildhouse.zip",
                 HttpZipLocator.class);
         am.registerLocator("/", ClasspathLocator.class);
 
@@ -55,13 +56,13 @@ public class TestLocators {
         assertNotNull(am.locateAsset(new AssetKey<>("Interface/Fonts/Default.fnt")),
                 "Failed to load from classpath");
 
-        // Try loading from the "town.zip" file using the ZipLocator.
+        // Try loading from the "town.zip" file using the HttpZipLocator.
         assertNotNull(am.locateAsset(new ModelKey("casaamarela.jpg")),
                 "Failed to load from town.zip file");
 
-        // Try loading from the Google Code Archive website using the HttpZipLocator.
+        // Try loading the "wildhouse.zip" file using the HttpZipLocator.
         assertNotNull(am.locateAsset(new ModelKey("glasstile2.png")),
-                "Failed to load from wildhouse.zip on googleapis.com");
+                "Failed to load from wildhouse.zip");
 
         // Try loading from the GitHub website using the UrlLocator.
         assertNotNull(am.locateAsset(new TextureKey("beginner-physics.png")),

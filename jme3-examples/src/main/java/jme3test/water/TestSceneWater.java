@@ -79,11 +79,11 @@ public class TestSceneWater extends SimpleApplication {
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {
-            assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", HttpZipLocator.class);
+            assetManager.registerLocator("https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/wildhouse.zip", HttpZipLocator.class);
         } else {
             assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }
-        Spatial scene = assetManager.loadModel("main.scene");
+        Spatial scene = assetManager.loadModel("main.j3o");
 
         DirectionalLight sun = new DirectionalLight();
         Vector3f lightDir=new Vector3f(-0.37352666f, -0.50444174f, -0.7784704f);

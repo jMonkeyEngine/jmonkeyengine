@@ -13,6 +13,7 @@ native-bootstrap = "0.1.4"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 jmeAndroidNatives = "3.10.0-xt16kb-alloc"
+jme3-testdata = "2026-10-31-3"
 googleMaterial = "1.14.0"
 androidx-fragment-testing = "1.9.0"
 
@@ -40,6 +41,8 @@ gson = "com.google.code.gson:gson:2.14.0"
 googleMaterial = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jme3-android-natives = { module = "org.jmonkeyengine:jme3-android-native", version.ref = "jmeAndroidNatives" }
+# Test data published from the standalone jMonkeyEngine/jme-testdata repo (Java 11 compatible).
+jme3-testdata = { module = "org.jmonkeyengine:jme3-testdata", version.ref = "jme3-testdata" }
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.19.1"
