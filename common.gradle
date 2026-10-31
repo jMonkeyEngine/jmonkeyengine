@@ -16,8 +16,8 @@ group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
         vendor = JvmVendorSpec.ADOPTIUM
@@ -30,13 +30,13 @@ tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
     options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:-options', '-Werror'])
     options.encoding = 'UTF-8'
-    options.release = 8
+    options.release = 11
 }
 
 // JUnit 6 requires Java 17 bytecode, so every compilation unit that consumes it is
 // compiled for Java 17: the test sources of all modules and the main sources of the
 // screenshot-test framework modules (which use JUnit in their main code). The engine
-// itself keeps targeting Java 8.
+// itself targets Java 11.
 def isScreenshotTestFrameworkModule = project.path.startsWith(':jme3-screenshot-tests:')
 tasks.withType(JavaCompile).configureEach { JavaCompile javaCompile ->
     if (javaCompile.name.startsWith('compileTest')
