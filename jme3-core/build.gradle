@@ -16,7 +16,7 @@ sourceSets {
 }
 
 dependencies {
-    testRuntimeOnly project(':jme3-testdata')
+    testRuntimeOnly libs.jme3.testdata
     testImplementation project(':jme3-desktop')
     testRuntimeOnly project(':jme3-plugins')
 }

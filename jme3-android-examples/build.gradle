@@ -2,6 +2,22 @@ apply plugin: 'com.android.application'
 
 def examplesJar = project(':jme3-examples').tasks.named('jar')
 
+configurations {
+    testData
+}
+
+dependencies {
+    testData libs.jme3.testdata
+}
+
+def extractTestData = tasks.register('extractTestData', Copy) {
+    def testDataJar = { configurations.testData.singleFile }
+    inputs.file(testDataJar)
+    outputs.dir(layout.buildDirectory.dir('jme3-testdata'))
+    from({ zipTree(testDataJar()) })
+    into(layout.buildDirectory.dir('jme3-testdata'))
+}
+
 android {
     namespace "org.jmonkeyengine.jme3androidexamples"
     compileSdk gradle.ext.androidExamplesCompileSdk
@@ -40,7 +56,7 @@ android {
             }
             assets {
                 srcDir 'src/assets'
-                srcDir '../jme3-testdata/src/main/resources'
+                srcDir layout.buildDirectory.dir('jme3-testdata')
                 srcDir '../jme3-examples/src/main/resources'
             }
         }
@@ -68,7 +84,7 @@ dependencies {
 }
 
 tasks.named('preBuild') {
-    dependsOn examplesJar
+    dependsOn examplesJar, extractTestData
 }
 
 tasks.register('installAndroidExamples', Exec) {

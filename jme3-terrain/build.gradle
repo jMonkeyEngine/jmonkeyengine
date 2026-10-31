@@ -8,5 +8,5 @@ dependencies {
     testImplementation project(':jme3-core')
     testImplementation jme3CoreTestClasses
     testRuntimeOnly project(':jme3-desktop')
-    testRuntimeOnly project(':jme3-testdata')
+    testRuntimeOnly libs.jme3.testdata
 }

@@ -60,7 +60,7 @@ dependencies {
     implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-shared')
     implementation project(':jme3-screenshot-tests:jme3-screenshot-tests-proto-report')
 
-    implementation project(':jme3-testdata')
+    implementation libs.jme3.testdata
 
     // Allows the test to communicate with the orchestrator storage
     androidTestImplementation libs.androidx.test.services

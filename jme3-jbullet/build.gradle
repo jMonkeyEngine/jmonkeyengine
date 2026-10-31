@@ -19,5 +19,5 @@ dependencies {
     api project(':jme3-core')
     api project(':jme3-terrain')
     testRuntimeOnly project(':jme3-desktop')
-    testRuntimeOnly project(':jme3-testdata')
+    testRuntimeOnly libs.jme3.testdata
 }

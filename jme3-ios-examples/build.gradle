@@ -279,13 +279,21 @@ def generateIosNativeImageMetadata = tasks.register('generateIosNativeImageMetad
     }
 }
 
+def extractTestData = tasks.register('extractTestData', Copy) {
+    def testDataJar = { configurations.testData.singleFile }
+    inputs.file(testDataJar)
+    outputs.dir(layout.buildDirectory.dir('jme3-testdata'))
+    from({ zipTree(testDataJar()) })
+    into(layout.buildDirectory.dir('jme3-testdata'))
+}
+
 iOS {
     mainClass = iosChooserLauncherClass
     bundleId = 'org.jmonkeyengine.jme3iosexamples'
     appName = 'JmeIosExamples'
     simulatorDevice = (findProperty('iosSimulatorDevice') ?: 'iPhone 16').toString()
     appIcon = file('../jme3-android-examples/src/main/res/mipmap-xxxhdpi/mipmap_monkey.png')
-    assets.from '../jme3-testdata/src/main/resources', '../jme3-examples/src/main/resources'
+    assets.from layout.buildDirectory.dir('jme3-testdata'), '../jme3-examples/src/main/resources'
 }
 
 sourceSets {
@@ -299,7 +307,13 @@ sourceSets {
     }
 }
 
+configurations {
+    testData
+}
+
 dependencies {
+    testData libs.jme3.testdata
+
     implementation project(':jme3-core')
     implementation project(':jme3-ios')
     implementation project(':jme3-saferallocator')
@@ -329,7 +343,7 @@ tasks.named('javadoc') {
 }
 
 tasks.named('processResources') {
-    dependsOn generateIosNativeImageMetadata, generateExamplesTestChooserClassList
+    dependsOn extractTestData, generateIosNativeImageMetadata, generateExamplesTestChooserClassList
 }
 
 tasks.register('runIosExamples') {
