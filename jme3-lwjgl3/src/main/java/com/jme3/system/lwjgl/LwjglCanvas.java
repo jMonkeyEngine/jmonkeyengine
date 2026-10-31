@@ -72,6 +72,7 @@ import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
 
 import org.lwjgl.system.Configuration;
+import org.lwjgl.system.Platform;
 
 import static org.lwjgl.system.MemoryUtil.*;
 import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
