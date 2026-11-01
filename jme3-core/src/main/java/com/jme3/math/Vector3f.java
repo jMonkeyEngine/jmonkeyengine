@@ -835,7 +835,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return a new Vector3f with non-negative components
      */
     public Vector3f abs() {
-        return new Vector3f(Math.abs(x), Math.abs(y), Math.abs(z));
+        return new Vector3f(FastMath.abs(x), FastMath.abs(y), FastMath.abs(z));
     }
 
     /**
@@ -845,9 +845,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @return the (modified) current instance (for chaining)
      */
     public Vector3f absLocal() {
-        x = Math.abs(x);
-        y = Math.abs(y);
-        z = Math.abs(z);
+        x = FastMath.abs(x);
+        y = FastMath.abs(y);
+        z = FastMath.abs(z);
         return this;
     }
 

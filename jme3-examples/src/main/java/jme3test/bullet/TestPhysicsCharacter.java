@@ -109,7 +109,7 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     physicsCharacter = new CharacterControl(new CapsuleCollisionShape(0.5f, 1.8f), .1f);
     physicsCharacter.setPhysicsLocation(new Vector3f(0, 1, 0));
     Node characterNode = new Node("character node");
-    Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+    Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.j3o");
     model.scale(0.25f);
     characterNode.addControl(physicsCharacter);
     getPhysicsSpace().add(physicsCharacter);

@@ -186,6 +186,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * or {@link #newNiftyJmeDisplay(com.jme3.asset.AssetManager, com.jme3.input.InputManager, com.jme3.audio.AudioRenderer, com.jme3.renderer.ViewPort, de.lessvoid.nifty.render.batch.BatchRenderConfiguration) }
      * instead of this constructor.
      */
+    @Deprecated
     public NiftyJmeDisplay(
             final AssetManager assetManager,
             final InputManager inputManager,

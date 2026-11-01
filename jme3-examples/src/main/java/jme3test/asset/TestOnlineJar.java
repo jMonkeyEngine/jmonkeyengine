@@ -57,9 +57,9 @@ public class TestOnlineJar extends SimpleApplication {
 
         Geometry quad = new Geometry("Textured Quad", quadMesh);
         
-        assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip", 
+        assetManager.registerLocator("https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/town.zip", 
                                      HttpZipLocator.class);
-        assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
+        assetManager.registerLocator("https://raw.githubusercontent.com/jMonkeyEngine/jme-testdata/refs/heads/master/archives/wildhouse.zip", 
                                      HttpZipLocator.class);
 
         Picture pic1 = new Picture("Picture1");

@@ -789,7 +789,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return a new Vector4f with non-negative components
      */
     public Vector4f abs() {
-        return new Vector4f(Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w));
+        return new Vector4f(FastMath.abs(x), FastMath.abs(y), FastMath.abs(z), FastMath.abs(w));
     }
 
     /**
@@ -799,10 +799,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @return the (modified) current instance (for chaining)
      */
     public Vector4f absLocal() {
-        x = Math.abs(x);
-        y = Math.abs(y);
-        z = Math.abs(z);
-        w = Math.abs(w);
+        x = FastMath.abs(x);
+        y = FastMath.abs(y);
+        z = FastMath.abs(z);
+        w = FastMath.abs(w);
         return this;
     }
 

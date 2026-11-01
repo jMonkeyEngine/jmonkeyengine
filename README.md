@@ -51,7 +51,16 @@ Note: The master branch on GitHub is a development version of the engine and is 
  - libraries for GUI, networking, physics, SFX, terrain, importing assets, etc.
  - platform-neutral core library for scene graph, animation, rendering, math, etc.
  - LWJGL v2/v3 (to access GLFW, OpenAL, OpenGL, and OpenVR) or Android or iOS
- - Java Virtual Machine (v8 or higher)
+ - Java Virtual Machine (v11 or higher)
+
+Android applications must use a toolchain that supports Java 11 class files
+and configure their module's Java source/target compatibility accordingly. The
+Android examples already target Java 11 and require API 30 or newer. Java 11
+bytecode does not make every Java 11 library API available on Android: check
+[Android's Java API support](https://developer.android.com/build/jdks) and enable
+[core library desugaring](https://developer.android.com/studio/write/java8-support#library-desugaring)
+when using supported APIs that are absent from the application's minimum API
+level. This change does not add uses of newer Java library APIs.
 
 ### Documentation
 
@@ -67,7 +76,13 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 
 ### How to Build the Engine from Source
 
-1. Install a Java Development Kit (JDK),
+The engine artifacts require Java 11 or newer at runtime. Building this branch
+requires JDK 17 or newer to run Gradle; the build uses an Eclipse Temurin JDK 25
+toolchain (downloaded automatically when needed) to compile engine code with
+`--release 11`. Tests and screenshot-test framework code target Java 17.
+These build requirements are separate from the engine's Java 11 runtime minimum.
+
+1. Install JDK 17 or newer (Eclipse Temurin JDK 25 is recommended for this branch),
    if you don't already have one.
 2. Point the `JAVA_HOME` environment variable to your JDK installation:
    (In other words, set it to the path of a directory/folder

@@ -98,7 +98,7 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
     }
 
     private Spatial loadModel(int i) {
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.j3o");
         model.setLocalScale(0.1f);
         AnimComposer composer = model.getControl(AnimComposer.class);
 

@@ -294,7 +294,7 @@ public class TestWalkingChar extends SimpleApplication
     private void createCharacter() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(3f, 4f);
         character = new CharacterControl(capsule, 0.01f);
-        model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Oto/Oto.j3o");
         model.addControl(character);
         character.setPhysicsLocation(new Vector3f(-140, 40, -10));
         rootNode.attachChild(model);

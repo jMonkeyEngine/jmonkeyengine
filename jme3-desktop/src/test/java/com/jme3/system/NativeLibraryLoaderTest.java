@@ -52,9 +52,14 @@ class NativeLibraryLoaderTest {
 
     private String previousExtractionFolder;
     private String previousExtractNativeLibraries;
+    private String previousNativeTempDir;
+    private String previousNativeCacheDir;
 
     @BeforeEach
     void rememberNativeLibrarySettings() {
+        NativeLibraryLoader.isExtractNativeLibraries();
+        previousNativeTempDir = System.getProperty("natives.tempDir");
+        previousNativeCacheDir = System.getProperty("natives.cacheDir");
         previousExtractionFolder = System.getProperty(NativeLibraryLoader.CUSTOM_EXTRACTION_FOLDER_PROPERTY);
         previousExtractNativeLibraries = System.getProperty(NativeLibraryLoader.EXTRACT_NATIVE_LIBRARIES_PROPERTY);
         NativeLibraryLoader.setCustomExtractionFolder(null);
@@ -63,6 +68,7 @@ class NativeLibraryLoaderTest {
 
     @AfterEach
     void restoreNativeLibrarySettings() {
+        System.clearProperty(NativeLibraryLoader.CUSTOM_EXTRACTION_FOLDER_PROPERTY);
         NativeLibraryLoader.setCustomExtractionFolder(null);
         NativeLibraryLoader.clearExtractNativeLibrariesOverride();
         if (previousExtractionFolder == null) {
@@ -75,6 +81,10 @@ class NativeLibraryLoaderTest {
         } else {
             System.setProperty(NativeLibraryLoader.EXTRACT_NATIVE_LIBRARIES_PROPERTY, previousExtractNativeLibraries);
         }
+        if (previousNativeTempDir == null) System.clearProperty("natives.tempDir");
+        else System.setProperty("natives.tempDir", previousNativeTempDir);
+        if (previousNativeCacheDir == null) System.clearProperty("natives.cacheDir");
+        else System.setProperty("natives.cacheDir", previousNativeCacheDir);
     }
 
     @Test
