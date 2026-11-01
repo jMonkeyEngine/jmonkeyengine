@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,13 @@ import org.lwjgl.opengl.awt.PlatformGLCanvas;
  * @author wil
  */
 public interface LwjglxGLPlatform extends PlatformGLCanvas {
+
+    /**
+     * Returns information about the controllers (names) that are being used.
+     *
+     * @return String
+     */
+    String getVideoDriver();
 
     /**
      * Free the drawing surface.

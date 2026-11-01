@@ -8,10 +8,12 @@ jmh = "1.37"
 lwjgl3 = "3.4.3"
 angle = "2026-05-09"
 libjglios = "0.10"
-saferalloc = "0.0.10"
+saferalloc = "0.0.11"
+native-bootstrap = "0.1.4"
 nifty = "1.4.3"
 spotbugs = "4.9.8"
 jmeAndroidNatives = "3.10.0-xt16kb-alloc"
+jme3-testdata = "2026-10-31-3"
 googleMaterial = "1.14.0"
 androidx-fragment-testing = "1.9.0"
 
@@ -39,6 +41,8 @@ gson = "com.google.code.gson:gson:2.14.0"
 googleMaterial = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jme3-android-natives = { module = "org.jmonkeyengine:jme3-android-native", version.ref = "jmeAndroidNatives" }
+# Test data published from the standalone jMonkeyEngine/jme-testdata repo (Java 11 compatible).
+jme3-testdata = { module = "org.jmonkeyengine:jme3-testdata", version.ref = "jme3-testdata" }
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.19.1"
@@ -50,7 +54,7 @@ junit4 = "junit:junit:4.13.2"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
-lwjgl3-awt = "org.jmonkeyengine:lwjgl3-awt:0.2.4"
+lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.2.5"
 
 lwjgl3-base     = { module = "org.lwjgl:lwjgl",          version.ref = "lwjgl3" }
 lwjgl3-glfw     = { module = "org.lwjgl:lwjgl-glfw",     version.ref = "lwjgl3" }
@@ -82,6 +86,7 @@ libjglios-gles-ios = { module = "org.ngengine:libjglios-gles-ios", version.ref =
 libjglios-gradle-plugin = { module = "org.ngengine:libjglios-gradle-plugin", version.ref = "libjglios" }
 libjglios-openal-ios = { module = "org.ngengine:libjglios-openal-ios", version.ref = "libjglios" }
 libjglios-sdl3-ios = { module = "org.ngengine:libjglios-sdl3-ios", version.ref = "libjglios" }
+native-directories = { module = "org.jmonkeyengine:native-directories", version.ref = "native-bootstrap" }
 saferalloc = { module = "org.ngengine:saferalloc", version.ref = "saferalloc" }
 saferalloc-natives-linux-x8664 = { module = "org.ngengine:saferalloc-natives-linux-x86_64", version.ref = "saferalloc" }
 saferalloc-natives-linux-aarch64 = { module = "org.ngengine:saferalloc-natives-linux-aarch64", version.ref = "saferalloc" }

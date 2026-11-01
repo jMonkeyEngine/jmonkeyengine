@@ -401,7 +401,7 @@ dependencies {
     implementation project(':jme3-plugins-json-gson')
     implementation project(':jme3-terrain')
     implementation project(':jme3-awt-dialogs')
-    implementation project(':jme3-testdata')
+    implementation libs.jme3.testdata
     runtimeOnly libs.nifty.examples // for the "all/intro.xml" example GUI
 }
 

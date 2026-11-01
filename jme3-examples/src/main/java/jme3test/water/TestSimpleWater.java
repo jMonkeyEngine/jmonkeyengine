@@ -81,7 +81,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
 
         //create water quad
         //waterPlane = waterProcessor.createWaterGeometry(100, 100);
-        waterPlane = assetManager.loadModel("Models/WaterTest/WaterTest.mesh.xml");
+        waterPlane = assetManager.loadModel("Models/WaterTest/WaterTest.j3o");
         waterPlane.setMaterial(waterProcessor.getMaterial());
         waterPlane.setLocalScale(40);
         waterPlane.setLocalTranslation(-5, 0, 5);

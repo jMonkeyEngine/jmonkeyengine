@@ -116,9 +116,6 @@ include 'jme3-jogg'
 include 'jme3-android'
 include 'jme3-ios'
 
-// Test Data project
-include 'jme3-testdata'
-
 // Example projects
 include 'jme3-examples'
 include 'jme3-awt-dialogs'

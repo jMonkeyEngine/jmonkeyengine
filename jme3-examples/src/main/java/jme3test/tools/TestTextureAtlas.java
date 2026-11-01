@@ -53,15 +53,15 @@ public class TestTextureAtlas extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setMoveSpeed(50);
         Node scene = new Node("Scene");
-        Spatial obj1 = assetManager.loadModel("Models/Ferrari/Car.scene");
+        Spatial obj1 = assetManager.loadModel("Models/Ferrari/Car_Scene.j3o");
         obj1.setLocalTranslation(-4, 0, 0);
-        Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.j3o");
         obj2.setLocalTranslation(-2, 0, 0);
-        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.mesh.xml");
+        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.j3o");
         obj3.setLocalTranslation(-0, 0, 0);
-        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.j3o");
         obj4.setLocalTranslation(2, 0, 0);
-        Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
+        Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.j3o");
         obj5.setLocalTranslation(4, 0, 0);
         scene.attachChild(obj1);
         scene.attachChild(obj2);

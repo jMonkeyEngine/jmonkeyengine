@@ -1,6 +1,7 @@
 dependencies {
     api project(':jme3-core')
     api project(':jme3-plugins')
+    implementation libs.native.directories
 }
 
 tasks.register('scanJ3O', JavaExec) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,17 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * @author wil
  */
 final class MacOSXGLPlatform extends PlatformMacOSXGLCanvas implements LwjglxGLPlatform {
+
+    /**
+     * (non-Javadoc)
+     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#getVideoDriver() 
+     * 
+     * @return String
+     */
+    @Override
+    public String getVideoDriver() {
+        return "MacOSX Cocoa NSGL";
+    }
 
     /**
      * (non-Javadoc)

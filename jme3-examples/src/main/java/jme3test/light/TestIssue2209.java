@@ -81,7 +81,7 @@ public class TestIssue2209 extends SimpleApplication {
         dlsr.setLight(dl);
         viewPort.addProcessor(dlsr);
 
-        Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Node player = (Node) assetManager.loadModel("Models/Oto/Oto.j3o");
         player.setShadowMode(RenderQueue.ShadowMode.Cast);
         rootNode.attachChild(player);
     }
