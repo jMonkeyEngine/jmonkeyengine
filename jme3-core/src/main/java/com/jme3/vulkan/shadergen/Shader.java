@@ -1,18 +1,20 @@
 package com.jme3.vulkan.shadergen;
 
 import com.jme3.backend.GraphicsAPI;
-import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.scene.Mesh;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.frames.Frame;
 import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.pipeline.PushConstantRange;
 import com.jme3.vulkan.shadergen.vars.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -24,8 +26,13 @@ public abstract class Shader {
     private final String namespace = getClass().getName().replace('.', '_');
     private final Map<Integer, BitSet> bindings = new HashMap<>();
     private final int version = getSourceVersion();
-    private final Map<Location, Global<Var>> availableGlobals = new HashMap<>();
-    private final Map<Integer, Map<Integer, Global<Var>>> usedGlobals = new HashMap<>();
+    private final Map<Object, Global<?, ?>> availableGlobals = new HashMap<>();
+    private final Map<Object, Global<?, ?>> usedGlobals = new HashMap<>();
+    private final Map<ShaderStage, String> sources = new EnumMap<>(ShaderStage.class);
+    private final Map<String, Integer> vertexAttributes = new HashMap<>();
+    private final List<DescriptorSetCache<Object>> descriptors = new ArrayList<>();
+    private List<DescriptorSetLayout> orderedSetLayouts;
+    private DescriptorPool pool;
     protected BuiltIn gl;
     protected final GlslMath math = new GlslMath();
 
@@ -42,47 +49,38 @@ public abstract class Shader {
         return v != null ? v.glsl() : 460;
     }
 
-    public String compile(ShaderStage stage) {
-        return compile(stage);
+    public void compile(LogicalDevice<?> device, Frame frames, int keys) {
+        compile(device, frames, keys, false);
     }
 
-    /**
-     * Compiles the shader stage for the target graphics API.
-     *
-     * @param stage stage to compile (must be present)
-     * @param debug true to make the compiled shader code as debuggable as possible
-     * @return the compiled stage, including the GLSL source and the resource binding
-     *         metadata a {@link com.jme3.vulkan.material.experimental.ShadingTechnique}
-     *         needs to bind it
-     */
-    public String compile(ShaderStage stage, boolean debug) {
+    public void compile(LogicalDevice<?> device, Frame frames, int keys, boolean debug) {
+        if (orderedSetLayouts != null) {
+            throw new IllegalStateException("Shader \"" + name + "\" is already compiled.");
+        }
+        // discard anything left over from a compile that failed partway
+        availableGlobals.clear();
+        usedGlobals.clear();
+        sources.clear();
+        Map<ShaderStage, Method> entries = findEntryPoints(name);
+        for (Map.Entry<ShaderStage, Method> e : entries.entrySet()) {
+            sources.put(e.getKey(), compileStage(e.getKey(), e.getValue(), debug));
+        }
+        createSetLayouts(device, frames, keys);
+    }
+
+    private String compileStage(ShaderStage stage, Method entry, boolean debug) {
         bindings.clear();
         logic = ShaderLogic.init(this, target, stage, debug);
         logic.addHeaderLine("#version %d", version);
         gl = new BuiltIn();
         compileGlobals(this);
-        Method entry = findEntryPoint(stage, name);
         compileComputeWork(entry, stage);
         Var[] args = compileFunction(entry, "main", false);
         if (args == null) {
             throw new IllegalStateException("Entry point was not compiled.");
         }
-        compileEntryPointArguments(entry, args);
+        compileEntryPointArguments(stage, entry, args);
         return logic.compileBlocks();
-    }
-
-    public Map<Integer, DescriptorSetLayout> createLayouts(LogicalDevice<?> device) {
-        Map<Integer, DescriptorSetLayout> results = new HashMap<>();
-        for (Map.Entry<Integer, Map<Integer, Global<Var>>> e : usedGlobals.entrySet()) {
-            if (Location.isDescriptorSet(e.getKey())) {
-                DescriptorSetLayout.Info info = DescriptorSetLayout.build();
-                for (Global<Var> g : e.getValue().values()) {
-                    info.addBinding(g.getLocation().getBinding(), g.getType(), g.getDescriptorCount(), g.getStages());
-                }
-                results.put(e.getKey(), info.build(device));
-            }
-        }
-        return results;
     }
 
     protected void compileAsLibrary(Shader host) {
@@ -108,18 +106,21 @@ public abstract class Shader {
         }
     }
 
-    private Method findEntryPoint(ShaderStage stage, String name) {
-        Method[] methods = getClass().getDeclaredMethods();
-        for (Method m : methods) {
+    private Map<ShaderStage, Method> findEntryPoints(String name) {
+        Map<ShaderStage, Method> entries = new EnumMap<>(ShaderStage.class);
+        for (Method m : getClass().getDeclaredMethods()) {
             EntryPoint entry = m.getAnnotation(EntryPoint.class);
-            if (entry != null && entry.value() == stage && name.equals(entry.name())) {
-                return m;
+            if (entry != null && name.equals(entry.name()) && entries.put(entry.value(), m) != null) {
+                throw new IllegalStateException("Multiple " + entry.value() + " entry points named \"" + name + "\".");
             }
         }
-        throw new NullPointerException("Entry point not found: " + stage);
+        if (entries.isEmpty()) {
+            throw new IllegalStateException("No entry points named \"" + name + "\".");
+        }
+        return entries;
     }
 
-    private void compileEntryPointArguments(Method entry, Var[] args) {
+    private void compileEntryPointArguments(ShaderStage stage, Method entry, Var[] args) {
         Parameter[] params = entry.getParameters();
         for (int i = 0; i < params.length; i++) {
             Parameter p = params[i];
@@ -128,6 +129,14 @@ public abstract class Shader {
             if (in != null) {
                 if (out != null) throw new IllegalStateException("Shader parameter cannot be both in and out.");
                 logic.addInputVarying(in.value(), args[i]);
+                if (stage == ShaderStage.Vertex) {
+                    Attr attr = p.getAnnotation(Attr.class);
+                    if (attr != null) {
+                        vertexAttributes.put(attr.value(), in.value());
+                    } else {
+                        vertexAttributes.put(p.getName(), in.value());
+                    }
+                }
             } else if (out != null) {
                 logic.addOutputVarying(out.value(), args[i]);
             }
@@ -197,15 +206,19 @@ public abstract class Shader {
         return callSite.append(')').toString();
     }
 
-    @SuppressWarnings("unchecked")
     private void compileGlobals(Shader host) {
         try {
             for (Class clazz = getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
                 for (Field f : clazz.getDeclaredFields()) {
-                    if (Uniform.class.isAssignableFrom(f.getType())) {
+                    if (Global.class.isAssignableFrom(f.getType())) {
                         f.setAccessible(true);
                         Global g = (Global)f.get(this);
-                        host.availableGlobals.putIfAbsent(g.getLocation(), g);
+                        if (g != null) {
+                            // a global hidden by another at the same location must not write to that location
+                            if (host.availableGlobals.putIfAbsent(g.getKey(), g) == null) {
+                                g.setShader(host);
+                            }
+                        }
                     }
                 }
             }
@@ -224,9 +237,185 @@ public abstract class Shader {
     }
 
     public Global useGlobalByLocation(Location location) {
-        Global<Var> g = availableGlobals.get(location);
-        usedGlobals.computeIfAbsent(g.getLocation().getSet(), k -> new HashMap<>()).put(g.getLocation().getBinding(), g);
+        Global g = availableGlobals.get(location);
+        if (g == null) {
+            throw new NullPointerException("No global declared at " + location + ".");
+        }
+        usedGlobals.put(g.getKey(), g);
         return g;
+    }
+
+    /**
+     * Gets the binding {@code g} occupies within its descriptor set.
+     *
+     * @param g descriptor global
+     * @return binding slot of {@code g}, or -1 if {@code g} is not used by any compiled stage
+     */
+    public int getBinding(DescriptorGlobal<?> g) {
+        return usedGlobals.get(g.getKey()) == g ? g.getBinding() : -1;
+    }
+
+    /**
+     * Creates a layout for every descriptor set used by the compiled stages, containing a binding for
+     * each {@link DescriptorGlobal} used in that set, visible to every stage that used it. Vulkan requires a
+     * pipeline layout's set layouts to be contiguous, so any set number below the highest one used
+     * that no stage uses is given an empty layout.
+     */
+    private void createSetLayouts(LogicalDevice<?> device, Frame frames, int keys) {
+        Map<Integer, DescriptorSetLayout.Builder> builders = new HashMap<>();
+        Map<DescriptorType, Integer> perKey = new EnumMap<>(DescriptorType.class);
+        BitSet usedSets = new BitSet();
+        for (Global<?, ?> used : usedGlobals.values()) {
+            if (used instanceof DescriptorGlobal) {
+                DescriptorGlobal<?> g = (DescriptorGlobal<?>)used;
+                builders.computeIfAbsent(g.getSet(), k -> DescriptorSetLayout.build())
+                        .addBinding(g.getType(), g.getBinding(), g.getDescriptorCount(), g.getStages(), g.getBindingLogic());
+                perKey.merge(g.getType(), g.getDescriptorCount(), Integer::sum);
+                usedSets.set(g.getSet());
+            }
+        }
+        int sets = usedSets.length();
+        List<DescriptorSetLayout> ordered = new ArrayList<>(sets);
+        for (int i = 0; i < sets; i++) {
+            ordered.add(builders.getOrDefault(i, DescriptorSetLayout.build()).build(device));
+        }
+        orderedSetLayouts = Collections.unmodifiableList(ordered);
+        int setsPerKey = frames.count() + 1;
+        PoolSize[] sizes = new PoolSize[perKey.size()];
+        int i = 0;
+        for (Map.Entry<DescriptorType, Integer> e : perKey.entrySet()) {
+            sizes[i++] = new PoolSize(e.getKey(), e.getValue() * keys * setsPerKey);
+        }
+        pool = new DescriptorPool(device, Math.max(usedSets.cardinality() * keys * setsPerKey, 1), sizes);
+        // sets without any bindings get no cache
+        for (int s = 0; s < orderedSetLayouts.size(); s++) {
+            descriptors.add(usedSets.get(s) ? new DescriptorSetCache<>(pool, orderedSetLayouts.get(s), frames) : null);
+        }
+    }
+
+    /**
+     * @return layouts of every descriptor set up to the highest one used, ordered by set number
+     * @throws IllegalStateException if this shader is not {@link #compile compiled}
+     */
+    public List<DescriptorSetLayout> getSetLayouts() {
+        checkCompiled();
+        return orderedSetLayouts;
+    }
+
+    /**
+     * @return compiled source of each stage
+     * @throws IllegalStateException if this shader is not {@link #compile compiled}
+     */
+    public Map<ShaderStage, String> getSources() {
+        checkCompiled();
+        return Collections.unmodifiableMap(sources);
+    }
+
+    private void checkCompiled() {
+        if (orderedSetLayouts == null) {
+            throw new IllegalStateException("Shader \"" + name + "\" is not compiled.");
+        }
+    }
+
+    /**
+     * Gets the push constants used by the compiled stages, from which the pipeline layout's push
+     * constant range is made: {@link PushConstants#getSize() size} bytes at offset 0, visible to
+     * the {@link Global#getStages() stages} that use it.
+     *
+     * @return push constants, or null if no stage uses any
+     * @throws IllegalStateException if this shader is not {@link #compile compiled}
+     */
+    public PushConstants<?> getPushConstants() {
+        checkCompiled();
+        return (PushConstants<?>)usedGlobals.get(Location.pushConstants());
+    }
+
+    /**
+     * Gets the push constant ranges a pipeline layout needs for this shader: one covering the
+     * {@link #getPushConstants() push constants}, if any stage uses them.
+     *
+     * @return push constant ranges, empty if no stage uses push constants
+     * @throws IllegalStateException if this shader is not {@link #compile compiled}
+     */
+    public List<PushConstantRange> getPushConstantRanges() {
+        PushConstants<?> pc = getPushConstants();
+        return pc != null ? Collections.singletonList(new PushConstantRange(pc.getStages(), 0, pc.getSize()))
+                : Collections.emptyList();
+    }
+
+    /**
+     * @return globals used by the compiled stages, by key
+     */
+    public Map<Object, Global<?, ?>> getUsedGlobals() {
+        return Collections.unmodifiableMap(usedGlobals);
+    }
+
+    public Map<String, Integer> getVertexAttributes() {
+        return Collections.unmodifiableMap(vertexAttributes);
+    }
+
+    /**
+     * Gets the descriptor sets to render {@code key} with this frame, writing any changed resources first.
+     *
+     * @param key key to render
+     * @return sets indexed by set number, matching the shader's set layouts; null where a set has no bindings
+     */
+    public DescriptorSet[] updateDescriptors(Object key) {
+        checkCompiled();
+        DescriptorSet[] sets = new DescriptorSet[descriptors.size()];
+        for (int i = 0; i < sets.length; i++) {
+            DescriptorSetCache<Object> c = descriptors.get(i);
+            if (c != null) {
+                sets[i] = c.update(key);
+            }
+        }
+        return sets;
+    }
+
+    /**
+     * Assigns the resource mapped to element {@code descriptor} of {@code g} for {@code key}. The
+     * resource is written to the device on {@code key}'s next {@link #updateDescriptors(Object) update}.
+     *
+     * @param g global the resource is mapped to
+     * @param descriptor descriptor index within the global
+     * @param key key (typically a node) the resource belongs to
+     * @param resource resource
+     * @throws IllegalArgumentException if {@code g} is not used by this shader
+     */
+    public void setDescriptorResource(DescriptorGlobal<?> g, int descriptor, Object key, Object resource) {
+        checkCompiled();
+        if (usedGlobals.get(g.getKey()) != g) {
+            throw new IllegalArgumentException("Global is not a descriptor used by shader \"" + name + "\": " + g.getKey());
+        }
+        descriptors.get(g.getSet()).get(key).set(g.getBinding(), descriptor, resource);
+    }
+
+    public void bindDescriptors(CommandBuffer cmd, Object key) {
+        cmd.cmdBindDescriptors(updateDescriptors(key));
+    }
+
+    /**
+     * Releases every descriptor set of {@code key}, e.g. when the node is no longer rendered with
+     * this shader. Resources must be assigned again if {@code key} is rendered later.
+     *
+     * @param key key to release
+     */
+    public void releaseDescriptors(Object key) {
+        checkCompiled();
+        for (DescriptorSetCache<Object> c : descriptors) {
+            if (c != null) {
+                c.release(key);
+            }
+        }
+    }
+
+    public void bindVertices(CommandBuffer cmd, Mesh mesh) {
+        cmd.cmdBindVertices(mesh, vertexAttributes::get);
+    }
+
+    public void draw(CommandBuffer cmd, Mesh mesh) {
+        bindVertices(cmd, mesh);
+        cmd.cmdDraw(mesh);
     }
 
     /**
@@ -775,6 +964,13 @@ public abstract class Shader {
         public void Void() {
             logic.add("%s;", var);
         }
+
+    }
+
+    public static class Source {
+
+        private final String code;
+        private final Map<String, Integer> attributeLocations = new HashMap<>();
 
     }
 

@@ -92,6 +92,16 @@ public class VertexAttr <T> implements ValueField<T> {
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return binding.getBuffer();
+    }
+
+    @Override
+    public int offset() {
+        return binding.getOffset();
+    }
+
+    @Override
     public int alignment() {
         return desc.getAlignment();
     }

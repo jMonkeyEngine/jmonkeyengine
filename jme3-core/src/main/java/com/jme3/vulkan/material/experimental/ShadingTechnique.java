@@ -1,8 +1,9 @@
 package com.jme3.vulkan.material.experimental;
 
+import com.jme3.renderer.ViewPort;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.render.Bucket;
-import com.jme3.vulkan.scene.Scene;
+import com.jme3.vulkan.render.RenderList;
 import com.jme3.vulkan.scene.TagListener;
 
 public interface ShadingTechnique extends TagListener {
@@ -20,6 +21,6 @@ public interface ShadingTechnique extends TagListener {
      * @param cmd command buffer to record into
      * @param nodes node ids to render
      */
-    void render(CommandBuffer cmd, Scene.Group nodes);
+    void render(CommandBuffer cmd, ViewPort vp, RenderList.Section nodes);
 
 }

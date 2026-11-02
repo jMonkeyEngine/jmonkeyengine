@@ -58,6 +58,7 @@ public class ResourceLifecycle {
     private static final Collection<ResourceLifecycle> scheduled = new ConcurrentLinkedDeque<>();
 
     private static final BooleanSupplier TRUE = () -> true;
+    public static final ResourceLifecycle NULL = new ResourceLifecycle(ResourceLifecycle.class, () -> false, () -> {});
 
     /**
      * Runs every scheduled node whose destruction conditions are now satisfied, and

@@ -2,6 +2,7 @@ package com.jme3.vulkan.pipeline.framebuffer;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.ImageView;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.newimage.EngineImage;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
 import com.jme3.vulkan.util.Flag;
@@ -78,6 +79,10 @@ public class RenderTarget <T extends ImageView> implements Cloneable {
 
     public T getView() {
         return view;
+    }
+
+    public Format getFormat() {
+        return view.getImage().getFormat();
     }
 
     public void setLayout(EngineImage.Layout layout) {

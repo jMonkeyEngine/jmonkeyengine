@@ -3,7 +3,7 @@ package com.jme3.vulkan.buffer;
 import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
-import com.jme3.vulkan.frames.FrameIndex;
+import com.jme3.vulkan.frames.Frame;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
@@ -46,8 +46,8 @@ public class DynamicBuffer implements GpuBuffer {
      *                       {@code base -> new StaticBuffer(commands, stream, base)}
      * @return the constructed buffer
      */
-    public static DynamicBuffer coherentRapid(MemoryAllocator allocator, FrameIndex frames, int capacity,
-            Flag<Role> roles, Function<GpuBuffer, GpuBuffer> staticFallback) {
+    public static DynamicBuffer coherentRapid(MemoryAllocator allocator, Frame frames, int capacity,
+                                              Flag<Role> roles, Function<GpuBuffer, GpuBuffer> staticFallback) {
         return new DynamicBuffer(allocator, frames, capacity, roles, true, staticFallback);
     }
 
@@ -65,13 +65,13 @@ public class DynamicBuffer implements GpuBuffer {
      *                       {@code base -> new StaticBuffer(commands, stream, base)}
      * @return the constructed buffer
      */
-    public static DynamicBuffer rapid(MemoryAllocator allocator, FrameIndex frames, int capacity,
-            Flag<Role> roles, Function<GpuBuffer, GpuBuffer> staticFallback) {
+    public static DynamicBuffer rapid(MemoryAllocator allocator, Frame frames, int capacity,
+                                      Flag<Role> roles, Function<GpuBuffer, GpuBuffer> staticFallback) {
         return new DynamicBuffer(allocator, frames, capacity, roles, false, staticFallback);
     }
 
-    private DynamicBuffer(MemoryAllocator allocator, FrameIndex frames, int capacity, Flag<Role> roles,
-            boolean coherent, Function<GpuBuffer, GpuBuffer> staticFallback) {
+    private DynamicBuffer(MemoryAllocator allocator, Frame frames, int capacity, Flag<Role> roles,
+                          boolean coherent, Function<GpuBuffer, GpuBuffer> staticFallback) {
         GpuBuffer[] buffers = new GpuBuffer[frames.count()];
         for (int i = 0; i < frames.count(); i++) {
             GpuBuffer base = allocator.createBuffer(BufferType.Dynamic, capacity, roles);

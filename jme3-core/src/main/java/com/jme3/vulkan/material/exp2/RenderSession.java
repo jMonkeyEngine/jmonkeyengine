@@ -3,8 +3,8 @@ package com.jme3.vulkan.material.exp2;
 import com.jme3.backend.Engine;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.jme3.vulkan.material.experimental.PipelineKey;
 import com.jme3.vulkan.material.experimental.ShadingTechnique;
-import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.render.bucket.GraphicsElement;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ public interface RenderSession <T extends Engine> extends AutoCloseable {
 
     void render(Collection<ViewPort> viewPorts, Queue<ShadingTechnique> techniques);
 
-    GraphicsElement createRenderElement(ViewPort vp, Geometry g, GraphicsState state);
+    GraphicsElement createRenderElement(ViewPort vp, Geometry g, PipelineKey key);
 
     void stageShaderSet(int location, SetBindCommand set);
 

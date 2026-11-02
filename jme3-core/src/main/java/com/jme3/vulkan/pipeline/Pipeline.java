@@ -1,18 +1,20 @@
 package com.jme3.vulkan.pipeline;
 
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.util.IntEnum;
-
+/**
+ * A Vulkan pipeline, bound with {@link com.jme3.vulkan.commands.CommandBuffer#cmdBindPipeline}.
+ */
 public interface Pipeline {
 
-    void bind(CommandBuffer cmd);
+    long getHandle();
 
     PipelineLayout getLayout();
 
     PipelineBindPoint getBindPoint();
 
-    long getSortPosition();
-
-    boolean isDynamic(IntEnum<DynamicState> state);
+    /**
+     * @param state dynamic state
+     * @return true if {@code state} must be set on the command buffer instead of coming from the pipeline
+     */
+    boolean isDynamic(DynamicState state);
 
 }

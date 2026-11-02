@@ -31,8 +31,6 @@
  */
 package com.jme3.material;
 
-import com.jme3.vulkan.pipeline.state.GraphicsState;
-
 /**
  *
  * @author codex
@@ -44,8 +42,6 @@ public interface Material {
     <T> T getInterface(Class<T> type);
 
     boolean containsInterface(Class<? extends ShadingInterface> type);
-
-    GraphicsState getGraphicsState();
 
     default <T> void setInterface(T shaderInterface) {
         setInterface((Class<T>)shaderInterface.getClass(), shaderInterface);

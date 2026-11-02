@@ -1,14 +1,25 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.scene.Mesh;
+import com.jme3.util.destruction.Destructable;
 import com.jme3.util.destruction.ResourceLifecycle;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructArray;
+import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.DataBuffer;
 import com.jme3.vulkan.buffer.GpuBuffer;
+import com.jme3.vulkan.buffer.IdxBuffer;
 import com.jme3.vulkan.concurrent.Access;
+import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.images.BufferImageCopy;
 import com.jme3.vulkan.images.ImageCopy;
 import com.jme3.vulkan.images.newimage.EngineImage;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.mesh.VertexAttr;
+import com.jme3.vulkan.mesh.VertexInput;
+import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -17,13 +28,16 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK14.*;
@@ -40,6 +54,7 @@ public class VulkanCommandBuffer implements CommandBuffer {
     private final Executor listenerThread = Executors.newFixedThreadPool(1);
     private TimelineSemaphore.SignalEvent completionEvent;
     private boolean recording = false;
+    private Pipeline boundPipeline;
     private boolean executing = false;
 
     public VulkanCommandBuffer(CommandPool pool, VkCommandBuffer buffer) {
@@ -193,6 +208,88 @@ public class VulkanCommandBuffer implements CommandBuffer {
         useResource(dst.getLifecycle(), Access.Write, PipelineStage.Transfer);
     }
 
+    @Override
+    public void cmdBindPipeline(Pipeline pipeline) {
+        if (pipeline instanceof Destructable) {
+            // keeps the pipeline (and its layout) from being destroyed while this command buffer may use it
+            useResource(((Destructable)pipeline).getLifecycle(), Access.Read, PipelineStage.AllCommands);
+        }
+        vkCmdBindPipeline(buffer, pipeline.getBindPoint().getEnum(), pipeline.getHandle());
+        boundPipeline = pipeline;
+    }
+
+    @Override
+    public void cmdBindDescriptors(DescriptorSet... sets) {
+        if (boundPipeline == null) {
+            throw new IllegalStateException("No pipeline bound to bind descriptor sets against.");
+        }
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer handles = stack.mallocLong(sets.length);
+            // each run of consecutive non-null sets is bound with one call
+            for (int i = 0; i < sets.length;) {
+                if (sets[i] == null) {
+                    i++;
+                    continue;
+                }
+                int first = i;
+                handles.clear();
+                for (; i < sets.length && sets[i] != null; i++) {
+                    handles.put(sets[i].getHandle());
+                }
+                vkCmdBindDescriptorSets(buffer, boundPipeline.getBindPoint().getEnum(),
+                        boundPipeline.getLayout().getHandle(), first, handles.flip(), null);
+            }
+        }
+    }
+
+    @Override
+    public void cmdPushConstants(Flag<ShaderStage> stages, int offset, ByteBuffer data) {
+        if (boundPipeline == null) {
+            throw new IllegalStateException("No pipeline bound to push constants to.");
+        }
+        if (stages.bits() == 0) {
+            throw new IllegalArgumentException("Push constants must be visible to at least one stage.");
+        }
+        if ((offset & 3) != 0 || (data.remaining() & 3) != 0) {
+            throw new IllegalArgumentException("Push constant offset (" + offset + ") and size ("
+                    + data.remaining() + ") must be multiples of 4.");
+        }
+        if (!data.isDirect()) {
+            throw new IllegalArgumentException("Push constant data must be a direct buffer.");
+        }
+        vkCmdPushConstants(buffer, boundPipeline.getLayout().getHandle(), stages.bits(), offset, data);
+    }
+
+    @Override
+    public void cmdBindVertices(Mesh mesh, Function<String, Integer> attributeLocation) {
+        List<StructArray<? extends Struct<VertexAttr>>> bound = VertexInput.getReferencedBuffers(attributeLocation, mesh);
+        if (bound.isEmpty()) return;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer handles = stack.mallocLong(bound.size());
+            LongBuffer offsets = stack.mallocLong(bound.size());
+            for (StructArray<?> a : bound) {
+                useResource(a.getBuffer().getLifecycle(), Access.Read, PipelineStage.VertexInput);
+                handles.put(a.getBuffer().getHandle());
+                offsets.put(a.absoluteOffset());
+            }
+            vkCmdBindVertexBuffers(buffer, 0, handles.flip(), offsets.flip());
+        }
+    }
+
+    @Override
+    public void cmdDraw(Mesh mesh) {
+        int instances = mesh.getInstanceBuffers().isEmpty() ? 1 : mesh.getInstanceCount();
+        IdxBuffer idx = mesh.getIndexBuffer();
+        if (idx != null) {
+            GpuBuffer b = idx.getBuffer();
+            useResource(b.getLifecycle(), Access.Read, PipelineStage.VertexInput);
+            vkCmdBindIndexBuffer(buffer, b.getHandle(), b.offset(), idx.getIndexType().getEnum(VulkanEnums.instance));
+            vkCmdDrawIndexed(buffer, idx.getIndexCount(), instances, 0, 0, 0);
+        } else {
+            vkCmdDraw(buffer, mesh.getVertexCount(), instances, 0, 0);
+        }
+    }
+
     /*-------------------------*\
     | COMMAND BUFFER MANAGEMENT |
     \*-------------------------*/
@@ -210,6 +307,7 @@ public class VulkanCommandBuffer implements CommandBuffer {
                     .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
             check(vkBeginCommandBuffer(buffer, begin), "Failed to begin command buffer");
             recording = true;
+            boundPipeline = null;
         }
     }
 

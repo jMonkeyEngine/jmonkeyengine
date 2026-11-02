@@ -164,6 +164,7 @@ public class Scene {
     private long[] nodeLights;      // manual bitset for local and world lights per node
     private long[] globalLights;    // manual bitset for global lights virtually attached to every root node
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private MeshType meshes; // cached, since meshes are looked up per node while rendering
     private final Map<Class<? extends ComponentPipe>, ComponentPipe> pipes = new HashMap<>();
     private final Map<Class<? extends ShadingTechnique>, ShadingTechnique> techniques = new HashMap<>();
     private final Map<String, Tag> tags = new HashMap<>();
@@ -904,7 +905,61 @@ public class Scene {
      */
     public <T> T getProperty(Class<? extends Property<T>> type, int node, T defaultValue) {
         Property<T> property = getComponent(type);
-        return property.isNull(node) ? defaultValue : property.get(node);
+        return property == null || property.isNull(node) ? defaultValue : property.get(node);
+    }
+
+    public boolean hasProperty(Class<? extends Property> type, int node) {
+        Property property = getComponent(type);
+        return property != null && !property.isNull(node);
+    }
+
+    /**
+     * Gets the mesh {@code node} renders: its own mesh, or the one it inherits from an ancestor
+     * if its mesh {@link #setMeshInheritMode inherit mode} says so.
+     *
+     * @param node node id
+     * @return {@code node}'s mesh, or null if it has none
+     */
+    public Mesh getMesh(int node) {
+        return meshes().get(node);
+    }
+
+    /**
+     * Sets {@code node}'s own mesh.
+     *
+     * @param node node id
+     * @param mesh mesh, or null to remove {@code node}'s mesh
+     */
+    public void setMesh(int node, @Nullable Mesh mesh) {
+        meshes().set(node, mesh);
+    }
+
+    /**
+     * Checks whether {@code node} has a mesh to render, either its own or an inherited one.
+     * Nodes without one are not rendered.
+     *
+     * @param node node id
+     * @return true if {@code node} has a mesh
+     */
+    public boolean hasMesh(int node) {
+        return !meshes().isNull(node);
+    }
+
+    /**
+     * Sets whether {@code node} passes its mesh down to, or takes its mesh from, other nodes.
+     *
+     * @param node node id
+     * @param mode inherit mode
+     */
+    public void setMeshInheritMode(int node, InheritMode mode) {
+        meshes().setInheritMode(node, mode);
+    }
+
+    private MeshType meshes() {
+        if (meshes == null) {
+            meshes = getComponent(MeshType.class);
+        }
+        return meshes;
     }
 
     @SuppressWarnings("unchecked")
@@ -1126,7 +1181,7 @@ public class Scene {
      * @param filter node filter
      * @return group
      */
-    public Group createHierarchalGroup(Predicate<Integer> filter) {
+    public Group createHierarchalGroup(IntPredicate filter) {
         Group subset = new Group();
         for (int i : hierarchyOrdered()) {
             int parent = getParentId(i);
@@ -1283,10 +1338,20 @@ public class Scene {
 
         @Override
         public boolean contains(Object o) {
-            if (o == null || o.getClass() == Integer.class) {
+            if (o == null || o.getClass() != Integer.class) {
                 return false;
             }
             return members.get((Integer)o);
+        }
+
+        /**
+         * Checks membership without boxing {@code node}.
+         *
+         * @param node node id
+         * @return true if {@code node} is in this group
+         */
+        public boolean contains(int node) {
+            return node >= 0 && members.get(node);
         }
 
         @Override
@@ -1361,22 +1426,6 @@ public class Scene {
             members.clear();
         }
 
-        public void render(CommandBuffer cmd, Queue<Class<? extends ShadingTechnique>> techniques) {
-            for (Class<? extends ShadingTechnique> type : techniques) {
-                if (members.isEmpty()) break;
-                ShadingTechnique tech = getTechnique(type);
-                if (tech == null) continue;
-                Group g = new Group();
-                for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
-                    if (tech.acceptNode(i)) {
-                        members.clear(i);
-                        g.members.set(i);
-                    }
-                }
-                tech.render(cmd, g);
-            }
-        }
-
         /**
          * Returns an IntStream of all nodes in this group.
          *
@@ -1441,6 +1490,14 @@ public class Scene {
             return g;
         }
 
+        public IntList toList() {
+            IntList list = new IntList(members.cardinality());
+            for (int i = members.nextSetBit(0); i >= 0; i = members.nextSetBit(i + 1)) {
+                list.add(i);
+            }
+            return list;
+        }
+
         public Scene getScene() {
             return Scene.this;
         }
@@ -1476,20 +1533,6 @@ public class Scene {
 
         public Light(int index) {
             this.index = index;
-        }
-
-        @Override
-        public void write(JmeExporter ex) throws IOException {
-            super.write(ex);
-            OutputCapsule out = ex.getCapsule(this);
-            out.write(index, "index", 0);
-        }
-
-        @Override @FinalWriter
-        public void read(JmeImporter im) throws IOException {
-            super.read(im);
-            InputCapsule in = im.getCapsule(this);
-            index = in.readInt("index", 0);
         }
 
         public void setUpdateNeeded() {

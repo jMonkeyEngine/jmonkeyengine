@@ -6,6 +6,7 @@ public class Location {
 
     public static final int CONSTANTS_SET = -1;
     public static final int MACROS_SET = -2;
+    public static final int PUSH_CONSTANTS_SET = -3;
 
     public static Location constant(int id) {
         return new Location(CONSTANTS_SET, id);
@@ -13,6 +14,16 @@ public class Location {
 
     public static Location macro(int id) {
         return new Location(MACROS_SET, id);
+    }
+
+    /**
+     * Gets the location of a shader's push constants. A shader has only one push constant block,
+     * so there is only one such location.
+     *
+     * @return push constant location
+     */
+    public static Location pushConstants() {
+        return new Location(PUSH_CONSTANTS_SET, 0);
     }
 
     private final int set, binding;
@@ -64,6 +75,10 @@ public class Location {
 
     public boolean isMacro() {
         return set == MACROS_SET;
+    }
+
+    public boolean isPushConstants() {
+        return set == PUSH_CONSTANTS_SET;
     }
 
     public static boolean isDescriptorSet(int set) {

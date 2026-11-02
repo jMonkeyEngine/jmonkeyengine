@@ -48,6 +48,16 @@ public class ConcurrentElement <T extends Struct> extends Struct<StructField> im
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return struct.getBuffer();
+    }
+
+    @Override
+    public int offset() {
+        return struct.offset();
+    }
+
+    @Override
     public int alignment() {
         return struct.alignment();
     }

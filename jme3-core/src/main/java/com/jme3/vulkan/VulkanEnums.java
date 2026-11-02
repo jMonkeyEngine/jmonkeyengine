@@ -68,6 +68,21 @@ public class VulkanEnums implements EnumInterpreter {
     }
 
     @Override
+    public int getStencilOpEnum(StencilOp op) {
+        switch (op) {
+            case Keep: return VK_STENCIL_OP_KEEP;
+            case Zero: return VK_STENCIL_OP_ZERO;
+            case Replace: return VK_STENCIL_OP_REPLACE;
+            case IncrementClamped: return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+            case DecrementClamped: return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+            case Invert: return VK_STENCIL_OP_INVERT;
+            case IncrementWrapped: return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+            case DecrementWrapped: return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+            default: throw new UnsupportedOperationException(op.name());
+        }
+    }
+
+    @Override
     public int getIndexTypeEnum(IndexType type) {
         switch (type) {
             case UInt8: return VK_INDEX_TYPE_UINT8;

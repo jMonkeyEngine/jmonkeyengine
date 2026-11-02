@@ -159,8 +159,17 @@ public class StructList <T extends Struct> implements StructArray<T> {
      *
      * @return the currently attached buffer
      */
+    @Override
     public GpuBuffer getBuffer() {
         return buffer;
+    }
+
+    /**
+     * Always zero: this array owns its buffer and starts at the beginning of it.
+     */
+    @Override
+    public int offset() {
+        return 0;
     }
 
     /**

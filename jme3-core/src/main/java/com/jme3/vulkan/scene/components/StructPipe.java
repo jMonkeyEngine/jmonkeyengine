@@ -50,6 +50,10 @@ public abstract class StructPipe <T extends Struct> implements Component {
         }
     }
 
+    public StructArray<T> getArray() {
+        return array;
+    }
+
     private class PropertyReceiver <E, P extends Property<E>> implements PropertyListener<E> {
 
         private final Class<P> type;

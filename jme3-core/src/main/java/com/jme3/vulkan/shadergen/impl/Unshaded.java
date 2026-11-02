@@ -26,17 +26,21 @@ public class Unshaded extends Shader {
           setupLayout(StructLayout.std140); }
     }
 
-    private final Global<Bool> DISCARD_ALPHA = Global.specialization(0, False());
-    private final Global<UInt> NUM_BONES = Global.specialization(1, UInt(0));
-    private final Global<UInt> MORPH_TARGETS = Global.specialization(2, UInt(0));
+    private final PushConstants<Transforms> transforms = Global.pushConstants(new Transforms());
+    private final Uniform<Visuals> visuals = Global.uniform(1, 1, new Visuals());
 
-    private final Global<Transforms> transforms = Global.uniform(1, 0, new Transforms());
-    private final Global<Visuals> visuals = Global.uniform(1, 1, new Visuals());
+    private final Sampler<Sampler2D> colorMap = Global.sampler(1, 3, new Sampler2D());
+    private final Sampler<Sampler2D> glowMap = Global.sampler(1, 4, new Sampler2D());
 
-    private final Global<Sampler2D> colorMap = Global.sampler(1, 3, new Sampler2D());
-    private final Global<Sampler2D> glowMap = Global.sampler(1, 4, new Sampler2D());
-    private final Global<Bool> HAS_GLOWCOLOR = Global.specialization(3, True());
-    private final Global<Bool> HAS_GLOWMAP = Global.specialization(4, False());
+    private final Specialization<Bool> DISCARD_ALPHA = Global.specialization(0, False());
+    private final Specialization<UInt> NUM_BONES = Global.specialization(1, UInt(0));
+    private final Specialization<UInt> MORPH_TARGETS = Global.specialization(2, UInt(0));
+    private final Specialization<Bool> HAS_GLOWCOLOR = Global.specialization(3, False());
+    private final Specialization<Bool> HAS_GLOWMAP = Global.specialization(4, False());
+    private final Specialization<Bool> HAS_VERTEX_COLOR = Global.specialization(5, False());
+    private final Specialization<Bool> HAS_COLOR = Global.specialization(6, False());
+    private final Specialization<Bool> DESATURATE = Global.specialization(7, False());
+    private final Specialization<Bool> HAS_COLORMAP = Global.specialization(8, False());
 
     @EntryPoint(ShaderStage.Vertex)
     public void vertex(@In(0) Vec3 inPosition, @In(1) Vec2 inTexCoord, @In(2) Vec2 inTexCoord2, @In(3) Vec4 inColor,
@@ -58,16 +62,19 @@ public class Unshaded extends Shader {
     @EntryPoint(ShaderStage.Fragment)
     public void fragment(@In(0) Vec2 texCoord, @In(1) Vec2 texCoord2, @In(2) Vec4 vertColor, @Out(0) Vec4 fragColor) {
         Vec4 color = new Vec4(1f, 1f, 1f, 1f);
-        IfDirEnd(HAS_VERTEX_COLOR.defined(), () -> {
+        If(HAS_VERTEX_COLOR.use(), () -> {
             color.multLocal(vertColor);
         });
-        IfDirEnd(HAS_COLOR.defined(), () -> {
+        If(HAS_COLOR.use(), () -> {
             color.multLocal(visuals.use().color.use());
+        });
+        If(HAS_COLORMAP.use(), () -> {
+            color.multLocal(colorMap.use().sample(texCoord));
         });
         If(DISCARD_ALPHA.use(), () -> {
             If(color.a().lt(visuals.use().alphaDiscard.use()), this::Discard);
         });
-        IfDirEnd(DESATURATE.defined(), () -> {
+        If(DESATURATE.use(), () -> {
             Vec3 gray = new Vec3(new Vec3(0.2126f, 0.7152f, 0.0722f).dot(color.rgb()));
             color.rgb().set(color.rgb().mix(gray, visuals.use().desaturation.use()));
         });

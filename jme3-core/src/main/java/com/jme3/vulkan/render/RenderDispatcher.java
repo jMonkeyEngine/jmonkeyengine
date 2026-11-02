@@ -66,7 +66,7 @@ public interface RenderDispatcher {
                 }
                 return viewport.getCamera().contains(scene.getWorldBounds(node, bounds)).isInside();
             });
-            group.removeIf((int node) -> !scene.hasComponent(Scene.MeshType.class, node));
+            group.removeIf((int node) -> !scene.hasMesh(node));
             return group;
         }
         @Override

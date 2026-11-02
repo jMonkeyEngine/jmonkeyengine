@@ -1,82 +1,259 @@
 package com.jme3.vulkan.pipeline.graphics;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.renderer.ScissorArea;
-import com.jme3.renderer.ViewPortArea;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.GlVertexBuffer;
-import com.jme3.util.natives.CacheableNativeBuilder;
-import com.jme3.util.natives.Disposable;
-import com.jme3.util.natives.DisposableManager;
-import com.jme3.util.natives.DisposableReference;
+import com.jme3.util.destruction.Destructable;
+import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.VulkanEnums;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.VulkanCommandBuffer;
-import com.jme3.vulkan.descriptors.DescriptorSet;
-import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.VulkanImageView;
-import com.jme3.vulkan.pipeline.state.GraphicsState;
-import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.material.experimental.PipelineKey;
-import com.jme3.vulkan.material.shader.ShaderModule;
-import com.jme3.vulkan.material.technique.VulkanTechnique;
-import com.jme3.vulkan.mesh.VulkanMesh;
-import com.jme3.vulkan.mesh.VertexInput;
-import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
-import com.jme3.util.cache.InlineTimedCache;
-import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
-import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
-import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.*;
-import java.util.function.Consumer;
 
+import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK13.*;
 
-public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
+/**
+ * A graphics pipeline for dynamic rendering, created from a {@link PipelineLayout}, shader stages,
+ * and a {@link PipelineKey} holding all of its fixed-function state and the formats of the
+ * attachments it renders to. Immutable once created.
+ * <p>
+ * The viewport and scissor are always dynamic, as are the values the key deliberately leaves out
+ * when the feature using them is enabled (see {@link PipelineKey#getDynamicStates()}). They must be
+ * set on the command buffer before drawing with this pipeline.
+ * <p>
+ * The pipeline depends on its layout: destroying the layout (or the device) destroys the pipeline.
+ */
+public class GraphicsPipeline implements Pipeline, Destructable {
 
-    private final GraphicsState state = new GraphicsState();
+    private final PipelineLayout layout;
+    private final Set<DynamicState> dynamicStates;
+    private final long handle;
+    private final ResourceLifecycle lifecycle;
 
-    // dynamic render attachments
-    private int[] colorFormats;
-    private int depthFormat = -1;
-    private boolean usingStencilAtt = false;
+    /**
+     * @param layout layout to create the pipeline against, whose push constant ranges must equal
+     *               {@code key}'s
+     * @param shaders shader stages, at most one per stage, including a vertex stage
+     * @param key fixed-function state and attachment formats; not referenced after creation
+     * @throws IllegalArgumentException if {@code layout}'s push constant ranges don't match {@code key}'s,
+     *                                  or {@code shaders} has no vertex stage or two of one stage
+     */
+    public GraphicsPipeline(PipelineLayout layout, List<PipelineShader> shaders, PipelineKey key) {
+        if (!key.getPushConstants().equals(layout.getPushConstantRanges())) {
+            throw new IllegalArgumentException("Layout push constants " + layout.getPushConstantRanges()
+                    + " do not match the key's " + key.getPushConstants() + ".");
+        }
+        validateShaders(shaders);
+        this.layout = layout;
+        this.dynamicStates = Collections.unmodifiableSet(collectDynamicStates(key));
+        LogicalDevice<?> device = layout.getDevice();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkPipelineShaderStageCreateInfo.Buffer stages = VkPipelineShaderStageCreateInfo.calloc(shaders.size(), stack);
+            for (PipelineShader s : shaders) {
+                s.fill(stack, stages.get());
+            }
+            VkGraphicsPipelineCreateInfo.Buffer create = VkGraphicsPipelineCreateInfo.calloc(1, stack)
+                    .sType$Default()
+                    .pNext(createRendering(stack, key).address())
+                    .pStages(stages.flip())
+                    .pVertexInputState(createVertexInput(stack, key))
+                    .pInputAssemblyState(createInputAssembly(stack, key))
+                    .pViewportState(createViewport(stack))
+                    .pRasterizationState(createRasterization(stack, key))
+                    .pMultisampleState(createMultisample(stack, key))
+                    .pDepthStencilState(createDepthStencil(stack, key))
+                    .pColorBlendState(createColorBlend(stack, key))
+                    .pDynamicState(createDynamic(stack))
+                    .layout(layout.getHandle())
+                    .renderPass(VK_NULL_HANDLE)
+                    .basePipelineIndex(-1);
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateGraphicsPipelines(device.getHandle(), VK_NULL_HANDLE, create, null, idBuf),
+                    "Failed to create graphics pipeline.");
+            handle = idBuf.get(0);
+        }
+        // the destroyer must not reference this, or the leak backstop could never see it
+        VkDevice deviceHandle = device.getHandle();
+        long h = handle;
+        lifecycle = new ResourceLifecycle(this, () -> vkDestroyPipeline(deviceHandle, h, null));
+        layout.getLifecycle().addDependent(lifecycle);
+    }
 
-    protected GraphicsPipeline(LogicalDevice<?> device) {
-        super(device, PipelineBindPoint.Graphics);
+    private static void validateShaders(List<PipelineShader> shaders) {
+        int stages = 0;
+        for (PipelineShader s : shaders) {
+            if ((stages & s.getStage().bits()) != 0) {
+                throw new IllegalArgumentException("More than one " + s.getStage() + " shader.");
+            }
+            stages |= s.getStage().bits();
+        }
+        if ((stages & VK_SHADER_STAGE_VERTEX_BIT) == 0) {
+            throw new IllegalArgumentException("Graphics pipeline requires a vertex shader.");
+        }
+    }
+
+    private static Set<DynamicState> collectDynamicStates(PipelineKey key) {
+        EnumSet<DynamicState> states = EnumSet.of(DynamicState.ViewPort, DynamicState.Scissor);
+        states.addAll(key.getDynamicStates());
+        if (isLineRasterization(key)) {
+            states.add(DynamicState.LineWidth);
+        }
+        if (key.getDepthTest().isBiasEnabled()) {
+            states.add(DynamicState.DepthBias);
+        }
+        if (key.isDepthBoundsTest()) {
+            states.add(DynamicState.DepthBounds);
+        }
+        if (key.getStencil().isStencilTestEnabled()) {
+            states.add(DynamicState.CompareMask);
+            states.add(DynamicState.WriteMask);
+            states.add(DynamicState.StencilReference);
+        }
+        return states;
+    }
+
+    private static boolean isLineRasterization(PipelineKey key) {
+        if (key.getPolygonMode() == PolygonMode.Line) {
+            return true;
+        }
+        switch (key.getTopology()) {
+            case LineList:
+            case LineStrip:
+            case LineLoop:
+            case LineListAdjacency:
+            case LineStripAdjacency:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static VkPipelineRenderingCreateInfo createRendering(MemoryStack stack, PipelineKey key) {
+        IntBuffer colorFormats = stack.mallocInt(key.getColorFormats().size());
+        for (Format f : key.getColorFormats()) {
+            colorFormats.put(f.getEnum(VulkanEnums.instance));
+        }
+        return VkPipelineRenderingCreateInfo.calloc(stack)
+                .sType$Default()
+                .colorAttachmentCount(colorFormats.capacity())
+                .pColorAttachmentFormats(colorFormats.flip())
+                .depthAttachmentFormat(formatEnum(key.getDepthFormat()))
+                .stencilAttachmentFormat(formatEnum(key.getStencilFormat()));
+    }
+
+    private static int formatEnum(Format format) {
+        return format != null ? format.getEnum(VulkanEnums.instance) : VK_FORMAT_UNDEFINED;
+    }
+
+    private static VkPipelineVertexInputStateCreateInfo createVertexInput(MemoryStack stack, PipelineKey key) {
+        return VkPipelineVertexInputStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .pVertexBindingDescriptions(key.getVertexInput().getBindings(stack))
+                .pVertexAttributeDescriptions(key.getVertexInput().getAttributes(stack));
+    }
+
+    private static VkPipelineInputAssemblyStateCreateInfo createInputAssembly(MemoryStack stack, PipelineKey key) {
+        return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .topology(key.getTopology().getEnum(VulkanEnums.instance))
+                .primitiveRestartEnable(key.isPrimitiveRestart());
+    }
+
+    private static VkPipelineViewportStateCreateInfo createViewport(MemoryStack stack) {
+        // viewport and scissor are dynamic, so only their counts are given
+        return VkPipelineViewportStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .viewportCount(1)
+                .scissorCount(1);
+    }
+
+    private static VkPipelineRasterizationStateCreateInfo createRasterization(MemoryStack stack, PipelineKey key) {
+        return VkPipelineRasterizationStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .depthClampEnable(key.isDepthClamp())
+                .rasterizerDiscardEnable(key.isRasterizerDiscard())
+                .polygonMode(key.getPolygonMode().getEnum())
+                .cullMode(key.getCullMode().bits())
+                .frontFace(key.getWinding().getEnum())
+                .depthBiasEnable(key.getDepthTest().isBiasEnabled())
+                .lineWidth(1f);
+    }
+
+    private static VkPipelineMultisampleStateCreateInfo createMultisample(MemoryStack stack, PipelineKey key) {
+        // VkSampleCountFlagBits values equal the sample counts they stand for
+        return VkPipelineMultisampleStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .rasterizationSamples(key.getSamples());
+    }
+
+    private static VkPipelineDepthStencilStateCreateInfo createDepthStencil(MemoryStack stack, PipelineKey key) {
+        DepthTest depth = key.getDepthTest();
+        StencilTest stencil = key.getStencil();
+        VkPipelineDepthStencilStateCreateInfo info = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .depthTestEnable(depth.isTestEnabled())
+                .depthWriteEnable(depth.isWriteEnabled())
+                .depthCompareOp(depth.getCompareOp().getEnum())
+                .depthBoundsTestEnable(key.isDepthBoundsTest())
+                .stencilTestEnable(stencil.isStencilTestEnabled())
+                .minDepthBounds(0f)
+                .maxDepthBounds(1f);
+        // masks and reference are dynamic, so they are left zero
+        VulkanEnums e = VulkanEnums.instance;
+        info.front()
+                .failOp(e.getStencilOpEnum(stencil.getFrontStencilFailOp()))
+                .passOp(e.getStencilOpEnum(stencil.getFrontStencilPassOp()))
+                .depthFailOp(e.getStencilOpEnum(stencil.getFrontStencilDepthFailOp()))
+                .compareOp(stencil.getFrontStencilCompareOp().getEnum());
+        info.back()
+                .failOp(e.getStencilOpEnum(stencil.getBackStencilFailOp()))
+                .passOp(e.getStencilOpEnum(stencil.getBackStencilPassOp()))
+                .depthFailOp(e.getStencilOpEnum(stencil.getBackStencilDepthFailOp()))
+                .compareOp(stencil.getBackStencilCompareOp().getEnum());
+        return info;
+    }
+
+    private static VkPipelineColorBlendStateCreateInfo createColorBlend(MemoryStack stack, PipelineKey key) {
+        int count = key.getColorFormats().size();
+        VkPipelineColorBlendAttachmentState.Buffer attachments = VkPipelineColorBlendAttachmentState.calloc(count, stack);
+        // the key's color write mask wins over the mask the blend attachment carries
+        ColorBlendAttachment blend = key.getBlend().clone();
+        blend.setWriteMask(key.getColorWriteMask());
+        for (int i = 0; i < count; i++) {
+            blend.fill(attachments.get());
+        }
+        VkPipelineColorBlendStateCreateInfo info = VkPipelineColorBlendStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .pAttachments(attachments.flip());
+        if (key.getLogicOp() != null) {
+            info.logicOpEnable(true).logicOp(key.getLogicOp().getEnum());
+        }
+        return info;
+    }
+
+    private VkPipelineDynamicStateCreateInfo createDynamic(MemoryStack stack) {
+        IntBuffer states = stack.mallocInt(dynamicStates.size());
+        for (DynamicState s : dynamicStates) {
+            states.put(s.getEnum());
+        }
+        return VkPipelineDynamicStateCreateInfo.calloc(stack)
+                .sType$Default()
+                .pDynamicStates(states.flip());
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        GraphicsPipeline that = (GraphicsPipeline) o;
-        return state.dynamicEquals(that.state)
-                && depthFormat == that.depthFormat
-                && usingStencilAtt == that.usingStencilAtt
-                && Arrays.equals(colorFormats, that.colorFormats);
+    public ResourceLifecycle getLifecycle() {
+        return lifecycle;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(state.dynamicHashCode(), Arrays.hashCode(colorFormats), depthFormat, usingStencilAtt);
-    }
-
-    @Override
-    public boolean isDynamic(IntEnum<DynamicState> state) {
-        return dynamicStates.contains(state.getEnum());
-    }
-
-    @Override
-    public Integer getAttributeLocation(String attributeName) {
-        return state.getAttributeMappings().get(attributeName);
+    public long getHandle() {
+        return handle;
     }
 
     @Override
@@ -84,833 +261,21 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return layout;
     }
 
-    public static GraphicsPipeline build(LogicalDevice<?> device, Consumer<Builder> config) {
-        Builder b = new GraphicsPipeline(device).new Builder();
-        config.accept(b);
-        return b.build();
+    @Override
+    public PipelineBindPoint getBindPoint() {
+        return PipelineBindPoint.Graphics;
     }
 
-    public class Handle implements Disposable {
-
-        private final long object;
-        private final DisposableReference ref;
-
-        public Handle(LogicalDevice<?> device) {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkGraphicsPipelineCreateInfo.Buffer create = createPipelineInfo(stack);
-                LongBuffer id = stack.mallocLong(1);
-                vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, create, null, id);
-                object = id.get(0);
-                ref = DisposableManager.reference(GraphicsPipeline.this);
-                device.getReference().addDependent(ref);
-            }
-        }
-
-        @Override
-        public Runnable createDestroyer() {
-            return () -> vkDestroyPipeline(device.getNativeObject(), object, null);
-        }
-
-        @Override
-        public DisposableReference getReference() {
-            return ref;
-        }
-
-        protected VkGraphicsPipelineCreateInfo.Buffer createPipelineInfo(MemoryStack stack) {
-            PNextChain chain = new PNextChain();
-            VkGraphicsPipelineCreateInfo.Buffer create = VkGraphicsPipelineCreateInfo.calloc(1, stack)
-                    .sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO)
-                    .flags(createFlags.addIf(parent != null, Create.Derivative).bits())
-                    .layout(layout.getNativeObject())
-                    .pVertexInputState(createVertexInput(stack))
-                    .pInputAssemblyState(createInputAssembly(stack))
-                    .pDepthStencilState(createDepthStencil(stack))
-                    .pRasterizationState(createRasterization(stack))
-                    .pMultisampleState(createMultisample(stack))
-                    .pColorBlendState(createColorBlend(stack))
-                    .pViewportState(createViewport(stack))
-                    .pDynamicState(createDynamic(stack));
-            if (subpass != null) {
-                create.get(0).renderPass(subpass.getPass().getNativeObject())
-                        .subpass(subpass.getPosition());
-            } else {
-                chain.add(id -> createDynamicRenderingInfo(stack).pNext(id));
-            }
-            if (!state.getShaders().isEmpty()) {
-                fillShaderStages(stack, create.get(0));
-            }
-            if (parent != null) {
-                fillParent(create.get(0));
-            }
-            chain.add(id -> create.get(0).pNext(id));
-            return create;
-        }
-
-        protected void fillParent(VkGraphicsPipelineCreateInfo struct) {
-            struct.basePipelineHandle(parent.getNativeObject());
-        }
-
-        protected void fillShaderStages(MemoryStack stack, VkGraphicsPipelineCreateInfo struct) {
-            VkPipelineShaderStageCreateInfo.Buffer stageBuf = VkPipelineShaderStageCreateInfo
-                    .calloc(state.getShaders().size(), stack);
-            for (ShaderModule s : state.getShaders().values()) {
-                stageBuf.get().sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
-                        .module();
-            }
-            struct.stageCount(stageBuf.limit()).pStages(stageBuf.flip());
-        }
-
-        protected VkPipelineRenderingCreateInfo createDynamicRenderingInfo(MemoryStack stack) {
-            assert colorFormats != null : "Attachment formats not initialized.";
-            VkPipelineRenderingCreateInfo info = VkPipelineRenderingCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO);
-            IntBuffer colorFmtBuf = stack.mallocInt(colorFormats.length);
-            for (int f : colorFormats) {
-                colorFmtBuf.put(f);
-            }
-            info.colorAttachmentCount(colorFormats.length)
-                    .pColorAttachmentFormats(colorFmtBuf.flip());
-            if (depthFormat >= 0) {
-                info.depthAttachmentFormat(depthFormat);
-                if (usingStencilAtt) {
-                    info.stencilAttachmentFormat(depthFormat);
-                }
-            }
-            return info;
-        }
-
-        protected VkPipelineVertexInputStateCreateInfo createVertexInput(MemoryStack stack) {
-            return VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(vertexInput.getBindings(stack))
-                    .pVertexAttributeDescriptions(vertexInput.getAttributes(stack));
-        }
-
-        protected VkPipelineInputAssemblyStateCreateInfo createInputAssembly(MemoryStack stack) {
-            return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
-                    .topology(topology.getEnum(VulkanEnums.instance))
-                    .primitiveRestartEnable(primitiveRestart);
-        }
-
-        protected VkPipelineDepthStencilStateCreateInfo createDepthStencil(MemoryStack stack) {
-            return VkPipelineDepthStencilStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO)
-                    .depthTestEnable(state.isDepthTest())
-                    .depthWriteEnable(state.isDepthWrite())
-                    .depthBoundsTestEnable(state.isDepthBoundsTest())
-                    .stencilTestEnable(state.isStencilTest())
-                    .depthCompareOp(state.getDepthCompare().getEnum());
-        }
-
-        protected VkPipelineRasterizationStateCreateInfo createRasterization(MemoryStack stack) {
-            VkPipelineRasterizationStateCreateInfo raster = VkPipelineRasterizationStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
-                    .depthClampEnable(state.isDepthClamp())
-                    .rasterizerDiscardEnable(state.isRasterizerDiscard())
-                    .polygonMode(state.getPolygonMode().getEnum())
-                    .lineWidth(state.getLineWidth())
-                    .cullMode(state.getCullMode().bits())
-                    .frontFace(faceWinding.getEnum())
-                    .depthBiasEnable(state.isDepthBiasEnabled());
-            if (state.isDepthBiasEnabled()) {
-                raster.depthBiasConstantFactor(state.getDepthBias().getConstant())
-                        .depthBiasSlopeFactor(state.getDepthBias().getSlope())
-                        .depthBiasClamp(state.getDepthBias().getClamp());
-            }
-            return raster;
-        }
-
-        protected VkPipelineMultisampleStateCreateInfo createMultisample(MemoryStack stack) {
-            return VkPipelineMultisampleStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO)
-                    .sampleShadingEnable(sampleShading)
-                    .rasterizationSamples(rasterizationSamples);
-        }
-
-        protected VkPipelineColorBlendStateCreateInfo createColorBlend(MemoryStack stack) {
-            VkPipelineColorBlendAttachmentState.Buffer attBuf = VkPipelineColorBlendAttachmentState
-                    .calloc(blendAttachments.size(), stack);
-            for (int i = 0; i < blendAttachments.size(); i++) {
-                ColorBlendAttachment a = blendAttachments.get(i);
-                if (a == null) {
-                    throw new NullPointerException("Blend attachment " + i + " is not defined.");
-                }
-                a.fill(attBuf.get());
-            }
-            attBuf.flip();
-            return VkPipelineColorBlendStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO)
-                    .logicOpEnable(blendLogicEnabled)
-                    .logicOp(blendLogic.getEnum())
-                    .pAttachments(attBuf);
-        }
-
-        @SuppressWarnings("resource")
-        protected VkPipelineViewportStateCreateInfo createViewport(MemoryStack stack) {
-            VkViewport.Buffer vpBuf = VkViewport.malloc(1, stack);
-            VkRect2D.Buffer scissorBuf = VkRect2D.malloc(1, stack);
-            return VkPipelineViewportStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO)
-                    .pViewports(vpBuf)
-                    .pScissors(scissorBuf);
-        }
-
-        protected VkPipelineDynamicStateCreateInfo createDynamic(MemoryStack stack) {
-            IntBuffer stateBuf = stack.mallocInt(dynamicStates.size());
-            for (Integer t : dynamicStates) {
-                stateBuf.put(t);
-            }
-            stateBuf.flip();
-            return VkPipelineDynamicStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO)
-                    .pDynamicStates(stateBuf);
-        }
-
+    @Override
+    public boolean isDynamic(DynamicState state) {
+        return dynamicStates.contains(state);
     }
 
-    private static class State extends GraphicsState {
-
-        private GraphicsPipeline parent;
-        private Flag<Create> createFlags = Flag.empty();
-        private PipelineLayout layout;
-        private int[] colorFormats;
-        private int depthFormat = -1;
-        private boolean usingStencilAtt = false;
-
-        public void applyFrameBuffer(FrameBuffer fbo) {
-            colorFormats = new int[fbo.getColorTargets().size()];
-            for (ListIterator<RenderTarget> it = fbo.getColorTargets().listIterator(); it.hasNext();) {
-                RenderTarget t = it.next();
-                colorFormats[it.previousIndex()] = t.getView().getImage().getFormat().getEnum(VulkanEnums.instance);
-            }
-            if (fbo.isUsingDepth()) {
-                depthFormat = fbo.getDepthStencilTarget().getView().getImage().getFormat().getEnum(VulkanEnums.instance);
-                usingStencilAtt = fbo.isUsingStencil();
-            } else {
-                depthFormat = -1;
-                usingStencilAtt = false;
-            }
-        }
-
-        public void createLayoutFromShaderSets(LogicalDevice<?> device, InlineTimedCache<> cache, CommandBuffer cmd) {
-            layout = PipelineLayout.build(device, l -> {
-                l.setCache(cache);
-                cmd.fillPipelineLayoutSets(l);
-            });
-        }
-
-        public void setParent(GraphicsPipeline parent) {
-            this.parent = parent;
-        }
-
-        public void setCreateFlags(Flag<Create> createFlags) {
-            this.createFlags = createFlags;
-        }
-
-        public void setLayout(PipelineLayout layout) {
-            this.layout = layout;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            State that = (State)o;
-            return Flag.equals(createFlags, that.createFlags)
-                    && layout == that.layout
-                    && depthFormat == that.depthFormat
-                    && usingStencilAtt == that.usingStencilAtt
-                    && Arrays.equals(colorFormats, that.colorFormats)
-                    && equals(that);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode(),
-                    createFlags.bits(),
-                    System.identityHashCode(layout),
-                    Arrays.hashCode(colorFormats),
-                    depthFormat, usingStencilAtt);
-        }
-
-        @Override
-        public boolean dynamicEquals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            State that = (State)o;
-            return Flag.equals(createFlags, that.createFlags)
-                    && layout == that.layout
-                    && depthFormat == that.depthFormat
-                    && usingStencilAtt == that.usingStencilAtt
-                    && Arrays.equals(colorFormats, that.colorFormats)
-                    && super.dynamicEquals(that);
-        }
-
-        @Override
-        public int dynamicHashCode() {
-            return Objects.hash(super.dynamicHashCode(),
-                    createFlags.bits(),
-                    System.identityHashCode(layout),
-                    Arrays.hashCode(colorFormats),
-                    depthFormat, usingStencilAtt);
-        }
-
-        @Override
-        public State clone() {
-            return (State)super.clone();
-        }
-
-    }
-
-    public class Builder extends CacheableNativeBuilder<Pipeline, GraphicsPipeline> {
-
-        private InlineTimedCache<PipelineLayout> layoutCache;
-        private InlineTimedCache<ShaderModule> shaderCache;
-        private InlineTimedCache<DescriptorSetLayout> setCache;
-        private FrameBuffer<VulkanImageView> frameBuffer;
-
-        @Override
-        public GraphicsPipeline build() {
-            Objects.requireNonNull(layout, "Pipeline layout not specified.");
-            Objects.requireNonNull(vertexInput, "Vertex input not specified.");
-            if (viewports.isEmpty()) setNextViewPort(new ViewPortArea(128, 128));
-            if (scissors.isEmpty()) setNextScissor(new ScissorArea());
-            if (subpass == null) {
-                assert frameBuffer != null : "Frame buffer required for dynamic rendering.";
-                colorFormats = new int[frameBuffer.getColorTargets().size() + 2];
-                int i = 0;
-                for (RenderTarget t : frameBuffer.getColorTargets()) {
-                    colorFormats[i++] = t.getView().getImage().getFormat().getEnum(VulkanEnums.instance);
-                }
-                if (frameBuffer.getDepthStencilTarget() != null) {
-                    depthFormat = frameBuffer.getDepthStencilTarget().getView().getImage().getFormat().getEnum(VulkanEnums.instance);
-                    usingStencilAtt = frameBuffer.isUsingStencil();
-                }
-            }
-            return super.build();
-        }
-
-        @Override
-        protected void construct() {
-            VkGraphicsPipelineCreateInfo.Buffer create = createPipelineInfo();
-            LongBuffer id = stack.mallocLong(1);
-            vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, create, null, id);
-            object = id.get(0);
-            ref = DisposableManager.reference(GraphicsPipeline.this);
-            device.getReference().addDependent(ref);
-        }
-
-        @Override
-        protected GraphicsPipeline getBuildTarget() {
-            return GraphicsPipeline.this;
-        }
-
-        protected VkGraphicsPipelineCreateInfo.Buffer createPipelineInfo() {
-            PNextChain chain = new PNextChain();
-            VkGraphicsPipelineCreateInfo.Buffer create = VkGraphicsPipelineCreateInfo.calloc(1, stack)
-                    .sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO)
-                    .flags(createFlags.addIf(parent != null, Create.Derivative).bits())
-                    .layout(layout.getNativeObject())
-                    .pVertexInputState(createVertexInput())
-                    .pInputAssemblyState(createInputAssembly())
-                    .pDepthStencilState(createDepthStencil())
-                    .pRasterizationState(createRasterization())
-                    .pMultisampleState(createMultisample())
-                    .pColorBlendState(createColorBlend())
-                    .pViewportState(createViewport())
-                    .pDynamicState(createDynamic());
-            if (subpass != null) {
-                create.get(0).renderPass(subpass.getPass().getNativeObject())
-                        .subpass(subpass.getPosition());
-            } else {
-                chain.add(id -> createDynamicRenderingInfo().pNext(id));
-            }
-            if (!state.getShaders().isEmpty()) {
-                fillShaderStages(create.get(0));
-            }
-            if (parent != null) {
-                fillParent(create.get(0));
-            }
-            chain.add(id -> create.get(0).pNext(id));
-            return create;
-        }
-
-        protected void fillParent(VkGraphicsPipelineCreateInfo struct) {
-            struct.basePipelineHandle(parent.getNativeObject());
-        }
-
-        protected void fillShaderStages(VkGraphicsPipelineCreateInfo struct) {
-            VkPipelineShaderStageCreateInfo.Buffer stageBuf = VkPipelineShaderStageCreateInfo.calloc(shaders.size(), stack);
-            for (ShaderModule s : shaders) {
-                s.fill(stack, stageBuf.get().sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO));
-            }
-            stageBuf.flip();
-            struct.stageCount(stageBuf.limit()).pStages(stageBuf);
-        }
-
-        protected VkPipelineRenderingCreateInfo createDynamicRenderingInfo() {
-            assert colorFormats != null : "Attachment formats not initialized.";
-            VkPipelineRenderingCreateInfo info = VkPipelineRenderingCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO);
-            IntBuffer colorFmtBuf = stack.mallocInt(colorFormats.length);
-            for (int f : colorFormats) {
-                colorFmtBuf.put(f);
-            }
-            info.colorAttachmentCount(colorFormats.length)
-                .pColorAttachmentFormats(colorFmtBuf.flip());
-            if (depthFormat >= 0) {
-                info.depthAttachmentFormat(depthFormat);
-                if (usingStencilAtt) {
-                    info.stencilAttachmentFormat(depthFormat);
-                }
-            }
-            return info;
-        }
-
-        protected VkPipelineVertexInputStateCreateInfo createVertexInput() {
-            return VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(vertexInput.getBindings(stack))
-                    .pVertexAttributeDescriptions(vertexInput.getAttributes(stack));
-        }
-
-        protected VkPipelineInputAssemblyStateCreateInfo createInputAssembly() {
-            return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
-                    .topology(topology.getEnum(VulkanEnums.instance))
-                    .primitiveRestartEnable(primitiveRestart);
-        }
-
-        protected VkPipelineDepthStencilStateCreateInfo createDepthStencil() {
-            return VkPipelineDepthStencilStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO)
-                    .depthTestEnable(depthTest)
-                    .depthWriteEnable(depthWrite)
-                    .depthBoundsTestEnable(depthBoundsTest)
-                    .stencilTestEnable(stencilTest)
-                    .depthCompareOp(depthCompare.getEnum());
-        }
-
-        protected VkPipelineRasterizationStateCreateInfo createRasterization() {
-            return VkPipelineRasterizationStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
-                    .depthClampEnable(depthClamp)
-                    .rasterizerDiscardEnable(rasterizerDiscard)
-                    .polygonMode(polygonMode.getEnum())
-                    .lineWidth(lineWidth)
-                    .cullMode(cullMode.bits())
-                    .frontFace(faceWinding.getEnum())
-                    .depthBiasEnable(depthBias);
-        }
-
-        protected VkPipelineMultisampleStateCreateInfo createMultisample() {
-            return VkPipelineMultisampleStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO)
-                    .sampleShadingEnable(sampleShading)
-                    .rasterizationSamples(rasterizationSamples);
-        }
-
-        protected VkPipelineColorBlendStateCreateInfo createColorBlend() {
-            VkPipelineColorBlendAttachmentState.Buffer attBuf = VkPipelineColorBlendAttachmentState
-                    .calloc(blendAttachments.size(), stack);
-            for (int i = 0; i < blendAttachments.size(); i++) {
-                ColorBlendAttachment a = blendAttachments.get(i);
-                if (a == null) {
-                    throw new NullPointerException("Blend attachment " + i + " is not defined.");
-                }
-                a.fill(attBuf.get());
-            }
-            attBuf.flip();
-            return VkPipelineColorBlendStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO)
-                    .logicOpEnable(blendLogicEnabled)
-                    .logicOp(blendLogic.getEnum())
-                    .pAttachments(attBuf);
-        }
-
-        @SuppressWarnings("resource")
-        protected VkPipelineViewportStateCreateInfo createViewport() {
-            VkViewport.Buffer vpBuf = VkViewport.calloc(viewports.size(), stack);
-            for (ViewPortArea v : viewports) {
-                float x = v.getWidth() * v.getLeft();
-                float y = v.getHeight() * v.getTop();
-                float w = v.getWidth() * v.getRight() - x;
-                float h = v.getHeight() * v.getBottom() - y;
-                vpBuf.get().x(x).y(y).width(w).height(h).minDepth(v.getMaxDepth()).maxDepth(v.getMaxDepth());
-            }
-            VkRect2D.Buffer scissorBuf = VkRect2D.calloc(scissors.size(), stack);
-            for (ScissorArea s : scissors) {
-                VkRect2D e = scissorBuf.get();
-                e.offset().set(s.getX(), s.getY());
-                e.extent().set(s.getWidth(), s.getHeight());
-            }
-            return VkPipelineViewportStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO)
-                    .pViewports(vpBuf.flip())
-                    .pScissors(scissorBuf.flip());
-        }
-
-        protected VkPipelineDynamicStateCreateInfo createDynamic() {
-            IntBuffer stateBuf = stack.mallocInt(dynamicStates.size());
-            for (Integer t : dynamicStates) {
-                stateBuf.put(t);
-            }
-            stateBuf.flip();
-            return VkPipelineDynamicStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO)
-                    .pDynamicStates(stateBuf);
-        }
-
-        public void applyGeometry(AssetManager assetManager, Geometry geometry, String technique) {
-            VulkanMaterial mat = (VulkanMaterial)geometry.getMaterial();
-            applyGeometry(assetManager,
-                    (VulkanMesh)geometry.getMesh(),
-                    (VulkanMaterial)geometry.getMaterial(),
-                    (VulkanTechnique)mat.getTechnique(technique));
-        }
-
-        public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, VulkanTechnique tech) {
-            setLayout(tech.getLayout(device, layoutCache, setCache));
-            addShaders(tech.getShaders(device, assetManager, shaderCache, material));
-            setVertexInput(mesh.declareVertexInput(GraphicsPipeline.this));
-            setTopology(mesh.getTopology());
-            attributeLocations.putAll(tech.getAttributeLocations());
-        }
-
-        public void applyPipelineState(GraphicsState state) {
-            setDepthTest(state.isDepthTest());
-        }
-
-        /**
-         * Applies every render-state property {@code key} describes to this builder:
-         * topology, primitive restart, vertex input, face winding, cull mode, polygon mode,
-         * depth test/write/compare/bias, stencil test enable, and a blend attachment with
-         * {@code key}'s color write mask applied over it. {@code key}'s blend attachment is
-         * cloned first, so later changes to {@code key} never retroactively affect an
-         * already-built pipeline.
-         * <p>
-         * Note that only the stencil test's enable flag is applied - the per-face compare
-         * and pass/fail/depth-fail ops {@link StencilTest} also carries are not, since this
-         * builder does not yet fill {@code VkPipelineDepthStencilStateCreateInfo}'s
-         * {@code front}/{@code back} fields at all.
-         * <p>
-         * This only covers what {@link PipelineKey} itself knows about. A technique whose
-         * key extends {@link PipelineKey} with its own properties still needs to apply
-         * those separately - see {@link PipelineKey#populate}.
-         *
-         * @param key pipeline identity key to apply
-         */
-        public void applyKey(PipelineKey key) {
-            setTopology(key.getTopology());
-            setPrimitiveRestart(key.isPrimitiveRestart());
-            setVertexInput(key.getVertexInput());
-            setFaceWinding(key.getWinding());
-            setCullMode(key.getCullMode());
-            setPolygonMode(key.getPolygonMode());
-            setDepthTest(key.getDepthTest().isTestEnabled());
-            setDepthWrite(key.getDepthTest().isWriteEnabled());
-            setDepthCompare(key.getDepthTest().getCompareOp());
-            setDepthBias(key.getDepthTest().isBiasEnabled());
-            // key's colorWriteMask stands in for the mask Vulkan actually stores on the
-            // blend attachment itself, so it wins over whatever the attachment already carries
-            ColorBlendAttachment blend = key.getBlend().clone();
-            blend.setWriteMask(key.getColorWriteMask());
-            addBlendAttachment(blend);
-            setStencilTest(key.getStencil().isStencilTestEnabled());
-        }
-
-        public void createLayoutFromSets(DescriptorSet[] sets) {
-            setLayout(PipelineLayout.build(device, l -> {
-                l.setCache(layoutCache);
-                for (DescriptorSet s : sets) {
-                    l.addSetLayout(s.getTargetLocation(), s.getLayout());
-                }
-            }));
-        }
-
-        public void setLayout(PipelineLayout layout) {
-            GraphicsPipeline.this.layout = layout;
-        }
-
-        public void setSubpass(Subpass subpass) {
-            GraphicsPipeline.this.subpass = subpass;
-        }
-
-        /**
-         * Sets the vertex input that describes how vertex attributes are laid
-         * out in the pipeline. Only meshes that match the described vertex input
-         * can be rendered by this pipeline.
-         *
-         * @param vertexInput vertex input description
-         */
-        public void setVertexInput(VertexInput vertexInput) {
-            GraphicsPipeline.this.vertexInput = vertexInput;
-        }
-
-        public void addShader(ShaderModule shader) {
-            shaders.add(shader);
-        }
-
-        public void addShaders(Collection<ShaderModule> shaders) {
-            GraphicsPipeline.this.shaders.addAll(shaders);
-        }
-
-        /**
-         * Adds a blend attachment to this pipeline that dictates how the corresponding
-         * color attachment is blended during the blend stage.
-         *
-         * @param attachment blend attachment
-         * @return index of the blend attachment, which is also the index of the
-         * affected color attachment
-         */
-        public int addBlendAttachment(ColorBlendAttachment attachment) {
-            blendAttachments.add(attachment);
-            return blendAttachments.size() - 1;
-        }
-
-        public void setBlendAttachment(int i, ColorBlendAttachment attachment) {
-            blendAttachments.set(i, attachment);
-        }
-
-        /**
-         * Sets the pipeline layout cache. When generating a pipeline from a geometry,
-         * the layout cache ensures existing layouts are used instead of creating
-         * new ones when possible. Otherwise a new layout is created for each geometry.
-         *
-         * @param layout layout cache (can be null)
-         */
-        public void setLayoutCache(InlineTimedCache<PipelineLayout> layout) {
-            this.layoutCache = layout;
-        }
-
-        /**
-         * Sets the shader cache. When generating a pipeline from a geometry, the shader cache
-         * ensures existing shaders are used instead of creating new ones when possible.
-         * Otherwise a new shader is created for each geometry.
-         *
-         * @param shaderCache shader cache (can be null)
-         */
-        public void setShaderCache(InlineTimedCache<ShaderModule> shaderCache) {
-            this.shaderCache = shaderCache;
-        }
-
-        /**
-         * Sets the descriptor set layout cache. When generating a pipeline from a geometry,
-         * the set layout cache ensures existing layouts are used when possible. Otherwise
-         * new layouts are created for each geometry.
-         *
-         * @param setCache descriptor set layout cache
-         */
-        public void setSetLayoutCache(InlineTimedCache<DescriptorSetLayout> setCache) {
-            this.setCache = setCache;
-        }
-
-        /**
-         * Enables or disables the specified dynamic state. If a dynamic state is enabled,
-         * the corresponding render property must be set in the command buffer before the
-         * pipeline is used for rendering.
-         *
-         * @param state dynamic state
-         * @param enable enable or disable the state
-         */
-        public void setDynamic(IntEnum<DynamicState> state, boolean enable) {
-            if (enable) dynamicStates.add(state.getEnum());
-            else dynamicStates.remove(state.getEnum());
-        }
-
-        public void setNextViewPort(ViewPortArea vp) {
-            viewports.add(vp);
-        }
-
-        public void setNextScissor(ScissorArea scissor) {
-            scissors.add(scissor);
-        }
-
-        /**
-         * Sets the location of the named attribute in the vertex shader.
-         *
-         * @param attribute attribute name
-         * @param location attribute location (as specified in the shader source code)
-         */
-        public void setAttributeLocation(String attribute, int location) {
-            attributeLocations.put(attribute, location);
-        }
-
-        @Deprecated
-        public void setAttributeLocation(GlVertexBuffer.Type attribute, int location) {
-            setAttributeLocation(attribute.name(), location);
-        }
-
-        public void setAttributeLocations(Map<String, Integer> locations) {
-            attributeLocations.putAll(locations);
-        }
-
-        /**
-         * Sets the parent pipeline of this pipeline. Using a parent pipeline can have better
-         * performance if they share similar properties.
-         *
-         * @param parent parent pipeline (can be null)
-         */
-        public void setParent(GraphicsPipeline parent) {
-            if (parent != null && !parent.getCreateFlags().contains(Create.AllowDerivatives)) {
-                throw new IllegalArgumentException("Parent pipeline must allow derivatives.");
-            }
-            GraphicsPipeline.this.parent = parent;
-        }
-
-        public void setCreateFlags(Flag<Create> flags) {
-            GraphicsPipeline.this.createFlags = flags;
-        }
-
-        /**
-         * Sets the mesh topology to render by. When generating a pipeline from geometry, this
-         * is automatically assigned from the geometry's mesh.
-         *
-         * @param topology mesh topology
-         */
-        public void setTopology(Topology topology) {
-            GraphicsPipeline.this.topology = topology;
-        }
-
-        public void setPrimitiveRestart(boolean primitiveRestart) {
-            GraphicsPipeline.this.primitiveRestart = primitiveRestart;
-        }
-
-        /**
-         * Enables testing against the depth attachment.
-         *
-         * @param depthTest true to enable depth testing
-         */
-        public void setDepthTest(boolean depthTest) {
-            GraphicsPipeline.this.depthTest = depthTest;
-        }
-
-        /**
-         * Enables writing to the depth attachment.
-         *
-         * @param depthWrite true to enable depth writing
-         */
-        public void setDepthWrite(boolean depthWrite) {
-            GraphicsPipeline.this.depthWrite = depthWrite;
-        }
-
-        public void setDepthBoundsTest(boolean depthBoundsTest) {
-            GraphicsPipeline.this.depthBoundsTest = depthBoundsTest;
-        }
-
-        public void setStencilTest(boolean stencilTest) {
-            GraphicsPipeline.this.stencilTest = stencilTest;
-        }
-
-        public void setDepthCompare(IntEnum<CompareOp> depthCompare) {
-            GraphicsPipeline.this.depthCompare = depthCompare;
-        }
-
-        public void setPolygonMode(IntEnum<PolygonMode> polygonMode) {
-            GraphicsPipeline.this.polygonMode = polygonMode;
-        }
-
-        public void setCullMode(Flag<CullMode> cullMode) {
-            GraphicsPipeline.this.cullMode = cullMode;
-        }
-
-        public void setFaceWinding(IntEnum<FaceWinding> faceWinding) {
-            GraphicsPipeline.this.faceWinding = faceWinding;
-        }
-
-        public void setLineWidth(float lineWidth) {
-            GraphicsPipeline.this.lineWidth = lineWidth;
-        }
-
-        public void setDepthClamp(boolean depthClamp) {
-            GraphicsPipeline.this.depthClamp = depthClamp;
-        }
-
-        public void setRasterizerDiscard(boolean rasterizerDiscard) {
-            GraphicsPipeline.this.rasterizerDiscard = rasterizerDiscard;
-        }
-
-        public void setDepthBias(boolean depthBias) {
-            GraphicsPipeline.this.depthBias = depthBias;
-        }
-
-        public void setRasterizationSamples(int rasterizationSamples) {
-            GraphicsPipeline.this.rasterizationSamples = rasterizationSamples;
-        }
-
-        public void setSampleShading(boolean sampleShading) {
-            GraphicsPipeline.this.sampleShading = sampleShading;
-        }
-
-        public void setBlendLogicEnabled(boolean blendLogicEnabled) {
-            GraphicsPipeline.this.blendLogicEnabled = blendLogicEnabled;
-        }
-
-        public void setBlendLogic(IntEnum<LogicOp> blendLogic) {
-            GraphicsPipeline.this.blendLogic = blendLogic;
-        }
-
-        public void setFrameBuffer(FrameBuffer<VulkanImageView> frameBuffer) {
-            this.frameBuffer = frameBuffer;
-        }
-
-    }
-
-    public static class ViewportInfo {
-
-        public final float x, y, w, h;
-        public final float min, max;
-
-        public ViewportInfo(float x, float y, float w, float h, float min, float max) {
-            this.x = x;
-            this.y = y;
-            this.w = w;
-            this.h = h;
-            this.min = min;
-            this.max = max;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            ViewportInfo that = (ViewportInfo) o;
-            return Float.compare(x, that.x) == 0
-                    && Float.compare(y, that.y) == 0
-                    && Float.compare(w, that.w) == 0
-                    && Float.compare(h, that.h) == 0
-                    && Float.compare(min, that.min) == 0
-                    && Float.compare(max, that.max) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y, w, h, min, max);
-        }
-
-    }
-
-    public static class ScissorInfo {
-
-        public final int x, y, w, h;
-
-        public ScissorInfo(int x, int y, int w, int h) {
-            this.x = x;
-            this.y = y;
-            this.w = w;
-            this.h = h;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            ScissorInfo that = (ScissorInfo) o;
-            return x == that.x && y == that.y && w == that.w && h == that.h;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y, w, h);
-        }
-
+    /**
+     * @return every state of this pipeline that must be set on the command buffer
+     */
+    public Set<DynamicState> getDynamicStates() {
+        return dynamicStates;
     }
 
 }

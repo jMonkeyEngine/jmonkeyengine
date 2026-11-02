@@ -260,6 +260,16 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
         }
 
         @Override
+        public GpuBuffer getBuffer() {
+            return struct.getBuffer();
+        }
+
+        @Override
+        public int offset() {
+            return struct.offset();
+        }
+
+        @Override
         public int alignment() {
             return struct.alignment();
         }
@@ -365,6 +375,16 @@ public abstract class StructVar extends Struct<StructVar.Member> implements Var 
         @Override
         public DataBuffer cache() {
             return array.cache();
+        }
+
+        @Override
+        public GpuBuffer getBuffer() {
+            return array.getBuffer();
+        }
+
+        @Override
+        public int offset() {
+            return array.offset();
         }
 
         @Override

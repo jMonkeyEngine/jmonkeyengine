@@ -45,6 +45,16 @@ public class SingletonStructArray <T extends Struct> implements StructArray<T> {
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return binding.getBuffer();
+    }
+
+    @Override
+    public int offset() {
+        return binding.getOffset();
+    }
+
+    @Override
     public int alignment() {
         return struct.alignment();
     }

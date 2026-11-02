@@ -48,6 +48,16 @@ public class ArrayField <T> implements StructField {
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return binding.getBuffer();
+    }
+
+    @Override
+    public int offset() {
+        return binding.getOffset();
+    }
+
+    @Override
     public int size() {
         return binding.getSize();
     }

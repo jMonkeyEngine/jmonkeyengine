@@ -31,18 +31,23 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.renderer.pipeline.RenderPipeline;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.collections.IntComparator;
+import com.jme3.util.collections.IntList;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.material.experimental.ShadingTechnique;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.render.Bucket;
 import com.jme3.vulkan.scene.Scene;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Represents a view inside the display
@@ -68,11 +73,10 @@ import java.util.logging.Logger;
  */
 public class ViewPort {
 
-    private static final Bucket DEFAULT_BUCKET = (scene, camera) -> Integer::compare;
-
     protected final Camera cam;
-    protected final SafeArrayList<Scene> sceneList = new SafeArrayList<>(Scene.class);
+    @Deprecated protected final SafeArrayList<Scene> sceneList = new SafeArrayList<>(Scene.class);
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
+    protected Scene scene;
     protected RenderPipeline pipeline;
     protected FrameBuffer out = null;
 
@@ -95,6 +99,22 @@ public class ViewPort {
     public ViewPort(Camera cam, ViewPortArea area) {
         this.cam = cam;
         this.area = area;
+    }
+
+    public void render(CommandBuffer cmd, Collection<ShadingTechnique> techniques) {
+        BoundingBox box = new BoundingBox();
+        Scene.Group culled = scene.createHierarchalGroup(node -> {
+            scene.getWorldBounds(node, box);
+            Camera.FrustumIntersect intersect = cam.contains(box);
+            return intersect != Camera.FrustumIntersect.Outside;
+        });
+        IntList list = culled.toList();
+        list.sort((o1, o2) -> {
+            int c = Integer.compare(scene.getWorldBucketHint(o1), scene.getWorldBucketHint(o2));
+            if (c == 0) c = bucketComp.compare(o1, o2);
+            return c;
+        });
+
     }
 
     public Map<Integer, Bucket> getBuckets() {

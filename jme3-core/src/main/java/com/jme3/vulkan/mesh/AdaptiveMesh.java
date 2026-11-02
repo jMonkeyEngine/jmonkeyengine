@@ -48,6 +48,7 @@ public class AdaptiveMesh implements Mesh {
         throw new IllegalStateException("Mesh is missing its required position data.");
     }
 
+    @Override
     public IdxBuffer getIndexBuffer() {
         return indexBuffer;
     }

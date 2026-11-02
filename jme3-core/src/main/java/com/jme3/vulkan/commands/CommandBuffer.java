@@ -1,20 +1,29 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.scene.Mesh;
 import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.concurrent.Access;
-import com.jme3.vulkan.concurrent.CommandDataAccess;
 import com.jme3.vulkan.concurrent.DeviceData;
+import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.images.BufferImageCopy;
 import com.jme3.vulkan.images.ImageCopy;
 import com.jme3.vulkan.images.newimage.EngineImage;
+import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.mesh.VertexInput;
+import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.PipelineStage;
+import com.jme3.vulkan.shadergen.PushConstants;
+import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
+
+import java.nio.ByteBuffer;
+import java.util.function.Function;
 
 import static org.lwjgl.vulkan.VK10.VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 import static org.lwjgl.vulkan.VK10.VK_COMMAND_BUFFER_LEVEL_SECONDARY;
@@ -82,16 +91,6 @@ public interface CommandBuffer {
     OpLocation cmdCopy(GpuBuffer src, GpuBuffer dst, BufferCopy copy, OpLocation location);
 
     /**
-     * Records a pipeline barrier that transitions {@code image} from {@code srcLayout} to
-     * {@code dstLayout}. Does nothing if the two layouts are the same.
-     *
-     * @param image image to transition
-     * @param srcLayout layout {@code image} is currently in
-     * @param dstLayout layout to transition {@code image} into
-     */
-    void cmdTransitionLayout(EngineImage image, EngineImage.Layout srcLayout, EngineImage.Layout dstLayout);
-
-    /**
      * Records a device copy of {@code copy}'s regions from image {@code src} to image
      * {@code dst}.
      *
@@ -133,6 +132,99 @@ public interface CommandBuffer {
      * @throws IllegalArgumentException if {@code copy} does not contain exactly one region
      */
     void cmdResolveMultisampled(EngineImage src, EngineImage dst, ImageCopy copy);
+
+    /**
+     * Records a pipeline barrier that transitions {@code image} from {@code srcLayout} to
+     * {@code dstLayout}. Does nothing if the two layouts are the same.
+     *
+     * @param image image to transition
+     * @param srcLayout layout {@code image} is currently in
+     * @param dstLayout layout to transition {@code image} into
+     */
+    void cmdTransitionLayout(EngineImage image, EngineImage.Layout srcLayout, EngineImage.Layout dstLayout);
+
+    void cmdBindPipeline(Pipeline pipeline);
+
+    /**
+     * Binds {@code sets} to the layout of the most recently {@link #cmdBindPipeline bound pipeline},
+     * {@code sets[i]} at set number {@code i}. Null elements are skipped, leaving whatever is bound
+     * at that set number unchanged, so a shader's sets can be passed as-is even if some set numbers
+     * have no bindings.
+     *
+     * @param sets sets to bind, indexed by set number
+     * @throws IllegalStateException if no pipeline has been bound since recording began
+     */
+    void cmdBindDescriptors(DescriptorSet... sets);
+
+    /**
+     * Records the current values of {@code constants} as the push constants of the bound pipeline,
+     * visible to every stage that uses them. The values are copied when recorded, so they may be
+     * changed for the next draw right away. Their struct must be {@link com.jme3.util.struct.Struct#bind bound}
+     * to a host-accessible buffer, through which its fields are written.
+     *
+     * @param constants push constants to record
+     * @throws IllegalStateException if no pipeline has been bound since recording began, or the
+     *                               values are not bound to a buffer
+     */
+    default <T extends StructVar> void cmdPushConstants(PushConstants<T> constants) {
+        cmdPushConstants(constants, constants.getValue());
+    }
+
+    /**
+     * Records {@code values} as the push constants of the bound pipeline, visible to every stage
+     * that uses {@code constants}. The values are copied when recorded, so they may be changed for
+     * the next draw right away. {@code values} must be {@link com.jme3.util.struct.Struct#bind bound}
+     * to a host-accessible buffer, through which its fields are written.
+     *
+     * @param constants push constants to record
+     * @param values values to record, of the same struct type as {@code constants}' value
+     * @param <T> struct of the push constant values
+     * @throws IllegalStateException if no pipeline has been bound since recording began, or
+     *                               {@code values} is not bound to a buffer
+     */
+    default <T extends StructVar> void cmdPushConstants(PushConstants<T> constants, T values) {
+        if (values.getBuffer() == null) {
+            throw new IllegalStateException("Push constant values are not bound to a buffer.");
+        }
+        cmdPushConstants(constants.getStages(), 0, values.cache().getBytes());
+    }
+
+    /**
+     * Records the remaining bytes of {@code data} as push constants of the bound pipeline, starting
+     * at byte {@code offset}. The bytes are copied when recorded. {@code stages} must be exactly the
+     * stages of the pipeline layout's push constant ranges that overlap the written bytes.
+     *
+     * @param stages stages the bytes are visible to
+     * @param offset byte offset into the push constants, a multiple of 4
+     * @param data direct buffer of the bytes to write, a multiple of 4 bytes long
+     * @throws IllegalStateException if no pipeline has been bound since recording began
+     * @throws IllegalArgumentException if {@code stages} is empty, or {@code offset} or the size is
+     *                                  not a multiple of 4, or {@code data} is not direct
+     */
+    void cmdPushConstants(Flag<ShaderStage> stages, int offset, ByteBuffer data);
+
+    /**
+     * Binds the vertex and instance buffers of {@code mesh} at the binding indices the
+     * {@link VertexInput#VertexInput(Function, Mesh) vertex input layout} built from the same
+     * {@code attributeLocation} and {@code mesh} assigns them: vertex buffers first, then instance
+     * buffers, skipping any buffer that contributes no attribute the shader consumes. Every bound
+     * buffer's {@link GpuBuffer} is registered with {@link #useResource} as {@link Access#Read}.
+     *
+     * @param mesh mesh whose buffers to bind
+     * @param attributeLocation the same attribute location function the bound pipeline's vertex
+     *                          input layout was built with
+     */
+    void cmdBindVertices(Mesh mesh, Function<String, Integer> attributeLocation);
+
+    /**
+     * Draws {@code mesh} once per instance (once if it has no instance buffers). If {@code mesh}
+     * has an index buffer, it is bound, registered with {@link #useResource} as {@link Access#Read},
+     * and every index is drawn; otherwise every vertex is drawn. The mesh's vertex and instance
+     * buffers must already be {@link #cmdBindVertices bound}.
+     *
+     * @param mesh mesh to draw
+     */
+    void cmdDraw(Mesh mesh);
 
     /**
      * Opens this command buffer for recording. Subsequent {@code cmd*} calls are recorded

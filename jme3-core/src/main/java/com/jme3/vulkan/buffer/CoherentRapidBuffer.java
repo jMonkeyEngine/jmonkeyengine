@@ -5,7 +5,7 @@ import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.tracking.NullBufferTracker;
-import com.jme3.vulkan.frames.FrameIndex;
+import com.jme3.vulkan.frames.Frame;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
@@ -14,11 +14,11 @@ import java.util.Iterator;
 
 public class CoherentRapidBuffer implements GpuBuffer {
 
-    private final FrameIndex frames;
+    private final Frame frames;
     private final GpuBuffer[] buffers;
     private final DataBuffer cache;
 
-    public CoherentRapidBuffer(MemoryAllocator allocator, FrameIndex frames, int capacity, Flag<Role> roles) {
+    public CoherentRapidBuffer(MemoryAllocator allocator, Frame frames, int capacity, Flag<Role> roles) {
         this.frames = frames;
         this.buffers = new GpuBuffer[frames.count()];
         this.cache = new DataBuffer(ByteBuffer.wrap(new byte[capacity]), new MultiTracker());
@@ -27,7 +27,7 @@ public class CoherentRapidBuffer implements GpuBuffer {
         }
     }
 
-    public CoherentRapidBuffer(FrameIndex frames, GpuBuffer[] buffers) {
+    public CoherentRapidBuffer(Frame frames, GpuBuffer[] buffers) {
         assert buffers.length == frames.count();
         this.frames = frames;
         this.buffers = buffers;

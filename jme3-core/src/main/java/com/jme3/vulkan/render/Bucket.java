@@ -1,10 +1,9 @@
 package com.jme3.vulkan.render;
 
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
+import com.jme3.util.collections.IntComparator;
 import com.jme3.vulkan.scene.Scene;
-
-import java.util.Comparator;
 
 /**
  * A {@link Bucket}'s own final say on the order its nodes are drawn in, applied within a
@@ -22,10 +21,10 @@ public interface Bucket {
      * (e.g. the camera's current position) that every comparison will need.
      *
      * @param scene scene the nodes being sorted belong to
-     * @param camera camera the nodes are being drawn against
+     * @param vp viewport being drawn against
      * @return comparator over node ids
      */
-    Comparator<Integer> createComparator(Scene scene, Camera camera);
+    IntComparator createComparator(Scene scene, ViewPort vp);
 
     /**
      * A camera-distance sort.
@@ -40,8 +39,8 @@ public interface Bucket {
         Vector3f a = new Vector3f();
         Vector3f b = new Vector3f();
         int sign = frontToBack ? 1 : -1;
-        return (scene, camera) -> {
-            Vector3f camLocation = camera.getLocation();
+        return (scene, vp) -> {
+            Vector3f camLocation = vp.getCamera().getLocation();
             return (nodeA, nodeB) -> sign * Float.compare(
                     scene.getWorldTranslation(nodeA, a).distanceSquared(camLocation),
                     scene.getWorldTranslation(nodeB, b).distanceSquared(camLocation));

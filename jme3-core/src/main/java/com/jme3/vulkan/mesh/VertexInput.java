@@ -10,6 +10,7 @@ import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class VertexInput {
@@ -50,30 +51,76 @@ public class VertexInput {
         addBuffers(attributeLocation, mesh.getInstanceBuffers(), InputRate.Instance, filledAttrLoc, bindingIndex);
     }
 
+    /**
+     * Gets the vertex and instance buffers of {@code mesh} that the layout built by
+     * {@link #VertexInput(Function, Mesh)} gives a binding, in binding index order. Buffers that
+     * contribute no attribute the shader consumes get no binding and are left out.
+     *
+     * @param attributeLocation maps an attribute name to the shader location it occupies, or null
+     * @param mesh mesh to read vertex/instance buffers from
+     * @return buffers to bind, where element {@code i} belongs at binding index {@code i}
+     */
     @SuppressWarnings("unchecked")
-    private int addBuffers(Function<String, Integer> attributeLocation, Collection<StructArray<? extends Struct<VertexAttr>>> buffers, InputRate rate, BitSet filledAttrLoc, int bindingIndex) {
-        for (StructArray vb : buffers) {
-            boolean anyValid = false;
-            Struct<VertexAttr> struct = vb.getStruct();
-            for (VertexAttr attr : struct.getFields()) {
-                Integer loc = attributeLocation.apply(attr.getName());
-                if (loc == null || filledAttrLoc.get(loc)) {
-                    continue;
-                }
-                filledAttrLoc.set(loc);
-                anyValid = true;
-                int offset = struct.getFieldOffset(attr);
-                Format[] formats = attr.getFormats();
-                assert formats.length > 0 : "Vertex attribute must specify at least one format.";
-                for (int i = 0; i < formats.length; i++) {
-                    if (i > 0 && filledAttrLoc.get(loc + i)) {
-                        throw new IllegalStateException("Overlapping attributes at " + (loc + i));
-                    }
-                    filledAttrLoc.set(loc + i);
-                    add(new AttributeEntry(loc + i, bindingIndex, offset, formats[i]));
-                    offset += formats[i].getBytes();
+    public static List<StructArray<? extends Struct<VertexAttr>>> getReferencedBuffers(Function<String, Integer> attributeLocation, Mesh mesh) {
+        List<StructArray<? extends Struct<VertexAttr>>> bound = new ArrayList<>();
+        BitSet filledAttrLoc = new BitSet();
+        for (Collection<StructArray<? extends Struct<VertexAttr>>> buffers : Arrays.asList(mesh.getVertexBuffers(), mesh.getInstanceBuffers())) {
+            for (StructArray vb : buffers) {
+                if (claimLocations(attributeLocation, vb.getStruct(), filledAttrLoc, null)) {
+                    bound.add(vb);
                 }
             }
+        }
+        return bound;
+    }
+
+    /**
+     * Claims the locations of every attribute of {@code struct} that the shader consumes and no
+     * earlier buffer already filled. Shared by the layout and {@link #getReferencedBuffers} so both
+     * select the same buffers.
+     *
+     * @param claimed receives each claimed attribute and its first location, or null
+     * @return true if any attribute was claimed, i.e. the buffer gets a binding
+     */
+    private static boolean claimLocations(Function<String, Integer> attributeLocation, Struct<VertexAttr> struct,
+                                          BitSet filledAttrLoc, BiConsumer<VertexAttr, Integer> claimed) {
+        boolean anyValid = false;
+        for (VertexAttr attr : struct.getFields()) {
+            Integer loc = attributeLocation.apply(attr.getName());
+            if (loc == null || filledAttrLoc.get(loc)) {
+                continue;
+            }
+            Format[] formats = attr.getFormats();
+            assert formats.length > 0 : "Vertex attribute must specify at least one format.";
+            for (int i = 0; i < formats.length; i++) {
+                if (i > 0 && filledAttrLoc.get(loc + i)) {
+                    throw new IllegalStateException("Overlapping attributes at " + (loc + i));
+                }
+                filledAttrLoc.set(loc + i);
+            }
+            anyValid = true;
+            if (claimed != null) {
+                claimed.accept(attr, loc);
+            }
+        }
+        return anyValid;
+    }
+
+    @SuppressWarnings("unchecked")
+    private int addBuffers(Function<String, Integer> attributeLocation,
+                           Collection<StructArray<? extends Struct<VertexAttr>>> buffers,
+                           InputRate rate, BitSet filledAttrLoc, int bindingIndex) {
+        for (StructArray vb : buffers) {
+            Struct<VertexAttr> struct = vb.getStruct();
+            int binding = bindingIndex;
+            boolean anyValid = claimLocations(attributeLocation, struct, filledAttrLoc, (attr, loc) -> {
+                int offset = struct.getFieldOffset(attr);
+                Format[] formats = attr.getFormats();
+                for (int i = 0; i < formats.length; i++) {
+                    add(new AttributeEntry(loc + i, binding, offset, formats[i]));
+                    offset += formats[i].getBytes();
+                }
+            });
             if (anyValid) {
                 add(new BindingEntry(bindingIndex++, vb.stride(), rate));
             }
@@ -101,7 +148,6 @@ public class VertexInput {
         return Collections.unmodifiableCollection(attributes.values());
     }
 
-    @Deprecated
     public VkVertexInputBindingDescription.Buffer getBindings(MemoryStack stack) {
         VkVertexInputBindingDescription.Buffer buffer = VkVertexInputBindingDescription.malloc(bindings.size(), stack);
         for (BindingEntry b : bindings.values()) {
@@ -110,7 +156,6 @@ public class VertexInput {
         return buffer.flip();
     }
 
-    @Deprecated
     public VkVertexInputAttributeDescription.Buffer getAttributes(MemoryStack stack) {
         VkVertexInputAttributeDescription.Buffer buffer = VkVertexInputAttributeDescription.malloc(attributes.size(), stack);
         for (AttributeEntry a : attributes.values()) {

@@ -70,8 +70,36 @@ public class Node {
         return scene.getProperty(type, id, defaultValue);
     }
 
+    /**
+     * @return this node's mesh, own or inherited, or null if it has none
+     * @see Scene#getMesh(int)
+     */
     public Mesh getMesh() {
-        return scene.getComponent(Scene.MeshType.class, id);
+        return scene.getMesh(id);
+    }
+
+    /**
+     * @param mesh this node's own mesh, or null to remove it
+     * @see Scene#setMesh(int, Mesh)
+     */
+    public void setMesh(Mesh mesh) {
+        scene.setMesh(id, mesh);
+    }
+
+    /**
+     * @return true if this node has a mesh, own or inherited
+     * @see Scene#hasMesh(int)
+     */
+    public boolean hasMesh() {
+        return scene.hasMesh(id);
+    }
+
+    /**
+     * @param mode whether this node passes its mesh down to, or takes its mesh from, other nodes
+     * @see Scene#setMeshInheritMode(int, InheritMode)
+     */
+    public void setMeshInheritMode(InheritMode mode) {
+        scene.setMeshInheritMode(id, mode);
     }
 
     /*=================*\

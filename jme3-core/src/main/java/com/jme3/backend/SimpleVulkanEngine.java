@@ -31,8 +31,8 @@ import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.util.cache.InlineTimedCache;
 import com.jme3.vulkan.pipeline.framebuffer.*;
+import com.jme3.vulkan.material.experimental.PipelineKey;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
-import com.jme3.vulkan.pipeline.state.GraphicsState;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.jme3.vulkan.render.bucket.GraphicsElement;
 import com.jme3.vulkan.render.bucket.VulkanRenderElement;
@@ -276,8 +276,8 @@ public class SimpleVulkanEngine implements Engine {
         }
 
         @Override
-        public GraphicsElement createRenderElement(ViewPort vp, Geometry g, GraphicsState state) {
-            return new EngineRenderElement(graphics, vp.getOutputFrameBuffer(), vp.getCamera(), g, state);
+        public GraphicsElement createRenderElement(ViewPort vp, Geometry g, PipelineKey key) {
+            return new EngineRenderElement(graphics, vp.getOutputFrameBuffer(), vp.getCamera(), g, key);
         }
 
         @Override
@@ -318,7 +318,7 @@ public class SimpleVulkanEngine implements Engine {
         private final FrameBuffer frameBuffer;
         private final VertexPipeline pipeline;
 
-        public EngineRenderElement(CommandBuffer cmd, FrameBuffer frameBuffer, Camera cam, Geometry g, GraphicsState state) {
+        public EngineRenderElement(CommandBuffer cmd, FrameBuffer frameBuffer, Camera cam, Geometry g, PipelineKey key) {
             super(cam, g);
             this.cmd = cmd;
             this.frameBuffer = frameBuffer;

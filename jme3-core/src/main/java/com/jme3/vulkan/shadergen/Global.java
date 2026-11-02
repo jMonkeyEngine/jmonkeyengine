@@ -1,101 +1,97 @@
 package com.jme3.vulkan.shadergen;
 
-import com.jme3.vulkan.descriptors.DescriptorType;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.shadergen.vars.Var;
 import com.jme3.vulkan.util.Flag;
 
-public abstract class Global <T extends Var> {
+/**
+ * A value declared at shader scope, shared by every stage of a {@link Shader} that uses it. Each
+ * global is identified within its shader by its {@link #getKey() location}; a global declared
+ * by a shader hides any global at the same location declared by a shader it includes.
+ * <p>
+ * Only {@link DescriptorGlobal descriptor globals} occupy descriptor set bindings and have resources
+ * assigned to them. Other kinds of globals, such as {@link PushConstants} and
+ * {@link Specialization specialization constants}, are supplied to the shader in other ways.
+ * <p>
+ * Implementations normally extend {@link BlockedGlobal}.
+ *
+ * @param <T> type of the value
+ */
+public interface Global <K, T extends Var> {
 
-    public static <T extends StructVar> Global<T> uniform(int set, int binding, T value) {
+    static <T extends StructVar> Uniform<T> uniform(int set, int binding, T value) {
         return new Uniform<>(new Location(set, binding), value);
     }
 
-    public static <T extends StructVar> Global<T> storage(int set, int binding, T value) {
+    static <T extends StructVar> Storage<T> storage(int set, int binding, T value) {
         return new Storage<>(new Location(set, binding), value);
     }
 
-    public static <T extends Var> Global<T> sampler(int set, int binding, T value) {
-        return new Value<>(DescriptorType.CombinedImageSampler, 1, new Location(set, binding), value);
+    static <T extends Var> Sampler<T> sampler(int set, int binding, T value) {
+        return new Sampler<>(new Location(set, binding), value);
     }
 
-    public static <T extends Var> Global<T> specialization(int id, T value) {
+    /**
+     * Creates the push constants global. On OpenGL it is declared as a uniform block at
+     * {@link PushConstants#DEFAULT_GL_BINDING}.
+     *
+     * @see PushConstants
+     */
+    static <T extends StructVar> PushConstants<T> pushConstants(T value) {
+        return new PushConstants<>(value);
+    }
+
+    /**
+     * Creates the push constants global, declared on OpenGL as a uniform block at {@code glBinding}.
+     *
+     * @see PushConstants
+     */
+    static <T extends StructVar> PushConstants<T> pushConstants(int glBinding, T value) {
+        return new PushConstants<>(glBinding, value);
+    }
+
+    static <T extends Var> Specialization<T> specialization(int id, T value) {
         return new Specialization<>(id, value);
     }
 
-    private DescriptorType type;
-    private final int descriptorCount;
-    private final Location location;
-    private final T value;
-    private Flag<ShaderStage> stages = Flag.empty();
-    private T ref;
+    /**
+     * Declares this global in the stage being generated, if it isn't already, and references it.
+     * Must be called while a stage is being generated.
+     *
+     * @return reference to this global's value in generated code
+     */
+    T use();
 
-    public Global(DescriptorType type, int descriptorCount, Location location, T value) {
-        this.type = type;
-        this.descriptorCount = descriptorCount;
-        this.location = location;
-        this.value = value;
-    }
+    /**
+     * Declares this global in the stage {@code logic} is generating, if it isn't already. Called by
+     * the shader that registered this global; use {@link #use()} instead.
+     *
+     * @param logic generator of the stage being compiled
+     * @return reference to this global's value in generated code
+     */
+    T compile(ShaderLogic logic);
 
-    @SuppressWarnings("unchecked")
-    public T use() {
-        ShaderLogic logic = ShaderLogic.get();
-        return (T)logic.getSource().useGlobalByLocation(location).compile(logic);
-    }
+    /**
+     * Registers this global with the shader that declares it. Called by {@link Shader} when compiling.
+     *
+     * @param shader shader the global belongs to
+     */
+    void setShader(Shader shader);
 
-    @SuppressWarnings("unchecked")
-    protected T compile(ShaderLogic logic) {
-        if (logic.startBlock(this)) {
-            stages = stages.add(logic.getStage());
-            ref = (T)value.create(logic.generateUniqueName());
-            compile(logic, value, ref);
-            logic.endBlock();
-        }
-        return ref;
-    }
+    /**
+     * @return location identifying this global within its shader
+     */
+    K getKey();
 
-    protected abstract void compile(ShaderLogic logic, T value, T ref);
+    /**
+     * @return value declared by this global
+     */
+    T getValue();
 
-    public void makeDynamic() {
-        if (type == DescriptorType.UniformBuffer) {
-            type = DescriptorType.UniformBufferDynamic;
-        } else if (type == DescriptorType.StorageBuffer) {
-            type = DescriptorType.StorageBufferDynamic;
-        }
-    }
-
-    public DescriptorType getType() {
-        return type;
-    }
-
-    public int getDescriptorCount() {
-        return descriptorCount;
-    }
-
-    public Flag<ShaderStage> getStages() {
-        return stages;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    private static class Value <T extends Var> extends Global<T> {
-
-        public Value(DescriptorType type, int descriptorCount, Location location, T value) {
-            super(type, descriptorCount, location, value);
-        }
-
-        @Override
-        protected void compile(ShaderLogic logic, T value, T ref) {
-            logic.add("layout(set=%d,binding=%d) uniform %s %s;", getLocation().getSet(), getLocation().getBinding(), value.getType(), ref);
-        }
-
-    }
+    /**
+     * @return stages that use this global
+     */
+    Flag<ShaderStage> getStages();
 
 }

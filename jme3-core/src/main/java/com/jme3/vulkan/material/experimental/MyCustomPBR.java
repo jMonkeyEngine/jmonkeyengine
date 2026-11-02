@@ -4,7 +4,7 @@ import com.jme3.backend.Engine;
 import com.jme3.math.ColorRGBA;
 import com.jme3.vulkan.buffer.GpuBuffer;
 
-public class MyCustomPBR extends PBR {
+public class MyCustomPBR extends PBRTechnique {
 
     public static class MyParams extends Data {
 

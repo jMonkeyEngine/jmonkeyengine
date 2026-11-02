@@ -16,7 +16,7 @@ public interface Engine extends MemoryAllocator {
         return createDescriptorPool(sets, Flag.empty(), sizes);
     }
 
-    DescriptorSetLayout createDescriptorSetLayout(DescriptorSetLayout.Info info);
+    DescriptorSetLayout createDescriptorSetLayout(DescriptorSetLayout.Builder info);
 
     MaterialBuffer getMaterialData();
 

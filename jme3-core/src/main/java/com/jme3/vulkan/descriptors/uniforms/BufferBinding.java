@@ -1,5 +1,6 @@
 package com.jme3.vulkan.descriptors.uniforms;
 
+import com.jme3.vulkan.alloc.BufferDescription;
 import com.jme3.vulkan.buffer.GpuBuffer;
 import com.jme3.vulkan.descriptors.DescriptorBinding;
 import com.jme3.vulkan.descriptors.DescriptorType;
@@ -8,28 +9,29 @@ import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public class BufferBinding extends DescriptorBinding<GpuBuffer> {
+public class BufferBinding extends DescriptorBinding<BufferDescription> {
 
     public BufferBinding(DescriptorType type, int descriptorCount) {
-        super(type, new GpuBuffer[descriptorCount]);
+        super(type, new BufferDescription[descriptorCount]);
     }
 
-    public BufferBinding(DescriptorType type, GpuBuffer... buffers) {
-        super(type, buffers);
+    public BufferBinding(DescriptorType type, BufferDescription... descriptions) {
+        super(type, descriptions);
     }
 
     @Override
     protected void populateElementInfo(MemoryStack stack, VkWriteDescriptorSet write, int start, int count) {
         VkDescriptorBufferInfo.Buffer bufInfo = VkDescriptorBufferInfo.calloc(count, stack);
         for (int i = 0; i < count; i++) {
-            GpuBuffer b = resources[start + i];
+            BufferDescription d = resources[start + i];
+            GpuBuffer b = d != null ? d.getBuffer() : null;
             if (b != null) {
-                bufInfo.get().buffer(b.getHandle()).offset(b.getBufferLocalOffset()).range(b.capacity());
+                bufInfo.get().buffer(b.getHandle()).offset(b.offset() + d.offset()).range(d.size());
             } else {
                 bufInfo.get().buffer(VK10.VK_NULL_HANDLE);
             }
         }
-        write.pBufferInfo(bufInfo);
+        write.pBufferInfo(bufInfo.flip());
     }
 
 }

@@ -23,7 +23,6 @@ public class Property <T> implements Component {
     private final DynamicArray<T> localValues, worldValues;
     private final BitSet flags = new BitSet();
     private final Collection<PropertyListener<T>> listeners = new ArrayList<>();
-    private boolean worldNeeded = false;
 
     public Property(Scene scene, DynamicArray<T> localValues, DynamicArray<T> worldValues) {
         this.scene = scene;
@@ -37,6 +36,7 @@ public class Property <T> implements Component {
 
     public void set(int node, T value) {
         if (!Objects.equals(localValues.get(node), value)) {
+            localValues.set(node, value);
             updateWorld(node);
         }
     }
@@ -62,13 +62,11 @@ public class Property <T> implements Component {
                 flags.set(n + PULL);
                 flags.clear(n + PUSH);
                 flags.clear(n + IGNORE_PARENT);
-                worldNeeded = true;
             } break;
             case Push: {
                 flags.clear(n + PULL);
                 flags.set(n + PUSH);
                 flags.clear(n + IGNORE_PARENT);
-                worldNeeded = true;
             } break;
             case OffIgnoreParent: {
                 flags.clear(n + PULL);
@@ -79,7 +77,6 @@ public class Property <T> implements Component {
                 flags.clear(n + PULL);
                 flags.set(n + PUSH);
                 flags.set(n + IGNORE_PARENT);
-                worldNeeded = true;
             } break;
         }
         updateWorld(node);
@@ -99,9 +96,6 @@ public class Property <T> implements Component {
     }
 
     protected void updateWorld(int node) {
-        if (!worldNeeded) {
-            return;
-        }
         Scene.DepthFirstIterator it = scene.depthFirst(node);
         for (int n : it) {
             int parent = scene.getParentId(n);

@@ -1,9 +1,14 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.scene.Mesh;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.BufferCopy;
 import com.jme3.vulkan.buffer.GpuBuffer;
+import com.jme3.vulkan.descriptors.DescriptorSet;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.pipeline.PipelineStage;
+import com.jme3.vulkan.shadergen.PushConstants;
+import com.jme3.vulkan.shadergen.vars.StructVar;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
@@ -14,6 +19,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Interesting idea, but not really all that useful. Better I think to use normal unsynchronized command buffers.
@@ -46,6 +52,36 @@ public class ConcurrentCommandBuffer implements CommandBuffer {
     @Override
     public void cmdStreamFromRemote(GpuBuffer src, ByteBuffer dst, Runnable callback) {
         getCurrent().cmdStreamFromRemote(src, dst, callback);
+    }
+
+    @Override
+    public void cmdBindDescriptors(DescriptorSet... sets) {
+        getCurrent().cmdBindDescriptors(sets);
+    }
+
+    @Override
+    public <T extends StructVar> void cmdPushConstants(PushConstants<T> constants) {
+        getCurrent().cmdPushConstants(constants);
+    }
+
+    @Override
+    public <T extends StructVar> void cmdPushConstants(PushConstants<T> constants, T values) {
+        getCurrent().cmdPushConstants(constants, values);
+    }
+
+    @Override
+    public void cmdPushConstants(Flag<ShaderStage> stages, int offset, ByteBuffer data) {
+        getCurrent().cmdPushConstants(stages, offset, data);
+    }
+
+    @Override
+    public void cmdBindVertices(Mesh mesh, Function<String, Integer> attributeLocation) {
+        getCurrent().cmdBindVertices(mesh, attributeLocation);
+    }
+
+    @Override
+    public void cmdDraw(Mesh mesh) {
+        getCurrent().cmdDraw(mesh);
     }
 
     @Override

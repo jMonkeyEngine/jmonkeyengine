@@ -14,6 +14,10 @@ public interface BufferDescription {
      */
     void bind(GpuBuffer buffer, int offset);
 
+    default void bind(GpuBuffer buffer) {
+        bind(buffer, 0);
+    }
+
     /**
      * Breaks any current buffer binding and does not replace it.
      */
@@ -28,6 +32,25 @@ public interface BufferDescription {
      * @return cache buffer
      */
     DataBuffer cache();
+
+    /**
+     * Gets the buffer this description is currently bound to.
+     *
+     * @return bound buffer, or null if not bound
+     */
+    GpuBuffer getBuffer();
+
+    /**
+     * Gets the byte offset of this description from the start of the buffer it is
+     * bound to.
+     *
+     * @return offset in bytes
+     */
+    int offset();
+
+    default int absoluteOffset() {
+        return offset() + getBuffer().offset();
+    }
 
     /**
      * Gets the number of bytes described by this buffer description.

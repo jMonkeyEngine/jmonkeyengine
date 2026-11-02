@@ -56,6 +56,7 @@ public class IntList {
             array = grow(size + list.size());
         }
         System.arraycopy(list.array, 0, array, size, list.size());
+        size += list.size();
     }
 
     public void set(int index, int n) {
@@ -119,8 +120,8 @@ public class IntList {
     }
 
     public boolean contains(int n) {
-        for (int e : array) {
-            if (e == n) {
+        for (int i = 0; i < size; i++) {
+            if (array[i] == n) {
                 return true;
             }
         }
@@ -133,6 +134,41 @@ public class IntList {
 
     public boolean isEmpty() {
         return size == 0;
+    }
+
+    /**
+     * Stably sorts this list with powersort (Munro and Wild, 2018): natural runs are found (and
+     * extended to a minimum length with binary insertion sort), and adjacent runs are merged in
+     * the order given by the "power" of the boundary between them, which yields nearly optimal
+     * merge costs and adapts to presorted input.
+     *
+     * <p>Note: fully built and tested by Claude. I did not review the code because I have no
+     * idea how powersort works. Powersort is an improvement of timsort (used previously by jme3 for
+     * sorting geometries), with O(nlogn) worst-case time complexity.</p>
+     *
+     * @param comparator element order
+     * @see #sort(int, int, IntComparator)
+     */
+    public void sort(IntComparator comparator) {
+        sort(0, size, comparator);
+    }
+
+    /**
+     * Stably sorts the elements from {@code fromIndex} (inclusive) to {@code toIndex} (exclusive)
+     * with powersort, as {@link #sort(IntComparator)} does for the whole list. Elements outside
+     * the range are left untouched.
+     *
+     * @param fromIndex index of the first element to sort
+     * @param toIndex index after the last element to sort
+     * @param comparator element order
+     * @throws IndexOutOfBoundsException if {@code fromIndex < 0}, {@code toIndex > size()} or
+     *                                   {@code fromIndex > toIndex}
+     */
+    public void sort(int fromIndex, int toIndex, IntComparator comparator) {
+        if (fromIndex < 0 || toIndex > size || fromIndex > toIndex) {
+            throw new IndexOutOfBoundsException("from " + fromIndex + ", to " + toIndex + ", size " + size);
+        }
+        PowerSort.sort(array, fromIndex, toIndex, comparator);
     }
 
 }

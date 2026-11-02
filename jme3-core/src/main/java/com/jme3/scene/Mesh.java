@@ -54,6 +54,11 @@ public interface Mesh {
 
     void setIndexBuffer(IdxBuffer buffer);
 
+    /**
+     * @return index buffer, or null if this mesh is drawn without indices
+     */
+    IdxBuffer getIndexBuffer();
+
     void addVertexBuffer(StructArray<? extends Struct<VertexAttr>> vertexBuffer);
 
     void addInstanceBuffer(StructArray<? extends Struct<VertexAttr>> instanceBuffer);

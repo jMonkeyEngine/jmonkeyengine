@@ -26,7 +26,7 @@ public class GlobalsDescriptorSet implements ShaderBindingSet {
     }
 
     private DescriptorSetLayout generateLayout(Flag<ShaderStage> stages) {
-        DescriptorSetLayout.Info info = new DescriptorSetLayout.Info();
+        DescriptorSetLayout.Builder info = new DescriptorSetLayout.Builder();
         for (Map.Entry<Integer, DescriptorBinding> e : bindings.entrySet()) {
             info.addBinding(e.getKey(), e.getValue().getType(), e.getValue().getDescriptors(), stages);
         }

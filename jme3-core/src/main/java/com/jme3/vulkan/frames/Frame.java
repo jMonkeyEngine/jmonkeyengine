@@ -12,7 +12,7 @@ import com.jme3.vulkan.buffer.RapidBuffer;
  * (typically right after waiting on that upcoming slot's completion fence) is
  * responsible for that synchronization.
  */
-public interface FrameIndex {
+public interface Frame {
 
     /**
      * Gets the currently active frame-in-flight slot, in {@code [0, count())}.
@@ -27,5 +27,16 @@ public interface FrameIndex {
      * @return slot count
      */
     int count();
+
+    long frame();
+
+    /**
+     * Gets the newest frame whose device work is known to be finished. Every frame up to and
+     * including the returned one has completed, so resources last used by those frames may be
+     * modified or reused by the CPU. May lag behind the device, but never runs ahead of it.
+     *
+     * @return newest completed frame, or a value less than any {@link #frame() frame} if none has completed
+     */
+    long completed();
 
 }

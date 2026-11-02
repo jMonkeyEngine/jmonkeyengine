@@ -55,6 +55,9 @@ public class Struct <T extends StructField> implements StructField {
 
     @Override
     public void bind(GpuBuffer buffer, int offset) {
+        binding.setBuffer(buffer);
+        binding.setOffset(offset);
+        binding.setLimit(offset + size);
         for (T f : fields) {
             f.bind(buffer, offset = FastMath.toMultipleOfPow2(offset, f.alignment()));
             offset += f.size();
@@ -75,13 +78,23 @@ public class Struct <T extends StructField> implements StructField {
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return binding.getBuffer();
+    }
+
+    @Override
+    public int offset() {
+        return binding.getOffset();
+    }
+
+    @Override
     public int alignment() {
-        return 0;
+        return alignment;
     }
 
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @SafeVarargs
@@ -162,6 +175,16 @@ public class Struct <T extends StructField> implements StructField {
         @Override
         public DataBuffer cache() {
             return binding.cache();
+        }
+
+        @Override
+        public GpuBuffer getBuffer() {
+            return binding.getBuffer();
+        }
+
+        @Override
+        public int offset() {
+            return binding.getOffset();
         }
 
         @Override

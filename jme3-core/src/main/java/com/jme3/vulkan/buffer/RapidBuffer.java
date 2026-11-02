@@ -3,7 +3,7 @@ package com.jme3.vulkan.buffer;
 import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.buffer.alloc.BufferType;
 import com.jme3.vulkan.buffer.alloc.MemoryAllocator;
-import com.jme3.vulkan.frames.FrameIndex;
+import com.jme3.vulkan.frames.Frame;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.util.Flag;
 
@@ -14,22 +14,22 @@ import com.jme3.vulkan.util.Flag;
  * A single buffer written every frame would force the CPU to either stall until the
  * device is done reading the previous frame's data, or race it. Instead, this keeps one
  * host-visible, persistently mapped {@link BufferType#Dynamic} copy per frame-in-flight
- * slot reported by a {@link FrameIndex}, and every {@link GpuBuffer} method transparently
+ * slot reported by a {@link Frame}, and every {@link GpuBuffer} method transparently
  * operates on whichever copy belongs to the current frame. Writing through
  * {@link #cache()} this frame never risks racing the device, which is still at most
  * reading the other slots from earlier frames.
  * <p>
- * This relies on whoever advances the {@link FrameIndex} to already guarantee the
+ * This relies on whoever advances the {@link Frame} to already guarantee the
  * device has finished with a slot before it comes back around to the CPU (typically by
  * waiting on that slot's completion fence before reusing it) — this class only picks
  * which slot to use each time it's asked, it does not itself wait for anything.
  */
 public class RapidBuffer implements GpuBuffer {
 
-    private final FrameIndex frames;
+    private final Frame frames;
     private final GpuBuffer[] slots;
 
-    public RapidBuffer(MemoryAllocator allocator, FrameIndex frames, int capacity, Flag<Role> roles) {
+    public RapidBuffer(MemoryAllocator allocator, Frame frames, int capacity, Flag<Role> roles) {
         this.frames = frames;
         this.slots = new GpuBuffer[frames.count()];
         for (int i = 0; i < slots.length; i++) {
@@ -37,7 +37,7 @@ public class RapidBuffer implements GpuBuffer {
         }
     }
 
-    public RapidBuffer(FrameIndex frames, GpuBuffer[] buffers) {
+    public RapidBuffer(Frame frames, GpuBuffer[] buffers) {
         assert buffers.length == frames.count();
         this.frames = frames;
         this.slots = buffers;

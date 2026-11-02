@@ -1,14 +1,17 @@
 package com.jme3.vulkan.buffer;
 
 import com.jme3.math.*;
+import com.jme3.util.destruction.ResourceLifecycle;
 import com.jme3.vulkan.buffer.tracking.BufferTracker;
 import com.jme3.vulkan.buffer.tracking.NullBufferTracker;
 import com.jme3.vulkan.buffer.tracking.SliceBufferTracker;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class DataBuffer {
+public class DataBuffer implements GpuBuffer {
 
     private static final int VEC2 = Float.BYTES * 2;
     private static final int VEC3 = Float.BYTES * 3;
@@ -186,6 +189,7 @@ public class DataBuffer {
         return buffer.limit();
     }
 
+    @Override
     public int capacity() {
         return buffer.capacity();
     }
@@ -670,6 +674,42 @@ public class DataBuffer {
     public Matrix4f get(Matrix4f v) {
         v.readFromBuffer(buffer);
         return v;
+    }
+
+    @Override
+    public void flushCache() {}
+
+    @Override
+    public void invalidateCache() {}
+
+    @Override
+    public int offset() {
+        return 0;
+    }
+
+    @Override
+    public long getHandle() {
+        return MemoryUtil.NULL;
+    }
+
+    @Override
+    public Flag<Role> getRoles() {
+        return Flag.empty();
+    }
+
+    @Override
+    public Flag<MemoryProp> getMemoryProperties() {
+        return Flag.empty();
+    }
+
+    @Override
+    public ResourceLifecycle getLifecycle() {
+        return ResourceLifecycle.NULL;
+    }
+
+    @Override
+    public DataBuffer cache() {
+        return this;
     }
 
 }
