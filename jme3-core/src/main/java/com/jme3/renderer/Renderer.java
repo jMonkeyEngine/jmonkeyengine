@@ -44,6 +44,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
+import com.jme3.texture.TextureArray;
 import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
@@ -310,6 +311,36 @@ public interface Renderer {
      * @param y the y position to put the image into the texture
      */
     public void modifyTexture(Texture tex, Image pixels, int x, int y);
+
+    /**
+     * Copies a complete 2D source image into a rectangle of one texture-array
+     * layer on the render thread. Only level-zero, uncompressed color images
+     * without multisampling or mipmaps are supported. Source and destination
+     * must have identical formats and color spaces, and the destination must
+     * use a non-mipmapped minification filter. Source pixels are tightly packed
+     * from byte zero of a sufficiently sized direct buffer; its position,
+     * limit, mark, byte order and contents are preserved.
+     *
+     * <p>This updates GPU storage only. It neither changes the destination's CPU
+     * image data nor marks the image dirty. Callers must retain authoritative
+     * CPU data or replay updates after texture/context recreation or any full
+     * image upload. An unuploaded or dirty destination is first fully uploaded
+     * using its populated CPU layer buffers. A resident, clean destination
+     * requires only one layer-region upload; other texels are unchanged.
+     *
+     * @param dest the destination texture array (not null)
+     * @param pixels the single-buffer 2D source image (not null)
+     * @param layer the destination layer index, starting at zero
+     * @param x the first destination column
+     * @param y the first destination row
+     * @throws IllegalArgumentException for invalid dimensions, bounds, buffers,
+     *         or mismatched image formats/color spaces
+     * @throws UnsupportedOperationException if array updates or the specified
+     *         image/mipmap policy are unsupported
+     */
+    default void modifyTexture(TextureArray dest, Image pixels, int layer, int x, int y) {
+        throw new UnsupportedOperationException("Texture-array updates are not supported by this renderer");
+    }
 
     /**
      * Deletes a texture from the GPU.

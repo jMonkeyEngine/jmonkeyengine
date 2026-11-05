@@ -58,6 +58,7 @@ import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.TextureArray;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.texture.TextureImage;
@@ -3533,6 +3534,32 @@ public final class GLRenderer implements Renderer {
         bindTextureAndUnit(target, dest.getImage(), textureUnitIndex);
         texUtil.uploadSubTexture(target, src, 0, destX, destY,
                 srcX, srcY, areaW, areaH, linearizeSrgbImages, dest.getImage().getColorSpace());
+    }
+
+    @Override
+    public void modifyTexture(TextureArray dest, Image pixels, int layer, int x, int y) {
+        if (!caps.contains(Caps.TextureArray) || gl2 == null) {
+            throw new UnsupportedOperationException("Texture arrays are not supported by this renderer");
+        }
+        if (dest == null || dest.getImage() == null || pixels == null) {
+            throw new IllegalArgumentException("Source and destination images must not be null");
+        }
+        if (dest.getType() != Texture.Type.TwoDimensionalArray
+                || dest.getMinFilter().usesMipMapLevels()) {
+            throw new UnsupportedOperationException("Only non-mipmapped texture arrays can be updated");
+        }
+        // Validation precedes binding: setTexture can allocate/reupload the entire array.
+        GLImageFormat format = texUtil.validateArrayLayerUpdate(dest.getImage(), pixels,
+                layer, x, y, linearizeSrgbImages);
+        try {
+            setTexture(0, dest);
+        } catch (TextureUnitException exception) {
+            throw new IllegalStateException("Renderer has no texture unit zero", exception);
+        }
+        // setTexture may reuse unit zero's cached binding without making that
+        // unit active. Subimage writes must target the actual active unit.
+        bindTextureAndUnit(GLExt.GL_TEXTURE_2D_ARRAY_EXT, dest.getImage(), 0);
+        texUtil.uploadArrayLayer(pixels, format, layer, x, y);
     }
 
     @Override
