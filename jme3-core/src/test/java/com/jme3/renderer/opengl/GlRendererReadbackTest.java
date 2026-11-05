@@ -40,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.jme3.renderer.Caps;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -48,6 +50,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.EnumSet;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 
 class GlRendererReadbackTest {
@@ -119,6 +123,31 @@ class GlRendererReadbackTest {
 
         assertEquals(GL.GL_UNSIGNED_BYTE, gl.type);
         assertSame(destination, gl.destination);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Image.Format.class, names = {"RGBA8", "RGBA16F"})
+    void replacedTextureImageDeterminesReadbackType(Image.Format originalFormat) {
+        final Readback gl = new Readback(true, new float[] {.25f, .5f, .75f, 1f});
+        Texture2D texture = new Texture2D(1, 1, originalFormat);
+        FrameBuffer fb = new FrameBuffer(1, 1, 1);
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(texture));
+        fb.setId(1);
+        fb.clearUpdateNeeded();
+        Image.Format currentFormat = originalFormat == Image.Format.RGBA8
+                ? Image.Format.RGBA16F : Image.Format.RGBA8;
+        texture.setImage(new Image(currentFormat, 1, 1, (ByteBuffer) null, ColorSpace.Linear));
+        ByteBuffer destination = BufferUtils.createByteBuffer(4);
+
+        gl.renderer.readFrameBuffer(fb, destination);
+
+        if (currentFormat.isFloatingPont()) {
+            assertEquals(GL.GL_FLOAT, gl.type);
+            assertArrayEquals(new int[] {64, 128, 191, 255}, bytes(destination, 0, 4));
+        } else {
+            assertEquals(GL.GL_UNSIGNED_BYTE, gl.type);
+            assertSame(destination, gl.destination);
+        }
     }
 
     @Test

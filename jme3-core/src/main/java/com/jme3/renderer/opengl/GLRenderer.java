@@ -2797,14 +2797,18 @@ public final class GLRenderer implements Renderer {
             readTarget = index >= 0 && index < bound.getNumColorTargets()
                     ? bound.getColorTarget(index) : null;
         }
-        if (glesByteRead && readTarget != null && readTarget.getFormat().isFloatingPont()) {
-            // EXT_color_buffer_float (ReadPixels): floating-point surfaces require
-            // RGBA/FLOAT on GLES. Convert to the requested normalized byte format
-            // without gamma correction, just as desktop GL's byte readback does.
-            readFloatFrameBufferAsBytes(byteBuf, outputFormat == Image.Format.BGRA8);
-        } else {
-            gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
+        if (glesByteRead && readTarget != null) {
+            Texture texture = readTarget.getTexture();
+            Image.Format readFormat = texture == null ? readTarget.getFormat() : texture.getImage().getFormat();
+            if (readFormat.isFloatingPont()) {
+                // EXT_color_buffer_float (ReadPixels): floating-point surfaces require
+                // RGBA/FLOAT on GLES. Convert to the requested normalized byte format
+                // without gamma correction, just as desktop GL's byte readback does.
+                readFloatFrameBufferAsBytes(byteBuf, outputFormat == Image.Format.BGRA8);
+                return;
+            }
         }
+        gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
     }
 
     private void readFloatFrameBufferAsBytes(ByteBuffer byteBuf, boolean bgra) {
