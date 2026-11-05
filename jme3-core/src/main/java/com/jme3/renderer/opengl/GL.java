@@ -901,6 +901,18 @@ public interface GL {
     }
 
     /**
+     * Reports timer-clock discontinuity since the previous check. GLES bindings
+     * with disjoint-state support override this method. Reading the GLES flag resets
+     * its context-wide state; see {@link com.jme3.renderer.Renderer#isGpuTimingDisjoint()}.
+     *
+     * @return true if a GPU timer discontinuity occurred since the previous check
+     * @throws UnsupportedOperationException if this binding cannot validate timer state
+     */
+    default boolean isGpuTimingDisjoint() {
+        throw new UnsupportedOperationException("GPU timer disjoint state is unavailable");
+    }
+
+    /**
      * Unsigned version.
      *
      * @param query the name of a query object
