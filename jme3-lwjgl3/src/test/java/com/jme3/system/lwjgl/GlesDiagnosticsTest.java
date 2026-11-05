@@ -64,8 +64,10 @@ class GlesDiagnosticsTest {
     private static String previousGlesLibrary;
 
     @BeforeAll
-    static void selectBundledGlesLibrary() {
+    static void selectBundledGlesLibrary() throws ClassNotFoundException {
         previousGlesLibrary = Configuration.OPENGLES_LIBRARY_NAME.get();
+        // LwjglWindow owns ANGLE's native registrations; do not depend on another test loading it.
+        Class.forName(LwjglWindow.class.getName(), true, LwjglWindow.class.getClassLoader());
         // Mocking GLES initializes its loader; use ANGLE on every supported platform.
         NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
         Configuration.OPENGLES_LIBRARY_NAME.set(
