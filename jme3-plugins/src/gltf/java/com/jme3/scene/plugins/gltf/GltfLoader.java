@@ -1448,7 +1448,7 @@ public class GltfLoader implements AssetLoader {
                     // removing the spatial from the dummy node,
                     // it will be attached to the attachment node of the bone
                     s.removeFromParent();
-                    jw.attachedSpatial = s;
+                    jw.attachedSpatials.add(s);
                 }
             }
         }
@@ -1482,7 +1482,7 @@ public class GltfLoader implements AssetLoader {
 
         for (int i = 0; i < nodes.size(); i++) {
             JointWrapper bw = fetchFromCache("nodes", i, JointWrapper.class);
-            if (bw == null || bw.attachedSpatial == null) {
+            if (bw == null || bw.attachedSpatials.isEmpty()) {
                 continue;
             }
             String jointName = bw.joint.getName();
@@ -1494,7 +1494,10 @@ public class GltfLoader implements AssetLoader {
                         jointName);
                 rootNode.addControl(skinControl);
             }
-            skinControl.getAttachmentsNode(jointName).attachChild(bw.attachedSpatial);
+            Node attachmentNode = skinControl.getAttachmentsNode(jointName);
+            for (Spatial attachedSpatial : bw.attachedSpatials) {
+                attachmentNode.attachChild(attachedSpatial);
+            }
         }
     }
 
@@ -1597,7 +1600,7 @@ public class GltfLoader implements AssetLoader {
         int jointIndex;
         int skinIndex;
         boolean isRoot = false;
-        Spatial attachedSpatial;
+        List<Spatial> attachedSpatials = new ArrayList<>();
         List<Integer> children = new ArrayList<>();
 
         public JointWrapper(Joint joint, int jointIndex, int skinIndex) {
