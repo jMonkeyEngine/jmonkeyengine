@@ -160,6 +160,8 @@ jar.doFirst{
     }
 }
 
+def androidProject = project(':jme3-android')
+
 task dist (dependsOn: ['build', ':jme3-android:jar']) {
     doLast {
         // Copy all dependencies to ../dist/lib, remove versions from jar files
