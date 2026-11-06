@@ -201,7 +201,7 @@ public class ConnectorAdapter extends Thread
                 
                 Message m = null;
                 while( (m = messageBuffer.pollMessage()) != null ) {
-                    m.setReliable( reliable );
+                    m = m.setReliable( reliable );
                     dispatch( m );
                 }
             }

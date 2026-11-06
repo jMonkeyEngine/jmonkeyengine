@@ -301,7 +301,7 @@ public class KernelAdapter extends Thread
         // Should be complete... and maybe we should check, but we don't.
         Message m = null;
         while( (m = protocol.pollMessage()) != null ) {
-            m.setReliable(reliable);
+            m = m.setReliable(reliable);
             dispatch(env.getSource(), m);
         }
     } 
