@@ -48,6 +48,7 @@ import java.util.logging.Logger;
  * Basic cylinder collision shape
  * @author normenhansen
  */
+@Deprecated
 public class CylinderCollisionShape extends CollisionShape {
 
     protected Vector3f halfExtents;

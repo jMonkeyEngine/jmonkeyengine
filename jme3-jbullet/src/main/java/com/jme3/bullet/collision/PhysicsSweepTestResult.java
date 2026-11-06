@@ -37,6 +37,7 @@ import com.jme3.math.Vector3f;
  * Contains the results of a PhysicsSpace rayTest
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsSweepTestResult {
 
     private PhysicsCollisionObject collisionObject;

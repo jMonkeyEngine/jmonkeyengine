@@ -57,6 +57,7 @@ import java.util.List;
  * collision sensors/triggers, explosions etc.<br>
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsGhostObject extends PhysicsCollisionObject {
 
     protected PairCachingGhostObject gObject;
