@@ -120,7 +120,6 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             createContext(settings);
             printContextInitInfo();
 
-            created.set(true);
             super.internalCreate();
         } catch (Exception ex) {
             try {
