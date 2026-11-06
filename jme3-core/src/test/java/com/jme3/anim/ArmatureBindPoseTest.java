@@ -9,13 +9,9 @@
  * * Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
  * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
@@ -36,6 +32,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -75,6 +72,21 @@ public class ArmatureBindPoseTest {
         armature.getJoint(0).getInverseModelBindMatrix().m33 = 2f;
         armature.saveBindPose();
         assertMatrixEquals(Matrix4f.IDENTITY, armature.computeSkinningMatrices()[0], 0.00001f);
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = {SeparateJointModelTransform.class, MatrixJointModelTransform.class})
+    public void testSaveBindPoseUpdatesAttachmentNode(Class<? extends JointModelTransform> transformClass) {
+        Joint joint = new Joint("attachmentJoint");
+        Armature armature = new Armature(new Joint[]{joint});
+        armature.setModelTransformClass(transformClass);
+        Node attachment = new Node("attachment");
+        joint.getAttachmentsNode().attachChild(attachment);
+
+        joint.setLocalTranslation(0f, 3f, 0f);
+        armature.saveBindPose();
+
+        Assertions.assertEquals(new Vector3f(0f, 3f, 0f), attachment.getWorldTranslation());
     }
 
     private static void checkRepeatedBindPose(
