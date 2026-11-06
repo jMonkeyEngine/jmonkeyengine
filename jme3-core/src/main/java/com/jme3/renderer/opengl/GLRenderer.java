@@ -2768,10 +2768,11 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
-        readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+        readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, Image.Format.RGBA8);
     }
 
-    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
+    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType,
+            Image.Format outputFormat) {
         if (fb != null) {
             RenderBuffer rb = fb.getColorTarget();
             if (rb == null) {
@@ -2786,13 +2787,61 @@ public final class GLRenderer implements Renderer {
             setFrameBuffer(null);
         }
 
+        FrameBuffer bound = context.boundFB;
+        RenderBuffer readTarget = bound == null ? null : bound.getColorTarget();
+        boolean glesByteRead = gl instanceof GLES_30 && dataType == GL.GL_UNSIGNED_BYTE
+                && (outputFormat == Image.Format.RGBA8 || outputFormat == Image.Format.BGRA8);
+        if (glesByteRead && bound != null && bound.isMultiTarget()) {
+            // MRT controls draw attachments, not the independently selected read buffer.
+            int index = getInteger(GL2.GL_READ_BUFFER) - GLFbo.GL_COLOR_ATTACHMENT0_EXT;
+            readTarget = index >= 0 && index < bound.getNumColorTargets()
+                    ? bound.getColorTarget(index) : null;
+        }
+        if (glesByteRead && readTarget != null) {
+            Texture texture = readTarget.getTexture();
+            Image.Format readFormat = texture == null ? readTarget.getFormat() : texture.getImage().getFormat();
+            if (readFormat.isFloatingPont()) {
+                // EXT_color_buffer_float (ReadPixels): floating-point surfaces require
+                // RGBA/FLOAT on GLES. Convert to the requested normalized byte format
+                // without gamma correction, just as desktop GL's byte readback does.
+                readFloatFrameBufferAsBytes(byteBuf, outputFormat == Image.Format.BGRA8);
+                return;
+            }
+        }
         gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
+    }
+
+    private void readFloatFrameBufferAsBytes(ByteBuffer byteBuf, boolean bgra) {
+        int components = Math.multiplyExact(Math.multiplyExact(vpW, vpH), 4);
+        if (byteBuf.remaining() < components || byteBuf.isReadOnly()) {
+            throw new IllegalArgumentException("Framebuffer destination must be writable with at least "
+                    + components + " bytes remaining");
+        }
+        ByteBuffer floats = BufferUtils.createByteBuffer(Math.multiplyExact(components, Float.BYTES));
+        try {
+            gl.glReadPixels(vpX, vpY, vpW, vpH, GL.GL_RGBA, GL.GL_FLOAT, floats);
+            FloatBuffer values = floats.asFloatBuffer();
+            // GL readback leaves the caller's position and limit unchanged.
+            ByteBuffer destination = byteBuf.duplicate();
+            for (int i = 0; i < components; i += 4) {
+                destination.put(normalizedByte(values.get(i + (bgra ? 2 : 0))));
+                destination.put(normalizedByte(values.get(i + 1)));
+                destination.put(normalizedByte(values.get(i + (bgra ? 0 : 2))));
+                destination.put(normalizedByte(values.get(i + 3)));
+            }
+        } finally {
+            BufferUtils.destroyDirectBuffer(floats);
+        }
+    }
+
+    private static byte normalizedByte(float value) {
+        return (byte) Math.round(Math.max(0f, Math.min(1f, value)) * 255f);
     }
 
     @Override
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
-        readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
+        readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType, format);
     }
 
     private void deleteRenderBuffer(RenderBuffer rb) {
