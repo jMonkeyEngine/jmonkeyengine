@@ -9,6 +9,10 @@
  * * Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
  *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
  * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
  * may be used to endorse or promote products derived from this software
  * without specific prior written permission.
@@ -80,11 +84,14 @@ public class ArmatureBindPoseTest {
         Joint joint = new Joint("attachmentJoint");
         Armature armature = new Armature(new Joint[]{joint});
         armature.setModelTransformClass(transformClass);
+        Node model = new Node("model");
+        model.addControl(new SkinningControl(armature));
         Node attachment = new Node("attachment");
-        joint.getAttachmentsNode().attachChild(attachment);
+        model.getControl(SkinningControl.class).getAttachmentsNode("attachmentJoint").attachChild(attachment);
 
-        joint.setLocalTranslation(0f, 3f, 0f);
+        joint.setLocalTranslation(new Vector3f(0f, 3f, 0f));
         armature.saveBindPose();
+        model.updateGeometricState();
 
         Assertions.assertEquals(new Vector3f(0f, 3f, 0f), attachment.getWorldTranslation());
     }
