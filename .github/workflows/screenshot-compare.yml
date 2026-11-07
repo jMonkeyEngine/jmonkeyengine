@@ -244,9 +244,11 @@ jobs:
       # reference pass that died half way through would leave the comparison seeing missing
       # reference images - which it reads as "these tests are new" and accepts.
       - name: Check the reference run completed
+        env:
+          REFERENCE_REF: ${{ steps.refs.outputs.reference_ref }}
         run: |
           if [ ! -f "$REFERENCE_IMAGES/reference-run-complete.txt" ]; then
-            echo "::error title=Reference generation failed::Generating reference images from ${{ steps.refs.outputs.reference_ref }} did not complete, so there is nothing trustworthy to compare against. Fix that failure first - it is the real problem, not the comparison."
+            echo "::error title=Reference generation failed::Generating reference images from $REFERENCE_REF did not complete, so there is nothing trustworthy to compare against. Fix that failure first - it is the real problem, not the comparison."
             exit 1
           fi
           echo "$(find "$REFERENCE_IMAGES" -name '*.png' | wc -l) reference images generated."
