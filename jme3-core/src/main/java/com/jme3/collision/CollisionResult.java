@@ -32,6 +32,7 @@
 package com.jme3.collision;
 
 import com.jme3.math.Triangle;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -50,6 +51,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
     private Vector3f contactNormal;
     private float distance;
     private int triangleIndex;
+    private Vector2f contactBaryCoords;
 
     public CollisionResult(Geometry geometry, Vector3f contactPoint, float distance, int triangleIndex) {
         this.geometry = geometry;
@@ -84,6 +86,10 @@ public class CollisionResult implements Comparable<CollisionResult> {
 
     public void setTriangleIndex(int index) {
         this.triangleIndex = index;
+    }
+
+    public void setContactBaryCoords(Vector2f baryCoords) {
+        this.contactBaryCoords = baryCoords;
     }
 
     public Triangle getTriangle(Triangle store) {
@@ -135,6 +141,20 @@ public class CollisionResult implements Comparable<CollisionResult> {
         return triangleIndex;
     }
 
+    /**
+     * Returns the barycentric coordinates of the contact point within the
+     * hit triangle, or null if barycentric coordinates are not available.
+     *
+     * <p>The returned vector stores (u, v) where u is the weight of the
+     * second triangle vertex, v is the weight of the third triangle vertex,
+     * and the weight of the first triangle vertex is (1 - u - v).
+     *
+     * @return the barycentric (u, v) coordinates, or null
+     */
+    public Vector2f getContactBaryCoords() {
+        return contactBaryCoords;
+    }
+
     @Override
     public String toString() {
         return "CollisionResult[geometry=" + geometry
@@ -142,6 +162,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
                                 + ", contactNormal=" + contactNormal
                                 + ", distance=" + distance
                                 + ", triangleIndex=" + triangleIndex
+                                + ", contactBaryCoords=" + contactBaryCoords
                                 + "]";
     }
 }
