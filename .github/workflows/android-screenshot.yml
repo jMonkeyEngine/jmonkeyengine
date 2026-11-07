@@ -107,21 +107,22 @@ jobs:
           REFERENCE_IMAGES="$TEST_STORAGE/test_inputfiles/reference-images"
           GENERATED_IMAGES="$TEST_STORAGE/test_outputfiles/reference-images"
 
-          # Runs one pass, retrying infrastructure failures. A screenshot difference is a verdict
-          # rather than a flake, but the two are not distinguishable from out here, so a comparison
-          # that finds one costs three attempts. That is the price of retrying at this level.
+          # Runs one pass up to <attempts> times. Only the reference pass retries: a failure there can
+          # only be infrastructure, whereas a failed comparison is usually a verdict that a rerun on
+          # the same emulator would just repeat.
           run_pass() {
+            local attempts="$1"; shift
             local checkout="$1"; shift
             local exit_code=1
-            for attempt in 1 2 3; do
-              echo "Attempt $attempt of 3 in $checkout"
+            for attempt in $(seq 1 "$attempts"); do
+              echo "Attempt $attempt of $attempts in $checkout"
               adb uninstall org.jmonkeyengine.screenshottests.android || true
               (cd "$checkout" && ./gradlew "$@")
               exit_code=$?
               if [ $exit_code -eq 0 ]; then
                 return 0
               fi
-              if [ $attempt -lt 3 ]; then
+              if [ $attempt -lt "$attempts" ]; then
                 echo "Attempt $attempt failed, retrying..."
               fi
             done
@@ -137,7 +138,7 @@ jobs:
           # --- Pass 1: record what the reference ref looks like on this emulator ---------------
           adb shell rm -rf "$GENERATED_IMAGES" "$REFERENCE_IMAGES" || true
 
-          if ! run_pass reference "$TASK" -Pscreenshot.mode=generate; then
+          if ! run_pass 3 reference "$TASK" -Pscreenshot.mode=generate; then
             collect_logs
             echo "::error title=Reference generation failed::Generating reference images from the reference ref did not complete, so there is nothing trustworthy to compare against. Fix that failure first - it is the real problem, not the comparison."
             exit 1
@@ -161,7 +162,7 @@ jobs:
           adb shell rm -rf "$TEST_STORAGE/test_outputfiles" || true
 
           # --- Pass 2: compare the branch under test against them -----------------------------
-          run_pass . "$TASK" -Pscreenshot.mode=compare "-Pscreenshot.acceptChanges=$ACCEPT_CHANGES"
+          run_pass 1 . "$TASK" -Pscreenshot.mode=compare "-Pscreenshot.acceptChanges=$ACCEPT_CHANGES"
           exit_code=$?
 
           collect_logs

@@ -172,7 +172,8 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
 
-      # Written once and used by both passes, so a retry means the same thing in each.
+      # Only the reference pass retries. A failure there can only be infrastructure, whereas a failed
+      # comparison is usually a verdict that a rerun on the same machine would just repeat.
       - name: Prepare the screenshot run helper
         run: |
           cat > "$RUNNER_TEMP/screenshot-run.sh" << 'HELPER'
@@ -257,8 +258,7 @@ jobs:
         id: compare
         continue-on-error: true
         run: |
-          "$RUNNER_TEMP/screenshot-run.sh" . \
-            ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
+          ./gradlew ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
             -Pscreenshot.mode=compare \
             -Pscreenshot.referenceDir="$REFERENCE_IMAGES" \
             -Pscreenshot.acceptChanges=${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
