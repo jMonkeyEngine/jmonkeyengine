@@ -783,6 +783,30 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Computes the absolute value of each component and returns the result as a
+     * new instance. The current instance is unaffected.
+     *
+     * @return a new Vector4f with non-negative components
+     */
+    public Vector4f abs() {
+        return new Vector4f(FastMath.abs(x), FastMath.abs(y), FastMath.abs(z), FastMath.abs(w));
+    }
+
+    /**
+     * Computes the absolute value of each component and returns the (modified)
+     * current instance.
+     *
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector4f absLocal() {
+        x = FastMath.abs(x);
+        y = FastMath.abs(y);
+        z = FastMath.abs(z);
+        w = FastMath.abs(w);
+        return this;
+    }
+
+    /**
      * <code>maxLocal</code> computes the maximum value for each
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.

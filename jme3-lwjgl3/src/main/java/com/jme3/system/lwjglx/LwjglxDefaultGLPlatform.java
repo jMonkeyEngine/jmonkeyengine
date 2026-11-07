@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,12 @@
  */
 package com.jme3.system.lwjglx;
 
-import org.lwjgl.system.Platform;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.lwjgl.system.Platform;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.Platform.*;
 
@@ -41,6 +45,11 @@ import static org.lwjgl.system.Platform.*;
  * @author wil
  */
 public final class LwjglxDefaultGLPlatform {
+
+    /**
+     * A flag indicating that the GL API has been initialized or loaded.
+     */
+    private static final AtomicBoolean CHECK_GL_INITAPI = new AtomicBoolean(false);
 
     /**
      * Detects if you are in a Wayland session.
@@ -62,6 +71,18 @@ public final class LwjglxDefaultGLPlatform {
     }
 
     /**
+     * Returns the value of the indicator signaling the load status of the GL
+     * API.
+     *
+     * @see #CHECK_GL_INITAPI
+     *
+     * @return boolean
+     */
+    public static boolean isGLInitAPI() {
+        return CHECK_GL_INITAPI.get();
+    }
+    
+    /**
      * Returns the pointer to a {@code Display*} that uses X11.
      *
      * @param platform the AWT/GL platform
@@ -80,17 +101,23 @@ public final class LwjglxDefaultGLPlatform {
     /**
      * Returns a drawing platform based on the platform it is running on.
      *
+     * @param settings AppSettings
+     *
      * @return LwjglxGLPlatform
+     *
      * @throws UnsupportedOperationException throws exception if platform is not
-     * supported
+     *                                       supported
      */
-    public static LwjglxGLPlatform createLwjglxGLPlatform() throws UnsupportedOperationException {
+    public static LwjglxGLPlatform createLwjglxGLPlatform(AppSettings settings) throws UnsupportedOperationException {
+        CHECK_GL_INITAPI.set(true);
         switch (Platform.get()) {
             case WINDOWS:
                 return new Win32GLPlatform();
             case FREEBSD:
             case LINUX:
-                return new X11GLPlatform();
+                return JmeSystem.isWaylandSession() && !settings.isX11PlatformPreferred()
+                        ? new WaylandGLPlatform()
+                        : new X11GLPlatform();
             case MACOSX:
                 return new MacOSXGLPlatform();
             default:

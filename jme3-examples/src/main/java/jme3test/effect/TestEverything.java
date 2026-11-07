@@ -152,7 +152,7 @@ public class TestEverything extends SimpleApplication {
 //    }
 
     public void setupRobotGuy(){
-        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.j3o");
         Material mat = assetManager.loadMaterial("Models/Oto/Oto.j3m");
         model.getChild(0).setMaterial(mat);
 //        model.setAnimation("Walk");
@@ -163,7 +163,7 @@ public class TestEverything extends SimpleApplication {
     }
 
     public void setupSignpost(){
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.j3o");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         signpost.setMaterial(mat);
         signpost.rotate(0, FastMath.HALF_PI, 0);

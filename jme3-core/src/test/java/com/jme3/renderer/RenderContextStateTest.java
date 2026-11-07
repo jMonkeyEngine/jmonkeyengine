@@ -1,0 +1,203 @@
+/*
+ * Copyright (c) 2009-2026 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.jme3.renderer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.shader.bufferobject.BufferObject;
+import com.jme3.texture.Image;
+import java.lang.ref.WeakReference;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Verifies the cached defaults used after native draw state is reset.
+ */
+public class RenderContextStateTest {
+
+    @Test
+    public void freshContextHasKnownGlDefaults() {
+        RenderContext context = new RenderContext();
+
+        assertFreshDefaults(context);
+    }
+
+    @Test
+    public void resetRestoresKnownFreshDefaults() {
+        RenderContext context = new RenderContext();
+        setNondefaultDrawState(context);
+        context.boundAttribDivisors[0] = 7;
+
+        context.reset();
+
+        assertFreshDefaults(context);
+        assertEquals(0, context.boundAttribDivisors[0]);
+    }
+
+    @Test
+    public void resetRetainsExistingCleanupForOtherCaches() {
+        RenderContext context = new RenderContext();
+        context.clipRectEnabled = true;
+        context.pointSize = 8f;
+        context.boundShaderProgram = 21;
+        context.boundFBO = 22;
+        context.boundRB = 23;
+        context.boundElementArrayVBO = 24;
+        context.boundVertexArray = 25;
+        context.boundArrayVBO = 26;
+        context.boundPixelPackPBO = 27;
+        context.numTexturesSet = 3;
+        context.boundTextureUnit = 4;
+        context.alphaFunc = RenderState.TestFunction.Never;
+        context.srgbWriteEnabled = true;
+        context.clearColor.set(ColorRGBA.Red);
+        context.boundTextures[0] = new WeakReference<Image>(null);
+        context.boundAttribs[0] = new WeakReference<VertexBuffer>(null);
+        context.boundAttribDivisors[0] = 7;
+        context.textureIndexList.moveToNew(3);
+        context.textureIndexList.copyNewToOld();
+        context.attribIndexList.moveToNew(2);
+        context.attribIndexList.copyNewToOld();
+        WeakReference<BufferObject> previousBuffer = new WeakReference<>(null);
+        context.boundBO[0] = previousBuffer;
+
+        context.reset();
+
+        assertFalse(context.clipRectEnabled);
+        assertEquals(1f, context.pointSize);
+        assertEquals(0, context.boundShaderProgram);
+        assertEquals(0, context.boundFBO);
+        assertEquals(0, context.boundRB);
+        assertEquals(0, context.boundElementArrayVBO);
+        assertEquals(0, context.boundVertexArray);
+        assertEquals(0, context.boundArrayVBO);
+        assertEquals(0, context.boundPixelPackPBO);
+        assertEquals(0, context.numTexturesSet);
+        assertEquals(0, context.boundTextureUnit);
+        assertEquals(RenderState.TestFunction.Greater, context.alphaFunc);
+        assertFalse(context.srgbWriteEnabled);
+        assertEquals(new ColorRGBA(0f, 0f, 0f, 0f), context.clearColor);
+        assertNull(context.boundTextures[0]);
+        assertNull(context.boundAttribs[0]);
+        assertEquals(0, context.boundAttribDivisors[0]);
+        assertEquals(0, context.textureIndexList.oldLen);
+        assertEquals(0, context.textureIndexList.newLen);
+        assertEquals(0, context.attribIndexList.oldLen);
+        assertEquals(0, context.attribIndexList.newLen);
+        // The legacy reset did not change boundBO; this revision preserves that scope.
+        assertSame(previousBuffer, context.boundBO[0]);
+    }
+
+    @Test
+    public void constructorDoesNotCallOverridableReset() {
+        RenderContext context = new RenderContext() {
+            @Override
+            public void reset() {
+                throw new AssertionError("Constructor called public reset");
+            }
+        };
+
+        assertFreshDefaults(context);
+    }
+
+    private static void assertFreshDefaults(RenderContext context) {
+        assertEquals(RenderState.FaceCullMode.Off, context.cullMode);
+        assertFalse(context.depthTestEnabled);
+        assertTrue(context.depthWriteEnabled);
+        assertTrue(context.colorWriteEnabled);
+        assertEquals(RenderState.TestFunction.Less, context.depthFunc);
+        assertEquals(RenderState.BlendMode.Off, context.blendMode);
+        assertEquals(RenderState.BlendFunc.One, context.sfactorRGB);
+        assertEquals(RenderState.BlendFunc.Zero, context.dfactorRGB);
+        assertEquals(RenderState.BlendFunc.One, context.sfactorAlpha);
+        assertEquals(RenderState.BlendFunc.Zero, context.dfactorAlpha);
+        assertEquals(RenderState.BlendEquation.Add, context.blendEquation);
+        assertEquals(RenderState.BlendEquationAlpha.InheritColor, context.blendEquationAlpha);
+        assertFalse(context.stencilTest);
+        assertEquals(RenderState.TestFunction.Always, context.frontStencilFunction);
+        assertEquals(RenderState.TestFunction.Always, context.backStencilFunction);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilStencilFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilDepthFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.frontStencilDepthPassOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilStencilFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilDepthFailOperation);
+        assertEquals(RenderState.StencilOperation.Keep, context.backStencilDepthPassOperation);
+        assertEquals(0, context.frontStencilReference);
+        assertEquals(0, context.backStencilReference);
+        assertEquals(-1, context.frontStencilMask);
+        assertEquals(-1, context.backStencilMask);
+        assertFalse(context.polyOffsetEnabled);
+        assertEquals(0f, context.polyOffsetFactor);
+        assertEquals(0f, context.polyOffsetUnits);
+        assertEquals(1f, context.lineWidth);
+        assertFalse(context.wireframe);
+    }
+
+    private static void setNondefaultDrawState(RenderContext context) {
+        context.cullMode = RenderState.FaceCullMode.Front;
+        context.depthTestEnabled = true;
+        context.depthWriteEnabled = false;
+        context.colorWriteEnabled = false;
+        context.depthFunc = RenderState.TestFunction.Never;
+        context.blendMode = RenderState.BlendMode.Custom;
+        context.sfactorRGB = RenderState.BlendFunc.Src_Alpha;
+        context.dfactorRGB = RenderState.BlendFunc.One;
+        context.sfactorAlpha = RenderState.BlendFunc.Zero;
+        context.dfactorAlpha = RenderState.BlendFunc.One;
+        context.blendEquation = RenderState.BlendEquation.Subtract;
+        context.blendEquationAlpha = RenderState.BlendEquationAlpha.ReverseSubtract;
+        context.stencilTest = true;
+        context.frontStencilFunction = RenderState.TestFunction.Equal;
+        context.backStencilFunction = RenderState.TestFunction.NotEqual;
+        context.frontStencilStencilFailOperation = RenderState.StencilOperation.Replace;
+        context.frontStencilDepthFailOperation = RenderState.StencilOperation.Increment;
+        context.frontStencilDepthPassOperation = RenderState.StencilOperation.Decrement;
+        context.backStencilStencilFailOperation = RenderState.StencilOperation.Zero;
+        context.backStencilDepthFailOperation = RenderState.StencilOperation.Invert;
+        context.backStencilDepthPassOperation = RenderState.StencilOperation.Increment;
+        context.frontStencilReference = 2;
+        context.backStencilReference = 3;
+        context.frontStencilMask = 0x0f;
+        context.backStencilMask = 0xf0;
+        context.polyOffsetEnabled = true;
+        context.polyOffsetFactor = 2f;
+        context.polyOffsetUnits = 3f;
+        context.lineWidth = 3f;
+        context.wireframe = true;
+    }
+}

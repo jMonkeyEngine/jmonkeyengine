@@ -1,6 +1,9 @@
 package com.jme3.anim.tween.action;
 
-public class LinearBlendSpace implements BlendSpace {
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
+public class LinearBlendSpace implements BlendSpace, JmeCloneable {
 
     private BlendAction action;
     private float value;
@@ -11,6 +14,31 @@ public class LinearBlendSpace implements BlendSpace {
     public LinearBlendSpace(float minValue, float maxValue) {
         this.maxValue = maxValue;
         this.minValue = minValue;
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new blend space (not null)
+     */
+    @Override
+    public LinearBlendSpace jmeClone() {
+        try {
+            return (LinearBlendSpace) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Resolve the owning action through the same cloner as this blend space.
+     *
+     * @param cloner the cloner that's cloning this blend space (not null)
+     * @param original the blend space from which this one was shallow-cloned (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        action = cloner.clone(action);
     }
 
     @Override

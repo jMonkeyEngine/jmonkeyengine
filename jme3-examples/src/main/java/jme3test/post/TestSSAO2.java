@@ -68,7 +68,7 @@ public class TestSSAO2 extends SimpleApplication {
         floor.setMaterial(mat);
         rootNode.attachChild(floor);
 
-        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.j3o");
         Geometry teapot = (Geometry) teapotNode.getChild(0);
         teapot.setMaterial(mat);
 //        Sphere sph = new Sphere(16, 16, 4);

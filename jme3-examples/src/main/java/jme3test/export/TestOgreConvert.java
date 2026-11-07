@@ -52,7 +52,10 @@ import com.jme3.scene.Spatial;
  * and material parameters.
  *
  * @author capdevon
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
  */
+@Deprecated
 public class TestOgreConvert extends SimpleApplication {
 
     public static void main(String[] args) {

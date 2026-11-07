@@ -128,7 +128,7 @@ public class TestIssue1798 extends SimpleApplication {
     }
 
     private void setupModel() {
-        Spatial model = assetManager.loadModel("Models/MonkeyHead/MonkeyHead.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/MonkeyHead/MonkeyHead.j3o");
         makeToonish(model);
         rootNode.attachChild(model);
     }

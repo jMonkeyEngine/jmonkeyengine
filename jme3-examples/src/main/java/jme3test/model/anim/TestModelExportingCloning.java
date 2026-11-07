@@ -58,7 +58,7 @@ public class TestModelExportingCloning extends SimpleApplication {
 
         AnimComposer composer;
 
-        Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.j3o");
         composer = originalModel.getControl(AnimComposer.class);
         composer.setCurrentAction("Walk");
         composer.setGlobalSpeed(1.5f);

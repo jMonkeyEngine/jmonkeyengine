@@ -208,9 +208,11 @@ public class BatchNode extends GeometryGroupNode {
             nbGeoms += list.size();
             String batchName = name + "-batch" + batches.size();
             Batch batch;
+            boolean newBatch = true;
             if (!needsFullRebatch) {
                 batch = findBatchByMaterial(material);
                 if (batch != null) {
+                    newBatch = false;
                     list.add(0, batch.geometry);
                     batchName = batch.geometry.getName();
                     batch.geometry.removeFromParent();
@@ -233,7 +235,9 @@ public class BatchNode extends GeometryGroupNode {
             batch.geometry.setMesh(m);
             batch.geometry.getMesh().updateCounts();
             batch.geometry.updateModelBound();
-            batches.add(batch);
+            if (newBatch) {
+                batches.add(batch);
+            }
         }
         if (batches.size() > 0) {
             needsFullRebatch = false;
@@ -624,23 +628,11 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf, int componentSize) {
-        TempVars vars = TempVars.get();
-        Vector3f pos = vars.vect1;
-
-        // offset is given in element units
-        // convert to be in component units
+        // Offset is given in vertices, while buffer indices are components.
         offset *= componentSize;
-
-        for (int i = 0; i < inBuf.limit() / componentSize; i++) {
-            pos.x = inBuf.get(i * componentSize);
-            pos.y = inBuf.get(i * componentSize + 1);
-            pos.z = inBuf.get(i * componentSize + 2);
-
-            outBuf.put(offset + i * componentSize, pos.x);
-            outBuf.put(offset + i * componentSize + 1, pos.y);
-            outBuf.put(offset + i * componentSize + 2, pos.z);
+        for (int i = 0; i < inBuf.limit(); i++) {
+            outBuf.put(offset + i, inBuf.get(i));
         }
-        vars.release();
     }
 
     protected class Batch implements JmeCloneable {

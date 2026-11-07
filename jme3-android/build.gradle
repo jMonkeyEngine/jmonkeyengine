@@ -15,6 +15,7 @@ dependencies {
     api project(':jme3-core')
     implementation libs.jme3.android.natives
     compileOnly files(rootProject.file('lib/android.jar'))
+    testRuntimeOnly files(rootProject.file('lib/android.jar'))
 }
 
 compileJava {

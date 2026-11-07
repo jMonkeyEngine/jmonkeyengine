@@ -178,7 +178,9 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
      */
     protected void saveBindPose() {
         //Note that the whole Armature must be updated before calling this method.
-        getModelTransform().toTransformMatrix(inverseModelBindMatrix);
+        // Preserve the complete model matrix, including shear from nonuniform scale.
+        inverseModelBindMatrix.loadIdentity();
+        jointModelTransform.getOffsetTransform(inverseModelBindMatrix, Matrix4f.IDENTITY);
         inverseModelBindMatrix.invertLocal();
     }
 

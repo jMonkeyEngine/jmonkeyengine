@@ -124,6 +124,8 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform lightData = shader.getUniform("g_LightData");
         lightData.setVector4Length(numLights * 3);//8 lights * max 3
         Uniform lightCount = shader.getUniform("g_LightCount");
+        // Emission and indirect lighting belong to the first pass only.
+        shader.getUniform("g_IsFirstLightPass").setValue(VarType.Boolean, startIndex == 0);
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
 
         // Matrix4f

@@ -257,28 +257,28 @@ public abstract class LwjglContext implements JmeContext {
 
             } else {
                 final GLESCapabilities capabilities = GLES.createCapabilities();
-                LwjglGLES gles = new LwjglGLES();
+                GL gles = new LwjglGLES();
 
                 if (settings.isGraphicsDebug()) {
-                    gles = (LwjglGLES) GLDebug.createProxy(gles, gles, GL.class, GLES_30.class, GLFbo.class,
-                            GLExt.class);
+                    gles = (GL) GLDebug.createProxy(gles, gles, GL.class, GL2.class, GLES_30.class,
+                            GLFbo.class, GLExt.class);
 
                 }
 
                 if (settings.isGraphicsTiming()) {
                     GLTimingState timingState = new GLTimingState();
-                    gles = (LwjglGLES) GLTiming.createGLTiming(gles, timingState, GL.class, GLES_30.class,
-                            GLFbo.class, GLExt.class);
+                    gles = (GL) GLTiming.createGLTiming(gles, timingState, GL.class, GL2.class,
+                            GLES_30.class, GLFbo.class, GLExt.class);
                 }
 
                 if (settings.isGraphicsTrace()) {
-                    gles = (LwjglGLES) GLTracer.createGlesTracer(gles, GL.class, GLES_30.class, GLFbo.class,
-                            GLExt.class);
+                    gles = (GL) GLTracer.createGlesTracer(gles, GL.class, GL2.class, GLES_30.class,
+                            GLFbo.class, GLExt.class);
                 }
 
                 gl = gles;
-                glext = gles;
-                glfbo = gles;
+                glext = (GLExt) gles;
+                glfbo = (GLFbo) gles;
 
             }
             this.renderer = new GLRenderer(gl, glext, glfbo);

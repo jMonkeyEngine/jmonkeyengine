@@ -1718,6 +1718,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
+        // Rebuild derived world state without invoking overridable refresh methods during loading.
+        refreshFlags |= RF_TRANSFORM | RF_BOUND | RF_LIGHTLIST | RF_MATPARAM_OVERRIDE;
+        for (Light light : localLights) {
+            if (light.isGlobal()) {
+                refreshFlags |= RF_GLOBAL_LIGHTS;
+                break;
+            }
+        }
 
         ArrayList<MatParamOverride> localOverridesList = ic.readSavableArrayList("overrides", null);
         if (localOverridesList == null) {

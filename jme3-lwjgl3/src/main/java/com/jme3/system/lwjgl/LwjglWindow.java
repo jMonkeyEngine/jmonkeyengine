@@ -45,7 +45,9 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
@@ -236,9 +238,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private Picture blitGeometry;
     private final Camera blitCamera = new Camera(1, 1);
     private FrameBuffer blitFramebuffer;
+    private FrameBuffer blitResolveFramebuffer;
+    // Cache the request, since a hardware fallback can use fewer samples.
+    private int blitRequestedSamples;
     private Texture2D blitColorTexture;
     private boolean blitFramebufferDirty;
     private boolean blitFramebufferTextureMultisampleWarningIssued;
+    private boolean blitFramebufferResolveWarningIssued;
     private boolean windowStateChangedSinceLastSwap;
     private boolean windowSizeUpdatePending;
 
@@ -808,16 +814,25 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private int getBlitFramebufferSampleCount() {
         int samples = Math.max(settings.getSamples(), 1);
-        if (samples > 1 && renderer != null
-                && (!renderer.getCaps().contains(Caps.TextureMultisample)
-                || !renderer.getCaps().contains(Caps.OpenGL32))) {
-            if (!blitFramebufferTextureMultisampleWarningIssued) {
-                LOGGER.log(Level.WARNING,
-                        "Blit framebuffer requested {0}x MSAA, but this backend cannot sample multisample textures for the blit path. Falling back to a single-sample blit framebuffer.",
-                        samples);
-                blitFramebufferTextureMultisampleWarningIssued = true;
+        int requested = samples;
+        if (samples > 1) {
+            boolean direct = renderer.getCaps().contains(Caps.TextureMultisample);
+            boolean resolve = renderer.getCaps().contains(Caps.FrameBufferBlit);
+            if (!renderer.getCaps().contains(Caps.FrameBufferMultisample) || (!direct && !resolve)) {
+                samples = 1;
+            } else {
+                samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.FrameBufferSamples, 1));
+                if (direct) {
+                    samples = Math.min(samples, renderer.getLimits().getOrDefault(Limits.ColorTextureSamples, 1));
+                }
+                samples = Math.max(samples, 1);
             }
-            return 1;
+        }
+        if (samples != requested && !blitFramebufferTextureMultisampleWarningIssued) {
+            LOGGER.log(Level.WARNING,
+                    "Blit framebuffer requested {0}x MSAA; using {1}x.",
+                    new Object[]{requested, samples});
+            blitFramebufferTextureMultisampleWarningIssued = true;
         }
         return samples;
     }
@@ -825,31 +840,88 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private void rebuildBlitFramebufferIfNeeded() {
         int width = getRenderFramebufferWidth();
         int height = getRenderFramebufferHeight();
-        int samples = getBlitFramebufferSampleCount();
 
         if (blitFramebuffer != null && blitFramebuffer.getWidth() == width
-                && blitFramebuffer.getHeight() == height && blitFramebuffer.getSamples() == samples) {
+                && blitFramebuffer.getHeight() == height && blitRequestedSamples == settings.getSamples()) {
             return;
         }
 
         destroyBlitFramebuffer();
+        blitRequestedSamples = settings.getSamples();
+        int samples = getBlitFramebufferSampleCount();
+        boolean resolve = samples > 1 && !renderer.getCaps().contains(Caps.TextureMultisample);
+        createBlitFramebuffer(width, height, samples, resolve);
+        if (!resolve) {
+            return;
+        }
+
+        // Allocate both targets now so unsupported MSAA can fall back before rendering.
+        try {
+            renderer.setFrameBuffer(blitFramebuffer);
+            renderer.setFrameBuffer(blitResolveFramebuffer);
+            return;
+        } catch (RendererException | IllegalStateException exception) {
+            if (!blitFramebufferResolveWarningIssued) {
+                LOGGER.log(Level.WARNING,
+                        "Multisample blit framebuffer unsupported; falling back to single-sample rendering.",
+                        exception);
+                blitFramebufferResolveWarningIssued = true;
+            }
+        } finally {
+            renderer.setFrameBuffer(null);
+        }
+        destroyBlitFramebuffer();
+        createBlitFramebuffer(width, height, 1, false);
+    }
+
+    private void createBlitFramebuffer(int width, int height, int samples, boolean resolve) {
+        boolean halfFloatSupported = renderer.getCaps().contains(Caps.OpenGL32)
+                || (renderer.getCaps().contains(Caps.HalfFloatColorBufferRGBA)
+                && renderer.getCaps().contains(Caps.HalfFloatTexture));
+        Format colorFormat = !resolve && halfFloatSupported ? Format.RGBA16F : Format.RGBA8;
 
         FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
         frameBuffer.setName("LWJGL3 Blit FrameBuffer");
         frameBuffer.setSrgb(false);
 
         Texture2D colorTexture = new Texture2D(
-                new Image(Format.RGBA16F, width, height, null, ColorSpace.Linear));
+                new Image(colorFormat, width, height, null, ColorSpace.Linear));
         colorTexture.setMagFilter(Texture.MagFilter.Bilinear);
         colorTexture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        if (samples > 1) {
+        if (samples > 1 && !resolve) {
             colorTexture.getImage().setMultiSamples(samples);
         }
-        frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        if (resolve) {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorFormat));
+            blitResolveFramebuffer = new FrameBuffer(width, height, 1);
+            blitResolveFramebuffer.setName("LWJGL3 Blit Resolve FrameBuffer");
+            blitResolveFramebuffer.setSrgb(false);
+            blitResolveFramebuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        } else {
+            frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+        }
 
         if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
-            frameBuffer.setDepthTarget(FrameBufferTarget
-                    .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
+            Format depthFormat;
+            if (settings.getStencilBits() > 0) {
+                depthFormat = Format.Depth24Stencil8;
+            } else {
+                switch (settings.getDepthBits()) {
+                    case 16:
+                        depthFormat = Format.Depth16;
+                        break;
+                    case 24:
+                        depthFormat = Format.Depth24;
+                        break;
+                    case 32:
+                        depthFormat = renderer.getCaps().contains(Caps.Depth32) ? Format.Depth32 : Format.Depth32F;
+                        break;
+                    default:
+                        depthFormat = Format.Depth;
+                        break;
+                }
+            }
+            frameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
         }
 
         blitColorTexture = colorTexture;
@@ -889,7 +961,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         if (blitFramebufferDirty && blitColorTexture != null) {
             blitMaterial.setTexture("Texture", blitColorTexture);
-            if (blitFramebuffer != null && blitFramebuffer.getSamples() > 1) {
+            if (blitFramebuffer != null && blitResolveFramebuffer == null && blitFramebuffer.getSamples() > 1) {
                 blitMaterial.setInt("NumSamples", blitFramebuffer.getSamples());
             } else {
                 blitMaterial.clearParam("NumSamples");
@@ -909,6 +981,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             blitFramebuffer.dispose();
             blitFramebuffer = null;
         }
+        if (blitResolveFramebuffer != null) {
+            blitResolveFramebuffer.dispose();
+            blitResolveFramebuffer = null;
+        }
         if (blitColorTexture != null && blitColorTexture.getImage() != null) {
             blitColorTexture.getImage().dispose();
         }
@@ -921,6 +997,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         blitMaterial = null;
         blitGeometry = null;
         blitFramebufferTextureMultisampleWarningIssued = false;
+        blitFramebufferResolveWarningIssued = false;
     }
 
     protected boolean renderFrameWithBlitFramebuffer() {
@@ -956,6 +1033,15 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glRenderer.setMainFrameBufferOverride(null);
         Camera previousCamera = renderManager.getCurrentCamera();
         try {
+            if (blitResolveFramebuffer != null) {
+                try {
+                    renderer.copyFrameBuffer(blitFramebuffer, blitResolveFramebuffer, true, false);
+                } catch (RuntimeException | Error failure) {
+                    renderer.invalidateState();
+                    renderer.setFrameBuffer(null);
+                    throw failure;
+                }
+            }
             glRenderer.setFrameBuffer(null);
             int blitWidth = Math.max(getFramebufferWidth(), 1);
             int blitHeight = Math.max(getFramebufferHeight(), 1);

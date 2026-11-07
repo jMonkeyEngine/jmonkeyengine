@@ -41,7 +41,10 @@ import com.jme3.material.MaterialList;
  * name as the model (the default).
  * 
  * @author Kirill Vainer
+ * @deprecated as of jMonkeyEngine 3.10, for removal in a future version.
+ * Consider using glTF.
  */
+@Deprecated
 public class OgreMeshKey extends ModelKey {
 
     private MaterialList materialList;

@@ -32,12 +32,15 @@
 package com.jme3.system;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,6 +49,9 @@ import java.util.logging.Logger;
 
 import com.jme3.system.NativeLibraries.LibraryInfo;
 import com.jme3.util.res.Resources;
+import com.jme3.nativebootstrap.common.OperatingSystem;
+import com.jme3.nativebootstrap.directories.NativeDirectories;
+import com.jme3.nativebootstrap.directories.DirectoryCandidate;
 
 /**
  * Utility class to register, extract, and load native libraries.
@@ -79,18 +85,26 @@ public final class NativeLibraryLoader {
 
     /**
      * System property controlling whether native libraries should be extracted
-     * from the classpath before loading. Defaults to {@code true}.
+     * from the classpath before loading. Defaults to {@code true}. When false,
+     * {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} must specify existing natives.
      */
     public static final String EXTRACT_NATIVE_LIBRARIES_PROPERTY = "com.jme3.ExtractNativeLibraries";
+
+    /** Base directory for the automatic native cache. */
+    public static final String CACHE_FOLDER_PROPERTY = "com.jme3.CacheFolder";
 
     private static final Logger logger = Logger.getLogger(NativeLibraryLoader.class.getName());
     private static File extractionFolderOverride = null;
     private static File extractionFolder = null;
+    private static List<DirectoryCandidate> extractionCandidates = null;
+    private static int extractionRootIndex = 0; // extraction root to try next
     private static Boolean extractNativeLibrariesOverride = null;
+    private static final Map<NativeLibrary, String> loadedLibraries = new HashMap<>();
 
     private static final HashMap<NativeLibrary.Key, NativeLibrary> nativeLibraryMap = new HashMap<>();
 
     static {
+        configureNativeProperties();
         NativeLibraries.registerDefaultLibraries();
     }
 
@@ -100,7 +114,7 @@ public final class NativeLibraryLoader {
      * This simply registers a known library, the actual extraction and loading
      * is performed by calling {@link #loadNativeLibrary(java.lang.String, boolean) }.
      */
-    public static void registerNativeLibrary(NativeLibrary library) {
+    public static synchronized void registerNativeLibrary(NativeLibrary library) {
         nativeLibraryMap.put(library.getKey(), library);
     }
 
@@ -110,7 +124,7 @@ public final class NativeLibraryLoader {
      * This simply registers a known library, the actual extraction and loading is performed by calling
      * {@link #loadNativeLibrary(java.lang.String, boolean) }.
      */
-    public static void registerNativeLibrary(LibraryInfo library) {
+    public static synchronized void registerNativeLibrary(LibraryInfo library) {
         library.getNativeVariants().forEach(NativeLibraryLoader::registerNativeLibrary);
     }
 
@@ -129,7 +143,7 @@ public final class NativeLibraryLoader {
      * @param extractAsName The filename that the library should be extracted as,
      * if null, use the same name as in the path.
      */
-    public static void registerNativeLibrary(String name, Platform platform,
+    public static synchronized void registerNativeLibrary(String name, Platform platform,
             String path, String extractAsName) {
         nativeLibraryMap.put(new NativeLibrary.Key(name, platform),
                 new NativeLibrary(name, platform, path, extractAsName));
@@ -151,7 +165,7 @@ public final class NativeLibraryLoader {
      * corresponding to this library. Must be compatible with the platform 
      * argument.
      */
-    public static void registerNativeLibrary(String name, Platform platform,
+    public static synchronized void registerNativeLibrary(String name, Platform platform,
             String path) {
         registerNativeLibrary(name, platform, path, null);
     }
@@ -178,16 +192,18 @@ public final class NativeLibraryLoader {
     }
     
     /**
-     * Specify a custom location where native libraries should
-     * be extracted to. Ensure this is a unique path not used
-     * by other applications to extract their libraries.
+     * Specify a custom root for private native extraction directories.
      * Set to <code>null</code> to restore default
      * functionality.
      * 
-     * @param path Path where to extract native libraries.
+     * @param path Root where private native directories are created.
      */
-    public static void setCustomExtractionFolder(String path) {
+    public static synchronized void setCustomExtractionFolder(String path) {
         extractionFolderOverride = path == null ? null : new File(path).getAbsoluteFile();
+        extractionFolder = null;
+        extractionRootIndex = 0;
+        extractionCandidates = null;
+        configureNativeProperties();
     }
 
     /**
@@ -196,7 +212,7 @@ public final class NativeLibraryLoader {
      * @return the programmatic override if set, otherwise the
      *         {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} system property
      */
-    public static File getCustomExtractionFolder() {
+    public static synchronized File getCustomExtractionFolder() {
         if (extractionFolderOverride != null) {
             return extractionFolderOverride;
         }
@@ -211,19 +227,21 @@ public final class NativeLibraryLoader {
 
     /**
      * Specify whether native libraries should be extracted from the classpath
-     * before loading. Set to {@code true} to preserve the default behavior.
+     * before loading. When false, configure a folder containing the native
+     * files with {@link #setCustomExtractionFolder(String)} or
+     * {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY}.
      *
      * @param extractNativeLibraries true to extract classpath natives, false to
      *                               load existing files from the extraction folder
      */
-    public static void setExtractNativeLibraries(boolean extractNativeLibraries) {
+    public static synchronized void setExtractNativeLibraries(boolean extractNativeLibraries) {
         extractNativeLibrariesOverride = extractNativeLibraries;
     }
 
     /**
      * Clears the programmatic extraction flag override.
      */
-    public static void clearExtractNativeLibrariesOverride() {
+    public static synchronized void clearExtractNativeLibrariesOverride() {
         extractNativeLibrariesOverride = null;
     }
 
@@ -234,7 +252,7 @@ public final class NativeLibraryLoader {
      *         {@link #EXTRACT_NATIVE_LIBRARIES_PROPERTY} system property,
      *         defaulting to true
      */
-    public static boolean isExtractNativeLibraries() {
+    public static synchronized boolean isExtractNativeLibraries() {
         if (extractNativeLibrariesOverride != null) {
             return extractNativeLibrariesOverride;
         }
@@ -246,150 +264,103 @@ public final class NativeLibraryLoader {
     }
 
     /**
-     * Returns the folder where native libraries will be extracted.
-     * This is automatically determined at run-time based on the 
-     * following criteria:<br>
-     * <ul>
-     * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
-     * extraction folder} has been specified, it is returned.</li>
-     * <li>If the {@link #CUSTOM_EXTRACTION_FOLDER_PROPERTY} system property
-     * has been specified, it is returned.</li>
-     * <li>If the user can write to "java.io.tmpdir" folder, then it
-     * is used.</li>
-     * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
-     * is used, to prevent collisions, a special subfolder is used
-     * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
-     * is computed automatically as the XOR of the classpath hash code
-     * and the last modified date of this class.
-     * </ul>
-     * 
-     * @return Path where natives will be extracted to.
+     * Returns the folder where native libraries will be extracted or loaded from.
+     * Extraction uses a fresh private directory scheduled for deletion on JVM
+     * exit; an abrupt termination may leave it behind. Without extraction, a
+     * custom folder containing the native files must be configured.
+     * @return the folder used to extract or load native libraries
+     * @throws IllegalStateException if extraction is disabled without a custom folder
      */
-    public static File getExtractionFolder() {
-        File customExtractionFolder = getCustomExtractionFolder();
-        if (customExtractionFolder != null) {
-            return customExtractionFolder;
+    public static synchronized File getExtractionFolder() {
+        if (!isExtractNativeLibraries()) {
+            File custom = getCustomExtractionFolder();
+            if (custom != null) return custom;
+            throw new IllegalStateException("Native library extraction is disabled; configure "
+                    + CUSTOM_EXTRACTION_FOLDER_PROPERTY + " with a directory containing the native files.");
         }
-        if (extractionFolder == null) {
-            File userTempDir = new File(System.getProperty("java.io.tmpdir"));
-            if (!userTempDir.canWrite()) {
-                setExtractionFolderToUserCache();
-            } else {
-                try {
-                    File jmeTempDir = new File(userTempDir, "jme3");
-                    if (!jmeTempDir.exists()) {
-                        jmeTempDir.mkdir();
-                    }
-                    if(!jmeTempDir.canWrite()) {
-                        setExtractionFolderToUserCache();
-                    } else {
-                        extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
+        if (extractionFolder != null) return extractionFolder;
 
-                        if (!extractionFolder.exists()) {
-                            extractionFolder.mkdir();
-                        }
-                    }
-                } catch (Exception e) {
-                    setExtractionFolderToUserCache();
-                }
-            }
-        }
-        return extractionFolder;
-    }
-    
-    /**
-     * Determine jME3's cache folder for the user account based on the OS.
-     * 
-     * If the OS cache folder is missing, the assumption is that this
-     * particular version of the OS does not have a dedicated cache folder,
-     * hence, we use the user's home folder instead as the root.
-     * 
-     * The folder returned is as follows:<br>
-     * <ul>
-     * <li>Windows: ~\AppData\Local\jme3</li>
-     * <li>Mac OS X: ~/Library/Caches/jme3</li>
-     * <li>Linux: ~/.cache/jme3</li>
-     * </ul>
-     * 
-     * @return the user cache folder.
-     */
-    private static File getJmeUserCacheFolder() {
-        File userHomeFolder = new File(System.getProperty("user.home"));
-        File userCacheFolder = null;
-        
-        switch (JmeSystem.getPlatform().getOs()) {
-            case Linux:
-                userCacheFolder = new File(userHomeFolder, ".cache");
-                break;
-            case MacOS:
-                userCacheFolder = new File(new File(userHomeFolder, "Library"), "Caches");
-                break;
-            case Windows:
-                userCacheFolder = new File(new File(userHomeFolder, "AppData"), "Local");
-                break;
-        }
-        
-        if (userCacheFolder == null || !userCacheFolder.exists()) {
-            // Fallback to home directory if cache folder is missing
-            return new File(userHomeFolder, ".jme3");
-        }
-        
-        return new File(userCacheFolder, "jme3");
-    }
-
-    private static void setExtractionFolderToUserCache() {
-        File extractFolderInHome = getJmeUserCacheFolder();
-        
-        if (!extractFolderInHome.exists()) {
-            extractFolderInHome.mkdir();
-        }
-        
-        extractionFolder = new File(extractFolderInHome, "natives_" + Integer.toHexString(computeNativesHash()));
-        
-        if (!extractionFolder.exists()) {
-            extractionFolder.mkdir();
-        }
-        
-        logger.log(Level.WARNING, "Temp directory is not writable. "
-                                + "Natives will be extracted to:\n{0}", 
-                                extractionFolder);
-    }
-
-    private static int computeNativesHash() {
-        URLConnection conn = null;
-        String classpath = System.getProperty("java.class.path");
-        URL url = Resources.getResource("com/jme3/system/NativeLibraryLoader.class");
-
-        try {
-            StringBuilder sb = new StringBuilder(url.toString());
-            if (sb.indexOf("jar:") == 0) {
-                sb.delete(0, 4);
-                sb.delete(sb.indexOf("!"), sb.length());
-                sb.delete(sb.lastIndexOf("/") + 1, sb.length());
-            }
+        UnsatisfiedLinkError error = new UnsatisfiedLinkError(
+                "Cannot find a suitable extraction folder for native libraries.");
+        if (extractionCandidates == null) {
             try {
-                url = new URL(sb.toString());
-            } catch (MalformedURLException ex) {
-                throw new UnsupportedOperationException(ex);
-            }
-
-            conn = url.openConnection();
-            int hash = classpath.hashCode() ^ (int) conn.getLastModified();
-            return hash;
-        } catch (IOException ex) {
-            throw new UncheckedIOException("Failed to open file: '" + url
-                    + "'. Error: " + ex, ex);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.getInputStream().close();
-                    conn.getOutputStream().close();
-                } catch (IOException ex) { }
+                extractionCandidates = getExtractionCandidates();
+            } catch (SecurityException | IllegalArgumentException | UnsupportedOperationException failure) {
+                error.addSuppressed(failure);
+                throw error;
             }
         }
+        while (extractionRootIndex < extractionCandidates.size()) {
+            DirectoryCandidate candidate = extractionCandidates.get(extractionRootIndex);
+            try {
+                File directory = candidate.get().toFile();
+                extractionFolder = directory;
+                return directory;
+            } catch (UncheckedIOException | SecurityException | IllegalArgumentException
+                    | UnsupportedOperationException failure) {
+                error.addSuppressed(new IOException("Cannot use native extraction root: " + candidate.root(), failure));
+            }
+            extractionRootIndex++;
+        }
+        extractionRootIndex = 0;
+        extractionCandidates = null;
+        throw error;
     }
-    
-    public static File[] getJarsWithNatives() {
+
+    private static List<DirectoryCandidate> getExtractionCandidates() {
+        configureNativeProperties();
+        List<DirectoryCandidate> candidates = new ArrayList<>(
+                NativeDirectories.candidates("jme3", NativeLibraryLoader::getOperatingSystem));
+        File custom = getCustomExtractionFolder();
+        if (custom != null) {
+            Path customPath = custom.toPath();
+            candidates.removeIf(candidate -> candidate.root().equals(customPath.toAbsolutePath().normalize()));
+            candidates.add(0, new DirectoryCandidate(customPath, "jme3", getOperatingSystem()));
+        }
+        return candidates;
+    }
+
+    private static void configureNativeProperties() {
+        String cache = System.getProperty(CACHE_FOLDER_PROPERTY);
+        if (cache != null && !cache.trim().isEmpty()) {
+            File directory = new File(cache);
+            if (!directory.isAbsolute() || !directory.isDirectory()) {
+                logger.warning(CACHE_FOLDER_PROPERTY
+                        + " must be an absolute path and must exist. Falling back to default cache location.");
+                return;
+            }
+            System.setProperty("natives.cacheDir", cache);
+        }
+    }
+
+    private static OperatingSystem getOperatingSystem() {
+        switch (JmeSystem.getPlatform().getOs()) {
+            case Windows: return OperatingSystem.WINDOWS;
+            case MacOS: return OperatingSystem.MACOS;
+            case Linux: return OperatingSystem.LINUX;
+            case Android: return OperatingSystem.ANDROID;
+            case iOS: return OperatingSystem.IOS;
+            default: return OperatingSystem.UNKNOWN;
+        }
+    }
+
+    /**
+     * Checks that the value is a single name which cannot escape a directory.
+     */
+    private static boolean isSimpleName(String value) {
+        if (value == null || value.isEmpty() || value.equals(".") || value.equals("..")
+                || value.indexOf('/') >= 0 || value.indexOf('\\') >= 0 || value.indexOf(':') >= 0) {
+            return false;
+        }
+        try {
+            return !Paths.get(value).isAbsolute();
+        } catch (IllegalArgumentException malformed) {
+            return false;
+        }
+    }
+
+
+    public static synchronized File[] getJarsWithNatives() {
         HashSet<File> jarFiles = new HashSet<>();
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             File jarFile = getJarForNativeLibrary(lib.getValue().getPlatform(), lib.getValue().getName());
@@ -400,7 +371,7 @@ public final class NativeLibraryLoader {
         return jarFiles.toArray(new File[0]);
     }
     
-    public static void extractNativeLibraries(Platform platform, File targetDir) throws IOException {
+    public static synchronized void extractNativeLibraries(Platform platform, File targetDir) throws IOException {
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             if (lib.getValue().getPlatform() == platform) {
                 if (!targetDir.exists()) {
@@ -436,8 +407,8 @@ public final class NativeLibraryLoader {
         }
         return sb.toString();
     }
-    
-    public static File getJarForNativeLibrary(Platform platform, String name) {
+
+    public static synchronized File getJarForNativeLibrary(Platform platform, String name) {
         NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));
         if (library == null) {
             return null;
@@ -474,7 +445,7 @@ public final class NativeLibraryLoader {
         }
     }
     
-    public static void extractNativeLibrary(Platform platform, String name, File targetDir) throws IOException {
+    public static synchronized void extractNativeLibrary(Platform platform, String name, File targetDir) throws IOException {
         NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));
         if (library == null) {
             return;
@@ -490,13 +461,8 @@ public final class NativeLibraryLoader {
             return;
         }
 
-        String loadedAsFileName;
-        if (library.getExtractedAsName() != null) {
-            loadedAsFileName = library.getExtractedAsName();
-        } else {
-            loadedAsFileName = Paths.get(pathInJar).getFileName().toString();
-        }
-        
+        String loadedAsFileName = getLoadedAsFileName(library, pathInJar);
+
         URLConnection conn = url.openConnection();
 
         File targetFile = new File(targetDir, loadedAsFileName);
@@ -518,7 +484,7 @@ public final class NativeLibraryLoader {
      * 
      * @return The absolute path of the loaded library.
      */
-    public static String loadNativeLibrary(String name, boolean isRequired) {
+    public static synchronized String loadNativeLibrary(String name, boolean isRequired) {
         if (JmeSystem.isLowPermissions()) {
             throw new UnsupportedOperationException("JVM is running under "
                     + "reduced permissions. Cannot load native libraries.");
@@ -551,8 +517,6 @@ public final class NativeLibraryLoader {
         }
 
         String loadedAsFileName = getLoadedAsFileName(library, pathInJar);
-        File extractionDirectory = getExtractionFolder();
-        File targetFile = new File(extractionDirectory, loadedAsFileName);
 
         if (isExtractNativeLibraries()) {
             URL url = Resources.getResource(pathInJar);
@@ -570,45 +534,70 @@ public final class NativeLibraryLoader {
                 return null;
             }
 
-            // The library has been found and is ready to be extracted.
-            URLConnection conn;
-
-            try {
-                conn = url.openConnection();
-            } catch (IOException ex) {
-                // Maybe put more detail here? Not sure.
-                throw new UncheckedIOException("Failed to open file: '" + url +
-                                               "'. Error: " + ex, ex);
+            String loaded = loadedLibraries.get(library);
+            if (loaded != null) {
+                return loaded;
             }
-
-            try (InputStream in = conn.getInputStream()) {
-                if (isExtractingRequired(conn, targetFile)) {
-                    Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-                    // NOTE: On OSes that support "Date Created" property,
-                    // this will cause the last modified date to be lower than
-                    // date created which makes no sense
-                    targetFile.setLastModified(conn.getLastModified());
-
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, "Extracted native library from ''{0}'' into ''{1}''. ",
-                                new Object[]{url, targetFile});
+            UnsatisfiedLinkError error = new UnsatisfiedLinkError(
+                    "Cannot extract/load native libraries from the configured directory, temp, user cache, or ~/.jme3.");
+            while (extractionCandidates == null || extractionRootIndex < extractionCandidates.size()) {
+                Path target = null;
+                boolean created = false;
+                try {
+                    File directory = getExtractionFolder();
+                    target = directory.toPath().resolve(loadedAsFileName);
+                    try (InputStream in = url.openStream();
+                        OutputStream out = Files.newOutputStream(target,
+                                StandardOpenOption.CREATE_NEW,
+                                StandardOpenOption.WRITE)) {
+                        created = true;
+                        target.toFile().deleteOnExit();
+                        byte[] buffer = new byte[8192];
+                        for (int read; (read = in.read(buffer)) != -1;) {
+                            out.write(buffer, 0, read);
+                        }
                     }
-                } else {
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.",
-                                loadedAsFileName);
+                    loaded = target.toAbsolutePath().toString();
+                    library.getLoadFunction().accept(loaded);
+                    loadedLibraries.put(library, loaded);
+                    return loaded;
+
+                } catch (IOException | UnsatisfiedLinkError | SecurityException failure) {
+                    error.addSuppressed(new IOException("Failed to extract/load native library: " + target, failure));
+                    if (target == null) {
+                        break; // getExtractionFolder() has exhausted every root.
                     }
+                    if (created) {
+                        try {
+                            Files.deleteIfExists(target);
+                        } catch (IOException | SecurityException cleanupFailure) {
+                            failure.addSuppressed(cleanupFailure);
+                        }
+                    }
+                    // Keep successful libraries in the previous directory intact.
+                    extractionFolder = null;
+                    extractionRootIndex++;
                 }
-            } catch (IOException ex) {
-                /*if (ex.getMessage().contains("used by another process")) {
-                    return;
-                }*/
-
-                throw new UncheckedIOException("Failed to extract native library to: "
-                        + targetFile, ex);
             }
-        } else if (!targetFile.isFile()) {
+            extractionRootIndex = 0;
+            extractionCandidates = null;
+            if (isRequired) {
+                throw error;
+            }
+            logger.log(Level.FINE, "Optional native library could not be loaded: " + library.getName(), error);
+            return null;
+        }
+
+        File directory;
+        try {
+            directory = getExtractionFolder();
+        } catch (IllegalStateException missingFolder) {
+            if (isRequired) throw new UnsatisfiedLinkError(missingFolder.getMessage());
+            logger.log(Level.FINE, missingFolder.getMessage());
+            return null;
+        }
+        File targetFile = new File(directory, loadedAsFileName);
+        if (!targetFile.isFile()) {
             if (isRequired) {
                 throw new UnsatisfiedLinkError(
                         "The required native library '" + library.getName() + "'"
@@ -632,39 +621,12 @@ public final class NativeLibraryLoader {
     }
 
     private static String getLoadedAsFileName(NativeLibrary library, String pathInJar) {
-        if (library.getExtractedAsName() != null) {
-            return library.getExtractedAsName();
+        String filename = library.getExtractedAsName() != null
+                ? library.getExtractedAsName() : Paths.get(pathInJar).getFileName().toString();
+        if (!isSimpleName(filename)) {
+            throw new IllegalArgumentException("Native library extraction requires a file name: " + filename);
         }
-
-        // Just use the original filename as it is in the JAR.
-        return Paths.get(pathInJar).getFileName().toString();
+        return filename;
     }
 
-    /**
-     * Checks if library extraction is required by comparing source and target
-     * last modified date. Returns true if target file does not exist.
-     *
-     * @param conn the source file
-     * @param targetFile the target file
-     * @return false if target file exist and the difference in last modified date is
-     *          less than 1 second, true otherwise
-     */
-    private static boolean isExtractingRequired(URLConnection conn, File targetFile) {
-        if (!targetFile.exists()) {
-            // Extract anyway if the file doesn't exist
-            return true;
-        }
-
-        // OK, if the file exists then compare last modified date
-        // of this file to file in jar
-        long targetLastModified = targetFile.lastModified();
-        long sourceLastModified = conn.getLastModified();
-
-        // Allow ~1 second range for OSes that only support low precision
-        return Math.abs(sourceLastModified - targetLastModified) >= 1000;
-
-        // Note extraction should also work fine if user who was using
-        // a newer version of library, downgraded to an older version
-        // which will make above check invalid and extract it again.
-    }
 }
