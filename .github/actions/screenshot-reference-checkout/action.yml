@@ -12,7 +12,7 @@ inputs:
   reference_ref:
     description: >
       Ref to generate the reference images from. Defaults to the first parent of the commit under
-      test, which is the base branch tip for a pull request and the previous commit for a push.
+      test, which for a pull request is the base branch tip.
     required: false
     default: ''
 
@@ -43,7 +43,7 @@ runs:
         elif ! reference=$(git rev-parse --verify --quiet 'HEAD^1'); then
           # For a pull request the checked-out commit is refs/pull/<n>/merge, whose first parent is
           # the base branch tip - so the comparison shows the pull request's own changes and not
-          # whatever else landed on the base branch meanwhile. For a push it is the previous commit.
+          # whatever else landed on the base branch meanwhile.
           # The only commit without a first parent is a root commit, which has nothing to compare to.
           echo "::error title=No reference commit::The commit under test has no parent, so there is nothing to compare it against. Run this workflow manually with an explicit reference_ref."
           exit 1
