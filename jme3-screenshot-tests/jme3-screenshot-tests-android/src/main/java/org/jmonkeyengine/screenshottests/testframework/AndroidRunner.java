@@ -67,6 +67,13 @@ public class AndroidRunner implements AppRunner {
     public static final String MODE_INSTRUMENTATION_ARGUMENT = "jmeScreenshotMode";
 
     /**
+     * Instrumentation argument used to accept intended visual changes, the Android equivalent of
+     * {@link ScreenshotTest#ACCEPT_CHANGES_SYSTEM_PROPERTY}. Both are set from
+     * {@code -Pscreenshot.acceptChanges}.
+     */
+    public static final String ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT = "jmeScreenshotAcceptChanges";
+
+    /**
      * Directory (within test storage) that reference images are written to and read from.
      */
     public static final String REFERENCE_IMAGES_DIRECTORY = "reference-images";
@@ -176,6 +183,29 @@ public class AndroidRunner implements AppRunner {
     @Override
     public void saveReferenceImage(Image image, String fileName) {
         writePng(image, REFERENCE_IMAGES_DIRECTORY + "/" + fileName);
+    }
+
+    /**
+     * The marker is written into test storage by the CI script once the generate pass has come back
+     * clean, since "the run finished with nothing failing" is not something the run itself can know
+     * from the inside.
+     */
+    @Override
+    public boolean isReferenceRunComplete() {
+        try (InputStream marker = testStorage.openInputFile(
+                REFERENCE_IMAGES_DIRECTORY + "/" + ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER)) {
+            return marker != null;
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read the reference run marker", e);
+        }
+    }
+
+    @Override
+    public boolean isAcceptingChanges() {
+        return Boolean.parseBoolean(
+                InstrumentationRegistry.getArguments().getString(ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT));
     }
 
     @Override

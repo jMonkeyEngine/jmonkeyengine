@@ -61,10 +61,23 @@ Images that differ from their reference are also written to `build/changed-image
 
 ## Accepting a changed image
 
-A change that alters how something looks is expected to change these images. Because references are
-regenerated every run, there is nothing to copy and commit: review the difference in the report, and
-if it is what you intended, say so on the pull request. A test that is new on your branch has no
-reference to compare against and is accepted automatically, with a warning in the report.
+A change that alters how something looks is expected to change these images, and the screenshot
+check will go red. Because references are regenerated every run there is nothing to copy and commit:
+a maintainer who has reviewed the difference adds the **`accept-screenshot-changes`** label to the
+pull request, which re-runs the check with the changes accepted.
+
+Two things to know about that label:
+
+* It starts a new workflow run, and for a first-time contributor that run needs approving like any
+  other. Adding the label and walking away leaves the check pending rather than green.
+* It blesses the pull request for the rest of its life - later pushes stay accepted - so the
+  reviewer, not the check, is what catches a further visual change after that point.
+
+Accepting only ever downgrades a difference between two images that were both produced. A crash, a
+timeout, or a reference run that did not finish still fails.
+
+A test that is new on your branch has no reference to compare against, so it is accepted
+automatically with a warning in the report; nobody has to do anything for it.
 
 ## Renderer noise is tolerated
 

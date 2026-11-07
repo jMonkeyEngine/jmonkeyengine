@@ -75,6 +75,24 @@ public class ScreenshotTest{
 
     public static final String NON_DETERMINISTIC_TEST = "This is a non deterministic test, please manually review the expected and actual images to make sure they are approximately the same.";
 
+    /**
+     * Written by a {@link ScreenshotTestMode#GENERATE} run that finished without a single test
+     * failing, and required by every {@link ScreenshotTestMode#COMPARE} run.
+     *
+     * <p>
+     * Without it, a reference run that died half way through would leave a comparison run seeing
+     * missing reference images - which it would read as "these tests are new" and accept. The
+     * marker turns that silent pass into a loud failure. It is deliberately written by the build
+     * rather than by the test framework, because "the task completed with no failures" is
+     * something only the build knows.
+     * </p>
+     */
+    public static final String REFERENCE_RUN_COMPLETE_MARKER = "reference-run-complete.txt";
+
+    public static final String NO_COMPLETED_REFERENCE_RUN = "There is no completed reference run to compare against (no " + REFERENCE_RUN_COMPLETE_MARKER + " alongside the reference images). Run -Pscreenshot.mode=generate on the branch you are comparing against first. In CI this means the reference pass failed or did not finish - that failure is the real problem, not this one.";
+
+    public static final String CHANGES_ACCEPTED = "This image is different from the reference image, but the run was told the change was intended, so it is reported rather than failed.";
+
     public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is accepted automatically; its image is in build/changed-images.";
 
     /**
@@ -98,6 +116,20 @@ public class ScreenshotTest{
      * so in CI it is an absolute path shared by the two checkouts.
      */
     public static final String REFERENCE_DIRECTORY_SYSTEM_PROPERTY = "jme.screenshot.referenceDir";
+
+    /**
+     * System property, set by the Gradle tasks from {@code -Pscreenshot.acceptChanges}, that
+     * downgrades an image difference from a failure to a warning. CI sets it when a maintainer has
+     * labelled the pull request to say the visual change was intended.
+     *
+     * <p>
+     * It deliberately only affects the verdict on a difference between two images that were both
+     * produced. A crash, a timeout, a missing screenshot or a disagreement between the scenarios of
+     * a multi-scenario test still fails the run, so accepting a visual change can never accidentally
+     * accept a broken one.
+     * </p>
+     */
+    public static final String ACCEPT_CHANGES_SYSTEM_PROPERTY = "jme.screenshot.acceptChanges";
 
     /**
      * Suffix appended to reference/changed image file names when running with the ANGLE renderer,
@@ -188,9 +220,13 @@ public class ScreenshotTest{
         this.osSpecificRunner = osSpecificRunner;
 
         // Resolved first, and deliberately before anything is booted: a run that did not say which
-        // mode it wants fails here, in a second, rather than after rendering a scene it has no way
-        // to judge.
+        // mode it wants, or that has nothing valid to compare against, fails here in a second
+        // rather than after rendering a scene it has no way to judge.
         ScreenshotTestMode mode = osSpecificRunner.getScreenshotTestMode();
+
+        if(mode == ScreenshotTestMode.COMPARE && !osSpecificRunner.isReferenceRunComplete()){
+            osSpecificRunner.fail(NO_COMPLETED_REFERENCE_RUN);
+        }
 
         AppSettings settings = new AppSettings(true);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
@@ -338,7 +374,11 @@ public class ScreenshotTest{
 
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
-                    if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                    // A deliberate resolution change is as much an intended visual change as any
+                    // other, so it is accepted on the same say-so.
+                    if(osSpecificRunner.isAcceptingChanges()){
+                        TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED);
+                    }else if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                         failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
                     }
                 } else {
@@ -358,6 +398,10 @@ public class ScreenshotTest{
 
                         switch(testType){
                             case MUST_PASS:
+                                if(osSpecificRunner.isAcceptingChanges()){
+                                    TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED + " (" + imageDifference.describe() + ")");
+                                    break;
+                                }
                                 if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                     failureMessage = IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")";
                                 }

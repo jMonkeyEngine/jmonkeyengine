@@ -1,0 +1,289 @@
+######################################################################################
+# Desktop screenshot comparison
+######################################################################################
+# Renders the screenshot tests twice on one runner: once from the branch being compared
+# against, to record what the scenes look like on this particular machine, and once from
+# the branch under test, to compare against those recordings.
+#
+# Doing both on one runner is the whole point. Reference images used to be committed to
+# the repository, which made each one a recording of whichever machine produced it, and
+# any change of CI hardware then showed up as a false failure.
+#
+# The Android tests do the same thing but live in android-screenshot.yml, because their
+# emulator setup has nothing in common with this. The two share the composite actions in
+# .github/actions so that ref resolution and reporting cannot drift apart.
+######################################################################################
+
+name: Screenshot Comparison
+
+on:
+  workflow_call:
+    inputs:
+      reference_ref:
+        description: Ref to generate reference images from. Defaults to the target's first parent.
+        type: string
+        required: false
+        default: ''
+      target_ref:
+        description: Ref to test. Defaults to whatever triggered the workflow.
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
+    inputs:
+      reference_ref:
+        description: 'Ref to generate reference images from (e.g. master)'
+        required: true
+      target_ref:
+        description: >
+          Ref to test. Running this against a ref you have not reviewed executes its code on the
+          runner, exactly as approving a fork pull request's workflow does.
+        required: true
+
+# Nothing here writes. The acceptance label is only read, and the result is reported through the
+# job summary rather than through a comment, so no job in this design holds a write token.
+permissions:
+  contents: read
+
+env:
+  ACCEPT_LABEL: accept-screenshot-changes
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.renderer }})
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [opengl, angle]
+    steps:
+      # The branch under test, at the workspace root. This also has to come first because it is
+      # what makes the local composite actions below available.
+      # Depth 2 so that the merge commit's first parent can be resolved as the reference ref.
+      - name: Check out the branch under test
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.target_ref }}
+          fetch-depth: 2
+
+      - name: Check out the branch to compare against
+        id: refs
+        uses: ./.github/actions/screenshot-reference-checkout
+        with:
+          reference_ref: ${{ inputs.reference_ref }}
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6.3.0
+
+      # Both checkouts share one Gradle home, so the reference branch - almost always a recent
+      # master - mostly compiles out of the cache. Without this the second build would roughly
+      # double the job.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6.3.0
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+      - name: Start display server
+        run: |
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            # The ANGLE binaries used by jME have no EGL X11 platform support, so run them
+            # on a headless Wayland compositor instead of Xvfb.
+            # NOTE: this runs BEFORE the ICD resolution below on purpose: installing
+            # weston can pull a Mesa upgrade, and newer Mesa renames the lavapipe ICD
+            # from lvp_icd.x86_64.json to lvp_icd.json. Resolving the path first and
+            # upgrading after leaves VK_ICD_FILENAMES pointing at a stale file.
+            apt-get update -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y -qq weston
+            mkdir -p /tmp/runtime-root
+            chmod 700 /tmp/runtime-root
+            # Export in this shell too: weston is started below, in this same step.
+            export XDG_RUNTIME_DIR=/tmp/runtime-root
+            export XDG_SESSION_TYPE=wayland
+            export WAYLAND_DISPLAY=wayland-1
+            # Force SDL onto Wayland even if a DISPLAY lingers in the container env.
+            export SDL_VIDEODRIVER=wayland
+            echo "XDG_RUNTIME_DIR=/tmp/runtime-root" >> $GITHUB_ENV
+            echo "XDG_SESSION_TYPE=wayland" >> $GITHUB_ENV
+            echo "WAYLAND_DISPLAY=wayland-1" >> $GITHUB_ENV
+            echo "SDL_VIDEODRIVER=wayland" >> $GITHUB_ENV
+            # The container sets DISPLAY=:99 and zink overrides for the OpenGL run;
+            # ANGLE talks to Vulkan directly, so drop them to avoid any interference.
+            # NOTE: VK_DRIVER_FILES is intentionally NOT blanked here. The Vulkan
+            # loader reads VK_DRIVER_FILES before VK_ICD_FILENAMES, so exporting it
+            # empty would shadow VK_ICD_FILENAMES and leave the loader with no
+            # drivers at all. It is set to the resolved ICD path below instead.
+            unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+            echo "DISPLAY=" >> $GITHUB_ENV
+            echo "MESA_LOADER_DRIVER_OVERRIDE=" >> $GITHUB_ENV
+            echo "GALLIUM_DRIVER=" >> $GITHUB_ENV
+            weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+            echo $! > /tmp/weston.pid
+            sleep 2
+          else
+            Xvfb :99 -ac -screen 0 1024x768x16 &
+            export DISPLAY=:99
+            echo "DISPLAY=:99" >> $GITHUB_ENV
+          fi
+          # Resolve the lavapipe ICD file AFTER any apt activity above: the file was
+          # renamed from lvp_icd.x86_64.json to lvp_icd.json in newer Mesa releases,
+          # so every later step (including Report GL/Vulkan below) sees the right file.
+          ICD=$(ls /usr/share/vulkan/icd.d/lvp_icd*.json 2>/dev/null | head -n 1)
+          if [ -n "$ICD" ]; then
+            echo "Using Vulkan ICD: $ICD"
+            echo "VK_ICD_FILENAMES=$ICD" >> $GITHUB_ENV
+            # VK_DRIVER_FILES is the newer name for the same setting and takes
+            # precedence in the Vulkan loader; point it at the same ICD so both
+            # old loaders (VK_ICD_FILENAMES) and new ones (VK_DRIVER_FILES) agree.
+            # It must never be empty: an empty-but-set VK_DRIVER_FILES shadows
+            # VK_ICD_FILENAMES and leaves the loader with no drivers.
+            echo "VK_DRIVER_FILES=$ICD" >> $GITHUB_ENV
+          else
+            echo "::warning::No lavapipe ICD found under /usr/share/vulkan/icd.d/"
+          fi
+
+      - name: Report GL/Vulkan
+        run: |
+          set -x
+          echo "renderer=${{ matrix.renderer }}"
+          echo "DISPLAY=$DISPLAY"
+          echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY"
+          echo "XDG_SESSION_TYPE=$XDG_SESSION_TYPE"
+          echo "SDL_VIDEODRIVER=$SDL_VIDEODRIVER"
+          glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
+          vulkaninfo --summary || true
+          echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+          echo "VK_DRIVER_FILES=$VK_DRIVER_FILES"
+          echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
+          echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
+
+      # Written once and used by both passes, so a retry means the same thing in each.
+      - name: Prepare the screenshot run helper
+        run: |
+          cat > "$RUNNER_TEMP/screenshot-run.sh" << 'HELPER'
+          #!/usr/bin/env bash
+          # Usage: screenshot-run.sh <checkout directory> <gradle args...>
+          # Runs the screenshot tests, retrying infrastructure failures on a fresh display server.
+          checkout="$1"; shift
+
+          restart_display_server() {
+            if [ "$RENDERER" = "angle" ]; then
+              # Kill the exact weston we started (PID saved by the Start step),
+              # not anything matching a pattern.
+              if [ -f /tmp/weston.pid ]; then
+                kill "$(cat /tmp/weston.pid)" 2>/dev/null || true
+              fi
+              sleep 1
+              # Same env discipline as the Start step: weston must not see a stale
+              # DISPLAY, and SDL must stay on Wayland. VK_DRIVER_FILES keeps the
+              # resolved ICD path from the job environment.
+              unset DISPLAY MESA_LOADER_DRIVER_OVERRIDE GALLIUM_DRIVER
+              export SDL_VIDEODRIVER=wayland
+              weston --backend=headless --socket=wayland-1 --idle-time=0 --width=1024 --height=768 &
+              echo $! > /tmp/weston.pid
+              sleep 2
+            else
+              # A corrupted X server state (e.g. BadLength on X_PutImage) persists for the
+              # life of the server, so give each retry a fresh display.
+              pkill Xvfb || true
+              sleep 2
+              Xvfb :99 -ac -screen 0 1024x768x16 &
+              sleep 2
+            fi
+          }
+
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt of 3 in $checkout"
+            if (cd "$checkout" && ./gradlew "$@"); then
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Attempt $attempt failed, retrying..."
+              # Stop any crashed or lingering Gradle daemons so a failed JVM
+              # (e.g. an X_PutImage Xlib crash) cannot poison the next attempt.
+              (cd "$checkout" && ./gradlew --stop) || true
+              restart_display_server
+            fi
+          done
+          echo "All 3 attempts failed."
+          exit 1
+          HELPER
+          chmod +x "$RUNNER_TEMP/screenshot-run.sh"
+
+          if [ "${{ matrix.renderer }}" = "angle" ]; then
+            echo "SCREENSHOT_TASK=screenshotTestAngle" >> $GITHUB_ENV
+          else
+            echo "SCREENSHOT_TASK=screenshotTest" >> $GITHUB_ENV
+          fi
+          echo "RENDERER=${{ matrix.renderer }}" >> $GITHUB_ENV
+          echo "REFERENCE_IMAGES=$RUNNER_TEMP/reference-images" >> $GITHUB_ENV
+
+      - name: Record what the reference ref looks like on this runner
+        run: |
+          "$RUNNER_TEMP/screenshot-run.sh" reference \
+            ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
+            -Pscreenshot.mode=generate \
+            -Pscreenshot.referenceDir="$REFERENCE_IMAGES"
+
+      # The generate pass writes its marker only when every test in it passed. Without this check, a
+      # reference pass that died half way through would leave the comparison seeing missing
+      # reference images - which it reads as "these tests are new" and accepts.
+      - name: Check the reference run completed
+        run: |
+          if [ ! -f "$REFERENCE_IMAGES/reference-run-complete.txt" ]; then
+            echo "::error title=Reference generation failed::Generating reference images from ${{ steps.refs.outputs.reference_ref }} did not complete, so there is nothing trustworthy to compare against. Fix that failure first - it is the real problem, not the comparison."
+            exit 1
+          fi
+          echo "$(find "$REFERENCE_IMAGES" -name '*.png' | wc -l) reference images generated."
+
+      - name: Compare the branch under test against them
+        id: compare
+        continue-on-error: true
+        run: |
+          "$RUNNER_TEMP/screenshot-run.sh" . \
+            ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
+            -Pscreenshot.mode=compare \
+            -Pscreenshot.referenceDir="$REFERENCE_IMAGES" \
+            -Pscreenshot.acceptChanges=${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
+
+      - name: Summarise
+        if: always()
+        uses: ./.github/actions/screenshot-summary
+        with:
+          platform: desktop (${{ matrix.renderer }})
+          reference_ref: ${{ steps.refs.outputs.reference_ref }}
+          target_ref: ${{ steps.refs.outputs.target_ref }}
+          reference_images: ${{ env.REFERENCE_IMAGES }}
+          changed_images: jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/changed-images
+          artifact_name: screenshot-test-report-${{ matrix.renderer }}
+          accept_label: ${{ env.ACCEPT_LABEL }}
+          accepted: ${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
+          outcome: ${{ steps.compare.outcome }}
+
+      # Includes the reference checkout's own reports, which are what to look at when it is the
+      # reference pass that failed.
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-test-report-${{ matrix.renderer }}
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
+
+      # The comparison runs with continue-on-error so that the summary and the artifacts are
+      # produced whatever happened. This is where its result actually decides the job.
+      - name: Fail if the comparison failed
+        if: steps.compare.outcome == 'failure'
+        run: |
+          echo "::error title=Screenshot comparison failed (${{ matrix.renderer }})::See the job summary for what changed, and the screenshot-test-report-${{ matrix.renderer }} artifact for the images."
+          exit 1

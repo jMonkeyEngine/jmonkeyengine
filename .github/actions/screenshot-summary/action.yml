@@ -1,0 +1,133 @@
+name: Summarise a screenshot comparison
+description: >
+  Writes the result of a screenshot comparison to the job summary, including how to accept the
+  changes if they were intended. Shared by the desktop and Android workflows so that a contributor
+  is told the same thing whichever one went red.
+
+inputs:
+  platform:
+    description: What ran, e.g. "desktop (opengl)" or "android".
+    required: true
+  reference_ref:
+    description: The ref the reference images were generated from.
+    required: true
+  target_ref:
+    description: The commit under test.
+    required: true
+  reference_images:
+    description: Directory holding the reference images the comparison used.
+    required: true
+  changed_images:
+    description: Directory the comparison wrote differing and new images to.
+    required: true
+  artifact_name:
+    description: Name of the uploaded artifact holding the report and the images.
+    required: true
+  accept_label:
+    description: Label that accepts the changes on a pull request.
+    required: true
+  accepted:
+    description: Whether the changes were accepted for this run.
+    required: true
+  outcome:
+    description: The comparison step's outcome, "success" or otherwise.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Write the job summary
+      shell: bash
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        REFERENCE_REF: ${{ inputs.reference_ref }}
+        TARGET_REF: ${{ inputs.target_ref }}
+        REFERENCE_IMAGES: ${{ inputs.reference_images }}
+        CHANGED_IMAGES: ${{ inputs.changed_images }}
+        ARTIFACT_NAME: ${{ inputs.artifact_name }}
+        ACCEPT_LABEL: ${{ inputs.accept_label }}
+        ACCEPTED: ${{ inputs.accepted }}
+        OUTCOME: ${{ inputs.outcome }}
+      run: |
+        set -uo pipefail
+
+        {
+          echo "## Screenshot comparison - $PLATFORM"
+          echo
+          echo "Both sets of images were rendered on this runner, so any difference below was"
+          echo "caused by the code rather than by the hardware."
+          echo
+          echo "| | |"
+          echo "| --- | --- |"
+          echo "| Under test | \`$TARGET_REF\` |"
+          echo "| Compared against | \`$REFERENCE_REF\` |"
+          echo
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        # Every image the comparison took issue with is written to the changed-images directory.
+        # One that has no counterpart among the reference images belongs to a test that does not
+        # exist on the reference branch, so it is new rather than changed.
+        changed=0
+        new=0
+        changed_rows=""
+        new_rows=""
+
+        if [ -d "$CHANGED_IMAGES" ]; then
+          while IFS= read -r image; do
+            name=$(basename "$image")
+            if [ -f "$REFERENCE_IMAGES/$name" ]; then
+              changed=$((changed + 1))
+              changed_rows="$changed_rows| \`$name\` |"$'\n'
+            else
+              new=$((new + 1))
+              new_rows="$new_rows| \`$name\` |"$'\n'
+            fi
+          done < <(find "$CHANGED_IMAGES" -type f -name '*.png' | sort)
+        fi
+
+        {
+          if [ "$changed" -eq 0 ] && [ "$new" -eq 0 ]; then
+            if [ "$OUTCOME" = "success" ]; then
+              echo "Every screenshot matched its reference image."
+            else
+              echo "**No images differed, so this run failed for another reason** - look at the step"
+              echo "log above rather than at the images. A crashed or timed out test looks like this."
+            fi
+          fi
+
+          if [ "$changed" -gt 0 ]; then
+            echo "### $changed image(s) changed"
+            echo
+            echo "| Image |"
+            echo "| --- |"
+            printf '%s' "$changed_rows"
+            echo
+          fi
+
+          if [ "$new" -gt 0 ]; then
+            echo "### $new new image(s), accepted automatically"
+            echo
+            echo "These tests do not exist on \`$REFERENCE_REF\`, so there was nothing to compare"
+            echo "them against."
+            echo
+            echo "| Image |"
+            echo "| --- |"
+            printf '%s' "$new_rows"
+            echo
+          fi
+
+          if [ "$changed" -gt 0 ]; then
+            echo "Download the **$ARTIFACT_NAME** artifact from this run and open"
+            echo "\`ScreenshotDiffReport.html\` to see each difference side by side."
+            echo
+            if [ "$ACCEPTED" = "true" ]; then
+              echo "> These changes were **accepted** by the \`$ACCEPT_LABEL\` label, so they are"
+              echo "> reported rather than failed."
+            else
+              echo "> **If these changes are intended**, a maintainer can accept them by adding the"
+              echo "> \`$ACCEPT_LABEL\` label to the pull request. That starts a new run, which may"
+              echo "> itself need approving if the pull request is from a first-time contributor -"
+              echo "> the check stays pending until it is."
+            fi
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"

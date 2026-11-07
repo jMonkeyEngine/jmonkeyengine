@@ -82,4 +82,27 @@ public interface AppRunner {
      * @param fileName the reference image file name, e.g. {@code com.example.TestFoo.testFoo_f1.png}
      */
     void saveReferenceImage(Image image, String fileName);
+
+    /**
+     * Returns whether the reference images available here were left by a reference run that
+     * finished with every test passing, i.e. whether
+     * {@link ScreenshotTest#REFERENCE_RUN_COMPLETE_MARKER} is present alongside them.
+     *
+     * <p>
+     * A comparison run must refuse to run without this. Reference images that are missing because
+     * the reference run died look exactly like reference images that are missing because the tests
+     * are new, and the second of those is accepted silently.
+     * </p>
+     *
+     * @return true if a completed reference run left its images here
+     */
+    boolean isReferenceRunComplete();
+
+    /**
+     * Returns whether this run was told that the visual changes it finds are intended, which
+     * downgrades an image difference from a failure to a warning.
+     *
+     * @return true if image differences should be reported rather than failed
+     */
+    boolean isAcceptingChanges();
 }

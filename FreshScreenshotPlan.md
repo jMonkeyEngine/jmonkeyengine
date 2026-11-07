@@ -4,8 +4,14 @@ Replace the committed reference screenshots with reference images that are gener
 same runner, in the same job, from a reference git ref**, so that GPU/driver/CPU variability between
 machines can never fail a test.
 
-Status: **Phase 1 implemented** (see 9), and the committed reference images are deleted, so the
-screenshot CI jobs fail until Phase 3 gives them a mode. Phases 2-5 are still plan only.
+Status: **Phases 1-3 implemented** (see 9). The screenshot jobs now generate their own reference
+images per run; nothing machine-specific is committed. Phases 4-5 are still plan only.
+
+Two things must happen outside the repository before this works end to end:
+1. Create the `accept-screenshot-changes` label.
+2. Update the required status checks in branch protection - the desktop check is now
+   `Screenshot Tests / Desktop (opengl)` and `... (angle)` rather than
+   `Run Screenshot Tests (opengl)`. The Android check name is unchanged.
 
 ---
 
@@ -674,28 +680,42 @@ Still open:
       app has `minSdk 28` with no core library desugaring).
 - [x] `checkstyleMain` / `checkstyleTest` clean on both modules.
 
-**Phase 2 - reference completeness guard**
-- [ ] Reference-run completion marker + manifest, and the "reference generation failed" failure path.
-- [ ] Workflow guard that aborts before pass 2 (desktop step ordering, and the Android script's
-      `|| true` exemption for the reference invocation).
+**Phase 2 - reference completeness guard - DONE**
+- [x] `ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER`, written by the generate task's Gradle
+      `doLast` - which runs only when the task succeeded, i.e. exactly when every test produced its
+      reference image.
+- [x] `AppRunner.isReferenceRunComplete()`, checked in `run()` before anything is booted: a
+      `COMPARE` run with no marker fails rather than reading the missing images as new tests. This
+      protects local runs too, not just CI.
+- [x] Workflow guard that aborts before pass 2 on both platforms, reporting "reference generation
+      failed" rather than an image difference.
+- [x] **The manifest turned out to be unnecessary.** It was planned to distinguish "this test did
+      not exist on the reference branch" from "this test existed but its reference run errored".
+      But any test failing in generate mode fails the task, which withholds the marker, which stops
+      the comparison - so with the marker present, a missing image can only mean the first. One
+      file instead of a JSON schema.
 
-**Phase 3 - CI**
-- [ ] `.github/workflows/screenshot-compare.yml` (reusable + `workflow_dispatch`), desktop jobs.
-- [ ] `.github/actions/resolve-screenshot-refs` composite action, used by both workflows.
-- [ ] Composite actions for the acceptance-label check and the `$GITHUB_STEP_SUMMARY` writer.
-- [ ] `main.yml` calls the reusable workflow; `android-screenshot.yml` stays separate and consumes the
-      shared composite actions.
-- [ ] Gradle build cache in the screenshot jobs.
-- [ ] Job summary table, including the acceptance instructions.
-- [ ] `accept-screenshot-changes` label handling (read-only; no label removal, no
-      `pull_request_target` job anywhere).
-- [ ] Confirm the fork-PR approval setting (6.1) and document the label-then-approve sequence in the
-      README and in the job summary's failure text.
-- [ ] Give both workflows the generate/compare pair. **This is what un-breaks the screenshot jobs**,
-      which fail on "no mode selected" from Phase 1 onwards.
-- [ ] Rewrite the failure hint in `main.yml`'s `Report Screenshot Test failure` step - it still tells
-      people to "commit replacements to jme3-screenshot-tests/src/test/resources", a directory that
-      no longer exists and a workflow that no longer applies.
+**Phase 3 - CI - DONE**
+- [x] `.github/workflows/screenshot-compare.yml`: reusable (`workflow_call`) + `workflow_dispatch`
+      for comparing any two refs by hand. `main.yml`'s `ScreenshotTests` job is now a four-line call.
+- [x] `.github/actions/screenshot-reference-checkout`: resolves the reference ref and checks it out
+      into `reference/`. Shared by both workflows, so they cannot drift on what "compared against"
+      means.
+- [x] `.github/actions/screenshot-summary`: writes the `$GITHUB_STEP_SUMMARY`, shared, so a
+      contributor is told the same thing whichever platform went red.
+- [x] `android-screenshot.yml` stays its own workflow with its own check name, and consumes both
+      composite actions. Its two passes are two invocations inside the one emulator script.
+- [x] Gradle build cache (`gradle/actions/setup-gradle`) added to both, read-only on pull requests.
+      The desktop job had no Gradle caching at all before.
+- [x] Job summary: what changed, what was accepted as new, and how to accept - including that the
+      label starts a run which itself may need approving.
+- [x] `accept-screenshot-changes` handled by passing `-Pscreenshot.acceptChanges` into the test run,
+      so the label downgrades an image difference and nothing else. Read-only; no
+      `pull_request_target` job anywhere.
+- [x] The stale `src/test/resources` failure hint is gone with the job that carried it.
+- [ ] Still open: confirm the fork-PR approval setting (6.1), and create the
+      `accept-screenshot-changes` label in the repository - a label that does not exist cannot be
+      added to a PR.
 
 **Phase 4 - optional polish**
 - [ ] Retry only on infrastructure failure, not on image differences.
