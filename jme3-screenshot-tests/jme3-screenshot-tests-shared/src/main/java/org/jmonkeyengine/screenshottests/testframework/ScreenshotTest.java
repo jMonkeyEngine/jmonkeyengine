@@ -303,7 +303,7 @@ public class ScreenshotTest{
                         Path primeGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                         ));
-                        Path otherGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
+                        Path otherGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(thisScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
                         ));
 
