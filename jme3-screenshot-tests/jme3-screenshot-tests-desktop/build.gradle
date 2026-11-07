@@ -40,6 +40,8 @@ testing {
 // change whose visual effect was intended. It never downgrades anything but a difference between
 // two images that were both produced - a crash or a timeout still fails.
 def screenshotMode = findProperty('screenshot.mode')
+// Normalised the same way as ScreenshotTestMode.fromConfigurationValue, which accepts any case.
+def isGenerateRun = screenshotMode?.toString()?.trim()?.equalsIgnoreCase('generate') ?: false
 def screenshotAcceptChanges = findProperty('screenshot.acceptChanges') ?: 'false'
 def screenshotReferenceDirectory = findProperty('screenshot.referenceDir')
         ?: layout.buildDirectory.dir('reference-images').get().asFile.absolutePath
@@ -73,7 +75,7 @@ def configureScreenshotTest = { Test task, String renderer ->
     // that crashed or timed out leaves no marker, and the comparison pass then refuses to run
     // rather than mistaking the missing images for new tests.
     task.doLast {
-        if (screenshotMode == 'generate') {
+        if (isGenerateRun) {
             def marker = new File(screenshotReferenceDirectory, screenshotReferenceRunMarker)
             marker.parentFile.mkdirs()
             marker.text = "Reference images generated at ${new Date()}\n"
