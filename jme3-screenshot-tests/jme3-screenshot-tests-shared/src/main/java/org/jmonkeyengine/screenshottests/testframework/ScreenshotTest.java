@@ -389,15 +389,16 @@ public class ScreenshotTest{
                             TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
                         }
                     } else {
-                        //save the generated image to the build directory
-                        osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
-
                         attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                         attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
                         attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
 
                         switch(testType){
                             case MUST_PASS:
+                                // Only a must-pass difference goes to changed-images: CI treats every
+                                // image there as a change needing the accept label, and differences
+                                // in the other test types are tolerated and only reported.
+                                osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
                                 if(osSpecificRunner.isAcceptingChanges()){
                                     TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED + " (" + imageDifference.describe() + ")");
                                     break;

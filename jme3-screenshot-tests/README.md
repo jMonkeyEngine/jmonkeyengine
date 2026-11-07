@@ -57,7 +57,8 @@ differences between the reference images and the screenshots taken during the ru
 ExtentReport. On CI it can be downloaded from the Artifacts section of the pipeline once it has
 finished; it is called `screenshot-test-report`.
 
-Images that differ from their reference are also written to `build/changed-images`.
+Images that differ from their reference are also written to `build/changed-images`, except those
+from non-deterministic and known bad tests (see below), whose differences only appear in the report.
 
 ## Accepting a changed image
 
@@ -118,6 +119,7 @@ By default, the tests use the class and method name to produce the screenshot im
 By default, screenshot variability will cause the pipeline to fail. If a test is non-deterministic (e.g. includes randomness) or 
 is a known accepted failure (that will be fixed "at some point" but not now) that can be non-desirable. In that case you can 
 change the behaviour of the test such that these are marked as warnings in the generated report but don't fail the test
+(and don't need the `accept-screenshot-changes` label)
 
 ```
     screenshotTest(
