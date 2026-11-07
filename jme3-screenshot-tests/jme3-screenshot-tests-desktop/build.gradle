@@ -36,9 +36,9 @@ testing {
 // There is no default; a run that picks no mode fails with an explanation of the two.
 // -Pscreenshot.referenceDir=<path> says where the reference images live. CI passes an absolute path,
 // because the generate run and the compare run are two checkouts of the repo on one machine.
-// -Pscreenshot.acceptChanges=true reports image differences instead of failing on them, for a
-// change whose visual effect was intended. It never downgrades anything but a difference between
-// two images that were both produced - a crash or a timeout still fails.
+// -Pscreenshot.acceptChanges=true reports image differences instead of failing on them. CI always
+// passes it and lists the differences in a pull request comment instead. It never downgrades anything
+// but a difference between two images that were both produced - a crash or a timeout still fails.
 def screenshotMode = findProperty('screenshot.mode')
 // Normalised the same way as ScreenshotTestMode.fromConfigurationValue, which accepts any case.
 def isGenerateRun = screenshotMode?.toString()?.trim()?.equalsIgnoreCase('generate') ?: false

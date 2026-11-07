@@ -130,19 +130,6 @@ jobs:
         run: |
           echo "::notice title=Javadoc doclint failed::Javadoc warnings were found. Run ./gradlew -PenableJavadocError=true javadoc mergedJavadoc locally to reproduce."
 
-  # The screenshot tests render the same scenes twice on one runner - once from the branch being
-  # compared against and once from this one - so that a difference can only have been caused by the
-  # code. The job itself lives in its own workflow so that it can also be dispatched manually
-  # against any pair of refs; see .github/workflows/screenshot-compare.yml.
-  # Pull requests only: a push has no review to accept its visual changes, so after every accepted
-  # pull request it would just go red on the differences that were accepted.
-  ScreenshotTests:
-    name: Screenshot Tests
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/screenshot-compare.yml
-    permissions:
-      contents: read
-
   TestIOSBuild:
     name: Test iOS build
     runs-on: macos-latest

@@ -91,7 +91,7 @@ public class ScreenshotTest{
 
     public static final String NO_COMPLETED_REFERENCE_RUN = "There is no completed reference run to compare against (no " + REFERENCE_RUN_COMPLETE_MARKER + " alongside the reference images). Run -Pscreenshot.mode=generate on the branch you are comparing against first. In CI this means the reference pass failed or did not finish - that failure is the real problem, not this one.";
 
-    public static final String CHANGES_ACCEPTED = "This image is different from the reference image, but the run was told the change was intended, so it is reported rather than failed.";
+    public static final String CHANGES_ACCEPTED = "This image is different from the reference image. The run was told to report differences rather than fail on them, so it is up to the reviewer to confirm the change was intended.";
 
     public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is accepted automatically; its image is in build/changed-images.";
 

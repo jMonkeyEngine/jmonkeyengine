@@ -1,8 +1,11 @@
 name: Summarise a screenshot comparison
 description: >
-  Writes the result of a screenshot comparison to the job summary, including how to accept the
-  changes if they were intended. Shared by the desktop and Android workflows so that a contributor
-  is told the same thing whichever one went red.
+  Writes the result of a screenshot comparison to the job summary, and records it in results_dir
+  for screenshot-comment.yml to turn into a pull request comment. Shared by the desktop and Android
+  workflows so that both report the same way.
+
+  results_dir holds plain data only - never markdown - because this runs in the pull request's own
+  context, so whatever it writes is untrusted by the time the comment workflow reads it.
 
 inputs:
   platform:
@@ -23,14 +26,13 @@ inputs:
   artifact_name:
     description: Name of the uploaded artifact holding the report and the images.
     required: true
-  accept_label:
-    description: Label that accepts the changes on a pull request.
-    required: true
-  accepted:
-    description: Whether the changes were accepted for this run.
-    required: true
   outcome:
-    description: The comparison step's outcome, "success" or otherwise.
+    description: >
+      The comparison step's outcome. Image differences do not fail it, so anything but "success"
+      means the comparison did not run to the end.
+    required: true
+  results_dir:
+    description: Directory to record the result in.
     required: true
 
 runs:
@@ -45,11 +47,35 @@ runs:
         REFERENCE_IMAGES: ${{ inputs.reference_images }}
         CHANGED_IMAGES: ${{ inputs.changed_images }}
         ARTIFACT_NAME: ${{ inputs.artifact_name }}
-        ACCEPT_LABEL: ${{ inputs.accept_label }}
-        ACCEPTED: ${{ inputs.accepted }}
         OUTCOME: ${{ inputs.outcome }}
+        RESULTS_DIR: ${{ inputs.results_dir }}
       run: |
         set -uo pipefail
+
+        mkdir -p "$RESULTS_DIR"
+        printf '%s\n' "$OUTCOME" > "$RESULTS_DIR/outcome"
+        printf '%s\n' "$REFERENCE_REF" > "$RESULTS_DIR/reference_ref"
+        printf '%s\n' "$TARGET_REF" > "$RESULTS_DIR/target_ref"
+        : > "$RESULTS_DIR/changed.txt"
+        : > "$RESULTS_DIR/new.txt"
+
+        # Every image the comparison took issue with is written to the changed-images directory.
+        # One that has no counterpart among the reference images belongs to a test that does not
+        # exist on the reference branch, so it is new rather than changed.
+        if [ -d "$CHANGED_IMAGES" ]; then
+          while IFS= read -r image; do
+            name=$(basename "$image")
+            if [ -f "$REFERENCE_IMAGES/$name" ]; then
+              echo "$name" >> "$RESULTS_DIR/changed.txt"
+            else
+              echo "$name" >> "$RESULTS_DIR/new.txt"
+            fi
+          done < <(find "$CHANGED_IMAGES" -type f -name '*.png' | sort)
+        fi
+
+        changed=$(grep -c . "$RESULTS_DIR/changed.txt")
+        new=$(grep -c . "$RESULTS_DIR/new.txt")
+        table() { echo "| Image |"; echo "| --- |"; sed 's/.*/| `&` |/' "$1"; echo; }
 
         {
           echo "## Screenshot comparison - $PLATFORM"
@@ -62,72 +88,34 @@ runs:
           echo "| Under test | \`$TARGET_REF\` |"
           echo "| Compared against | \`$REFERENCE_REF\` |"
           echo
-        } >> "$GITHUB_STEP_SUMMARY"
 
-        # Every image the comparison took issue with is written to the changed-images directory.
-        # One that has no counterpart among the reference images belongs to a test that does not
-        # exist on the reference branch, so it is new rather than changed.
-        changed=0
-        new=0
-        changed_rows=""
-        new_rows=""
-
-        if [ -d "$CHANGED_IMAGES" ]; then
-          while IFS= read -r image; do
-            name=$(basename "$image")
-            if [ -f "$REFERENCE_IMAGES/$name" ]; then
-              changed=$((changed + 1))
-              changed_rows="$changed_rows| \`$name\` |"$'\n'
-            else
-              new=$((new + 1))
-              new_rows="$new_rows| \`$name\` |"$'\n'
-            fi
-          done < <(find "$CHANGED_IMAGES" -type f -name '*.png' | sort)
-        fi
-
-        {
-          if [ "$changed" -eq 0 ] && [ "$new" -eq 0 ]; then
-            if [ "$OUTCOME" = "success" ]; then
-              echo "Every screenshot matched its reference image."
-            else
-              echo "**No images differed, so this run failed for another reason** - look at the step"
-              echo "log above rather than at the images. A crashed or timed out test looks like this."
-            fi
+          if [ "$OUTCOME" != "success" ]; then
+            echo "**The comparison did not run to the end** - look at the step log above rather than"
+            echo "at the images. A crashed or timed out test, or a failed reference run, looks like this."
+            echo
+          elif [ "$changed" -eq 0 ] && [ "$new" -eq 0 ]; then
+            echo "Every screenshot matched its reference image."
+            echo
           fi
 
           if [ "$changed" -gt 0 ]; then
             echo "### $changed image(s) changed"
             echo
-            echo "| Image |"
-            echo "| --- |"
-            printf '%s' "$changed_rows"
+            echo "Changed images do not fail this check. They are listed in a comment on the pull"
+            echo "request so that the reviewer can confirm the change was intended."
+            echo
+            table "$RESULTS_DIR/changed.txt"
+            echo "Download the **$ARTIFACT_NAME** artifact from this run and open"
+            echo "\`ScreenshotDiffReport.html\` to see each difference side by side."
             echo
           fi
 
           if [ "$new" -gt 0 ]; then
-            echo "### $new new image(s), accepted automatically"
+            echo "### $new new image(s)"
             echo
             echo "These tests do not exist on \`$REFERENCE_REF\`, so there was nothing to compare"
             echo "them against."
             echo
-            echo "| Image |"
-            echo "| --- |"
-            printf '%s' "$new_rows"
-            echo
-          fi
-
-          if [ "$changed" -gt 0 ]; then
-            echo "Download the **$ARTIFACT_NAME** artifact from this run and open"
-            echo "\`ScreenshotDiffReport.html\` to see each difference side by side."
-            echo
-            if [ "$ACCEPTED" = "true" ]; then
-              echo "> These changes were **accepted** by the \`$ACCEPT_LABEL\` label, so they are"
-              echo "> reported rather than failed."
-            else
-              echo "> **If these changes are intended**, a maintainer can accept them by adding the"
-              echo "> \`$ACCEPT_LABEL\` label to the pull request. That starts a new run, which may"
-              echo "> itself need approving if the pull request is from a first-time contributor -"
-              echo "> the check stays pending until it is."
-            fi
+            table "$RESULTS_DIR/new.txt"
           fi
         } >> "$GITHUB_STEP_SUMMARY"

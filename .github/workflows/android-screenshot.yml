@@ -15,8 +15,7 @@
 
 name: Android Screenshot Test
 
-# Pull requests only: a push has no review to accept its visual changes, so after every accepted
-# pull request it would just go red on the differences that were accepted.
+# Pull requests only: a push has no reviewer to look at its visual changes.
 on:
   pull_request:
   workflow_dispatch:
@@ -30,11 +29,10 @@ on:
           runner, exactly as approving a fork pull request's workflow does.
         required: true
 
+# This runs the pull request's code, so it never holds a write token; screenshot-comment.yml reports
+# the changed images on the pull request afterwards.
 permissions:
   contents: read
-
-env:
-  ACCEPT_LABEL: accept-screenshot-changes
 
 jobs:
   screenshot-test-android:
@@ -153,7 +151,9 @@ jobs:
           adb shell rm -rf "$TEST_STORAGE/test_outputfiles" || true
 
           # --- Pass 2: compare the branch under test against them -----------------------------
-          run_pass 1 . "$TASK" -Pscreenshot.mode=compare "-Pscreenshot.acceptChanges=$ACCEPT_CHANGES"
+          # Differences are reported rather than failed, so this pass failing means only that it did
+          # not run to the end. screenshot-comment.yml lists the differences on the pull request.
+          run_pass 1 . "$TASK" -Pscreenshot.mode=compare -Pscreenshot.acceptChanges=true
           exit_code=$?
 
           collect_logs
@@ -169,8 +169,6 @@ jobs:
         id: compare
         continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2.38.0
-        env:
-          ACCEPT_CHANGES: ${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
         with:
           api-level: 35
           avd-name: test_avd
@@ -194,9 +192,16 @@ jobs:
           reference_images: report/reference-images
           changed_images: report/changed-images
           artifact_name: android-screenshot-report
-          accept_label: ${{ env.ACCEPT_LABEL }}
-          accepted: ${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
           outcome: ${{ steps.compare.outcome }}
+          results_dir: screenshot-results
+
+      - name: Upload the result for the pull request comment
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-results-android
+          retention-days: 7
+          path: screenshot-results
 
       - name: Upload logcat
         uses: actions/upload-artifact@v7
@@ -218,5 +223,5 @@ jobs:
       - name: Fail if the comparison failed
         if: steps.compare.outcome == 'failure'
         run: |
-          echo "::error title=Android screenshot comparison failed::See the job summary for what changed, and the android-screenshot-report artifact for the images."
+          echo "::error title=Android screenshot comparison failed::The comparison did not run to the end. See the step log, and the android-logcat and android-screenshot-report artifacts."
           exit 1

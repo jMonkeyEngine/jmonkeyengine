@@ -16,19 +16,9 @@
 
 name: Screenshot Comparison
 
+# Pull requests only: a push has no reviewer to look at its visual changes.
 on:
-  workflow_call:
-    inputs:
-      reference_ref:
-        description: Ref to generate reference images from. Defaults to the target's first parent.
-        type: string
-        required: false
-        default: ''
-      target_ref:
-        description: Ref to test. Defaults to whatever triggered the workflow.
-        type: string
-        required: false
-        default: ''
+  pull_request:
   workflow_dispatch:
     inputs:
       reference_ref:
@@ -40,13 +30,11 @@ on:
           runner, exactly as approving a fork pull request's workflow does.
         required: true
 
-# Nothing here writes. The acceptance label is only read, and the result is reported through the
-# job summary rather than through a comment, so no job in this design holds a write token.
+# This runs the pull request's code, so it never holds a write token. Changed images are reported
+# on the pull request by screenshot-comment.yml, which runs afterwards in the base repository's
+# context and never executes anything from the pull request.
 permissions:
   contents: read
-
-env:
-  ACCEPT_LABEL: accept-screenshot-changes
 
 jobs:
   desktop:
@@ -252,6 +240,9 @@ jobs:
           fi
           echo "$(find "$REFERENCE_IMAGES" -name '*.png' | wc -l) reference images generated."
 
+      # Image differences are reported rather than failed, so this step failing means only that the
+      # comparison did not run to the end. The differences are listed in a pull request comment
+      # instead, by screenshot-comment.yml.
       - name: Compare the branch under test against them
         id: compare
         continue-on-error: true
@@ -259,7 +250,7 @@ jobs:
           ./gradlew ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
             -Pscreenshot.mode=compare \
             -Pscreenshot.referenceDir="$REFERENCE_IMAGES" \
-            -Pscreenshot.acceptChanges=${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
+            -Pscreenshot.acceptChanges=true
 
       - name: Summarise
         if: always()
@@ -271,9 +262,18 @@ jobs:
           reference_images: ${{ env.REFERENCE_IMAGES }}
           changed_images: jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/changed-images
           artifact_name: screenshot-test-report-${{ matrix.renderer }}
-          accept_label: ${{ env.ACCEPT_LABEL }}
-          accepted: ${{ contains(github.event.pull_request.labels.*.name, 'accept-screenshot-changes') }}
           outcome: ${{ steps.compare.outcome }}
+          results_dir: screenshot-results
+
+      # Read by screenshot-comment.yml. The name is what it looks for, and what labels this
+      # section of the comment.
+      - name: Upload the result for the pull request comment
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-results-desktop-${{ matrix.renderer }}
+          retention-days: 7
+          path: screenshot-results
 
       # Includes the reference checkout's own reports, which are what to look at when it is the
       # reference pass that failed.
@@ -293,5 +293,5 @@ jobs:
       - name: Fail if the comparison failed
         if: steps.compare.outcome == 'failure'
         run: |
-          echo "::error title=Screenshot comparison failed (${{ matrix.renderer }})::See the job summary for what changed, and the screenshot-test-report-${{ matrix.renderer }} artifact for the images."
+          echo "::error title=Screenshot comparison failed (${{ matrix.renderer }})::The comparison did not run to the end. See the step log, and the screenshot-test-report-${{ matrix.renderer }} artifact."
           exit 1

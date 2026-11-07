@@ -60,25 +60,20 @@ finished; it is called `screenshot-test-report`.
 Images that differ from their reference are also written to `build/changed-images`, except those
 from non-deterministic and known bad tests (see below), whose differences only appear in the report.
 
-## Accepting a changed image
+## Changed images
 
-A change that alters how something looks is expected to change these images, and the screenshot
-check will go red. Because references are regenerated every run there is nothing to copy and commit:
-a maintainer who has reviewed the difference adds the **`accept-screenshot-changes`** label to the
-pull request, which re-runs the check with the changes accepted.
+A change that alters how something looks is expected to change these images, so a changed image
+does not fail the check. Instead the changed (and new) images are listed in a comment on the pull
+request, which is updated on every push, and the reviewer confirms the change was intended. Because
+references are regenerated every run there is nothing to copy and commit.
 
-Two things to know about that label:
+The check does still fail when the comparison could not run to the end: a crash, a timeout, or a
+reference run that did not finish.
 
-* It starts a new workflow run, and for a first-time contributor that run needs approving like any
-  other. Adding the label and walking away leaves the check pending rather than green.
-* It blesses the pull request for the rest of its life - later pushes stay accepted - so the
-  reviewer, not the check, is what catches a further visual change after that point.
+The screenshot checks only run on pull requests, since a push has no reviewer to look at the result.
 
-Accepting only ever downgrades a difference between two images that were both produced. A crash, a
-timeout, or a reference run that did not finish still fails.
-
-A test that is new on your branch has no reference to compare against, so it is accepted
-automatically with a warning in the report; nobody has to do anything for it.
+A test that is new on your branch has no reference to compare against, so it is listed as new;
+nobody has to do anything for it.
 
 ## Renderer noise is tolerated
 
@@ -116,10 +111,9 @@ By default, the tests use the class and method name to produce the screenshot im
 
 ## Non-deterministic (and known bad) tests
 
-By default, screenshot variability will cause the pipeline to fail. If a test is non-deterministic (e.g. includes randomness) or 
-is a known accepted failure (that will be fixed "at some point" but not now) that can be non-desirable. In that case you can 
-change the behaviour of the test such that these are marked as warnings in the generated report but don't fail the test
-(and don't need the `accept-screenshot-changes` label)
+By default, a changed screenshot is listed on the pull request for the reviewer to confirm. If a test is non-deterministic (e.g. includes randomness) or 
+is a known accepted failure (that will be fixed "at some point" but not now) that is just noise. In that case you can 
+change the behaviour of the test such that these are marked as warnings in the generated report but never listed as changes
 
 ```
     screenshotTest(
