@@ -116,6 +116,7 @@ sections="$WORK_DIR/sections.md"
 total_changed=0
 total_new=0
 incomplete=0
+unsupported=0
 found=0
 
 while IFS=$'\t' read -r name id size; do
@@ -147,7 +148,7 @@ while IFS=$'\t' read -r name id size; do
   fi
 
   outcome=$(head -n 1 "$dir/outcome" 2>/dev/null || true)
-  [[ "$outcome" =~ ^(success|failure|cancelled|skipped)$ ]] || outcome=unknown
+  [[ "$outcome" =~ ^(success|failure|cancelled|skipped|unsupported)$ ]] || outcome=unknown
   reference=$(head -n 1 "$dir/reference_ref" 2>/dev/null || true)
   [[ "$reference" =~ ^[0-9a-f]{40}$ ]] || reference=""
   changed=$(valid_image_names "$dir/changed.txt")
@@ -158,13 +159,17 @@ while IFS=$'\t' read -r name id size; do
   total_new=$((total_new + new_count))
 
   {
-    if [ -n "$reference" ]; then
+    if [ -n "$reference" ] && [ "$outcome" != "unsupported" ]; then
       echo "#### $platform_emoji $label - compared against \`${reference:0:7}\`"
     else
       echo "#### $platform_emoji $label"
     fi
     echo
-    if [ "$outcome" != "success" ]; then
+    if [ "$outcome" = "unsupported" ]; then
+      unsupported=$((unsupported + 1))
+      echo "ℹ️ **Not compared:** \`${reference:0:7}\` predates generating reference images in CI, so there is nothing to compare against."
+      echo
+    elif [ "$outcome" != "success" ]; then
       incomplete=$((incomplete + 1))
       echo "⚠️ **The comparison did not run to the end**, so this list may be incomplete. See the [workflow run]($RUN_URL)."
       echo
@@ -197,6 +202,8 @@ done <<< "$artifacts"
     echo
     echo "🔍 Results for \`$short_sha\` ([workflow run]($RUN_URL)). Each report shows the reference image,"
     echo "the new image and a diff side by side; artifact downloads need you to be signed in to GitHub."
+  elif [ "$unsupported" -gt 0 ]; then
+    echo "ℹ️ Screenshots were not compared as of \`$short_sha\` ([workflow run]($RUN_URL)), because the branch this merges into cannot generate reference images yet."
   else
     echo "✅ No screenshot differences found as of \`$short_sha\` ([workflow run]($RUN_URL))."
   fi
@@ -214,7 +221,7 @@ done <<< "$artifacts"
   echo "📚 See the [screenshot test README](https://github.com/$REPO/blob/master/jme3-screenshot-tests/README.md) for more information."
 } > "$body"
 
-if [ $((total_changed + total_new)) -gt 0 ]; then
+if [ $((total_changed + total_new + unsupported)) -gt 0 ]; then
   publish create "$body"
 else
   publish update "$body"

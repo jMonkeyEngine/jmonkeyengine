@@ -221,6 +221,7 @@ jobs:
           echo "REFERENCE_IMAGES=$RUNNER_TEMP/reference-images" >> $GITHUB_ENV
 
       - name: Record what the reference ref looks like on this runner
+        if: steps.refs.outputs.reference_supported == 'true'
         run: |
           "$RUNNER_TEMP/screenshot-run.sh" reference \
             ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
@@ -231,6 +232,7 @@ jobs:
       # reference pass that died half way through would leave the comparison seeing missing
       # reference images - which it reads as "these tests are new" and accepts.
       - name: Check the reference run completed
+        if: steps.refs.outputs.reference_supported == 'true'
         env:
           REFERENCE_REF: ${{ steps.refs.outputs.reference_ref }}
         run: |
@@ -244,6 +246,7 @@ jobs:
       # comparison did not run to the end. The differences are listed in a pull request comment
       # instead, by screenshot-comment.yml.
       - name: Compare the branch under test against them
+        if: steps.refs.outputs.reference_supported == 'true'
         id: compare
         continue-on-error: true
         run: |
@@ -262,7 +265,7 @@ jobs:
           reference_images: ${{ env.REFERENCE_IMAGES }}
           changed_images: jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/changed-images
           artifact_name: screenshot-test-report-${{ matrix.renderer }}
-          outcome: ${{ steps.compare.outcome }}
+          outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
           results_dir: screenshot-results
 
       # Read by screenshot-comment.yml. The name is what it looks for, and what labels this

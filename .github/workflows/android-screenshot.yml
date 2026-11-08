@@ -166,6 +166,7 @@ jobs:
           chmod +x android-test-script.sh
 
       - name: Run Android Screenshot Test
+        if: steps.refs.outputs.reference_supported == 'true'
         id: compare
         continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2.38.0
@@ -192,7 +193,7 @@ jobs:
           reference_images: report/reference-images
           changed_images: report/changed-images
           artifact_name: android-screenshot-report
-          outcome: ${{ steps.compare.outcome }}
+          outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
           results_dir: screenshot-results
 
       - name: Upload the result for the pull request comment
@@ -216,7 +217,7 @@ jobs:
         with:
           name: android-screenshot-report
           path: report
-          if-no-files-found: error
+          if-no-files-found: ${{ steps.refs.outputs.reference_supported == 'false' && 'ignore' || 'error' }}
 
       # The emulator step runs with continue-on-error so that the summary, the logcat and the
       # report survive a failure. This is where its result actually decides the job.

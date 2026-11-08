@@ -22,6 +22,11 @@ outputs:
   target_ref:
     description: The commit under test.
     value: ${{ steps.resolve.outputs.target_ref }}
+  reference_supported:
+    description: >
+      "false" when the reference ref predates generating reference images in CI, so there is nothing
+      a comparison could use.
+    value: ${{ steps.capability.outputs.supported }}
 
 runs:
   using: composite
@@ -61,3 +66,14 @@ runs:
         ref: ${{ steps.resolve.outputs.reference_ref }}
         path: reference
         fetch-depth: 1
+
+    - name: Check the reference ref can generate reference images
+      id: capability
+      shell: bash
+      run: |
+        if grep -qs 'screenshot\.mode' reference/jme3-screenshot-tests/jme3-screenshot-tests-desktop/build.gradle; then
+          echo "supported=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "supported=false" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Screenshots not compared::The reference ref predates generating reference images in CI, so the comparison is being skipped."
+        fi

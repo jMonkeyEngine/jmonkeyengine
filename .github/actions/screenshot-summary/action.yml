@@ -28,8 +28,9 @@ inputs:
     required: true
   outcome:
     description: >
-      The comparison step's outcome. Image differences do not fail it, so anything but "success"
-      means the comparison did not run to the end.
+      The comparison step's outcome, or "unsupported" if the reference ref cannot generate reference
+      images. Image differences do not fail it, so anything else but "success" means the comparison
+      did not run to the end.
     required: true
   results_dir:
     description: Directory to record the result in.
@@ -89,7 +90,11 @@ runs:
           echo "| Compared against | \`$REFERENCE_REF\` |"
           echo
 
-          if [ "$OUTCOME" != "success" ]; then
+          if [ "$OUTCOME" = "unsupported" ]; then
+            echo "**Nothing was compared** - \`$REFERENCE_REF\` predates generating reference images in"
+            echo "CI, so there is nothing to compare against."
+            echo
+          elif [ "$OUTCOME" != "success" ]; then
             echo "**The comparison did not run to the end** - look at the step log above rather than"
             echo "at the images. A crashed or timed out test, or a failed reference run, looks like this."
             echo
