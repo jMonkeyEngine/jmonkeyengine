@@ -45,8 +45,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-      issues: write
-      pull-requests: read
+      pull-requests: write
     steps:
       # The default branch, which is what a workflow_run run checks out unless told otherwise. Never
       # point this at the pull request.
