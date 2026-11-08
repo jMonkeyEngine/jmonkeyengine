@@ -89,7 +89,7 @@ references are regenerated every run there is nothing to copy and commit.
 The check does still fail when the comparison could not run to the end: a crash, a timeout, or a
 reference run that did not finish. It also fails when a test's scenarios render differently from
 each other. Scenarios are different ways of producing the same picture, so that is a serious visual
-failure rather than a change a reviewer could accept, and the comment reports it as one.
+failure rather than a change to review, and the comment reports it as one.
 
 The screenshot checks only run on pull requests, since a push has no reviewer to look at the result.
 

@@ -90,7 +90,7 @@ public interface AppRunner {
      * <p>
      * A comparison run must refuse to run without this. Reference images that are missing because
      * the reference run died look exactly like reference images that are missing because the tests
-     * are new, and the second of those is accepted silently.
+     * are new, and the second of those does not fail the run.
      * </p>
      *
      * @return true if a completed reference run left its images here

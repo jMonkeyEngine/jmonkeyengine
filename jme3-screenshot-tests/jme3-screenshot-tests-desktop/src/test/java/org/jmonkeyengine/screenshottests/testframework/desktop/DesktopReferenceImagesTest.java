@@ -102,7 +102,7 @@ public class DesktopReferenceImagesTest {
     public void referenceImagesWithoutAMarkerAreNotAComparisonBasis(@TempDir Path temporaryDirectory) throws Exception {
         // A reference run that died half way through leaves images but no marker. Those images must
         // not be treated as a reference set, because the ones it never got to look identical to
-        // tests that are new on the branch under test - and those are accepted silently.
+        // tests that are new on the branch under test - and those do not fail the run.
         System.setProperty(REFERENCE_DIRECTORY_PROPERTY, temporaryDirectory.toString());
         DesktopRunner runner = new DesktopRunner();
         Path screenshot = temporaryDirectory.resolve("screenshot.png");

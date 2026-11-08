@@ -232,7 +232,7 @@ jobs:
 
       # The generate pass writes its marker only when every test in it passed. Without this check, a
       # reference pass that died half way through would leave the comparison seeing missing
-      # reference images - which it reads as "these tests are new" and accepts.
+      # reference images - which it reads as "these tests are new" and lets through.
       - name: Check the reference run completed
         if: steps.refs.outputs.reference_supported == 'true'
         env:

@@ -87,8 +87,8 @@ public class ScreenshotTest{
      *
      * <p>
      * Without it, a reference run that died half way through would leave a comparison run seeing
-     * missing reference images - which it would read as "these tests are new" and accept. The
-     * marker turns that silent pass into a loud failure. It is deliberately written by the build
+     * missing reference images - which it would read as "these tests are new" and let through.
+     * The marker turns that silent pass into a loud failure. It is deliberately written by the build
      * rather than by the test framework, because "the task completed with no failures" is
      * something only the build knows.
      * </p>
@@ -97,7 +97,7 @@ public class ScreenshotTest{
 
     public static final String NO_COMPLETED_REFERENCE_RUN = "There is no completed reference run to compare against (no " + REFERENCE_RUN_COMPLETE_MARKER + " alongside the reference images). Run -Pscreenshot.mode=generate on the branch you are comparing against first. In CI this means the reference pass failed or did not finish - that failure is the real problem, not this one.";
 
-    public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is accepted automatically; its image is in build/changed-images.";
+    public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is listed as a new test; its image is in build/changed-images.";
 
     /**
      * System property used to select the renderer the screenshot tests run with.
@@ -351,7 +351,7 @@ public class ScreenshotTest{
 
                 if(!referenceImage.isPresent()){
                     // The reference run produced nothing under this name, so the test is new on
-                    // this branch. A new test has nothing to be compared against and is accepted.
+                    // this branch. A new test has nothing to be compared against and is listed as new.
                     osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, referenceImageFileName);
                     attachImage("New image:", referenceImageFileName, generatedImage);
                     TestReportCaptureBase.INSTANCE.warning(NEW_TEST_NO_REFERENCE_IMAGE);
