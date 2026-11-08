@@ -197,6 +197,7 @@ jobs:
           reference_images: report/reference-images
           changed_images: report/changed-images
           artifact_name: android-screenshot-report
+          report_file: extentReport/index.html
           outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
           results_dir: screenshot-results
 

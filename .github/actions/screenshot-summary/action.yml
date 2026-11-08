@@ -26,6 +26,9 @@ inputs:
   artifact_name:
     description: Name of the uploaded artifact holding the report and the images.
     required: true
+  report_file:
+    description: The file to open within that artifact to see the differences.
+    required: true
   outcome:
     description: >
       The comparison step's outcome, or "unsupported" if the reference ref cannot generate reference
@@ -48,6 +51,7 @@ runs:
         REFERENCE_IMAGES: ${{ inputs.reference_images }}
         CHANGED_IMAGES: ${{ inputs.changed_images }}
         ARTIFACT_NAME: ${{ inputs.artifact_name }}
+        REPORT_FILE: ${{ inputs.report_file }}
         OUTCOME: ${{ inputs.outcome }}
         RESULTS_DIR: ${{ inputs.results_dir }}
       run: |
@@ -111,7 +115,7 @@ runs:
             echo
             table "$RESULTS_DIR/changed.txt"
             echo "Download the **$ARTIFACT_NAME** artifact from this run and open"
-            echo "\`ScreenshotDiffReport.html\` to see each difference side by side."
+            echo "\`$REPORT_FILE\` to see each difference side by side."
             echo
           fi
 

@@ -267,6 +267,7 @@ jobs:
           reference_images: ${{ env.REFERENCE_IMAGES }}
           changed_images: jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/changed-images
           artifact_name: screenshot-test-report-${{ matrix.renderer }}
+          report_file: ScreenshotDiffReport.html
           outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
           results_dir: screenshot-results
 
