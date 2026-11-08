@@ -31,7 +31,7 @@ testing {
 }
 
 // Selects what a run does, see ScreenshotTestMode:
-//   -Pscreenshot.mode=generate  records reference images and asserts nothing about how the scene looks
+//   -Pscreenshot.mode=generate  records reference images without comparing against any
 //   -Pscreenshot.mode=compare   compares against reference images recorded by an earlier generate run
 // There is no default; a run that picks no mode fails with an explanation of the two.
 // -Pscreenshot.referenceDir=<path> says where the reference images live. CI passes an absolute path,
@@ -42,7 +42,7 @@ def isGenerateRun = screenshotMode?.toString()?.trim()?.equalsIgnoreCase('genera
 def screenshotReferenceDirectory = findProperty('screenshot.referenceDir')
         ?: layout.buildDirectory.dir('reference-images').get().asFile.absolutePath
 
-// Must match ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER, which ReferenceRunMarkerTest pins.
+// Must match ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER, which DesktopReferenceImagesTest pins.
 def screenshotReferenceRunMarker = 'reference-run-complete.txt'
 
 def configureScreenshotTest = { Test task, String renderer ->

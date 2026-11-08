@@ -40,6 +40,7 @@ jobs:
   desktop:
     name: Desktop (${{ matrix.renderer }})
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     container:
       image: ghcr.io/onemillionworlds/opengl-docker-image:v1
     strategy:
@@ -280,8 +281,6 @@ jobs:
           retention-days: 7
           path: screenshot-results
 
-      # Includes the reference checkout's own reports, which are what to look at when it is the
-      # reference pass that failed.
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7
         if: always()

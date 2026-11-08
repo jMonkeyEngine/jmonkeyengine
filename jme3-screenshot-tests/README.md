@@ -16,7 +16,7 @@ mode fails immediately, with an explanation, rather than rendering anything.
 
 | Mode | What it does |
 | --- | --- |
-| `-Pscreenshot.mode=generate` | Renders and records what every test looks like **on this machine**, into `build/reference-images`. Asserts nothing about the images, so it cannot fail on how a scene looks. |
+| `-Pscreenshot.mode=generate` | Renders and records what every test looks like **on this machine**, into `build/reference-images`. Compares nothing against reference images, so a change in how a scene looks cannot fail it. A crash, a timeout, or the scenarios of a multi-scenario test rendering differently from each other still do. |
 | `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is reported as one. Images that differ are recorded in the report and in `build/changed-images`; they do not fail the run. |
 
 `-Pscreenshot.referenceDir=<path>` overrides where reference images are written and read.
