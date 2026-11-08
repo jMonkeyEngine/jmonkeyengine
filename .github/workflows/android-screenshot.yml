@@ -96,7 +96,7 @@ jobs:
           # survives the uninstall between retry attempts. The app's own external files directory
           # would not, which is why the reference images live here.
           TEST_STORAGE=/storage/emulated/0/googletest
-          REFERENCE_IMAGES="$TEST_STORAGE/test_inputfiles/reference-images"
+          REFERENCE_IMAGES="$TEST_STORAGE/test_runfiles/reference-images"
           GENERATED_IMAGES="$TEST_STORAGE/test_outputfiles/reference-images"
 
           # Runs one pass up to <attempts> times. Only the reference pass retries. It runs code already

@@ -49,7 +49,7 @@ it, install it with `adb install -r -g`):
 ```
  TASK=:jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
  STORAGE=/storage/emulated/0/googletest
- REFERENCE=$STORAGE/test_inputfiles/reference-images
+ REFERENCE=$STORAGE/test_runfiles/reference-images
 
  adb shell rm -rf $REFERENCE $STORAGE/test_outputfiles
  git switch master
