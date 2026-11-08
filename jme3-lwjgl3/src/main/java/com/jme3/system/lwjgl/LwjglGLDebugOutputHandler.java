@@ -73,6 +73,8 @@ class LwjglGLDebugOutputHandler extends GLDebugMessageARBCallback {
         String typeStr = constMap.get(type);
         String severityStr = constMap.get(severity);
 
-        System.err.println(String.format(MESSAGE_FORMAT, id, sourceStr, typeStr, severityStr, message));
+        // The callback supplies a native UTF-8 pointer, valid only during this call.
+        String messageText = GLDebugMessageARBCallback.getMessage(length, message);
+        System.err.println(String.format(MESSAGE_FORMAT, id, sourceStr, typeStr, severityStr, messageText));
     }
 }
