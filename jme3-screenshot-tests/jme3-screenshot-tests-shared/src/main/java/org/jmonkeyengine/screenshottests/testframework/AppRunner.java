@@ -76,12 +76,11 @@ public interface AppRunner {
     Optional<Image> loadReferenceImage(String fileName);
 
     /**
-     * Stores an image as the reference for later comparison runs on this machine.
-     *
-     * @param image the image to store
-     * @param fileName the reference image file name, e.g. {@code com.example.TestFoo.testFoo_f1.png}
+     * Copies a screenshot, byte for byte, to be the reference for later comparison runs on this
+     * machine, so that a reference has been through exactly the same encoding as the screenshots
+     * it is compared with.
      */
-    void saveReferenceImage(Image image, String fileName);
+    void saveReferenceImage(Path screenshot, String fileName);
 
     /**
      * Returns whether the reference images available here were left by a reference run that

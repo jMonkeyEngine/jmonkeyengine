@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -144,8 +145,14 @@ public class DesktopRunner implements AppRunner {
     }
 
     @Override
-    public void saveReferenceImage(Image image, String fileName) {
-        writePng(image, getReferenceImagesDirectory().resolve(fileName));
+    public void saveReferenceImage(Path screenshot, String fileName) {
+        Path destination = getReferenceImagesDirectory().resolve(fileName).toAbsolutePath();
+        try {
+            Files.createDirectories(destination.getParent());
+            Files.copy(screenshot, destination, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not write " + destination, e);
+        }
     }
 
     @Override

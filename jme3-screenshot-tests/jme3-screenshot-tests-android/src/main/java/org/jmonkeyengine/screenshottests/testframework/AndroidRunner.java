@@ -49,6 +49,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -181,8 +182,13 @@ public class AndroidRunner implements AppRunner {
     }
 
     @Override
-    public void saveReferenceImage(Image image, String fileName) {
-        writePng(image, REFERENCE_IMAGES_DIRECTORY + "/" + fileName);
+    public void saveReferenceImage(Path screenshot, String fileName) {
+        String relativePath = REFERENCE_IMAGES_DIRECTORY + "/" + fileName;
+        try (OutputStream out = getPersistentFileOutputStream(relativePath)) {
+            Files.copy(screenshot, out);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not write " + relativePath, e);
+        }
     }
 
     /**

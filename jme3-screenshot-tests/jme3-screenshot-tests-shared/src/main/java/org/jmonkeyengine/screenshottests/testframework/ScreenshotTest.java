@@ -349,7 +349,7 @@ public class ScreenshotTest{
                 if(mode == ScreenshotTestMode.GENERATE){
                     // This is the pass that runs against the reference branch; it records what the
                     // scene looks like on this machine and asserts nothing about it.
-                    osSpecificRunner.saveReferenceImage(generatedImage, referenceImageFileName);
+                    osSpecificRunner.saveReferenceImage(generatedImagePath, referenceImageFileName);
                     attachImage("Reference image", referenceImageFileName, generatedImage);
                     continue;
                 }

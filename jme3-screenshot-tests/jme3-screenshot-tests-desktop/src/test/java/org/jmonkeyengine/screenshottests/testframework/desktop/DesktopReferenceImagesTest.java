@@ -6,6 +6,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
 
 import org.jmonkeyengine.screenshottests.testframework.ImageDifference;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotImageIo;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestMode;
 import org.junit.jupiter.api.AfterEach;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -77,14 +79,17 @@ public class DesktopReferenceImagesTest {
     }
 
     @Test
-    public void aSavedReferenceImageIsFoundAndUnchanged(@TempDir Path temporaryDirectory) {
+    public void aSavedReferenceImageIsFoundAndUnchanged(@TempDir Path temporaryDirectory) throws Exception {
         System.setProperty(REFERENCE_DIRECTORY_PROPERTY, temporaryDirectory.toString());
         DesktopRunner runner = new DesktopRunner();
         Image original = gradient(8, 4);
+        Path screenshot = temporaryDirectory.resolve("screenshot.png");
+        ScreenshotImageIo.writePng(original, screenshot);
 
-        runner.saveReferenceImage(original, "com.example.TestFoo.testFoo_f1.png");
+        runner.saveReferenceImage(screenshot, "com.example.TestFoo.testFoo_f1.png");
 
-        assertTrue(Files.isRegularFile(temporaryDirectory.resolve("com.example.TestFoo.testFoo_f1.png")));
+        assertArrayEquals(Files.readAllBytes(screenshot),
+                Files.readAllBytes(temporaryDirectory.resolve("com.example.TestFoo.testFoo_f1.png")));
 
         Optional<Image> loaded = runner.loadReferenceImage("com.example.TestFoo.testFoo_f1.png");
 
@@ -103,7 +108,9 @@ public class DesktopReferenceImagesTest {
         // tests that are new on the branch under test - and those are accepted silently.
         System.setProperty(REFERENCE_DIRECTORY_PROPERTY, temporaryDirectory.toString());
         DesktopRunner runner = new DesktopRunner();
-        runner.saveReferenceImage(gradient(8, 4), "com.example.TestFoo.testFoo_f1.png");
+        Path screenshot = temporaryDirectory.resolve("screenshot.png");
+        ScreenshotImageIo.writePng(gradient(8, 4), screenshot);
+        runner.saveReferenceImage(screenshot, "com.example.TestFoo.testFoo_f1.png");
 
         assertFalse(runner.isReferenceRunComplete());
 
