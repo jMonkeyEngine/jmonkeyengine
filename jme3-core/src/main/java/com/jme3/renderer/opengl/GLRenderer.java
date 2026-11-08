@@ -4248,6 +4248,14 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
+    public boolean isGpuTimingDisjoint() {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
+        return gl.isGpuTimingDisjoint();
+    }
+
+    @Override
     public boolean getAlphaToCoverage() {
         if (caps.contains(Caps.Multisample)) {
             return gl.glIsEnabled(GLExt.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
