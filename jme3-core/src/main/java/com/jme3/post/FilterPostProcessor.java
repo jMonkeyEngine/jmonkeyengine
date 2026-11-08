@@ -647,6 +647,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             initFilter(filter, vp);
         }
         setupViewPortFrameBuffer();
+        // Flags may change before filters receive their processor during init.
+        updateLastFilterIndex();
     }
 
     private void installMultiViewRenderCamera() {
