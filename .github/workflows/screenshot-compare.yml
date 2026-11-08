@@ -292,6 +292,8 @@ jobs:
             **/build/reports/**
             **/build/changed-images/**
             **/build/test-results/**
+            !**/build/reports/tests/**
+            !reference/**
 
       # The comparison runs with continue-on-error so that the summary and the artifacts are
       # produced whatever happened. This is where its result actually decides the job.
