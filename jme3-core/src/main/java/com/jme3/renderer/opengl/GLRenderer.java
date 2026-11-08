@@ -4107,10 +4107,6 @@ public final class GLRenderer implements Renderer {
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
-        // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed
-        count = Math.max(mesh.getInstanceCount(), count);
-
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
@@ -4160,7 +4156,8 @@ public final class GLRenderer implements Renderer {
             return;
         }
 
-        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
+        int instanceCount = Math.max(mesh.getInstanceCount(), count);
+        if (instanceCount > 1 && !caps.contains(Caps.MeshInstancing)) {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
@@ -4172,11 +4169,11 @@ public final class GLRenderer implements Renderer {
         if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
-        statistics.onMeshDrawn(mesh, lod, count);
+        statistics.onMeshDrawn(mesh, lod, instanceCount);
 //        if (ctxCaps.GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-        renderMeshDefault(mesh, lod, count, instanceData);
+        renderMeshDefault(mesh, lod, instanceCount, instanceData);
 //        }
     }
 
