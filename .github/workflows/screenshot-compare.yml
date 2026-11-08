@@ -79,9 +79,6 @@ jobs:
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.4.0
 
-      # Both checkouts share one Gradle home, so the reference branch - almost always a recent
-      # master - mostly compiles out of the cache. Without this the second build would roughly
-      # double the job.
       # Never writes: a manual run from the default branch can execute an unreviewed target_ref, and
       # a cache saved from there would be restored by every branch.
       - name: Setup Gradle
