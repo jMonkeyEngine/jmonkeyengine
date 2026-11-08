@@ -186,7 +186,7 @@ while IFS=$'\t' read -r name id size; do
     fi
     report_id=$(artifact_id "$report_artifact")
     if [ -n "$report_id" ]; then
-      echo "📄 **Report:** [download $report_artifact]($RUN_URL/artifacts/$report_id), then open \`$report_file\` from the zip."
+      echo "📄 **Report:** [download $report_artifact]($RUN_URL/artifacts/$report_id), then open \`$report_file\` from the zip. ⚠️ The report is produced by this pull request's code, so only open it if you trust the pull request."
       echo
     fi
   } >> "$sections"
