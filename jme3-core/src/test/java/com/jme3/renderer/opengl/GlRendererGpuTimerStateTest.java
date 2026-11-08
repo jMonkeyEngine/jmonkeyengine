@@ -91,7 +91,7 @@ class GlRendererGpuTimerStateTest {
     @Test
     void desktopOpenGlDefaultsToFalse() {
         TimerState binding = new TimerState();
-        binding.unavailable = true;
+        binding.unavailable = false;
         GLRenderer renderer = new GLRenderer(binding.gl(), null, null);
         renderer.getCaps().add(Caps.GpuTimerQuery);
         assertFalse(renderer.isGpuTimingDisjoint());
