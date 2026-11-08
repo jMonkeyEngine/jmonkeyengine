@@ -29,14 +29,12 @@
  */
 package com.jme3.system.lwjgl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.lwjgl.egl.EXTPlatformWayland.EGL_PLATFORM_WAYLAND_EXT;
-import static org.lwjgl.egl.EXTPlatformX11.EGL_PLATFORM_X11_EXT;
 import static org.lwjgl.sdl.SDLVideo.SDL_GL_EGL_PLATFORM;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
@@ -49,9 +47,8 @@ import org.mockito.MockedStatic;
 
 class SdlEglPlatformTest {
     @ParameterizedTest
-    @CsvSource({"true, true, x11", "true, false, wayland", "false, true, x11", "false, false, wayland"})
-    void matchesEglPlatformToTheSelectedVideoBackend(
-            boolean preferX11, boolean waylandSession, String selectedDriver) throws Exception {
+    @CsvSource({"true, true", "true, false", "false, true", "false, false"})
+    void leavesEglPlatformSelectionToSdl(boolean preferX11, boolean waylandSession) throws Exception {
         assumeTrue(Platform.get() == Platform.LINUX);
         AppSettings settings = new AppSettings(true);
         settings.setRenderer(AppSettings.LWJGL_OPENGL33);
@@ -61,21 +58,9 @@ class SdlEglPlatformTest {
         configure.setAccessible(true);
         try (MockedStatic<SDLVideo> video = mockStatic(SDLVideo.class);
                 MockedStatic<JmeSystem> system = mockStatic(JmeSystem.class)) {
-            int[] requestedPlatform = {0};
-            video.when(SDLVideo::SDL_GetCurrentVideoDriver).thenReturn(selectedDriver);
-            video.when(() -> SDLVideo.SDL_GL_SetAttribute(eq(SDL_GL_EGL_PLATFORM), anyInt()))
-                    .thenAnswer(invocation -> {
-                        requestedPlatform[0] = invocation.getArgument(1);
-                        return true;
-                    });
             system.when(JmeSystem::isWaylandSession).thenReturn(waylandSession);
             configure.invoke(window, settings);
-            int backendPlatform = "x11".equals(selectedDriver)
-                    ? EGL_PLATFORM_X11_EXT : EGL_PLATFORM_WAYLAND_EXT;
-            // Bundled SDL supplies its video backend's platform when the attribute remains zero.
-            int effectivePlatform = requestedPlatform[0] == 0 ? backendPlatform : requestedPlatform[0];
-            assertEquals(backendPlatform, effectivePlatform,
-                    "The EGL platform must match SDL's selected video backend");
+            video.verify(() -> SDLVideo.SDL_GL_SetAttribute(eq(SDL_GL_EGL_PLATFORM), anyInt()), never());
         }
     }
 }
