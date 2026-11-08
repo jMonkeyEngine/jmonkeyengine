@@ -4252,7 +4252,7 @@ public final class GLRenderer implements Renderer {
         if (!caps.contains(Caps.GpuTimerQuery)) {
             throw new RendererException("GPU timer queries are not supported by the current renderer");
         }
-        return caps.contains(Caps.OpenGLES20) && gl.isGpuTimingDisjoint();
+        return gl.isGpuTimingDisjoint();
     }
 
     @Override
