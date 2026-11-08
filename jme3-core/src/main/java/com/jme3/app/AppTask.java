@@ -32,148 +32,100 @@
 package com.jme3.app;
 
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>AppTask</code> is used in <code>AppTaskQueue</code> to manage tasks that have
- * yet to be accomplished. The AppTask system is used to execute tasks either
- * in the OpenGL/Render thread, or outside of it.
+ * A queued application task. Invocation executes the callable at most once;
+ * completion and waiting are managed by {@link FutureTask}. Cancellation never
+ * interrupts the executing thread, which may be an engine-owned render or physics
+ * thread. An {@link Error} is recorded for waiting callers and rethrown by
+ * {@link #invoke()}.
  *
+ * @param <V> the result type
  * @author Matthew D. Hicks, lazloh
  */
 public class AppTask<V> implements Future<V> {
-    private static final Logger logger = Logger.getLogger(AppTask.class
-            .getName());
-
+    private static final Logger logger = Logger.getLogger(AppTask.class.getName());
     private final Callable<V> callable;
-
-    private V result;
-    private ExecutionException exception;
-    private boolean cancelled;
-    private boolean finished;
-    private final ReentrantLock stateLock = new ReentrantLock();
-    private final Condition finishedCondition = stateLock.newCondition();
+    private final FutureTask<V> future;
 
     /**
-     * Create an <code>AppTask</code> that will execute the given 
-     * {@link Callable}.
-     * 
-     * @param callable The callable to be executed
+     * Creates a task without executing it.
+     *
+     * @param callable the non-null work to execute
      */
     public AppTask(Callable<V> callable) {
-        this.callable = callable;
+        this.callable = Objects.requireNonNull(callable, "callable");
+        future = new FutureTask<>(() -> {
+            try {
+                return callable.call();
+            } catch (Exception failure) {
+                logger.logp(Level.SEVERE, getClass().toString(), "invoke()", "Exception", failure);
+                throw failure;
+            }
+        }) {
+            @Override
+            protected void setException(Throwable failure) {
+                super.setException(failure);
+                // Preserve Error propagation to the engine's error handler after waking waiters.
+                if (failure instanceof Error) {
+                    throw (Error) failure;
+                }
+            }
+        };
     }
 
+    /**
+     * Cancels the task without interrupting the thread that executes it.
+     * A callable already running is allowed to finish, but its result is discarded.
+     *
+     * @param mayInterruptIfRunning ignored; engine-owned threads are never interrupted
+     * @return true if the task was canceled, false if it was already completed or canceled
+     */
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        stateLock.lock();
-        try {
-            if (result != null) {
-                return false;
-            }
-            cancelled = true;
-
-            finishedCondition.signalAll();
-
-            return true;
-        } finally {
-            stateLock.unlock();
-        }
+        return future.cancel(false);
     }
 
     @Override
     public V get() throws InterruptedException, ExecutionException {
-        stateLock.lock();
-        try {
-            while (!isDone()) {
-                finishedCondition.await();
-            }
-            if (exception != null) {
-                throw exception;
-            }
-            return result;
-        } finally {
-            stateLock.unlock();
-        }
+        return future.get();
     }
 
     @Override
     public V get(long timeout, TimeUnit unit)
-        throws InterruptedException, ExecutionException, TimeoutException {
-        stateLock.lock();
-        try {
-            if (!isDone()) {
-                finishedCondition.await(timeout, unit);
-            }
-            if (exception != null) {
-                throw exception;
-            }
-            if (result == null) {
-                throw new TimeoutException("Object not returned in time allocated.");
-            }
-            return result;
-        } finally {
-            stateLock.unlock();
-        }
+            throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(timeout, unit);
     }
 
     @Override
     public boolean isCancelled() {
-        stateLock.lock();
-        try {
-            return cancelled;
-        } finally {
-            stateLock.unlock();
-        }
+        return future.isCancelled();
     }
 
     @Override
     public boolean isDone() {
-        stateLock.lock();
-        try {
-            return finished || cancelled || (exception != null);
-        } finally {
-            stateLock.unlock();
-        }
+        return future.isDone();
     }
 
     public Callable<V> getCallable() {
         return callable;
     }
 
+    /**
+     * Executes the callable on this thread, unless already invoked or canceled.
+     *
+     * @throws Error if the callable throws an Error; its failure is also available through get()
+     */
     public void invoke() {
-        try {
-            final V tmpResult = callable.call();
-
-            stateLock.lock();
-            try {
-                result = tmpResult;
-                finished = true;
-
-                finishedCondition.signalAll();
-            } finally {
-                stateLock.unlock();
-            }
-        } catch (Exception e) {
-            logger.logp(Level.SEVERE, this.getClass().toString(), "invoke()", "Exception", e);
-
-            stateLock.lock();
-            try {
-                exception = new ExecutionException(e);
-
-                finishedCondition.signalAll();
-            } finally {
-                stateLock.unlock();
-            }
-        }
+        future.run();
     }
-
 }
