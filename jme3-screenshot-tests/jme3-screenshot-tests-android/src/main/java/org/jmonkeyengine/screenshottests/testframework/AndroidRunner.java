@@ -49,6 +49,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -65,13 +66,6 @@ public class AndroidRunner implements AppRunner {
      * {@code -Pandroid.testInstrumentationRunnerArguments.jmeScreenshotMode=generate}.
      */
     public static final String MODE_INSTRUMENTATION_ARGUMENT = "jmeScreenshotMode";
-
-    /**
-     * Instrumentation argument used to accept intended visual changes, the Android equivalent of
-     * {@link ScreenshotTest#ACCEPT_CHANGES_SYSTEM_PROPERTY}. Both are set from
-     * {@code -Pscreenshot.acceptChanges}.
-     */
-    public static final String ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT = "jmeScreenshotAcceptChanges";
 
     /**
      * Directory (within test storage) that reference images are written to and read from.
@@ -181,8 +175,13 @@ public class AndroidRunner implements AppRunner {
     }
 
     @Override
-    public void saveReferenceImage(Image image, String fileName) {
-        writePng(image, REFERENCE_IMAGES_DIRECTORY + "/" + fileName);
+    public void saveReferenceImage(Path screenshot, String fileName) {
+        String relativePath = REFERENCE_IMAGES_DIRECTORY + "/" + fileName;
+        try (OutputStream out = getPersistentFileOutputStream(relativePath)) {
+            Files.copy(screenshot, out);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not write " + relativePath, e);
+        }
     }
 
     /**
@@ -200,12 +199,6 @@ public class AndroidRunner implements AppRunner {
         } catch (IOException e) {
             throw new RuntimeException("Could not read the reference run marker", e);
         }
-    }
-
-    @Override
-    public boolean isAcceptingChanges() {
-        return Boolean.parseBoolean(
-                InstrumentationRegistry.getArguments().getString(ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT));
     }
 
     @Override

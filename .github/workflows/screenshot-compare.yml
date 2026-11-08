@@ -26,8 +26,8 @@ on:
         required: true
       target_ref:
         description: >
-          Ref to test. Running this against a ref you have not reviewed executes its code on the
-          runner, exactly as approving a fork pull request's workflow does.
+          Ref to test. Its code runs in this repository's context rather than a fork's, so only use
+          a ref you have reviewed.
         required: true
 
 # This runs the pull request's code, so it never holds a write token. Changed images are reported
@@ -79,11 +79,12 @@ jobs:
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6.4.0
 
-      # Both checkouts share one Gradle home, so the reference branch - almost always a recent
-      # master - mostly compiles out of the cache. Without this the second build would roughly
-      # double the job.
+      # Never writes: a manual run from the default branch can execute an unreviewed target_ref, and
+      # a cache saved from there would be restored by every branch.
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.4.0
+        with:
+          cache-read-only: true
 
       - name: Start display server
         run: |
@@ -158,8 +159,9 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
 
-      # Only the reference pass retries. A failure there can only be infrastructure, whereas a failed
-      # comparison is usually a verdict that a rerun on the same machine would just repeat.
+      # Only the reference pass retries. It runs code already on the base branch, so a failure there
+      # can only be infrastructure; image differences do not fail a comparison, so one that does
+      # fail most likely crashed because of the change under test.
       - name: Prepare the screenshot run helper
         run: |
           cat > "$RUNNER_TEMP/screenshot-run.sh" << 'HELPER'
@@ -230,7 +232,7 @@ jobs:
 
       # The generate pass writes its marker only when every test in it passed. Without this check, a
       # reference pass that died half way through would leave the comparison seeing missing
-      # reference images - which it reads as "these tests are new" and accepts.
+      # reference images - which it reads as "these tests are new" and lets through.
       - name: Check the reference run completed
         if: steps.refs.outputs.reference_supported == 'true'
         env:
@@ -252,8 +254,7 @@ jobs:
         run: |
           ./gradlew ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
             -Pscreenshot.mode=compare \
-            -Pscreenshot.referenceDir="$REFERENCE_IMAGES" \
-            -Pscreenshot.acceptChanges=true
+            -Pscreenshot.referenceDir="$REFERENCE_IMAGES"
 
       - name: Summarise
         if: always()
@@ -265,6 +266,7 @@ jobs:
           reference_images: ${{ env.REFERENCE_IMAGES }}
           changed_images: jme3-screenshot-tests/jme3-screenshot-tests-desktop/build/changed-images
           artifact_name: screenshot-test-report-${{ matrix.renderer }}
+          report_file: ScreenshotDiffReport.html
           outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
           results_dir: screenshot-results
 

@@ -17,7 +17,7 @@ mode fails immediately, with an explanation, rather than rendering anything.
 | Mode | What it does |
 | --- | --- |
 | `-Pscreenshot.mode=generate` | Renders and records what every test looks like **on this machine**, into `build/reference-images`. Asserts nothing about the images, so it cannot fail on how a scene looks. |
-| `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is accepted with a warning. |
+| `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is reported as one. Images that differ are recorded in the report and in `build/changed-images`; they do not fail the run. |
 
 `-Pscreenshot.referenceDir=<path>` overrides where reference images are written and read.
 
@@ -41,11 +41,30 @@ compositor (its EGL binaries have no X11 platform support). On a headless machin
 e.g. `weston --backend=headless-backend.so --socket=wayland-1`, with `XDG_RUNTIME_DIR` set, and
 `XDG_SESSION_TYPE=wayland` and `WAYLAND_DISPLAY=wayland-1` exported.
 
-The same flag works for the Android tests, which pass it through to the instrumentation runner:
+The Android tests take the same flags and pass them through to the instrumentation runner, but the
+images live on the device, so a comparison needs the steps CI does between its two passes. With an
+emulator running and the test services app installed (`android-screenshot.yml` shows where to get
+it, install it with `adb install -r -g`):
 
 ```
- ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest -Pscreenshot.mode=generate
+ TASK=:jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
+ STORAGE=/storage/emulated/0/googletest
+ REFERENCE=$STORAGE/test_inputfiles/reference-images
+
+ adb shell rm -rf $REFERENCE $STORAGE/test_outputfiles
+ git switch master
+ ./gradlew $TASK -Pscreenshot.mode=generate
+
+ adb shell mkdir -p $REFERENCE
+ adb shell "cp $STORAGE/test_outputfiles/reference-images/*.png $REFERENCE/"
+ adb shell "echo done > $REFERENCE/reference-run-complete.txt"
+ adb shell rm -rf $STORAGE/test_outputfiles
+
+ git switch my-branch
+ ./gradlew $TASK -Pscreenshot.mode=compare
 ```
+
+Any images that differ can then be fetched with `adb pull $STORAGE/test_outputfiles/changed-images`.
 
 ANGLE records into files suffixed with `_angle` (e.g. `..._f1_angle.png`) so that the two desktop
 backends never overwrite each other's reference images.
@@ -68,7 +87,9 @@ request, which is updated on every push, and the reviewer confirms the change wa
 references are regenerated every run there is nothing to copy and commit.
 
 The check does still fail when the comparison could not run to the end: a crash, a timeout, or a
-reference run that did not finish.
+reference run that did not finish. It also fails when a test's scenarios render differently from
+each other. Scenarios are different ways of producing the same picture, so that is a serious visual
+failure rather than a change to review, and the comment reports it as one.
 
 The screenshot checks only run on pull requests, since a push has no reviewer to look at the result.
 
@@ -85,9 +106,9 @@ A screenshot is therefore considered to match its reference image when no more t
 pixels (and never fewer than 10 pixels, so that small images still get a usable budget) differ by
 more than 3/255 on any colour channel - about 40 pixels on a 500x400 desktop screenshot and about
 200 pixels on a 1280x800 emulator screenshot. A change to what is actually drawn moves far more
-pixels than that and still fails the test; the numbers live in `ImageDifference`.
+pixels than that and is reported as a change; the numbers live in `ImageDifference`.
 
-Failures report the measurement that caused them, e.g.
+A reported difference includes the measurement behind it, e.g.
 
 ```
 Generated image is different from the reference image. ... (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)

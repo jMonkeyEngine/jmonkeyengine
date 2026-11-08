@@ -36,13 +36,9 @@ testing {
 // There is no default; a run that picks no mode fails with an explanation of the two.
 // -Pscreenshot.referenceDir=<path> says where the reference images live. CI passes an absolute path,
 // because the generate run and the compare run are two checkouts of the repo on one machine.
-// -Pscreenshot.acceptChanges=true reports image differences instead of failing on them. CI always
-// passes it and lists the differences in a pull request comment instead. It never downgrades anything
-// but a difference between two images that were both produced - a crash or a timeout still fails.
 def screenshotMode = findProperty('screenshot.mode')
 // Normalised the same way as ScreenshotTestMode.fromConfigurationValue, which accepts any case.
 def isGenerateRun = screenshotMode?.toString()?.trim()?.equalsIgnoreCase('generate') ?: false
-def screenshotAcceptChanges = findProperty('screenshot.acceptChanges') ?: 'false'
 def screenshotReferenceDirectory = findProperty('screenshot.referenceDir')
         ?: layout.buildDirectory.dir('reference-images').get().asFile.absolutePath
 
@@ -64,17 +60,21 @@ def configureScreenshotTest = { Test task, String renderer ->
         task.systemProperty "jme.screenshot.mode", screenshotMode
     }
     task.systemProperty "jme.screenshot.referenceDir", screenshotReferenceDirectory
-    task.systemProperty "jme.screenshot.acceptChanges", screenshotAcceptChanges
 
     // A generate run and a compare run have identical inputs as far as Gradle can tell, so
     // without this the second of the two would be skipped as up to date and never execute.
     task.outputs.upToDateWhen { false }
 
     // A marker left by an earlier generate run would otherwise vouch for this one even if it dies
-    // half way, passing off a mix of old and partial images as a complete reference set.
+    // half way, passing off a mix of old and partial images as a complete reference set. The old
+    // images go as well, or one for a test this branch lacks would pose as that test's reference.
+    // Only this renderer's though: the other renderer's images share the directory.
     task.doFirst {
         if (isGenerateRun) {
             new File(screenshotReferenceDirectory, screenshotReferenceRunMarker).delete()
+            new File(screenshotReferenceDirectory).listFiles()
+                    ?.findAll { it.name.endsWith('.png') && it.name.endsWith('_angle.png') == (renderer != null) }
+                    ?.each { it.delete() }
         }
     }
 

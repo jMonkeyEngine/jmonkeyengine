@@ -65,9 +65,6 @@ public final class ScreenshotImageIo {
 
     /**
      * Reads a PNG file.
-     *
-     * @param file the file to read
-     * @return the decoded image
      */
     public static Image readImage(File file) {
         File absoluteFile = file.getAbsoluteFile();
@@ -99,11 +96,8 @@ public final class ScreenshotImageIo {
 
     /**
      * Writes an image as a PNG, converting it to RGBA8 first because that is the only format
-     * {@link JmeSystem#writeImageFile} accepts.
-     *
-     * @param image the image to write
-     * @param outputStream the stream to write to; the caller retains responsibility for closing it
-     * @throws IOException if the image cannot be written
+     * {@link JmeSystem#writeImageFile} accepts. The caller remains responsible for closing the
+     * stream.
      */
     public static void writePng(Image image, OutputStream outputStream) throws IOException {
         Image rgbaImage = TestReportCaptureBase.convertToRGBA8(image);
@@ -113,10 +107,6 @@ public final class ScreenshotImageIo {
 
     /**
      * Writes an image as a PNG to a file, creating the directories above it if they do not exist.
-     *
-     * @param image the image to write
-     * @param file the file to write to
-     * @throws IOException if the image cannot be written
      */
     public static void writePng(Image image, Path file) throws IOException {
         Path parent = file.getParent();

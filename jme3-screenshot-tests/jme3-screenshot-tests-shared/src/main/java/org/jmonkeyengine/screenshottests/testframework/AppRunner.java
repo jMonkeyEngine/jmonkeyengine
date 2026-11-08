@@ -76,12 +76,11 @@ public interface AppRunner {
     Optional<Image> loadReferenceImage(String fileName);
 
     /**
-     * Stores an image as the reference for later comparison runs on this machine.
-     *
-     * @param image the image to store
-     * @param fileName the reference image file name, e.g. {@code com.example.TestFoo.testFoo_f1.png}
+     * Copies a screenshot, byte for byte, to be the reference for later comparison runs on this
+     * machine, so that a reference has been through exactly the same encoding as the screenshots
+     * it is compared with.
      */
-    void saveReferenceImage(Image image, String fileName);
+    void saveReferenceImage(Path screenshot, String fileName);
 
     /**
      * Returns whether the reference images available here were left by a reference run that
@@ -91,18 +90,10 @@ public interface AppRunner {
      * <p>
      * A comparison run must refuse to run without this. Reference images that are missing because
      * the reference run died look exactly like reference images that are missing because the tests
-     * are new, and the second of those is accepted silently.
+     * are new, and the second of those does not fail the run.
      * </p>
      *
      * @return true if a completed reference run left its images here
      */
     boolean isReferenceRunComplete();
-
-    /**
-     * Returns whether this run was told that the visual changes it finds are intended, which
-     * downgrades an image difference from a failure to a warning.
-     *
-     * @return true if image differences should be reported rather than failed
-     */
-    boolean isAcceptingChanges();
 }
