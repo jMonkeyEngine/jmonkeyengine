@@ -73,8 +73,8 @@ runs:
           done < <(find "$CHANGED_IMAGES" -type f -name '*.png' | sort)
         fi
 
-        changed=$(grep -c . "$RESULTS_DIR/changed.txt")
-        new=$(grep -c . "$RESULTS_DIR/new.txt")
+        changed=$(grep -c . "$RESULTS_DIR/changed.txt" || true)
+        new=$(grep -c . "$RESULTS_DIR/new.txt" || true)
         table() { echo "| Image |"; echo "| --- |"; sed 's/.*/| `&` |/' "$1"; echo; }
 
         {

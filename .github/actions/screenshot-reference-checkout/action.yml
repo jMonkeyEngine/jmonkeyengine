@@ -2,8 +2,7 @@ name: Check out the branch to compare screenshots against
 description: >
   Works out which commit the checked-out branch should be compared against and checks it out into
   ./reference, so that both halves of a screenshot comparison are built and rendered on one machine.
-  Shared by the desktop and Android workflows: if those two ever resolved refs differently, their
-  comparisons would quietly stop meaning the same thing.
+  Shared by the desktop and Android workflows.
 
   The branch under test is the repository already checked out at the workspace root, which the
   calling workflow must have done first - a local action cannot be found before that.
@@ -36,6 +35,9 @@ runs:
         REFERENCE_REF_INPUT: ${{ inputs.reference_ref }}
       run: |
         set -euo pipefail
+
+        # In a container job another user owns the workspace, and git refuses to work in it otherwise.
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
         if [ -n "$REFERENCE_REF_INPUT" ]; then
           # A manually requested comparison; pass the ref through for checkout to resolve.
