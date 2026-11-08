@@ -33,6 +33,7 @@ package com.jme3.post;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.MaterialDef;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -40,7 +41,9 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.system.NullRenderer;
+import com.jme3.texture.FrameBuffer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -212,6 +215,104 @@ class FilterPostProcessorTest {
         assertEquals(240, camera.getHeight());
         assertEquals(800, renderer.viewPortWidth);
         assertEquals(600, renderer.viewPortHeight);
+    }
+
+    @Test
+    void initializationUsesCurrentFilterFlagsForFinalOutputIncludingReuse() {
+        RenderManager manager = outputRenderManager();
+        Camera camera = new Camera(320, 240);
+        camera.setViewPort(0.5f, 1f, 0f, 1f);
+        ViewPort view = manager.createMainView("main", camera);
+        FrameBuffer output = new FrameBuffer(320, 240, 1);
+        view.setOutputFrameBuffer(output);
+        FilterPostProcessor processor = new FilterPostProcessor(null);
+        OutputFilter leading = new OutputFilter();
+        leading.setEnabled(false);
+        OutputFilter trailing = new OutputFilter();
+        processor.addFilter(leading);
+        processor.addFilter(trailing);
+        leading.setEnabled(true);
+        trailing.setEnabled(false);
+        processor.initialize(manager, view);
+        processor.preFrame(0f);
+        processor.postFrame(null);
+
+        assertSame(output, leading.output, "the enabled filter must reach the final target");
+        assertEquals(1, leading.rendered);
+        assertEquals(0, trailing.rendered);
+        assertEquals(0.5f, camera.getViewPortLeft());
+        processor.cleanup();
+
+        leading.setEnabled(false);
+        trailing.setEnabled(true);
+        processor.initialize(manager, view);
+        processor.preFrame(0f);
+        processor.postFrame(null);
+        assertSame(output, trailing.output, "detached flag changes must also work on reuse");
+        assertEquals(1, leading.rendered);
+        assertEquals(1, trailing.rendered);
+        processor.cleanup();
+    }
+
+    @Test
+    void allFiltersDisabledBeforeInitializationKeepOriginalOutput() {
+        RenderManager manager = outputRenderManager();
+        ViewPort view = manager.createMainView("main", new Camera(320, 240));
+        FrameBuffer output = new FrameBuffer(320, 240, 1);
+        view.setOutputFrameBuffer(output);
+        FilterPostProcessor processor = new FilterPostProcessor(null);
+        OutputFilter filter = new OutputFilter();
+        processor.addFilter(filter);
+        filter.setEnabled(false);
+        processor.initialize(manager, view);
+
+        assertSame(output, view.getOutputFrameBuffer());
+        processor.preFrame(0f);
+        assertSame(output, view.getOutputFrameBuffer());
+        processor.reshape(view, 640, 480);
+        assertSame(output, view.getOutputFrameBuffer());
+
+        filter.setEnabled(true);
+        assertNotSame(output, view.getOutputFrameBuffer());
+        processor.preFrame(0f);
+        processor.postFrame(null);
+        assertSame(output, filter.output);
+        processor.cleanup();
+    }
+
+    private static RenderManager outputRenderManager() {
+        return new RenderManager(new NullRenderer()) {
+            @Override
+            public void renderGeometry(Geometry geometry) {
+                // Exercise pass routing without compiling a shader or creating a graphics context.
+            }
+        };
+    }
+
+    private static class OutputFilter extends Filter {
+        private final Material material = new Material(new MaterialDef(null, "output-test"));
+        private FrameBuffer output;
+        private int rendered;
+
+        @Override
+        protected void initFilter(AssetManager assets, RenderManager manager, ViewPort view, int w, int h) {
+        }
+
+        @Override
+        protected Material getMaterial() {
+            return material;
+        }
+
+        @Override
+        protected boolean isRequiresSceneTexture() {
+            return false;
+        }
+
+        @Override
+        protected void postFilter(Renderer renderer, FrameBuffer buffer) {
+            output = buffer;
+            rendered++;
+        }
     }
 
     private static class RecordingRenderer extends NullRenderer {
