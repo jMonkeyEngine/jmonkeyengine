@@ -30,28 +30,76 @@ testing {
     }
 }
 
-tasks.register("screenshotTest", Test) {
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform{
-        filter{
-            includeTags 'integration'
+// Selects what a run does, see ScreenshotTestMode:
+//   -Pscreenshot.mode=generate  records reference images and asserts nothing about how the scene looks
+//   -Pscreenshot.mode=compare   compares against reference images recorded by an earlier generate run
+// There is no default; a run that picks no mode fails with an explanation of the two.
+// -Pscreenshot.referenceDir=<path> says where the reference images live. CI passes an absolute path,
+// because the generate run and the compare run are two checkouts of the repo on one machine.
+// -Pscreenshot.acceptChanges=true reports image differences instead of failing on them. CI always
+// passes it and lists the differences in a pull request comment instead. It never downgrades anything
+// but a difference between two images that were both produced - a crash or a timeout still fails.
+def screenshotMode = findProperty('screenshot.mode')
+// Normalised the same way as ScreenshotTestMode.fromConfigurationValue, which accepts any case.
+def isGenerateRun = screenshotMode?.toString()?.trim()?.equalsIgnoreCase('generate') ?: false
+def screenshotAcceptChanges = findProperty('screenshot.acceptChanges') ?: 'false'
+def screenshotReferenceDirectory = findProperty('screenshot.referenceDir')
+        ?: layout.buildDirectory.dir('reference-images').get().asFile.absolutePath
+
+// Must match ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER, which ReferenceRunMarkerTest pins.
+def screenshotReferenceRunMarker = 'reference-run-complete.txt'
+
+def configureScreenshotTest = { Test task, String renderer ->
+    task.testClassesDirs = sourceSets.test.output.classesDirs
+    task.classpath = sourceSets.test.runtimeClasspath
+    task.useJUnitPlatform { options ->
+        options.includeTags 'integration'
+    }
+    if (renderer != null) {
+        task.systemProperty "jme.screenshot.renderer", renderer
+    }
+    // Left unset when no mode was given, so that the test framework is the one place that explains
+    // what the modes are rather than the build script guessing one.
+    if (screenshotMode != null) {
+        task.systemProperty "jme.screenshot.mode", screenshotMode
+    }
+    task.systemProperty "jme.screenshot.referenceDir", screenshotReferenceDirectory
+    task.systemProperty "jme.screenshot.acceptChanges", screenshotAcceptChanges
+
+    // A generate run and a compare run have identical inputs as far as Gradle can tell, so
+    // without this the second of the two would be skipped as up to date and never execute.
+    task.outputs.upToDateWhen { false }
+
+    // A marker left by an earlier generate run would otherwise vouch for this one even if it dies
+    // half way, passing off a mix of old and partial images as a complete reference set.
+    task.doFirst {
+        if (isGenerateRun) {
+            new File(screenshotReferenceDirectory, screenshotReferenceRunMarker).delete()
         }
     }
+
+    // doLast runs only when the task itself succeeded, which is exactly the condition the marker
+    // is meant to record: every test in the generate pass produced its reference image. A pass
+    // that crashed or timed out leaves no marker, and the comparison pass then refuses to run
+    // rather than mistaking the missing images for new tests.
+    task.doLast {
+        if (isGenerateRun) {
+            def marker = new File(screenshotReferenceDirectory, screenshotReferenceRunMarker)
+            marker.parentFile.mkdirs()
+            marker.text = "Reference images generated at ${new Date()}\n"
+        }
+    }
+}
+
+tasks.register("screenshotTest", Test) {
+    configureScreenshotTest(it, null)
 }
 
 // Runs the same screenshot tests with the ANGLE GLES3 renderer instead of OpenGL.
 // Requires a Wayland compositor (e.g. weston --backend=headless-backend.so) because
 // the ANGLE binaries used here have no X11 EGL platform support.
 tasks.register("screenshotTestAngle", Test) {
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform{
-        filter{
-            includeTags 'integration'
-        }
-    }
-    systemProperty "jme.screenshot.renderer", "ANGLE_GLES3"
+    configureScreenshotTest(it, "ANGLE_GLES3")
 }
 
 

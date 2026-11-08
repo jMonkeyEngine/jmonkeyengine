@@ -33,8 +33,8 @@ package org.jmonkeyengine.screenshottests.testframework;
 
 import com.jme3.texture.Image;
 
-import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -50,4 +50,59 @@ public interface AppRunner {
     <V> V fail(String s);
 
     void saveGeneratedImageToChangedImages(Image generatedImage, String fileName);
+
+    /**
+     * Returns whether this run is generating reference images or comparing against them. How that
+     * is configured is platform specific: a system property on desktop, an instrumentation
+     * argument on Android.
+     *
+     * @return the mode this run is in
+     */
+    ScreenshotTestMode getScreenshotTestMode();
+
+    /**
+     * Loads a reference image produced by an earlier {@link ScreenshotTestMode#GENERATE} run.
+     *
+     * <p>
+     * An empty result means the reference run produced no image under this name, which is taken to
+     * mean the test did not exist on the reference branch. Note that reference images do not live
+     * in the same place on every platform (a directory on desktop, test storage on Android), which
+     * is why loading them belongs here rather than in the shared test code.
+     * </p>
+     *
+     * @param fileName the reference image file name, e.g. {@code com.example.TestFoo.testFoo_f1.png}
+     * @return the reference image, or empty if there is none under that name
+     */
+    Optional<Image> loadReferenceImage(String fileName);
+
+    /**
+     * Stores an image as the reference for later comparison runs on this machine.
+     *
+     * @param image the image to store
+     * @param fileName the reference image file name, e.g. {@code com.example.TestFoo.testFoo_f1.png}
+     */
+    void saveReferenceImage(Image image, String fileName);
+
+    /**
+     * Returns whether the reference images available here were left by a reference run that
+     * finished with every test passing, i.e. whether
+     * {@link ScreenshotTest#REFERENCE_RUN_COMPLETE_MARKER} is present alongside them.
+     *
+     * <p>
+     * A comparison run must refuse to run without this. Reference images that are missing because
+     * the reference run died look exactly like reference images that are missing because the tests
+     * are new, and the second of those is accepted silently.
+     * </p>
+     *
+     * @return true if a completed reference run left its images here
+     */
+    boolean isReferenceRunComplete();
+
+    /**
+     * Returns whether this run was told that the visual changes it finds are intended, which
+     * downgrades an image difference from a failure to a warning.
+     *
+     * @return true if image differences should be reported rather than failed
+     */
+    boolean isAcceptingChanges();
 }
