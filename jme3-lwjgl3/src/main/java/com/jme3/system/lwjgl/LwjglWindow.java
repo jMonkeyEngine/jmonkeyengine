@@ -90,8 +90,6 @@ import org.lwjgl.sdl.SDLStdinc;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
 
-import static org.lwjgl.egl.EXTPlatformWayland.EGL_PLATFORM_WAYLAND_EXT;
-import static org.lwjgl.egl.EXTPlatformX11.EGL_PLATFORM_X11_EXT;
 import static org.lwjgl.sdl.SDLError.*;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLHints.*;
@@ -510,13 +508,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
         RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
 
-        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
-            if (settings.isX11PlatformPreferred()) {
-                SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_X11_EXT);
-            } else if (JmeSystem.isWaylandSession()) {
-                SDL_GL_SetAttribute(SDL_GL_EGL_PLATFORM, EGL_PLATFORM_WAYLAND_EXT);
-            }
-        }
+        // SDL's video backend selects the EGL platform for its native display.
 
         int contextFlags = 0;
         if (settings.isGraphicsDebug()) {
