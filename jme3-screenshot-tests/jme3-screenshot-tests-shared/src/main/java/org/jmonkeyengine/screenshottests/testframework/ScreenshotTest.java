@@ -67,6 +67,12 @@ public class ScreenshotTest{
 
     public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
 
+    /**
+     * Added to the name of an image saved because a test's scenarios rendered differently from each
+     * other. The screenshot workflows look for it to report these as failures rather than changes.
+     */
+    public static final String SCENARIO_MISMATCH_IMAGE_SUFFIX = "_scenario-mismatch";
+
     public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
 
     public static final String KNOWN_BAD_TEST_IMAGES_DIFFERENT = "Images are different. This is a known broken test.";
@@ -317,6 +323,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + primeScenarioName + " size : " + primeGeneratedImage.getWidth() + "x" + primeGeneratedImage.getHeight());
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + thisScenarioName + " size : " + otherGeneratedImage.getWidth() + "x" + otherGeneratedImage.getHeight());
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
                             osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
@@ -325,6 +332,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(primeGeneratedImage, otherGeneratedImage));
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
 
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
