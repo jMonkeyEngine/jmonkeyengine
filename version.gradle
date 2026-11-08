@@ -14,6 +14,7 @@ ext {
 
 def gitOutput = { List<String> args ->
     def output = providers.exec {
+        workingDir rootProject.projectDir
         commandLine(['git'] + args)
         ignoreExitValue = true
     }
