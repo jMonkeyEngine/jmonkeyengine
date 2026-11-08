@@ -95,7 +95,7 @@ runs:
             echo "CI, so there is nothing to compare against."
             echo
           elif [ "$OUTCOME" != "success" ]; then
-            echo "**The comparison did not run to the end** - look at the step log above rather than"
+            echo "❌ **The comparison failed and did not run to the end** - look at the step log above rather than"
             echo "at the images. A crashed or timed out test, or a failed reference run, looks like this."
             echo
           elif [ "$changed" -eq 0 ] && [ "$new" -eq 0 ]; then

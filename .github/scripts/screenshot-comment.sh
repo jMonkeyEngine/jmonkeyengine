@@ -171,7 +171,7 @@ while IFS=$'\t' read -r name id size; do
       echo
     elif [ "$outcome" != "success" ]; then
       incomplete=$((incomplete + 1))
-      echo "⚠️ **The comparison did not run to the end**, so this list may be incomplete. See the [workflow run]($RUN_URL)."
+      echo "❌ **The comparison did not run to the end**, so this list may be incomplete. See the [workflow run]($RUN_URL)."
       echo
     fi
     if [ "$outcome" = "success" ] && [ "$changed_count" -eq 0 ] && [ "$new_count" -eq 0 ]; then
@@ -192,19 +192,30 @@ while IFS=$'\t' read -r name id size; do
   } >> "$sections"
 done <<< "$artifacts"
 
+failed=0
+if [ "$CONCLUSION" = "failure" ] || [ "$incomplete" -gt 0 ] || [ "$found" -eq 0 ]; then
+  failed=1
+fi
+
 {
   echo "$marker"
   echo "### 🖼️ $title"
   echo
-  if [ $((total_changed + total_new)) -gt 0 ]; then
-    echo "ℹ️ The purpose of these tests is to report when visual changes are introduced by a PR. If these"
-    echo "visual changes are intended, no action is required."
+  if [ "$failed" -eq 1 ]; then
+    echo "❌ **The screenshot comparison failed** for \`$short_sha\` ([workflow run]($RUN_URL)). This is a crash or a build failure rather than a visual difference, so it is not known whether any screenshots changed. It needs fixing before these results can be relied on."
     echo
+  fi
+  if [ $((total_changed + total_new)) -gt 0 ]; then
+    if [ "$failed" -eq 0 ]; then
+      echo "ℹ️ The purpose of these tests is to report when visual changes are introduced by a PR. If these"
+      echo "visual changes are intended, no action is required."
+      echo
+    fi
     echo "🔍 Results for \`$short_sha\` ([workflow run]($RUN_URL)). Each report shows the reference image,"
     echo "the new image and a diff side by side; artifact downloads need you to be signed in to GitHub."
   elif [ "$unsupported" -gt 0 ]; then
     echo "ℹ️ Screenshots were not compared as of \`$short_sha\` ([workflow run]($RUN_URL)), because the branch this merges into cannot generate reference images yet."
-  else
+  elif [ "$failed" -eq 0 ]; then
     echo "✅ No screenshot differences found as of \`$short_sha\` ([workflow run]($RUN_URL))."
   fi
   echo
@@ -221,7 +232,7 @@ done <<< "$artifacts"
   echo "📚 See the [screenshot test README](https://github.com/$REPO/blob/master/jme3-screenshot-tests/README.md) for more information."
 } > "$body"
 
-if [ $((total_changed + total_new + unsupported)) -gt 0 ]; then
+if [ $((total_changed + total_new + unsupported + failed)) -gt 0 ]; then
   publish create "$body"
 else
   publish update "$body"
