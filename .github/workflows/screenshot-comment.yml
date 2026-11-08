@@ -29,10 +29,7 @@ on:
     workflows: [Screenshot Comparison, Android Screenshot Test]
     types: [completed]
 
-permissions:
-  actions: read
-  contents: read
-  pull-requests: write
+permissions: {}
 
 # One at a time per workflow and branch, so that two runs can never both decide there is no comment
 # yet and post one each.
@@ -44,6 +41,12 @@ jobs:
   comment:
     if: github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      pull-requests: read
     steps:
       # The default branch, which is what a workflow_run run checks out unless told otherwise. Never
       # point this at the pull request.
