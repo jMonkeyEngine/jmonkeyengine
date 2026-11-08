@@ -35,13 +35,10 @@ public class DesktopReferenceImagesTest {
 
     private static final String MODE_PROPERTY = ScreenshotTest.MODE_SYSTEM_PROPERTY;
 
-    private static final String ACCEPT_CHANGES_PROPERTY = ScreenshotTest.ACCEPT_CHANGES_SYSTEM_PROPERTY;
-
     @AfterEach
     public void clearProperties() {
         System.clearProperty(REFERENCE_DIRECTORY_PROPERTY);
         System.clearProperty(MODE_PROPERTY);
-        System.clearProperty(ACCEPT_CHANGES_PROPERTY);
     }
 
     @Test
@@ -120,24 +117,10 @@ public class DesktopReferenceImagesTest {
     }
 
     @Test
-    public void changesAreNotAcceptedUnlessAskedFor() {
-        System.clearProperty(ACCEPT_CHANGES_PROPERTY);
-        assertFalse(new DesktopRunner().isAcceptingChanges());
-
-        System.setProperty(ACCEPT_CHANGES_PROPERTY, "false");
-        assertFalse(new DesktopRunner().isAcceptingChanges());
-
-        // CI passes the result of a GitHub Actions expression, which is the string "true"/"false".
-        System.setProperty(ACCEPT_CHANGES_PROPERTY, "true");
-        assertTrue(new DesktopRunner().isAcceptingChanges());
-    }
-
-    @Test
     public void referenceRunMarkerNameIsStable() {
         // jme3-screenshot-tests-desktop/build.gradle writes this file by name, and the workflows
         // check for it by name; renaming it here alone would break the guard silently.
         assertEquals("reference-run-complete.txt", ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER);
-        assertEquals("jme.screenshot.acceptChanges", ACCEPT_CHANGES_PROPERTY);
     }
 
     /**

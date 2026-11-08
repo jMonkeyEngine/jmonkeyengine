@@ -68,13 +68,6 @@ public class AndroidRunner implements AppRunner {
     public static final String MODE_INSTRUMENTATION_ARGUMENT = "jmeScreenshotMode";
 
     /**
-     * Instrumentation argument used to accept intended visual changes, the Android equivalent of
-     * {@link ScreenshotTest#ACCEPT_CHANGES_SYSTEM_PROPERTY}. Both are set from
-     * {@code -Pscreenshot.acceptChanges}.
-     */
-    public static final String ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT = "jmeScreenshotAcceptChanges";
-
-    /**
      * Directory (within test storage) that reference images are written to and read from.
      */
     public static final String REFERENCE_IMAGES_DIRECTORY = "reference-images";
@@ -206,12 +199,6 @@ public class AndroidRunner implements AppRunner {
         } catch (IOException e) {
             throw new RuntimeException("Could not read the reference run marker", e);
         }
-    }
-
-    @Override
-    public boolean isAcceptingChanges() {
-        return Boolean.parseBoolean(
-                InstrumentationRegistry.getArguments().getString(ACCEPT_CHANGES_INSTRUMENTATION_ARGUMENT));
     }
 
     @Override

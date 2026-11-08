@@ -96,12 +96,4 @@ public interface AppRunner {
      * @return true if a completed reference run left its images here
      */
     boolean isReferenceRunComplete();
-
-    /**
-     * Returns whether this run was told that the visual changes it finds are intended, which
-     * downgrades an image difference from a failure to a warning.
-     *
-     * @return true if image differences should be reported rather than failed
-     */
-    boolean isAcceptingChanges();
 }

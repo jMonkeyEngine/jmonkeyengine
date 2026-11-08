@@ -17,7 +17,7 @@ mode fails immediately, with an explanation, rather than rendering anything.
 | Mode | What it does |
 | --- | --- |
 | `-Pscreenshot.mode=generate` | Renders and records what every test looks like **on this machine**, into `build/reference-images`. Asserts nothing about the images, so it cannot fail on how a scene looks. |
-| `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is accepted with a warning. |
+| `-Pscreenshot.mode=compare` | Renders and compares against the images an earlier `generate` run recorded. A test with no reference image did not exist on the branch that was generated from, so it is a new test and is reported as one. Images that differ are recorded in the report and in `build/changed-images`; they do not fail the run. |
 
 `-Pscreenshot.referenceDir=<path>` overrides where reference images are written and read.
 
@@ -106,9 +106,9 @@ A screenshot is therefore considered to match its reference image when no more t
 pixels (and never fewer than 10 pixels, so that small images still get a usable budget) differ by
 more than 3/255 on any colour channel - about 40 pixels on a 500x400 desktop screenshot and about
 200 pixels on a 1280x800 emulator screenshot. A change to what is actually drawn moves far more
-pixels than that and still fails the test; the numbers live in `ImageDifference`.
+pixels than that and is reported as a change; the numbers live in `ImageDifference`.
 
-Failures report the measurement that caused them, e.g.
+A reported difference includes the measurement behind it, e.g.
 
 ```
 Generated image is different from the reference image. ... (900 of 200000 pixels differ by more than 3 (at most 40 tolerated), largest single channel difference 255)

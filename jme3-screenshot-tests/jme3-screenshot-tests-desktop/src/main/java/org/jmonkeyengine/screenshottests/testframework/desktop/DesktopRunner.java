@@ -162,11 +162,6 @@ public class DesktopRunner implements AppRunner {
     }
 
     @Override
-    public boolean isAcceptingChanges() {
-        return Boolean.parseBoolean(System.getProperty(ScreenshotTest.ACCEPT_CHANGES_SYSTEM_PROPERTY));
-    }
-
-    @Override
     public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
         writePng(generatedImage, getChangedImagesDirectory().resolve(fileName));
     }

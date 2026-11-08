@@ -254,8 +254,7 @@ jobs:
         run: |
           ./gradlew ":jme3-screenshot-tests:jme3-screenshot-tests-desktop:$SCREENSHOT_TASK" \
             -Pscreenshot.mode=compare \
-            -Pscreenshot.referenceDir="$REFERENCE_IMAGES" \
-            -Pscreenshot.acceptChanges=true
+            -Pscreenshot.referenceDir="$REFERENCE_IMAGES"
 
       - name: Summarise
         if: always()

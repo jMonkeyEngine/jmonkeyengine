@@ -156,7 +156,7 @@ jobs:
           # --- Pass 2: compare the branch under test against them -----------------------------
           # Differences are reported rather than failed, so this pass failing means only that it did
           # not run to the end. screenshot-comment.yml lists the differences on the pull request.
-          run_pass 1 . "$TASK" -Pscreenshot.mode=compare -Pscreenshot.acceptChanges=true
+          run_pass 1 . "$TASK" -Pscreenshot.mode=compare
           exit_code=$?
 
           collect_logs
