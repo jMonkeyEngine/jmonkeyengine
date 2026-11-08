@@ -25,8 +25,8 @@ on:
         required: true
       target_ref:
         description: >
-          Ref to test. Running this against a ref you have not reviewed executes its code on the
-          runner, exactly as approving a fork pull request's workflow does.
+          Ref to test. Its code runs in this repository's context rather than a fork's, so only use
+          a ref you have reviewed.
         required: true
 
 # This runs the pull request's code, so it never holds a write token; screenshot-comment.yml reports
@@ -69,10 +69,16 @@ jobs:
 
       # Both checkouts share one Gradle home, so the reference branch - almost always a recent
       # master - mostly compiles out of the cache rather than being built from scratch.
+      # Never writes: a manual run from the default branch can execute an unreviewed target_ref, and
+      # a cache saved from there would be restored by every branch.
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.0
+        with:
+          cache-read-only: true
 
+      # Skipped on a manual run for the same reason: this action saves as well as restores.
       - name: AVD cache
+        if: github.event_name == 'pull_request'
         uses: actions/cache@v6.1.0
         id: avd-cache
         with:
