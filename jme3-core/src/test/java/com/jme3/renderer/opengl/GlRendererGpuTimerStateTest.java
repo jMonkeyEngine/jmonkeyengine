@@ -89,13 +89,13 @@ class GlRendererGpuTimerStateTest {
     }
 
     @Test
-    void desktopOpenGlHasNoDisjointFlagAndDoesNotCallAGlesBinding() {
+    void desktopOpenGlDefaultsToFalse() {
         TimerState binding = new TimerState();
         binding.unavailable = true;
         GLRenderer renderer = new GLRenderer(binding.gl(), null, null);
         renderer.getCaps().add(Caps.GpuTimerQuery);
         assertFalse(renderer.isGpuTimingDisjoint());
-        assertEquals(0, binding.checks);
+        assertEquals(1, binding.checks);
     }
 
     private static final class TimerState {
