@@ -395,9 +395,9 @@ public class ScreenshotTest{
 
                         switch(testType){
                             case MUST_PASS:
-                                // Only a must-pass difference goes to changed-images: CI treats every
-                                // image there as a change needing the accept label, and differences
-                                // in the other test types are tolerated and only reported.
+                                // Only a must-pass difference goes to changed-images, which is what
+                                // the pull request comment lists; differences in the other test
+                                // types are tolerated and only reported.
                                 osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
                                 if(osSpecificRunner.isAcceptingChanges()){
                                     TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED + " (" + imageDifference.describe() + ")");
