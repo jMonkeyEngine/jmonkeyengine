@@ -44,8 +44,32 @@ import com.jme3.util.BufferUtils;
 
 /**
  * Convert any image like object to a {@link JmeCursor}.
+ * 
+ * This class is configurable by it's constructors, allowing to create
+ * {@link JmeCursor} instances that meet the cursor consumer's necessities.
  */
 public class CursorConverter {
+    /**
+     * Supported formats for {@link JmeCursor}'s image data.
+     */
+    public enum CursorFormat {ARGB, RGBA}
+
+    private final CursorConverter.CursorFormat outputCursorFormat;
+    private final boolean outputVerticalFlip;
+
+    /**
+     * Creates a {@link CursorConverter} instance.
+     * 
+     * @param cursorFormat the {@link JmeCursor}'s image data will follow the
+     *        specified image format.
+     * @param verticalFlip if true, the {@link JmeCursor}'s image will be flipped vertically, otherwise
+     *        it won't be flipped.
+     */
+    public CursorConverter(CursorConverter.CursorFormat cursorFormat, boolean verticalFlip) {
+        outputCursorFormat = cursorFormat;
+        outputVerticalFlip = verticalFlip;
+    }
+
      /**
      * Convert a {@link Texture2D} to a {@link JmeCursor}.
      * 
@@ -57,7 +81,7 @@ public class CursorConverter {
      * @param cursorTexture the texture to convert. No modifications will be applied.
      * @return the {@link JmeCursor} object that contains the data for a cursor.
      */
-    public static JmeCursor fromTexture(Texture2D cursorTexture) {
+    public JmeCursor fromTexture(Texture2D cursorTexture) {
         return fromTexture(cursorTexture, 0, cursorTexture.getImage().getHeight());
     }
 
@@ -75,8 +99,10 @@ public class CursorConverter {
      *                  coordinate for its hotspot. Note that the coordinate system is the same as
      *                  OpenGL. 0, 0 being lower left. Must be between 0 and image height.
      * @return the {@link JmeCursor} object that contains the data for a cursor.
+     * 
+     * @throws IllegalArgumentException if the specified hotspots are outside the image's size.
      */
-    public static JmeCursor fromTexture(Texture2D cursorTexture, int xHotspot, int yHotspot) {
+    public JmeCursor fromTexture(Texture2D cursorTexture, int xHotspot, int yHotspot) {
         Image image = cursorTexture.getImage();
 
         int imageHeight = image.getHeight();
@@ -88,6 +114,10 @@ public class CursorConverter {
             );
         }
 
+        if (outputVerticalFlip) {
+            image = image.deepClone(); //Avoid modifying the original.
+            verticalFlip(image);
+        }
         IntBuffer adaptedImageData = getDataAsIntBuffer(image);
 
         JmeCursor jmeCursor = new JmeCursor();
@@ -114,8 +144,10 @@ public class CursorConverter {
      *                     No modifications will be applied.
      * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
+     * 
+     * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      */
-    public static JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
+    public JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
         int yHotspot = 0;
         if (cursorFrames.length > 0) {
             yHotspot = cursorFrames[0].getImage().getHeight();
@@ -134,10 +166,13 @@ public class CursorConverter {
      * 
      * @param cursorFrames the frames that will make up the cursor animation.
      *                     No modifications will be applied.
-     * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
+     * @param frameDelays the time delay that will take for a cursor to change from one frame to another.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
+     * 
+     * @throws IllegalArgumentException if the lenghts of cursorFrames and frameDelays arrays doesn't match.
+     * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      */
-    public static JmeCursor  fromTextureFrames(Texture2D[] cursorFrames, int[] frameDelays) {
+    public JmeCursor  fromTextureFrames(Texture2D[] cursorFrames, int[] frameDelays) {
         int yHotspot = 0;
         if (cursorFrames.length > 0) {
             yHotspot = cursorFrames[0].getImage().getHeight();
@@ -162,8 +197,11 @@ public class CursorConverter {
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
      *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
+     * 
+     * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
+     * @throws IllegalArgumentException if the specified hotspots are outside the images's sizes.
      */
-    public static JmeCursor fromTextureFrames(
+    public JmeCursor fromTextureFrames(
             Texture2D[] cursorFrames, 
             int frameDelay, 
             int xHotspot, 
@@ -192,8 +230,12 @@ public class CursorConverter {
      *                 coordinate for its hotspot. Note that the coordinate system is the same as
      *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
+     * 
+     * @throws IllegalArgumentException if the lenghts of cursorFrames and frameDelays arrays doesn't match.
+     * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
+     * @throws IllegalArgumentException if the specified hotspots are outside the images's sizes.
      */
-    public static JmeCursor fromTextureFrames(
+    public JmeCursor fromTextureFrames(
             Texture2D[] cursorFrames, 
             int[] frameDelays, 
             int xHotspot, 
@@ -205,7 +247,6 @@ public class CursorConverter {
         }
 
         List<Image> imageFrames = Arrays.stream(cursorFrames)
-                //Avoid working and accidentally modifying original values
                 .map((frame) -> frame.getImage())
                 .collect(Collectors.toList());
 
@@ -236,6 +277,14 @@ public class CursorConverter {
 
         IntBuffer imagesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
 
+        if (outputVerticalFlip) {
+            imageFrames = imageFrames
+                    .stream()
+                    .map((image) -> image.deepClone()) //Avoid modifying the original image.
+                    .peek((image) -> verticalFlip(image))
+                    .collect(Collectors.toList());
+        }
+
         List<IntBuffer> framesData = imageFrames
                 .stream()
                 .map((image) -> getDataAsIntBuffer(image))
@@ -257,7 +306,22 @@ public class CursorConverter {
         return jmeCursor;
     }
 
-    private static IntBuffer getDataAsIntBuffer(Image image) {
+    private static void verticalFlip(Image image) {
+        int height = image.getHeight();
+        int width = image.getWidth();
+
+        ImageRaster raster = ImageRaster.create(image);
+        
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height / 2; j++){
+                ColorRGBA reserve = raster.getPixel(i, j);
+                raster.setPixel(i, j, raster.getPixel(i, height - j -1));
+                raster.setPixel(i, height - j -1, reserve);
+            }
+        }
+    }
+
+    private IntBuffer getDataAsIntBuffer(Image image) {
         int width = image.getWidth();
         int height = image.getHeight();
         
@@ -265,19 +329,18 @@ public class CursorConverter {
         
         IntBuffer data = BufferUtils.createIntBuffer(width * height);
         
-        //ARGB color system is needed to show cursors correctly.
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                ColorRGBA color = raster.getPixel(x, y);
-                
-                int a = (int) (color.a * 255) & 0xFF;
-                int r = (int) (color.r * 255) & 0xFF;
-                int g = (int) (color.g * 255) & 0xFF;
-                int b = (int) (color.b * 255) & 0xFF;
+                ColorRGBA imagePixel = raster.getPixel(x, y);
+                int cursorPixel;
 
-                int argb = (a << 24) | (r << 16) | (g << 8) | b;
-                
-                data.put(argb);
+                if (outputCursorFormat == CursorFormat.ARGB) {
+                    cursorPixel = imagePixel.asIntARGB();
+                } else {
+                    cursorPixel = imagePixel.asIntRGBA();
+                }
+
+                data.put(cursorPixel);
             }
         }
         
@@ -285,7 +348,7 @@ public class CursorConverter {
         return data;
     }
 
-    private static boolean hotspotInsideImageLimits(
+    private boolean hotspotInsideImageLimits(
             int xHotspot, 
             int yHotspot, 
             int imageWidth, 
