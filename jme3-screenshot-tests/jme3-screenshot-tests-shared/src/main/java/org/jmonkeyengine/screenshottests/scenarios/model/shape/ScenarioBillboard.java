@@ -107,8 +107,8 @@ public class ScenarioBillboard {
                 return node;
             }
 
-            private Geometry makeShape(SimpleApplication app, String name, Mesh shape, ColorRGBA color) {
-                Geometry geo = new Geometry(name, shape);
+            private Geometry makeShape(SimpleApplication app, String geometryName, Mesh shape, ColorRGBA color) {
+                Geometry geo = new Geometry(geometryName, shape);
                 Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
                 mat.setColor("Color", color);
                 geo.setMaterial(mat);
