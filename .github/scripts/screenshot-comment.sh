@@ -115,6 +115,7 @@ sections="$WORK_DIR/sections.md"
 : > "$sections"
 total_changed=0
 total_new=0
+total_mismatched=0
 incomplete=0
 unsupported=0
 found=0
@@ -155,6 +156,9 @@ while IFS=$'\t' read -r name id size; do
   new=$(valid_image_names "$dir/new.txt")
   changed_count=$(printf '%s' "$changed" | grep -c . || true)
   new_count=$(printf '%s' "$new" | grep -c . || true)
+  mismatched=$(valid_image_names "$dir/scenario_mismatch.txt")
+  mismatched_count=$(printf '%s' "$mismatched" | grep -c . || true)
+  total_mismatched=$((total_mismatched + mismatched_count))
   total_changed=$((total_changed + changed_count))
   total_new=$((total_new + new_count))
 
@@ -169,14 +173,17 @@ while IFS=$'\t' read -r name id size; do
       unsupported=$((unsupported + 1))
       echo "ℹ️ **Not compared:** \`${reference:0:7}\` predates generating reference images in CI, so there is nothing to compare against."
       echo
-    elif [ "$outcome" != "success" ]; then
+    elif [ "$outcome" != "success" ] && [ "$mismatched_count" -eq 0 ]; then
       incomplete=$((incomplete + 1))
       echo "❌ **The comparison did not run to the end**, so this list may be incomplete. See the [workflow run]($RUN_URL)."
       echo
     fi
-    if [ "$outcome" = "success" ] && [ "$changed_count" -eq 0 ] && [ "$new_count" -eq 0 ]; then
+    if [ "$outcome" = "success" ] && [ "$changed_count" -eq 0 ] && [ "$new_count" -eq 0 ] && [ "$mismatched_count" -eq 0 ]; then
       echo "✔️ No differences."
       echo
+    fi
+    if [ "$mismatched_count" -gt 0 ]; then
+      image_table "🚨 $mismatched_count rendered differently between scenarios" "$mismatched"
     fi
     if [ "$changed_count" -gt 0 ]; then
       image_table "🔄 $changed_count changed" "$changed"
@@ -186,7 +193,7 @@ while IFS=$'\t' read -r name id size; do
     fi
     report_id=$(artifact_id "$report_artifact")
     if [ -n "$report_id" ]; then
-      echo "📄 **Report:** [download $report_artifact]($RUN_URL/artifacts/$report_id), then open \`$report_file\` from the zip."
+      echo "📄 **Report:** [download $report_artifact]($RUN_URL/artifacts/$report_id), then open \`$report_file\` from the zip. ⚠️ The report is produced by this pull request's code, so only open it if you trust the pull request."
       echo
     fi
   } >> "$sections"
@@ -202,7 +209,11 @@ fi
   echo "### 🖼️ $title"
   echo
   if [ "$failed" -eq 1 ]; then
-    echo "❌ **The screenshot comparison failed** for \`$short_sha\` ([workflow run]($RUN_URL)). This is a crash or a build failure rather than a visual difference, so it is not known whether any screenshots changed. It needs fixing before these results can be relied on."
+    if [ "$total_mismatched" -gt 0 ] && [ "$incomplete" -eq 0 ] && [ "$found" -gt 0 ]; then
+      echo "🚨 **Serious visual failure** for \`$short_sha\` ([workflow run]($RUN_URL)). Tests whose scenarios must render identically rendered differently. Unlike the changes a reviewer can confirm, this is never an intended result, and it has to be fixed."
+    else
+      echo "❌ **The screenshot comparison failed** for \`$short_sha\` ([workflow run]($RUN_URL)). This is a crash or a build failure rather than a visual difference, so it is not known whether any screenshots changed. It needs fixing before these results can be relied on."
+    fi
     echo
   fi
   if [ $((total_changed + total_new)) -gt 0 ]; then

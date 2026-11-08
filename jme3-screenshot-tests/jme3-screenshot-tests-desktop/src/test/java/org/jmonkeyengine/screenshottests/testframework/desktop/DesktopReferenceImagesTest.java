@@ -6,6 +6,7 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
 
 import org.jmonkeyengine.screenshottests.testframework.ImageDifference;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotImageIo;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestMode;
 import org.junit.jupiter.api.AfterEach;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,13 +35,10 @@ public class DesktopReferenceImagesTest {
 
     private static final String MODE_PROPERTY = ScreenshotTest.MODE_SYSTEM_PROPERTY;
 
-    private static final String ACCEPT_CHANGES_PROPERTY = ScreenshotTest.ACCEPT_CHANGES_SYSTEM_PROPERTY;
-
     @AfterEach
     public void clearProperties() {
         System.clearProperty(REFERENCE_DIRECTORY_PROPERTY);
         System.clearProperty(MODE_PROPERTY);
-        System.clearProperty(ACCEPT_CHANGES_PROPERTY);
     }
 
     @Test
@@ -77,14 +76,17 @@ public class DesktopReferenceImagesTest {
     }
 
     @Test
-    public void aSavedReferenceImageIsFoundAndUnchanged(@TempDir Path temporaryDirectory) {
+    public void aSavedReferenceImageIsFoundAndUnchanged(@TempDir Path temporaryDirectory) throws Exception {
         System.setProperty(REFERENCE_DIRECTORY_PROPERTY, temporaryDirectory.toString());
         DesktopRunner runner = new DesktopRunner();
         Image original = gradient(8, 4);
+        Path screenshot = temporaryDirectory.resolve("screenshot.png");
+        ScreenshotImageIo.writePng(original, screenshot);
 
-        runner.saveReferenceImage(original, "com.example.TestFoo.testFoo_f1.png");
+        runner.saveReferenceImage(screenshot, "com.example.TestFoo.testFoo_f1.png");
 
-        assertTrue(Files.isRegularFile(temporaryDirectory.resolve("com.example.TestFoo.testFoo_f1.png")));
+        assertArrayEquals(Files.readAllBytes(screenshot),
+                Files.readAllBytes(temporaryDirectory.resolve("com.example.TestFoo.testFoo_f1.png")));
 
         Optional<Image> loaded = runner.loadReferenceImage("com.example.TestFoo.testFoo_f1.png");
 
@@ -100,10 +102,12 @@ public class DesktopReferenceImagesTest {
     public void referenceImagesWithoutAMarkerAreNotAComparisonBasis(@TempDir Path temporaryDirectory) throws Exception {
         // A reference run that died half way through leaves images but no marker. Those images must
         // not be treated as a reference set, because the ones it never got to look identical to
-        // tests that are new on the branch under test - and those are accepted silently.
+        // tests that are new on the branch under test - and those do not fail the run.
         System.setProperty(REFERENCE_DIRECTORY_PROPERTY, temporaryDirectory.toString());
         DesktopRunner runner = new DesktopRunner();
-        runner.saveReferenceImage(gradient(8, 4), "com.example.TestFoo.testFoo_f1.png");
+        Path screenshot = temporaryDirectory.resolve("screenshot.png");
+        ScreenshotImageIo.writePng(gradient(8, 4), screenshot);
+        runner.saveReferenceImage(screenshot, "com.example.TestFoo.testFoo_f1.png");
 
         assertFalse(runner.isReferenceRunComplete());
 
@@ -113,24 +117,10 @@ public class DesktopReferenceImagesTest {
     }
 
     @Test
-    public void changesAreNotAcceptedUnlessAskedFor() {
-        System.clearProperty(ACCEPT_CHANGES_PROPERTY);
-        assertFalse(new DesktopRunner().isAcceptingChanges());
-
-        System.setProperty(ACCEPT_CHANGES_PROPERTY, "false");
-        assertFalse(new DesktopRunner().isAcceptingChanges());
-
-        // CI passes the result of a GitHub Actions expression, which is the string "true"/"false".
-        System.setProperty(ACCEPT_CHANGES_PROPERTY, "true");
-        assertTrue(new DesktopRunner().isAcceptingChanges());
-    }
-
-    @Test
     public void referenceRunMarkerNameIsStable() {
         // jme3-screenshot-tests-desktop/build.gradle writes this file by name, and the workflows
         // check for it by name; renaming it here alone would break the guard silently.
         assertEquals("reference-run-complete.txt", ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER);
-        assertEquals("jme.screenshot.acceptChanges", ACCEPT_CHANGES_PROPERTY);
     }
 
     /**

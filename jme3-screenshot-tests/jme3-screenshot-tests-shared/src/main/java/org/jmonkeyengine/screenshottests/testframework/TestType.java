@@ -32,20 +32,20 @@
 package org.jmonkeyengine.screenshottests.testframework;
 
 /**
- * Controls pass/fail behaviour of a test. Default behaviour is MUST_PASS.
+ * Controls how a difference from the reference image is reported. Default behaviour is MUST_PASS.
  */
 public enum TestType{
     /**
-     * Normal test, if it fails it will fail the step
+     * Normal test, a difference is listed on the pull request for the reviewer to confirm.
      */
     MUST_PASS,
     /**
      * Test is likely to fail because it is testing something non-deterministic (e.g. uses random numbers).
-     * This will be marked as a warning in the report but the test will not fail.
+     * A difference will be marked as a warning in the report but not listed on the pull request.
      */
     NON_DETERMINISTIC,
     /**
-     * Test is known to fail, this will be marked as a warning in the report but the test will not fail.
+     * Test is known to fail, this will be marked as a warning in the report but not listed on the pull request.
      * It will be marked as a warning whether it passes or fails, this is because if it has started to pass again it should
      * be returned to a normal test with type MUST_PASS.
      */

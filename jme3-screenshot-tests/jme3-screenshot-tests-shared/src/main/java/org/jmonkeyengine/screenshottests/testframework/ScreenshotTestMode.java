@@ -64,7 +64,7 @@ public enum ScreenshotTestMode {
     /**
      * Compares against the reference images produced by an earlier {@link #GENERATE} run. A
      * reference image that is missing means the test did not exist on the reference branch, so it
-     * is a new test: it is reported as a warning and accepted rather than failed.
+     * is a new test: it is reported as a warning rather than failed.
      */
     COMPARE("compare");
 

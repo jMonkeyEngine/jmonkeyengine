@@ -55,7 +55,7 @@ public class ScreenshotTestModeTest {
     @Test
     public void unknownValueIsRejected() {
         // Guessing what was meant would be dangerous: read as "compare", a typo in the reference
-        // pass produces no reference images at all, and the comparison pass then accepts every
+        // pass produces no reference images at all, and the comparison pass then reports every
         // test as new.
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> ScreenshotTestMode.fromConfigurationValue("genrate"));

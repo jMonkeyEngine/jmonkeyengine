@@ -26,6 +26,9 @@ inputs:
   artifact_name:
     description: Name of the uploaded artifact holding the report and the images.
     required: true
+  report_file:
+    description: The file to open within that artifact to see the differences.
+    required: true
   outcome:
     description: >
       The comparison step's outcome, or "unsupported" if the reference ref cannot generate reference
@@ -48,6 +51,7 @@ runs:
         REFERENCE_IMAGES: ${{ inputs.reference_images }}
         CHANGED_IMAGES: ${{ inputs.changed_images }}
         ARTIFACT_NAME: ${{ inputs.artifact_name }}
+        REPORT_FILE: ${{ inputs.report_file }}
         OUTCOME: ${{ inputs.outcome }}
         RESULTS_DIR: ${{ inputs.results_dir }}
       run: |
@@ -59,6 +63,7 @@ runs:
         printf '%s\n' "$TARGET_REF" > "$RESULTS_DIR/target_ref"
         : > "$RESULTS_DIR/changed.txt"
         : > "$RESULTS_DIR/new.txt"
+        : > "$RESULTS_DIR/scenario_mismatch.txt"
 
         # Every image the comparison took issue with is written to the changed-images directory.
         # One that has no counterpart among the reference images belongs to a test that does not
@@ -66,7 +71,9 @@ runs:
         if [ -d "$CHANGED_IMAGES" ]; then
           while IFS= read -r image; do
             name=$(basename "$image")
-            if [ -f "$REFERENCE_IMAGES/$name" ]; then
+            if [[ "$name" == *_scenario-mismatch.png ]]; then
+              echo "$name" >> "$RESULTS_DIR/scenario_mismatch.txt"
+            elif [ -f "$REFERENCE_IMAGES/$name" ]; then
               echo "$name" >> "$RESULTS_DIR/changed.txt"
             else
               echo "$name" >> "$RESULTS_DIR/new.txt"
@@ -76,6 +83,7 @@ runs:
 
         changed=$(grep -c . "$RESULTS_DIR/changed.txt" || true)
         new=$(grep -c . "$RESULTS_DIR/new.txt" || true)
+        mismatched=$(grep -c . "$RESULTS_DIR/scenario_mismatch.txt" || true)
         table() { echo "| Image |"; echo "| --- |"; sed 's/.*/| `&` |/' "$1"; echo; }
 
         {
@@ -94,6 +102,11 @@ runs:
             echo "**Nothing was compared** - \`$REFERENCE_REF\` predates generating reference images in"
             echo "CI, so there is nothing to compare against."
             echo
+          elif [ "$OUTCOME" != "success" ] && [ "$mismatched" -gt 0 ]; then
+            echo "🚨 **Serious visual failure** - tests whose scenarios must render identically rendered"
+            echo "differently. This is never an intended change, and has to be fixed."
+            echo
+            table "$RESULTS_DIR/scenario_mismatch.txt"
           elif [ "$OUTCOME" != "success" ]; then
             echo "❌ **The comparison failed and did not run to the end** - look at the step log above rather than"
             echo "at the images. A crashed or timed out test, or a failed reference run, looks like this."
@@ -111,7 +124,7 @@ runs:
             echo
             table "$RESULTS_DIR/changed.txt"
             echo "Download the **$ARTIFACT_NAME** artifact from this run and open"
-            echo "\`ScreenshotDiffReport.html\` to see each difference side by side."
+            echo "\`$REPORT_FILE\` to see each difference side by side."
             echo
           fi
 

@@ -63,9 +63,15 @@ import java.util.logging.Logger;
  */
 public class ScreenshotTest{
 
-    public static final String IMAGES_ARE_DIFFERENT = "Generated image is different from the reference image. Both were rendered on this machine, so the difference is caused by the change being tested rather than by the hardware.";
+    public static final String IMAGES_ARE_DIFFERENT = "Generated image is different from the reference image. Both were rendered on this machine, so the difference is caused by the change being tested rather than by the hardware, so it is up to the reviewer to confirm it was intended.";
 
     public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
+
+    /**
+     * Added to the name of an image saved because a test's scenarios rendered differently from each
+     * other. The screenshot workflows look for it to report these as failures rather than changes.
+     */
+    public static final String SCENARIO_MISMATCH_IMAGE_SUFFIX = "_scenario-mismatch";
 
     public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
 
@@ -81,8 +87,8 @@ public class ScreenshotTest{
      *
      * <p>
      * Without it, a reference run that died half way through would leave a comparison run seeing
-     * missing reference images - which it would read as "these tests are new" and accept. The
-     * marker turns that silent pass into a loud failure. It is deliberately written by the build
+     * missing reference images - which it would read as "these tests are new" and let through.
+     * The marker turns that silent pass into a loud failure. It is deliberately written by the build
      * rather than by the test framework, because "the task completed with no failures" is
      * something only the build knows.
      * </p>
@@ -91,9 +97,7 @@ public class ScreenshotTest{
 
     public static final String NO_COMPLETED_REFERENCE_RUN = "There is no completed reference run to compare against (no " + REFERENCE_RUN_COMPLETE_MARKER + " alongside the reference images). Run -Pscreenshot.mode=generate on the branch you are comparing against first. In CI this means the reference pass failed or did not finish - that failure is the real problem, not this one.";
 
-    public static final String CHANGES_ACCEPTED = "This image is different from the reference image. The run was told to report differences rather than fail on them, so it is up to the reviewer to confirm the change was intended.";
-
-    public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is accepted automatically; its image is in build/changed-images.";
+    public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is listed as a new test; its image is in build/changed-images.";
 
     /**
      * System property used to select the renderer the screenshot tests run with.
@@ -116,20 +120,6 @@ public class ScreenshotTest{
      * so in CI it is an absolute path shared by the two checkouts.
      */
     public static final String REFERENCE_DIRECTORY_SYSTEM_PROPERTY = "jme.screenshot.referenceDir";
-
-    /**
-     * System property, set by the Gradle tasks from {@code -Pscreenshot.acceptChanges}, that
-     * downgrades an image difference from a failure to a warning. CI sets it when a maintainer has
-     * labelled the pull request to say the visual change was intended.
-     *
-     * <p>
-     * It deliberately only affects the verdict on a difference between two images that were both
-     * produced. A crash, a timeout, a missing screenshot or a disagreement between the scenarios of
-     * a multi-scenario test still fails the run, so accepting a visual change can never accidentally
-     * accept a broken one.
-     * </p>
-     */
-    public static final String ACCEPT_CHANGES_SYSTEM_PROPERTY = "jme.screenshot.acceptChanges";
 
     /**
      * Suffix appended to reference/changed image file names when running with the ANGLE renderer,
@@ -265,7 +255,8 @@ public class ScreenshotTest{
      * Boots up the application on a separate thread (blocks this thread) and then does the following:
      * - Takes screenshots on the requested frames
      * - After all the frames have been taken it stops the application
-     * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
+     * - Compares the screenshot to the expected screenshot (if any) and reports any difference
+     * - Fails the test if its scenarios rendered differently from each other
      */
     private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner, String referenceImageSuffix, ScreenshotTestMode mode){
 
@@ -317,6 +308,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + primeScenarioName + " size : " + primeGeneratedImage.getWidth() + "x" + primeGeneratedImage.getHeight());
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + thisScenarioName + " size : " + otherGeneratedImage.getWidth() + "x" + otherGeneratedImage.getHeight());
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
                             osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
@@ -325,6 +317,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(primeGeneratedImage, otherGeneratedImage));
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
 
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
@@ -349,7 +342,7 @@ public class ScreenshotTest{
                 if(mode == ScreenshotTestMode.GENERATE){
                     // This is the pass that runs against the reference branch; it records what the
                     // scene looks like on this machine and asserts nothing about it.
-                    osSpecificRunner.saveReferenceImage(generatedImage, referenceImageFileName);
+                    osSpecificRunner.saveReferenceImage(generatedImagePath, referenceImageFileName);
                     attachImage("Reference image", referenceImageFileName, generatedImage);
                     continue;
                 }
@@ -358,7 +351,7 @@ public class ScreenshotTest{
 
                 if(!referenceImage.isPresent()){
                     // The reference run produced nothing under this name, so the test is new on
-                    // this branch. A new test has nothing to be compared against and is accepted.
+                    // this branch. A new test has nothing to be compared against and is listed as new.
                     osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, referenceImageFileName);
                     attachImage("New image:", referenceImageFileName, generatedImage);
                     TestReportCaptureBase.INSTANCE.warning(NEW_TEST_NO_REFERENCE_IMAGE);
@@ -374,13 +367,7 @@ public class ScreenshotTest{
 
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
-                    // A deliberate resolution change is as much an intended visual change as any
-                    // other, so it is accepted on the same say-so.
-                    if(osSpecificRunner.isAcceptingChanges()){
-                        TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED);
-                    }else if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                        failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
-                    }
+                    TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT_SIZES);
                 } else {
                     ImageDifference imageDifference = ImageDifference.of(generatedImage, expectedImage);
 
@@ -395,18 +382,11 @@ public class ScreenshotTest{
 
                         switch(testType){
                             case MUST_PASS:
-                                // Only a must-pass difference goes to changed-images: CI treats every
-                                // image there as a change needing the accept label, and differences
-                                // in the other test types are tolerated and only reported.
+                                // Only a must-pass difference goes to changed-images, which is what
+                                // the pull request comment lists; differences in the other test
+                                // types are tolerated and only reported.
                                 osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
-                                if(osSpecificRunner.isAcceptingChanges()){
-                                    TestReportCaptureBase.INSTANCE.warning(CHANGES_ACCEPTED + " (" + imageDifference.describe() + ")");
-                                    break;
-                                }
-                                if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                                    failureMessage = IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")";
-                                }
-                                TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
+                                TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")");
                                 break;
                             case NON_DETERMINISTIC:
                                 TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
@@ -475,8 +455,6 @@ public class ScreenshotTest{
 
     /**
      * Tests that the images are the same for the purposes of the test.
-     * If they are not the same it will return false (which may fail the test depending on the test type).
-     * Different sizes are so fatal that they will immediately fail the test.
      * A difference that is small enough to be renderer noise rather than a change in what was drawn
      * still counts as the same, see {@link ImageDifference}.
      */
