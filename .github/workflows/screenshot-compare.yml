@@ -162,8 +162,9 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
 
-      # Only the reference pass retries. A failure there can only be infrastructure, whereas a failed
-      # comparison is usually a verdict that a rerun on the same machine would just repeat.
+      # Only the reference pass retries. It runs code already on the base branch, so a failure there
+      # can only be infrastructure; image differences do not fail a comparison, so one that does
+      # fail most likely crashed because of the change under test.
       - name: Prepare the screenshot run helper
         run: |
           cat > "$RUNNER_TEMP/screenshot-run.sh" << 'HELPER'

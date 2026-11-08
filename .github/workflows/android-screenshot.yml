@@ -102,9 +102,9 @@ jobs:
           REFERENCE_IMAGES="$TEST_STORAGE/test_inputfiles/reference-images"
           GENERATED_IMAGES="$TEST_STORAGE/test_outputfiles/reference-images"
 
-          # Runs one pass up to <attempts> times. Only the reference pass retries: a failure there can
-          # only be infrastructure, whereas a failed comparison is usually a verdict that a rerun on
-          # the same emulator would just repeat.
+          # Runs one pass up to <attempts> times. Only the reference pass retries. It runs code already
+          # on the base branch, so a failure there can only be infrastructure; image differences do not
+          # fail a comparison, so one that does fail most likely crashed because of the change under test.
           run_pass() {
             local attempts="$1"; shift
             local checkout="$1"; shift
