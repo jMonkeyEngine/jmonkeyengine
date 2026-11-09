@@ -485,13 +485,13 @@ jobs:
 
       # Download all the stuff...
       - name: Download maven artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: maven
           path: dist/maven
 
       - name: Download release
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: release
           path: dist/release
@@ -566,7 +566,7 @@ jobs:
 
       # Download the javadoc in the new directory "newdoc"
       - name: Download javadoc
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: javadoc
           path: newdoc
