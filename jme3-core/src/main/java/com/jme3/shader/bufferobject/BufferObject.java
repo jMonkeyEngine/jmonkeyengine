@@ -269,7 +269,9 @@ public class BufferObject extends NativeObject implements Savable {
 
     @Override
     public void resetObject() {
-        this.id = -1;
+        this.id = INVALID_ID;
+        // A replacement GPU allocation needs all retained CPU data.
+        setUpdateNeeded();
     }
 
     @Override
