@@ -26,7 +26,7 @@ MaterialDef ColorAdjustmentFilter {
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
-            NUM_SAMPLES : NumSamples
+            RESOLVE_MS : NumSamples
         }
     }
 }

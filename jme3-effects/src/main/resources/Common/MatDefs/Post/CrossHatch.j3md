@@ -27,6 +27,7 @@ MaterialDef CrossHatch {
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
+            RESOLVE_MS : NumSamples
         }
     }
 
