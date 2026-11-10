@@ -32,19 +32,21 @@
 package org.jmonkeyengine.screenshottests.testframework.desktop;
 
 import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 
 import org.jmonkeyengine.screenshottests.testframework.TestContainingApp;
 import org.jmonkeyengine.screenshottests.testframework.AppRunner;
-import org.jmonkeyengine.screenshottests.testframework.TestReportCaptureBase;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotImageIo;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
+import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestMode;
 import org.junit.jupiter.api.Assertions;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -53,6 +55,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DesktopRunner implements AppRunner {
+
+    /**
+     * Where reference images are kept when nothing else is configured. It is under {@code build}
+     * so that a local generate-then-compare cycle leaves nothing behind that could be committed.
+     */
+    public static final String DEFAULT_REFERENCE_IMAGES_DIRECTORY = "build/reference-images";
 
     private static final Logger logger = Logger.getLogger(DesktopRunner.class.getName());
 
@@ -97,25 +105,72 @@ public class DesktopRunner implements AppRunner {
         return Paths.get("build/reports/");
     }
 
+    /**
+     * Returns the directory holding the reference images for this run, which is
+     * {@value #DEFAULT_REFERENCE_IMAGES_DIRECTORY} unless
+     * {@link ScreenshotTest#REFERENCE_DIRECTORY_SYSTEM_PROPERTY} says otherwise.
+     *
+     * <p>
+     * CI overrides it with an absolute path, because the run that generates the reference images
+     * and the run that compares against them are two different checkouts of the repository on one
+     * machine, and a relative path would resolve differently in each.
+     * </p>
+     *
+     * @return the directory reference images are read from and written to
+     */
+    public static Path getReferenceImagesDirectory() {
+        return Paths.get(System.getProperty(ScreenshotTest.REFERENCE_DIRECTORY_SYSTEM_PROPERTY,
+                DEFAULT_REFERENCE_IMAGES_DIRECTORY));
+    }
+
     @Override
     public <V> V fail(String s) {
         return Assertions.fail(s);
     }
 
     @Override
-    public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
-        Image rgbaImage = TestReportCaptureBase.convertToRGBA8(generatedImage);
+    public ScreenshotTestMode getScreenshotTestMode() {
+        return ScreenshotTestMode.fromConfigurationValue(
+                System.getProperty(ScreenshotTest.MODE_SYSTEM_PROPERTY));
+    }
 
-        Path savedImage = getChangedImagesDirectory().resolve(fileName);
+    @Override
+    public Optional<Image> loadReferenceImage(String fileName) {
+        Path referenceImage = getReferenceImagesDirectory().resolve(fileName);
+
+        if (!Files.isRegularFile(referenceImage)) {
+            return Optional.empty();
+        }
+        return Optional.of(ScreenshotImageIo.readImage(referenceImage.toFile()));
+    }
+
+    @Override
+    public void saveReferenceImage(Path screenshot, String fileName) {
+        Path destination = getReferenceImagesDirectory().resolve(fileName).toAbsolutePath();
         try {
-            Files.createDirectories(savedImage.getParent());
-            try (FileOutputStream fileOutBuf = new FileOutputStream(savedImage.toFile())) {
-                JmeSystem.writeImageFile(fileOutBuf, "png",rgbaImage.getData(0), rgbaImage.getWidth(), rgbaImage.getHeight());
-            }catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            Files.createDirectories(destination.getParent());
+            Files.copy(screenshot, destination, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not write " + destination, e);
+        }
+    }
+
+    @Override
+    public boolean isReferenceRunComplete() {
+        return Files.isRegularFile(
+                getReferenceImagesDirectory().resolve(ScreenshotTest.REFERENCE_RUN_COMPLETE_MARKER));
+    }
+
+    @Override
+    public void saveGeneratedImageToChangedImages(Image generatedImage, String fileName) {
+        writePng(generatedImage, getChangedImagesDirectory().resolve(fileName));
+    }
+
+    private static void writePng(Image image, Path destination) {
+        try {
+            ScreenshotImageIo.writePng(image, destination);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not write " + destination, e);
         }
     }
 }

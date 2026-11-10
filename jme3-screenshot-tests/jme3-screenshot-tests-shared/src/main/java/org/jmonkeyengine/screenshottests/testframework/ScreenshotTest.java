@@ -34,31 +34,25 @@ package org.jmonkeyengine.screenshottests.testframework;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jme3.app.state.AppState;
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.asset.plugins.FileLocator;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.ImageRaster;
-import com.jme3.texture.plugins.StbImageLoader;
 
 import com.jme3.texture.image.DefaultImageRaster;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
@@ -69,9 +63,15 @@ import java.util.logging.Logger;
  */
 public class ScreenshotTest{
 
-    public static final String IMAGES_ARE_DIFFERENT = "Generated images is different from committed image. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+    public static final String IMAGES_ARE_DIFFERENT = "Generated image is different from the reference image. Both were rendered on this machine, so the difference is caused by the change being tested rather than by the hardware, so it is up to the reviewer to confirm it was intended.";
 
     public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
+
+    /**
+     * Added to the name of an image saved because a test's scenarios rendered differently from each
+     * other. The screenshot workflows look for it to report these as failures rather than changes.
+     */
+    public static final String SCENARIO_MISMATCH_IMAGE_SUFFIX = "_scenario-mismatch";
 
     public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
 
@@ -82,11 +82,44 @@ public class ScreenshotTest{
     public static final String NON_DETERMINISTIC_TEST = "This is a non deterministic test, please manually review the expected and actual images to make sure they are approximately the same.";
 
     /**
+     * Written by a {@link ScreenshotTestMode#GENERATE} run that finished without a single test
+     * failing, and required by every {@link ScreenshotTestMode#COMPARE} run.
+     *
+     * <p>
+     * Without it, a reference run that died half way through would leave a comparison run seeing
+     * missing reference images - which it would read as "these tests are new" and let through.
+     * The marker turns that silent pass into a loud failure. It is deliberately written by the build
+     * rather than by the test framework, because "the task completed with no failures" is
+     * something only the build knows.
+     * </p>
+     */
+    public static final String REFERENCE_RUN_COMPLETE_MARKER = "reference-run-complete.txt";
+
+    public static final String NO_COMPLETED_REFERENCE_RUN = "There is no completed reference run to compare against (no " + REFERENCE_RUN_COMPLETE_MARKER + " alongside the reference images). Run -Pscreenshot.mode=generate on the branch you are comparing against first. In CI this means the reference pass failed or did not finish - that failure is the real problem, not this one.";
+
+    public static final String NEW_TEST_NO_REFERENCE_IMAGE = "No reference image was produced for this test by the reference run, so it is a test that does not exist on the reference branch. It is listed as a new test; its image is in build/changed-images.";
+
+    /**
      * System property used to select the renderer the screenshot tests run with.
      * Defaults to {@link AppSettings#LWJGL_OPENGL45}; set to {@link AppSettings#ANGLE_GLES3}
      * (via the Gradle task or CI job) to run the ANGLE backend instead.
      */
     public static final String RENDERER_SYSTEM_PROPERTY = "jme.screenshot.renderer";
+
+    /**
+     * System property used to select the {@link ScreenshotTestMode} on desktop, set by the Gradle
+     * tasks from {@code -Pscreenshot.mode}. Android uses an instrumentation argument instead, see
+     * {@code AndroidRunner}.
+     */
+    public static final String MODE_SYSTEM_PROPERTY = "jme.screenshot.mode";
+
+    /**
+     * System property used to locate the reference images on desktop, set by the Gradle tasks from
+     * {@code -Pscreenshot.referenceDir}. The same directory is written by a
+     * {@link ScreenshotTestMode#GENERATE} run and read by a {@link ScreenshotTestMode#COMPARE} run,
+     * so in CI it is an absolute path shared by the two checkouts.
+     */
+    public static final String REFERENCE_DIRECTORY_SYSTEM_PROPERTY = "jme.screenshot.referenceDir";
 
     /**
      * Suffix appended to reference/changed image file names when running with the ANGLE renderer,
@@ -175,6 +208,16 @@ public class ScreenshotTest{
 
     public void run(AppRunner osSpecificRunner){
         this.osSpecificRunner = osSpecificRunner;
+
+        // Resolved first, and deliberately before anything is booted: a run that did not say which
+        // mode it wants, or that has nothing valid to compare against, fails here in a second
+        // rather than after rendering a scene it has no way to judge.
+        ScreenshotTestMode mode = osSpecificRunner.getScreenshotTestMode();
+
+        if(mode == ScreenshotTestMode.COMPARE && !osSpecificRunner.isReferenceRunComplete()){
+            osSpecificRunner.fail(NO_COMPLETED_REFERENCE_RUN);
+        }
+
         AppSettings settings = new AppSettings(true);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
         settings.setDisplayScaleMode(displayScaleMode);
@@ -182,12 +225,12 @@ public class ScreenshotTest{
         settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
         String renderer = resolveRenderer();
         settings.setRenderer(renderer);
-        logger.info("ScreenshotTest renderer: " + renderer);
+        logger.info("ScreenshotTest renderer: " + renderer + ", mode: " + mode);
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
         bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios, osSpecificRunner,
-                referenceImageSuffix(renderer));
+                referenceImageSuffix(renderer), mode);
     }
 
     /**
@@ -212,9 +255,10 @@ public class ScreenshotTest{
      * Boots up the application on a separate thread (blocks this thread) and then does the following:
      * - Takes screenshots on the requested frames
      * - After all the frames have been taken it stops the application
-     * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
+     * - Compares the screenshot to the expected screenshot (if any) and reports any difference
+     * - Fails the test if its scenarios rendered differently from each other
      */
-    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner, String referenceImageSuffix){
+    private void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios, AppRunner osSpecificRunner, String referenceImageSuffix, ScreenshotTestMode mode){
 
         Collections.sort(framesToTakeScreenshotsOn);
         ScenarioScreenshotRecorder overallScreenshots = new ScenarioScreenshotRecorder();
@@ -250,7 +294,7 @@ public class ScreenshotTest{
                         Path primeGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + primeScenarioName + " did not take screenshot on frame " + frame
                         ));
-                        Path otherGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(primeScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
+                        Path otherGeneratedImagePath = overallScreenshots.getScreenshotsAtFrame(thisScenarioName, frame).orElseGet(() -> osSpecificRunner.fail(
                                 "Scenario " + thisScenarioName + " did not take screenshot on frame " + frame
                         ));
 
@@ -264,6 +308,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + primeScenarioName + " size : " + primeGeneratedImage.getWidth() + "x" + primeGeneratedImage.getHeight());
                             TestReportCaptureBase.INSTANCE.warning("Scenario " + thisScenarioName + " size : " + otherGeneratedImage.getWidth() + "x" + otherGeneratedImage.getHeight());
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
                             osSpecificRunner.fail(IMAGES_ARE_DIFFERENT_SIZES);
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
@@ -272,6 +317,7 @@ public class ScreenshotTest{
                             attachImage("Scenario " + primeScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", primeGeneratedImage);
                             attachImage("Scenario " + thisScenarioName + " " + frame, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", otherGeneratedImage);
                             attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(primeGeneratedImage, otherGeneratedImage));
+                            osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + SCENARIO_MISMATCH_IMAGE_SUFFIX + ".png");
 
                             if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                                 failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
@@ -289,27 +335,30 @@ public class ScreenshotTest{
                 ));
 
                 String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame + referenceImageSuffix;
-
-                Enumeration<URL> expectedImageResources = ScreenshotTest.class.getClassLoader().getResources(thisFrameBaseImageFileName + ".png");
-
-                if(!expectedImageResources.hasMoreElements()){
-                    try{
-                        Image otherGeneratedImage = readImage(generatedImagePath.toFile());
-                        osSpecificRunner.saveGeneratedImageToChangedImages(otherGeneratedImage, thisFrameBaseImageFileName + ".png");
-                        attachImage("New image:", thisFrameBaseImageFileName + ".png", otherGeneratedImage);
-                        String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts (on github). If running locally you can see them at build/changed-images but those should not be committed";
-                        if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                            failureMessage = message;
-                        }
-                        TestReportCaptureBase.INSTANCE.markFailInReport(message);
-                        continue;
-                    } catch(IOException e){
-                        throw new RuntimeException(e);
-                    }
-                }
+                String referenceImageFileName = thisFrameBaseImageFileName + ".png";
 
                 Image generatedImage = readImage(generatedImagePath.toFile());
-                Image expectedImage = readImage(expectedImageResources.nextElement());
+
+                if(mode == ScreenshotTestMode.GENERATE){
+                    // This is the pass that runs against the reference branch; it records what the
+                    // scene looks like on this machine and asserts nothing about it.
+                    osSpecificRunner.saveReferenceImage(generatedImagePath, referenceImageFileName);
+                    attachImage("Reference image", referenceImageFileName, generatedImage);
+                    continue;
+                }
+
+                Optional<Image> referenceImage = osSpecificRunner.loadReferenceImage(referenceImageFileName);
+
+                if(!referenceImage.isPresent()){
+                    // The reference run produced nothing under this name, so the test is new on
+                    // this branch. A new test has nothing to be compared against and is listed as new.
+                    osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, referenceImageFileName);
+                    attachImage("New image:", referenceImageFileName, generatedImage);
+                    TestReportCaptureBase.INSTANCE.warning(NEW_TEST_NO_REFERENCE_IMAGE);
+                    continue;
+                }
+
+                Image expectedImage = referenceImage.get();
 
                 if(!imagesAreSameSize(generatedImage, expectedImage)){
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
@@ -318,9 +367,7 @@ public class ScreenshotTest{
 
                     TestReportCaptureBase.INSTANCE.warning("Image 1 size : " + generatedImage.getWidth() + "x" + generatedImage.getHeight());
                     TestReportCaptureBase.INSTANCE.warning("Image 2 size : " + expectedImage.getWidth() + "x" + expectedImage.getHeight());
-                    if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                        failureMessage = IMAGES_ARE_DIFFERENT_SIZES;
-                    }
+                    TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT_SIZES);
                 } else {
                     ImageDifference imageDifference = ImageDifference.of(generatedImage, expectedImage);
 
@@ -329,19 +376,17 @@ public class ScreenshotTest{
                             TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
                         }
                     } else {
-                        //save the generated image to the build directory
-                        osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
-
                         attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                         attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", generatedImage);
                         attachImage("Diff", thisFrameBaseImageFileName + "_diff.png", createComparisonImage(generatedImage, expectedImage));
 
                         switch(testType){
                             case MUST_PASS:
-                                if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
-                                    failureMessage = IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")";
-                                }
-                                TestReportCaptureBase.INSTANCE.markFailInReport(IMAGES_ARE_DIFFERENT);
+                                // Only a must-pass difference goes to changed-images, which is what
+                                // the pull request comment lists; differences in the other test
+                                // types are tolerated and only reported.
+                                osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
+                                TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")");
                                 break;
                             case NON_DETERMINISTIC:
                                 TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
@@ -363,33 +408,8 @@ public class ScreenshotTest{
         }
     }
 
-    private Image readImage(URL location) {
-        if ("file".equals(location.getProtocol())) {
-            return readImage(new File(location.getFile()));
-        }
-
-        // internal jar load
-        String path = location.getPath();
-        int separatorIndex = path.indexOf("!/");
-        String internalPath = separatorIndex != -1 ? path.substring(separatorIndex + 2) : path;
-        if (!internalPath.startsWith("/")) {
-            internalPath = "/" + internalPath;
-        }
-        return readImageFromClasspath(internalPath);
-    }
-
-    private Image readImageFromClasspath(String location) {
-        AssetManager assetManager = new DesktopAssetManager();
-        assetManager.registerLocator("", ClasspathLocator.class);
-        assetManager.registerLoader(StbImageLoader.class, "png", "jpg", "jpeg");
-        return assetManager.loadTexture(location).getImage();
-    }
-
     private Image readImage(File file) {
-        AssetManager assetManager = new DesktopAssetManager();
-        assetManager.registerLocator(file.getParent(), FileLocator.class);
-        assetManager.registerLoader(StbImageLoader.class, "png", "jpg", "jpeg");
-        return assetManager.loadTexture(file.getName()).getImage();
+        return ScreenshotImageIo.readImage(file);
     }
 
     public static ByteBuffer loadFileIntoByteBuffer(File file) throws Exception {
@@ -435,8 +455,6 @@ public class ScreenshotTest{
 
     /**
      * Tests that the images are the same for the purposes of the test.
-     * If they are not the same it will return false (which may fail the test depending on the test type).
-     * Different sizes are so fatal that they will immediately fail the test.
      * A difference that is small enough to be renderer noise rather than a change in what was drawn
      * still counts as the same, see {@link ImageDifference}.
      */

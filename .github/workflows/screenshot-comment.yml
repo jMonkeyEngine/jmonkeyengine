@@ -1,0 +1,69 @@
+######################################################################################
+# Screenshot comment
+######################################################################################
+# Lists the screenshots a pull request changed in a comment on it, once the desktop or
+# Android screenshot workflow has finished. Changed images do not fail those workflows;
+# this comment is how the reviewer finds out about them.
+#
+# It has to be a separate workflow because the comparisons run the pull request's code
+# and, for a pull request from a fork, only ever get a read-only token. A workflow_run
+# workflow instead runs from the default branch with this repository's token. That makes
+# it safe only as long as it never runs anything from the pull request: it checks out
+# nothing but the default branch's own script, and treats the results it downloads as
+# untrusted data (see .github/scripts/screenshot-comment.sh).
+#
+# A first-time contributor's run that is waiting for approval has not run, so it has no
+# results; if GitHub reports it here at all, it is with the conclusion action_required,
+# and an existing comment is only marked as out of date. Once the run is approved and
+# finishes, this runs again with the real result. A run that is never approved never
+# produces a result, so nothing is posted for it.
+#
+# Note that GitHub only runs workflow_run workflows from the default branch, so changes
+# to this file take effect once they are merged.
+######################################################################################
+
+name: Screenshot Comment
+
+on:
+  workflow_run:
+    workflows: [Screenshot Comparison, Android Screenshot Test]
+    types: [completed]
+
+permissions: {}
+
+# One at a time per workflow and branch, so that two runs can never both decide there is no comment
+# yet and post one each.
+concurrency:
+  group: screenshot-comment-${{ github.event.workflow_run.name }}-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      # The default branch, which is what a workflow_run run checks out unless told otherwise. Never
+      # point this at the pull request.
+      - name: Check out the comment script
+        uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Update the pull request comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_NAME: ${{ github.event.workflow_run.name }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: bash .github/scripts/screenshot-comment.sh

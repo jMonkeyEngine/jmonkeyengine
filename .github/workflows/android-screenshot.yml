@@ -1,39 +1,81 @@
+######################################################################################
+# Android screenshot comparison
+######################################################################################
+# Does the same thing as screenshot-compare.yml - render the screenshot tests from the
+# branch being compared against, then from the branch under test, on one machine - but
+# keeps its own workflow because the emulator setup (KVM, AVD cache, the emulator-runner
+# action wrapping a single script) has nothing in common with the desktop container job.
+#
+# What the two genuinely share they share through the composite actions in
+# .github/actions: how the reference ref is resolved, and what the job summary says.
+#
+# Both passes have to run inside the one emulator session, which is why they are two
+# invocations inside the script below rather than two workflow steps.
+######################################################################################
+
 name: Android Screenshot Test
 
+# Pull requests only: a push has no reviewer to look at its visual changes.
 on:
-  push:
-    branches:
-      - master
-      - v3.7
-      - v3.6
-      - v3.5
-      - v3.4
-      - v3.3
-      - ios-2024_2
   pull_request:
+  workflow_dispatch:
+    inputs:
+      reference_ref:
+        description: 'Ref to generate reference images from (e.g. master)'
+        required: true
+      target_ref:
+        description: >
+          Ref to test. Its code runs in this repository's context rather than a fork's, so only use
+          a ref you have reviewed.
+        required: true
+
+# This runs the pull request's code, so it never holds a write token; screenshot-comment.yml reports
+# the changed images on the pull request afterwards.
+permissions:
+  contents: read
 
 jobs:
   screenshot-test-android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: checkout
+      # The branch under test, at the workspace root. This also has to come first because it is
+      # what makes the local composite actions below available.
+      # Depth 2 so that the merge commit's first parent can be resolved as the reference ref.
+      - name: Check out the branch under test
         uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.target_ref }}
+          fetch-depth: 2
+
+      - name: Check out the branch to compare against
+        id: refs
+        uses: ./.github/actions/screenshot-reference-checkout
+        with:
+          reference_ref: ${{ inputs.reference_ref }}
+
       - name: Setup the java environment
         uses: actions/setup-java@v6.0.1
         with:
           distribution: 'temurin'
           java-version: '25'
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Never writes: a manual run from the default branch can execute an unreviewed target_ref, and
+      # a cache saved from there would be restored by every branch.
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.0
+        with:
+          cache-read-only: true
 
+      # Skipped on a manual run for the same reason: this action saves as well as restores.
       - name: AVD cache
+        if: github.event_name == 'pull_request'
         uses: actions/cache@v6.1.0
         id: avd-cache
         with:
@@ -41,37 +83,95 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-35
+
       - name: Prepare Android test script
         run: |
           cat > android-test-script.sh << 'EOF'
           #!/usr/bin/env bash
           curl -L https://maven.google.com/androidx/test/services/test-services/1.6.0/test-services-1.6.0.apk --output test-services-1.6.0.apk
           adb install -r -g test-services-1.6.0.apk
-          exit_code=1
-          for attempt in 1 2 3; do
-            echo "Android screenshot test attempt $attempt of 3"
-            adb uninstall org.jmonkeyengine.screenshottests.android || true
-            ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
-            exit_code=$?
-            if [ $exit_code -eq 0 ]; then
-              break
-            fi
-            if [ $attempt -lt 3 ]; then
-              echo "Attempt $attempt failed, retrying..."
-            fi
-          done
-          mkdir -p logcat
-          adb logcat -d > logcat/logcat_full.txt || true
-          adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
+
+          TASK=:jme3-screenshot-tests:jme3-screenshot-tests-android:connectedDebugAndroidTest
+          # Test storage belongs to the test services app rather than to the app under test, so it
+          # survives the uninstall between retry attempts. The app's own external files directory
+          # would not, which is why the reference images live here.
+          TEST_STORAGE=/storage/emulated/0/googletest
+          REFERENCE_IMAGES="$TEST_STORAGE/test_runfiles/reference-images"
+          GENERATED_IMAGES="$TEST_STORAGE/test_outputfiles/reference-images"
+
+          # Runs one pass up to <attempts> times. Only the reference pass retries. It runs code already
+          # on the base branch, so a failure there can only be infrastructure; image differences do not
+          # fail a comparison, so one that does fail most likely crashed because of the change under test.
+          run_pass() {
+            local attempts="$1"; shift
+            local checkout="$1"; shift
+            local exit_code=1
+            for attempt in $(seq 1 "$attempts"); do
+              echo "Attempt $attempt of $attempts in $checkout"
+              adb uninstall org.jmonkeyengine.screenshottests.android || true
+              (cd "$checkout" && ./gradlew "$@")
+              exit_code=$?
+              if [ $exit_code -eq 0 ]; then
+                return 0
+              fi
+              if [ $attempt -lt "$attempts" ]; then
+                echo "Attempt $attempt failed, retrying..."
+              fi
+            done
+            return $exit_code
+          }
+
+          collect_logs() {
+            mkdir -p logcat
+            adb logcat -d > logcat/logcat_full.txt || true
+            adb logcat -d | grep org.jmonkeyengine.screenshottests.android > logcat/logcat.txt || true
+          }
+
+          # --- Pass 1: record what the reference ref looks like on this emulator ---------------
+          adb shell rm -rf "$GENERATED_IMAGES" "$REFERENCE_IMAGES" || true
+
+          if ! run_pass 3 reference "$TASK" -Pscreenshot.mode=generate; then
+            collect_logs
+            echo "::error title=Reference generation failed::Generating reference images from the reference ref did not complete, so there is nothing trustworthy to compare against. Fix that failure first - it is the real problem, not the comparison."
+            exit 1
+          fi
+
+          # Promote the generated images to be the reference set the next pass reads, and only
+          # then write the marker. The comparison pass refuses to run without it, so a reference
+          # pass that died half way through can never be mistaken for a branch full of new tests.
+          adb shell mkdir -p "$REFERENCE_IMAGES"
+          if ! adb shell "cp $GENERATED_IMAGES/*.png $REFERENCE_IMAGES/"; then
+            collect_logs
+            echo "::error title=No reference images::The reference pass reported success but produced no images to compare against."
+            exit 1
+          fi
+          adb shell "echo 'Reference images generated' > $REFERENCE_IMAGES/reference-run-complete.txt"
+
+          # Keep the reference run's own output out of the comparison run's report, but pull it
+          # first: the summary uses it to tell a changed image from a new one.
           mkdir -p report
-          adb pull /storage/emulated/0/googletest/test_outputfiles/report report/protoReport || true
-          adb pull /storage/emulated/0/googletest/test_outputfiles/changed-images report/changed-images || true
+          adb pull "$GENERATED_IMAGES" report/reference-images || true
+          adb shell rm -rf "$TEST_STORAGE/test_outputfiles" || true
+
+          # --- Pass 2: compare the branch under test against them -----------------------------
+          # Differences are reported rather than failed, so this pass failing means only that it did
+          # not run to the end. screenshot-comment.yml lists the differences on the pull request.
+          run_pass 1 . "$TASK" -Pscreenshot.mode=compare
+          exit_code=$?
+
+          collect_logs
+          adb pull "$TEST_STORAGE/test_outputfiles/report" report/protoReport || true
+          adb pull "$TEST_STORAGE/test_outputfiles/changed-images" report/changed-images || true
           ./gradlew :jme3-screenshot-tests:jme3-screenshot-tests-proto-report:upgradeProtoReport --args="$(pwd)/report/protoReport $(pwd)/report/extentReport" || true
           echo "GRADLE_EXIT_CODE=$exit_code" >> $GITHUB_ENV
           exit $exit_code
           EOF
           chmod +x android-test-script.sh
+
       - name: Run Android Screenshot Test
+        if: steps.refs.outputs.reference_supported == 'true'
+        id: compare
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: 35
@@ -85,16 +185,48 @@ jobs:
           emulator-options: -no-window -gpu mesa -noaudio -no-boot-anim -camera-back none -no-snapshot -no-snapshot-save -no-snapshot-load
           disable-animations: false
           script: bash android-test-script.sh
+
+      - name: Summarise
+        if: always()
+        uses: ./.github/actions/screenshot-summary
+        with:
+          platform: android
+          reference_ref: ${{ steps.refs.outputs.reference_ref }}
+          target_ref: ${{ steps.refs.outputs.target_ref }}
+          reference_images: report/reference-images
+          changed_images: report/changed-images
+          artifact_name: android-screenshot-report
+          report_file: extentReport/index.html
+          outcome: ${{ steps.refs.outputs.reference_supported == 'false' && 'unsupported' || steps.compare.outcome }}
+          results_dir: screenshot-results
+
+      - name: Upload the result for the pull request comment
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-results-android
+          retention-days: 7
+          path: screenshot-results
+
       - name: Upload logcat
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: android-logcat
           path: logcat
+
       - name: Upload Screenshot
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: android-screenshot-report
           path: report
-          if-no-files-found: error
+          if-no-files-found: ${{ steps.refs.outputs.reference_supported == 'false' && 'ignore' || 'error' }}
+
+      # The emulator step runs with continue-on-error so that the summary, the logcat and the
+      # report survive a failure. This is where its result actually decides the job.
+      - name: Fail if the comparison failed
+        if: steps.compare.outcome == 'failure'
+        run: |
+          echo "::error title=Android screenshot comparison failed::The comparison did not run to the end. See the step log, and the android-logcat and android-screenshot-report artifacts."
+          exit 1
