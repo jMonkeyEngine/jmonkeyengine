@@ -48,6 +48,7 @@ import java.io.IOException;
  * The slider constraint allows the body to rotate around one axis and translate along this axis.
  * @author normenhansen
  */
+@Deprecated
 public class SliderJoint extends PhysicsJoint {
     protected Matrix3f rotA, rotB;
     protected boolean useLinearReferenceFrameA;

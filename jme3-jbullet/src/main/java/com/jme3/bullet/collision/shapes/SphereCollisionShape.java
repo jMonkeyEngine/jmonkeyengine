@@ -43,6 +43,7 @@ import java.io.IOException;
  * Basic sphere collision shape
  * @author normenhansen
  */
+@Deprecated
 public class SphereCollisionShape extends CollisionShape {
 
     protected float radius;

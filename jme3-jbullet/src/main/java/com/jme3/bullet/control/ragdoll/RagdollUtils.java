@@ -56,6 +56,7 @@ import java.util.*;
  *
  * @author Nehon
  */
+@Deprecated
 public class RagdollUtils {
 
     /**
