@@ -82,7 +82,7 @@ public class CursorConverter {
      * @return the {@link JmeCursor} object that contains the data for a cursor.
      */
     public JmeCursor fromTexture(Texture2D cursorTexture) {
-        return fromTexture(cursorTexture, 0, cursorTexture.getImage().getHeight());
+        return fromTexture(cursorTexture, 0, cursorTexture.getImage().getHeight() - 1);
     }
 
     /**
@@ -150,7 +150,7 @@ public class CursorConverter {
     public JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
         int yHotspot = 0;
         if (cursorFrames.length > 0) {
-            yHotspot = cursorFrames[0].getImage().getHeight();
+            yHotspot = cursorFrames[0].getImage().getHeight() - 1;
         }
         return fromTextureFrames(cursorFrames, frameDelay, 0, yHotspot);
     }
@@ -175,7 +175,7 @@ public class CursorConverter {
     public JmeCursor  fromTextureFrames(Texture2D[] cursorFrames, int[] frameDelays) {
         int yHotspot = 0;
         if (cursorFrames.length > 0) {
-            yHotspot = cursorFrames[0].getImage().getHeight();
+            yHotspot = cursorFrames[0].getImage().getHeight() - 1;
         }
         return fromTextureFrames(cursorFrames, frameDelays, 0, yHotspot);
     }
@@ -353,6 +353,6 @@ public class CursorConverter {
             int yHotspot, 
             int imageWidth, 
             int imageHeight) {
-        return xHotspot >= 0 && xHotspot <= imageWidth && yHotspot >= 0 && yHotspot <= imageHeight;
+        return xHotspot >= 0 && xHotspot < imageWidth && yHotspot >= 0 && yHotspot < imageHeight;
     }
 }
