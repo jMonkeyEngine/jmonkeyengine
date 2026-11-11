@@ -73,7 +73,7 @@ public class CursorConverter {
      * @param cursorFormat the {@link JmeCursor}'s image data will follow the
      *        specified image format.
      * @param verticalFlip if true, the {@link JmeCursor}'s image will be flipped vertically, otherwise
-     *        it won't be flipped.
+     *        it won't be flipped. It only affect the cursor's image, It doesn't flip hotspots as well.
      */
     public CursorConverter(CursorConverter.CursorFormat cursorFormat, boolean verticalFlip) {
         outputCursorFormat = cursorFormat;
@@ -128,7 +128,7 @@ public class CursorConverter {
             image = image.deepClone(); //Avoid modifying the original.
             verticalFlip(image);
         }
-        IntBuffer adaptedImageData = getDataAsIntBuffer(image);
+        IntBuffer imageData = getDataAsIntBuffer(image);
 
         JmeCursor jmeCursor = new JmeCursor();
         jmeCursor.setWidth(imageWidth);
@@ -137,7 +137,7 @@ public class CursorConverter {
         jmeCursor.setyHotSpot(yHotspot);
         jmeCursor.setNumImages(1);
         jmeCursor.setImagesDelay(null);
-        jmeCursor.setImagesData(adaptedImageData);
+        jmeCursor.setImagesData(imageData);
         return jmeCursor;
     }
 
@@ -285,7 +285,7 @@ public class CursorConverter {
             );
         }
 
-        IntBuffer imagesData = BufferUtils.createIntBuffer(imageHeight * imageWidth * cursorFrames.length);
+        IntBuffer imagesData = createImageDataBuffer(imageHeight * imageWidth * cursorFrames.length);
 
         if (outputVerticalFlip) {
             imageFrames = imageFrames
@@ -336,11 +336,9 @@ public class CursorConverter {
         int height = image.getHeight();
         
         ImageRaster raster = ImageRaster.create(image);
-        IntBuffer data;
+        IntBuffer data = createImageDataBuffer(width * height);
 
         if (outputCursorFormat == CursorFormat.ARGB) {
-            data = BufferUtils.createIntBuffer(width * height);
-
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     ColorRGBA imagePixel = raster.getPixel(x, y);
@@ -349,8 +347,6 @@ public class CursorConverter {
                 }
             }
         } else {
-            data = BufferUtils.createIntBuffer(width * height * 4);
-
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     ColorRGBA imagePixel = raster.getPixel(x, y);
@@ -370,5 +366,13 @@ public class CursorConverter {
             int imageWidth, 
             int imageHeight) {
         return xHotspot >= 0 && xHotspot < imageWidth && yHotspot >= 0 && yHotspot < imageHeight;
+    }
+
+    private IntBuffer createImageDataBuffer(int baseSize) {
+        if (outputCursorFormat == CursorFormat.ARGB) {
+            return BufferUtils.createIntBuffer(baseSize);
+        } else {
+            return BufferUtils.createIntBuffer(baseSize * 4);
+        }
     }
 }
