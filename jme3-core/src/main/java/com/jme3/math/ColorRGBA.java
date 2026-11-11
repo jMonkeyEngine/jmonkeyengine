@@ -674,6 +674,25 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
+     * Retrieves the component values of this <code>ColorRGBA</code> as an
+     * <code>int[]</code> of lenght four in r,g,b,a order.
+     * Where:
+     *      int[0] = red value in range of 0-255.
+     *      int[1] = green value in range of 0-255.
+     *      int[2] = blue value in range of 0-255.
+     *      int[3] = alpha value in range of 0-255.
+     *
+     * @return The integer array representation of this <code>ColorRGBA</code> in r,g,b,a order.
+     */
+    public int[] asIntsRGBA() {
+        int intR = ((int) (r * 255) & 0xFF);
+        int intG = ((int) (g * 255) & 0xFF);
+        int intB = ((int) (b * 255) & 0xFF);
+        int intA = ((int) (a * 255) & 0xFF);
+        return new int[] {intR, intG, intB, intA};
+    }
+
+    /**
      * Sets the component values of this <code>ColorRGBA</code> with the given
      * combined ARGB <code>int</code>.
      * Bits 24-31 are alpha, bits 16-23 are red, bits 8-15 are green, bits 0-7 are blue.
@@ -824,10 +843,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Helper method to combine four float channels into an int.
      */
     private int toInt(float c1, float c2, float c3, float c4) {
-        int r = ((int) (c1 * 255) & 0xFF);
-        int g = ((int) (c2 * 255) & 0xFF);
-        int b = ((int) (c3 * 255) & 0xFF);
-        int a = ((int) (c4 * 255) & 0xFF);
-        return (r << 24) | (g << 16) | (b << 8) | a;
+        int intC1 = ((int) (c1 * 255) & 0xFF);
+        int intC2 = ((int) (c2 * 255) & 0xFF);
+        int intC3 = ((int) (c3 * 255) & 0xFF);
+        int intC4 = ((int) (c4 * 255) & 0xFF);
+        return (intC1 << 24) | (intC2 << 16) | (intC3 << 8) | intC4;
     }
 }

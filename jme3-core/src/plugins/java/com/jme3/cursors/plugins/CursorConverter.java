@@ -52,7 +52,17 @@ public class CursorConverter {
     /**
      * Supported formats for {@link JmeCursor}'s image data.
      */
-    public enum CursorFormat {ARGB, RGBA}
+    public enum CursorFormat {
+        /**
+         * One byte (8 bits) for each channel (Alpha, Red, Green, Blue).
+         */
+        ARGB,
+
+        /**
+         * One interger (32 bits) for each channel (Red, Green, Blue, Alpha).
+         */
+        RGBAI
+    }
 
     private final CursorConverter.CursorFormat outputCursorFormat;
     private final boolean outputVerticalFlip;
@@ -326,21 +336,27 @@ public class CursorConverter {
         int height = image.getHeight();
         
         ImageRaster raster = ImageRaster.create(image);
-        
-        IntBuffer data = BufferUtils.createIntBuffer(width * height);
-        
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                ColorRGBA imagePixel = raster.getPixel(x, y);
-                int cursorPixel;
+        IntBuffer data;
 
-                if (outputCursorFormat == CursorFormat.ARGB) {
-                    cursorPixel = imagePixel.asIntARGB();
-                } else {
-                    cursorPixel = imagePixel.asIntRGBA();
+        if (outputCursorFormat == CursorFormat.ARGB) {
+            data = BufferUtils.createIntBuffer(width * height);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    ColorRGBA imagePixel = raster.getPixel(x, y);
+                    int cursorPixel = imagePixel.asIntARGB();
+                    data.put(cursorPixel);
                 }
+            }
+        } else {
+            data = BufferUtils.createIntBuffer(width * height * 4);
 
-                data.put(cursorPixel);
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    ColorRGBA imagePixel = raster.getPixel(x, y);
+                    int[] cursorPixel = imagePixel.asIntsRGBA();
+                    data.put(cursorPixel);
+                }
             }
         }
         
