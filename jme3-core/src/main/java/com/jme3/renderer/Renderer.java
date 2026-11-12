@@ -325,8 +325,10 @@ public interface Renderer {
      * image data nor marks the image dirty. Callers must retain authoritative
      * CPU data or replay updates after texture/context recreation or any full
      * image upload. An unuploaded or dirty destination is first fully uploaded
-     * using its populated CPU layer buffers. A resident, clean destination
-     * requires only one layer-region upload; other texels are unchanged.
+     * and requires complete CPU layer buffers. A resident, clean destination
+     * requires only one layer-region upload; other texels are unchanged. Its CPU
+     * layer buffers may be null, but its image data list must retain one entry
+     * per layer for bounds validation.
      *
      * @param dest the destination texture array (not null)
      * @param pixels the single-buffer 2D source image (not null)

@@ -161,6 +161,14 @@ public final class TestTextureArrayUpdate extends SimpleApplication {
         renderer.modifyTexture(array, violet, 1, 0, 0);
         equal(expected, readBytes(renderer, array, 1), "caller replay after recreation");
         equal(first, readBytes(renderer, array, 0), "replay preserves other layer");
+
+        // A resident array can discard all CPU pixels and still receive patches.
+        array.getImage().getData().replaceAll(data -> null);
+        renderer.modifyTexture(array, violet, 0, size - 1, size - 1);
+        byte[] expectedFirst = first.clone();
+        patch(expectedFirst, size, violet, size - 1, size - 1);
+        equal(expectedFirst, readBytes(renderer, array, 0), "CPU-free patch preserves untouched GPU texels");
+        equal(expected, readBytes(renderer, array, 1), "CPU-free patch preserves the other GPU layer");
         renderer.deleteImage(array.getImage());
     }
 

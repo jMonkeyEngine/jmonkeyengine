@@ -591,7 +591,6 @@ public final class TextureUtil {
             throw new IllegalArgumentException("Invalid destination layer or source image buffer count");
         }
         validateLayerBuffer(src.getData(0), src);
-        validateLayerBuffer(dest.getData(layer), dest);
         if (dest.isUpdateNeeded() || dest.getId() == -1) {
             // Initial/full uploads already visit every layer. Resident updates stay O(1).
             for (ByteBuffer data : dest.getData()) {

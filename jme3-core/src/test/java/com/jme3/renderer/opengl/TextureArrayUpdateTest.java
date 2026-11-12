@@ -215,7 +215,7 @@ public class TextureArrayUpdateTest {
     }
 
     @Test
-    public void residentPatchChecksOnlyTheAddressedBackingLayer() {
+    public void residentPatchDoesNotRequireCpuBacking() {
         RecordingGl gl = new RecordingGl("OpenGL ES 3.0");
         GLRenderer renderer = gl.renderer(true);
         ArrayList<ByteBuffer> layers = new ArrayList<>(Arrays.asList(
@@ -224,16 +224,26 @@ public class TextureArrayUpdateTest {
         Image patch = image(Image.Format.RGBA8, 1, 1, bytes(4, (byte) 2), ColorSpace.Linear);
         renderer.modifyTexture(destination, patch, 0, 0, 0); // allocate and upload the baseline
 
-        layers.set(1, ByteBuffer.allocate(16)); // not visited by a clean resident layer-0 update
+        // Discard CPU pixels without changing the resident storage or layer count.
+        layers.replaceAll(data -> null);
         gl.clearCalls();
-        renderer.modifyTexture(destination, patch, 0, 1, 1);
+        renderer.modifyTexture(destination, patch, 1, 1, 1);
 
-        assertEquals(1, gl.subImage3dCalls, "resident update uploads only its requested patch");
+        assertEquals(1, gl.subImage3dCalls, "resident update uploads only its source patch");
+        assertEquals(0, gl.arrayAllocations.size(), "discarding CPU pixels must not reallocate GPU storage");
         Upload update = gl.lastSubImage();
-        assertEquals(0, update.offsetZ);
+        assertEquals(1, update.offsetZ);
         assertEquals(1, update.offsetX);
         assertEquals(1, update.offsetY);
-        assertEquals(0, gl.arrayAllocations.size());
+        assertArrayEquals(contents(patch.getData(0)), update.data);
+        assertFalse(destination.getImage().isUpdateNeeded());
+
+        // A later full upload still needs complete CPU backing, before any GL mutation.
+        destination.getImage().setUpdateNeeded();
+        gl.clearCalls();
+        assertThrows(IllegalArgumentException.class,
+                () -> renderer.modifyTexture(destination, patch, 1, 1, 1));
+        assertTrue(gl.calls.isEmpty(), "missing full-upload data must fail before GL calls");
     }
 
     @Test
