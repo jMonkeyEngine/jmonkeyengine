@@ -49,6 +49,7 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.TextureArray;
 import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
 
@@ -182,6 +183,11 @@ public class NullRenderer implements Renderer {
 
     @Override
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+    }
+
+    @Override
+    public void modifyTexture(TextureArray dest, Image pixels, int layer, int x, int y) {
+        // GPU-only operation: there is no storage to update in the null renderer.
     }
 
     @Override

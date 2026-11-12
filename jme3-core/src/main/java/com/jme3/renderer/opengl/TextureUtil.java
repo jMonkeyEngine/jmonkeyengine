@@ -563,4 +563,81 @@ public final class TextureUtil {
 
     }
 
+    /** Validates a base-level array update without binding or issuing GL commands. */
+    GLImageFormat validateArrayLayerUpdate(Image dest, Image src, int layer, int x, int y,
+            boolean linearizeSrgb) {
+        if (src.getFormat() == null || dest.getFormat() == null
+                || dest.getFormat() != src.getFormat() || dest.getColorSpace() != src.getColorSpace()) {
+            throw new IllegalArgumentException("Array update format and color space must match "
+                    + "the destination");
+        }
+        if (src.getFormat().isCompressed() || src.getFormat().isDepthFormat()
+                || src.getDepth() > 1 || dest.getDepth() > 1
+                || src.getMultiSamples() > 1 || dest.getMultiSamples() > 1
+                || src.getMipMapSizes() != null || dest.getMipMapSizes() != null
+                || src.isGeneratedMipmapsRequired() || dest.isGeneratedMipmapsRequired()) {
+            throw new UnsupportedOperationException("Only single-sample, non-mipmapped "
+                    + "2D color layers can be updated");
+        }
+        if (src.getWidth() <= 0 || src.getHeight() <= 0
+                || dest.getWidth() <= 0 || dest.getHeight() <= 0
+                || x < 0 || y < 0
+                || x > dest.getWidth() - src.getWidth()
+                || y > dest.getHeight() - src.getHeight()) {
+            throw new IllegalArgumentException("The array update rectangle is outside the destination");
+        }
+        if (dest.getData() == null || layer < 0 || layer >= dest.getData().size()
+                || src.getData() == null || src.getData().size() != 1) {
+            throw new IllegalArgumentException("Invalid destination layer or source image buffer count");
+        }
+        validateLayerBuffer(src.getData(0), src);
+        if (dest.isUpdateNeeded() || dest.getId() == -1) {
+            // Initial/full uploads already visit every layer. Resident updates stay O(1).
+            for (ByteBuffer data : dest.getData()) {
+                validateLayerBuffer(data, dest);
+            }
+        }
+        boolean srgb = dest.getColorSpace() == ColorSpace.sRGB && linearizeSrgb;
+        GLImageFormat format = getImageFormatWithError(src.getFormat(), srgb);
+        // Bound integer scratch calculations before setTexture can mutate native state.
+        if (requiresPackedExpansion(src.getFormat(), format)) {
+            long components = src.getFormat() == Format.RGB565 ? 3 : 4;
+            if ((long) src.getWidth() * src.getHeight() * components > Integer.MAX_VALUE
+                    || ((dest.isUpdateNeeded() || dest.getId() == -1)
+                    && (long) dest.getWidth() * dest.getHeight() * components > Integer.MAX_VALUE)) {
+                throw new IllegalArgumentException("Expanded array update or backing layer is too large");
+            }
+        }
+        return format;
+    }
+
+    private static void validateLayerBuffer(ByteBuffer data, Image image) {
+        long pixels = (long) image.getWidth() * image.getHeight();
+        int bytesPerPixel = image.getFormat().getBitsPerPixel() / 8;
+        if (data == null || !data.isDirect() || pixels <= 0 || bytesPerPixel <= 0
+                || pixels > data.capacity() / bytesPerPixel) {
+            throw new IllegalArgumentException("A complete direct buffer is required for each image layer");
+        }
+    }
+
+    /** Uploads one validated tightly packed patch. Renderer owns texture binding/unpack state. */
+    void uploadArrayLayer(Image src, GLImageFormat format, int layer, int x, int y) {
+        ByteBuffer data = src.getData(0).duplicate();
+        data.clear();
+        data.limit(Math.multiplyExact(Math.multiplyExact(src.getWidth(), src.getHeight()),
+                src.getFormat().getBitsPerPixel() / 8));
+        ByteBuffer expanded = null;
+        try {
+            if (requiresPackedExpansion(src.getFormat(), format)) {
+                expanded = expandPackedPixels(data, src.getFormat(),
+                        Math.multiplyExact(src.getWidth(), src.getHeight()));
+            }
+            gl2.glTexSubImage3D(GLExt.GL_TEXTURE_2D_ARRAY_EXT, 0, x, y, layer,
+                    src.getWidth(), src.getHeight(), 1, format.format, format.dataType,
+                    expanded != null ? expanded : data);
+        } finally {
+            releasePackedPixels(expanded);
+        }
+    }
+
 }
