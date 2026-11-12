@@ -91,7 +91,6 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     private int textureAtlasId = 1;
     private Batch currentBatch;
     private Matrix4f tempMat = new Matrix4f();
-    private ByteBuffer initialData = null;
 
     // This is only used for debugging purposes and will fill the removed textures with a color.
     // Please note: the old way to init this via a system property has been
@@ -185,17 +184,6 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     @Override
     public int createTextureAtlas(final int width, final int height) {
         try {
-            // we initialize a buffer here that will be used as base for all texture atlas images
-            if (initialData == null) {
-                initialData = BufferUtils.createByteBuffer(width * height * 4);
-                for (int i = 0; i < width * height; i++) {
-                    initialData.put((byte) 0x00);
-                    initialData.put((byte) 0x00);
-                    initialData.put((byte) 0x00);
-                    initialData.put((byte) 0xff);
-                }
-            }
-
             int atlasId = addTexture(createAtlasTextureInternal(width, height));
 
             return atlasId;
@@ -208,8 +196,15 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public void clearTextureAtlas(final int atlasId) {
-        initialData.rewind();
-        getTextureAtlas(atlasId).getImage().setData(initialData);
+        Texture2D atlas = getTextureAtlas(atlasId);
+        clearAtlasImageData(atlas.getImage());
+
+        // Calls queued before the renderer was available are superseded by this clear.
+        for (int i = modifyTextureCalls.size() - 1; i >= 0; i--) {
+            if (modifyTextureCalls.get(i).atlas == atlas) {
+                modifyTextureCalls.remove(i);
+            }
+        }
     }
 
     @Override
@@ -251,7 +246,9 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     @Override
     public void addImageToAtlas(final Image image, final int x, final int y, final int atlasTextureId) {
         ImageImpl imageImpl = (ImageImpl) image;
-        imageImpl.modifyTexture(this, getTextureAtlas(atlasTextureId), x, y);
+        Texture2D atlas = getTextureAtlas(atlasTextureId);
+        copyImageDataToAtlas(imageImpl.image, atlas.getImage(), x, y);
+        imageImpl.modifyTexture(this, atlas, x, y);
     }
 
     @Override
@@ -319,19 +316,17 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return;
         }
 
-        ByteBuffer initialData = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
-        for (int i = 0; i < image.getWidth() * image.getHeight(); i++) {
-            initialData.put((byte) 0xff);
-            initialData.put((byte) 0x00);
-            initialData.put((byte) 0x00);
-            initialData.put((byte) 0xff);
+        ByteBuffer removedImageData = createAtlasImageData(image.getWidth(), image.getHeight());
+        for (int i = 0; i < removedImageData.capacity(); i += 4) {
+            removedImageData.put(i, (byte) 0xff);
+            removedImageData.put(i + 1, (byte) 0x00);
+            removedImageData.put(i + 2, (byte) 0x00);
         }
-        initialData.rewind();
-        modifyTexture(
-                getTextureAtlas(atlasTextureId),
-                new com.jme3.texture.Image(Format.RGBA8, image.getWidth(), image.getHeight(), initialData, ColorSpace.sRGB),
-                x,
-                y);
+        com.jme3.texture.Image removedImage = new com.jme3.texture.Image(
+                Format.RGBA8, image.getWidth(), image.getHeight(), removedImageData, ColorSpace.sRGB);
+        Texture2D atlas = getTextureAtlas(atlasTextureId);
+        copyImageDataToAtlas(removedImage, atlas.getImage(), x, y);
+        modifyTexture(atlas, removedImage, x, y);
     }
 
     /**
@@ -368,13 +363,157 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     // internal implementations
     private Texture2D createAtlasTextureInternal(final int width, final int height) throws Exception {
-        // re-use pre-defined initial data instead of creating a new buffer
-        initialData.rewind();
-
-        Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
+        ByteBuffer atlasData = createAtlasImageData(width, height);
+        Texture2D texture = new Texture2D(
+                new com.jme3.texture.Image(Format.RGBA8, width, height, atlasData, ColorSpace.sRGB));
         texture.setMinFilter(MinFilter.NearestNoMipMaps);
         texture.setMagFilter(MagFilter.Nearest);
         return texture;
+    }
+
+    static ByteBuffer createAtlasImageData(final int width, final int height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("Atlas dimensions must be positive");
+        }
+        long pixelCount = (long) width * height;
+        if (pixelCount > Integer.MAX_VALUE / 4) {
+            throw new IllegalArgumentException("Atlas image is too large");
+        }
+
+        ByteBuffer data = BufferUtils.createByteBuffer((int) pixelCount * 4);
+        clearAtlasImageData(data);
+        return data;
+    }
+
+    static void clearAtlasImageData(final com.jme3.texture.Image atlasImage) {
+        if (atlasImage.getFormat() != Format.RGBA8) {
+            throw new IllegalArgumentException("Texture atlas image must use RGBA8 format");
+        }
+        ByteBuffer data = atlasImage.getData(0);
+        clearAtlasImageData(data);
+        // Mark the image dirty so the cleared CPU data is also uploaded to the current context.
+        atlasImage.setData(data);
+    }
+
+    private static void clearAtlasImageData(final ByteBuffer data) {
+        if (data == null || data.capacity() % 4 != 0) {
+            throw new IllegalArgumentException("Atlas image data must contain complete RGBA8 pixels");
+        }
+        ByteBuffer pixels = data.duplicate();
+        pixels.clear();
+        while (pixels.remaining() >= 4) {
+            pixels.put((byte) 0x00);
+            pixels.put((byte) 0x00);
+            pixels.put((byte) 0x00);
+            pixels.put((byte) 0xff);
+        }
+    }
+
+    /**
+     * Keep the atlas Image's CPU data in sync with the subimage upload. jME restores
+     * textures from this Image after an OpenGL context restart, while modifyTexture
+     * alone changes only the GPU texture.
+     */
+    static void copyImageDataToAtlas(
+            final com.jme3.texture.Image source,
+            final com.jme3.texture.Image atlas,
+            final int atlasX,
+            final int atlasY) {
+        if (source == null || atlas == null) {
+            throw new IllegalArgumentException("Source and atlas images must not be null");
+        }
+        if (atlas.getFormat() != Format.RGBA8 || atlas.getDepth() > 1 || atlas.hasMipmaps()) {
+            throw new IllegalArgumentException("Texture atlas image must use RGBA8 format");
+        }
+        if (source.getWidth() <= 0 || source.getHeight() <= 0
+                || source.getDepth() > 1 || source.getMultiSamples() > 1
+                || source.getMipMapSizes() != null || source.getFormat().isCompressed()
+                || source.getFormat().isDepthFormat()) {
+            throw new IllegalArgumentException("Texture atlas updates require an uncompressed 2D image without mipmaps");
+        }
+        if (source.getData() == null || source.getData().size() != 1) {
+            throw new IllegalArgumentException("Texture atlas updates require a single image data buffer");
+        }
+
+        long endX = (long) atlasX + source.getWidth();
+        long endY = (long) atlasY + source.getHeight();
+        if (atlasX < 0 || atlasY < 0 || endX > atlas.getWidth() || endY > atlas.getHeight()) {
+            throw new IllegalArgumentException("Source image lies outside the texture atlas");
+        }
+
+        ByteBuffer sourceData = source.getData(0);
+        ByteBuffer atlasData = atlas.getData(0);
+        if (sourceData == null || atlasData == null) {
+            throw new IllegalArgumentException("Texture atlas update data must not be null");
+        }
+
+        int sourceBitsPerPixel = source.getFormat().getBitsPerPixel();
+        long sourcePixelCount = (long) source.getWidth() * source.getHeight();
+        long atlasPixelCount = (long) atlas.getWidth() * atlas.getHeight();
+        if (sourceBitsPerPixel <= 0 || sourceBitsPerPixel % 8 != 0
+                || sourcePixelCount > sourceData.limit() / (sourceBitsPerPixel / 8)
+                || atlasPixelCount > atlasData.limit() / 4) {
+            throw new IllegalArgumentException("Texture atlas update data is smaller than the image dimensions");
+        }
+
+        if (source.getFormat() == Format.RGBA8) {
+            copyRgba8ImageData(source, sourceData, atlas, atlasData, atlasX, atlasY);
+        } else {
+            copyConvertedImageData(source, atlas, atlasData, atlasX, atlasY);
+        }
+    }
+
+    private static void copyConvertedImageData(
+            final com.jme3.texture.Image source,
+            final com.jme3.texture.Image atlas,
+            final ByteBuffer atlasData,
+            final int atlasX,
+            final int atlasY) {
+        final ImageRaster sourceRaster;
+        try {
+            sourceRaster = ImageRaster.create(source, 0, 0, false);
+        } catch (UnsupportedOperationException unsupportedFormat) {
+            throw new IllegalArgumentException(
+                    "Texture atlas update format cannot be converted to RGBA8", unsupportedFormat);
+        }
+        ColorRGBA color = new ColorRGBA();
+        ByteBuffer atlasPixels = atlasData.duplicate();
+        for (int y = 0; y < source.getHeight(); y++) {
+            for (int x = 0; x < source.getWidth(); x++) {
+                sourceRaster.getPixel(x, y, color);
+                int atlasIndex = ((atlasY + y) * atlas.getWidth() + atlasX + x) * 4;
+                atlasPixels.put(atlasIndex, toByte(color.r));
+                atlasPixels.put(atlasIndex + 1, toByte(color.g));
+                atlasPixels.put(atlasIndex + 2, toByte(color.b));
+                atlasPixels.put(atlasIndex + 3, toByte(color.a));
+            }
+        }
+    }
+
+    private static byte toByte(final float component) {
+        return (byte) Math.max(0, Math.min(255, (int) (component * 255 + 0.5f)));
+    }
+
+    private static void copyRgba8ImageData(
+            final com.jme3.texture.Image source,
+            final ByteBuffer sourceData,
+            final com.jme3.texture.Image atlas,
+            final ByteBuffer atlasData,
+            final int atlasX,
+            final int atlasY) {
+        ByteBuffer sourcePixels = sourceData.duplicate();
+        ByteBuffer atlasPixels = atlasData.duplicate();
+        int rowBytes = source.getWidth() * 4;
+        for (int row = 0; row < source.getHeight(); row++) {
+            int sourceIndex = row * rowBytes;
+            int atlasIndex = ((atlasY + row) * atlas.getWidth() + atlasX) * 4;
+            sourcePixels.clear();
+            sourcePixels.position(sourceIndex);
+            sourcePixels.limit(sourceIndex + rowBytes);
+            atlasPixels.clear();
+            atlasPixels.position(atlasIndex);
+            atlasPixels.put(sourcePixels);
+        }
     }
 
     private void modifyTexture(
