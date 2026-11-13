@@ -801,39 +801,62 @@ public class J3MLoader implements AssetLoader {
 
     @Override
     public Object load(AssetInfo info) throws IOException {
-        this.assetManager = info.getManager();
-
-        InputStream in = info.openStream();
+        InputStream in = null;
         try {
+            this.assetManager = info.getManager();
+            in = info.openStream();
             key = info.getKey();
             if (key.getExtension().equals("j3m") && !(key instanceof MaterialKey)) {
                 throw new IOException("Material instances must be loaded via MaterialKey");
-                
+
             } else if (key.getExtension().equals("j3md") && key instanceof MaterialKey) {
                 throw new IOException("Material definitions must be loaded via AssetKey");
             }
             in = Preprocessor.apply(in);
             loadFromRoot(BlockLanguageParser.parse(in));
+            return material != null ? material : materialDef;
         } finally {
-            if (in != null){
-                in.close();
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } finally {
+                clearLoadState();
             }
-        }
-
-        if (material != null){
-            // material implementation
-            return material;
-        }else{
-            // material definition
-            return materialDef;
         }
     }
 
     public MaterialDef loadMaterialDef(List<Statement> roots, AssetManager manager, AssetKey key) throws IOException {
-        this.key = key;
-        this.assetManager = manager;
-        loadFromRoot(roots);
-        return materialDef;
+        try {
+            this.key = key;
+            this.assetManager = manager;
+            loadFromRoot(roots);
+            return materialDef;
+        } finally {
+            clearLoadState();
+        }
+    }
+
+    /**
+     * Clears references and parser state belonging to one asset load.
+     *
+     * <p>Loader instances are cached per thread and reused, so retaining these
+     * references would keep the last material, key, and asset manager reachable
+     * until the next load on that thread.
+     */
+    private void clearLoadState() {
+        assetManager = null;
+        key = null;
+        materialDef = null;
+        material = null;
+        technique = null;
+        renderState = null;
+        nodesLoaderDelegate = null;
+        isUseNodes = false;
+        langSize = 0;
+        presetDefines.clear();
+        shaderLanguages.clear();
+        shaderNames.clear();
     }
 
     protected void initNodesLoader() {

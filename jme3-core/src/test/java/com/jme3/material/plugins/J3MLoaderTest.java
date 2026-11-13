@@ -3,6 +3,7 @@ package com.jme3.material.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.MaterialKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
@@ -10,7 +11,11 @@ import com.jme3.material.MaterialDef;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
+import com.jme3.util.blockparser.BlockLanguageParser;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +23,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -133,6 +144,63 @@ public class J3MLoaderTest {
         verify(textureCombined).setMagFilter(Texture.MagFilter.Nearest);
         verify(textureCombined).setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         verify(textureCombined).setWrap(Texture.WrapMode.Repeat);
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    public void loadClearsPerAssetStateBeforeReusingLoader() throws Exception {
+        when(assetInfo.getKey()).thenReturn(
+                new MaterialKey("material.j3m"), new AssetKey<MaterialDef>("definition.j3md"));
+        when(assetInfo.openStream()).thenReturn(
+                new ByteArrayInputStream("Material Test: matdef.j3md { }".getBytes(StandardCharsets.UTF_8)),
+                J3MLoader.class.getResourceAsStream("/no-default-technique.j3md"));
+
+        Object material = j3MLoader.load(assetInfo);
+        assertTrue(material instanceof Material);
+        assertLoaderStateCleared();
+
+        Object materialDef = j3MLoader.load(assetInfo);
+        assertTrue(materialDef instanceof MaterialDef);
+        assertLoaderStateCleared();
+    }
+
+    @Test
+    public void loadClearsPerAssetStateWhenParsingFails() throws Exception {
+        when(assetInfo.openStream()).thenReturn(
+                new ByteArrayInputStream("InvalidRoot { }".getBytes(StandardCharsets.UTF_8)));
+
+        assertThrows(IOException.class, () -> j3MLoader.load(assetInfo));
+
+        assertLoaderStateCleared();
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    public void loadMaterialDefClearsPerAssetState() throws Exception {
+        ByteArrayInputStream input = new ByteArrayInputStream(
+                "MaterialDef Test { }".getBytes(StandardCharsets.UTF_8));
+
+        MaterialDef loaded = j3MLoader.loadMaterialDef(
+                BlockLanguageParser.parse(input), assetManager, assetKey);
+
+        assertNotNull(loaded);
+        assertLoaderStateCleared();
+    }
+
+    private void assertLoaderStateCleared() throws Exception {
+        assertNull(getLoaderField("assetManager"));
+        assertNull(getLoaderField("key"));
+        assertNull(getLoaderField("material"));
+        assertNull(getLoaderField("materialDef"));
+        assertNull(getLoaderField("technique"));
+        assertNull(getLoaderField("renderState"));
+        assertNull(getLoaderField("nodesLoaderDelegate"));
+    }
+
+    private Object getLoaderField(String name) throws Exception {
+        Field field = J3MLoader.class.getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(j3MLoader);
     }
 
     private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, boolean generateMips, final Texture texture) {
