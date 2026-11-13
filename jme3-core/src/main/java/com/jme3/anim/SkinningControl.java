@@ -572,7 +572,12 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
 
                 for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
                     float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[ib.get(idxWeights++)];
+                    int jointIndex = ib.get(idxWeights++);
+                    if (weight == 0f || jointIndex < 0 || jointIndex >= offsetMatrices.length) {
+                        // Ignore unused or invalid influences rather than indexing outside the armature.
+                        continue;
+                    }
+                    Matrix4f mat = offsetMatrices[jointIndex];
 
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
@@ -703,7 +708,12 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
 
                 for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
                     float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[ib.get(idxWeights++)];
+                    int jointIndex = ib.get(idxWeights++);
+                    if (weight == 0f || jointIndex < 0 || jointIndex >= offsetMatrices.length) {
+                        // Ignore unused or invalid influences rather than indexing outside the armature.
+                        continue;
+                    }
+                    Matrix4f mat = offsetMatrices[jointIndex];
 
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
