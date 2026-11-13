@@ -489,6 +489,11 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
      */
     private void applySoftwareSkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
 
+        if (mesh.getMaxNumWeights() == 0) {
+            // controlRenderSoftware() already reset this unweighted mesh to its bind pose.
+            return;
+        }
+
         VertexBuffer tb = mesh.getBuffer(Type.Tangent);
         if (tb == null) {
             // if there are no tangents use the classic skinning
