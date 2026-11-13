@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.IntBuffer;
@@ -69,6 +70,7 @@ import com.jme3.math.Matrix4f;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -137,6 +139,22 @@ public class InputOutputCapsuleTest {
     @Test
     public void testMaps() {
         saveAndLoad(new TestMaps());
+    }
+
+    @Test
+    public void testInvalidIntSavableMapKeyThrowsIOException() throws IOException {
+        TestIntSavableMap savable = new TestIntSavableMap();
+        savable.map.put(7, Vector3f.UNIT_X);
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        new XMLExporter().save(savable, output);
+
+        String xml = new String(output.toByteArray(), StandardCharsets.UTF_8);
+        assertTrue(xml.contains("key=\"7\""));
+        String invalidKeyXml = xml.replace("key=\"7\"", "key=\"invalid\"");
+        IOException exception = assertThrows(IOException.class, () ->
+                new XMLImporter().load(new ByteArrayInputStream(invalidKeyXml.getBytes(StandardCharsets.UTF_8))));
+        assertTrue(exception.getCause() instanceof NumberFormatException);
     }
 
     // attempts to save and load a Savable using the JmeExporter/JmeImporter implementations listed at the top of this class.
@@ -721,6 +739,20 @@ public class InputOutputCapsuleTest {
                 IntMap.Entry entry = (IntMap.Entry) iterator.next();
                 assertEquals(entry.getValue(), loadedIntMap.get(entry.getKey()), "readIntSavableMap()");
             }
+        }
+    }
+
+    private static class TestIntSavableMap implements Savable {
+        private final IntMap<Savable> map = new IntMap<>();
+
+        @Override
+        public void write(JmeExporter exporter) throws IOException {
+            exporter.getCapsule(this).writeIntSavableMap(map, "testIntSavableMap", null);
+        }
+
+        @Override
+        public void read(JmeImporter importer) throws IOException {
+            importer.getCapsule(this).readIntSavableMap("testIntSavableMap", null);
         }
     }
 }
