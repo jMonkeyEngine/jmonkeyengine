@@ -90,7 +90,16 @@ public abstract class BlendableAction extends Action {
         return weight;
     }
 
+    /**
+     * Sets the weight used when this action contributes to a blend.
+     *
+     * @param weight the blend weight, between 0 and 1 inclusive
+     * @throws IllegalArgumentException if the weight is outside that range
+     */
     public void setWeight(float weight) {
+        if (!(weight >= 0f && weight <= 1f)) {
+            throw new IllegalArgumentException("weight must be between 0 and 1");
+        }
         this.weight = weight;
     }
 
@@ -121,7 +130,7 @@ public abstract class BlendableAction extends Action {
      * @throws IllegalArgumentException If maxTransitionWeight is not between 0 and 1.
      */
     public void setMaxTransitionWeight(double maxTransitionWeight) {
-        if (maxTransitionWeight < 0.0 || maxTransitionWeight > 1.0) {
+        if (!(maxTransitionWeight >= 0.0 && maxTransitionWeight <= 1.0)) {
             throw new IllegalArgumentException("maxTransitionWeight must be between 0 and 1");
         }
 
