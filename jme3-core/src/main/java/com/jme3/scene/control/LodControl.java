@@ -36,7 +36,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -62,6 +61,9 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
     private float lastDistance = 0f;
+    private float lastPixelScaleX;
+    private float lastPixelScaleY;
+    private boolean lastParallelProjection;
     private int lastLevel = 0;
     private int numLevels;
     private int[] numTris;
@@ -144,6 +146,9 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     public Object jmeClone() {
         LodControl clone = (LodControl)super.jmeClone();
         clone.lastDistance = 0;
+        clone.lastPixelScaleX = 0;
+        clone.lastPixelScaleY = 0;
+        clone.lastParallelProjection = false;
         clone.lastLevel = 0;
         clone.numTris = numTris != null ? numTris.clone() : null;
         return clone;
@@ -158,22 +163,33 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         BoundingVolume bv = spatial.getWorldBound();
 
         Camera cam = vp.getCamera();
-        float atanNH = FastMath.atan(cam.getFrustumNear() * cam.getFrustumTop());
-        float ratio = (FastMath.PI / (8f * atanNH));
-        float newDistance = bv.distanceTo(vp.getCamera().getLocation()) / ratio;
+        float newDistance = bv.getCenter().distance(cam.getLocation());
+        float viewportWidth = cam.getWidth()
+                * (cam.getViewPortRight() - cam.getViewPortLeft());
+        float viewportHeight = cam.getHeight()
+                * (cam.getViewPortTop() - cam.getViewPortBottom());
+        float pixelScaleX = Math.abs(cam.getProjectionMatrix().m00) * viewportWidth;
+        float pixelScaleY = Math.abs(cam.getProjectionMatrix().m11) * viewportHeight;
+        boolean parallelProjection = cam.isParallelProjection();
+        boolean projectionChanged = pixelScaleX != lastPixelScaleX
+                || pixelScaleY != lastPixelScaleY
+                || parallelProjection != lastParallelProjection;
         int level;
 
-        if (Math.abs(newDistance - lastDistance) <= distTolerance) {
+        if (Math.abs(newDistance - lastDistance) <= distTolerance && !projectionChanged) {
             level = lastLevel; // we haven't moved relative to the model, send the old measurement back.
-        } else if (lastDistance > newDistance && lastLevel == 0) {
+        } else if (!projectionChanged && lastDistance > newDistance && lastLevel == 0) {
             level = lastLevel; // we're already at the lowest setting and we just got closer to the model, no need to keep trying.
-        } else if (lastDistance < newDistance && lastLevel == numLevels - 1) {
+        } else if (!projectionChanged && lastDistance < newDistance && lastLevel == numLevels - 1) {
             level = lastLevel; // we're already at the highest setting and we just got further from the model, no need to keep trying.
         } else {
             lastDistance = newDistance;
+            lastPixelScaleX = pixelScaleX;
+            lastPixelScaleY = pixelScaleY;
+            lastParallelProjection = parallelProjection;
 
             // estimate area of polygon via bounding volume
-            float area = AreaUtils.calcScreenArea(bv, lastDistance, cam.getWidth());
+            float area = AreaUtils.calcScreenArea(bv, lastDistance, cam);
             float trisToDraw = area * trisPerPixel;
             level = numLevels - 1;
             for (int i = numLevels; --i >= 0;) {

@@ -35,6 +35,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.math.FastMath;
+import com.jme3.renderer.Camera;
 
 /**
  * <code>AreaUtils</code> is used to calculate the area of various objects, such as bounding volumes.  These
@@ -51,8 +52,11 @@ public final class AreaUtils {
     }
     
     /**
-    * Estimate the screen area of a bounding volume. If the volume isn't a
-    * BoundingSphere, BoundingBox, or OrientedBoundingBox, 0 is returned.
+     * Estimate the screen area of a bounding volume. If the volume isn't a
+     * BoundingSphere, BoundingBox, or OrientedBoundingBox, 0 is returned.
+     * This overload assumes a unit projection scale and does not account for
+     * the camera's field of view. Use the camera overload when a camera is
+     * available.
     *
     * @param bound The bounds to calculate the volume from.
     * @param distance The distance from camera to object.
@@ -66,6 +70,58 @@ public final class AreaUtils {
             return calcScreenArea((BoundingBox) bound, distance, screenWidth);
         }
         return 0.0f;
+    }
+
+    /**
+     * Estimate the projected screen area of a bounding volume using the
+     * camera's projection and viewport dimensions. The volume is approximated
+     * by a circle whose radius is the radius of its bounding sphere. For a
+     * perspective camera, {@code distance} should be the distance from the
+     * camera to the center of the volume. For a parallel camera, distance is
+     * ignored.
+     *
+     * @param bound the bounds to calculate the area from (not null)
+     * @param distance the distance from the camera to the center of the bounds
+     * @param camera the camera whose projection and viewport dimensions are
+     *     used (not null)
+     * @return the estimated area in pixels, or 0 if the bounds are unsupported
+     */
+    public static float calcScreenArea(BoundingVolume bound, float distance, Camera camera) {
+        float radius;
+        if (bound.getType() == BoundingVolume.Type.Sphere) {
+            radius = ((BoundingSphere) bound).getRadius();
+        } else if (bound.getType() == BoundingVolume.Type.AABB) {
+            BoundingBox box = (BoundingBox) bound;
+            radius = FastMath.sqrt(box.getXExtent() * box.getXExtent()
+                    + box.getYExtent() * box.getYExtent()
+                    + box.getZExtent() * box.getZExtent());
+        } else {
+            return 0f;
+        }
+
+        if (radius == 0f) {
+            return 0f;
+        }
+
+        float viewportWidth = camera.getWidth()
+                * (camera.getViewPortRight() - camera.getViewPortLeft());
+        float viewportHeight = camera.getHeight()
+                * (camera.getViewPortTop() - camera.getViewPortBottom());
+        float radiusX = radius * Math.abs(camera.getProjectionMatrix().m00)
+                * viewportWidth * 0.5f;
+        float radiusY = radius * Math.abs(camera.getProjectionMatrix().m11)
+                * viewportHeight * 0.5f;
+
+        if (!camera.isParallelProjection()) {
+            float absoluteDistance = Math.abs(distance);
+            if (absoluteDistance == 0f) {
+                return Float.POSITIVE_INFINITY;
+            }
+            radiusX /= absoluteDistance;
+            radiusY /= absoluteDistance;
+        }
+
+        return FastMath.PI * radiusX * radiusY;
     }
 
     private static float calcScreenArea(BoundingSphere bound, float distance, float screenWidth) {
