@@ -29,6 +29,7 @@
 package org.jmonkeyengine.screenshottests.effects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
@@ -101,6 +102,12 @@ public class TestParticleGlowColor {
     }
 
     private static void verifyGlowColor(RenderManager manager, AssetManager assets) {
+        Material particleMaterial = new Material(assets, "Common/MatDefs/Misc/Particle.j3md");
+        assertTrue(particleMaterial.getMaterialDef().getTechniqueDefs("Glow").stream()
+                .anyMatch(def -> "GLSL120".equals(def.getVertexShaderLanguage())
+                        && "GLSL120".equals(def.getFragmentShaderLanguage())),
+                "Glow technique must provide GLSL120 for desktop point sprites");
+
         Renderer renderer = manager.getRenderer();
         renderer.setMainFrameBufferSrgb(false);
         renderer.setLinearizeSrgbImages(false);
