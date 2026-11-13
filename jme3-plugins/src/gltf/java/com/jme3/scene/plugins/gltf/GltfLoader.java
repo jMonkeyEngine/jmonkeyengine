@@ -33,6 +33,7 @@ package com.jme3.scene.plugins.gltf;
 
 import static com.jme3.scene.plugins.gltf.GltfMaterialData.*;
 import static com.jme3.scene.plugins.gltf.GltfUtils.assertNotNull;
+import static com.jme3.scene.plugins.gltf.GltfUtils.asReadableByteBuffer;
 import static com.jme3.scene.plugins.gltf.GltfUtils.findCommonAncestor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAdapterForMaterial;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsBoolean;
@@ -60,6 +61,8 @@ import java.net.URLDecoder;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -644,11 +647,142 @@ public class GltfLoader implements AssetLoader {
         boolean normalized = getAsBoolean(accessor, "normalized", false);
 
         // TODO min / max...don't know what to do about them.
-        // TODO sparse
-
         R data = populator.populate(bufferViewIndex, componentType, type, count, byteOffset, normalized);
+        JsonObject sparse = accessor.getAsJsonObject("sparse");
+        if (sparse != null) {
+            Integer sparseCount = getAsInteger(sparse, "count");
+            assertNotNull(sparseCount, "No count defined for sparse accessor " + accessorIndex);
+            if (sparseCount <= 0 || sparseCount > count) {
+                throw new AssetLoadException("Invalid sparse accessor count " + sparseCount
+                        + " for accessor " + accessorIndex + " with count " + count);
+            }
+
+            JsonObject sparseIndices = sparse.getAsJsonObject("indices");
+            assertNotNull(sparseIndices, "No indices defined for sparse accessor " + accessorIndex);
+            int[] indices = readSparseIndices(sparseIndices, sparseCount, count);
+
+            JsonObject sparseValues = sparse.getAsJsonObject("values");
+            assertNotNull(sparseValues, "No values defined for sparse accessor " + accessorIndex);
+            Integer sparseValuesBufferView = getAsInteger(sparseValues, "bufferView");
+            assertNotNull(sparseValuesBufferView,
+                    "No bufferView defined for sparse values of accessor " + accessorIndex);
+            int sparseValuesByteOffset = getAsInteger(sparseValues, "byteOffset", 0);
+            R values = populator.populate(sparseValuesBufferView, componentType, type, sparseCount,
+                    sparseValuesByteOffset, normalized);
+            populator.applySparse(data, values, indices, getNumberOfComponents(type));
+        }
+
         data = customContentManager.readExtensionAndExtras("accessor", accessor, data);
         return data;
+    }
+
+    private int[] readSparseIndices(JsonObject sparseIndices, int sparseCount, int accessorCount)
+            throws IOException {
+        assertNotNull(bufferViews, "No bufferViews defined for sparse accessor indices");
+        Integer bufferViewIndex = getAsInteger(sparseIndices, "bufferView");
+        assertNotNull(bufferViewIndex, "No bufferView defined for sparse accessor indices");
+        validateIndex("bufferView", bufferViewIndex, bufferViews.size());
+        JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
+
+        Integer bufferIndex = getAsInteger(bufferView, "buffer");
+        assertNotNull(bufferIndex, "No buffer defined for sparse accessor indices");
+        Integer byteLength = getAsInteger(bufferView, "byteLength");
+        assertNotNull(byteLength, "No byteLength defined for sparse accessor indices");
+        int bufferViewOffset = getAsInteger(bufferView, "byteOffset", 0);
+        int byteOffset = getAsInteger(sparseIndices, "byteOffset", 0);
+
+        Integer componentType = getAsInteger(sparseIndices, "componentType");
+        assertNotNull(componentType, "No componentType defined for sparse accessor indices");
+        int componentSize;
+        switch (componentType) {
+            case GltfConstants.GL_UNSIGNED_BYTE:
+                componentSize = 1;
+                break;
+            case GltfConstants.GL_UNSIGNED_SHORT:
+                componentSize = 2;
+                break;
+            case GltfConstants.GL_UNSIGNED_INT:
+                componentSize = 4;
+                break;
+            default:
+                throw new AssetLoadException("Sparse accessor indices must use an unsigned integer component type,"
+                        + " but found " + componentType);
+        }
+
+        long bytesRequired = (long) byteOffset + (long) sparseCount * componentSize;
+        if (byteOffset < 0 || bytesRequired > byteLength) {
+            throw new AssetLoadException("Sparse accessor indices exceed their bufferView");
+        }
+
+        ByteBuffer data = readData(bufferIndex);
+        data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
+        if (!(data instanceof ByteBuffer)) {
+            throw new IOException("Sparse accessor index buffer data is not a NIO ByteBuffer");
+        }
+        ByteBuffer input = asReadableByteBuffer(data);
+        long start = (long) bufferViewOffset + byteOffset;
+        long end = start + (long) sparseCount * componentSize;
+        if (bufferViewOffset < 0 || start < 0 || end > input.limit()) {
+            throw new AssetLoadException("Sparse accessor indices exceed their buffer");
+        }
+
+        int[] result = new int[sparseCount];
+        for (int i = 0; i < sparseCount; i++) {
+            int offset = (int) start + i * componentSize;
+            switch (componentType) {
+                case GltfConstants.GL_UNSIGNED_BYTE:
+                    result[i] = input.get(offset) & 0xff;
+                    break;
+                case GltfConstants.GL_UNSIGNED_SHORT:
+                    result[i] = input.getShort(offset) & 0xffff;
+                    break;
+                default: // GL_UNSIGNED_INT
+                    result[i] = input.getInt(offset);
+                    break;
+            }
+
+            if (result[i] < 0 || result[i] >= accessorCount) {
+                throw new AssetLoadException("Sparse accessor index " + result[i]
+                        + " is out of range for accessor count " + accessorCount);
+            }
+            if (i > 0 && result[i] <= result[i - 1]) {
+                throw new AssetLoadException("Sparse accessor indices must be strictly increasing");
+            }
+        }
+
+        return result;
+    }
+
+    private static void copyBufferComponents(Buffer source, Buffer target, int sourceOffset,
+            int targetOffset, int componentCount) {
+        if (source instanceof ByteBuffer && target instanceof ByteBuffer) {
+            ByteBuffer sourceBuffer = (ByteBuffer) source;
+            ByteBuffer targetBuffer = (ByteBuffer) target;
+            for (int i = 0; i < componentCount; i++) {
+                targetBuffer.put(targetOffset + i, sourceBuffer.get(sourceOffset + i));
+            }
+        } else if (source instanceof ShortBuffer && target instanceof ShortBuffer) {
+            ShortBuffer sourceBuffer = (ShortBuffer) source;
+            ShortBuffer targetBuffer = (ShortBuffer) target;
+            for (int i = 0; i < componentCount; i++) {
+                targetBuffer.put(targetOffset + i, sourceBuffer.get(sourceOffset + i));
+            }
+        } else if (source instanceof IntBuffer && target instanceof IntBuffer) {
+            IntBuffer sourceBuffer = (IntBuffer) source;
+            IntBuffer targetBuffer = (IntBuffer) target;
+            for (int i = 0; i < componentCount; i++) {
+                targetBuffer.put(targetOffset + i, sourceBuffer.get(sourceOffset + i));
+            }
+        } else if (source instanceof FloatBuffer && target instanceof FloatBuffer) {
+            FloatBuffer sourceBuffer = (FloatBuffer) source;
+            FloatBuffer targetBuffer = (FloatBuffer) target;
+            for (int i = 0; i < componentCount; i++) {
+                targetBuffer.put(targetOffset + i, sourceBuffer.get(sourceOffset + i));
+            }
+        } else {
+            throw new AssetLoadException("Unsupported buffer type for sparse accessor values: "
+                    + source.getClass().getName());
+        }
     }
 
     public Object readBuffer(Integer bufferViewIndex, int byteOffset, int count, Object store,
@@ -1638,6 +1772,8 @@ public class GltfLoader implements AssetLoader {
     private interface Populator<T> {
         T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset,
                 boolean normalized) throws IOException;
+
+        void applySparse(T data, T sparseValues, int[] indices, int numComponents);
     }
 
     private class VertexBufferPopulator implements Populator<VertexBuffer> {
@@ -1686,6 +1822,19 @@ public class GltfLoader implements AssetLoader {
 
             return vb;
         }
+
+        @Override
+        public void applySparse(VertexBuffer data, VertexBuffer sparseValues, int[] indices, int numComponents) {
+            if (data == null || sparseValues == null) {
+                return;
+            }
+            Buffer target = data.getData();
+            Buffer source = sparseValues.getData();
+            for (int i = 0; i < indices.length; i++) {
+                copyBufferComponents(source, target, i * numComponents, indices[i] * numComponents,
+                        numComponents);
+            }
+        }
     }
 
     private class FloatArrayPopulator implements Populator<float[]> {
@@ -1706,6 +1855,14 @@ public class GltfLoader implements AssetLoader {
             }
 
             return data;
+        }
+
+        @Override
+        public void applySparse(float[] data, float[] sparseValues, int[] indices, int numComponents) {
+            for (int i = 0; i < indices.length; i++) {
+                System.arraycopy(sparseValues, i * numComponents, data, indices[i] * numComponents,
+                        numComponents);
+            }
         }
     }
     //
@@ -1738,17 +1895,23 @@ public class GltfLoader implements AssetLoader {
         public Vector3f[] populate(Integer bufferViewIndex, int componentType, String type, int count,
                 int byteOffset, boolean normalized) throws IOException {
             int numComponents = getNumberOfComponents(type);
-            int dataSize = numComponents * count;
             Vector3f[] data = new Vector3f[count];
 
             if (bufferViewIndex == null) {
                 // no referenced buffer, specs say to pad the data with zeros.
-                padBuffer(data, dataSize);
+                padBuffer(data, count);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
                         getVertexBufferFormat(componentType));
             }
             return data;
+        }
+
+        @Override
+        public void applySparse(Vector3f[] data, Vector3f[] sparseValues, int[] indices, int numComponents) {
+            for (int i = 0; i < indices.length; i++) {
+                data[indices[i]] = sparseValues[i];
+            }
         }
     }
 
@@ -1758,18 +1921,24 @@ public class GltfLoader implements AssetLoader {
         public Quaternion[] populate(Integer bufferViewIndex, int componentType, String type, int count,
                 int byteOffset, boolean normalized) throws IOException {
             int numComponents = getNumberOfComponents(type);
-            int dataSize = numComponents * count;
             Quaternion[] data = new Quaternion[count];
 
             if (bufferViewIndex == null) {
                 // no referenced buffer, specs say to pad the data with zeros.
-                padBuffer(data, dataSize);
+                padBuffer(data, count);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
                         getVertexBufferFormat(componentType));
             }
 
             return data;
+        }
+
+        @Override
+        public void applySparse(Quaternion[] data, Quaternion[] sparseValues, int[] indices, int numComponents) {
+            for (int i = 0; i < indices.length; i++) {
+                data[indices[i]] = sparseValues[i];
+            }
         }
     }
 
@@ -1779,18 +1948,24 @@ public class GltfLoader implements AssetLoader {
         public Matrix4f[] populate(Integer bufferViewIndex, int componentType, String type, int count,
                 int byteOffset, boolean normalized) throws IOException {
             int numComponents = getNumberOfComponents(type);
-            int dataSize = numComponents * count;
             Matrix4f[] data = new Matrix4f[count];
 
             if (bufferViewIndex == null) {
                 // no referenced buffer, specs says to pad the data with zeros.
-                padBuffer(data, dataSize);
+                padBuffer(data, count);
             } else {
                 readBuffer(bufferViewIndex, byteOffset, count, data, numComponents,
                         getVertexBufferFormat(componentType));
             }
 
             return data;
+        }
+
+        @Override
+        public void applySparse(Matrix4f[] data, Matrix4f[] sparseValues, int[] indices, int numComponents) {
+            for (int i = 0; i < indices.length; i++) {
+                data[indices[i]] = sparseValues[i];
+            }
         }
     }
 
@@ -1818,6 +1993,15 @@ public class GltfLoader implements AssetLoader {
             }
 
             return new SkinBuffers(data, format.getComponentSize());
+        }
+
+        @Override
+        public void applySparse(SkinBuffers data, SkinBuffers sparseValues, int[] indices, int numComponents) {
+            for (int i = 0; i < indices.length; i++) {
+                System.arraycopy(sparseValues.joints, i * numComponents, data.joints,
+                        indices[i] * numComponents, numComponents);
+            }
+            data.componentSize = Math.max(data.componentSize, sparseValues.componentSize);
         }
     }
 

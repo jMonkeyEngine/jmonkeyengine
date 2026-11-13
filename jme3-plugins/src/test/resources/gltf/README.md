@@ -14,4 +14,7 @@ Used in `com.jme3.scene.plugins.gltf.GltfLoaderTest`
   contain a single node with a perspective camera, with and without an
   `aspectRatio`, to check that the camera frustum uses the aspect ratio
   from the file.
+- `SimpleSparseAccessor/` contains the CC0 Khronos glTF sample and a variant
+  without a base `bufferView`, used to verify sparse accessor overrides and
+  zero-initialization.
 
