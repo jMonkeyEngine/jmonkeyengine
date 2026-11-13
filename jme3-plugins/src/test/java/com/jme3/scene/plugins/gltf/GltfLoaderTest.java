@@ -31,8 +31,16 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -56,6 +64,7 @@ import com.jme3.system.JmeSystem;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 
 /**
@@ -84,6 +93,44 @@ public class GltfLoaderTest {
         });
         Assertions.assertTrue(found[0], "First joint attachment was lost");
         Assertions.assertTrue(found[1], "Second joint attachment was lost");
+    }
+
+    @Test
+    public void loadsExternalBufferWithUnicodeUri(@TempDir Path tempDir) throws IOException {
+        String folderName = "Unicode\u2764\u267bTest";
+        String bufferName = "Unicode\u2764\u267bBinary.bin";
+        Path modelFolder = Files.createDirectory(tempDir.resolve(folderName));
+        String gltf = "{"
+                + "\"asset\":{\"version\":\"2.0\"},"
+                + "\"scene\":0,\"scenes\":[{\"nodes\":[0]}],"
+                + "\"nodes\":[{\"mesh\":0}],"
+                + "\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0},\"indices\":1}]}],"
+                + "\"buffers\":[{\"uri\":\"" + bufferName + "\",\"byteLength\":42}],"
+                + "\"bufferViews\":[{\"buffer\":0,\"byteOffset\":0,\"byteLength\":36},"
+                + "{\"buffer\":0,\"byteOffset\":36,\"byteLength\":6}],"
+                + "\"accessors\":[{\"bufferView\":0,\"componentType\":5126,\"count\":3,"
+                + "\"type\":\"VEC3\",\"min\":[0,0,0],\"max\":[1,1,0]},"
+                + "{\"bufferView\":1,\"componentType\":5123,\"count\":3,\"type\":\"SCALAR\"}]}";
+        Files.write(modelFolder.resolve("model.gltf"), gltf.getBytes(StandardCharsets.UTF_8));
+
+        ByteBuffer buffer = ByteBuffer.allocate(42).order(ByteOrder.LITTLE_ENDIAN);
+        buffer.putFloat(0f).putFloat(0f).putFloat(0f);
+        buffer.putFloat(1f).putFloat(0f).putFloat(0f);
+        buffer.putFloat(0f).putFloat(1f).putFloat(0f);
+        buffer.putShort((short) 0).putShort((short) 1).putShort((short) 2);
+        Files.write(modelFolder.resolve(bufferName), buffer.array());
+
+        assetManager.registerLocator(tempDir.toString(), FileLocator.class);
+        Spatial scene = assetManager.loadModel(folderName + "/model.gltf");
+        Geometry[] geometry = new Geometry[1];
+        scene.depthFirstTraversal(spatial -> {
+            if (spatial instanceof Geometry) {
+                geometry[0] = (Geometry) spatial;
+            }
+        });
+
+        Assertions.assertNotNull(geometry[0], "The glTF mesh was not loaded");
+        Assertions.assertNotNull(geometry[0].getMesh().getBuffer(VertexBuffer.Type.Position));
     }
 
     @Test
