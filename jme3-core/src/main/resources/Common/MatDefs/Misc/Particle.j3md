@@ -103,16 +103,20 @@ MaterialDef Point Sprite {
 
    Technique Glow {
 
-        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL300 GLSL150 GLSL120 GLSL100:   Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL300 GLSL150 GLSL120 GLSL100:   Common/MatDefs/Misc/ParticleGlow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
         }
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
-            NEED_TEXCOORD1
+            USE_TEXTURE : GlowMap
+            POINT_SPRITE : PointSprite
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
         }
