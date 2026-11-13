@@ -28,8 +28,7 @@ package com.jme3.system;
 import java.util.ArrayList;
 
 /**
- * This class holds all information about all displays that where return from the glfwGetMonitors()
- * call. It stores them into an ArrayList
+ * Holds information about the displays detected by the active desktop context.
  *
  * @author Kevin Bales
  */
@@ -74,6 +73,7 @@ public class Displays {
 
     /**
      * Set information about this display stored in displayPos display in the array list.
+     * The bit depth is set to 0 (unavailable) when using this overload.
      *
      * @param displayPos ArrayList position of display to update
      * @param name name of the display
@@ -82,12 +82,28 @@ public class Displays {
      * @param rate the current refresh rate the display is set to
      */
     public void setInfo(int displayPos, String name, int width, int height, int rate) {
+        setInfo(displayPos, name, width, height, rate, 0);
+    }
+
+    /**
+     * Set information about this display stored in displayPos display in the array list.
+     *
+     * @param displayPos ArrayList position of display to update
+     * @param name name of the display
+     * @param width the current width the display is displaying
+     * @param height the current height the display is displaying
+     * @param rate the current refresh rate the display is set to
+     * @param bitDepth the current display mode's pixel format size in bits per pixel,
+     * or 0 if unavailable
+     */
+    public void setInfo(int displayPos, String name, int width, int height, int rate, int bitDepth) {
         if (displayPos < displays.size()) {
             DisplayInfo info = displays.get(displayPos);
             if (info != null) {
                 info.setWidth(width);
                 info.setHeight(height);
                 info.setRate(rate);
+                info.setBitDepth(bitDepth);
                 info.setName(name);
             }
         }
