@@ -214,6 +214,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
     @Override
     public void run(){
+        mainThread = Thread.currentThread();
         if (listener == null) {
             throw new IllegalStateException("SystemListener is not set on context!"
                                           + "Must set with JmeContext.setSystemListener().");
@@ -286,12 +287,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
     @Override
     public void destroy(boolean waitFor) {
-        if (needClose.get()) {
-            return; // Already destroyed
-        }
-
         needClose.set(true);
-        if (waitFor)
+        if (waitFor && !isMainThread())
             waitFor(false);
     }
 
