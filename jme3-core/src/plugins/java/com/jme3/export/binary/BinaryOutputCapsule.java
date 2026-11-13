@@ -430,19 +430,14 @@ final class BinaryOutputCapsule implements OutputCapsule {
     }
 
     protected void writeAlias(String name, byte fieldType) throws IOException {
-        if (cObj.nameFields.get(name) == null)
-            generateAlias(name, fieldType);
-
-        byte alias = cObj.nameFields.get(name).alias;
-        write(alias);
-    }
-
-    // XXX: The generation of aliases is limited to 256 possible values.
-    // If we run into classes with more than 256 fields, we need to expand this.
-    // But I mean, come on...
-    protected void generateAlias(String name, byte type) {
-        byte alias = (byte) cObj.nameFields.size();
-        cObj.nameFields.put(name, new BinaryClassField(name, alias, type));
+        BinaryClassField field = cObj.getField(name, fieldType);
+        if (field == null) {
+            if (cObj.getFieldCount() >= 256) {
+                throw new IOException("J3O class field alias limit exceeded for field: " + name);
+            }
+            field = cObj.addField(name, fieldType);
+        }
+        write(field.alias);
     }
 
     @Override

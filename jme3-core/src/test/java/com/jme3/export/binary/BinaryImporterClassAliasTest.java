@@ -33,6 +33,7 @@ package com.jme3.export.binary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -44,7 +45,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Covers one-byte class aliases and unchanged decoding of text fields.
+ * Covers one-byte class aliases, field aliases with duplicate names, and unchanged decoding of text fields.
  * The larger, two-byte alias boundary is covered by a separate ordinary-exporter
  * smoke test with 255, 256, 257, and 261 distinct classes, as documented in PR #2991.
  */
@@ -83,6 +84,25 @@ public class BinaryImporterClassAliasTest {
         assertEquals(original.text, loaded.text);
     }
 
+    @Test
+    public void sameFieldNameCanUseDifferentTypesAcrossInstances() throws IOException {
+        Root original = new Root();
+        original.values = new Savable[]{new DynamicValue(37), new DynamicValue("value")};
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        new BinaryExporter().save(original, output);
+
+        Root loaded = (Root) new BinaryImporter().load(output.toByteArray());
+
+        assertEquals(37, ((DynamicValue) loaded.values[0]).value);
+        assertEquals("value", ((DynamicValue) loaded.values[1]).value);
+    }
+
+    @Test
+    public void fieldAliasLimitFailsClearlyInsteadOfWrapping() {
+        assertThrows(IOException.class,
+                () -> new BinaryExporter().save(new TooManyFields(), new ByteArrayOutputStream()));
+    }
+
     public static class Root implements Savable {
         Savable[] values;
         String text;
@@ -113,6 +133,51 @@ public class BinaryImporterClassAliasTest {
     public static class SecondValue implements Savable {
         @Override
         public void write(JmeExporter exporter) {
+        }
+
+        @Override
+        public void read(JmeImporter importer) {
+        }
+    }
+
+    public static class DynamicValue implements Savable {
+        Object value;
+
+        public DynamicValue() {
+        }
+
+        DynamicValue(Object value) {
+            this.value = value;
+        }
+
+        @Override
+        public void write(JmeExporter exporter) throws IOException {
+            if (value instanceof Integer) {
+                exporter.getCapsule(this).write(0, "valueType", 0);
+                exporter.getCapsule(this).write((Integer) value, "value", 0);
+            } else {
+                exporter.getCapsule(this).write(1, "valueType", 0);
+                exporter.getCapsule(this).write((String) value, "value", null);
+            }
+        }
+
+        @Override
+        public void read(JmeImporter importer) throws IOException {
+            int valueType = importer.getCapsule(this).readInt("valueType", 0);
+            if (valueType == 0) {
+                value = importer.getCapsule(this).readInt("value", 0);
+            } else {
+                value = importer.getCapsule(this).readString("value", null);
+            }
+        }
+    }
+
+    public static class TooManyFields implements Savable {
+        @Override
+        public void write(JmeExporter exporter) throws IOException {
+            for (int i = 0; i < 257; ++i) {
+                exporter.getCapsule(this).write(i, "field" + i, Integer.MIN_VALUE);
+            }
         }
 
         @Override
