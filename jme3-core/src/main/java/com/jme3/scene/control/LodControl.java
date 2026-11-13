@@ -31,18 +31,21 @@
  */
 package com.jme3.scene.control;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
@@ -61,7 +64,11 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
 
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
-    private float lastDistance = 0f;
+    private float lastDepth = 0f;
+    private float lastBoundRadiusSquared;
+    private float lastPixelScaleX;
+    private float lastPixelScaleY;
+    private boolean lastParallelProjection;
     private int lastLevel = 0;
     private int numLevels;
     private int[] numTris;
@@ -143,7 +150,11 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     @Override
     public Object jmeClone() {
         LodControl clone = (LodControl)super.jmeClone();
-        clone.lastDistance = 0;
+        clone.lastDepth = 0;
+        clone.lastBoundRadiusSquared = 0;
+        clone.lastPixelScaleX = 0;
+        clone.lastPixelScaleY = 0;
+        clone.lastParallelProjection = false;
         clone.lastLevel = 0;
         clone.numTris = numTris != null ? numTris.clone() : null;
         return clone;
@@ -158,22 +169,39 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         BoundingVolume bv = spatial.getWorldBound();
 
         Camera cam = vp.getCamera();
-        float atanNH = FastMath.atan(cam.getFrustumNear() * cam.getFrustumTop());
-        float ratio = (FastMath.PI / (8f * atanNH));
-        float newDistance = bv.distanceTo(vp.getCamera().getLocation()) / ratio;
+        boolean parallelProjection = cam.isParallelProjection();
+        float newDepth = parallelProjection ? 0f : getCameraDepth(cam, bv.getCenter());
+        float boundRadiusSquared = getBoundRadiusSquared(bv);
+        float viewportWidth = cam.getWidth()
+                * (cam.getViewPortRight() - cam.getViewPortLeft());
+        float viewportHeight = cam.getHeight()
+                * (cam.getViewPortTop() - cam.getViewPortBottom());
+        float pixelScaleX = Math.abs(cam.getProjectionMatrix().m00) * viewportWidth;
+        float pixelScaleY = Math.abs(cam.getProjectionMatrix().m11) * viewportHeight;
+        boolean projectionChanged = pixelScaleX != lastPixelScaleX
+                || pixelScaleY != lastPixelScaleY
+                || parallelProjection != lastParallelProjection;
+        boolean boundSizeChanged = boundRadiusSquared != lastBoundRadiusSquared;
         int level;
 
-        if (Math.abs(newDistance - lastDistance) <= distTolerance) {
+        if (Math.abs(newDepth - lastDepth) <= distTolerance
+                && !projectionChanged && !boundSizeChanged) {
             level = lastLevel; // we haven't moved relative to the model, send the old measurement back.
-        } else if (lastDistance > newDistance && lastLevel == 0) {
+        } else if (!projectionChanged && !boundSizeChanged
+                && lastDepth > newDepth && lastLevel == 0) {
             level = lastLevel; // we're already at the lowest setting and we just got closer to the model, no need to keep trying.
-        } else if (lastDistance < newDistance && lastLevel == numLevels - 1) {
+        } else if (!projectionChanged && !boundSizeChanged
+                && lastDepth < newDepth && lastLevel == numLevels - 1) {
             level = lastLevel; // we're already at the highest setting and we just got further from the model, no need to keep trying.
         } else {
-            lastDistance = newDistance;
+            lastDepth = newDepth;
+            lastBoundRadiusSquared = boundRadiusSquared;
+            lastPixelScaleX = pixelScaleX;
+            lastPixelScaleY = pixelScaleY;
+            lastParallelProjection = parallelProjection;
 
             // estimate area of polygon via bounding volume
-            float area = AreaUtils.calcScreenArea(bv, lastDistance, cam.getWidth());
+            float area = AreaUtils.calcScreenArea(bv, lastDepth, cam);
             float trisToDraw = area * trisPerPixel;
             level = numLevels - 1;
             for (int i = numLevels; --i >= 0;) {
@@ -186,6 +214,43 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         }
 
         spatial.setLodLevel(level);
+    }
+
+    /**
+     * Return the squared radius used to approximate the bound as a sphere.
+     *
+     * @param bound the world bound (not null)
+     * @return the squared radius, or zero for unsupported bounds
+     */
+    private static float getBoundRadiusSquared(BoundingVolume bound) {
+        if (bound.getType() == BoundingVolume.Type.Sphere) {
+            float radius = ((BoundingSphere) bound).getRadius();
+            return radius * radius;
+        } else if (bound.getType() == BoundingVolume.Type.AABB) {
+            BoundingBox box = (BoundingBox) bound;
+            return box.getXExtent() * box.getXExtent()
+                    + box.getYExtent() * box.getYExtent()
+                    + box.getZExtent() * box.getZExtent();
+        }
+        return 0f;
+    }
+
+    /**
+     * Return the absolute depth of a position along the camera's forward axis.
+     *
+     * @param camera the camera (not null)
+     * @param position the position to measure (not null)
+     * @return the absolute view depth
+     */
+    private static float getCameraDepth(Camera camera, Vector3f position) {
+        TempVars vars = TempVars.get();
+        try {
+            Vector3f direction = camera.getDirection(vars.vect1);
+            Vector3f cameraToPosition = position.subtract(camera.getLocation(), vars.vect2);
+            return Math.abs(direction.dot(cameraToPosition));
+        } finally {
+            vars.release();
+        }
     }
 
     @Override
