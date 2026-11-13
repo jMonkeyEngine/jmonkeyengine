@@ -31,6 +31,8 @@
  */
 package com.jme3.scene.control;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -61,6 +63,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
     private float lastDistance = 0f;
+    private float lastBoundRadiusSquared;
     private float lastPixelScaleX;
     private float lastPixelScaleY;
     private boolean lastParallelProjection;
@@ -146,6 +149,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     public Object jmeClone() {
         LodControl clone = (LodControl)super.jmeClone();
         clone.lastDistance = 0;
+        clone.lastBoundRadiusSquared = 0;
         clone.lastPixelScaleX = 0;
         clone.lastPixelScaleY = 0;
         clone.lastParallelProjection = false;
@@ -164,6 +168,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
 
         Camera cam = vp.getCamera();
         float newDistance = bv.getCenter().distance(cam.getLocation());
+        float boundRadiusSquared = getBoundRadiusSquared(bv);
         float viewportWidth = cam.getWidth()
                 * (cam.getViewPortRight() - cam.getViewPortLeft());
         float viewportHeight = cam.getHeight()
@@ -174,16 +179,21 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         boolean projectionChanged = pixelScaleX != lastPixelScaleX
                 || pixelScaleY != lastPixelScaleY
                 || parallelProjection != lastParallelProjection;
+        boolean boundSizeChanged = boundRadiusSquared != lastBoundRadiusSquared;
         int level;
 
-        if (Math.abs(newDistance - lastDistance) <= distTolerance && !projectionChanged) {
+        if (Math.abs(newDistance - lastDistance) <= distTolerance
+                && !projectionChanged && !boundSizeChanged) {
             level = lastLevel; // we haven't moved relative to the model, send the old measurement back.
-        } else if (!projectionChanged && lastDistance > newDistance && lastLevel == 0) {
+        } else if (!projectionChanged && !boundSizeChanged
+                && lastDistance > newDistance && lastLevel == 0) {
             level = lastLevel; // we're already at the lowest setting and we just got closer to the model, no need to keep trying.
-        } else if (!projectionChanged && lastDistance < newDistance && lastLevel == numLevels - 1) {
+        } else if (!projectionChanged && !boundSizeChanged
+                && lastDistance < newDistance && lastLevel == numLevels - 1) {
             level = lastLevel; // we're already at the highest setting and we just got further from the model, no need to keep trying.
         } else {
             lastDistance = newDistance;
+            lastBoundRadiusSquared = boundRadiusSquared;
             lastPixelScaleX = pixelScaleX;
             lastPixelScaleY = pixelScaleY;
             lastParallelProjection = parallelProjection;
@@ -202,6 +212,25 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         }
 
         spatial.setLodLevel(level);
+    }
+
+    /**
+     * Return the squared radius used to approximate the bound as a sphere.
+     *
+     * @param bound the world bound (not null)
+     * @return the squared radius, or zero for unsupported bounds
+     */
+    private static float getBoundRadiusSquared(BoundingVolume bound) {
+        if (bound.getType() == BoundingVolume.Type.Sphere) {
+            float radius = ((BoundingSphere) bound).getRadius();
+            return radius * radius;
+        } else if (bound.getType() == BoundingVolume.Type.AABB) {
+            BoundingBox box = (BoundingBox) bound;
+            return box.getXExtent() * box.getXExtent()
+                    + box.getYExtent() * box.getYExtent()
+                    + box.getZExtent() * box.getZExtent();
+        }
+        return 0f;
     }
 
     @Override
