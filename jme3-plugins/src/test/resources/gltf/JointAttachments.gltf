@@ -4,12 +4,12 @@
   "scenes": [{"nodes": [0]}],
   "nodes": [
     {"name": "Root", "children": [1, 2]},
-    {"name": "SkinnedMesh", "mesh": 0, "skin": 0},
+    {"name": "SkinnedMesh", "mesh": 0, "skin": 1},
     {"name": "Joint", "children": [3, 4]},
     {"name": "FirstAttachment"},
     {"name": "SecondAttachment"}
   ],
-  "skins": [{"joints": [2]}],
+  "skins": [{"joints": [0]}, {"joints": [2]}],
   "meshes": [{"primitives": [{"attributes": {"POSITION": 0, "JOINTS_0": 1, "WEIGHTS_0": 2}}]}],
   "buffers": [{"byteLength": 96, "uri": "data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAA"}],
   "bufferViews": [

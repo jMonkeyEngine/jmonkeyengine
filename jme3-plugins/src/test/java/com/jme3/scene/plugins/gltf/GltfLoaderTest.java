@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.anim.AnimComposer;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
@@ -84,6 +85,17 @@ public class GltfLoaderTest {
         });
         Assertions.assertTrue(found[0], "First joint attachment was lost");
         Assertions.assertTrue(found[1], "Second joint attachment was lost");
+    }
+
+    @Test
+    public void unusedSkinDoesNotHideNodeAnimation() {
+        Node scene = (Node) assetManager.loadModel("gltf/unusedSkinAnimation.gltf");
+
+        Spatial animatedNode = scene.getChild("AnimatedNode");
+        Assertions.assertNotNull(animatedNode, "An unused skin must not turn a scene node into a joint");
+        AnimComposer composer = animatedNode.getControl(AnimComposer.class);
+        Assertions.assertNotNull(composer, "The node animation should have an AnimComposer");
+        Assertions.assertTrue(composer.hasAnimClip("ScaleAnimation"));
     }
 
     @Test
