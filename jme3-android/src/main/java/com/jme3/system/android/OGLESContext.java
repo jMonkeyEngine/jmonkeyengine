@@ -92,6 +92,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
+    private volatile Thread mainThread;
     protected AppSettings settings = new AppSettings(true);
 
     protected GLRenderer renderer;
@@ -279,6 +280,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // renderer:initialize
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) {
+        mainThread = Thread.currentThread();
         if (created.get() && renderer != null) {
             renderer.resetGLObjects();
             destroyLinearFrameBuffer();
@@ -601,9 +603,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
-        if (waitFor) {
+        if (waitFor && !isMainThread()) {
             waitFor(false);
         }
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return mainThread == Thread.currentThread();
     }
 
     public void destroy() {

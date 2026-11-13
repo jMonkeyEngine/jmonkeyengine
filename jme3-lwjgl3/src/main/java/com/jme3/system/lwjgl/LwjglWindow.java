@@ -208,7 +208,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private final SafeArrayList<SdlEventListener> sdlEventListeners = new SafeArrayList<>(SdlEventListener.class);
     private final AtomicBoolean windowCloseRequested = new AtomicBoolean(false);
 
-    private Thread mainThread;
+    private volatile Thread mainThread;
 
     private long display = 0L;
     private long window = NULL;
@@ -1321,13 +1321,18 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     public void destroy(boolean waitFor) {
         needClose.set(true);
 
-        if (mainThread == Thread.currentThread()) {
+        if (isMainThread()) {
             return;
         }
 
         if (waitFor) {
             waitFor(false);
         }
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return mainThread == Thread.currentThread();
     }
 
     public long getWindowHandle() {

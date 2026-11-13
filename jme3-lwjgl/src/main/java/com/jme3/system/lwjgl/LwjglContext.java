@@ -68,6 +68,8 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     protected static final String THREAD_NAME = "jME3 Main";
+
+    protected volatile Thread mainThread;
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean renderable = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -342,6 +344,11 @@ public abstract class LwjglContext implements JmeContext {
             created.set(false);
             createdLock.notifyAll();
         }
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return mainThread == Thread.currentThread();
     }
     public void internalCreate() {
         timer = new LwjglTimer();

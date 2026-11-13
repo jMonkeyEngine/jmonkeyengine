@@ -201,6 +201,11 @@ public class AWTContext implements JmeContext {
     }
 
     @Override
+    public boolean isMainThread() {
+        return backgroundContext != null && backgroundContext.isMainThread();
+    }
+
+    @Override
     public boolean isRenderable() {
         return backgroundContext != null && backgroundContext.isRenderable();
     }
