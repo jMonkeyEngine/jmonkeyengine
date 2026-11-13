@@ -33,6 +33,8 @@ package com.jme3.scene;
 
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
@@ -41,6 +43,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -63,6 +66,9 @@ import java.util.logging.Logger;
  * To integrate them in the batch you have to call the batch() method again on the batchNode.
  * <p>
  * TODO more automagic (batch when needed in the updateLogicalState)
+ * <p>
+ * Serialization is not supported because the batch geometries and their bookkeeping are generated
+ * at runtime. This restriction also applies to {@link SimpleBatchNode}.
  *
  * @author Nehon
  */
@@ -96,6 +102,34 @@ public class BatchNode extends GeometryGroupNode {
 
     public BatchNode(String name) {
         super(name);
+    }
+
+    /**
+     * BatchNode and SimpleBatchNode do not support serialization because their batch geometries are
+     * generated at runtime.
+     *
+     * @param exporter the exporter (unused)
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        throw new UnsupportedOperationException(
+                "BatchNode and SimpleBatchNode do not support serialization "
+                        + "because their batch geometries are runtime-generated.");
+    }
+
+    /**
+     * BatchNode and SimpleBatchNode do not support deserialization because their batch geometries
+     * are generated at runtime.
+     *
+     * @param importer the importer (unused)
+     * @throws UnsupportedOperationException always
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        throw new UnsupportedOperationException(
+                "BatchNode and SimpleBatchNode do not support deserialization "
+                        + "because their batch geometries are runtime-generated.");
     }
 
     @Override
