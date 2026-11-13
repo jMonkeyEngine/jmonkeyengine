@@ -1436,7 +1436,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 int width = mode != null ? mode.w() : 0;
                 int height = mode != null ? mode.h() : 0;
                 int rate = mode != null ? Math.round(mode.refresh_rate()) : 0;
-                displayList.setInfo(monPos, name, width, height, rate);
+                int bitDepth = mode != null ? SDL_BITSPERPIXEL(mode.format()) : 0;
+                displayList.setInfo(monPos, name, width, height, rate, bitDepth);
 
                 LOGGER.log(Level.INFO, "Display id: {0} Resolution: {1} x {2} @ {3}",
                         new Object[]{displayId, width, height, rate});

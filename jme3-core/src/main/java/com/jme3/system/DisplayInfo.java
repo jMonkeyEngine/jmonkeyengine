@@ -34,8 +34,7 @@ package com.jme3.system;
 import java.util.Objects;
 
 /**
- * This class holds information about the display that was returned by glfwGetMonitors() calls in
- * the context class
+ * Information about a display and its current display mode.
  *
  * @author Kevin Bales
  * @author wil
@@ -54,6 +53,9 @@ public final class DisplayInfo {
     /** rate - refresh rate that was return from Lwjgl3. */
     private int rate;
 
+    /** Pixel format depth of the current display mode, in bits per pixel. */
+    private int bitDepth;
+
     /** primary - indicates if the display is the primary monitor. */
     private boolean primary;
 
@@ -63,7 +65,7 @@ public final class DisplayInfo {
     private String name;
 
     /**
-     * Create a new display mode object with the default values
+     * Create a new display info object with the default values
      */
     DisplayInfo() {
         this(0L /*NULL*/, 1080, 1920, 60, false, "Generic Monitor");
@@ -128,6 +130,15 @@ public final class DisplayInfo {
     }
 
     /**
+     * Sets the pixel format depth of the current display mode, in bits per pixel.
+     *
+     * @param bitDepth the number of bits per pixel, or 0 if unavailable
+     */
+    void setBitDepth(int bitDepth) {
+        this.bitDepth = bitDepth;
+    }
+
+    /**
      * Set this display as primary or not.
      * @param primary {@code true} if the display is primary, {@code false} otherwise.
      */
@@ -180,6 +191,17 @@ public final class DisplayInfo {
     }
 
     /**
+     * Returns the current display mode's pixel format size in bits per pixel.
+     * This does not describe depth or stencil buffers. A value of 0 means that the
+     * backend could not report a single bit depth.
+     *
+     * @return the number of bits per pixel, or 0 if unavailable
+     */
+    public int getBitDepth() {
+        return bitDepth;
+    }
+
+    /**
      * Determines if this display belongs to the main monitor.
      * @return {@code true} if the display is primary, {@code false} otherwise.
      */
@@ -205,6 +227,7 @@ public final class DisplayInfo {
         hash = 97 * hash + this.width;
         hash = 97 * hash + this.height;
         hash = 97 * hash + this.rate;
+        hash = 97 * hash + this.bitDepth;
         hash = 97 * hash + (this.primary ? 1 : 0);
         hash = 97 * hash + Objects.hashCode(this.name);
         return hash;
@@ -235,6 +258,9 @@ public final class DisplayInfo {
             return false;
         }
         if (this.rate != other.rate) {
+            return false;
+        }
+        if (this.bitDepth != other.bitDepth) {
             return false;
         }
         if (this.primary != other.primary) {
