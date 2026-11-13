@@ -57,6 +57,9 @@ import java.util.Objects;
  * @version $Id: BoundingBox.java,v 1.50 2007/09/22 16:46:35 irrisor Exp $
  */
 public class BoundingBox extends BoundingVolume {
+    /** Relative tolerance for nearly coincident ray clipping distances. */
+    private static final float CLIP_EPSILON = 1e-6f;
+
     /**
      * the X-extent of the box (>=0, may be +Infinity)
      */
@@ -1039,7 +1042,9 @@ public class BoundingBox extends BoundingVolume {
             // Many Bothans died bring you this fix.
             //    -pspeed
             float newT = numerator / denom;
-            if (newT > t[1]) {
+            // A ray can touch a zero-extent box at one distance. Allow for
+            // rounding in the independently calculated slab distances.
+            if (newT > t[1] + clipTolerance(newT, t[1])) {
                 return false;
             }
             if (newT > t[0]) {
@@ -1054,7 +1059,7 @@ public class BoundingBox extends BoundingVolume {
             // When we move it over to the other side we have to flip
             // the comparison.  Algebra for the win.
             float newT = numerator / denom;
-            if (newT < t[0]) {
+            if (newT < t[0] - clipTolerance(newT, t[0])) {
                 return false;
             }
             if (newT < t[1]) {
@@ -1062,8 +1067,21 @@ public class BoundingBox extends BoundingVolume {
             }
             return true;
         } else {
+            // A parallel ray cannot move back into the slab, so keep this check exact.
             return numerator <= 0.0;
         }
+    }
+
+    /**
+     * Compute a scale-relative tolerance for comparing ray clipping distances.
+     *
+     * @param t1 the first distance (in world units)
+     * @param t2 the second distance (in world units)
+     * @return a small nonnegative tolerance
+     */
+    private static float clipTolerance(float t1, float t2) {
+        float scale = Math.max(1f, Math.max(Math.abs(t1), Math.abs(t2)));
+        return CLIP_EPSILON * scale;
     }
 
     /**
