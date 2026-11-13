@@ -233,7 +233,12 @@ public final class BinaryImporter implements JmeImporter {
                 checkLength(fieldNameLength);
                 String fieldName = readString(bis, fieldNameLength);
                 BinaryClassField bcf = new BinaryClassField(fieldName, fieldAlias, fieldType);
-                bco.nameFields.put(fieldName, bcf);
+                if (bco.nameFields.containsKey(fieldName)) {
+                    bco.additionalFields.add(bcf);
+                    bco.fieldNamesWithMultipleAliases.add(fieldName);
+                } else {
+                    bco.nameFields.put(fieldName, bcf);
+                }
                 bco.aliasFields.put(fieldAlias, bcf);
                 bytes += (6 + fieldNameLength);
             }
