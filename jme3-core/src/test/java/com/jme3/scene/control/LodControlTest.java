@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.control;
 
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -47,17 +48,7 @@ public class LodControlTest {
 
     @Test
     public void testChangingSpatialScaleRecalculatesLodAtFixedDistance() {
-        Mesh mesh = new Box(1f, 1f, 1f);
-        VertexBuffer fullDetail = mesh.getBuffer(VertexBuffer.Type.Index);
-        VertexBuffer oneTriangle = new VertexBuffer(VertexBuffer.Type.Index);
-        oneTriangle.setupData(VertexBuffer.Usage.Static, 3, VertexBuffer.Format.UnsignedShort,
-                BufferUtils.createShortBuffer((short) 0, (short) 1, (short) 2));
-        mesh.setLodLevels(new VertexBuffer[]{fullDetail, oneTriangle});
-
-        Geometry geometry = new Geometry("lod-test", mesh);
-        geometry.setLocalTranslation(0f, 0f, -100f);
-        geometry.setLocalScale(0.1f);
-        geometry.updateGeometricState();
+        Geometry geometry = geometryWithLodLevels(0.1f);
 
         TestLodControl control = new TestLodControl();
         geometry.addControl(control);
@@ -74,6 +65,50 @@ public class LodControlTest {
         control.render(viewPort);
 
         assertEquals(0, geometry.getLodLevel(), "larger geometry should use the detailed LOD");
+    }
+
+    @Test
+    public void testMovingSpatialSidewaysDoesNotChangePerspectiveLodAtFixedDepth() {
+        Geometry geometry = geometryWithLodLevels(1f);
+
+        TestLodControl control = new TestLodControl();
+        control.setTrisPerPixel(0.2f);
+        geometry.addControl(control);
+
+        Camera camera = new Camera(800, 600);
+        camera.setFrustumPerspective(90f, 4f / 3f, 1f, 1000f);
+        camera.lookAtDirection(new Vector3f(0f, 0f, -1f), Vector3f.UNIT_Y);
+        ViewPort viewPort = new ViewPort("test", camera);
+
+        control.render(viewPort);
+        assertEquals(0, geometry.getLodLevel(), "centered geometry should use the detailed LOD");
+
+        geometry.setLocalTranslation(80f, 0f, -100f);
+        geometry.updateGeometricState();
+        control.render(viewPort);
+
+        assertEquals(0, geometry.getLodLevel(),
+                "moving sideways at the same view depth should not reduce detail");
+    }
+
+    private static Geometry geometryWithLodLevels(float scale) {
+        Mesh mesh = new Box(1f, 1f, 1f);
+        VertexBuffer detailed = mesh.getBuffer(VertexBuffer.Type.Index);
+        VertexBuffer coarse = oneTriangleIndexBuffer();
+        mesh.setLodLevels(new VertexBuffer[]{detailed, coarse});
+
+        Geometry geometry = new Geometry("lod-test", mesh);
+        geometry.setLocalTranslation(0f, 0f, -100f);
+        geometry.setLocalScale(scale);
+        geometry.updateGeometricState();
+        return geometry;
+    }
+
+    private static VertexBuffer oneTriangleIndexBuffer() {
+        VertexBuffer indexBuffer = new VertexBuffer(VertexBuffer.Type.Index);
+        indexBuffer.setupData(VertexBuffer.Usage.Static, 3, VertexBuffer.Format.UnsignedShort,
+                BufferUtils.createShortBuffer((short) 0, (short) 1, (short) 2));
+        return indexBuffer;
     }
 
     private static final class TestLodControl extends LodControl {

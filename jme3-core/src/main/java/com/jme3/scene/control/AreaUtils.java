@@ -66,7 +66,8 @@ public class AreaUtils {
      * Estimate screen area using a camera's projection and viewport dimensions.
      *
      * @param bound the bounds to calculate the area from (not null)
-     * @param distance the distance from the camera to the center of the bounds
+     * @param distance the absolute view depth of the bounds center, ignored for
+     *     parallel cameras
      * @param camera the camera whose projection and viewport dimensions are
      *     used (not null)
      * @return the estimated area in pixels

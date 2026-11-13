@@ -38,12 +38,14 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
@@ -62,7 +64,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
 
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
-    private float lastDistance = 0f;
+    private float lastDepth = 0f;
     private float lastBoundRadiusSquared;
     private float lastPixelScaleX;
     private float lastPixelScaleY;
@@ -148,7 +150,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     @Override
     public Object jmeClone() {
         LodControl clone = (LodControl)super.jmeClone();
-        clone.lastDistance = 0;
+        clone.lastDepth = 0;
         clone.lastBoundRadiusSquared = 0;
         clone.lastPixelScaleX = 0;
         clone.lastPixelScaleY = 0;
@@ -167,7 +169,8 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         BoundingVolume bv = spatial.getWorldBound();
 
         Camera cam = vp.getCamera();
-        float newDistance = bv.getCenter().distance(cam.getLocation());
+        boolean parallelProjection = cam.isParallelProjection();
+        float newDepth = parallelProjection ? 0f : getCameraDepth(cam, bv.getCenter());
         float boundRadiusSquared = getBoundRadiusSquared(bv);
         float viewportWidth = cam.getWidth()
                 * (cam.getViewPortRight() - cam.getViewPortLeft());
@@ -175,31 +178,30 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
                 * (cam.getViewPortTop() - cam.getViewPortBottom());
         float pixelScaleX = Math.abs(cam.getProjectionMatrix().m00) * viewportWidth;
         float pixelScaleY = Math.abs(cam.getProjectionMatrix().m11) * viewportHeight;
-        boolean parallelProjection = cam.isParallelProjection();
         boolean projectionChanged = pixelScaleX != lastPixelScaleX
                 || pixelScaleY != lastPixelScaleY
                 || parallelProjection != lastParallelProjection;
         boolean boundSizeChanged = boundRadiusSquared != lastBoundRadiusSquared;
         int level;
 
-        if (Math.abs(newDistance - lastDistance) <= distTolerance
+        if (Math.abs(newDepth - lastDepth) <= distTolerance
                 && !projectionChanged && !boundSizeChanged) {
             level = lastLevel; // we haven't moved relative to the model, send the old measurement back.
         } else if (!projectionChanged && !boundSizeChanged
-                && lastDistance > newDistance && lastLevel == 0) {
+                && lastDepth > newDepth && lastLevel == 0) {
             level = lastLevel; // we're already at the lowest setting and we just got closer to the model, no need to keep trying.
         } else if (!projectionChanged && !boundSizeChanged
-                && lastDistance < newDistance && lastLevel == numLevels - 1) {
+                && lastDepth < newDepth && lastLevel == numLevels - 1) {
             level = lastLevel; // we're already at the highest setting and we just got further from the model, no need to keep trying.
         } else {
-            lastDistance = newDistance;
+            lastDepth = newDepth;
             lastBoundRadiusSquared = boundRadiusSquared;
             lastPixelScaleX = pixelScaleX;
             lastPixelScaleY = pixelScaleY;
             lastParallelProjection = parallelProjection;
 
             // estimate area of polygon via bounding volume
-            float area = AreaUtils.calcScreenArea(bv, lastDistance, cam);
+            float area = AreaUtils.calcScreenArea(bv, lastDepth, cam);
             float trisToDraw = area * trisPerPixel;
             level = numLevels - 1;
             for (int i = numLevels; --i >= 0;) {
@@ -231,6 +233,24 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
                     + box.getZExtent() * box.getZExtent();
         }
         return 0f;
+    }
+
+    /**
+     * Return the absolute depth of a position along the camera's forward axis.
+     *
+     * @param camera the camera (not null)
+     * @param position the position to measure (not null)
+     * @return the absolute view depth
+     */
+    private static float getCameraDepth(Camera camera, Vector3f position) {
+        TempVars vars = TempVars.get();
+        try {
+            Vector3f direction = camera.getDirection(vars.vect1);
+            Vector3f cameraToPosition = position.subtract(camera.getLocation(), vars.vect2);
+            return Math.abs(direction.dot(cameraToPosition));
+        } finally {
+            vars.release();
+        }
     }
 
     @Override

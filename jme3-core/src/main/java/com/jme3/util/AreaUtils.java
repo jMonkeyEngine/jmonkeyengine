@@ -76,12 +76,13 @@ public final class AreaUtils {
      * Estimate the projected screen area of a bounding volume using the
      * camera's projection and viewport dimensions. The volume is approximated
      * by a circle whose radius is the radius of its bounding sphere. For a
-     * perspective camera, {@code distance} should be the distance from the
-     * camera to the center of the volume. For a parallel camera, distance is
-     * ignored.
+     * perspective camera, {@code distance} should be the absolute depth of the
+     * volume center along the camera's viewing direction. For a parallel
+     * camera, distance is ignored.
      *
      * @param bound the bounds to calculate the area from (not null)
-     * @param distance the distance from the camera to the center of the bounds
+     * @param distance the absolute view depth of the bounds center, ignored for
+     *     parallel cameras
      * @param camera the camera whose projection and viewport dimensions are
      *     used (not null)
      * @return the estimated area in pixels, or 0 if the bounds are unsupported
