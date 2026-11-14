@@ -480,10 +480,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected void renderShadowMap(int shadowMapIndex) {
         shadowMapOccluders = getOccludersToRender(shadowMapIndex, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
-
         //saving light view projection matrix for this split
         lightViewProjectionsMatrices[shadowMapIndex].set(shadowCam.getViewProjectionMatrix());
         renderManager.setCamera(shadowCam, false);
+
+        ShadowUtil.runControlRenderForShadowCasters(shadowMapOccluders, renderManager, viewPort);
 
         renderManager.getRenderer().setFrameBuffer(shadowFB[shadowMapIndex]);
         renderManager.getRenderer().clearBuffers(true, true, true);
