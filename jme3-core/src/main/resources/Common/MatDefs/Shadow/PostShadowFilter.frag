@@ -69,6 +69,19 @@ void main(){
 
     // get the vertex in world space
     vec4 worldPos = vec4(getPosition(depth,texCoord),1.0);
+    vec4 shadowPos = worldPos;
+
+    #ifdef POINTLIGHT
+        vec3 lightToReceiver = worldPos.xyz - m_LightPos;
+        float receiverDistance = length(lightToReceiver);
+        if (receiverDistance > 0.0) {
+            // A small receiver offset compensates for position reconstruction
+            // error in the full-screen pass without letting the offset grow
+            // with the point light's shadow range.
+            float bias = min(receiverDistance * 0.01, 0.01);
+            shadowPos.xyz -= lightToReceiver * (bias / receiverDistance);
+        }
+    #endif
 
     vec3 lightDir;
     #ifdef PSSM
@@ -94,13 +107,13 @@ void main(){
     #endif
 
     // populate the light view matrices array and convert vertex to light viewProj space
-    vec4 projCoord0 = biasMat * m_LightViewProjectionMatrix0 * worldPos;
-    vec4 projCoord1 = biasMat * m_LightViewProjectionMatrix1 * worldPos;
-    vec4 projCoord2 = biasMat * m_LightViewProjectionMatrix2 * worldPos;
-    vec4 projCoord3 = biasMat * m_LightViewProjectionMatrix3 * worldPos;
+    vec4 projCoord0 = biasMat * m_LightViewProjectionMatrix0 * shadowPos;
+    vec4 projCoord1 = biasMat * m_LightViewProjectionMatrix1 * shadowPos;
+    vec4 projCoord2 = biasMat * m_LightViewProjectionMatrix2 * shadowPos;
+    vec4 projCoord3 = biasMat * m_LightViewProjectionMatrix3 * shadowPos;
     #ifdef POINTLIGHT
-       vec4 projCoord4 = biasMat * m_LightViewProjectionMatrix4 * worldPos;
-       vec4 projCoord5 = biasMat * m_LightViewProjectionMatrix5 * worldPos;
+       vec4 projCoord4 = biasMat * m_LightViewProjectionMatrix4 * shadowPos;
+       vec4 projCoord5 = biasMat * m_LightViewProjectionMatrix5 * shadowPos;
     #endif
 
     float shadow = 1.0;
@@ -110,7 +123,7 @@ void main(){
     #endif
 
     #ifdef POINTLIGHT         
-            shadow = getPointLightShadows(worldPos, m_LightPos,
+            shadow = getPointLightShadows(shadowPos, m_LightPos,
                            m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,m_ShadowMap4,m_ShadowMap5,
                            projCoord0, projCoord1, projCoord2, projCoord3, projCoord4, projCoord5);
     #else
