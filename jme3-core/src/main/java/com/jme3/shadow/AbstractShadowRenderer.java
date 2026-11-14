@@ -480,10 +480,21 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected void renderShadowMap(int shadowMapIndex) {
         shadowMapOccluders = getOccludersToRender(shadowMapIndex, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
-
         //saving light view projection matrix for this split
         lightViewProjectionsMatrices[shadowMapIndex].set(shadowCam.getViewProjectionMatrix());
         renderManager.setCamera(shadowCam, false);
+
+        // Let controls inspect the caster's material before forcing the shadow technique.
+        Material forcedMaterial = renderManager.getForcedMaterial();
+        String forcedTechnique = renderManager.getForcedTechnique();
+        renderManager.setForcedMaterial(null);
+        renderManager.setForcedTechnique(null);
+        try {
+            ShadowUtil.runControlRenderForShadowCasters(shadowMapOccluders, renderManager, viewPort);
+        } finally {
+            renderManager.setForcedMaterial(forcedMaterial);
+            renderManager.setForcedTechnique(forcedTechnique);
+        }
 
         renderManager.getRenderer().setFrameBuffer(shadowFB[shadowMapIndex]);
         renderManager.getRenderer().clearBuffers(true, true, true);
