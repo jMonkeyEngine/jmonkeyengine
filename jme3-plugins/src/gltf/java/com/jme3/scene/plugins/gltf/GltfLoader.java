@@ -334,6 +334,26 @@ public class GltfLoader implements AssetLoader {
             // We don't have this in JME, so we have to make one Mesh and one Geometry for each primitive.
             Geometry[] primitives = readMeshPrimitives(meshIndex);
 
+            // Node weights override the defaults specified by the mesh.
+            JsonArray morphWeights = nodeData.getAsJsonArray("weights");
+            if (morphWeights == null) {
+                morphWeights = meshes.get(meshIndex).getAsJsonObject().getAsJsonArray("weights");
+            }
+            if (morphWeights != null) {
+                float[] weights = new float[morphWeights.size()];
+                for (int i = 0; i < weights.length; i++) {
+                    weights[i] = morphWeights.get(i).getAsFloat();
+                }
+                for (Geometry primitive : primitives) {
+                    int targetCount = primitive.getMesh().getMorphTargets().length;
+                    if (weights.length != targetCount) {
+                        throw new AssetLoadException("Morph weights count " + weights.length
+                                + " does not match morph target count " + targetCount + " for mesh " + meshIndex);
+                    }
+                    primitive.setMorphState(weights);
+                }
+            }
+
             Node node = new Node();
             for (Geometry primitive : primitives) {
                 node.attachChild(primitive);
@@ -1499,6 +1519,50 @@ public class GltfLoader implements AssetLoader {
                 attachmentNode.attachChild(attachedSpatial);
             }
         }
+
+        setupMorphControls();
+    }
+
+    private void setupMorphControls() {
+        // MorphControls created while reading animation tracks may predate skin attachment nodes.
+        // Reattach them now so their target lists include the completed scene graph.
+        List<Spatial> existingControls = new ArrayList<>();
+        rootNode.depthFirstTraversal(spatial -> {
+            if (spatial.getControl(MorphControl.class) != null) {
+                existingControls.add(spatial);
+            }
+        });
+        for (Spatial spatial : existingControls) {
+            MorphControl control = spatial.getControl(MorphControl.class);
+            spatial.removeControl(control);
+            spatial.addControl(control);
+        }
+
+        rootNode.depthFirstTraversal(spatial -> {
+            if (!(spatial instanceof Geometry)) {
+                return;
+            }
+
+            Geometry geometry = (Geometry) spatial;
+            if (geometry.getMesh().getMorphTargets().length == 0 || hasMorphControl(geometry)) {
+                return;
+            }
+
+            Spatial controlSpatial = geometry.getParent();
+            if (controlSpatial == null) {
+                controlSpatial = geometry;
+            }
+            controlSpatial.addControl(new MorphControl());
+        });
+    }
+
+    private boolean hasMorphControl(Spatial spatial) {
+        for (Spatial current = spatial; current != null; current = current.getParent()) {
+            if (current.getControl(MorphControl.class) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String readMeshName(int meshIndex) {
