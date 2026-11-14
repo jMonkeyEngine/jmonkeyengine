@@ -34,9 +34,12 @@ package com.jme3.bullet.debug;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
+import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.material.Material;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -91,6 +94,57 @@ public class BulletRigidBodyDebugControlTest {
                 "replacing a child should regenerate debug geometry even when the count "
                 + "is unchanged");
         Assertions.assertEquals(2, ((Node) control.geom).getQuantity());
+    }
+
+    @Test
+    public void updatesDebugGeometryWhenCompoundChildLocationChangesInPlace() {
+        CompoundCollisionShape compound = createSingleChildCompound();
+        TestDebugControl control = createControl(compound);
+        Node initialDebugShape = (Node) control.geom;
+        ChildCollisionShape child = compound.getChildren().get(0);
+
+        child.location.x += 2f;
+        control.updateControl();
+
+        Assertions.assertNotSame(initialDebugShape, control.geom);
+        Geometry debugChild = (Geometry) ((Node) control.geom).getChild(0);
+        Assertions.assertEquals(child.location, debugChild.getLocalTranslation());
+    }
+
+    @Test
+    public void updatesDebugGeometryWhenCompoundChildRotationChangesInPlace() {
+        CompoundCollisionShape compound = createSingleChildCompound();
+        TestDebugControl control = createControl(compound);
+        Node initialDebugShape = (Node) control.geom;
+        ChildCollisionShape child = compound.getChildren().get(0);
+
+        child.rotation.fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Z);
+        control.updateControl();
+
+        Assertions.assertNotSame(initialDebugShape, control.geom);
+    }
+
+    @Test
+    public void updatesDebugGeometryWhenCompoundChildShapeChangesInPlace() {
+        CompoundCollisionShape compound = createSingleChildCompound();
+        TestDebugControl control = createControl(compound);
+        Node initialDebugShape = (Node) control.geom;
+        Geometry initialDebugChild = (Geometry) initialDebugShape.getChild(0);
+        ChildCollisionShape child = compound.getChildren().get(0);
+
+        child.shape = new BoxCollisionShape(new Vector3f(2f, 2f, 2f));
+        control.updateControl();
+
+        Assertions.assertNotSame(initialDebugShape, control.geom);
+        Geometry updatedDebugChild = (Geometry) ((Node) control.geom).getChild(0);
+        Assertions.assertNotSame(initialDebugChild.getMesh(), updatedDebugChild.getMesh());
+    }
+
+    private static CompoundCollisionShape createSingleChildCompound() {
+        CompoundCollisionShape compound = new CompoundCollisionShape();
+        compound.addChildShape(new BoxCollisionShape(Vector3f.UNIT_XYZ),
+                new Vector3f(1f, 0f, 0f));
+        return compound;
     }
 
     private static TestDebugControl createControl(CompoundCollisionShape compound) {
