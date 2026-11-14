@@ -31,10 +31,16 @@
  */
 package com.jme3.bullet.debug;
 
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The abstract base class for physics-debug controls (such as
@@ -52,6 +58,8 @@ public abstract class AbstractPhysicsDebugControl extends AbstractControl {
      * the app state that this control serves
      */
     protected final BulletDebugAppState debugAppState;
+    /** child properties used to generate the current compound debug mesh */
+    private List<CompoundChildSnapshot> compoundChildrenSnapshot;
 
     /**
      * Instantiate an enabled control to serve the specified debug app state.
@@ -67,6 +75,69 @@ public abstract class AbstractPhysicsDebugControl extends AbstractControl {
      */
     @Override
     protected abstract void controlUpdate(float tpf);
+
+    /**
+     * Test whether the specified compound shape's children differ from the
+     * children used to generate the current debug mesh.
+     *
+     * @param shape the current collision shape (not null)
+     * @return true if the children differ from the cached debug-mesh input
+     */
+    protected final boolean haveCompoundChildrenChanged(CollisionShape shape) {
+        if (!(shape instanceof CompoundCollisionShape)) {
+            return false;
+        }
+        List<ChildCollisionShape> children
+                = ((CompoundCollisionShape) shape).getChildren();
+        if (compoundChildrenSnapshot == null
+                || compoundChildrenSnapshot.size() != children.size()) {
+            return true;
+        }
+        for (int i = 0; i < children.size(); ++i) {
+            if (!compoundChildrenSnapshot.get(i).matches(children.get(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Remember the compound children used to generate a debug mesh.
+     *
+     * @param shape the collision shape (not null)
+     */
+    protected final void cacheCompoundChildren(CollisionShape shape) {
+        if (shape instanceof CompoundCollisionShape) {
+            List<ChildCollisionShape> children
+                    = ((CompoundCollisionShape) shape).getChildren();
+            compoundChildrenSnapshot = new ArrayList<>(children.size());
+            for (ChildCollisionShape child : children) {
+                compoundChildrenSnapshot.add(new CompoundChildSnapshot(child));
+            }
+        } else {
+            compoundChildrenSnapshot = null;
+        }
+    }
+
+    /** Snapshot of the properties used to generate one child debug shape. */
+    private static final class CompoundChildSnapshot {
+
+        private final CollisionShape shape;
+        private final Vector3f location;
+        private final Matrix3f rotation;
+
+        CompoundChildSnapshot(ChildCollisionShape child) {
+            shape = child.shape;
+            location = child.location.clone();
+            rotation = child.rotation.clone();
+        }
+
+        boolean matches(ChildCollisionShape child) {
+            return shape == child.shape
+                    && location.equals(child.location)
+                    && rotation.equals(child.rotation);
+        }
+    }
 
     /**
      * Apply the specified location and orientation to the controlled spatial.
