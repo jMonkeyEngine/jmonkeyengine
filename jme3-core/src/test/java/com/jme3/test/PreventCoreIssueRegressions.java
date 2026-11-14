@@ -40,6 +40,7 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
@@ -140,6 +141,29 @@ public class PreventCoreIssueRegressions {
             assertTrue(Vector3f.isValidVector(joint.getLocalTranslation()),
                     "Invalid translation for joint " + joint.getName());
         }
+    }
+
+    /**
+     * Test case for JME issue #1219: Registering a disabled FlyByCamera preserves cursor visibility.
+     */
+    @Test
+    public void testIssue1219() {
+        DummyMouseInput mouse = new DummyMouseInput();
+        mouse.initialize();
+        DummyKeyInput keys = new DummyKeyInput();
+        keys.initialize();
+        InputManager inputManager = new InputManager(mouse, keys, null, null);
+        FlyByCamera flyCam = new FlyByCamera(new Camera(1, 1));
+
+        flyCam.setEnabled(false);
+        inputManager.setCursorVisible(false);
+        flyCam.registerWithInput(inputManager);
+
+        assertFalse(inputManager.isCursorVisible());
+
+        flyCam.setEnabled(true);
+        flyCam.setEnabled(false);
+        assertTrue(inputManager.isCursorVisible());
     }
 
     @Test
