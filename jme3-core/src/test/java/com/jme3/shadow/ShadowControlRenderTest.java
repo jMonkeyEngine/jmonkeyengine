@@ -31,6 +31,7 @@
  */
 package com.jme3.shadow;
 
+import com.jme3.material.Material;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -43,6 +44,9 @@ import com.jme3.system.NullRenderer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Regression tests for controls on geometries rendered by shadow maps.
@@ -50,7 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ShadowControlRenderTest {
 
     @Test
-    public void testParentControlRunsOnceForShadowCasters() {
+    public void testSharedAncestorAndCasterControlsRunOnceForShadowOnlyCasters() {
         Node model = new Node("model");
         CountingControl parentControl = new CountingControl();
         model.addControl(parentControl);
@@ -61,6 +65,8 @@ public class ShadowControlRenderTest {
         model.attachChild(first);
 
         Geometry second = new Geometry("second", new Mesh());
+        CountingControl secondControl = new CountingControl();
+        second.addControl(secondControl);
         model.attachChild(second);
 
         GeometryList shadowCasters = new GeometryList(null);
@@ -69,10 +75,18 @@ public class ShadowControlRenderTest {
 
         RenderManager renderManager = new RenderManager(new NullRenderer());
         ViewPort viewPort = new ViewPort("main", new Camera(640, 480));
+        Camera shadowCamera = new Camera(512, 512);
+        renderManager.setCamera(shadowCamera, false);
+
+        // The casters are not in the viewport's scene graph; they are present
+        // only in the shadow map's caster list.
         ShadowUtil.runControlRenderForShadowCasters(shadowCasters, renderManager, viewPort);
 
         assertEquals(1, parentControl.renderCount);
         assertEquals(1, firstControl.renderCount);
+        assertEquals(1, secondControl.renderCount);
+        assertSame(shadowCamera, firstControl.camera);
+        assertSame(viewPort, firstControl.viewPort);
     }
 
     @Test
@@ -98,9 +112,63 @@ public class ShadowControlRenderTest {
         assertEquals(2, casterControl.renderCount);
     }
 
+    @Test
+    public void testForcedMaterialAndTechniqueAreRestoredAfterSuccessfulControlRender() {
+        CountingControl control = new CountingControl();
+        Geometry caster = createCaster(control);
+        GeometryList shadowCasters = casterList(caster);
+        RenderManager renderManager = new RenderManager(new NullRenderer());
+        Material forcedMaterial = new Material();
+        String forcedTechnique = "ForcedTechnique";
+        renderManager.setForcedMaterial(forcedMaterial);
+        renderManager.setForcedTechnique(forcedTechnique);
+
+        ShadowUtil.runControlRenderForShadowCasters(shadowCasters, renderManager,
+                new ViewPort("main", new Camera(640, 480)));
+
+        assertEquals(1, control.renderCount);
+        assertNull(control.forcedMaterialDuringRender);
+        assertNull(control.forcedTechniqueDuringRender);
+        assertSame(forcedMaterial, renderManager.getForcedMaterial());
+        assertEquals(forcedTechnique, renderManager.getForcedTechnique());
+    }
+
+    @Test
+    public void testForcedMaterialAndTechniqueAreRestoredWhenControlThrows() {
+        Geometry caster = createCaster(new ThrowingControl());
+        GeometryList shadowCasters = casterList(caster);
+        RenderManager renderManager = new RenderManager(new NullRenderer());
+        Material forcedMaterial = new Material();
+        String forcedTechnique = "ForcedTechnique";
+        renderManager.setForcedMaterial(forcedMaterial);
+        renderManager.setForcedTechnique(forcedTechnique);
+
+        assertThrows(IllegalStateException.class, () -> ShadowUtil.runControlRenderForShadowCasters(
+                shadowCasters, renderManager, new ViewPort("main", new Camera(640, 480))));
+
+        assertSame(forcedMaterial, renderManager.getForcedMaterial());
+        assertEquals(forcedTechnique, renderManager.getForcedTechnique());
+    }
+
+    private static Geometry createCaster(AbstractControl control) {
+        Geometry caster = new Geometry("caster", new Mesh());
+        caster.addControl(control);
+        return caster;
+    }
+
+    private static GeometryList casterList(Geometry caster) {
+        GeometryList shadowCasters = new GeometryList(null);
+        shadowCasters.add(caster);
+        return shadowCasters;
+    }
+
     private static class CountingControl extends AbstractControl {
 
         private int renderCount;
+        private Camera camera;
+        private ViewPort viewPort;
+        private Material forcedMaterialDuringRender;
+        private String forcedTechniqueDuringRender;
 
         @Override
         protected void controlUpdate(float tpf) {
@@ -109,6 +177,23 @@ public class ShadowControlRenderTest {
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
             renderCount++;
+            camera = rm.getCurrentCamera();
+            viewPort = vp;
+            forcedMaterialDuringRender = rm.getForcedMaterial();
+            forcedTechniqueDuringRender = rm.getForcedTechnique();
+        }
+
+    }
+
+    private static class ThrowingControl extends AbstractControl {
+
+        @Override
+        protected void controlUpdate(float tpf) {
+        }
+
+        @Override
+        protected void controlRender(RenderManager rm, ViewPort vp) {
+            throw new IllegalStateException("Expected test exception");
         }
 
     }

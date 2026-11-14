@@ -778,6 +778,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     /**
      * Called when the Spatial is about to be rendered, to notify
      * controls attached to this Spatial using the Control.render() method.
+     * During shadow rendering, controls for shadow casters and their ancestors
+     * may also be called once per shadow-map pass. In those calls, the current
+     * camera in {@code rm} is the shadow camera, while {@code vp} is still the
+     * viewport that owns the shadow renderer. See {@link Control#render} for
+     * details on callback frequency and context.
      *
      * @param rm The RenderManager rendering the Spatial.
      * @param vp The ViewPort to which the Spatial is being rendered to.
