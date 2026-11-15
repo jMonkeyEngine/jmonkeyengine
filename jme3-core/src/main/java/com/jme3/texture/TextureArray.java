@@ -79,7 +79,9 @@ public class TextureArray extends Texture {
         ColorSpace colorSpace = images.get(0).getColorSpace();
         int[] mipMapSizes = images.get(0).getMipMapSizes();
         Image arrayImage = new Image(format, width, height, null, colorSpace);
-        arrayImage.setMipMapSizes(mipMapSizes);
+        if (mipMapSizes != null) {
+            arrayImage.setMipMapSizes(mipMapSizes);
+        }
         
         for (Image img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {
