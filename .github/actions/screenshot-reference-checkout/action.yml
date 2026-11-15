@@ -1,0 +1,79 @@
+name: Check out the branch to compare screenshots against
+description: >
+  Works out which commit the checked-out branch should be compared against and checks it out into
+  ./reference, so that both halves of a screenshot comparison are built and rendered on one machine.
+  Shared by the desktop and Android workflows.
+
+  The branch under test is the repository already checked out at the workspace root, which the
+  calling workflow must have done first - a local action cannot be found before that.
+
+inputs:
+  reference_ref:
+    description: >
+      Ref to generate the reference images from. Defaults to the first parent of the commit under
+      test, which for a pull request is the base branch tip.
+    required: false
+    default: ''
+
+outputs:
+  reference_ref:
+    description: The ref the reference images are generated from.
+    value: ${{ steps.resolve.outputs.reference_ref }}
+  target_ref:
+    description: The commit under test.
+    value: ${{ steps.resolve.outputs.target_ref }}
+  reference_supported:
+    description: >
+      "false" when the reference ref predates generating reference images in CI, so there is nothing
+      a comparison could use.
+    value: ${{ steps.capability.outputs.supported }}
+
+runs:
+  using: composite
+  steps:
+    - name: Work out what to compare against
+      id: resolve
+      shell: bash
+      # The input goes through the environment rather than being interpolated into the script, so a
+      # ref containing shell metacharacters cannot run anything.
+      env:
+        REFERENCE_REF_INPUT: ${{ inputs.reference_ref }}
+      run: |
+        set -euo pipefail
+
+        # In a container job another user owns the workspace, and git refuses to work in it otherwise.
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+        if [ -n "$REFERENCE_REF_INPUT" ]; then
+          # A manually requested comparison; pass the ref through for checkout to resolve.
+          reference="$REFERENCE_REF_INPUT"
+        elif ! reference=$(git rev-parse --verify --quiet 'HEAD^1'); then
+          # For a pull request the checked-out commit is refs/pull/<n>/merge, whose first parent is
+          # the base branch tip - so the comparison shows the pull request's own changes and not
+          # whatever else landed on the base branch meanwhile.
+          # The only commit without a first parent is a root commit, which has nothing to compare to.
+          echo "::error title=No reference commit::The commit under test has no parent, so there is nothing to compare it against. Run this workflow manually with an explicit reference_ref."
+          exit 1
+        fi
+
+        echo "reference_ref=$reference" >> "$GITHUB_OUTPUT"
+        echo "target_ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+        echo "Comparing $(git rev-parse HEAD) against $reference"
+
+    - name: Check out the branch to compare against
+      uses: actions/checkout@v7.0.1
+      with:
+        ref: ${{ steps.resolve.outputs.reference_ref }}
+        path: reference
+        fetch-depth: 1
+
+    - name: Check the reference ref can generate reference images
+      id: capability
+      shell: bash
+      run: |
+        if grep -qs 'screenshot\.mode' reference/jme3-screenshot-tests/jme3-screenshot-tests-desktop/build.gradle; then
+          echo "supported=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "supported=false" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Screenshots not compared::The reference ref predates generating reference images in CI, so the comparison is being skipped."
+        fi
