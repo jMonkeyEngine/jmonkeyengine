@@ -31,6 +31,8 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import java.nio.FloatBuffer;
+
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
@@ -84,6 +86,37 @@ public class GltfLoaderTest {
         });
         Assertions.assertTrue(found[0], "First joint attachment was lost");
         Assertions.assertTrue(found[1], "Second joint attachment was lost");
+    }
+
+    @Test
+    public void loadsSparseAccessorValues() {
+        FloatBuffer positions = loadPositions("gltf/SimpleSparseAccessor/SimpleSparseAccessor.gltf");
+        // The sparse entries at indices 8, 10, and 12 replace their base y values.
+        Assertions.assertEquals(2f, positions.get(8 * 3 + 1), 0f);
+        Assertions.assertEquals(3f, positions.get(10 * 3 + 1), 0f);
+        Assertions.assertEquals(4f, positions.get(12 * 3 + 1), 0f);
+        Assertions.assertEquals(1f, positions.get(7 * 3 + 1), 0f);
+    }
+
+    @Test
+    public void loadsSparseAccessorWithoutBaseBufferView() {
+        FloatBuffer positions = loadPositions("gltf/SimpleSparseAccessor/SimpleSparseAccessorNoBase.gltf");
+        Assertions.assertEquals(0f, positions.get(7 * 3 + 1), 0f);
+        Assertions.assertEquals(2f, positions.get(8 * 3 + 1), 0f);
+        Assertions.assertEquals(3f, positions.get(10 * 3 + 1), 0f);
+        Assertions.assertEquals(4f, positions.get(12 * 3 + 1), 0f);
+    }
+
+    private FloatBuffer loadPositions(String path) {
+        Spatial scene = assetManager.loadModel(path);
+        Geometry[] geometry = new Geometry[1];
+        scene.depthFirstTraversal(spatial -> {
+            if (spatial instanceof Geometry) {
+                geometry[0] = (Geometry) spatial;
+            }
+        });
+        Assertions.assertNotNull(geometry[0], "Expected the sample to contain a geometry");
+        return (FloatBuffer) geometry[0].getMesh().getBuffer(VertexBuffer.Type.Position).getData();
     }
 
     @Test

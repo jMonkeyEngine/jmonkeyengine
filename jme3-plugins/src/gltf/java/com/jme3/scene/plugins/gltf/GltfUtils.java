@@ -303,13 +303,13 @@ public class GltfUtils {
 
     public static void padBuffer(Quaternion[] array, int bufferSize) {
         for (int i = 0; i < bufferSize; i++) {
-            array[i] = new Quaternion();
+            array[i] = new Quaternion(0f, 0f, 0f, 0f);
         }      
     }
 
     public static void padBuffer(Matrix4f[] array, int bufferSize) {
         for (int i = 0; i < bufferSize; i++) {
-            array[i] = new Matrix4f();
+            array[i] = new Matrix4f().zero();
         }        
     }
 
