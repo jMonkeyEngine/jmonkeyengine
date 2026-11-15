@@ -23,7 +23,6 @@ import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.grid.ImageTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -89,13 +88,10 @@ public class TerrainGridTest extends SimpleApplication {
 
         mat_terrain.setFloat("terrainSize", 129);
 
-        this.terrain = new TerrainGrid("terrain", 65, 257, new ImageTileLoader(assetManager, new Namer() {
-
-            @Override
-            public String getName(int x, int y) {
-                return "Scenes/TerrainMountains/terrain_" + x + "_" + y + ".png";
-            }
-        }));
+        // This grid loads 129x129 heightmap images. To split a larger source
+        // image into the required tiles, see TerrainGridImageTileGenerator.
+        this.terrain = new TerrainGrid("terrain", 65, 257,
+                new ImageTileLoader("Scenes/TerrainMountains/terrain", "png", assetManager));
         
         this.terrain.setMaterial(mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
