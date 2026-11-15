@@ -277,10 +277,9 @@ public class FlyByCamera implements AnalogListener, ActionListener, JoystickConn
      */
     public void registerWithInput(InputManager inputManager) {
         this.inputManager = inputManager;
+        // Keep cursor visibility under application control when the camera is disabled.
         if (enabled) {
             registerInputMappings();
-        } else {
-            inputManager.setCursorVisible(true);
         }
         inputManager.addJoystickConnectionListener(this);
     }
