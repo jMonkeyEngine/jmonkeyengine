@@ -170,10 +170,18 @@ public abstract class GenericEnvBaker implements EnvBaker {
      * @return The updated camera
      */
     protected Camera updateAndGetInternalCamera(int faceId, int w, int h, Vector3f position, float frustumNear, float frustumFar) {
+        return updateAndGetInternalCamera(faceId, w, h, position, Quaternion.IDENTITY, frustumNear, frustumFar);
+    }
+
+    /**
+     * Updates the internal camera to face the given cubemap face of a cubemap with the given world-space orientation,
+     * and returns it.
+     */
+    protected Camera updateAndGetInternalCamera(int faceId, int w, int h, Vector3f position, Quaternion rotation, float frustumNear, float frustumFar) {
         cam.resize(w, h, false);
         cam.setLocation(position);
         cam.setFrustumPerspective(90.0F, 1F, frustumNear, frustumFar);
-        cam.setRotation(new Quaternion().fromAxes(axisX[faceId], axisY[faceId], axisZ[faceId]));
+        cam.setRotation(rotation.mult(new Quaternion().fromAxes(axisX[faceId], axisY[faceId], axisZ[faceId])));
         return cam;
     }
 
@@ -207,6 +215,11 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
+        bakeEnvironment(scene, position, Quaternion.IDENTITY, frustumNear, frustumFar, filter);
+    }
+
+    @Override
+    public void bakeEnvironment(Spatial scene, Vector3f position, Quaternion rotation, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
         FrameBuffer envbakers[] = getEnvBakers();
 
         if (isTexturePulling()) {
@@ -216,7 +229,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         for (int i = 0; i < 6; i++) {
             FrameBuffer envbaker = envbakers[i];
 
-            ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
+            ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, rotation, frustumNear, frustumFar));
             viewPort.setClearFlags(true, true, true);
             viewPort.setBackgroundColor(ColorRGBA.Pink);
 

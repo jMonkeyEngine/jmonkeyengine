@@ -301,7 +301,8 @@ public class LightProbe extends Light implements Savable {
      * rotation it already had (for example a box aligned with the walls of a room that was not built on the world
      * axes); the box's own rotation remains world space.
      * <p>
-     * Probes are captured in world axes, so a newly captured probe has the identity rotation.
+     * The bakers capture the environment in the probe's current rotation, so re-baking a rotated probe gives the same
+     * lighting as baking it unrotated and then rotating it.
      *
      * @param rotation the world-space rotation (not null, unaffected)
      */
