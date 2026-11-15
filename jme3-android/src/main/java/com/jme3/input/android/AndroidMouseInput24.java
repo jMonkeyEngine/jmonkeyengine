@@ -114,7 +114,7 @@ public class AndroidMouseInput24 extends AndroidMouseInput14{
     public void setNativeCursor(JmeCursor cursor) {
         if(inputHandler.getView()!=null) {
             if(cursor!=null) {
-                // Translate into Android Bitmap format ARGB888. Assuming input image as RGBA
+                // Translate into Android Bitmap format ARGB888. Assuming input image as RGBA where each channel is an integer.
                 int bufferSize = cursor.getHeight()*cursor.getWidth();
                 int[] outputBitmap=new int[bufferSize];
                 IntBuffer inputImage = cursor.getImagesData().asReadOnlyBuffer();
