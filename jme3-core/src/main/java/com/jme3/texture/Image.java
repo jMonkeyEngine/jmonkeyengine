@@ -748,7 +748,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     private ArrayList<ByteBuffer> dataDeepClone() {
         ArrayList<ByteBuffer> clone = new ArrayList<ByteBuffer>(data.size());
         for (ByteBuffer originalBuffer : data) {
-            clone.add(BufferUtils.clone(originalBuffer));
+            clone.add(BufferUtils.clone(originalBuffer.duplicate()).flip());
         }
         return clone;
     }
