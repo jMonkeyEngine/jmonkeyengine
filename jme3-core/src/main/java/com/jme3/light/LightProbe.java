@@ -368,9 +368,29 @@ public class LightProbe extends Light implements Savable {
     @Override
     public LightProbe clone() {
         LightProbe probe = (LightProbe) super.clone();
+        probe.position = position.clone();
         probe.rotation = rotation.clone();
         probe.rotationMatrix = rotationMatrix.clone();
+        probe.area = cloneArea(area);
         return probe;
+    }
+
+    /**
+     * Copies the built-in area types; a custom {@link ProbeArea} cannot be copied through the interface, so it stays
+     * shared with the original.
+     */
+    private static ProbeArea cloneArea(ProbeArea area) {
+        try {
+            if (area instanceof SphereProbeArea) {
+                return ((SphereProbeArea) area).clone();
+            }
+            if (area instanceof OrientedBoxProbeArea) {
+                return ((OrientedBoxProbeArea) area).clone();
+            }
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError(ex);
+        }
+        return area;
     }
 
     @Override
