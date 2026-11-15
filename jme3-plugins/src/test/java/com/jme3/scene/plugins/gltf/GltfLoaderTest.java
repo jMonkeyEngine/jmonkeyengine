@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.anim.MorphControl;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
@@ -52,6 +53,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.system.JmeSystem;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,6 +87,52 @@ public class GltfLoaderTest {
         });
         Assertions.assertTrue(found[0], "First joint attachment was lost");
         Assertions.assertTrue(found[1], "Second joint attachment was lost");
+    }
+
+    @Test
+    public void importsMorphWeightsWithoutAnimationTracks() {
+        Spatial scene = assetManager.loadModel("gltf/morphWeights.gltf");
+
+        assertMorphWeights(scene, "nodeOverride", new float[]{0.75f, 0.25f}, 2);
+        assertMorphWeights(scene, "meshDefaults", new float[]{0.25f, 0.5f}, 2);
+        assertMorphWeights(scene, "implicitZeroes", new float[]{0f, 0f}, 1);
+    }
+
+    private void assertMorphWeights(Spatial scene, String nodeName, float[] expectedWeights,
+            int expectedPrimitiveCount) {
+        Spatial node = findSpatial(scene, nodeName);
+        List<Geometry> geometries = new ArrayList<>();
+        node.depthFirstTraversal(spatial -> {
+            if (spatial instanceof Geometry) {
+                geometries.add((Geometry) spatial);
+            }
+        });
+
+        Assertions.assertEquals(expectedPrimitiveCount, geometries.size());
+        for (Geometry geometry : geometries) {
+            Assertions.assertArrayEquals(expectedWeights, geometry.getMorphState(), 0f);
+            Spatial current = geometry;
+            boolean hasMorphControl = false;
+            while (current != null) {
+                if (current.getControl(MorphControl.class) != null) {
+                    hasMorphControl = true;
+                    break;
+                }
+                current = current.getParent();
+            }
+            Assertions.assertTrue(hasMorphControl, "MorphControl missing for " + geometry.getName());
+        }
+    }
+
+    private Spatial findSpatial(Spatial scene, String name) {
+        Spatial[] result = new Spatial[1];
+        scene.depthFirstTraversal(spatial -> {
+            if (name.equals(spatial.getName())) {
+                result[0] = spatial;
+            }
+        });
+        Assertions.assertNotNull(result[0], "Spatial not found: " + name);
+        return result[0];
     }
 
     @Test
