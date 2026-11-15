@@ -37,6 +37,7 @@ import com.jme3.environment.generation.JobProgressListener;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.*;
 import com.jme3.scene.Spatial;
@@ -104,6 +105,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected ByteBuffer[] buffers;
 
     protected Vector3f position = new Vector3f();
+    protected Quaternion rotation = new Quaternion();
     protected ColorRGBA backGroundColor;
 
     /**
@@ -271,6 +273,37 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     /**
+     * Returns the orientation of the captured cubemap in world space.
+     *
+     * @return the rotation (not a copy, do not modify)
+     */
+    public Quaternion getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Sets the orientation of the captured cubemap in world space, so the snapshot suits a {@link LightProbe} with
+     * that rotation.
+     *
+     * @param rotation the world-space rotation (not null, unaffected)
+     */
+    public void setRotation(final Quaternion rotation) {
+        this.rotation.set(rotation);
+
+        if (viewports == null) {
+            return;
+        }
+
+        for (int i = 0; i < viewports.length; i++) {
+            viewports[i].getCamera().setRotation(faceRotation(axisX[i], axisY[i], axisZ[i]));
+        }
+    }
+
+    private Quaternion faceRotation(Vector3f axisX, Vector3f axisY, Vector3f axisZ) {
+        return rotation.mult(new Quaternion().fromAxes(axisX, axisY, axisZ));
+    }
+
+    /**
      * Returns an array of the 6 ViewPorts used to capture the snapshot.
      * Note that this will be null until after initialize() is called.
      * @return array of ViewPorts
@@ -373,7 +406,7 @@ public class EnvironmentCamera extends BaseAppState {
             final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
         final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
-        offCamera.setAxes(axisX, axisY, axisZ);
+        offCamera.setRotation(faceRotation(axisX, axisY, axisZ));
         offCamera.setFrustumPerspective(90f, 1f, 0.1f, 1000);
         offCamera.setLocation(position);
         return offCamera;

@@ -197,7 +197,8 @@ vec3 ApproximateSpecularIBLPolynomial(samplerCube envMap, vec3 SpecularColor , f
 }
 
 
-float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Roughness, vec4 diffuseColor, vec4 specularColor, float ndotv, vec3 ao, mat4 lightProbeData,vec3 shCoeffs[9],samplerCube prefEnvMap, inout vec3 color ){
+// lightProbeRotation takes directions from the probe's captured environment into world space (see LightProbe.setRotation)
+float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Roughness, vec4 diffuseColor, vec4 specularColor, float ndotv, vec3 ao, mat4 lightProbeData, mat3 lightProbeRotation, vec3 shCoeffs[9],samplerCube prefEnvMap, inout vec3 color ){
 
     // lightProbeData is a mat4 with this layout
     //   3x3 rot mat|
@@ -263,10 +264,14 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
         #endif
     }
 
+    // into the probe's environment space; for a rotation the transpose is the inverse, and v * M multiplies by it
+    vec3 probeNormal = normal * lightProbeRotation;
+    vec3 probeRv = rv * lightProbeRotation;
+
     vec3 indirectDiffuse = vec3(0.0);
     vec3 indirectSpecular = vec3(0.0);
-    indirectDiffuse = sphericalHarmonics(normal.xyz, shCoeffs) * diffuseColor.rgb;
-    vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness * Roughness );
+    indirectDiffuse = sphericalHarmonics(probeNormal, shCoeffs) * diffuseColor.rgb;
+    vec3 dominantR = getSpecularDominantDir( probeNormal, probeRv, Roughness * Roughness );
     indirectSpecular = ApproximateSpecularIBLPolynomial(prefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
 
     #ifdef HORIZON_FADE
@@ -284,4 +289,9 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
 
     color = indirectLighting * step( 0.0, probePos.w);
     return ndf;
+}
+
+// for shaders written before probes could be rotated
+float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Roughness, vec4 diffuseColor, vec4 specularColor, float ndotv, vec3 ao, mat4 lightProbeData,vec3 shCoeffs[9],samplerCube prefEnvMap, inout vec3 color ){
+    return renderProbe(viewDir, worldPos, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, lightProbeData, mat3(1.0), shCoeffs, prefEnvMap, color);
 }

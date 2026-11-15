@@ -37,6 +37,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.Quaternion;
@@ -56,6 +57,10 @@ import java.io.IOException;
  * <p>
  * This is particularly useful for attaching lights to animated characters,
  * moving vehicles, or dynamically controlled objects.
+ * </p>
+ * <p>
+ * A {@link LightProbe} is synchronized with the spatial's full rotation, not a
+ * single direction, so the axis settings do not apply to it.
  * </p>
  *
  * @author Tim
@@ -103,7 +108,7 @@ public class LightControl extends AbstractControl {
      *
      * @param light The light to be synced.
      * @throws IllegalArgumentException if the light type is not supported
-     * (only Point, Directional, and Spot lights are supported).
+     * (only Point, Directional, Spot and Probe lights are supported).
      */
     public LightControl(Light light) {
         validateSupportedLightType(light);
@@ -116,7 +121,7 @@ public class LightControl extends AbstractControl {
      * @param light The light to be synced.
      * @param controlDir The direction of synchronization (SpatialToLight or LightToSpatial).
      * @throws IllegalArgumentException if the light type is not supported
-     * (only Point, Directional, and Spot lights are supported).
+     * (only Point, Directional, Spot and Probe lights are supported).
      */
     public LightControl(Light light, ControlDirection controlDir) {
         validateSupportedLightType(light);
@@ -166,6 +171,7 @@ public class LightControl extends AbstractControl {
             case Point:
             case Directional:
             case Spot:
+            case Probe:
                 // These types are supported, validation passes.
                 break;
             default:
@@ -218,6 +224,11 @@ public class LightControl extends AbstractControl {
             SpotLight sl = (SpotLight) light;
             sl.setPosition(worldPosition);
             sl.setDirection(lightDirection);
+
+        } else if (light instanceof LightProbe) {
+            LightProbe probe = (LightProbe) light;
+            probe.setPosition(worldPosition);
+            probe.setRotation(spatial.getWorldRotation());
         }
         vars.release();
     }
@@ -234,6 +245,7 @@ public class LightControl extends AbstractControl {
         Vector3f lightDirection = vars.vect2;
         Quaternion rotation = vars.quat1;
         boolean rotateSpatial = false;
+        boolean orientSpatial = false;
         boolean translateSpatial = false;
 
         if (light instanceof PointLight) {
@@ -258,6 +270,13 @@ public class LightControl extends AbstractControl {
             }
             translateSpatial = true;
             rotateSpatial = true;
+
+        } else if (light instanceof LightProbe) {
+            LightProbe probe = (LightProbe) light;
+            lightPosition.set(probe.getPosition());
+            rotation.set(probe.getRotation());
+            translateSpatial = true;
+            orientSpatial = true;
         }
 
         // Transform light's world properties to spatial's parent's local space
@@ -267,11 +286,18 @@ public class LightControl extends AbstractControl {
             vars.tempMat4.rotateVect(lightPosition);
             vars.tempMat4.translateVect(lightPosition);
             vars.tempMat4.rotateVect(lightDirection);
+            if (orientSpatial) {
+                Quaternion parentRotation = vars.quat2.set(spatial.getParent().getWorldRotation());
+                rotation.set(parentRotation.inverseLocal().multLocal(rotation));
+            }
         }
 
         // Apply transformed properties to spatial's local transformation
         if (rotateSpatial) {
             rotation.lookAt(lightDirection, Vector3f.UNIT_Y).normalizeLocal();
+            spatial.setLocalRotation(rotation);
+        }
+        if (orientSpatial) {
             spatial.setLocalRotation(rotation);
         }
         if (translateSpatial) {

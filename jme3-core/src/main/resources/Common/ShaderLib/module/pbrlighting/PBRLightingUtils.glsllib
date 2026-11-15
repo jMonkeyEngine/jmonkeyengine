@@ -173,16 +173,19 @@
             uniform samplerCube g_PrefEnvMap;
             uniform vec3 g_ShCoeffs[9];
             uniform mat4 g_LightProbeData;
+            uniform mat3 g_LightProbeRotation;
         #endif
         #if NB_PROBES >= 2
             uniform samplerCube g_PrefEnvMap2;
             uniform vec3 g_ShCoeffs2[9];
             uniform mat4 g_LightProbeData2;
+            uniform mat3 g_LightProbeRotation2;
         #endif
         #if NB_PROBES == 3
             uniform samplerCube g_PrefEnvMap3;
             uniform vec3 g_ShCoeffs3[9];
             uniform mat4 g_LightProbeData3;
+            uniform mat3 g_LightProbeRotation3;
         #endif
     #endif
 
@@ -660,7 +663,7 @@
                         vec4(surface.specularColor, 1.0), 
                         surface.NdotV, 
                         surface.ao, 
-                        g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
+                        g_LightProbeData, g_LightProbeRotation, g_ShCoeffs, g_PrefEnvMap, color1);
                 #if NB_PROBES >= 2
                     float ndf2 = renderProbe(
                         surface.viewDir, 
@@ -673,6 +676,7 @@
                         surface.NdotV, 
                         surface.ao, 
                         g_LightProbeData2, 
+                        g_LightProbeRotation2, 
                         g_ShCoeffs2, 
                         g_PrefEnvMap2, 
                         color2);
@@ -689,6 +693,7 @@
                         surface.NdotV, 
                         surface.ao,  
                         g_LightProbeData3, 
+                        g_LightProbeRotation3, 
                         g_ShCoeffs3, 
                         g_PrefEnvMap3, 
                         color3);

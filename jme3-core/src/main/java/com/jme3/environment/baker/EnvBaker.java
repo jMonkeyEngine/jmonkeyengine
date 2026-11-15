@@ -33,6 +33,7 @@
 package com.jme3.environment.baker;
 
 import java.util.function.Predicate;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -59,6 +60,20 @@ public interface EnvBaker {
      *            A filter to select which geometries to bake
      */
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter);
+
+    /**
+     * Bakes the environment as seen by a camera with the given orientation, so the cubemap is in that rotated space
+     * (as a rotated {@link com.jme3.light.LightProbe} expects). Bakers that do not support this only accept the
+     * identity rotation.
+     *
+     * @param rotation the orientation of the captured cubemap in world space
+     */
+    public default void bakeEnvironment(Spatial scene, Vector3f position, Quaternion rotation, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
+        if (!rotation.isIdentity()) {
+            throw new UnsupportedOperationException(getClass().getName() + " does not support baking with a rotation");
+        }
+        bakeEnvironment(scene, position, frustumNear, frustumFar, filter);
+    }
 
     /**
      * Gets the environment map.
