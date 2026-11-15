@@ -155,6 +155,7 @@ public class CursorConverter {
      * @param frameDelay the time delay that will take for a cursor to change from one frame to another.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      * 
+     * @throws IllegalArgumentException if cursorFrame array is empty.
      * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      */
     public JmeCursor fromTextureFrames(Texture2D[] cursorFrames, int frameDelay) {
@@ -179,6 +180,8 @@ public class CursorConverter {
      * @param frameDelays the time delay that will take for a cursor to change from one frame to another.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      * 
+     * @throws IllegalArgumentException if cursorFrame array is empty.
+     * @throws IllegalArgumentException if frameDelays array is empty.
      * @throws IllegalArgumentException if the lenghts of cursorFrames and frameDelays arrays doesn't match.
      * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      */
@@ -208,6 +211,7 @@ public class CursorConverter {
      *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      * 
+     * @throws IllegalArgumentException if cursorFrame array is empty.
      * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      * @throws IllegalArgumentException if the specified hotspots are outside the images's sizes.
      */
@@ -241,6 +245,8 @@ public class CursorConverter {
      *                 OpenGL. 0, 0 being lower left. Must be between 0 and image height.
      * @return a {@link JmeCursor} object that contains the data for an animated cursor.
      * 
+     * @throws IllegalArgumentException if cursorFrame array is empty.
+     * @throws IllegalArgumentException if frameDelays array is empty.
      * @throws IllegalArgumentException if the lenghts of cursorFrames and frameDelays arrays doesn't match.
      * @throws IllegalArgumentException if images inside cursorFrames array have different sizes.
      * @throws IllegalArgumentException if the specified hotspots are outside the images's sizes.
@@ -250,6 +256,19 @@ public class CursorConverter {
             int[] frameDelays, 
             int xHotspot, 
             int yHotspot) {
+
+        if (cursorFrames.length == 0) {
+            throw new IllegalArgumentException(
+                    "CursorFrames array must not be empty"
+            );
+        }
+
+        if (frameDelays.length == 0) {
+                throw new IllegalArgumentException(
+                    "FrameDelays array must not be empty"
+            );
+        };
+
         if (frameDelays.length != cursorFrames.length) {
             throw new IllegalArgumentException(
                     "The lengths of cursorFrames and frameDelays arrays must be equal"
