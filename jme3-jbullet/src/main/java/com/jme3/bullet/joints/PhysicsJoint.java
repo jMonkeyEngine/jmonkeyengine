@@ -41,6 +41,7 @@ import java.io.IOException;
  * <p>PhysicsJoint - Basic Physics Joint</p>
  * @author normenhansen
  */
+@Deprecated
 public abstract class PhysicsJoint implements Savable {
 
     protected TypedConstraint constraint;

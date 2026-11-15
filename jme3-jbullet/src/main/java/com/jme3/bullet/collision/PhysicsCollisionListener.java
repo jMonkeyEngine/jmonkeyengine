@@ -39,6 +39,7 @@ package com.jme3.bullet.collision;
  *
  * @author normenhansen
  */
+@Deprecated
 public interface PhysicsCollisionListener {
 
     /**

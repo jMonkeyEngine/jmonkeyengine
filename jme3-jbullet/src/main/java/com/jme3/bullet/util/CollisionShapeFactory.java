@@ -50,6 +50,7 @@ import java.util.LinkedList;
  *
  * @author normenhansen, tim8dev
  */
+@Deprecated
 public class CollisionShapeFactory {
     /**
      * A private constructor to inhibit instantiation of this class.

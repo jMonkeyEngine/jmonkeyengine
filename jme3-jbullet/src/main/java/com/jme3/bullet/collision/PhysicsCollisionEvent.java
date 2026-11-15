@@ -43,6 +43,7 @@ import java.util.EventObject;
  * Get/reference all data you need in the collide method.
  * @author normenhansen
  */
+@Deprecated
 public class PhysicsCollisionEvent extends EventObject {
 
     public static final int TYPE_ADDED = 0;

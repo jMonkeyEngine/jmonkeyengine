@@ -48,6 +48,7 @@ import java.nio.ByteBuffer;
  * Basic mesh collision shape
  * @author normenhansen
  */
+@Deprecated
 public class GImpactCollisionShape extends CollisionShape{
 
     protected Vector3f worldScale;
