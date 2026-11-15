@@ -939,7 +939,13 @@ public class DOMInputCapsule implements InputCapsule {
             if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                 Element elem = (Element) n;
                 currentElement = elem;
-                int key = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key"));
+                String keyString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key");
+                int key;
+                try {
+                    key = Integer.parseInt(keyString);
+                } catch (NumberFormatException nfe) {
+                    throw new IOException("Invalid integer key '" + keyString + "' in map '" + name + "'", nfe);
+                }
                 Savable val = readSavable("Savable", null);
                 ret.put(key, val);
             }
