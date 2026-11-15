@@ -1027,9 +1027,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             int width  = mode.getWidth();
             int height = mode.getHeight();
             int rate   = mode.getRefreshRate();
+            int bitDepth = Math.max(0, mode.getBitDepth());
 
             displays.addNewMonitor(i + 1);
-            displays.setInfo(i, gd.getIDstring(), width, height, rate);
+            displays.setInfo(i, gd.getIDstring(), width, height, rate, bitDepth);
 
             if (defaultgd.equals(gd)) {
                 displays.setPrimaryDisplay(i);
