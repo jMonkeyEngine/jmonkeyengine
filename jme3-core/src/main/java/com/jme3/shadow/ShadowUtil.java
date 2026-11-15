@@ -36,9 +36,11 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
+import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -48,7 +50,10 @@ import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Includes various useful shadow mapping functions.
@@ -60,6 +65,51 @@ import java.util.List;
  * </ul> for more info.
  */
 public class ShadowUtil {
+
+    /**
+     * Runs render controls for shadow casters and their ancestors. Each shadow
+     * map queues its casters directly, bypassing the normal scene traversal that
+     * invokes controls before queuing visible spatials. The identity set ensures
+     * that each spatial's controls run only once for this shadow map. Controls
+     * run with the shadow camera active, while receiving the owning viewport.
+     * Forced material and technique settings are temporarily cleared so controls
+     * can inspect or update caster materials, then restored even if a control
+     * throws.
+     *
+     * @param shadowCasters the geometries queued for a shadow map (not null)
+     * @param renderManager the render manager (not null)
+     * @param viewPort the viewport that owns the shadow renderer (not null)
+     */
+    static void runControlRenderForShadowCasters(GeometryList shadowCasters,
+            RenderManager renderManager, ViewPort viewPort) {
+        Material forcedMaterial = renderManager.getForcedMaterial();
+        String forcedTechnique = renderManager.getForcedTechnique();
+        renderManager.setForcedMaterial(null);
+        renderManager.setForcedTechnique(null);
+        try {
+            Set<Spatial> renderedSpatials = Collections.newSetFromMap(new IdentityHashMap<>());
+            for (Geometry caster : shadowCasters) {
+                runControlRenderForShadowCaster(caster, renderManager, viewPort, renderedSpatials);
+            }
+        } finally {
+            renderManager.setForcedMaterial(forcedMaterial);
+            renderManager.setForcedTechnique(forcedTechnique);
+        }
+    }
+
+    private static void runControlRenderForShadowCaster(Spatial spatial, RenderManager renderManager,
+            ViewPort viewPort, Set<Spatial> renderedSpatials) {
+        if (renderedSpatials.contains(spatial)) {
+            return;
+        }
+        Spatial parent = spatial.getParent();
+        if (parent != null) {
+            runControlRenderForShadowCaster(parent, renderManager, viewPort, renderedSpatials);
+        }
+        if (renderedSpatials.add(spatial)) {
+            spatial.runControlRender(renderManager, viewPort);
+        }
+    }
 
     /**
      * A private constructor to inhibit instantiation of this class.
