@@ -60,6 +60,11 @@ import java.util.logging.Logger;
  * <p>
  * The light probe has an area of effect centered on its position. It can have a Spherical area or an Oriented Box area
  * <p>
+ * A light probe also has a rotation in world space: the orientation of its captured environment. Rotating a probe
+ * turns the lighting and reflections it gives, which is useful when the environment the probe was captured from is
+ * itself rotated (for example a probe captured from a sky that is later turned). Like the position, it can be kept in
+ * step with a spatial using a {@link com.jme3.scene.control.LightControl}.
+ * <p>
  * A LightProbe will only be taken into account when it's marked as ready and enabled.
  * A light probe is ready when it has valid environment map data set.
  * Note that you should never call setReady yourself.
@@ -79,6 +84,8 @@ public class LightProbe extends Light implements Savable {
     private ProbeArea area = new SphereProbeArea(Vector3f.ZERO, 1.0f);
     private boolean ready = false;
     private Vector3f position = new Vector3f();
+    private Quaternion rotation = new Quaternion();
+    private Matrix3f rotationMatrix = new Matrix3f();
     private int nbMipMaps;
 
     public enum AreaType{
@@ -163,6 +170,7 @@ public class LightProbe extends Light implements Savable {
         oc.write(shCoefficients, "shCoeffs", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
         oc.write(position, "position", null);
+        oc.write(rotation, "rotation", Quaternion.IDENTITY);
         oc.write(area, "area", new SphereProbeArea(Vector3f.ZERO, 1.0f));
         oc.write(ready, "ready", false);
         oc.write(nbMipMaps, "nbMipMaps", 0);
@@ -182,6 +190,8 @@ public class LightProbe extends Light implements Savable {
             area = new SphereProbeArea(bounds.getCenter(), bounds.getRadius());
         }
         area.setCenter(position);
+        rotation = (Quaternion) ic.readSavable("rotation", new Quaternion());
+        rotation.toRotationMatrix(rotationMatrix);
         nbMipMaps = ic.readInt("nbMipMaps", 0);
         ready = ic.readBoolean("ready", false);
 
@@ -218,6 +228,7 @@ public class LightProbe extends Light implements Savable {
                 break;
             case OrientedBox:
                 area = new OrientedBoxProbeArea(new Transform());
+                ((OrientedBoxProbeArea) area).setRotation(rotation);
                 break;
         }
         area.setCenter(position);
@@ -274,6 +285,47 @@ public class LightProbe extends Light implements Savable {
         area.setCenter(position);
     }
 
+    /**
+     * Returns the rotation of the LightProbe in world space: the orientation of its captured environment.
+     *
+     * @return the world-space rotation (not a copy, do not modify)
+     */
+    public Quaternion getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Sets the rotation of the LightProbe in world space. This turns the environment the probe lights with (both its
+     * irradiance and its prefiltered reflections). The probe is treated as a rigid whole, so an oriented box area is
+     * turned by the same change in rotation, just as {@link #setPosition(Vector3f)} moves the area. The box keeps any
+     * rotation it already had (for example a box aligned with the walls of a room that was not built on the world
+     * axes); the box's own rotation remains world space.
+     * <p>
+     * Probes are captured in world axes, so a newly captured probe has the identity rotation.
+     *
+     * @param rotation the world-space rotation (not null, unaffected)
+     */
+    public void setRotation(Quaternion rotation) {
+        if (area instanceof OrientedBoxProbeArea) {
+            OrientedBoxProbeArea box = (OrientedBoxProbeArea) area;
+            // carry the box through the same rigid turn (new * inverse(old)), keeping any rotation it already had
+            Quaternion boxRotation = rotation.mult(this.rotation.inverse()).multLocal(box.getRotation()).normalizeLocal();
+            box.setRotation(boxRotation);
+        }
+        this.rotation.set(rotation);
+        this.rotation.toRotationMatrix(rotationMatrix);
+    }
+
+    /**
+     * Returns the rotation to send to the shader, as a matrix taking directions from the probe's captured
+     * environment into world space.
+     *
+     * @return the pre-existing matrix
+     */
+    public Matrix3f getUniformRotationMatrix() {
+        return rotationMatrix;
+    }
+
     public int getNbMipMaps() {
         return nbMipMaps;
     }
@@ -313,10 +365,19 @@ public class LightProbe extends Light implements Savable {
     }
 
     @Override
+    public LightProbe clone() {
+        LightProbe probe = (LightProbe) super.clone();
+        probe.rotation = rotation.clone();
+        probe.rotationMatrix = rotationMatrix.clone();
+        return probe;
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName()
                 + "[name=" + name
                 + ", position=" + position
+                + ", rotation=" + rotation
                 + ", area=" + area
                 + ", enabled=" + enabled
                 + "]";

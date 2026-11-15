@@ -133,6 +133,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform lightProbeData2 = shader.getUniform("g_LightProbeData2");
         Uniform lightProbeData3 = shader.getUniform("g_LightProbeData3");
 
+        // Matrix3f
+        Uniform lightProbeRotation = shader.getUniform("g_LightProbeRotation");
+        Uniform lightProbeRotation2 = shader.getUniform("g_LightProbeRotation2");
+        Uniform lightProbeRotation3 = shader.getUniform("g_LightProbeRotation3");
+
         Uniform shCoeffs = shader.getUniform("g_ShCoeffs");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
         Uniform shCoeffs2 = shader.getUniform("g_ShCoeffs2");
@@ -153,14 +158,14 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         //If there is a lightProbe in the list we force its render on the first pass
         if (!lightProbes.isEmpty()) {
             LightProbe lightProbe = lightProbes.get(0);
-            lastTexUnit = setProbeData(rm, lastTexUnit, lightProbeData, shCoeffs, lightProbePemMap, lightProbe);
+            lastTexUnit = setProbeData(rm, lastTexUnit, lightProbeData, lightProbeRotation, shCoeffs, lightProbePemMap, lightProbe);
             if (lightProbes.size() > 1) {
                 lightProbe = lightProbes.get(1);
-                lastTexUnit = setProbeData(rm, lastTexUnit, lightProbeData2, shCoeffs2, lightProbePemMap2, lightProbe);
+                lastTexUnit = setProbeData(rm, lastTexUnit, lightProbeData2, lightProbeRotation2, shCoeffs2, lightProbePemMap2, lightProbe);
             }
             if (lightProbes.size() > 2) {
                 lightProbe = lightProbes.get(2);
-                setProbeData(rm, lastTexUnit, lightProbeData3, shCoeffs3, lightProbePemMap3, lightProbe);
+                setProbeData(rm, lastTexUnit, lightProbeData3, lightProbeRotation3, shCoeffs3, lightProbePemMap3, lightProbe);
             }
         } else {
             //Disable IBL for this pass
@@ -244,9 +249,10 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         return curIndex;
     }
 
-    private int setProbeData(RenderManager rm, int lastTexUnit, Uniform lightProbeData, Uniform shCoeffs,
-            Uniform lightProbePemMap, LightProbe lightProbe) {
+    private int setProbeData(RenderManager rm, int lastTexUnit, Uniform lightProbeData, Uniform lightProbeRotation,
+            Uniform shCoeffs, Uniform lightProbePemMap, LightProbe lightProbe) {
         lightProbeData.setValue(VarType.Matrix4, lightProbe.getUniformMatrix());
+        lightProbeRotation.setValue(VarType.Matrix3, lightProbe.getUniformRotationMatrix());
         //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
         shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
         /*
