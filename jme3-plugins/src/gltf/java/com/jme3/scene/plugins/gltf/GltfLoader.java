@@ -64,9 +64,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1336,8 +1338,19 @@ public class GltfLoader implements AssetLoader {
             // no skins, no bone animation.
             return;
         }
-        List<JsonArray> allJoints = new ArrayList<>();
+        // An unused skin must not cause its joints to be interpreted as armature nodes.
+        Set<Integer> usedSkinIndices = new HashSet<>();
+        for (JsonElement node : nodes) {
+            Integer skinIndex = getAsInteger(node.getAsJsonObject(), "skin");
+            if (skinIndex != null) {
+                usedSkinIndices.add(skinIndex);
+            }
+        }
+        Map<JsonArray, SkinData> allJoints = new HashMap<>();
         for (int index = 0; index < skins.size(); index++) {
+            if (!usedSkinIndices.contains(index)) {
+                continue;
+            }
             JsonObject skin = skins.get(index).getAsJsonObject();
 
             // Note that the "skeleton" index is intentionally ignored.
@@ -1347,14 +1360,11 @@ public class GltfLoader implements AssetLoader {
 
             JsonArray jsonJoints = skin.getAsJsonArray("joints");
             assertNotNull(jsonJoints, "No joints defined for skin");
-            int idx = allJoints.indexOf(jsonJoints);
-            if (idx >= 0) {
+            SkinData existingSkin = allJoints.get(jsonJoints);
+            if (existingSkin != null) {
                 // skin already exists let's just set it in the cache
-                SkinData sd = fetchFromCache("skins", idx, SkinData.class);
-                addToCache("skins", index, sd, nodes.size());
+                addToCache("skins", index, existingSkin, nodes.size());
                 continue;
-            } else {
-                allJoints.add(jsonJoints);
             }
 
             // These inverse bind matrices, once inverted again,
@@ -1388,6 +1398,7 @@ public class GltfLoader implements AssetLoader {
             skinData.joints = joints;
             skinData.skinningControl = new SkinningControl(armature);
             skinData.animComposer = new AnimComposer();
+            allJoints.put(jsonJoints, skinData);
             addToCache("skins", index, skinData, nodes.size());
             skinnedSpatials.put(skinData, new ArrayList<Spatial>());
 
