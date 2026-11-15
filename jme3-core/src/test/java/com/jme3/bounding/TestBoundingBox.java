@@ -31,7 +31,9 @@
  */
 package com.jme3.bounding;
 
+import com.jme3.collision.CollisionResults;
 import com.jme3.math.FastMath;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,45 @@ public class TestBoundingBox {
         Assertions.assertEquals(0f, box.distanceToEdge(new Vector3f(8f, -2f, 7f)), 0f);
         Assertions.assertEquals(3f, box.distanceToEdge(new Vector3f(11f, -2f, 7f)), 0f);
         Assertions.assertEquals(6f, box.distanceToEdge(new Vector3f(10f, -15f, 24f)), FastMath.ZERO_TOLERANCE);
+    }
+
+    /**
+     * Verify that rounding near a corner does not make a ray miss a flat box.
+     */
+    @Test
+    public void testRayHitsFlatBoxCornerDespiteRounding() {
+        BoundingBox box = new BoundingBox(new Vector3f(3.1f, -2.7f, 0f), 2.3f, 1.7f, 0f);
+        // Rounded unit ray aimed at the box corner (5.4f, -1f, 0f).
+        Ray ray = new Ray(
+                new Vector3f(-64.89913940429688f, 22.252037048339844f, 51.55126953125f),
+                new Vector3f(0.7791723608970642f, -0.2577178478240967f, -0.571377158164978f));
+
+        CollisionResults results = new CollisionResults();
+        Assertions.assertEquals(1, box.collideWith(ray, results));
+        Assertions.assertEquals(1, results.size());
+        Assertions.assertTrue(
+                box.distanceToEdge(results.getClosestCollision().getContactPoint()) < 1e-4f);
+
+        // Exercise the opposite clipping direction as well.
+        ray.setOrigin(new Vector3f(-64.89913940429688f, 22.252037048339844f, -51.55126953125f));
+        ray.setDirection(new Vector3f(0.7791723608970642f, -0.2577178478240967f, 0.571377158164978f));
+        Assertions.assertEquals(1, box.collideWith(ray));
+
+        // A larger offset remains a miss.
+        ray.setOrigin(new Vector3f(-64.88913940429688f, 22.252037048339844f, -51.55126953125f));
+        Assertions.assertEquals(0, box.collideWith(ray));
+    }
+
+    /**
+     * Verify that tolerance for flat-box clipping does not admit a parallel ray
+     * that is outside the box's plane.
+     */
+    @Test
+    public void testParallelRayOutsideFlatBoxPlaneDoesNotCollide() {
+        BoundingBox box = new BoundingBox(Vector3f.ZERO, 1f, 1f, 0f);
+        Ray ray = new Ray(new Vector3f(0f, 0f, 0.0000001f), Vector3f.UNIT_X);
+
+        Assertions.assertEquals(0, box.collideWith(ray));
     }
 
     /**
