@@ -31,13 +31,55 @@
  */
 package com.jme3.export.binary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 class BinaryClassObject {
 
-    // When exporting, use nameFields field, importing use aliasFields.
+    // nameFields holds the first alias for each field name; the remaining aliases
+    // are needed when a dynamic Savable writes that name with another type.
     HashMap<String, BinaryClassField> nameFields;
     HashMap<Byte, BinaryClassField> aliasFields;
+    final ArrayList<BinaryClassField> additionalFields = new ArrayList<>();
+    final HashSet<String> fieldNamesWithMultipleAliases = new HashSet<>();
+
+    BinaryClassField getField(String name, byte type) {
+        BinaryClassField field = nameFields.get(name);
+        if (field != null && field.type == type) {
+            return field;
+        }
+        for (BinaryClassField additionalField : additionalFields) {
+            if (additionalField.name.equals(name) && additionalField.type == type) {
+                return additionalField;
+            }
+        }
+        return null;
+    }
+
+    BinaryClassField addField(String name, byte type) {
+        // Field aliases are stored as one byte in the binary format.
+        byte fieldAlias = (byte) (nameFields.size() + additionalFields.size());
+        BinaryClassField field = new BinaryClassField(name, fieldAlias, type);
+        if (nameFields.containsKey(name)) {
+            additionalFields.add(field);
+            fieldNamesWithMultipleAliases.add(name);
+        } else {
+            nameFields.put(name, field);
+        }
+        return field;
+    }
+
+    int getFieldCount() {
+        return nameFields.size() + additionalFields.size();
+    }
+
+    ArrayList<BinaryClassField> getFields() {
+        ArrayList<BinaryClassField> fields = new ArrayList<>(getFieldCount());
+        fields.addAll(nameFields.values());
+        fields.addAll(additionalFields);
+        return fields;
+    }
     
     byte[] alias;
     String className;

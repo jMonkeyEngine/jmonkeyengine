@@ -225,13 +225,13 @@ public class BinaryExporter implements JmeExporter {
             classTableSize += 4 + classBytes.length;
 
             // for each field, write alias, type, and name
-            os.write(ByteUtils.convertToBytes(bco.nameFields.size())); // 7. "number of fields"
-            for (String fieldName : bco.nameFields.keySet()) {
-                BinaryClassField bcf = bco.nameFields.get(fieldName);
+            ArrayList<BinaryClassField> fields = bco.getFields();
+            os.write(ByteUtils.convertToBytes(fields.size())); // 7. "number of fields"
+            for (BinaryClassField bcf : fields) {
                 os.write(bcf.alias);                                   // 8. "field alias"
                 os.write(bcf.type);                                    // 9. "field type"
 
-                byte[] fNameBytes = fieldName.getBytes();
+                byte[] fNameBytes = bcf.name.getBytes();
                 os.write(ByteUtils.convertToBytes(fNameBytes.length)); // 10. "field-name size"
                 os.write(fNameBytes);                                  // 11. "field name"
                 classTableSize += 2 + 4 + fNameBytes.length;
