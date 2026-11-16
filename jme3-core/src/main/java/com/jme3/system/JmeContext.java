@@ -156,6 +156,21 @@ public interface JmeContext {
     public boolean isCreated();
 
     /**
+     * Tests whether the current thread is the context's main thread. This is
+     * the thread that invokes the {@link SystemListener} callbacks and owns
+     * context lifecycle operations.
+     * <p>
+     * Context implementations should override this when they can identify
+     * their callback thread. The default is false for compatibility with
+     * existing implementations.
+     *
+     * @return true if called from the context's main thread, otherwise false
+     */
+    default boolean isMainThread() {
+        return false;
+    }
+
+    /**
      * @return True if the context contains a valid render surface,
      * if any of the rendering methods in {@link Renderer} are called
      * while this is <code>false</code>, then the result is undefined.
@@ -185,6 +200,9 @@ public interface JmeContext {
      * Destroys the context completely, making it inactive.
      *
      * @param waitFor If true, will wait until the context is destroyed fully.
+     *                Waiting is ignored when invoked from the context's main
+     *                thread, since that thread must continue running to finish
+     *                destruction.
      */
     public void destroy(boolean waitFor);
 
