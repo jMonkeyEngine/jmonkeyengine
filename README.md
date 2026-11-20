@@ -112,6 +112,9 @@ These build requirements are separate from the engine's Java 11 runtime minimum.
 
 After a successful build,
 fresh JARs will be found in "*/build/libs".
+Normal builds skip the per-module source and Javadoc archives unless another task
+needs them. Use `./gradlew -PbuildJavaDoc=true build` for a complete set of archives.
+Publishing and distribution tasks always include them.
 
 You can install the JARs to your local Maven repository:
 + using Bash or Fish or PowerShell or Zsh: `./gradlew install`

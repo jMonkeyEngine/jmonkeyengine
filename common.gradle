@@ -3,7 +3,11 @@
 //
 
 apply plugin: 'java-library'
-apply plugin: 'groovy'
+
+def groovySourcePresent = project.file('src/main/groovy').exists() || project.file('src/test/groovy').exists()
+if (groovySourcePresent) {
+    apply plugin: 'groovy'
+}
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'eclipse'
@@ -26,7 +30,7 @@ java {
 
 apply plugin: 'org.jmonkeyengine.nativeimage'
 
-tasks.withType(JavaCompile) { // compile-time options:
+tasks.withType(JavaCompile).configureEach { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
     options.compilerArgs.addAll(['-Xlint:unchecked', '-Xlint:-options', '-Werror'])
     options.encoding = 'UTF-8'
@@ -58,7 +62,9 @@ dependencies {
     testImplementation libs.junit.jupiter
     testImplementation libs.mokito.core
     testImplementation libs.mokito.junit.jupiter
-    testImplementation libs.groovy.test
+    if (groovySourcePresent) {
+        testImplementation libs.groovy.test
+    }
     testRuntimeOnly libs.junit.platform.launcher
 }
 
@@ -81,7 +87,7 @@ jar {
     }
 }
 
-javadoc {
+tasks.named('javadoc', Javadoc) {
     def javadocErrorsEnabled = rootProject.findProperty('enableJavadocError') == 'true'
     failOnError = javadocErrorsEnabled
     if (javadocErrorsEnabled) {
@@ -108,14 +114,18 @@ test {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
+def sourcesJar = tasks.register('sourcesJar', Jar) {
+    dependsOn 'classes'
+    description = 'Creates a jar from the source files.'
     archiveClassifier = 'sources'
     from sourceSets*.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from the javadoc files.') {
+def javadocJar = tasks.register('javadocJar', Jar) {
+    dependsOn 'javadoc'
+    description = 'Creates a jar from the javadoc files.'
     archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
+    from tasks.named('javadoc', Javadoc).map { it.destinationDir }
 }
 
 ext.pomConfig = {
@@ -144,9 +154,8 @@ ext.pomConfig = {
 }
 
 tasks.named('assemble') {
-    dependsOn sourcesJar
     if (buildJavaDoc == "true") {
-        dependsOn javadocJar
+        dependsOn sourcesJar, javadocJar
     }
 }
 
@@ -219,8 +228,10 @@ if (!isScreenshotTestProject) {
         }
     }
 
-    publishToMavenLocal.doLast {
-        println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"
+    tasks.named('publishToMavenLocal') {
+        doLast {
+            println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"
+        }
     }
 
     signing {
@@ -230,12 +241,12 @@ if (!isScreenshotTestProject) {
 
         sign publishing.publications.maven
     }
-    tasks.withType(Sign) {
+    tasks.withType(Sign).configureEach {
         onlyIf { gradle.rootProject.hasProperty('signingKey') }
     }
 }
 
-task('install') {
+tasks.register('install') {
     dependsOn 'publishToMavenLocal'
 }
 
@@ -254,7 +265,7 @@ checkstyleTest {
     source ='src/test/java'
 }
 
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
     enabled = checkstyleSupported
     reports {
         xml.required.set(false)

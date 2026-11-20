@@ -139,6 +139,9 @@ Run the Gradle wrapper:
 
 After a successful build,
 snapshot jars will be found in the "*/build/libs" subfolders.
+Normal builds skip the per-module source and Javadoc archives unless another task
+needs them. Use `./gradlew -PbuildJavaDoc=true build` for a complete set of archives.
+Publishing and distribution tasks always include them.
 
 ### Related Gradle tasks
 
