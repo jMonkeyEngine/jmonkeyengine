@@ -43,9 +43,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * The main serializer class, which will serialize objects such that
@@ -68,6 +70,17 @@ public abstract class Serializer {
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
+    
+    // Predicate-based registry for dynamic serializer resolution
+    private static class PredicateRegistration {
+        final Predicate<Class<?>> predicate;
+        final Serializer serializer;
+        PredicateRegistration(Predicate<Class<?>> p, Serializer s) {
+            this.predicate = p;
+            this.serializer = s;
+        }
+    }
+    private static final List<PredicateRegistration> predicateSerializers = new ArrayList<>();
 
     private static short nextAvailableId = -2; // historically the first ID was always -2
 
@@ -95,7 +108,8 @@ public abstract class Serializer {
         // Reset all of the indices and tracking variables just in case
         idRegistrations.clear();
         classRegistrations.clear();
-        registrations.clear();        
+        registrations.clear();
+        predicateSerializers.clear();       
 
         nextAvailableId = -2; // historically the first ID was always -2
 
@@ -278,17 +292,37 @@ public abstract class Serializer {
             short classId = serializable.id();
             if (classId == 0) classId = nextId();
 
-            Serializer serializer = getSerializer(serializerClass, false);
+            Serializer serializer = null;
 
-            if (serializer == null) serializer = fieldSerializer;
+            // ignore both FieldSerializer and Serializer defaults.
+            if (serializerClass != null && serializerClass != FieldSerializer.class && serializerClass != Serializer.class) {
+                try {
+                    // Directly instantiate the custom serializer
+                    serializer = (Serializer) serializerClass.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    log.log(Level.SEVERE, "Could not instantiate explicit custom serializer: " + serializerClass, e);
+                }
+            }
+            
+            // no explicit custom serializer was requested
+            if (serializer == null) {
+                for (PredicateRegistration pr : predicateSerializers) {
+                    if (pr.predicate.test(cls)) {
+                        serializer = pr.serializer;
+                        break;
+                    }
+                }
+            }
+
+            // Fallback to standard resolution if no predicate matched
+            if (serializer == null) {
+                serializer = fieldSerializer;
+            }
 
             SerializerRegistration existingReg = getExactSerializerRegistration(cls);
-
             if (existingReg != null) classId = existingReg.getId();
             
-            SerializerRegistration reg = new SerializerRegistration(serializer, cls, classId);
-
-            return registerClassForId( classId, cls, serializer );
+            return registerClassForId(classId, cls, serializer);
         }
         if (failOnMiss) {
             throw new IllegalArgumentException( "Class is not marked @Serializable:" + cls );            
@@ -465,7 +499,20 @@ public abstract class Serializer {
         if( failOnMiss ) {
             throw new IllegalArgumentException( "Class has not been registered:" + cls );
         }
-        return registerClass(cls, fieldSerializer);
+        
+        // check predicates for auto-registration fallback
+        Serializer fallbackSerializer = null;
+        for (PredicateRegistration pr : predicateSerializers) {
+            if (pr.predicate.test(cls)) {
+                fallbackSerializer = pr.serializer;
+                break;
+            }
+        }
+        if (fallbackSerializer == null) {
+            fallbackSerializer = fieldSerializer;
+        }
+        
+        return registerClass(cls, fallbackSerializer);
     }
 
 
@@ -550,6 +597,24 @@ public abstract class Serializer {
         } 
 
         reg.getSerializer().writeObject(buffer, object);
+    }
+    
+    /**
+     * Registers a predicate-based dynamic serializer. 
+     * <p>
+     * <b>Important Ordering Behavior:</b> Predicates are evaluated in registration order 
+     * using a <b>first-match-wins</b> strategy. Furthermore, predicates only affect classes 
+     * registered <i>afterwards</i>; any classes already registered prior to this call will 
+     * not be re-evaluated against the predicate.
+     * 
+     * @param predicate the condition used to match classes dynamically
+     * @param serializer the serializer instance to assign when the predicate matches
+     */
+    public static void registerSerializerPredicate(Predicate<Class<?>> predicate, Serializer serializer) {
+        if (locked) {
+            throw new RuntimeException("Serializer registry locked trying to register predicate");
+        }
+        predicateSerializers.add(new PredicateRegistration(predicate, serializer));
     }
 
     /**
