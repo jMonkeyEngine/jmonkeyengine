@@ -463,9 +463,23 @@ When arrays can be inserted in J3M files
     @Override
     public String toString() {
         if (value != null) {
-            return type.name() + " " + name + " : " + getValueAsString();
-        } else {
-            return type.name() + " " + name;
+            String valueAsString = getValueAsString();
+            if (valueAsString == null) {
+                valueAsString = valueToString(value);
+            }
+            return type.name() + " " + name + " : " + valueAsString;
         }
+        return type.name() + " " + name;
+    }
+
+    private static String valueToString(Object value) {
+        if (value instanceof Object[]) {
+            return Arrays.deepToString((Object[]) value);
+        } else if (value instanceof int[]) {
+            return Arrays.toString((int[]) value);
+        } else if (value instanceof float[]) {
+            return Arrays.toString((float[]) value);
+        }
+        return value.toString();
     }
 }
