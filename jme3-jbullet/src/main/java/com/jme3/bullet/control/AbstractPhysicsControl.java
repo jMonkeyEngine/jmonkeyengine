@@ -54,6 +54,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public abstract class AbstractPhysicsControl implements PhysicsControl, JmeCloneable {
 
     /**

@@ -42,6 +42,7 @@ import com.jme3.scene.control.Control;
  *
  * @author normenhansen
  */
+@Deprecated
 public interface PhysicsControl extends Control {
 
     /**

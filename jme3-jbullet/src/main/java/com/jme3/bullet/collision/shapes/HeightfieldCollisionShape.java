@@ -53,6 +53,7 @@ import java.io.IOException;
  * 
  * @author Brent Owens
  */
+@Deprecated
 public class HeightfieldCollisionShape extends CollisionShape {
 
     //protected HeightfieldTerrainShape heightfieldShape;

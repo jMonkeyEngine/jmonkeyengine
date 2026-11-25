@@ -47,6 +47,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
+@Deprecated
 public class ConeCollisionShape extends CollisionShape {
 
     protected float radius;
