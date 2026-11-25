@@ -32,6 +32,7 @@
 package com.jme3.scene.control;
 
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.renderer.Camera;
 
 /**
  * <code>AreaUtils</code> is used to calculate the area of various objects, such as bounding volumes.  These
@@ -59,5 +60,19 @@ public class AreaUtils {
     */
     public static float calcScreenArea(BoundingVolume bound, float distance, float screenWidth) {
         return com.jme3.util.AreaUtils.calcScreenArea(bound, distance, screenWidth);
+    }
+
+    /**
+     * Estimate screen area using a camera's projection and viewport dimensions.
+     *
+     * @param bound the bounds to calculate the area from (not null)
+     * @param distance the absolute view depth of the bounds center, ignored for
+     *     parallel cameras
+     * @param camera the camera whose projection and viewport dimensions are
+     *     used (not null)
+     * @return the estimated area in pixels
+     */
+    public static float calcScreenArea(BoundingVolume bound, float distance, Camera camera) {
+        return com.jme3.util.AreaUtils.calcScreenArea(bound, distance, camera);
     }
 }
