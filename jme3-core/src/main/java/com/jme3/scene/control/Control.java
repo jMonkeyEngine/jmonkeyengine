@@ -71,7 +71,17 @@ public interface Control extends Savable {
     public void update(float tpf);
 
     /**
-     * Should be called prior to queuing the spatial by the RenderManager. This
+     * Called during normal viewport scene traversal before queuing the spatial.
+     * Shadow rendering also calls this once per shadow-map pass that queues the
+     * controlled spatial as a caster or queues one of its descendants. These
+     * additional calls may follow a normal viewport callback, so a control can
+     * receive multiple render callbacks in a frame. Controls on shared ancestors
+     * are called once per shadow-map pass.
+     *
+     * For a shadow-map callback, {@code rm}'s current camera is the shadow camera,
+     * while {@code vp} remains the viewport that owns the shadow renderer. The
+     * render manager's forced material and technique are temporarily cleared
+     * during these calls and restored before the shadow map is rendered. This
      * should not be called from user code.
      *
      * @param rm the caller (not null)
