@@ -74,6 +74,7 @@ public class IGLESContext implements JmeContext {
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
+    private volatile Thread mainThread;
     protected AppSettings settings = new AppSettings(true);
     protected boolean autoFlush = true;
     protected int framebufferWidth;
@@ -280,6 +281,7 @@ public class IGLESContext implements JmeContext {
         //createdLock.notifyAll();
         //}
 
+        mainThread = Thread.currentThread();
         listener.initialize();
         renderable.set(true);
         if (framebufferWidth > 0 && framebufferHeight > 0) {
@@ -434,6 +436,7 @@ public class IGLESContext implements JmeContext {
         renderable.set(false);
         destroyLinearFrameBufferResources();
         if (listener != null) {
+            mainThread = Thread.currentThread();
             listener.destroy();
         }
         created.set(false);
@@ -451,6 +454,11 @@ public class IGLESContext implements JmeContext {
 
     public void destroy() {
         destroy(true);
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return mainThread == Thread.currentThread();
     }
 
     protected void waitFor(boolean createdVal) {

@@ -266,6 +266,11 @@ public class AwtPanelsContext implements JmeContext {
     }
 
     @Override
+    public boolean isMainThread() {
+        return actualContext != null && actualContext.isMainThread();
+    }
+
+    @Override
     public void setTitle(String title) {
         // not relevant, ignore
     }

@@ -89,6 +89,7 @@ public class LegacyApplication implements Application, SystemListener {
     protected ViewPort guiViewPort;
 
     protected JmeContext context;
+    private volatile Thread contextThread;
     protected AppSettings settings;
     protected Timer timer = new NanoTimer();
     protected Camera cam;
@@ -510,6 +511,7 @@ public class LegacyApplication implements Application, SystemListener {
         }
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        contextThread = null;
         context = JmeSystem.newContext(settings, contextType);
         context.setSystemListener(this);
         context.create(waitFor);
@@ -565,6 +567,7 @@ public class LegacyApplication implements Application, SystemListener {
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         }
+        contextThread = null;
         context = JmeSystem.newContext(settings, JmeContext.Type.Canvas);
         context.setSystemListener(this);
     }
@@ -655,14 +658,19 @@ public class LegacyApplication implements Application, SystemListener {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
+     * If called from the context's main thread, the request is always
+     * non-blocking to avoid waiting for that same thread to finish shutdown.
      *
      * @param waitFor true&rarr;wait for the context to be fully destroyed,
-     * false&rarr;don't wait
+     * false&rarr;don't wait; ignored on the context's main thread
      */
     @Override
     public void stop(boolean waitFor) {
         logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
-        context.destroy(waitFor);
+        JmeContext currentContext = context;
+        boolean onContextThread = currentContext.isMainThread()
+                || Thread.currentThread() == contextThread;
+        currentContext.destroy(waitFor && !onContextThread);
     }
 
     /**
@@ -677,6 +685,7 @@ public class LegacyApplication implements Application, SystemListener {
      */
     @Override
     public void initialize() {
+        contextThread = Thread.currentThread();
         if (assetManager == null) {
             initAssetManager();
         }

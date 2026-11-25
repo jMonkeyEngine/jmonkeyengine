@@ -238,9 +238,12 @@ public interface Application {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
-     * 
-     @param waitFor true&rarr;wait for the context to be fully destroyed,
-     * false&rarr;don't wait
+     * If called from the context's main thread, this request never blocks;
+     * shutdown continues after the current callback returns.
+     *
+     * @param waitFor true&rarr;wait for the context to be fully destroyed
+     *                (unless called from the context's main thread),
+     *                false&rarr;don't wait
      */
     public void stop(boolean waitFor);
 

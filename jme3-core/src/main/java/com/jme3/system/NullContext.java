@@ -51,6 +51,7 @@ public class NullContext implements JmeContext, Runnable {
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
+    private volatile Thread mainThread;
 
     protected int frameRate;
     protected AppSettings settings = new AppSettings(true);
@@ -104,11 +105,15 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     protected void deinitInThread() {
-        listener.destroy();
-        timer = null;
-        synchronized (createdLock) {
-            created.set(false);
-            createdLock.notifyAll();
+        try {
+            listener.destroy();
+        } finally {
+            timer = null;
+            synchronized (createdLock) {
+                created.set(false);
+                createdLock.notifyAll();
+            }
+            mainThread = null;
         }
     }
 
@@ -144,25 +149,34 @@ public class NullContext implements JmeContext, Runnable {
 
     @Override
     public void run() {
-        initInThread();
+        mainThread = Thread.currentThread();
+        try {
+            initInThread();
 
-        do {
-            listener.update();
+            do {
+                listener.update();
 
-            if (frameRate > 0) {
-                sync(frameRate);
+                if (frameRate > 0) {
+                    sync(frameRate);
+                }
+            } while (!needClose.get());
+        } finally {
+            if (created.get()) {
+                deinitInThread();
             }
-        } while (!needClose.get());
-
-        deinitInThread();
-
-        logger.fine("NullContext destroyed.");
+            logger.fine("NullContext destroyed.");
+        }
     }
 
     @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
-        if (waitFor) waitFor(false);
+        if (waitFor && !isMainThread()) waitFor(false);
+    }
+
+    @Override
+    public boolean isMainThread() {
+        return mainThread == Thread.currentThread();
     }
 
     @Override
