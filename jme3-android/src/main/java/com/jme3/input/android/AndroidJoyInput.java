@@ -33,6 +33,7 @@ package com.jme3.input.android;
 
 import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
+import android.view.View;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
@@ -238,10 +239,15 @@ public class AndroidJoyInput implements JoyInput {
 
     public boolean onTouch(MotionEvent event) {
         VirtualJoystick joystick = virtualJoystick;
-        if (joystick == null || inputHandler.getView() == null) {
+        View view = inputHandler.getView();
+        if (joystick == null || view == null) {
             return false;
         }
 
+        // Touch positions are view pixels; joystick hitboxes are in GUI camera units.
+        int width = view.getWidth();
+        int height = view.getHeight();
+        boolean hasSurface = width > 0 && height > 0;
         boolean consumed = false;
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
@@ -251,21 +257,20 @@ public class AndroidJoyInput implements JoyInput {
         switch (action) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
-                consumed = joystick.onPointerDown(event.getPointerId(pointerIndex),
-                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                consumed = hasSurface && joystick.onNormalizedPointerDown(event.getPointerId(pointerIndex),
+                        event.getX(pointerIndex) / width, 1f - event.getY(pointerIndex) / height, time);
                 break;
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-                consumed = joystick.onPointerUp(event.getPointerId(pointerIndex),
-                        toJmeX(event.getX(pointerIndex)), toJmeY(event.getY(pointerIndex)), time);
+                consumed = joystick.onPointerUp(event.getPointerId(pointerIndex), time);
                 break;
             case MotionEvent.ACTION_CANCEL:
                 consumed = joystick.onPointerCancel(time);
                 break;
             case MotionEvent.ACTION_MOVE:
-                for (int i = 0; i < event.getPointerCount(); i++) {
-                    consumed = joystick.onPointerMove(event.getPointerId(i),
-                            toJmeX(event.getX(i)), toJmeY(event.getY(i)), time) || consumed;
+                for (int i = 0; hasSurface && i < event.getPointerCount(); i++) {
+                    consumed = joystick.onNormalizedPointerMove(event.getPointerId(i),
+                            event.getX(i) / width, 1f - event.getY(i) / height, time) || consumed;
                 }
                 break;
             default:
@@ -303,14 +308,6 @@ public class AndroidJoyInput implements JoyInput {
             virtualJoystick.dispatchEvents(listener);
         }
 
-    }
-
-    private float toJmeX(float x) {
-        return inputHandler.touchInput.getJmeX(x);
-    }
-
-    private float toJmeY(float y) {
-        return inputHandler.touchInput.invertY(inputHandler.touchInput.getJmeY(y));
     }
 
     protected void setPhysicalJoystickAvailable(boolean available) {
