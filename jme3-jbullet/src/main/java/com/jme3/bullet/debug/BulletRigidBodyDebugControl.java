@@ -88,6 +88,7 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
         oldScale.set(myShape.getScale());
 
         this.geom = DebugShapeFactory.getDebugShape(myShape);
+        cacheCompoundChildren(myShape);
         this.geom.setName(body.toString());
         geom.setMaterial(debugAppState.DEBUG_BLUE);
     }
@@ -122,7 +123,8 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
     protected void controlUpdate(float tpf) {
         CollisionShape newShape = body.getCollisionShape();
         Vector3f newScale = newShape.getScale();
-        if (myShape != newShape || !oldScale.equals(newScale)) {
+        if (myShape != newShape || !oldScale.equals(newScale)
+                || haveCompoundChildrenChanged(newShape)) {
             myShape = newShape;
             oldScale.set(newScale);
 
@@ -130,6 +132,7 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
             node.detachChild(geom);
 
             geom = DebugShapeFactory.getDebugShape(myShape);
+            cacheCompoundChildren(myShape);
             geom.setName(body.toString());
 
             node.attachChild(geom);
