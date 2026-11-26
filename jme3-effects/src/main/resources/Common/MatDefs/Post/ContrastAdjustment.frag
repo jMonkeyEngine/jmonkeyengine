@@ -64,7 +64,7 @@ varying vec2 texCoord;
 
 void main() {
     //get the color from a 2d sampler.
-    vec4 color = texture2D(m_Texture, texCoord);
+    vec4 color = getColor(m_Texture, texCoord);
 
     //apply the color transfer function.
 

@@ -2108,8 +2108,15 @@ public final class GLRenderer implements Renderer {
             }
         }
 
+        if (context.boundShaderProgram == shader.getId()) {
+            // Deleting a current program alone merely flags it for deletion.
+            gl.glUseProgram(0);
+            context.boundShaderProgram = 0;
+            context.boundShader = null;
+        }
         gl.glDeleteProgram(shader.getId());
         statistics.onDeleteShader();
+        objManager.unregisterObject(shader);
         shader.resetObject();
     }
 
@@ -3521,10 +3528,11 @@ public final class GLRenderer implements Renderer {
         if (bufferObject.isUpdateNeeded()) {
             updateShaderStorageBufferObjectData(bufferObject);
         }
-        if (context.boundBO[bindingPoint] == null || context.boundBO[bindingPoint].get() != bufferObject) {
+        if (context.boundSsbo[bindingPoint] == null
+                || context.boundSsbo[bindingPoint].get() != bufferObject) {
             bindShaderStorageBufferBase(bindingPoint, bufferObject.getId());
             bufferObject.setBinding(bindingPoint);
-            context.boundBO[bindingPoint] = bufferObject.getWeakRef();
+            context.boundSsbo[bindingPoint] = bufferObject.getWeakRef();
         }
         bufferObject.setBinding(bindingPoint);
 
@@ -3817,6 +3825,8 @@ public final class GLRenderer implements Renderer {
             intBuf1.put(0, bufId);
             intBuf1.position(0).limit(1);
             gl.glDeleteBuffers(intBuf1);
+            invalidateBufferBindings(bufId, true);
+            objManager.unregisterObject(vb);
             vb.resetObject();
 
             //statistics.onDeleteVertexBuffer();
@@ -3836,8 +3846,49 @@ public final class GLRenderer implements Renderer {
         intBuf1.flip();
 
         gl.glDeleteBuffers(intBuf1);
-
+        invalidateBufferBindings(bufferId, false);
+        objManager.unregisterObject(bo);
         bo.resetObject();
+    }
+
+    private void invalidateBufferBindings(int bufferId, boolean clearAttributes) {
+        if (context.boundArrayVBO == bufferId) {
+            context.boundArrayVBO = 0;
+        }
+        if (context.boundElementArrayVBO == bufferId) {
+            context.boundElementArrayVBO = 0;
+        }
+        if (context.boundPixelPackPBO == bufferId) {
+            context.boundPixelPackPBO = 0;
+        }
+        for (int i = 0; i < context.boundBO.length; i++) {
+            WeakReference<BufferObject> uniform = context.boundBO[i];
+            BufferObject uniformBuffer = uniform == null ? null : uniform.get();
+            if (uniform != null && (uniformBuffer == null || uniformBuffer.getId() == bufferId)) {
+                context.boundBO[i] = null;
+            }
+            WeakReference<BufferObject> storage = context.boundSsbo[i];
+            BufferObject storageBuffer = storage == null ? null : storage.get();
+            if (storage != null && (storageBuffer == null || storageBuffer.getId() == bufferId)) {
+                context.boundSsbo[i] = null;
+            }
+        }
+        if (clearAttributes) {
+            // Interleaved attributes retain their logical VB, not the backing
+            // buffer ID. Invalidate the finite attribute cache conservatively.
+            // Enabled arrays stay enabled; the next draw refreshes pointers.
+            for (int i = 0; i < context.boundAttribs.length; i++) {
+                WeakReference<VertexBuffer> ref = context.boundAttribs[i];
+                // A GC cleanup clone need not retain instance metadata, and
+                // the cached weak referent may already have been collected.
+                if (ref != null && caps.contains(Caps.MeshInstancing)) {
+                    glext.glVertexAttribDivisorARB(i, 0);
+                    context.boundAttribDivisors[i] = 0;
+                    vertexAttribDivisorsInvalid[i] = false;
+                }
+                context.boundAttribs[i] = null;
+            }
+        }
     }
 
     public void clearVertexAttribs() {
@@ -4156,10 +4207,6 @@ public final class GLRenderer implements Renderer {
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
-        // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed
-        count = Math.max(mesh.getInstanceCount(), count);
-
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
@@ -4209,7 +4256,8 @@ public final class GLRenderer implements Renderer {
             return;
         }
 
-        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
+        int instanceCount = Math.max(mesh.getInstanceCount(), count);
+        if (instanceCount > 1 && !caps.contains(Caps.MeshInstancing)) {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
@@ -4221,11 +4269,11 @@ public final class GLRenderer implements Renderer {
         if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
-        statistics.onMeshDrawn(mesh, lod, count);
+        statistics.onMeshDrawn(mesh, lod, instanceCount);
 //        if (ctxCaps.GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-        renderMeshDefault(mesh, lod, count, instanceData);
+        renderMeshDefault(mesh, lod, instanceCount, instanceData);
 //        }
     }
 
@@ -4294,6 +4342,14 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("GPU timer queries are not supported by the current renderer");
         }
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
+    }
+
+    @Override
+    public boolean isGpuTimingDisjoint() {
+        if (!caps.contains(Caps.GpuTimerQuery)) {
+            throw new RendererException("GPU timer queries are not supported by the current renderer");
+        }
+        return gl.isGpuTimingDisjoint();
     }
 
     @Override
@@ -4369,6 +4425,7 @@ public final class GLRenderer implements Renderer {
     public void deleteFence(GLFence fence) {
         if(gl4 != null && fence.getId() != NativeObject.INVALID_ID){
             gl4.glDeleteSync(fence);
+            objManager.unregisterObject(fence);
             fence.resetObject();
         }
     }

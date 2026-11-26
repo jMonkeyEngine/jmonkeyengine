@@ -7,7 +7,7 @@ attribute vec4 inTexCoord;
 
 varying vec4 color;
 
-#ifdef USE_TEXTURE
+#if defined(USE_TEXTURE) || defined(HAS_GLOWMAP)
 varying vec4 texCoord;
 #endif
 
@@ -26,7 +26,7 @@ void main(){
     gl_Position = g_WorldViewProjectionMatrix * pos;
     color = inColor;
 
-    #ifdef USE_TEXTURE
+    #if defined(USE_TEXTURE) || defined(HAS_GLOWMAP)
         texCoord = inTexCoord;
     #endif
 

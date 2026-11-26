@@ -15,6 +15,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import org.lwjgl.opengles.GLES;
+import org.lwjgl.opengles.GLESCapabilities;
 import org.lwjgl.opengles.GLES20;
 import org.lwjgl.opengles.GLES30;
 import org.lwjgl.opengles.EXTDisjointTimerQuery;
@@ -33,6 +34,32 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
 
     @Override
     public void resetStats() {
+    }
+
+    @Override
+    public boolean supportsGpuTimerQuery() {
+        GLESCapabilities capabilities = GLES.getCapabilities();
+        return capabilities.GL_EXT_disjoint_timer_query
+                && hasQueryFunction(capabilities.glGenQueries, capabilities.glGenQueriesEXT)
+                && hasQueryFunction(capabilities.glBeginQuery, capabilities.glBeginQueryEXT)
+                && hasQueryFunction(capabilities.glEndQuery, capabilities.glEndQueryEXT)
+                && hasQueryFunction(capabilities.glGetQueryObjectuiv, capabilities.glGetQueryObjectuivEXT)
+                && capabilities.glGetQueryObjectui64vEXT != MemoryUtil.NULL
+                && capabilities.glGetIntegerv != MemoryUtil.NULL;
+    }
+
+    @Override
+    public boolean isGpuTimingDisjoint() {
+        GLESCapabilities capabilities = GLES.getCapabilities();
+        if (!capabilities.GL_EXT_disjoint_timer_query
+                || capabilities.glGetIntegerv == MemoryUtil.NULL) {
+            throw new UnsupportedOperationException("GPU timer disjoint state requires GL_EXT_disjoint_timer_query");
+        }
+        return GLES20.glGetInteger(EXTDisjointTimerQuery.GL_GPU_DISJOINT_EXT) != 0;
+    }
+
+    private static boolean hasQueryFunction(long coreFunction, long extensionFunction) {
+        return coreFunction != MemoryUtil.NULL || extensionFunction != MemoryUtil.NULL;
     }
 
     public static void checkLimit(Buffer buffer) {
@@ -546,10 +573,15 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
             if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
                 throw new UnsupportedOperationException("GL_TIME_ELAPSED requires GL_EXT_disjoint_timer_query");
             }
-            EXTDisjointTimerQuery.glBeginQueryEXT(target, query);
-            return;
         }
-        GLES30.glBeginQuery(target, query);
+        GLESCapabilities capabilities = GLES.getCapabilities();
+        if (capabilities.glBeginQuery != MemoryUtil.NULL) {
+            GLES30.glBeginQuery(target, query);
+        } else if (capabilities.glBeginQueryEXT != MemoryUtil.NULL) {
+            EXTDisjointTimerQuery.glBeginQueryEXT(target, query);
+        } else {
+            throw new UnsupportedOperationException("Query begin is not available");
+        }
     }
 
     @Override
@@ -558,10 +590,15 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
             if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
                 throw new UnsupportedOperationException("GL_TIME_ELAPSED requires GL_EXT_disjoint_timer_query");
             }
-            EXTDisjointTimerQuery.glEndQueryEXT(target);
-            return;
         }
-        GLES30.glEndQuery(target);
+        GLESCapabilities capabilities = GLES.getCapabilities();
+        if (capabilities.glEndQuery != MemoryUtil.NULL) {
+            GLES30.glEndQuery(target);
+        } else if (capabilities.glEndQueryEXT != MemoryUtil.NULL) {
+            EXTDisjointTimerQuery.glEndQueryEXT(target);
+        } else {
+            throw new UnsupportedOperationException("Query end is not available");
+        }
     }
 
     @Override
@@ -570,27 +607,39 @@ public class LwjglGLES extends LwjglRender implements GL, GL2, GLES_30, GLExt, G
         int oldLimit = buff.limit();
         int pos = buff.position();
         buff.limit(pos + num);
-        if (GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
-            EXTDisjointTimerQuery.glGenQueriesEXT(buff);
-        } else {
-            GLES30.glGenQueries(buff);
+        try {
+            GLESCapabilities capabilities = GLES.getCapabilities();
+            if (capabilities.glGenQueries != MemoryUtil.NULL) {
+                GLES30.glGenQueries(buff);
+            } else if (capabilities.glGenQueriesEXT != MemoryUtil.NULL) {
+                EXTDisjointTimerQuery.glGenQueriesEXT(buff);
+            } else {
+                throw new UnsupportedOperationException("Query generation is not available");
+            }
+        } finally {
+            buff.limit(oldLimit);
         }
-        buff.limit(oldLimit);
     }
 
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
-        if (GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
-            return EXTDisjointTimerQuery.glGetQueryObjectiEXT(query, pname);
-        }
+        GLESCapabilities capabilities = GLES.getCapabilities();
         IntBuffer b = (IntBuffer) tmpBuff.clear();
-        GLES30.glGetQueryObjectuiv(query, pname, b); 
+        if (capabilities.glGetQueryObjectuiv != MemoryUtil.NULL) {
+            GLES30.glGetQueryObjectuiv(query, pname, b);
+        } else if (capabilities.glGetQueryObjectuivEXT != MemoryUtil.NULL) {
+            EXTDisjointTimerQuery.glGetQueryObjectuivEXT(query, pname, b);
+        } else {
+            throw new UnsupportedOperationException("Query result retrieval is not available");
+        }
         return b.get(0);
     }
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        if (!GLES.getCapabilities().GL_EXT_disjoint_timer_query) {
+        GLESCapabilities capabilities = GLES.getCapabilities();
+        if (!capabilities.GL_EXT_disjoint_timer_query
+                || capabilities.glGetQueryObjectui64vEXT == MemoryUtil.NULL) {
             throw new UnsupportedOperationException("64-bit query results require GL_EXT_disjoint_timer_query");
         }
         return EXTDisjointTimerQuery.glGetQueryObjectui64EXT(query, pname);

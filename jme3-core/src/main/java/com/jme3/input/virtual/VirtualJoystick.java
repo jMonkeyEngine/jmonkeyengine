@@ -208,6 +208,22 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     /**
+     * Processes a pointer-down event in normalized surface coordinates.
+     *
+     * @param pointerId the pointer identifier
+     * @param x the horizontal position, relative to the left edge
+     * @param y the vertical position, relative to the bottom edge
+     * @param time the input event time
+     * @return true if the pointer was captured by a virtual control
+     */
+    public boolean onNormalizedPointerDown(int pointerId, float x, float y, long time) {
+        synchronized (inputLock) {
+            return visualWidth > 0 && visualHeight > 0
+                    && onPointerDown(pointerId, x * visualWidth, y * visualHeight, time);
+        }
+    }
+
+    /**
      * Processes a pointer-move event.
      *
      * @return true if the pointer is captured by a virtual control
@@ -226,11 +242,37 @@ public class VirtualJoystick extends AbstractJoystick {
     }
 
     /**
+     * Processes a pointer-move event in normalized surface coordinates.
+     *
+     * @param pointerId the pointer identifier
+     * @param x the horizontal position, relative to the left edge
+     * @param y the vertical position, relative to the bottom edge
+     * @param time the input event time
+     * @return true if the pointer is captured by a virtual control
+     */
+    public boolean onNormalizedPointerMove(int pointerId, float x, float y, long time) {
+        synchronized (inputLock) {
+            return onPointerMove(pointerId, x * visualWidth, y * visualHeight, time);
+        }
+    }
+
+    /**
      * Processes a pointer-up event.
      *
      * @return true if the pointer was captured by a virtual control
      */
     public boolean onPointerUp(int pointerId, float x, float y, long time) {
+        return onPointerUp(pointerId, time);
+    }
+
+    /**
+     * Releases a captured pointer regardless of where it was released.
+     *
+     * @param pointerId the pointer identifier
+     * @param time the input event time
+     * @return true if the pointer was captured by a virtual control
+     */
+    public boolean onPointerUp(int pointerId, long time) {
         synchronized (inputLock) {
             Capture capture = captures.remove(pointerId);
             if (capture == null) {

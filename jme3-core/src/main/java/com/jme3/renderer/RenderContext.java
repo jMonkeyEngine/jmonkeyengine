@@ -274,12 +274,14 @@ public class RenderContext {
 
 
     /**
-     * Current bound buffer object IDs for each buffer object unit.
+     * Current uniform-buffer bindings for each indexed binding point.
      *
      * @see Renderer#setUniformBufferObject(int, com.jme3.shader.BufferObject)
-     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.BufferObject)
      */
     public final WeakReference<BufferObject>[] boundBO = newWeakReferenceArray(maxBufferObjectUnits);
+
+    /** Shader-storage indexed bindings, independent of uniform-buffer bindings. */
+    public final WeakReference<BufferObject>[] boundSsbo = newWeakReferenceArray(maxBufferObjectUnits);
 
     /**
      * IDList for texture units.
@@ -464,6 +466,11 @@ public class RenderContext {
         }
 
         textureIndexList.reset();
+
+        for (int i = 0; i < boundBO.length; i++) {
+            boundBO[i] = null;
+            boundSsbo[i] = null;
+        }
 
         for (int i = 0; i < boundAttribs.length; i++) {
             boundAttribs[i] = null;

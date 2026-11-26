@@ -347,8 +347,8 @@ public class FastMathTest {
         assertEquals((short)-1024, FastMath.convertFloatToHalf(Float.NEGATIVE_INFINITY));
         assertEquals((short)31744, FastMath.convertFloatToHalf(Float.POSITIVE_INFINITY));
         assertEquals((short)-1025, FastMath.convertFloatToHalf(-131328.0f));
-        assertEquals((short)-32767, FastMath.convertFloatToHalf(-0x1p-135f));
-        assertEquals((short)1, FastMath.convertFloatToHalf(0x1.008p-71f));
+        assertEquals((short)0x8000, FastMath.convertFloatToHalf(-0x1p-135f));
+        assertEquals((short)0, FastMath.convertFloatToHalf(0x1.008p-71f));
         assertEquals((short)31743, FastMath.convertFloatToHalf(0x1.008p+121f));
         assertEquals((short)0, FastMath.convertFloatToHalf(0.0f));
     }
@@ -358,7 +358,7 @@ public class FastMathTest {
         assertEquals(Float.POSITIVE_INFINITY, FastMath.convertHalfToFloat((short)31744), 0.0f);
         assertEquals(0.0f, FastMath.convertHalfToFloat((short)0), 0.0f);
         assertEquals(65504.0f, FastMath.convertHalfToFloat((short)31743), 0.0f);
-        assertEquals(-65536.0f, FastMath.convertHalfToFloat((short)-1024), 0.0f);
+        assertEquals(Float.NEGATIVE_INFINITY, FastMath.convertHalfToFloat((short)-1024), 0.0f);
         assertEquals(-65504.0f, FastMath.convertHalfToFloat((short)-1025), 0.0f);
     }
 

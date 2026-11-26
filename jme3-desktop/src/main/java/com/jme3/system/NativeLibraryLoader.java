@@ -39,7 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -309,15 +309,9 @@ public final class NativeLibraryLoader {
 
     private static List<DirectoryCandidate> getExtractionCandidates() {
         configureNativeProperties();
-        List<DirectoryCandidate> candidates = new ArrayList<>(
-                NativeDirectories.candidates("jme3", NativeLibraryLoader::getOperatingSystem));
         File custom = getCustomExtractionFolder();
-        if (custom != null) {
-            Path customPath = custom.toPath();
-            candidates.removeIf(candidate -> candidate.root().equals(customPath.toAbsolutePath().normalize()));
-            candidates.add(0, new DirectoryCandidate(customPath, "jme3", getOperatingSystem()));
-        }
-        return candidates;
+        List<Path> preferred = custom == null ? Collections.emptyList() : Collections.singletonList(custom.toPath());
+        return NativeDirectories.candidates("jme3", preferred, NativeLibraryLoader::getOperatingSystem);
     }
 
     private static void configureNativeProperties() {

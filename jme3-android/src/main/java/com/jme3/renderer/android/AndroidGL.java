@@ -280,12 +280,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public void glCompressedTexImage2D(int target, int level, int internalformat, int width, int height, int border, ByteBuffer data) {
-        GLES20.glCompressedTexImage2D(target, level, internalformat, width, height, 0, getLimitBytes(data), data);
+        GLES20.glCompressedTexImage2D(target, level, internalformat, width, height, 0, getRemainingBytes(data), data);
     }
 
     @Override
     public void glCompressedTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, ByteBuffer data) {
-        GLES20.glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, getLimitBytes(data), data);
+        GLES20.glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, getRemainingBytes(data), data);
     }
 
     @Override
@@ -842,13 +842,13 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
                                            int border, ByteBuffer data) {
-        GLES30.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getLimitBytes(data), data);
+        GLES30.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getRemainingBytes(data), data);
     }
 
     @Override
     public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
                                               int height, int depth, int format, ByteBuffer data) {
-        GLES30.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, getLimitBytes(data), data);
+        GLES30.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, getRemainingBytes(data), data);
     }
 
     @Override

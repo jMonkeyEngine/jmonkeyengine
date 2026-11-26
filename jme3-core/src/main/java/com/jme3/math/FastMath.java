@@ -1124,67 +1124,72 @@ public final class FastMath {
     }
 
     /**
-     * Converts a single precision (32 bit) floating point value
-     * into half precision (16 bit).
+     * Decodes an IEEE 754 binary16 value into single precision. Subnormal values,
+     * signed zeros, infinities and NaNs retain their numerical classification.
      *
-     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf">
-     * ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
-     *
-     * @param half The half floating point value as a short.
-     * @return floating point value of the half.
+     * @param half the binary16 bits, encoded in a short
+     * @return the decoded value
      */
     public static float convertHalfToFloat(short half) {
-        switch ((int) half) {
-            case 0x0000:
-                return 0f;
-            case 0x8000:
-                return -0f;
-            case 0x7c00:
-                return Float.POSITIVE_INFINITY;
-            case 0xfc00:
-                return Float.NEGATIVE_INFINITY;
-            // TODO: Support for NaN?
-            default:
-                return Float.intBitsToFloat(((half & 0x8000) << 16)
-                        | (((half & 0x7c00) + 0x1C000) << 13)
-                        | ((half & 0x03FF) << 13));
+        int bits = half & 0xffff;
+        int sign = (bits & 0x8000) << 16;
+        int exponent = (bits >>> 10) & 0x1f;
+        int fraction = bits & 0x03ff;
+        if (exponent == 0) {
+            if (fraction == 0) {
+                return Float.intBitsToFloat(sign);
+            }
+            // Every binary16 subnormal is an exact integer multiple of 2^-24.
+            float value = Math.scalb((float) fraction, -24);
+            return sign == 0 ? value : -value;
         }
+        int floatExponent = exponent == 0x1f ? 0xff : exponent + 112;
+        return Float.intBitsToFloat(sign | (floatExponent << 23) | (fraction << 13));
     }
 
     /**
-     * Convert a single-precision (32-bit) floating-point value
-     * to half precision.
+     * Converts single precision to binary16 using round-to-nearest, ties-to-even.
+     * Signed zeros and infinities are preserved; finite overflow saturates to the
+     * largest finite value, retaining the historical overflow policy.
      *
      * @param flt the input value (not a NaN)
-     * @return a near-equivalent value in half precision
+     * @return the binary16 bits, encoded in a short
      * @throws UnsupportedOperationException if flt is a NaN
      */
     public static short convertFloatToHalf(float flt) {
         if (Float.isNaN(flt)) {
             throw new UnsupportedOperationException("NaN to half conversion not supported!");
-        } else if (flt == Float.POSITIVE_INFINITY) {
-            return (short) 0x7c00;
-        } else if (flt == Float.NEGATIVE_INFINITY) {
-            return (short) 0xfc00;
-        } else if (flt == 0f) {
-            return (short) 0x0000;
-        } else if (flt == -0f) {
-            return (short) 0x8000;
-        } else if (flt > 65504f) {
-            // max value supported by half float
-            return 0x7bff;
-        } else if (flt < -65504f) {
-            return (short) (0x7bff | 0x8000);
-        } else if (flt > 0f && flt < 3.054738E-5f) {
-            return 0x0001;
-        } else if (flt < 0f && flt > -3.054738E-5f) {
-            return (short) 0x8001;
         }
-
-        int f = Float.floatToIntBits(flt);
-        return (short) (((f >> 16) & 0x8000)
-                | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
-                | ((f >> 13) & 0x03ff));
+        int bits = Float.floatToRawIntBits(flt);
+        int sign = (bits >>> 16) & 0x8000;
+        int magnitude = bits & 0x7fffffff;
+        if (magnitude == 0x7f800000) {
+            return (short) (sign | 0x7c00);
+        }
+        if (Math.abs(flt) > 65504f) {
+            return (short) (sign | 0x7bff);
+        }
+        int exponent = (magnitude >>> 23) - 127 + 15;
+        int fraction = magnitude & 0x007fffff;
+        if (exponent >= 1) {
+            // The low 13 bits are discarded. Adding half minus one plus the
+            // retained low bit rounds exactly halfway cases to an even result.
+            int rounded = fraction + 0x0fff + ((fraction >>> 13) & 1);
+            return (short) (sign | ((exponent << 10) + (rounded >>> 13)));
+        }
+        if (exponent < -10) {
+            return (short) sign;
+        }
+        int significand = fraction | 0x00800000;
+        int shift = 14 - exponent;
+        int retained = significand >>> shift;
+        int discarded = significand & ((1 << shift) - 1);
+        int midpoint = 1 << (shift - 1);
+        if (discarded > midpoint || (discarded == midpoint && (retained & 1) != 0)) {
+            retained++;
+        }
+        // A carry of 0x400 naturally becomes the smallest normal binary16 value.
+        return (short) (sign | retained);
     }
 
     /**
