@@ -1606,6 +1606,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     ib.put(0, id);
                     ib.clear().limit(1);
                     al.alDeleteBuffers(1, ib);
+                    // Prevent the manager's clone from later deleting this native name again.
+                    objManager.unregisterObject(ab);
                     ab.resetObject(); // Mark as deleted on JME side
                 }
             } else if (audioData instanceof AudioStream) {
