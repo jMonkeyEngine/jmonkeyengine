@@ -36,7 +36,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -46,7 +45,9 @@ import java.nio.file.attribute.AclEntryType;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.stream.Stream;
 import com.jme3.nativebootstrap.common.OperatingSystem;
 import com.jme3.nativebootstrap.directories.NativeDirectories;
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,10 +84,11 @@ class NativeLibraryExtractionTest {
                     () -> createDirectory(shared));
             assertTrue(failure.getCause().getMessage().contains(shared.toRealPath().toString()));
         } finally {
-            try (DirectoryStream<Path> children = Files.newDirectoryStream(shared)) {
-                for (Path child : children) Files.deleteIfExists(child);
+            try (Stream<Path> paths = Files.walk(shared)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
             }
-            Files.deleteIfExists(shared);
         }
     }
 

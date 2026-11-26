@@ -36,6 +36,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.jme3.nativebootstrap.common.OperatingSystem;
+import com.jme3.nativebootstrap.directories.DirectoryCandidate;
+import com.jme3.nativebootstrap.directories.NativeDirectories;
 import com.jme3.util.res.Resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,6 +52,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,13 +73,12 @@ class NativeLibraryLoaderExtractionTest {
     private final Map<String, Object> fields = new HashMap<>();
     private Path tmp;
     private Path home;
+    private Path cache;
 
     @BeforeEach
     void isolateLoaderState() throws Exception {
-        NativeLibraryLoader.isExtractNativeLibraries(); // Initialize the global namespace before saving properties.
-        properties.put("natives.namespace", System.getProperty("natives.namespace"));
         for (String key : new String[]{"java.io.tmpdir", "user.home",
-                "natives.tempDir", "natives.userHome", "natives.cacheDir",
+                "natives.tempDir", "natives.userHome", "natives.cacheDir", "natives.namespace",
                 NativeLibraryLoader.CUSTOM_EXTRACTION_FOLDER_PROPERTY,
                 NativeLibraryLoader.EXTRACT_NATIVE_LIBRARIES_PROPERTY,
                 NativeLibraryLoader.CACHE_FOLDER_PROPERTY}) {
@@ -90,9 +93,10 @@ class NativeLibraryLoaderExtractionTest {
         }
         tmp = Files.createDirectory(directory.resolve("tmp"));
         home = directory.resolve("home");
+        cache = Files.createDirectory(directory.resolve("cache"));
         System.setProperty("java.io.tmpdir", tmp.toString());
         System.setProperty("user.home", home.toString());
-        System.setProperty(NativeLibraryLoader.CACHE_FOLDER_PROPERTY, home.resolve(".cache").toString());
+        System.setProperty(NativeLibraryLoader.CACHE_FOLDER_PROPERTY, cache.toString());
     }
 
     @AfterEach
@@ -110,11 +114,8 @@ class NativeLibraryLoaderExtractionTest {
     @Test
     void defaultNamespaceAlsoAppliesToOtherBootstrapLibraries() {
         assertNull(System.getProperty("natives.namespace"));
-        List<com.jme3.nativebootstrap.directories.DirectoryCandidate> candidates =
-                com.jme3.nativebootstrap.directories.NativeDirectories.candidates("other-library",
-                        () -> com.jme3.nativebootstrap.common.OperatingSystem.LINUX);
-        assertEquals(home.resolve(".jme3/natives/other-library"),
-                candidates.get(candidates.size() - 1).root());
+        List<DirectoryCandidate> candidates = NativeDirectories.candidates("other-library", () -> OperatingSystem.LINUX);
+        assertEquals(tmp.resolve(".jme3/other-library"), candidates.get(0).root());
     }
 
     @Test
@@ -124,10 +125,11 @@ class NativeLibraryLoaderExtractionTest {
         Path custom = Files.createDirectory(directory.resolve("custom"));
         NativeLibraryLoader.setCustomExtractionFolder(custom.toString());
         assertEquals(nativeTemp.toString(), System.getProperty("natives.tempDir"));
-        assertEquals(custom.toRealPath(), NativeLibraryLoader.getExtractionFolder().toPath().getParent());
+        assertEquals(extractionRoot(custom.toRealPath()), NativeLibraryLoader.getExtractionFolder().toPath().getParent());
         NativeLibraryLoader.setCustomExtractionFolder(null);
         assertEquals(nativeTemp.toString(), System.getProperty("natives.tempDir"));
-        assertEquals(nativeTemp.toRealPath(), NativeLibraryLoader.getExtractionFolder().toPath().getParent());
+        assertEquals(extractionRoot(nativeTemp.toRealPath()),
+                NativeLibraryLoader.getExtractionFolder().toPath().getParent());
     }
 
     @Test
@@ -149,7 +151,7 @@ class NativeLibraryLoaderExtractionTest {
     @Test
     void tempIsPrivateAndDoesNotCreateHome() throws Exception {
         Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
-        assertEquals(tmp.toRealPath(), selected.getParent());
+        assertEquals(extractionRoot(tmp).toRealPath(), selected.getParent());
         assertFalse(Files.exists(home));
         if (Files.getFileStore(selected).supportsFileAttributeView("posix")) {
             assertEquals(PosixFilePermissions.fromString("rwx------"), Files.getPosixFilePermissions(selected));
@@ -166,7 +168,6 @@ class NativeLibraryLoaderExtractionTest {
 
     @Test
     void relativeTempFallsBackToCache() throws Exception {
-        Files.createDirectories(home.resolve(".cache"));
         System.setProperty("java.io.tmpdir", "relative-temp");
         Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
         assertEquals(cacheRoot().toRealPath(), selected.getParent());
@@ -197,13 +198,12 @@ class NativeLibraryLoaderExtractionTest {
         }), true);
         assertEquals(2, attempts.get());
         assertEquals(cache.toString(), System.getProperty("natives.cacheDir"));
-        assertEquals(cache.resolve("jme3").toRealPath(), Paths.get(loaded).getParent().getParent());
+        assertEquals(extractionRoot(cache).toRealPath(), Paths.get(loaded).getParent().getParent());
         assertFalse(Files.exists(home));
     }
 
     @Test
     void tempFileFallsBackToCacheDuringExtraction() throws Exception {
-        Files.createDirectories(home.resolve(".cache"));
         Path blockedTemp = Files.createFile(directory.resolve("temp-file"));
         System.setProperty("java.io.tmpdir", blockedTemp.toString());
 
@@ -215,11 +215,11 @@ class NativeLibraryLoaderExtractionTest {
     @Test
     void unusableTempAndCacheFallBackToHome() throws Exception {
         System.setProperty("java.io.tmpdir", Files.createFile(directory.resolve("tmp-file")).toString());
-        Path cache = cacheRoot();
-        Files.createDirectories(cache.getParent());
-        Files.createFile(cache);
+        Files.createDirectories(cacheRoot().getParent());
+        Files.createFile(cacheRoot());
+        Files.createDirectory(home);
         String loaded = NativeLibraryLoader.loadNativeLibrary(register("fixture.so", path -> {}), true);
-        assertTrue(Paths.get(loaded).startsWith(home.resolve(".jme3/natives/jme3").toRealPath()));
+        assertTrue(Paths.get(loaded).startsWith(extractionRoot(home).toRealPath()));
         assertTrue(Files.isRegularFile(Paths.get(loaded)));
     }
 
@@ -228,7 +228,7 @@ class NativeLibraryLoaderExtractionTest {
         Path legacy = Files.createDirectory(tmp.resolve("jme3"));
         Path poison = Files.write(legacy.resolve("poison"), new byte[]{1, 2, 3});
         Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
-        assertEquals(tmp.toRealPath(), selected.getParent());
+        assertEquals(extractionRoot(tmp).toRealPath(), selected.getParent());
         assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(poison));
     }
 
@@ -255,7 +255,6 @@ class NativeLibraryLoaderExtractionTest {
 
     @Test
     void failedLoadFallsBackAndRemovesFailedFile() throws Exception {
-        Files.createDirectories(home.resolve(".cache"));
         AtomicInteger calls = new AtomicInteger();
         List<Path> attempted = new ArrayList<>();
         String name = register("fixture.so", path -> {
@@ -272,29 +271,29 @@ class NativeLibraryLoaderExtractionTest {
 
     @Test
     void errorsIncludeAllLoadAttemptsAndOptionalFailureReturnsNull() throws Exception {
-        Files.createDirectories(home.resolve(".cache"));
+        setExtractionRoots(tmp, cache, home);
         String name = register("fixture.so", path -> { throw new UnsatisfiedLinkError("mapping denied"); });
         UnsatisfiedLinkError error = assertThrows(UnsatisfiedLinkError.class,
                 () -> NativeLibraryLoader.loadNativeLibrary(name, true));
         assertEquals(3, error.getSuppressed().length);
+        setExtractionRoots(tmp, cache, home);
         assertNull(NativeLibraryLoader.loadNativeLibrary(name, false));
     }
 
     @Test
     void allUnusableRootsFailWithoutRetryingForever() throws Exception {
         Path notDirectory = Files.createFile(directory.resolve("not-a-directory"));
-        Path cache = Files.createDirectory(directory.resolve("cache"));
-        Files.createFile(cache.resolve("jme3"));
-        NativeLibraryLoader.setCustomExtractionFolder(notDirectory.toString());
-        System.setProperty("java.io.tmpdir", notDirectory.toString());
-        System.setProperty(NativeLibraryLoader.CACHE_FOLDER_PROPERTY, cache.toString());
-        System.setProperty("user.home", Files.createFile(directory.resolve("home-file")).toString());
+        Files.createDirectories(cacheRoot().getParent());
+        Files.createFile(cacheRoot());
+        Files.createFile(home);
+        setExtractionRoots(notDirectory, cache, home);
 
         String name = register("fixture.so", path -> fail("Must not load"));
         UnsatisfiedLinkError error = assertThrows(UnsatisfiedLinkError.class,
                 () -> NativeLibraryLoader.loadNativeLibrary(name, true));
         assertEquals(1, error.getSuppressed().length);
         assertEquals(3, error.getSuppressed()[0].getCause().getSuppressed().length);
+        setExtractionRoots(notDirectory, cache, home);
         assertNull(NativeLibraryLoader.loadNativeLibrary(name, false));
     }
 
@@ -302,6 +301,7 @@ class NativeLibraryLoaderExtractionTest {
     void failedLoadRediscoversUpdatedCacheOverride() throws Exception {
         System.setProperty("java.io.tmpdir", Files.createFile(directory.resolve("tmp-file")).toString());
         System.setProperty("user.home", Files.createFile(directory.resolve("home-file")).toString());
+        setExtractionRoots(cache);
         AtomicBoolean denyLoad = new AtomicBoolean(true);
         String name = register("fixture.so", path -> {
             if (denyLoad.get()) throw new UnsatisfiedLinkError("mapping denied");
@@ -312,12 +312,13 @@ class NativeLibraryLoaderExtractionTest {
         System.setProperty(NativeLibraryLoader.CACHE_FOLDER_PROPERTY, newCache.toString());
         denyLoad.set(false);
         String loaded = NativeLibraryLoader.loadNativeLibrary(name, true);
-        assertEquals(newCache.resolve("jme3").toRealPath(), Paths.get(loaded).getParent().getParent());
+        assertEquals(extractionRoot(newCache).toRealPath(), Paths.get(loaded).getParent().getParent());
     }
 
     @Test
-    void invalidLegacyCacheOverrideUsesBootstrapDefaults() throws Exception {
+    void invalidLegacyCacheOverridePreservesBootstrapCache() throws Exception {
         System.setProperty("java.io.tmpdir", Files.createFile(directory.resolve("tmp-file")).toString());
+        System.setProperty("natives.cacheDir", cache.toString());
         Path missingCache = directory.resolve("missing-cache");
         Path cacheFile = Files.createFile(directory.resolve("cache-file"));
         for (String override : new String[]{"relative-cache", missingCache.toString(), cacheFile.toString()}) {
@@ -325,7 +326,7 @@ class NativeLibraryLoaderExtractionTest {
             NativeLibraryLoader.setCustomExtractionFolder(null);
             String loaded = NativeLibraryLoader.loadNativeLibrary(register("fixture.so", path -> {}), true);
             assertTrue(Files.isRegularFile(Paths.get(loaded)));
-            assertFalse(Paths.get(loaded).startsWith(missingCache));
+            assertTrue(Paths.get(loaded).startsWith(cacheRoot().toRealPath()));
         }
         assertFalse(Files.exists(missingCache));
     }
@@ -333,12 +334,8 @@ class NativeLibraryLoaderExtractionTest {
     @Test
     void explicitBootstrapNamespaceIsPreserved() throws Exception {
         System.setProperty("natives.namespace", ".custom-app");
-        System.setProperty("java.io.tmpdir", Files.createFile(directory.resolve("tmp-file")).toString());
-        Files.createDirectories(cacheRoot().getParent());
-        Files.createFile(cacheRoot());
-        String loaded = NativeLibraryLoader.loadNativeLibrary(register("fixture.so", path -> {}), true);
-        assertEquals(home.resolve(".custom-app/natives/jme3").toRealPath(),
-                Paths.get(loaded).getParent().getParent());
+        Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
+        assertEquals(tmp.resolve(".custom-app/jme3").toRealPath(), selected.getParent());
         assertEquals(".custom-app", System.getProperty("natives.namespace"));
     }
 
@@ -362,7 +359,7 @@ class NativeLibraryLoaderExtractionTest {
             String first = futures.get(0).get(10, TimeUnit.SECONDS);
             for (Future<String> future : futures) assertEquals(first, future.get(10, TimeUnit.SECONDS));
             assertEquals(1, loads.get());
-            try (Stream<Path> children = Files.list(tmp)) {
+            try (Stream<Path> children = Files.list(extractionRoot(tmp))) {
                 assertEquals(1, children.count());
             }
         } finally {
@@ -396,6 +393,21 @@ class NativeLibraryLoaderExtractionTest {
     }
 
     @Test
+    void customDirectoryMatchingTempIsTriedOnlyOnce() throws Exception {
+        NativeLibraryLoader.setCustomExtractionFolder(tmp.toString());
+        List<Path> attempted = new ArrayList<>();
+        String name = register("fixture.so", path -> {
+            attempted.add(Paths.get(path));
+            if (attempted.size() == 1) throw new UnsatisfiedLinkError("custom failure");
+        });
+
+        String loaded = NativeLibraryLoader.loadNativeLibrary(name, true);
+        assertEquals(2, attempted.size());
+        assertEquals(extractionRoot(tmp).toRealPath(), attempted.get(0).getParent().getParent());
+        assertEquals(cacheRoot().toRealPath(), Paths.get(loaded).getParent().getParent());
+    }
+
+    @Test
     void unusableCustomDirectoryFallsBackToTemp() throws Exception {
         Path custom = Files.createFile(directory.resolve("not-a-directory"));
         NativeLibraryLoader.setCustomExtractionFolder(custom.toString());
@@ -408,7 +420,7 @@ class NativeLibraryLoaderExtractionTest {
         Path custom = directory.resolve("new-custom");
         NativeLibraryLoader.setCustomExtractionFolder(custom.toString());
         Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
-        assertEquals(custom.toRealPath(), selected.getParent());
+        assertEquals(extractionRoot(custom).toRealPath(), selected.getParent());
         assertNull(System.getProperty("natives.tempDir"));
         assertTrue(Files.isDirectory(selected));
 
@@ -433,7 +445,7 @@ class NativeLibraryLoaderExtractionTest {
         Path custom = directory.resolve("late-custom");
         NativeLibraryLoader.setCustomExtractionFolder(custom.toString());
         Path selected = NativeLibraryLoader.getExtractionFolder().toPath();
-        assertEquals(custom.toRealPath(), selected.getParent());
+        assertEquals(extractionRoot(custom).toRealPath(), selected.getParent());
         assertEquals(alreadyLoaded, NativeLibraryLoader.loadNativeLibrary(name, true));
         assertEquals(1, loads.get());
         assertEquals(selected.resolve("other.so").toString(),
@@ -454,16 +466,15 @@ class NativeLibraryLoaderExtractionTest {
 
     @Test
     void noexecTempIsSkippedEvenForDelegatedLoaders() throws Exception {
-        Files.createDirectories(home.resolve(".cache"));
         Path noexec = createNoexecDirectory();
         try {
             System.setProperty("java.io.tmpdir", noexec.toString());
             String loaded = NativeLibraryLoader.loadNativeLibrary(register("fixture.so", path -> {}), true);
             assertTrue(Paths.get(loaded).startsWith(cacheRoot().toRealPath()));
-            try (Stream<Path> children = Files.list(noexec)) {
-                assertEquals(0, children.count());
-            }
         } finally {
+            // A rejected extraction may still have created the stable namespace directories.
+            Files.deleteIfExists(extractionRoot(noexec));
+            Files.deleteIfExists(noexec.resolve(".jme3"));
             Files.delete(noexec);
         }
     }
@@ -475,7 +486,16 @@ class NativeLibraryLoaderExtractionTest {
     }
 
     private Path cacheRoot() {
-        return home.resolve(".cache/jme3");
+        return extractionRoot(cache);
+    }
+
+    private static Path extractionRoot(Path base) {
+        return base.resolve(".jme3").resolve("jme3");
+    }
+
+    private static void setExtractionRoots(Path... bases) throws Exception {
+        OperatingSystem os = OperatingSystem.valueOf(JmeSystem.getPlatform().getOs().name().toUpperCase(Locale.ROOT));
+        field("extractionCandidates").set(null, NativeDirectories.fromRoots("jme3", List.of(bases), () -> os));
     }
 
     private static Path createNoexecDirectory() throws Exception {
