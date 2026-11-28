@@ -199,8 +199,16 @@ public final class ImageDifference {
      * @return how many pixels are allowed to differ before the images stop counting as the same
      */
     public int getAllowedDifferentPixels() {
+        return getAllowedDifferentPixels(ALLOWED_DIFFERENT_PIXEL_RATIO);
+    }
+
+    /**
+     * @param allowedDifferentPixelRatio the fraction of pixels that may differ (see {@link #ALLOWED_DIFFERENT_PIXEL_RATIO})
+     * @return how many pixels are allowed to differ before the images stop counting as the same
+     */
+    public int getAllowedDifferentPixels(float allowedDifferentPixelRatio) {
         return Math.max(MINIMUM_ALLOWED_DIFFERENT_PIXELS,
-                (int) (totalPixels * ALLOWED_DIFFERENT_PIXEL_RATIO));
+                (int) (totalPixels * allowedDifferentPixelRatio));
     }
 
     /**
@@ -208,15 +216,33 @@ public final class ImageDifference {
      *         in what was drawn
      */
     public boolean isNegligible() {
-        return differentPixels <= getAllowedDifferentPixels();
+        return isNegligible(ALLOWED_DIFFERENT_PIXEL_RATIO);
+    }
+
+    /**
+     * Like {@link #isNegligible()}, for a test that has been given a larger (or smaller) allowance than the default.
+     *
+     * @param allowedDifferentPixelRatio the fraction of pixels that may differ (see {@link #ALLOWED_DIFFERENT_PIXEL_RATIO})
+     * @return true when the difference is within the allowance
+     */
+    public boolean isNegligible(float allowedDifferentPixelRatio) {
+        return differentPixels <= getAllowedDifferentPixels(allowedDifferentPixelRatio);
     }
 
     /**
      * @return a human readable summary of the difference, for the test report and failure messages
      */
     public String describe() {
+        return describe(ALLOWED_DIFFERENT_PIXEL_RATIO);
+    }
+
+    /**
+     * @param allowedDifferentPixelRatio the fraction of pixels that may differ (see {@link #ALLOWED_DIFFERENT_PIXEL_RATIO})
+     * @return a human readable summary of the difference, for the test report and failure messages
+     */
+    public String describe(float allowedDifferentPixelRatio) {
         return differentPixels + " of " + totalPixels + " pixels differ by more than "
-                + PIXEL_TOLERANCE + " (at most " + getAllowedDifferentPixels()
+                + PIXEL_TOLERANCE + " (at most " + getAllowedDifferentPixels(allowedDifferentPixelRatio)
                 + " tolerated), largest single channel difference " + worstDifference;
     }
 }

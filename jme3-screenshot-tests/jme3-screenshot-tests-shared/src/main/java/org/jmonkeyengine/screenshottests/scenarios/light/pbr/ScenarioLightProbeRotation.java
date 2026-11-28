@@ -78,6 +78,13 @@ public class ScenarioLightProbeRotation {
 
     private static final int SCREENSHOT_FRAME = 6;
 
+    /**
+     * Re-baking a turned probe samples the sky through turned capture cameras, landing on texels at a slightly
+     * different alignment, so the re-bake scenario differs from the others by a little noise (about 0.05% of pixels on
+     * the Android emulator). A real rotation error would move the reflections by tens of degrees, far beyond this.
+     */
+    private static final float ALLOWED_DIFFERENT_PIXEL_RATIO = 0.001f;
+
     private static final Quaternion WORLD_ROTATION = new Quaternion().fromAngleAxis(50 * FastMath.DEG_TO_RAD, Vector3f.UNIT_Y);
 
     private static final Quaternion BOX_ROTATION_AT_SETUP = new Quaternion().fromAngleAxis(30 * FastMath.DEG_TO_RAD, Vector3f.UNIT_Y);
@@ -113,7 +120,8 @@ public class ScenarioLightProbeRotation {
                 new Scenario("BakedThenRotatedWithSetRotation", probeScene(false, RotationMethod.SET_ROTATION)),
                 new Scenario("BakedThenRotatedWithLightControl", probeScene(false, RotationMethod.LIGHT_CONTROL)),
                 new Scenario("RotatedThenRebaked", probeScene(false, RotationMethod.LIGHT_CONTROL_THEN_REBAKE))
-        ).setFramesToTakeScreenshotsOn(SCREENSHOT_FRAME);
+        ).setFramesToTakeScreenshotsOn(SCREENSHOT_FRAME)
+                .setAllowedDifferentPixelRatio(ALLOWED_DIFFERENT_PIXEL_RATIO);
     }
 
     /**
@@ -127,7 +135,8 @@ public class ScenarioLightProbeRotation {
                 new Scenario("BakedThenRotatedWithSetRotation", probeScene(true, RotationMethod.SET_ROTATION)),
                 new Scenario("BakedThenRotatedWithLightControl", probeScene(true, RotationMethod.LIGHT_CONTROL)),
                 new Scenario("RotatedThenRebaked", probeScene(true, RotationMethod.LIGHT_CONTROL_THEN_REBAKE))
-        ).setFramesToTakeScreenshotsOn(SCREENSHOT_FRAME);
+        ).setFramesToTakeScreenshotsOn(SCREENSHOT_FRAME)
+                .setAllowedDifferentPixelRatio(ALLOWED_DIFFERENT_PIXEL_RATIO);
     }
 
     /**

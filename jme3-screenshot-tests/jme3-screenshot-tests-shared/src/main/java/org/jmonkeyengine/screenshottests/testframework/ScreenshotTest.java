@@ -148,6 +148,8 @@ public class ScreenshotTest{
 
     String baseImageFileName = null;
 
+    float allowedDifferentPixelRatio = ImageDifference.ALLOWED_DIFFERENT_PIXEL_RATIO;
+
     private AppRunner osSpecificRunner;
 
     public ScreenshotTest(AppState... initialStates){
@@ -203,6 +205,16 @@ public class ScreenshotTest{
      */
     public ScreenshotTest setBaseImageFileName(String baseImageFileName){
         this.baseImageFileName = baseImageFileName;
+        return this;
+    }
+
+    /**
+     * Allows more (or fewer) pixels to differ than {@link ImageDifference#ALLOWED_DIFFERENT_PIXEL_RATIO} before images
+     * count as different, both between scenarios and against the reference image. Use sparingly, for scenes known to
+     * produce a little more renderer noise than usual.
+     */
+    public ScreenshotTest setAllowedDifferentPixelRatio(float allowedDifferentPixelRatio){
+        this.allowedDifferentPixelRatio = allowedDifferentPixelRatio;
         return this;
     }
 
@@ -371,7 +383,7 @@ public class ScreenshotTest{
                 } else {
                     ImageDifference imageDifference = ImageDifference.of(generatedImage, expectedImage);
 
-                    if (imageDifference.isNegligible()) {
+                    if (imageDifference.isNegligible(allowedDifferentPixelRatio)) {
                         if(testType == TestType.KNOWN_TO_FAIL){
                             TestReportCaptureBase.INSTANCE.warning(KNOWN_BAD_TEST_IMAGES_SAME);
                         }
@@ -386,7 +398,7 @@ public class ScreenshotTest{
                                 // the pull request comment lists; differences in the other test
                                 // types are tolerated and only reported.
                                 osSpecificRunner.saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName + ".png");
-                                TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe() + ")");
+                                TestReportCaptureBase.INSTANCE.warning(IMAGES_ARE_DIFFERENT + " (" + imageDifference.describe(allowedDifferentPixelRatio) + ")");
                                 break;
                             case NON_DETERMINISTIC:
                                 TestReportCaptureBase.INSTANCE.warning(NON_DETERMINISTIC_TEST);
@@ -458,8 +470,8 @@ public class ScreenshotTest{
      * A difference that is small enough to be renderer noise rather than a change in what was drawn
      * still counts as the same, see {@link ImageDifference}.
      */
-    private static boolean imagesAreVerySimilar(Image img1, Image img2) {
-        return ImageDifference.of(img1, img2).isNegligible();
+    private boolean imagesAreVerySimilar(Image img1, Image img2) {
+        return ImageDifference.of(img1, img2).isNegligible(allowedDifferentPixelRatio);
     }
 
     /**
