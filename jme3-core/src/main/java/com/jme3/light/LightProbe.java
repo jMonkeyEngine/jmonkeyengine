@@ -60,6 +60,11 @@ import java.util.logging.Logger;
  * <p>
  * The light probe has an area of effect centered on its position. It can have a Spherical area or an Oriented Box area
  * <p>
+ * A light probe also has a rotation in world space: the orientation of its captured environment. Rotating a probe
+ * turns the lighting and reflections it gives, which is useful when the environment the probe was captured from is
+ * itself rotated (for example a probe captured from a sky that is later turned). Like the position, it can be kept in
+ * step with a spatial using a {@link com.jme3.scene.control.LightControl}.
+ * <p>
  * A LightProbe will only be taken into account when it's marked as ready and enabled.
  * A light probe is ready when it has valid environment map data set.
  * Note that you should never call setReady yourself.
@@ -79,6 +84,14 @@ public class LightProbe extends Light implements Savable {
     private ProbeArea area = new SphereProbeArea(Vector3f.ZERO, 1.0f);
     private boolean ready = false;
     private Vector3f position = new Vector3f();
+    private Quaternion rotation = new Quaternion();
+    private Matrix3f rotationMatrix = new Matrix3f();
+    /**
+     * An oriented box area's rotation relative to the probe, so turning the probe rebuilds the box's world rotation
+     * from this rather than accumulating rounding error turn after turn.
+     */
+    private Quaternion boxOffset = new Quaternion();
+    private Quaternion boxRotationLastSet = new Quaternion();
     private int nbMipMaps;
 
     public enum AreaType{
@@ -163,6 +176,7 @@ public class LightProbe extends Light implements Savable {
         oc.write(shCoefficients, "shCoeffs", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
         oc.write(position, "position", null);
+        oc.write(rotation, "rotation", Quaternion.IDENTITY);
         oc.write(area, "area", new SphereProbeArea(Vector3f.ZERO, 1.0f));
         oc.write(ready, "ready", false);
         oc.write(nbMipMaps, "nbMipMaps", 0);
@@ -182,6 +196,8 @@ public class LightProbe extends Light implements Savable {
             area = new SphereProbeArea(bounds.getCenter(), bounds.getRadius());
         }
         area.setCenter(position);
+        rotation = (Quaternion) ic.readSavable("rotation", new Quaternion());
+        rotation.toRotationMatrix(rotationMatrix);
         nbMipMaps = ic.readInt("nbMipMaps", 0);
         ready = ic.readBoolean("ready", false);
 
@@ -218,6 +234,7 @@ public class LightProbe extends Light implements Savable {
                 break;
             case OrientedBox:
                 area = new OrientedBoxProbeArea(new Transform());
+                ((OrientedBoxProbeArea) area).setRotation(rotation);
                 break;
         }
         area.setCenter(position);
@@ -274,6 +291,51 @@ public class LightProbe extends Light implements Savable {
         area.setCenter(position);
     }
 
+    /**
+     * Returns the rotation of the LightProbe in world space: the orientation of its captured environment.
+     *
+     * @return the world-space rotation (not a copy, do not modify)
+     */
+    public Quaternion getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Sets the rotation of the LightProbe in world space. This turns the environment the probe lights with (both its
+     * irradiance and its prefiltered reflections). The probe is treated as a rigid whole, so an oriented box area is
+     * turned by the same change in rotation, just as {@link #setPosition(Vector3f)} moves the area. The box keeps any
+     * rotation it already had (for example a box aligned with the walls of a room that was not built on the world
+     * axes); the box's own rotation remains world space.
+     * <p>
+     * The bakers capture the environment in the probe's current rotation, so re-baking a rotated probe gives the same
+     * lighting as baking it unrotated and then rotating it.
+     *
+     * @param rotation the world-space rotation (not null, unaffected)
+     */
+    public void setRotation(Quaternion rotation) {
+        if (area instanceof OrientedBoxProbeArea) {
+            OrientedBoxProbeArea box = (OrientedBoxProbeArea) area;
+            if (!box.getRotation().equals(boxRotationLastSet)) {
+                // the box has been turned directly since we last set it, so take its offset from where it is now
+                boxOffset.set(this.rotation).inverseLocal().multLocal(box.getRotation());
+            }
+            boxRotationLastSet.set(rotation).multLocal(boxOffset).normalizeLocal();
+            box.setRotation(boxRotationLastSet);
+        }
+        this.rotation.set(rotation);
+        this.rotation.toRotationMatrix(rotationMatrix);
+    }
+
+    /**
+     * Returns the rotation to send to the shader, as a matrix taking directions from the probe's captured
+     * environment into world space.
+     *
+     * @return the pre-existing matrix
+     */
+    public Matrix3f getUniformRotationMatrix() {
+        return rotationMatrix;
+    }
+
     public int getNbMipMaps() {
         return nbMipMaps;
     }
@@ -313,10 +375,41 @@ public class LightProbe extends Light implements Savable {
     }
 
     @Override
+    public LightProbe clone() {
+        LightProbe probe = (LightProbe) super.clone();
+        probe.position = position.clone();
+        probe.rotation = rotation.clone();
+        probe.rotationMatrix = rotationMatrix.clone();
+        probe.boxOffset = boxOffset.clone();
+        probe.boxRotationLastSet = boxRotationLastSet.clone();
+        probe.area = cloneArea(area);
+        return probe;
+    }
+
+    /**
+     * Copies the built-in area types; a custom {@link ProbeArea} cannot be copied through the interface, so it stays
+     * shared with the original.
+     */
+    private static ProbeArea cloneArea(ProbeArea area) {
+        try {
+            if (area instanceof SphereProbeArea) {
+                return ((SphereProbeArea) area).clone();
+            }
+            if (area instanceof OrientedBoxProbeArea) {
+                return ((OrientedBoxProbeArea) area).clone();
+            }
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError(ex);
+        }
+        return area;
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName()
                 + "[name=" + name
                 + ", position=" + position
+                + ", rotation=" + rotation
                 + ", area=" + area
                 + ", enabled=" + enabled
                 + "]";

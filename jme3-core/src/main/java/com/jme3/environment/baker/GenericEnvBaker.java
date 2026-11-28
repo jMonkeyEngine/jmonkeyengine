@@ -207,6 +207,11 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
+        bakeEnvironment(scene, position, Quaternion.IDENTITY, frustumNear, frustumFar, filter);
+    }
+
+    @Override
+    public void bakeEnvironment(Spatial scene, Vector3f position, Quaternion rotation, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
         FrameBuffer envbakers[] = getEnvBakers();
 
         if (isTexturePulling()) {
@@ -216,7 +221,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
         for (int i = 0; i < 6; i++) {
             FrameBuffer envbaker = envbakers[i];
 
-            ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
+            Camera faceCam = updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar);
+            faceCam.setRotation(rotation.mult(faceCam.getRotation()));
+            ViewPort viewPort = new ViewPort("EnvBaker", faceCam);
             viewPort.setClearFlags(true, true, true);
             viewPort.setBackgroundColor(ColorRGBA.Pink);
 

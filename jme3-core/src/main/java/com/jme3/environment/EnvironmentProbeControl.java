@@ -345,7 +345,7 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         baker.setSphericalHarmonicsMode(sphericalHarmonicsMode);
                     
         baker.setTexturePulling(isRequiredSavableResults());
-        baker.bakeEnvironment(spatial, getPosition(), frustumNear, frustumFar, filter);
+        baker.bakeEnvironment(spatial, getPosition(), getRotation(), frustumNear, frustumFar, filter);
         baker.bakeSpecularIBL();
         baker.bakeSphericalHarmonicsCoefficients();
 
@@ -355,7 +355,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         setNbMipMaps(mipSizes != null ? mipSizes.length : 1);
 
         setShCoeffs(baker.getSphericalHarmonicsCoefficients());
-        setPosition(Vector3f.ZERO);
         setReady(true);
     }
     

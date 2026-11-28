@@ -37,6 +37,7 @@ import com.jme3.environment.generation.JobProgressListener;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.*;
 import com.jme3.scene.Spatial;
@@ -104,6 +105,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected ByteBuffer[] buffers;
 
     protected Vector3f position = new Vector3f();
+    protected Quaternion rotation = new Quaternion();
     protected ColorRGBA backGroundColor;
 
     /**
@@ -153,17 +155,31 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     /**
-     * Takes a snapshot of the surrounding scene.
+     * Takes a snapshot of the surrounding scene from the camera's current position and rotation.
      *
      * @param scene the scene to snapshot.
      * @param done a callback to call when the snapshot is done.
      */
     public void snapshot(final Spatial scene, final JobProgressListener<TextureCubeMap> done) {
+        snapshot(scene, position, rotation, done);
+    }
+
+    /**
+     * Takes a snapshot of the surrounding scene from the given position and rotation, leaving the camera's own
+     * position and rotation unchanged.
+     *
+     * @param scene the scene to snapshot.
+     * @param position the world-space position to capture from (unaffected)
+     * @param rotation the world-space orientation of the captured cubemap (unaffected)
+     * @param done a callback to call when the snapshot is done.
+     */
+    public void snapshot(final Spatial scene, final Vector3f position, final Quaternion rotation,
+            final JobProgressListener<TextureCubeMap> done) {
+        final SnapshotJob job = new SnapshotJob(done, scene, position, rotation);
         getApplication().enqueue(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                SnapshotJob job = new SnapshotJob(done, scene);
                 jobs.add(job);
                 return null;
             }
@@ -177,6 +193,9 @@ public class EnvironmentCamera extends BaseAppState {
             final Image.Format format = getImageFormat(renderManager.getRenderer());
 
             for (int i = 0; i < 6; i++) {
+                Camera faceCamera = viewports[i].getCamera();
+                faceCamera.setLocation(job.position);
+                faceCamera.setRotation(faceRotation(job.rotation, axisX[i], axisY[i], axisZ[i]));
                 viewports[i].clearScenes();
                 viewports[i].attachScene(job.scene);
                 renderManager.renderViewPort(viewports[i], 0.16f);
@@ -268,6 +287,37 @@ public class EnvironmentCamera extends BaseAppState {
         for (final ViewPort viewPort : viewports) {
             viewPort.getCamera().setLocation(position);
         }
+    }
+
+    /**
+     * Returns the orientation of the captured cubemap in world space.
+     *
+     * @return the rotation (not a copy, do not modify)
+     */
+    public Quaternion getRotation() {
+        return rotation;
+    }
+
+    /**
+     * Sets the orientation of the captured cubemap in world space, so the snapshot suits a {@link LightProbe} with
+     * that rotation.
+     *
+     * @param rotation the world-space rotation (not null, unaffected)
+     */
+    public void setRotation(final Quaternion rotation) {
+        this.rotation.set(rotation);
+
+        if (viewports == null) {
+            return;
+        }
+
+        for (int i = 0; i < viewports.length; i++) {
+            viewports[i].getCamera().setRotation(faceRotation(rotation, axisX[i], axisY[i], axisZ[i]));
+        }
+    }
+
+    private static Quaternion faceRotation(Quaternion rotation, Vector3f axisX, Vector3f axisY, Vector3f axisZ) {
+        return rotation.mult(new Quaternion().fromAxes(axisX, axisY, axisZ));
     }
 
     /**
@@ -373,7 +423,7 @@ public class EnvironmentCamera extends BaseAppState {
             final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
         final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
-        offCamera.setAxes(axisX, axisY, axisZ);
+        offCamera.setRotation(faceRotation(rotation, axisX, axisY, axisZ));
         offCamera.setFrustumPerspective(90f, 1f, 0.1f, 1000);
         offCamera.setLocation(position);
         return offCamera;
@@ -428,11 +478,22 @@ public class EnvironmentCamera extends BaseAppState {
 
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
+        final Vector3f position;
+        final Quaternion rotation;
+
+        /**
+         * A job that captures from the camera's position and rotation as they are when the job is created.
+         */
+        public SnapshotJob(JobProgressListener callback, Spatial scene) {
+            this(callback, scene, EnvironmentCamera.this.position, EnvironmentCamera.this.rotation);
+        }
 
         @SuppressWarnings("unchecked")
-        public SnapshotJob(JobProgressListener callback, Spatial scene) {
+        public SnapshotJob(JobProgressListener callback, Spatial scene, Vector3f position, Quaternion rotation) {
             this.callback = callback;
             this.scene = scene;
+            this.position = position.clone();
+            this.rotation = rotation.clone();
         }
     }
 }
