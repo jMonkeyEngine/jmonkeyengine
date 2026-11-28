@@ -48,6 +48,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LightControl;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.SkyFactory;
 import org.jmonkeyengine.screenshottests.testframework.Scenario;
@@ -56,8 +57,9 @@ import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
 /**
  * Light probes that are baked and then rotated (see {@link LightProbe#setRotation(Quaternion)}).
  * <p>
- * A row of spheres, from mirror-like to fully rough, is lit only by a probe baked from the sky. The equivalence tests
- * bake the probe, then turn the whole world (sky, spheres and probe) and the camera together by the same rotation.
+ * A row of spheres, from mirror-like to fully rough, is lit only by a probe baked from the sky and a big red cube off to
+ * one side, which makes the rotation obvious in the reflections. The equivalence tests bake the probe, then turn the
+ * whole world (sky, cube, spheres and probe) and the camera together by the same rotation.
  * That must look exactly like never having turned anything, so each is a multi-scenario test whose scenarios must
  * render identically. If the probe's rotation were ignored the reflections would stay put while everything else
  * turned, and the scenarios would differ. The re-bake scenario captures the probe again after it has been turned,
@@ -81,9 +83,24 @@ public class ScenarioLightProbeRotation {
     private static final Quaternion BOX_ROTATION_AT_SETUP = new Quaternion().fromAngleAxis(30 * FastMath.DEG_TO_RAD, Vector3f.UNIT_Y);
 
     private enum RotationMethod {
+        /**
+         * Everything is screenshotted as it is initially set up.
+         */
         NONE,
+        /**
+         * Rotates the probe directly (using its setRotation method), the world and the camera
+         * (which if all work should have no visible effect vs "none")
+         */
         SET_ROTATION,
+        /**
+         * Attaches a LightControl to the light probe then rotates the camera and world (which leads to the probe being
+         * rotated via the control) - (which if all work should have no visible effect vs "none")
+         */
         LIGHT_CONTROL,
+        /**
+         * Attaches a LightControl to the light probe then rotates the camera and world (which leads to the probe being
+         * rotated via the control) additionally rebaking the scene after the rotation - (which if all work should have no visible effect vs "none")
+         */
         LIGHT_CONTROL_THEN_REBAKE
     }
 
@@ -181,7 +198,7 @@ public class ScenarioLightProbeRotation {
     }
 
     /**
-     * Builds the sky and spheres under the world node and a probe, at the origin, baked from the sky.
+     * Builds the sky, red cube and spheres under the world node and a probe, at the origin, baked from the sky and cube.
      */
     private static EnvironmentProbeControl buildScene(SimpleApplication app, Node world, boolean orientedBox) {
         AssetManager assetManager = app.getAssetManager();
@@ -193,6 +210,13 @@ public class ScenarioLightProbeRotation {
 
         Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
         world.attachChild(sky);
+
+        Geometry redCube = new Geometry("redCube", new Box(3.5f, 3.5f, 3.5f));
+        Material redMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        redMaterial.setColor("Color", ColorRGBA.Red);
+        redCube.setMaterial(redMaterial);
+        redCube.setLocalTranslation(-7.5f, 1.5f, 8);
+        world.attachChild(redCube);
 
         float[] roughnesses = {0.05f, 0.35f, 1f};
         for (int i = 0; i < roughnesses.length; i++) {
@@ -216,6 +240,7 @@ public class ScenarioLightProbeRotation {
         }
         rootNode.addControl(probe);
         probe.tag(sky);
+        probe.tag(redCube);
         return probe;
     }
 }
