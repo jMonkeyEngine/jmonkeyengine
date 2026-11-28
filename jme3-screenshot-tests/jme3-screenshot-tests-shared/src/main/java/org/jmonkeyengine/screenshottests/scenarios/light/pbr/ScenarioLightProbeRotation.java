@@ -67,7 +67,11 @@ import org.jmonkeyengine.screenshottests.testframework.ScreenshotTest;
  */
 public class ScenarioLightProbeRotation {
 
-    private static final int BAKE_SIZE = 256;
+    /**
+     * Kept small because baking is slow on the Android emulator's software renderer, and the re-bake scenario bakes
+     * twice within the runner's time limit.
+     */
+    private static final int BAKE_SIZE = 128;
 
     /**
      * The world is turned on this frame, after the probe has been baked (it bakes on the first frame rendered).
