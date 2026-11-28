@@ -355,7 +355,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         setNbMipMaps(mipSizes != null ? mipSizes.length : 1);
 
         setShCoeffs(baker.getSphericalHarmonicsCoefficients());
-        setPosition(Vector3f.ZERO);
         setReady(true);
     }
     
