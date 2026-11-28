@@ -162,10 +162,6 @@ public class LightProbeFactory {
      * @see JobProgressListener
      */
     public static LightProbe updateProbe(final LightProbe probe, final EnvironmentCamera envCam, Spatial scene, final EnvMapUtils.GenerationType genType, final JobProgressListener<LightProbe> listener) {
-        
-        envCam.setPosition(probe.getPosition());
-        envCam.setRotation(probe.getRotation());
-
         probe.setReady(false);
 
         if (probe.getPrefilteredEnvMap() != null) {
@@ -175,7 +171,7 @@ public class LightProbeFactory {
         Renderer renderer = envCam.getApplication().getRenderManager().getRenderer();
         probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat(renderer)));
 
-        envCam.snapshot(scene, new JobProgressAdapter<TextureCubeMap>() {
+        envCam.snapshot(scene, probe.getPosition(), probe.getRotation(), new JobProgressAdapter<TextureCubeMap>() {
 
             @Override
             public void done(TextureCubeMap map) {

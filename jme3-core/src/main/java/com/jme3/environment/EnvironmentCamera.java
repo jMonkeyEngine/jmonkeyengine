@@ -155,17 +155,31 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     /**
-     * Takes a snapshot of the surrounding scene.
+     * Takes a snapshot of the surrounding scene from the camera's current position and rotation.
      *
      * @param scene the scene to snapshot.
      * @param done a callback to call when the snapshot is done.
      */
     public void snapshot(final Spatial scene, final JobProgressListener<TextureCubeMap> done) {
+        snapshot(scene, position, rotation, done);
+    }
+
+    /**
+     * Takes a snapshot of the surrounding scene from the given position and rotation, leaving the camera's own
+     * position and rotation unchanged.
+     *
+     * @param scene the scene to snapshot.
+     * @param position the world-space position to capture from (unaffected)
+     * @param rotation the world-space orientation of the captured cubemap (unaffected)
+     * @param done a callback to call when the snapshot is done.
+     */
+    public void snapshot(final Spatial scene, final Vector3f position, final Quaternion rotation,
+            final JobProgressListener<TextureCubeMap> done) {
+        final SnapshotJob job = new SnapshotJob(done, scene, position, rotation);
         getApplication().enqueue(new Callable<Void>() {
 
             @Override
             public Void call() throws Exception {
-                SnapshotJob job = new SnapshotJob(done, scene);
                 jobs.add(job);
                 return null;
             }
@@ -179,6 +193,9 @@ public class EnvironmentCamera extends BaseAppState {
             final Image.Format format = getImageFormat(renderManager.getRenderer());
 
             for (int i = 0; i < 6; i++) {
+                Camera faceCamera = viewports[i].getCamera();
+                faceCamera.setLocation(job.position);
+                faceCamera.setRotation(faceRotation(job.rotation, axisX[i], axisY[i], axisZ[i]));
                 viewports[i].clearScenes();
                 viewports[i].attachScene(job.scene);
                 renderManager.renderViewPort(viewports[i], 0.16f);
@@ -295,11 +312,11 @@ public class EnvironmentCamera extends BaseAppState {
         }
 
         for (int i = 0; i < viewports.length; i++) {
-            viewports[i].getCamera().setRotation(faceRotation(axisX[i], axisY[i], axisZ[i]));
+            viewports[i].getCamera().setRotation(faceRotation(rotation, axisX[i], axisY[i], axisZ[i]));
         }
     }
 
-    private Quaternion faceRotation(Vector3f axisX, Vector3f axisY, Vector3f axisZ) {
+    private static Quaternion faceRotation(Quaternion rotation, Vector3f axisX, Vector3f axisY, Vector3f axisZ) {
         return rotation.mult(new Quaternion().fromAxes(axisX, axisY, axisZ));
     }
 
@@ -406,7 +423,7 @@ public class EnvironmentCamera extends BaseAppState {
             final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
         final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
-        offCamera.setRotation(faceRotation(axisX, axisY, axisZ));
+        offCamera.setRotation(faceRotation(rotation, axisX, axisY, axisZ));
         offCamera.setFrustumPerspective(90f, 1f, 0.1f, 1000);
         offCamera.setLocation(position);
         return offCamera;
@@ -461,11 +478,22 @@ public class EnvironmentCamera extends BaseAppState {
 
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
+        final Vector3f position;
+        final Quaternion rotation;
+
+        /**
+         * A job that captures from the camera's position and rotation as they are when the job is created.
+         */
+        public SnapshotJob(JobProgressListener callback, Spatial scene) {
+            this(callback, scene, EnvironmentCamera.this.position, EnvironmentCamera.this.rotation);
+        }
 
         @SuppressWarnings("unchecked")
-        public SnapshotJob(JobProgressListener callback, Spatial scene) {
+        public SnapshotJob(JobProgressListener callback, Spatial scene, Vector3f position, Quaternion rotation) {
             this.callback = callback;
             this.scene = scene;
+            this.position = position.clone();
+            this.rotation = rotation.clone();
         }
     }
 }
