@@ -86,6 +86,12 @@ public class LightProbe extends Light implements Savable {
     private Vector3f position = new Vector3f();
     private Quaternion rotation = new Quaternion();
     private Matrix3f rotationMatrix = new Matrix3f();
+    /**
+     * An oriented box area's rotation relative to the probe, so turning the probe rebuilds the box's world rotation
+     * from this rather than accumulating rounding error turn after turn.
+     */
+    private Quaternion boxOffset = new Quaternion();
+    private Quaternion boxRotationLastSet = new Quaternion();
     private int nbMipMaps;
 
     public enum AreaType{
@@ -309,9 +315,12 @@ public class LightProbe extends Light implements Savable {
     public void setRotation(Quaternion rotation) {
         if (area instanceof OrientedBoxProbeArea) {
             OrientedBoxProbeArea box = (OrientedBoxProbeArea) area;
-            // carry the box through the same rigid turn (new * inverse(old)), keeping any rotation it already had
-            Quaternion boxRotation = rotation.mult(this.rotation.inverse()).multLocal(box.getRotation()).normalizeLocal();
-            box.setRotation(boxRotation);
+            if (!box.getRotation().equals(boxRotationLastSet)) {
+                // the box has been turned directly since we last set it, so take its offset from where it is now
+                boxOffset.set(this.rotation).inverseLocal().multLocal(box.getRotation());
+            }
+            boxRotationLastSet.set(rotation).multLocal(boxOffset).normalizeLocal();
+            box.setRotation(boxRotationLastSet);
         }
         this.rotation.set(rotation);
         this.rotation.toRotationMatrix(rotationMatrix);
@@ -371,6 +380,8 @@ public class LightProbe extends Light implements Savable {
         probe.position = position.clone();
         probe.rotation = rotation.clone();
         probe.rotationMatrix = rotationMatrix.clone();
+        probe.boxOffset = boxOffset.clone();
+        probe.boxRotationLastSet = boxRotationLastSet.clone();
         probe.area = cloneArea(area);
         return probe;
     }
